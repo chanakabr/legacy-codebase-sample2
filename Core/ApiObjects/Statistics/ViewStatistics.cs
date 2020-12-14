@@ -45,7 +45,7 @@ namespace ApiObjects.Statistics
         public int Location { get; set; }
         
         [JsonProperty("count")]
-        public int? count { get; set; }
+        public int? Count { get; set; }
 
         public MediaView()
         {

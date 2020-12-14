@@ -6,6 +6,7 @@ using System;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace RedisManager
 {
@@ -106,7 +107,7 @@ namespace RedisManager
             }
         }
 
-        private static HashEntry[] ObjectToHashFields<T>(string key, T value)
+        private static HashEntry[] ObjectToHashFields<T>(string key, T value, bool getPropNameFromJsonPropAttribute)
         {            
             if (value == null)
             {
@@ -119,8 +120,18 @@ namespace RedisManager
             try
             {
                 foreach (PropertyInfo prop in value.GetType().GetProperties())
-                {                  
-                    hashFields.Add(new HashEntry(prop.Name, prop.GetValue(value)?.ToString()));
+                {
+                    var name = prop.Name;
+                    if (getPropNameFromJsonPropAttribute)
+                    {    
+                        var jsonProperty = prop.GetCustomAttribute<JsonPropertyAttribute>(true);
+                        if (jsonProperty != null)
+                        {
+                            name = jsonProperty.PropertyName;
+                        }
+                    }
+
+                    hashFields.Add(new HashEntry(name, prop.GetValue(value)?.ToString()));
                 }
             }
             catch (Exception ex)
@@ -154,28 +165,6 @@ namespace RedisManager
             }
 
             return hashFields?.ToArray();
-        }
-
-        private static T HashEntriesToObject<T>(HashEntry[] hashEntries)
-        {
-            try
-            {
-                PropertyInfo[] properties = typeof(T).GetProperties();
-                var obj = Activator.CreateInstance(typeof(T));
-                foreach (var property in properties)
-                {
-                    HashEntry entry = hashEntries.FirstOrDefault(g => g.Name.ToString().Equals(property.Name));
-                    if (entry.Equals(new HashEntry())) continue;
-                    property.SetValue(obj, Convert.ChangeType(entry.Value.ToString(), property.PropertyType));
-                }
-
-                return (T)obj;
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Failed HashEntriesToObject {hashEntries}", ex);
-                return default(T);
-            }
         }
 
         #endregion
@@ -234,32 +223,6 @@ namespace RedisManager
                     if (getResponse.IsSuccess && !string.IsNullOrEmpty(getResponse.Result))
                     {
                         result.SetResponse(true, JsonConvert.DeserializeObject<T>(getResponse.Result));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Failed fetching key {key}", ex);
-            }
-
-            return result;
-        }
-
-        public RedisClientResponse<T> GetObjectByHash<T>(string key)
-        {
-            var result = new RedisClientResponse<T>();
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_REDIS, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = $"key {key}" })
-                {
-                    var redisValue = database.HashGetAll(key);
-                    if (redisValue != null)
-                    {
-                        var objectT = HashEntriesToObject<T>(redisValue);
-                        if (objectT != null)
-                        {
-                            result.SetResponse(true, objectT);
-                        }
                     }
                 }
             }
@@ -382,12 +345,12 @@ namespace RedisManager
             return result;
         }
 
-        public bool UpsertHashSet<T>(string key, T value, double ttlInSeconds)
+        public bool UpsertHashSet<T>(string key, T value, double ttlInSeconds, bool getPropNameFromJsonPropAttribute = true)
         {
             bool result = false;
             try
             {
-                result = UpsertHashSet(key, ObjectToHashFields<T>(key, value), ttlInSeconds);
+                result = UpsertHashSet(key, ObjectToHashFields<T>(key, value, getPropNameFromJsonPropAttribute), ttlInSeconds);
             }
             catch (Exception ex)
             {
@@ -464,8 +427,7 @@ namespace RedisManager
 
             return result;
         }
-        
-        #endregion
 
+        #endregion
     }
 }
