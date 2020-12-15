@@ -310,15 +310,9 @@ namespace WebAPI.Managers
                 throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
 
             //BEO-7703 - No cache for operator+
-            var roles = ClientsManager.ApiClient().GetRoles(ks.GroupId, roleIds);
-            if (roles?.Count > 0)
+            if (IsPartner(ks.GroupId, roleIds))
             {
-                bool isPartner = roles.Any(x => x.Profile != null && (x.Profile == KalturaUserRoleProfile.PARTNER || x.Profile == KalturaUserRoleProfile.SYSTEM));
-
-                if (isPartner)
-                {
-                    RequestContextUtils.SetIsPartnerRequest();
-                }
+                RequestContextUtils.SetIsPartnerRequest();
             }
 
             string allowedUsersGroup = null;
@@ -352,6 +346,16 @@ namespace WebAPI.Managers
                     throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
                 }
             }
+        }
+
+        public static bool IsPartner(int groupId, List<long> roleIds)
+        {
+            var roles = ClientsManager.ApiClient().GetRoles(groupId, roleIds);
+            if (roles?.Count > 0)
+            {
+                return roles.Any(x => x.Profile != null && (x.Profile == KalturaUserRoleProfile.PARTNER || x.Profile == KalturaUserRoleProfile.SYSTEM));
+            }
+            return false;
         }
 
         /// <summary>
