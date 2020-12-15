@@ -107,6 +107,7 @@ namespace APILogic.Users
             catch (Exception ex)
             {
                 _Logger.ErrorFormat("Failed InsertSSOAdapter groupID={0}, ex:{1}", adapterDetails.GroupId, ex);
+                response.RespStatus.Set(eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return response;
 
@@ -144,6 +145,7 @@ namespace APILogic.Users
             catch (Exception ex)
             {
                 _Logger.ErrorFormat("Failed UpdateSSOAdapter groupID={0}, ex:{1}", response.RespStatus.Message, ex);
+                response.RespStatus.Set(eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return response;
 
@@ -179,6 +181,7 @@ namespace APILogic.Users
             catch (Exception ex)
             {
                 _Logger.ErrorFormat("Failed DeleteSSOAdapter groupID={0}, adapterId={1}, ex:{2}", groupId, ssoAdapterId, ex);
+                response.Set(eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
 
             LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetSSOAdapaterInvalidationKey(groupId));
