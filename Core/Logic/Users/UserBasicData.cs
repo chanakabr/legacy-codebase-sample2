@@ -116,9 +116,11 @@ namespace Core.Users
             bool isDefault = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "is_default"));
             DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "CREATE_DATE");
             DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "UPDATE_DATE");
-            DateTime lastLoginDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "LAST_LOGIN_DATE");
 
+            // will be populated by MS or from db data below
             int failedLoginCount = 0;
+            DateTime lastLoginDate = DateTime.UtcNow;
+
             if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.UserLoginHistory.Value)
             {
                 var authClient = AuthenticationClient.GetClientFromTCM();
@@ -126,11 +128,13 @@ namespace Core.Users
                 if (failHistory != null)
                 {
                     failedLoginCount = failHistory.ConsecutiveFailedLoginCount;
+                    lastLoginDate = DateUtils.UtcUnixTimestampSecondsToDateTime(failHistory.LastLoginSuccessDate);
                 }
             }
             else
             {
                 failedLoginCount = ODBCWrapper.Utils.GetIntSafeVal(drUserBasicData, "FAIL_COUNT");
+                lastLoginDate = ODBCWrapper.Utils.GetDateSafeVal(drUserBasicData, "LAST_LOGIN_DATE");
             }
 
 
