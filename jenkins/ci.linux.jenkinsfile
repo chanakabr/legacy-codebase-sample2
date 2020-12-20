@@ -26,6 +26,11 @@ pipeline {
                     currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}" }
             }
         }
+        stage('Test'){
+            steps{
+                runTests()
+            }
+        }
         stage ('ECR Login') {
             steps{
                 sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
@@ -40,13 +45,6 @@ pipeline {
 				buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
             }
         }
-        
-        stage('Test'){
-            steps{
-                runTestInDocker("RemoteTasks/IngestV2.Tests")  
-            }
-        }
-      
         stage("Trigger Release Candidate"){
             steps{
                 script {
@@ -74,14 +72,28 @@ pipeline {
     }
 }
 
-def runTestInDocker(testProjPath){
+def runTests(){
+    def testProjects = findDirectoriesWithTests()
+    runTestInDocker(testProjects)
+}
+
+def findDirectoriesWithTests() {
+    sh (script: "ls -d -- **/*.Tests", returnStdout: true).trim().split("\\r?\\n")
+}
+
+def runTestInDocker(testProjects){
     withEnv(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME']) {
         docker.image("mcr.microsoft.com/dotnet/core/sdk:3.1-alpine").inside(){
-            dir("${testProjPath}"){
-                sh('dotnet test --logger "junit;LogFilePath=./test-results.xml"')
+            dir("."){
+                testProjects.each { project -> 
+                    sh("dotnet test ${project} --logger \"junit;LogFilePath=./test-results.xml\" || true")
+                }
             }
         }
-        junit "${testProjPath}/test-results.xml"
+        junit "**/test-results.xml"
+        if (currentBuild.result == 'UNSTABLE') {
+            error "Tests are failed, check tab Tests/Test Result..."
+        }
     }
 }
 
