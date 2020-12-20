@@ -1194,14 +1194,14 @@ namespace Core.Users
             return isPasswordEqual;
         }
 
-        private static void MigratePassword(string password, int groupId, User initializedUser)
+        public static void MigratePassword(string password, int groupId, User initializedUser)
         {
             initializedUser.m_oBasicData.SetPassword(password, groupId); // generate salt and encrypt password
 
             initializedUser.SaveForUpdate(groupId, false, false, true);            
         }
 
-        private static void MigratePasswordHistory(int userId, BaseEncrypter encrypter)
+        public static void MigratePasswordHistory(int userId, BaseEncrypter encrypter)
         {
             var passwordsHistory = UsersDal.GetPasswordsHistory(userId);
             if (passwordsHistory?.Count > 0)
