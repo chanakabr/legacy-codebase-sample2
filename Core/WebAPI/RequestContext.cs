@@ -114,6 +114,10 @@ namespace WebAPI
             {
                 HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_FORMAT, HttpContext.Current.Request.GetQueryString()[RequestContextUtils.REQUEST_FORMAT]);
             }
+            if (!string.IsNullOrEmpty(HttpContext.Current.Request.GetQueryString()[RequestContextUtils.RESPONSE_FORMAT]))
+            {
+                HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_FORMAT, HttpContext.Current.Request.GetQueryString()[RequestContextUtils.RESPONSE_FORMAT]);
+            }
         }
 
         private static void SetCurrencyContext(IDictionary<string, object> requestParams, bool globalScope)

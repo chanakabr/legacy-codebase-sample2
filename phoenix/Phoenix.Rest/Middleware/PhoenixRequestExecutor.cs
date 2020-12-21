@@ -18,6 +18,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
+using WebAPI.Utils;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -80,8 +81,13 @@ namespace Phoenix.Rest.Middleware
                 {
                     await formatter.WriteToStreamAsync(wrappedResponse.GetType(), wrappedResponse, context.Response.Body, null, null);
                 }
-                else
+                else if (formatter is JsonPFormatter)
                 {
+                    var stringResponse = await formatter.GetStringResponse(wrappedResponse);
+                    await formatter.WriteToStreamAsync(wrappedResponse.GetType(), stringResponse, context.Response.Body, null, null);
+                }
+                else 
+                { 
                     var stringResponse = await formatter.GetStringResponse(wrappedResponse);
                     await context.Response.WriteAsync(stringResponse);
                 }
