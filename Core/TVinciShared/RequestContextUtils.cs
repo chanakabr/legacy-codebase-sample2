@@ -1,6 +1,5 @@
-﻿using System;
+﻿using KLogMonitor;
 using System.Collections.Generic;
-using System.Text;
 
 namespace TVinciShared
 {
@@ -38,17 +37,24 @@ namespace TVinciShared
         private const string REQUEST_TAGS = "request_tags";
         private const string REQUEST_TAGS_PARTNER_ROLE = "partner_role";
 
-        public static bool GetRequestContextValue<T>(string key, out T value)
+
+        public static string GetUserIp() => GetValueOrDefault<string>(USER_IP);
+
+        public static long? GetUserId()
         {
-            value = default(T);
-            bool res = false;
-            if (System.Web.HttpContext.Current != null && System.Web.HttpContext.Current.Items != null && System.Web.HttpContext.Current.Items.ContainsKey(key))
+            if (GetRequestContextValue(REQUEST_USER_ID, out object userIdObject))
             {
-                value = (T)System.Web.HttpContext.Current.Items[key];
-                res = true;
+                return long.TryParse(userIdObject.ToString(), out long userId) 
+                    ? (long?)userId 
+                    : null;
             }
-            return res;
+            
+            return null;
         }
+
+        public static string GetUdid() => GetValueOrDefault<object>(REQUEST_UDID)?.ToString();
+
+        public static string GetRequestId() => GetValueOrDefault<object>(Constants.REQUEST_ID_KEY)?.ToString();
 
         public static long GetOriginalUserId()
         {
@@ -80,6 +86,24 @@ namespace TVinciShared
             var isPartner = GetRequestContextValue(REQUEST_TAGS, out HashSet<string> tags) 
                 && tags != null && tags.Contains(REQUEST_TAGS_PARTNER_ROLE);
             return isPartner;
+        }
+
+        private static bool GetRequestContextValue<T>(string key, out T value)
+        {
+            value = default(T);
+            bool res = false;
+            if (System.Web.HttpContext.Current != null && System.Web.HttpContext.Current.Items != null && System.Web.HttpContext.Current.Items.ContainsKey(key))
+            {
+                value = (T)System.Web.HttpContext.Current.Items[key];
+                res = true;
+            }
+            return res;
+        }
+
+        private static T GetValueOrDefault<T>(string key, T defaultValue = default)
+        {
+            if (GetRequestContextValue<T>(key, out var value)) return value;
+            return defaultValue;
         }
     }
 }

@@ -382,10 +382,12 @@ namespace WebAPI.Managers.Models
 
         internal static KS GetFromRequest()
         {
-            if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_KS))
-                return (KS)HttpContext.Current.Items[RequestContextUtils.REQUEST_KS];
+            if (HttpContext.Current == null) return null;
 
-            return null;
+            var items = HttpContext.Current.Items;
+            return items.ContainsKey(RequestContextUtils.REQUEST_KS)
+                ? (KS)items[RequestContextUtils.REQUEST_KS]
+                : null;
         }
 
         public static KS CreateKSFromApiToken(ApiToken token, string tokenVal)

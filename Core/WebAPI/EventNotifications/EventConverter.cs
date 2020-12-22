@@ -1,7 +1,5 @@
 ﻿using ApiObjects;
-using KLogMonitor;
 using System;
-using System.Web;
 using TVinciShared;
 using WebAPI.Models.General;
 
@@ -50,11 +48,11 @@ namespace WebAPI.EventNotifications
             }
 
             string systemName = objectEvent.GetSystemName();
-            long? userId = null;
-            string userIp = null;
-            string udid = null;
+            long? userId;
+            string userIp;
+            string udid;
 
-            var contextData = WebAPI.Managers.Models.KS.GetContextData(true);
+            var contextData = Managers.Models.KS.GetContextData(true);
             if (contextData != null)
             {
                 userId = contextData.OriginalUserId > 0 ? contextData.OriginalUserId : contextData.UserId;
@@ -64,14 +62,9 @@ namespace WebAPI.EventNotifications
             else
             {
                 //try get from context
-                userIp = HttpContext.Current?.Items[RequestContextUtils.USER_IP]?.ToString();
-
-                if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_USER_ID))
-                {
-                    userId = long.Parse(HttpContext.Current.Items[RequestContextUtils.REQUEST_USER_ID].ToString());
-                }
-
-                udid = HttpContext.Current?.Items[RequestContextUtils.REQUEST_UDID]?.ToString();
+                userIp = RequestContextUtils.GetUserIp();
+                userId = RequestContextUtils.GetUserId();
+                udid = RequestContextUtils.GetUdid();
             }
 
             KalturaNotification eventWrapper = new KalturaNotification()
@@ -82,7 +75,7 @@ namespace WebAPI.EventNotifications
                 systemName = systemName,
                 partnerId = objectEvent.PartnerId,
                 UserIp = userIp,
-                SequenceId = HttpContext.Current?.Items[Constants.REQUEST_ID_KEY]?.ToString(),
+                SequenceId = RequestContextUtils.GetRequestId(),
                 UserId = userId,
                 Udid = udid
             };
