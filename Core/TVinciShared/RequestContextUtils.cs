@@ -15,6 +15,7 @@ namespace TVinciShared
         public const string REQUEST_CURRENCY = "currency";
         public const string REQUEST_FORMAT = "format";
         public const string USER_IP = "USER_IP";
+        public const string RESPONSE_FORMAT = "responseFormat";
 
         // same key as in REST solution KLogMonitor.Constants
         // in-case changing this  - you must change there  as well
