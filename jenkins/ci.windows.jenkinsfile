@@ -185,7 +185,8 @@ pipeline {
         stage("Delete output folder after publish"){
             steps{
                 script {
-                  deleteDir("published/kaltura_ott_api")
+                  dir("published")
+                  deleteDir("kaltura_ott_api")
                 }
             }
         }
