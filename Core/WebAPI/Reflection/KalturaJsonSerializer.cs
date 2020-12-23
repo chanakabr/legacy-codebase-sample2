@@ -18357,6 +18357,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("imageTypeId")))
+            {
+                ret.Add("imageTypeId", "\"imageTypeId\": " + ImageTypeId);
+            }
             if(IsDefault.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefault")))
             {
                 ret.Add("isDefault", "\"isDefault\": " + IsDefault.ToString().ToLower());
@@ -18402,6 +18406,10 @@ namespace WebAPI.Models.Catalog
             if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("imageTypeId")))
+            {
+                ret.Add("imageTypeId", "<imageTypeId>" + ImageTypeId + "</imageTypeId>");
             }
             if(IsDefault.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefault")))
             {

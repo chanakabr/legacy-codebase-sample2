@@ -68,5 +68,13 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "isDefault")]
         [OldStandardProperty("is_default")]
         public bool? IsDefault { get; set; }
+
+        /// <summary>
+        /// Image type identifier
+        /// </summary>
+        [DataMember(Name = "imageTypeId")]
+        [JsonProperty(PropertyName = "imageTypeId")]
+        [XmlElement(ElementName = "imageTypeId")]        
+        public long ImageTypeId { get; set; }
     }
 }

@@ -50,7 +50,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.PicWidth))
                  .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.Ratio))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version));
+                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
+                 .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId));
 
             cfg.CreateMap<Image, KalturaMediaImage>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ContentId))
@@ -59,7 +60,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
                 .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.RatioName))
                 .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.Height.ToNullable()))
-                .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.Width.ToNullable()));
+                .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.Width.ToNullable()))
+                .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId));
 
             #endregion
 

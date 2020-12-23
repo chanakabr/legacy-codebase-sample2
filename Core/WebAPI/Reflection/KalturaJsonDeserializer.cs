@@ -15860,6 +15860,10 @@ namespace WebAPI.Models.Catalog
                 {
                     IsDefault = (Boolean) Convert.ChangeType(parameters["is_default"], typeof(Boolean));
                 }
+                if (parameters.ContainsKey("imageTypeId") && parameters["imageTypeId"] != null)
+                {
+                    ImageTypeId = (Int64) Convert.ChangeType(parameters["imageTypeId"], typeof(Int64));
+                }
             }
         }
     }
