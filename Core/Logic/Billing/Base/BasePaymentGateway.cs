@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.ConditionalAccess;
+using ApiObjects.Pricing;
 using ApiObjects.Response;
 using KLogMonitor;
 using QueueWrapper;
@@ -1731,7 +1732,7 @@ namespace Core.Billing
             return ossAdapterResponse;
         }
 
-        public virtual TransactResult ProcessRenewal(RenewDetails renewDetails, string productCode)
+        public virtual TransactResult ProcessRenewal(RenewDetails renewDetails, string productCode, List<KeyValuePair<VerificationPaymentGateway, string>> productCodes)
         {
             TransactResult transactionResponse = new TransactResult();
             PaymentGateway paymentGateway = null;
@@ -1785,6 +1786,18 @@ namespace Core.Billing
                 }
 
                 bool isVerification = IsVerificationPaymentGateway(paymentGateway);
+
+                if (isVerification) //BEO-9071
+                {
+                    var kvp = productCodes.FirstOrDefault(x => x.Key.ToString().ToLower() == paymentGateway.Name.ToLower());
+
+                    if (!kvp.Equals(new KeyValuePair<VerificationPaymentGateway, string>()))
+                    {
+                        productCode = kvp.Value;
+                    }
+
+                    log.Debug($"BEO-9071 Verification adapter {paymentGateway.Name} productCode {productCode}");
+                }
 
                 if (!isVerification && !isOssValid)
                 {
@@ -1871,7 +1884,7 @@ namespace Core.Billing
                 renewDetails.Price,                                                                  // {1}
                 renewDetails.Currency ?? string.Empty,                             // {2}
                 renewDetails.ProductId,                                                              // {3}
-                productCode != null ? productCode : string.Empty,                       // {4}
+                productCode ?? string.Empty,                       // {4}
                 renewDetails.PaymentNumber,                                                          // {5}
                 renewDetails.NumOfPayments,                                                       // {6}
                 renewDetails.UserId ?? string.Empty,                             // {7}
