@@ -29,7 +29,7 @@ pipeline {
         stage("Run SonarQube Scan"){
             when {
                 expression {
-                    BRANCH_NAME == "sonar_ci"
+                    BRANCH_NAME == "sln_for_sonarqube"
                 }
             }
             steps{
