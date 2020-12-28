@@ -182,6 +182,13 @@ pipeline {
                 }
             }
         }
+        stage("Delete output folder after publish"){
+            steps{
+                dir("published/kaltura_ott_api"){
+                    deleteDir()
+                }
+            }
+        }
     }
     post {
         always {
