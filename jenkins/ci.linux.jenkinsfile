@@ -26,25 +26,6 @@ pipeline {
                     currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}" }
             }
         }
-        stage("Run SonarQube Scan"){
-            when {
-                expression {
-                    BRANCH_NAME == "sln_for_sonarqube"
-                }
-            }
-            steps{
-                script {
-                        sh "docker run --rm -v \$(pwd):/source --workdir=/source/sonarqube/netcore nosinovacao/dotnet-sonar:latest bash -c \"dotnet /sonar-scanner/SonarScanner.MSBuild.dll begin \
-                            -k:ott-be-net-core -name:ott-be-net-core -version:${BRANCH_NAME} \
-                            -d:sonar.host.url=https://sonar.rnd.ott.kaltura.com \
-                            -d:sonar.login=admin  -d:sonar.password=admin \
-                            -d:sonar.cs.opencover.reportsPaths='tests/**/coverage.opencover.xml' && \
-                            dotnet restore --configfile ../../NuGet.Config && \
-                            dotnet build -c Release ott-be-net-core.sln && \
-                            dotnet /sonar-scanner/SonarScanner.MSBuild.dll end -d:sonar.login=admin -d:sonar.password=admin\""  
-                }   
-            }
-        }
         stage('Test'){
             steps{
                 runTests()
