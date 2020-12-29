@@ -29038,6 +29038,10 @@ namespace WebAPI.Models.Partner
                     }
                     ConcurrencyThresholdInSeconds = (Int64) Convert.ChangeType(parameters["concurrencyThresholdInSeconds"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("revokeOnDeviceDelete") && parameters["revokeOnDeviceDelete"] != null)
+                {
+                    RevokeOnDeviceDelete = (Boolean) Convert.ChangeType(parameters["revokeOnDeviceDelete"], typeof(Boolean));
+                }
             }
         }
     }

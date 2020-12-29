@@ -36149,6 +36149,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("evictionPolicy", "\"evictionPolicy\": " + "\"" + Enum.GetName(typeof(KalturaEvictionPolicyType), EvictionPolicy) + "\"");
             }
+            if(RevokeOnDeviceDelete.HasValue && (retrievedProperties == null || retrievedProperties.Contains("revokeOnDeviceDelete")))
+            {
+                ret.Add("revokeOnDeviceDelete", "\"revokeOnDeviceDelete\": " + RevokeOnDeviceDelete.ToString().ToLower());
+            }
             return ret;
         }
         
@@ -36174,6 +36178,10 @@ namespace WebAPI.Models.Partner
             if((retrievedProperties == null || retrievedProperties.Contains("evictionPolicy")))
             {
                 ret.Add("evictionPolicy", "<evictionPolicy>" + "" + Enum.GetName(typeof(KalturaEvictionPolicyType), EvictionPolicy) + "" + "</evictionPolicy>");
+            }
+            if(RevokeOnDeviceDelete.HasValue && (retrievedProperties == null || retrievedProperties.Contains("revokeOnDeviceDelete")))
+            {
+                ret.Add("revokeOnDeviceDelete", "<revokeOnDeviceDelete>" + RevokeOnDeviceDelete.ToString().ToLower() + "</revokeOnDeviceDelete>");
             }
             return ret;
         }

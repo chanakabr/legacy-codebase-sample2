@@ -888,6 +888,9 @@ namespace Core.Users
                 bRes = DomainResponseStatus.OK;
             }
 
+            //BEO-9305 
+            ConcurrencyManager.HandleRevokePlaybackSession(m_nGroupID, udid);
+
             return bRes;
         }
 

@@ -49,9 +49,9 @@ namespace Core.ConditionalAccess
 
             try
             {
-                Domain domain = null;
                 long domainId = 0;
-                ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(groupId, userId, ref domainId, out domain);
+                var validationStatus = Utils.ValidateUserAndDomain(groupId, userId, ref domainId);
+
                 if (assetType == eAssetTypes.MEDIA && validationStatus.Code == (int)eResponseStatus.UserSuspended)
                 {
                     // check permissions                     
@@ -70,7 +70,6 @@ namespace Core.ConditionalAccess
                     {
                         blockEntitlement = BlockEntitlementType.BLOCK_SUBSCRIPTION;
                     }
-                    validationStatus = Utils.ValidateDomain(groupId, (int)domainId, out domain);
                 }
 
                 if (assetType == eAssetTypes.NPVR || assetType == eAssetTypes.EPG)
@@ -123,6 +122,7 @@ namespace Core.ConditionalAccess
                 bool isExternalRecordingIgnoreMode = assetType == eAssetTypes.NPVR && TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EXTERNAL_RECORDINGS);
                 if (assetType != eAssetTypes.MEDIA)
                 {
+                    Utils.ValidateDomain(groupId, (int)domainId, out Domain domain);
                     response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out recording, out program);
                 }
                 else
@@ -251,7 +251,7 @@ namespace Core.ConditionalAccess
 
                                             if (!string.IsNullOrEmpty(subscriptionId))
                                             {
-                                                var status = api.HandleBlockingSegment<SegmentBlockPlaybackSubscriptionAction>(groupId, userId, udid, ip, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, subscriptionId);
+                                                var status = api.HandleBlockingSegment<SegmentBlockPlaybackSubscriptionAction>(groupId, userId, udid, ip, (int)domainId, ObjectVirtualAssetInfoType.Subscription, subscriptionId);
                                                 if (!status.IsOkStatusCode())
                                                 {
                                                     response.Status = status;

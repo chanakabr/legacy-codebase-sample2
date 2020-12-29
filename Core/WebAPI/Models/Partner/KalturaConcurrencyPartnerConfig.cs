@@ -39,6 +39,14 @@ namespace WebAPI.Models.Partner
         [SchemeProperty(MinInteger = 30, MaxInteger = 1200)]
         public long? ConcurrencyThresholdInSeconds { get; set; }
 
+        /// <summary>
+        /// Revoke on device delete
+        /// </summary>
+        [DataMember(Name = "revokeOnDeviceDelete")]
+        [JsonProperty("revokeOnDeviceDelete")]
+        [XmlElement(ElementName = "revokeOnDeviceDelete")]
+        public bool? RevokeOnDeviceDelete { get; set; }
+
         internal HashSet<int> GetDeviceFamilyIds()
         {
             if (string.IsNullOrEmpty(DeviceFamilyIds))

@@ -1715,6 +1715,8 @@ namespace WebAPI.Reflection
                             return "deviceFamilyIds";
                         case "EvictionPolicy":
                             return "evictionPolicy";
+                        case "RevokeOnDeviceDelete":
+                            return "revokeOnDeviceDelete";
                     }
                     break;
                     

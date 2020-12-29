@@ -490,5 +490,24 @@ namespace Core.Users
 
             return response;
         }
+
+        internal static void HandleRevokePlaybackSession(int groupId, string udid)
+        {
+            var deviceConcurrencyPriority = Api.api.GetDeviceConcurrencyPriority(groupId);
+            if (deviceConcurrencyPriority != null && deviceConcurrencyPriority.RevokeOnDeviceDelete.HasValue && deviceConcurrencyPriority.RevokeOnDeviceDelete.Value)
+            {
+                var devicePlayData = CatalogDAL.GetDevicePlayData(udid);
+                if (devicePlayData != null)
+                {
+                    devicePlayData.Revoke = true;
+                    uint expirationTTL = ConcurrencyManager.GetDevicePlayDataExpirationTTL(groupId, ApiObjects.Catalog.eExpirationTTL.Long);
+
+                    // save updated devicePlayData
+                    CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, expirationTTL);
+
+                    log.Debug($"Revoke device play data - udid:{udid}");
+                }
+            }
+        }
     }
 }
