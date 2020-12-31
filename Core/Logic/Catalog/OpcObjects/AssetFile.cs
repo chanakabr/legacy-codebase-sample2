@@ -65,6 +65,7 @@ namespace Core.Catalog
         [JsonProperty("ExternalStoreId")]
         public string ExternalStoreId { get; set; }
 
+        [ExcelColumn(ExcelColumnType.File, CDN)]
         [JsonProperty("CdnAdapaterProfileId")]
         public long? CdnAdapaterProfileId { get; set; }
 
@@ -169,9 +170,10 @@ namespace Core.Catalog
                 }
             }
 
+            CDNAdapter adapter = null;
             if (CdnAdapaterProfileId.HasValue)
             {
-                CDNAdapter adapter = DAL.ApiDAL.GetCDNAdapter((int)CdnAdapaterProfileId.Value, false, groupId);
+                adapter = DAL.ApiDAL.GetCDNAdapter((int)CdnAdapaterProfileId.Value, false, groupId);
                 if (adapter != null)
                 {
                     var cdn = ExcelColumn.GetFullColumnName(this.type, CDN);
@@ -181,6 +183,11 @@ namespace Core.Catalog
 
             if (!string.IsNullOrEmpty(this.Url))
             {
+                if(adapter != null && !string.IsNullOrEmpty(adapter.BaseUrl))
+                {
+                    this.Url = this.Url.Replace(adapter.BaseUrl, "");
+                }
+
                 var cdnLocation = ExcelColumn.GetFullColumnName(this.type, null, CDN_LOCATION);
                 excelValues.TryAdd(cdnLocation, this.Url);
             }
@@ -229,7 +236,7 @@ namespace Core.Catalog
 
             if (AlternativeCdnAdapaterProfileId.HasValue)
             {
-                CDNAdapter adapter = DAL.ApiDAL.GetCDNAdapter((int)AlternativeCdnAdapaterProfileId.Value, false, groupId);
+                adapter = DAL.ApiDAL.GetCDNAdapter((int)AlternativeCdnAdapaterProfileId.Value, false, groupId);
                 if (adapter != null)
                 {
                     var cdn = ExcelColumn.GetFullColumnName(this.type, ALTERNATIVE_CDN);
@@ -239,6 +246,11 @@ namespace Core.Catalog
 
             if (!string.IsNullOrEmpty(this.AltStreamingCode))
             {
+                if (adapter != null && !string.IsNullOrEmpty(adapter.BaseUrl))
+                {
+                    this.AltStreamingCode = this.AltStreamingCode.Replace(adapter.BaseUrl, "");
+                }
+
                 var cdnLocation = ExcelColumn.GetFullColumnName(this.type, null, ALTERNATIVE_CDN_LOCATION);
                 excelValues.TryAdd(cdnLocation, this.AltStreamingCode);
             }
@@ -265,7 +277,7 @@ namespace Core.Catalog
         }
 
         public void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructureManager structureObject)
-        {
+        {           
             foreach (var columnValue in columnNamesToValues)
             {
                 try
@@ -277,6 +289,35 @@ namespace Core.Catalog
                         if (realType == DateUtils.DateTimeType || realType == DateUtils.NullableDateTimeType)
                         {
                             convertedValue = DateUtils.ExtractDate(columnValue.Value.ToString(), DateUtils.MAIN_FORMAT);
+                        }
+                        else if(columns[columnValue.Key].InnerSystemName == CDN)
+                        {
+                            var cdn = ExcelColumn.GetFullColumnName(this.type, CDN);
+                            if (columnNamesToValues.ContainsKey(cdn))
+                            {
+                                CDNAdapter cdnAdapter = DAL.ApiDAL.GetCDNAdapterByAlias(groupId, columnNamesToValues[cdn].ToString());
+                                if (cdnAdapter != null)
+                                {
+                                    CdnAdapaterProfileId = cdnAdapter.ID;
+                                }
+                            }
+                            continue;
+                        }
+
+                        else if (columns[columnValue.Key].InnerSystemName == ALTERNATIVE_CDN)
+                        {
+                            var altCdn = ExcelColumn.GetFullColumnName(this.type, ALTERNATIVE_CDN);
+                            if (columnNamesToValues.ContainsKey(altCdn))
+                            {
+                                CDNAdapter cdnAdapter = DAL.ApiDAL.GetCDNAdapterByAlias(groupId, columnNamesToValues[altCdn].ToString());
+                                if (cdnAdapter != null)
+                                {
+                                    AlternativeCdnAdapaterProfileId = cdnAdapter.ID;
+                                }
+
+                                columnNamesToValues.Remove(altCdn);
+                            }
+                            continue;
                         }
                         else
                         {
@@ -312,27 +353,7 @@ namespace Core.Catalog
                         this.TypeId = (int)mediaFileType.Id;
                     }
                 }
-            }
-
-            var cdn = ExcelColumn.GetFullColumnName(this.type, CDN);
-            if (columnNamesToValues.ContainsKey(cdn))
-            {
-                CDNAdapter cdnAdapter = DAL.ApiDAL.GetCDNAdapterByAlias(groupId, columnNamesToValues[cdn].ToString());
-                if (cdnAdapter != null)
-                {
-                    CdnAdapaterProfileId = cdnAdapter.ID;
-                }
-            }
-
-            var altCdn = ExcelColumn.GetFullColumnName(this.type, ALTERNATIVE_CDN);
-            if (columnNamesToValues.ContainsKey(altCdn))
-            {
-                CDNAdapter cdnAdapter = DAL.ApiDAL.GetCDNAdapterByAlias(groupId, columnNamesToValues[altCdn].ToString());
-                if (cdnAdapter != null)
-                {
-                    AlternativeCdnAdapaterProfileId = cdnAdapter.ID;
-                }
-            }
+            }          
 
             this.IsActive = true;
         }
