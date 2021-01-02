@@ -182,6 +182,21 @@ pipeline {
                 }
             }
         }
+        stage("Trigger Sonar Scan"){
+            when {
+                expression {
+                    BRANCH_NAME == "master"
+                }
+            }
+            steps{
+                build (
+                    job: "OTT-BE-Sonar-Scan", 
+                    wait: false,
+                    parameters: [
+                        [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
+                        [$class: 'StringParameterValue', name: 'PROJECT', value: "ott-backend-netframework"],
+                    ]
+                )
         stage("Delete output folder after publish"){
             steps{
                 dir("published/kaltura_ott_api"){
