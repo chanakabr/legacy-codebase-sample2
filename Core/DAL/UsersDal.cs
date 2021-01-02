@@ -2431,6 +2431,10 @@ namespace DAL
                     });
                     return ssoAdaptersResponse;
                 }
+                else
+                {
+                    return null;
+                }
             }
 
             var sp = new StoredProcedure("Get_GroupSSOAdapters");

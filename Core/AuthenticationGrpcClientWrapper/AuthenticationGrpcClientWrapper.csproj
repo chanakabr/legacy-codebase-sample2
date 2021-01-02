@@ -12,10 +12,9 @@
   <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
     <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
   </PropertyGroup>
-
-  
+    
   <ItemGroup>
-    <PackageReference Include="ott.client.authentication.grpc" Version="0.2.299" />
+    <PackageReference Include="ott.client.authentication.grpc" Version="0.2.327" />
   </ItemGroup>
 
   <ItemGroup>

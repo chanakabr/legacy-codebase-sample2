@@ -1,6 +1,6 @@
-﻿
-using KLogMonitor;
+﻿using KLogMonitor;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
@@ -36,6 +36,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                     throw ex;
                 }
 
+                // TODO EqualityComparer<T>.Default.Equals(ActualValue, default(T)) ? DefaultValue : ActualValue;
                 return ActualValue == null ? DefaultValue : ActualValue;
             }
         }

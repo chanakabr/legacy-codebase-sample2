@@ -152,7 +152,9 @@ namespace Core.ConditionalAccess
             {
                 renewDetails.BillingGuid = billingGuid;
                 renewDetails.GracePeriodMinutes = subscription.m_GracePeriodMinutes;
-                transactionResponse = Billing.Module.ProcessRenewal(renewDetails, subscription.m_ProductCode);
+
+                transactionResponse = Billing.Module.ProcessRenewal(renewDetails, subscription.m_ProductCode, subscription.ExternalProductCodes);
+                
                 if (transactionResponse == null || transactionResponse.Status == null)
                 {
                     // PG returned error

@@ -31,6 +31,13 @@ namespace Core.ConditionalAccess
                 res.mainUrl = licensedLinkResponse.mainUrl;
                 res.drm = new DrmPlaybackPluginData() { scheme = DrmSchemeName.CUSTOM_DRM, data = drmData };
             }
+            else if (licensedLinkResponse?.Status?.Code == (int)eResponseStatus.ConcurrencyLimitation 
+                || licensedLinkResponse?.Status?.Code == (int)eResponseStatus.MediaConcurrencyLimitation)
+            {
+                res.status = NPVRStatus.OK.ToString();
+                res.mainUrl = string.Empty;
+                res.drm = null;
+            }
             else if (licensedLinkResponse.status == "ServiceNotAllowed")
             {
                 res.status = NPVRStatus.ServiceNotAllowed.ToString();

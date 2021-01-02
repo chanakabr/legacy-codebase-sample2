@@ -14376,7 +14376,7 @@ namespace Core.ConditionalAccess
             foreach (var recording in domainRecording)
             {
                 if (recording.Value.isExternalRecording && IsContained(
-                        (recording.Value as ExternalRecording).MetaData.ToDictionary(x => x.Key.ToLower(),
+                        (recording.Value as ExternalRecording)?.MetaData?.ToDictionary(x => x.Key.ToLower(),
                             x => x.Value.ToLowerOrNull()), metaDataFilter))
                 {
                     ret.Add(recording.Key, recording.Value);
@@ -14388,6 +14388,11 @@ namespace Core.ConditionalAccess
 
         private bool IsContained(Dictionary<string, string> metaData, Dictionary<string, string> filters)
         {
+            if (metaData == null)
+            {
+                return false;
+            }
+
             foreach (var filter in filters)
             {
                 string value;

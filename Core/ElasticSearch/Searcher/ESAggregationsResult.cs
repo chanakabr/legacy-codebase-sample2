@@ -149,7 +149,7 @@ namespace ElasticSearch.Searcher
             return result;
         }
 
-        public static ESAggregationsResult FullParse(string json, List<ESBaseAggsItem> searchAggregations)
+        public static ESAggregationsResult FullParse(string json, List<ESBaseAggsItem> searchAggregations, List<string> extraReturnFields = null)
         {
             ESAggregationsResult result = new ESAggregationsResult();
 
@@ -181,7 +181,7 @@ namespace ElasticSearch.Searcher
 
                         try
                         {
-                            var currentAggregationResult = SingleAggregationParse(token, currentAggregation);
+                            var currentAggregationResult = SingleAggregationParse(token, currentAggregation, extraReturnFields);
                             result.Aggregations.Add(currentAggregation.Name, currentAggregationResult);
                         }
                         catch (Exception ex)
@@ -199,7 +199,7 @@ namespace ElasticSearch.Searcher
             return result;
         }
 
-        public static ESAggregationResult SingleAggregationParse(JToken currentToken, ESBaseAggsItem aggregationItem)
+        public static ESAggregationResult SingleAggregationParse(JToken currentToken, ESBaseAggsItem aggregationItem, List<string> extraReturnFields)
         {
             ESAggregationResult result = new ESAggregationResult();
 
@@ -313,7 +313,7 @@ namespace ElasticSearch.Searcher
 
                     if (subToken != null)
                     {
-                        ESAggregationResult subResult = SingleAggregationParse(subToken, subAggregation);
+                        ESAggregationResult subResult = SingleAggregationParse(subToken, subAggregation, extraReturnFields);
 
                         subs.Add(subAggregation.Name, subResult);
                     }
@@ -356,7 +356,7 @@ namespace ElasticSearch.Searcher
 
                         if (subToken != null)
                         {
-                            ESAggregationResult subResult = SingleAggregationParse(subToken, subAggregation);
+                            ESAggregationResult subResult = SingleAggregationParse(subToken, subAggregation, extraReturnFields);
 
                             bucketAggregations.Add(subAggregation.Name, subResult);
                         }
@@ -402,7 +402,7 @@ namespace ElasticSearch.Searcher
 
                         foreach (var item in hitsToken.SelectToken("hits"))
                         {
-                            var newDocument = ElasticSearch.Common.Utils.DecodeSingleAssetJsonObject(item, "_source");
+                            var newDocument = ElasticSearch.Common.Utils.DecodeSingleAssetJsonObject(item, "_source", extraReturnFields);
 
                             documents.Add(newDocument);
                         }

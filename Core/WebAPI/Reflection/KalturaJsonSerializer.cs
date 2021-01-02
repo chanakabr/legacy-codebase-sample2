@@ -18357,6 +18357,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("imageTypeId")))
+            {
+                ret.Add("imageTypeId", "\"imageTypeId\": " + ImageTypeId);
+            }
             if(IsDefault.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefault")))
             {
                 ret.Add("isDefault", "\"isDefault\": " + IsDefault.ToString().ToLower());
@@ -18402,6 +18406,10 @@ namespace WebAPI.Models.Catalog
             if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("imageTypeId")))
+            {
+                ret.Add("imageTypeId", "<imageTypeId>" + ImageTypeId + "</imageTypeId>");
             }
             if(IsDefault.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefault")))
             {
@@ -36141,6 +36149,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("evictionPolicy", "\"evictionPolicy\": " + "\"" + Enum.GetName(typeof(KalturaEvictionPolicyType), EvictionPolicy) + "\"");
             }
+            if(RevokeOnDeviceDelete.HasValue && (retrievedProperties == null || retrievedProperties.Contains("revokeOnDeviceDelete")))
+            {
+                ret.Add("revokeOnDeviceDelete", "\"revokeOnDeviceDelete\": " + RevokeOnDeviceDelete.ToString().ToLower());
+            }
             return ret;
         }
         
@@ -36166,6 +36178,10 @@ namespace WebAPI.Models.Partner
             if((retrievedProperties == null || retrievedProperties.Contains("evictionPolicy")))
             {
                 ret.Add("evictionPolicy", "<evictionPolicy>" + "" + Enum.GetName(typeof(KalturaEvictionPolicyType), EvictionPolicy) + "" + "</evictionPolicy>");
+            }
+            if(RevokeOnDeviceDelete.HasValue && (retrievedProperties == null || retrievedProperties.Contains("revokeOnDeviceDelete")))
+            {
+                ret.Add("revokeOnDeviceDelete", "<revokeOnDeviceDelete>" + RevokeOnDeviceDelete.ToString().ToLower() + "</revokeOnDeviceDelete>");
             }
             return ret;
         }

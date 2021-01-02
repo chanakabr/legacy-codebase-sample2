@@ -75,9 +75,14 @@ namespace CachingManager
             cache.Set(key, value, DateTime.UtcNow.AddSeconds(expirationInSeconds));
         }
 
-        public static void RemoveFromCache(string sKey)
+        public static void RemoveFromCache(string key)
         {
-            cache.RemoveKeysStartingWith(sKey);
+            if (!string.IsNullOrEmpty(key))
+            {
+                key = FormatKey(key);
+            }
+
+            cache.RemoveKeysStartingWith(key);
         }
 
         public static List<string> GetCachedKeys()

@@ -1715,6 +1715,8 @@ namespace WebAPI.Reflection
                             return "deviceFamilyIds";
                         case "EvictionPolicy":
                             return "evictionPolicy";
+                        case "RevokeOnDeviceDelete":
+                            return "revokeOnDeviceDelete";
                     }
                     break;
                     
@@ -4185,6 +4187,8 @@ namespace WebAPI.Reflection
                             return "height";
                         case "Id":
                             return "id";
+                        case "ImageTypeId":
+                            return "imageTypeId";
                         case "IsDefault":
                             return "isDefault";
                         case "Ratio":

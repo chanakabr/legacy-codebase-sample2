@@ -21,6 +21,9 @@ namespace ApiObjects.SearchObjects
 
         #region Data Members
 
+        /// <summary>
+        /// starts from 0
+        /// </summary>
         public int pageIndex
         {
             get;

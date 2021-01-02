@@ -15860,6 +15860,10 @@ namespace WebAPI.Models.Catalog
                 {
                     IsDefault = (Boolean) Convert.ChangeType(parameters["is_default"], typeof(Boolean));
                 }
+                if (parameters.ContainsKey("imageTypeId") && parameters["imageTypeId"] != null)
+                {
+                    ImageTypeId = (Int64) Convert.ChangeType(parameters["imageTypeId"], typeof(Int64));
+                }
             }
         }
     }
@@ -29033,6 +29037,10 @@ namespace WebAPI.Models.Partner
                         ConcurrencyThresholdInSecondsSchemaProperty.Validate("concurrencyThresholdInSeconds", parameters["concurrencyThresholdInSeconds"]);
                     }
                     ConcurrencyThresholdInSeconds = (Int64) Convert.ChangeType(parameters["concurrencyThresholdInSeconds"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("revokeOnDeviceDelete") && parameters["revokeOnDeviceDelete"] != null)
+                {
+                    RevokeOnDeviceDelete = (Boolean) Convert.ChangeType(parameters["revokeOnDeviceDelete"], typeof(Boolean));
                 }
             }
         }

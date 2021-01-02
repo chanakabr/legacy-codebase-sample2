@@ -66,6 +66,9 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("ProductId")]
         public int? ProductId { get; set; }
 
+        [JsonProperty("Revoke")]
+        public bool? Revoke { get; set; }
+
         public DevicePlayData()
         {
             // default values to members from joker version

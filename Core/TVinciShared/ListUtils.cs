@@ -86,5 +86,9 @@ namespace TVinciShared
 
             return false;
         }
+
+        #if NET48
+        public static TValue GetValueOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key) => dict.TryGetValue(key, out var value) ? value : default(TValue);
+        #endif
     }
 }

@@ -711,7 +711,7 @@ namespace Core.Catalog.Request
                 MediaID = mediaId,
                 MediaType = mediaTypeId.ToString(),
                 Date = roundedDate,
-                count = 1
+                Count = 1
             };
 
             var unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(roundedDate).ToString();
@@ -719,7 +719,6 @@ namespace Core.Catalog.Request
             string field = "count";
             
             var result = RedisManager.RedisClientManager.Instance.IncrementHashSetField<MediaView>(key, field, firstPlayData, 0, 1);
-
             return result;
         }
     }

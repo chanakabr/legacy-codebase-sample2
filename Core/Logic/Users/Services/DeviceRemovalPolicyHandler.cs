@@ -173,7 +173,7 @@ namespace ApiLogic.Users.Services
         {
             if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.DeviceLoginHistory.Value)
             {
-                _logger.Debug($"Not supported action [Delete] of udid: {UDID}, group: {groupId}");
+                AuthenticationClient.GetClientFromTCM().DeleteDomainDeviceUsageDate(groupId, UDID);
             }
             else
             {

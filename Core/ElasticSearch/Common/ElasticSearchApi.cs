@@ -15,7 +15,7 @@ using TVinciShared;
 
 namespace ElasticSearch.Common
 {
-    public class ElasticSearchApi
+    public class ElasticSearchApi : IElasticSearchApi
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
