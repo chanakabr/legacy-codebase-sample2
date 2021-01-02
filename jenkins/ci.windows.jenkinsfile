@@ -197,6 +197,8 @@ pipeline {
                         [$class: 'StringParameterValue', name: 'PROJECT', value: "ott-backend-netframework"],
                     ]
                 )
+            }
+        }
         stage("Delete output folder after publish"){
             steps{
                 dir("published/kaltura_ott_api"){
