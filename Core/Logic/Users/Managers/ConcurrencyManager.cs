@@ -348,7 +348,7 @@ namespace Core.Users
         {
             DeviceConcurrencyPriority deviceConcurrencyPriority = Api.api.GetDeviceConcurrencyPriority(groupId);
 
-            if (deviceConcurrencyPriority != null)
+            if (deviceConcurrencyPriority?.DeviceFamilyIds?.Count > 0)
             {
                 int currDevicePriorityIndex = deviceConcurrencyPriority.DeviceFamilyIds.IndexOf(currDevicePlayData.DeviceFamilyId);
 

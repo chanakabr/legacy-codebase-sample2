@@ -11,7 +11,7 @@ namespace ApiObjects.Rules
         public List<int> DeviceFamilyIds { get; set; }
 
         [JsonProperty("PriorityOrder")]
-        public DowngradePolicy PriorityOrder { get; set; }
+        public DowngradePolicy? PriorityOrder { get; set; }
 
         [JsonProperty("ConcurrencyThresholdInSeconds")]
         public long? ConcurrencyThresholdInSeconds { get; set; }
@@ -41,7 +41,30 @@ namespace ApiObjects.Rules
                 this.RevokeOnDeviceDelete = oldConfig.RevokeOnDeviceDelete;
             }
 
+            if (this.PriorityOrder.HasValue)
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                this.PriorityOrder = oldConfig.PriorityOrder;
+            }
+
             return needToUpdate;
+        }
+
+        public string GetDeviceFamilyIds()
+        {
+            string values = null;
+
+            if (DeviceFamilyIds == null || DeviceFamilyIds.Count == 0)
+            {
+                return values;
+            }
+
+            values = string.Join(",", DeviceFamilyIds);
+
+            return values;
         }
     }
 }

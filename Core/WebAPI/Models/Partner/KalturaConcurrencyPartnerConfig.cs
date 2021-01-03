@@ -28,7 +28,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "evictionPolicy")]
         [JsonProperty("evictionPolicy")]
         [XmlElement(ElementName = "evictionPolicy")]
-        public KalturaEvictionPolicyType EvictionPolicy { get; set; }
+        public KalturaEvictionPolicyType? EvictionPolicy { get; set; }
 
         /// <summary>
         /// Concurrency threshold in seconds
@@ -49,10 +49,15 @@ namespace WebAPI.Models.Partner
 
         internal HashSet<int> GetDeviceFamilyIds()
         {
-            if (string.IsNullOrEmpty(DeviceFamilyIds))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "deviceFamilyIds");
+            HashSet<int> values = null;
 
-            HashSet<int> values = new HashSet<int>();
+            if (DeviceFamilyIds == null)
+            {
+                return values;
+            }
+
+            values = new HashSet<int>();
+
             string[] stringValues = DeviceFamilyIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string stringValue in stringValues)
             {

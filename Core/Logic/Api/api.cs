@@ -11188,33 +11188,35 @@ namespace Core.Api
                     needToUpdate = deviceConcurrencyPriorityToUpdate.SetUnchangedProperties(deviceConcurrencyPriority);
                 }
 
-                if (deviceConcurrencyPriorityToUpdate?.DeviceFamilyIds == null)
+                if (deviceConcurrencyPriorityToUpdate.DeviceFamilyIds?.Count > 0)
                 {
-                    deviceConcurrencyPriorityToUpdate.DeviceFamilyIds = deviceConcurrencyPriority.DeviceFamilyIds;
+                    // validate deviceFamilyIds
+                    var deviceFamilyList = GetDeviceFamilyList();
+                    if (deviceFamilyList == null ||
+                        deviceFamilyList.Status.Code != (int)eResponseStatus.OK ||
+                        deviceFamilyList.DeviceFamilies.Count == 0)
+                    {
+                        response.Message = "No DeviceFamilies";
+                        return response;
+                    }
+
+                    var notDeviceFamilies = deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.FindAll(x => !deviceFamilyList.DeviceFamilies.Any(y => y.Id == x));
+                    if (notDeviceFamilies != null && notDeviceFamilies.Count > 0)
+                    {
+                        response.Set((int)eResponseStatus.NonExistingDeviceFamilyIds,
+                                     string.Format("The ids: {0} are non-existing DeviceFamilyIds", string.Join(", ", notDeviceFamilies)));
+                        return response;
+                    }
+
+                    needToUpdate = true;
                 }
-                else
+                else if (deviceConcurrencyPriorityToUpdate.DeviceFamilyIds != null && deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.Count == 0)
                 {
                     needToUpdate = true;
-                    if (deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.Count > 0)
-                    {
-                        // validate deviceFamilyIds
-                        var deviceFamilyList = GetDeviceFamilyList();
-                        if (deviceFamilyList == null ||
-                            deviceFamilyList.Status.Code != (int)eResponseStatus.OK ||
-                            deviceFamilyList.DeviceFamilies.Count == 0)
-                        {
-                            response.Message = "No DeviceFamilies";
-                            return response;
-                        }
-
-                        var notDeviceFamilies = deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.FindAll(x => !deviceFamilyList.DeviceFamilies.Any(y => y.Id == x));
-                        if (notDeviceFamilies != null && notDeviceFamilies.Count > 0)
-                        {
-                            response.Set((int)eResponseStatus.NonExistingDeviceFamilyIds,
-                                         string.Format("The ids: {0} are non-existing DeviceFamilyIds", string.Join(", ", notDeviceFamilies)));
-                            return response;
-                        }
-                    }
+                }
+                else if (needToUpdate && deviceConcurrencyPriorityToUpdate.DeviceFamilyIds == null && deviceConcurrencyPriority.DeviceFamilyIds != null)
+                {
+                    deviceConcurrencyPriorityToUpdate.DeviceFamilyIds = deviceConcurrencyPriority.DeviceFamilyIds;
                 }
 
                 if (needToUpdate)
@@ -11227,8 +11229,9 @@ namespace Core.Api
                     }
 
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceConcurrencyPriorityInvalidationKey(groupId));
-                    response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
+
+                response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {

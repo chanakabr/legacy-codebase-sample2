@@ -23,7 +23,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // map DeviceConcurrencyPriority to KalturaConcurrencyPartnerConfig
             cfg.CreateMap<DeviceConcurrencyPriority, KalturaConcurrencyPartnerConfig>()
-                .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => string.Join(",", src.DeviceFamilyIds)))
+                .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => src.GetDeviceFamilyIds()))
                 .ForMember(dest => dest.EvictionPolicy, opt => opt.ResolveUsing(src => ConvertDowngradePolicyToEvictionPolicy(src.PriorityOrder)))
                 .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds))
                 .ForMember(dest => dest.RevokeOnDeviceDelete, opt => opt.MapFrom(src => src.RevokeOnDeviceDelete)); 
@@ -31,6 +31,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // map KalturaConcurrencyPartnerConfig to DeviceConcurrencyPriority
             cfg.CreateMap<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>()
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => src.GetDeviceFamilyIds()))
+                .AfterMap((src, dest) => dest.DeviceFamilyIds = src.DeviceFamilyIds != null ? dest.DeviceFamilyIds : null)
                 .ForMember(dest => dest.PriorityOrder, opt => opt.ResolveUsing(src => ConvertEvictionPolicyToDowngradePolicy(src.EvictionPolicy)))
                 .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds))
                 .ForMember(dest => dest.RevokeOnDeviceDelete, opt => opt.MapFrom(src => src.RevokeOnDeviceDelete));
@@ -341,39 +342,45 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaEvictionPolicyType ConvertDowngradePolicyToEvictionPolicy(DowngradePolicy priorityOrder)
+        private static KalturaEvictionPolicyType? ConvertDowngradePolicyToEvictionPolicy(DowngradePolicy? priorityOrder)
         {
-            KalturaEvictionPolicyType result;
+            KalturaEvictionPolicyType? result = null;
 
-            switch (priorityOrder)
+            if (priorityOrder.HasValue)
             {
-                case DowngradePolicy.FIFO:
-                    result = KalturaEvictionPolicyType.FIFO;
-                    break;
-                case DowngradePolicy.LIFO:
-                    result = KalturaEvictionPolicyType.LIFO;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Downgrade Policy type");
+                switch (priorityOrder)
+                {
+                    case DowngradePolicy.FIFO:
+                        result = KalturaEvictionPolicyType.FIFO;
+                        break;
+                    case DowngradePolicy.LIFO:
+                        result = KalturaEvictionPolicyType.LIFO;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown Downgrade Policy type");
+                }
             }
 
             return result;
         }
 
-        private static DowngradePolicy ConvertEvictionPolicyToDowngradePolicy(KalturaEvictionPolicyType evictionPolicy)
+        private static DowngradePolicy? ConvertEvictionPolicyToDowngradePolicy(KalturaEvictionPolicyType? evictionPolicy)
         {
-            DowngradePolicy result;
+            DowngradePolicy? result = null;
 
-            switch (evictionPolicy)
+            if (evictionPolicy.HasValue)
             {
-                case KalturaEvictionPolicyType.FIFO:
-                    result = DowngradePolicy.FIFO;
-                    break;
-                case KalturaEvictionPolicyType.LIFO:
-                    result = DowngradePolicy.LIFO;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Eviction Policy type");
+                switch (evictionPolicy)
+                {
+                    case KalturaEvictionPolicyType.FIFO:
+                        result = DowngradePolicy.FIFO;
+                        break;
+                    case KalturaEvictionPolicyType.LIFO:
+                        result = DowngradePolicy.LIFO;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown Eviction Policy type");
+                }
             }
 
             return result;
