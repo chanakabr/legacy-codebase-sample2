@@ -205,14 +205,7 @@ namespace TVPApiServices
 
                     if (resDomain.m_oDomainResponseStatus == DomainResponseStatus.OK)
                     {
-                        if (AuthorizationManager.IsAdmin())
-                        {
-                            AuthorizationManager.Instance.RevokeSessions(groupID, initObj.Platform, resDomain.m_oDomain, domainID, sUdid);
-                        }
-                        else
-                        {
-                            AuthorizationManager.Instance.DeleteAccessToken(groupID, initObj.Token, true);
-                        }
+                        AuthorizationManager.Instance.RevokeSessions(groupID, initObj.Platform, resDomain.m_oDomain, domainID, sUdid);
                     }
                 }
                 catch (Exception ex)
