@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ApiLogic.Notification
+﻿namespace ApiLogic.Notification
 {
     public class IotPublishResponse
     {
@@ -13,7 +9,7 @@ namespace ApiLogic.Notification
     public class ResponseObject
     {
         public bool IsSuccess { get; set; }
-        public int InternalMessageId { get; set; }
+        public object InternalMessageId { get; set; }
         public string Error { get; set; }
     }
 }

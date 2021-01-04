@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Tvinci.Core.DAL;
+using static ODBCWrapper.Utils;
 
 namespace DAL
 {
@@ -758,15 +759,17 @@ namespace DAL
             if (settings.IsIotEnabled.HasValue)
                 sp.AddParameter("@isIotEnabled", settings.IsIotEnabled.Value);
 
+            if (settings.EpgNotification != null) 
+                sp.AddParameter("@epgNotification", SerializeEpgSettings(settings.EpgNotification));
+
             return sp.ExecuteReturnValue<bool>();
         }
 
         public static List<NotificationPartnerSettings> GetNotificationPartnerSettings(int groupID)
         {
-            List<NotificationPartnerSettings> settings = new List<NotificationPartnerSettings>();
-            bool automaticIssueFollowNotification = true;
+            var settings = new List<NotificationPartnerSettings>();
 
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationPartnerSettings");
+            var sp = new ODBCWrapper.StoredProcedure("Get_NotificationPartnerSettings");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
 
             if (groupID > 0)
@@ -775,41 +778,65 @@ namespace DAL
                 sp.AddParameter("@groupID", null);
 
             DataTable dt = sp.Execute();
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            if (dt?.Rows != null && dt.Rows.Count > 0)
             {
                 foreach (DataRow row in dt.Rows)
                 {
-                    string automaticSending = ODBCWrapper.Utils.GetSafeStr(row, "automatic_sending");
-
-                    if (!string.IsNullOrEmpty(automaticSending))
-                        automaticIssueFollowNotification = automaticSending.Equals("1");
+                    var automaticSending = GetSafeStr(row, "automatic_sending");
+                    var automaticIssueFollowNotification = string.IsNullOrEmpty(automaticSending) || automaticSending.Equals("1");
 
                     settings.Add(new NotificationPartnerSettings()
                     {
-                        IsPushNotificationEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "push_notification_enabled") == 1 ? true : false,
-                        IsPushSystemAnnouncementsEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "push_system_announcements_enabled") == 1 ? true : false,
-                        PushStartHour = ODBCWrapper.Utils.GetIntSafeVal(row, "push_start_hour"),
-                        PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(row, "push_end_hour"),
-                        IsInboxEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "is_inbox_enable") == 1 ? true : false,
-                        MessageTTLDays = ODBCWrapper.Utils.GetIntSafeVal(row, "message_ttl"),
+                        IsPushNotificationEnabled = GetIntSafeVal(row, "push_notification_enabled") == 1,
+                        IsPushSystemAnnouncementsEnabled = GetIntSafeVal(row, "push_system_announcements_enabled") == 1,
+                        PushStartHour = GetIntSafeVal(row, "push_start_hour"),
+                        PushEndHour = GetIntSafeVal(row, "push_end_hour"),
+                        IsInboxEnabled = GetIntSafeVal(row, "is_inbox_enable") == 1,
+                        MessageTTLDays = GetIntSafeVal(row, "message_ttl"),
                         AutomaticIssueFollowNotifications = automaticIssueFollowNotification,
-                        PartnerId = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id"),
-                        TopicExpirationDurationDays = ODBCWrapper.Utils.GetIntSafeVal(row, "topic_cleanup_expiration_days"),
-                        IsRemindersEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "is_reminder_enabled") == 1 ? true : false,
-                        RemindersPrePaddingSec = ODBCWrapper.Utils.GetIntSafeVal(row, "reminder_offset_sec"),
-                        PushAdapterUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "push_adapter_url"),
-                        ChurnMailSubject = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "churn_mail_subject"),
-                        ChurnMailTemplateName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "churn_mail_template_name"),
-                        MailSenderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "mail_sender_name"),
-                        SenderEmail = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "sender_email"),
-                        MailNotificationAdapterId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "MAIL_NOTIFICATION_ADAPTER_ID"),
-                        IsSMSEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_sms_enable") == 1 ? true : false,
-                        IsIotEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_iot_enable") == 1 ? true : false
+                        PartnerId = GetIntSafeVal(row, "group_id"),
+                        TopicExpirationDurationDays = GetIntSafeVal(row, "topic_cleanup_expiration_days"),
+                        IsRemindersEnabled = GetIntSafeVal(row, "is_reminder_enabled") == 1,
+                        RemindersPrePaddingSec = GetIntSafeVal(row, "reminder_offset_sec"),
+                        PushAdapterUrl = GetSafeStr(row, "push_adapter_url"),
+                        ChurnMailSubject = GetSafeStr(row, "churn_mail_subject"),
+                        ChurnMailTemplateName = GetSafeStr(row, "churn_mail_template_name"),
+                        MailSenderName = GetSafeStr(row, "mail_sender_name"),
+                        SenderEmail = GetSafeStr(row, "sender_email"),
+                        MailNotificationAdapterId = GetLongSafeVal(row, "MAIL_NOTIFICATION_ADAPTER_ID"),
+                        IsSMSEnabled = GetIntSafeVal(row, "is_sms_enable") == 1,
+                        IsIotEnabled = GetIntSafeVal(row, "is_iot_enable") == 1,
+                        EpgNotification = DeserializeEpgSettings(GetSafeStr(row, "epg_notification"))
                     });
                 }
             }
 
             return settings;
+        }
+
+        private static string SerializeEpgSettings(EpgNotificationSettings epgSettings)
+        {
+            return JsonConvert.SerializeObject(new DTO.Notification.EpgNotificationSettings
+            {
+                Enabled = epgSettings.Enabled,
+                DeviceFamilyIds = epgSettings.DeviceFamilyIds,
+                LiveAssetIds = epgSettings.LiveAssetIds,
+                TimeRange = epgSettings.TimeRange
+            });
+        }
+
+        private static EpgNotificationSettings DeserializeEpgSettings(string epgNotificationString)
+        {
+            if (string.IsNullOrEmpty(epgNotificationString)) return new EpgNotificationSettings();
+
+            var dto = JsonConvert.DeserializeObject<DTO.Notification.EpgNotificationSettings>(epgNotificationString);
+            return new EpgNotificationSettings
+            {
+                Enabled = dto.Enabled,
+                DeviceFamilyIds = dto.DeviceFamilyIds,
+                LiveAssetIds = dto.LiveAssetIds,
+                TimeRange = dto.TimeRange
+            };            
         }
 
         public static DataRow GetNotificationSettings(int groupID, int userID)

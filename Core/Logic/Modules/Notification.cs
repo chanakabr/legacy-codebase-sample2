@@ -303,37 +303,11 @@ namespace Core.Notification
         }
 
         //Notifications settings//
-        public static ApiObjects.Response.Status UpdateNotificationPartnerSettings(int nGroupID, ApiObjects.Notification.NotificationPartnerSettings settings)
-        {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status();
-            try
-            {
-                response = Core.Notification.NotificationSettings.UpdateNotificationPartnerSettings(nGroupID, settings);
-            }
-            catch (Exception)
-            {
-                response = new ApiObjects.Response.Status();
-                response.Code = (int)ApiObjects.Response.eResponseStatus.Error;
-                response.Message = ApiObjects.Response.eResponseStatus.Error.ToString();
-            }
-            return response;
-        }
+        public static Status UpdateNotificationPartnerSettings(int groupId, NotificationPartnerSettings settings) =>
+            NotificationSettings.UpdateNotificationPartnerSettings(groupId, settings);
 
-        public static ApiObjects.Notification.NotificationPartnerSettingsResponse GetNotificationPartnerSettings(int nGroupID)
-        {
-            ApiObjects.Notification.NotificationPartnerSettingsResponse response = null;
-            try
-            {
-                response = NotificationCache.Instance().GetPartnerNotificationSettings(nGroupID);
-            }
-            catch (Exception)
-            {
-                response = new ApiObjects.Notification.NotificationPartnerSettingsResponse();
-                response.Status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
-                response.Status.Message = ApiObjects.Response.eResponseStatus.Error.ToString();
-            }
-            return response;
-        }
+        public static NotificationPartnerSettingsResponse GetNotificationPartnerSettings(int groupId) =>
+            NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
 
         public static ApiObjects.Response.Status UpdateNotificationSettings(int nGroupID, string userId, ApiObjects.Notification.UserNotificationSettings settings)
         {

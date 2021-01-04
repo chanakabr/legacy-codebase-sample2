@@ -10754,6 +10754,68 @@ namespace WebAPI.Models.Notification
             return ret;
         }
     }
+    public partial class KalturaEpgNotificationSettings
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(DeviceFamilyIds != null && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyIds")))
+            {
+                ret.Add("deviceFamilyIds", "\"deviceFamilyIds\": " + "\"" + EscapeJson(DeviceFamilyIds) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("enabled")))
+            {
+                ret.Add("enabled", "\"enabled\": " + Enabled.ToString().ToLower());
+            }
+            if(LiveAssetIds != null && (retrievedProperties == null || retrievedProperties.Contains("liveAssetIds")))
+            {
+                ret.Add("liveAssetIds", "\"liveAssetIds\": " + "\"" + EscapeJson(LiveAssetIds) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("timeRange")))
+            {
+                ret.Add("timeRange", "\"timeRange\": " + TimeRange);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(DeviceFamilyIds != null && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyIds")))
+            {
+                ret.Add("deviceFamilyIds", "<deviceFamilyIds>" + EscapeXml(DeviceFamilyIds) + "</deviceFamilyIds>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("enabled")))
+            {
+                ret.Add("enabled", "<enabled>" + Enabled.ToString().ToLower() + "</enabled>");
+            }
+            if(LiveAssetIds != null && (retrievedProperties == null || retrievedProperties.Contains("liveAssetIds")))
+            {
+                ret.Add("liveAssetIds", "<liveAssetIds>" + EscapeXml(LiveAssetIds) + "</liveAssetIds>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("timeRange")))
+            {
+                ret.Add("timeRange", "<timeRange>" + TimeRange + "</timeRange>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaFeed
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -11559,6 +11621,11 @@ namespace WebAPI.Models.Notification
             {
                 ret.Add("churnMailTemplateName", "\"churnMailTemplateName\": " + "\"" + EscapeJson(ChurnMailTemplateName) + "\"");
             }
+            if(EpgNotification != null && (retrievedProperties == null || retrievedProperties.Contains("epgNotification")))
+            {
+                propertyValue = EpgNotification.ToJson(currentVersion, omitObsolete);
+                ret.Add("epgNotification", "\"epgNotification\": " + propertyValue);
+            }
             if(InboxEnabled.HasValue && (retrievedProperties == null || retrievedProperties.Contains("inboxEnabled")))
             {
                 ret.Add("inboxEnabled", "\"inboxEnabled\": " + InboxEnabled.ToString().ToLower());
@@ -11660,6 +11727,11 @@ namespace WebAPI.Models.Notification
             if(ChurnMailTemplateName != null && (retrievedProperties == null || retrievedProperties.Contains("churnMailTemplateName")))
             {
                 ret.Add("churnMailTemplateName", "<churnMailTemplateName>" + EscapeXml(ChurnMailTemplateName) + "</churnMailTemplateName>");
+            }
+            if(EpgNotification != null && (retrievedProperties == null || retrievedProperties.Contains("epgNotification")))
+            {
+                propertyValue = EpgNotification.ToXml(currentVersion, omitObsolete);
+                ret.Add("epgNotification", "<epgNotification>" + propertyValue + "</epgNotification>");
             }
             if(InboxEnabled.HasValue && (retrievedProperties == null || retrievedProperties.Contains("inboxEnabled")))
             {
@@ -23916,6 +23988,10 @@ namespace WebAPI.Models.API
             {
                 ret.Add("json", "\"json\": " + "\"" + EscapeJson(Json) + "\"");
             }
+            if(Topics != null && (retrievedProperties == null || retrievedProperties.Contains("topics")))
+            {
+                ret.Add("topics", "\"topics\": " + "\"" + EscapeJson(Topics) + "\"");
+            }
             return ret;
         }
         
@@ -23947,6 +24023,10 @@ namespace WebAPI.Models.API
             if(Json != null && (retrievedProperties == null || retrievedProperties.Contains("json")))
             {
                 ret.Add("json", "<json>" + EscapeXml(Json) + "</json>");
+            }
+            if(Topics != null && (retrievedProperties == null || retrievedProperties.Contains("topics")))
+            {
+                ret.Add("topics", "<topics>" + EscapeXml(Topics) + "</topics>");
             }
             return ret;
         }
@@ -37333,6 +37413,10 @@ namespace WebAPI.Models.Upload
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if((retrievedProperties == null || retrievedProperties.Contains("disableEpgNotification")))
+            {
+                ret.Add("disableEpgNotification", "\"disableEpgNotification\": " + DisableEpgNotification.ToString().ToLower());
+            }
             if(IngestProfileId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("ingestProfileId")))
             {
                 ret.Add("ingestProfileId", "\"ingestProfileId\": " + IngestProfileId);
@@ -37351,6 +37435,10 @@ namespace WebAPI.Models.Upload
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if((retrievedProperties == null || retrievedProperties.Contains("disableEpgNotification")))
+            {
+                ret.Add("disableEpgNotification", "<disableEpgNotification>" + DisableEpgNotification.ToString().ToLower() + "</disableEpgNotification>");
+            }
             if(IngestProfileId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("ingestProfileId")))
             {
                 ret.Add("ingestProfileId", "<ingestProfileId>" + IngestProfileId + "</ingestProfileId>");

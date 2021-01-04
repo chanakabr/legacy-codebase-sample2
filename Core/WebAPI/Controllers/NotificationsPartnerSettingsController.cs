@@ -31,13 +31,13 @@ namespace WebAPI.Controllers
             {
                 int groupId = KS.GetFromRequest().GroupId;
                 // call client                
-                response = (KalturaNotificationsPartnerSettings)ClientsManager.NotificationClient().Get(groupId);
+                response = ClientsManager.NotificationClient().Get(groupId);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
-            return (KalturaNotificationsPartnerSettings)response;
+            return response;
         }
 
         /// <summary>
@@ -83,6 +83,9 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [Throws(eResponseStatus.PushNotificationFalse)]
         [Throws(eResponseStatus.MailNotificationAdapterNotExist)]
+        [Throws(eResponseStatus.InvalidNotificationSettingsSetup)]
+        [Throws(eResponseStatus.NonExistingDeviceFamilyIds)]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
         static public bool Update(KalturaNotificationsPartnerSettings settings)
         {
             bool response = false;
@@ -90,6 +93,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
+
                 // call client                
                 response = ClientsManager.NotificationClient().Update(groupId, settings);
             }

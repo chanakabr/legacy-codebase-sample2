@@ -92,23 +92,9 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
-                var _request = new { GroupId = groupId.ToString() };
-                var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request, 
-                    MethodType.Post, out int httpStatus, out bool hasConfig, iotProfile);
+                iotProfile.IotProfileAws = IotManager.Instance.CreateIotEnvironment(groupId, iotProfile);
 
-                if (httpStatus == 208)
-                {
-                    log.Debug($"Environment already exists for group: {groupId}");
-                    response.SetStatus(eResponseStatus.AlreadyExist, "Environment already exists");
-                    return response;
-                }
-
-                iotProfile.IotProfileAws = msResponse;
-                iotProfile.IotProfileAws.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
-
-                var saved = SaveIotProfile(groupId, iotProfile);
-
-                if (msResponse == null)
+                if (iotProfile.IotProfileAws == null)
                 {
                     var error = $"Error while Add Iot adapter profile for group: {groupId}.";
                     log.Error(error);
@@ -116,8 +102,12 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
+                iotProfile.IotProfileAws.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
+
+                var saved = SaveIotProfile(groupId, iotProfile);
+
                 response.SetStatus(saved ? Status.Ok : Status.Error);
-                response.Object = new IotProfile { AdapterUrl = iotProfile.AdapterUrl, IotProfileAws = msResponse };
+                response.Object = new IotProfile { AdapterUrl = iotProfile.AdapterUrl, IotProfileAws = iotProfile.IotProfileAws };
             }
             catch (Exception ex)
             {
@@ -169,18 +159,10 @@ namespace ApiLogic.Notification
 
                 var saved = SaveIotProfile(groupId, newConfigurations);
 
-                var msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.ADD_CONFIG, iotProfile.IotProfileAws, MethodType.Put, out int httpStatus, out bool hasConfig, newConfigurations, true);
+                response.Object = new IotProfile() { AdapterUrl = newConfigurations.AdapterUrl};
+                response.Object.IotProfileAws = IotManager.Instance.UpdateIotEnvironment(groupId, newConfigurations);
 
-                if (!hasConfig)
-                {
-                    var update = IotManager.Instance.UpdateIotProfile(groupId, contextData);
-                    if (update != null)
-                    {
-                        msResponse = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.ADD_CONFIG, iotProfile.IotProfileAws, MethodType.Put, out httpStatus, out hasConfig, iotProfile, true);
-                    }
-                }
-
-                if (msResponse == null)
+                if (response.Object.IotProfileAws == null)
                 {
                     var error = $"Error while Updating Iot adapter profile for group: {groupId}.";
                     log.Error(error);
@@ -189,7 +171,6 @@ namespace ApiLogic.Notification
                 }
 
                 response.SetStatus(saved ? Status.Ok : Status.Error);
-                response.Object = new IotProfile { AdapterUrl = iotProfile.AdapterUrl, IotProfileAws = msResponse };
             }
             catch (Exception ex)
             {
@@ -223,23 +204,10 @@ namespace ApiLogic.Notification
 
                 IotManager.Instance.InvalidateClientConfiguration(groupId);
 
-                var urlSuffix = $"groupId={groupId}&forClient={false}";
-
-                var profileAws = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get, out int httpStatus, out bool hasConfig);
-
-                if (!hasConfig)
-                {
-                    var update = IotManager.Instance.UpdateIotProfile(groupId, contextData);
-                    if (update != null)
-                    {
-                        profileAws = IotManager.Instance.SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get, out httpStatus, out hasConfig);
-                    }
-                }
-
                 response.Object = new IotProfile
                 {
                     AdapterUrl = iotProfile.AdapterUrl,
-                    IotProfileAws = profileAws
+                    IotProfileAws = IotManager.Instance.GetClientConfiguration(groupId)
                 };
 
                 SaveIotProfile(groupId, iotProfile);

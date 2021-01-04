@@ -40,6 +40,7 @@ namespace ApiObjects
         public CognitoUserPool CognitoUserPool { get; set; }
         public string AnnouncementTopic { get; set; }
         public string Json { get; set; }
+        public List<string> Topics { get; set; }
 
 
         public override string ToString()

@@ -350,6 +350,8 @@ MigrationBackup/
 .ionide/
 .idea
 
+# SonarLint
+.sonarlint/
 #Sonarqube
 .sonarqube
 */.sonarqube

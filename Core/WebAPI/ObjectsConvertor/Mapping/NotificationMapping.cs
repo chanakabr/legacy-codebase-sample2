@@ -84,6 +84,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
                  .ForMember(dest => dest.IotEnabled, opt => opt.MapFrom(src => src.IsIotEnabled))
+                 .ForMember(dest => dest.EpgNotification, opt => opt.MapFrom(src => src.EpgNotification))
                  ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
@@ -106,7 +107,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
                  .ForMember(dest => dest.IsIotEnabled, opt => opt.MapFrom(src => src.IotEnabled))
+                 .ForMember(dest => dest.EpgNotification, opt => opt.MapFrom(src => src.EpgNotification))
                  ;
+
+            cfg.CreateMap<KalturaEpgNotificationSettings, EpgNotificationSettings>()
+                .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
+                .ForMember(dest => dest.TimeRange, opt => opt.ResolveUsing(src => src.TimeRange == 0 ? 24 : src.TimeRange))
+                .ForMember(dest => dest.DeviceFamilyIds, opt => opt.ResolveUsing(src => src.DeviceFamilyIds
+                    .GetItemsIn<int>(out var failed, true)
+                    .ThrowIfFailed(failed, () => new ClientException((int)StatusCode.InvalidArgumentValue, "invalid value in deviceFamilyIds"))))
+                .ForMember(dest => dest.LiveAssetIds, opt => opt.ResolveUsing(src => src.LiveAssetIds
+                    .GetItemsIn<long>(out var failed, true)
+                    .ThrowIfFailed(failed, () => new ClientException((int)StatusCode.InvalidArgumentValue, "invalid value in liveAssetIds"))))
+                ;
+            cfg.CreateMap<EpgNotificationSettings, KalturaEpgNotificationSettings>()
+                .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
+                .ForMember(dest => dest.TimeRange, opt => opt.MapFrom(src => src.TimeRange))
+                .ForMember(dest => dest.DeviceFamilyIds, opt => opt.ResolveUsing(src => string.Join(",", src.DeviceFamilyIds)))
+                .ForMember(dest => dest.LiveAssetIds, opt => opt.ResolveUsing(src => string.Join(",", src.LiveAssetIds)))
+                ;
 
             cfg.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))

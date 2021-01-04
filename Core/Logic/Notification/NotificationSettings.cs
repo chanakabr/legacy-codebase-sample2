@@ -3,9 +3,13 @@ using ApiObjects.Response;
 using DAL;
 using KLogMonitor;
 using System;
+using System.Linq;
 using System.Reflection;
 using TVinciShared;
 using System.Collections.Generic;
+using Core.Catalog.CatalogManagement;
+using ApiObjects;
+using Core.Catalog;
 
 namespace Core.Notification
 {
@@ -19,54 +23,102 @@ namespace Core.Notification
         private const string INVALID_REMINDERS_PREPADDING_SEC = "Invalid pre-padding value";
         private const string MAIL_NOTIFICATION_ADAPTER_NOT_EXIST = "Mail notification adapter not exist";
 
-        public static ApiObjects.Response.Status UpdateNotificationPartnerSettings(int groupID, ApiObjects.Notification.NotificationPartnerSettings settings)
+        public static Status UpdateNotificationPartnerSettings(int groupId, NotificationPartnerSettings settings)
         {
-            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            bool isSet = false;
+            Status response;
 
             try
             {
-                response = CheckNotificationPartnerSettings(groupID, settings);
+                response = CheckNotificationPartnerSettings(groupId, settings);
 
-                if (response.Code == (int)eResponseStatus.OK)
+                if (response.IsOkStatusCode())
                 {                  
-                    isSet = DAL.NotificationDal.UpdateNotificationPartnerSettings(groupID, settings);
-
-                    if (isSet)
+                    var success = NotificationDal.UpdateNotificationPartnerSettings(groupId, settings);
+                    if (success)
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "notification partner settings set changes");
-
-                        // remove cache
-                        NotificationCache.Instance().RemovePartnerNotificationSettingsFromCache(groupID);
+                        response = new Status(eResponseStatus.OK, "notification partner settings set changes");
+                        NotificationCache.Instance().RemovePartnerNotificationSettingsFromCache(groupId);
                     }
                     else
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "notification partner settings failed set changes");
+                        response = new Status(eResponseStatus.Error, "notification partner settings failed set changes");
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
-                response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed groupID={0}"), ex);
+                response = Status.Error;
             }
             return response;
         }
 
-        public static ApiObjects.Notification.NotificationPartnerSettingsResponse GetPartnerNotificationSettings(int groupID)
+        private static Status CheckNotificationPartnerSettings(int groupID, NotificationPartnerSettings settings)
         {
-            ApiObjects.Notification.NotificationPartnerSettingsResponse response = new ApiObjects.Notification.NotificationPartnerSettingsResponse();
+            try
+            {
+                if (settings == null) return new Status(eResponseStatus.NoNotificationSettingsSent, "no notification setting sent");
+
+                if ((!settings.IsPushNotificationEnabled.HasValue || (!settings.IsPushNotificationEnabled.Value))
+                    && settings.IsPushSystemAnnouncementsEnabled.HasValue && settings.IsPushSystemAnnouncementsEnabled.Value)
+                    return new Status(eResponseStatus.PushNotificationFalse, "push notification must be true with push system announcements true");
+
+                if (settings.MessageTTLDays.HasValue && settings.MessageTTLDays.Value > MAX_MESSAGE_TTL_DAYS)
+                    return new Status(eResponseStatus.InvalidMessageTTL, INVALID_MESSAGE_TTL);
+
+                if (settings.RemindersPrePaddingSec.HasValue &&
+                    (settings.RemindersPrePaddingSec.Value > MAX_REMINDERS_PREPADDING_SEC || settings.RemindersPrePaddingSec.Value < MIN_REMINDERS_PREPADDING_SEC))
+                    return new Status(eResponseStatus.InvalidReminderPrePaddingSec, INVALID_REMINDERS_PREPADDING_SEC);
+
+                // make sure adapter exist
+                if (settings.MailNotificationAdapterId.HasValue && settings.MailNotificationAdapterId > 0
+                    && NotificationDal.GetMailNotificationAdapter(groupID, settings.MailNotificationAdapterId.Value) == null)
+                    return new Status(eResponseStatus.MailNotificationAdapterNotExist, MAIL_NOTIFICATION_ADAPTER_NOT_EXIST);
+
+                var epgStatus = CheckEpgNotificationSettings(settings, groupID);
+                if (!epgStatus.IsOkStatusCode()) return epgStatus;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Error checking partner settings", ex);
+                return Status.Error;
+            }
+            return Status.Ok;
+        }
+        
+        private static Status CheckEpgNotificationSettings(NotificationPartnerSettings settings, int groupId)
+        {
+            if (settings?.EpgNotification == null) return Status.Ok;
+
+            if (!settings.IsIotEnabled.GetValueOrDefault() && settings.EpgNotification.Enabled) 
+                return new Status(eResponseStatus.InvalidNotificationSettingsSetup, "iotEnabled should be `true` in order set epgNotification enabled");
+
+            var existingDeviceFamilyIds = Api.Module.GetDeviceFamilyList(groupId).DeviceFamilies.Select(_ => _.Id);
+            var unknownDeviceFamilyIds = settings.EpgNotification.DeviceFamilyIds.Except(existingDeviceFamilyIds).ToList();
+            if (unknownDeviceFamilyIds.Count != 0) return new Status(eResponseStatus.NonExistingDeviceFamilyIds, "unknown device family:" + string.Join(",", unknownDeviceFamilyIds));
+
+            var liveAssetsIds = settings.EpgNotification.LiveAssetIds;
+            var epgChannels = liveAssetsIds.Select(liveAssetId => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, liveAssetId)).ToList();
+            var existingAssetsIds = AssetManager.GetAssets(groupId, epgChannels, true)?.Where(_ => _ is LiveAsset).Select(_ => _.Id) ?? new List<long>();
+            var unknownAssetsIds = liveAssetsIds.Except(existingAssetsIds).ToList();
+            if (unknownAssetsIds.Count != 0) return new Status(eResponseStatus.AssetDoesNotExist, "unknown asset:" + string.Join(",", unknownAssetsIds));
+
+            return Status.Ok;
+        }
+
+        public static NotificationPartnerSettingsResponse GetPartnerNotificationSettings(int groupID)
+        {
+            var response = new NotificationPartnerSettingsResponse();
 
             try
             {
                 // get partner notification settings
-                List<NotificationPartnerSettings> partnersNotificationSettings = DAL.NotificationDal.GetNotificationPartnerSettings(groupID);
+                List<NotificationPartnerSettings> partnersNotificationSettings = NotificationDal.GetNotificationPartnerSettings(groupID);
                 if (partnersNotificationSettings == null || partnersNotificationSettings.Count == 0)
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "no notification partner settings found");
+                    response.Status = new Status(eResponseStatus.OK, "no notification partner settings found");
                 else
                 {
                     response.settings = partnersNotificationSettings[0];
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                    response.Status = Status.Ok;
                 }
             }
             catch (Exception ex)
@@ -245,56 +297,6 @@ namespace Core.Notification
                 log.Error(string.Format("Failed groupID={0}, userID = {1}", groupID, userID), ex);
             }
 
-            return response;
-        }
-
-        public static Status CheckNotificationPartnerSettings(int groupID, NotificationPartnerSettings settings)
-        {
-            Status response = new Status((int)eResponseStatus.OK, "OK");
-            try
-            {
-                if (settings == null)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.NoNotificationSettingsSent, "no notification setting sent");
-                    return response;
-                }
-
-                if ((!settings.IsPushNotificationEnabled.HasValue || (!settings.IsPushNotificationEnabled.Value))
-                    && settings.IsPushSystemAnnouncementsEnabled.HasValue && settings.IsPushSystemAnnouncementsEnabled.Value)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.PushNotificationFalse, "push notification must be true with push system announcements true");
-                    return response;
-                }
-
-                if (settings.MessageTTLDays.HasValue && settings.MessageTTLDays.Value > MAX_MESSAGE_TTL_DAYS)
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidMessageTTL, INVALID_MESSAGE_TTL);
-                    return response;
-                }
-
-                if (settings.RemindersPrePaddingSec.HasValue &&
-                    (settings.RemindersPrePaddingSec.Value > MAX_REMINDERS_PREPADDING_SEC || settings.RemindersPrePaddingSec.Value < MIN_REMINDERS_PREPADDING_SEC))
-                {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.InvalidReminderPrePaddingSec, INVALID_REMINDERS_PREPADDING_SEC);
-                    return response;
-                }
-
-                if (settings.MailNotificationAdapterId.HasValue && settings.MailNotificationAdapterId > 0)                   
-                {
-                    // make sure adapter exist
-                    var adapter = NotificationDal.GetMailNotificationAdapter(groupID, settings.MailNotificationAdapterId.Value);
-                    if (adapter == null)
-                    {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.MailNotificationAdapterNotExist, MAIL_NOTIFICATION_ADAPTER_NOT_EXIST);
-                        return response;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                response = new Status((int)eResponseStatus.Error, "Error");
-                log.Error("Error checking partner settings", ex);
-            }
             return response;
         }
 

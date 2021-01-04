@@ -9,6 +9,9 @@ using WebAPI.Models.Pricing;
 using ApiObjects.Pricing;
 using ApiObjects;
 using WebAPI.Models.API;
+using System.Linq;
+using System;
+using System.Collections.Generic;
 
 namespace WebAPI.Mapping.ObjectsConvertor
 {
@@ -219,6 +222,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.CredentialsProvider, opt => opt.MapFrom(src => src.CredentialsProvider))
                 .ForMember(dest => dest.AnnouncementTopic, opt => opt.MapFrom(src => src.AnnouncementTopic))
                 .ForMember(dest => dest.Json, opt => opt.MapFrom(src => src.Json))
+                .ForMember(dest => dest.Topics, opt => opt.MapFrom(src => string.Join(",", src.Topics)))
                 ;
 
             cfg.CreateMap<KalturaIotClientConfiguration, IotClientConfiguration>()
@@ -226,6 +230,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.CredentialsProvider, opt => opt.MapFrom(src => src.CredentialsProvider))
                 .ForMember(dest => dest.AnnouncementTopic, opt => opt.MapFrom(src => src.AnnouncementTopic))
                 .ForMember(dest => dest.Json, opt => opt.MapFrom(src => src.Json))
+                .ForMember(dest => dest.Topics, opt => opt.ResolveUsing(src => src.Topics.GetItemsIn<string>(out _)))
                 ;
 
             cfg.CreateMap<CognitoUserPool, KalturaCognitoUserPool>()

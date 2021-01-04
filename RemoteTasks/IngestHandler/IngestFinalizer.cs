@@ -3,39 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using ApiLogic.Notification.Managers;
 using ApiObjects;
 using ApiObjects.BulkUpload;
-using ApiObjects.EventBus;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
 using ElasticSearch.Common;
-using EpgBL;
 using IngestHandler.Common;
 using KLogMonitor;
 using Polly;
 using Polly.Retry;
-using Synchronizer;
 
 namespace IngestHandler
 {
-    public class IngestFinalizerConfig
-    {
-        public int GroupId { get; set; }
-        public long BulkUploadId { get; set; }
-        public List<EpgProgramBulkUploadObject> EPGs { get; set; }
-
-        public DateTime DateOfProgramsToIngest { get; set; }
-        public IDictionary<string, LanguageObj> Languages { get; set; }
-
-        public override string ToString()
-        {
-            return $"{{{nameof(EPGs)}={EPGs}, {nameof(DateOfProgramsToIngest)}={DateOfProgramsToIngest}, {nameof(Languages)}={Languages}, {nameof(BulkUploadId)}={BulkUploadId}, {nameof(GroupId)}={GroupId}}}";
-        }
-    }
-
     public class IngestFinalizer
     {
         private const string INDEX_REFRESH_INTERVAL = "10s";
@@ -47,9 +30,11 @@ namespace IngestHandler
         private readonly RetryPolicy _ingestRetryPolicy;
         private readonly BulkUploadResultsDictionary _relevantResults;
         private readonly DateTime _dateOfProgramsToIngest;
+        private readonly string _requestId;
         private readonly BulkUploadIngestJobData _bulkUploadJobData;
-        
-        public IngestFinalizer(BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults, DateTime dateOfProgramsToIngest)
+        private readonly EpgNotificationManager _notificationManager;
+
+        public IngestFinalizer(BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults, DateTime dateOfProgramsToIngest, string requestId)
         {
             _elasticSearchClient = new ElasticSearchApi();
             _ingestRetryPolicy = GetRetryPolicy<Exception>();
@@ -57,6 +42,8 @@ namespace IngestHandler
             _relevantResults = relevantResults;
             _bulkUploadJobData = bulkUpload.JobData as BulkUploadIngestJobData;
             _dateOfProgramsToIngest = dateOfProgramsToIngest;
+            _requestId = requestId;
+            _notificationManager = EpgNotificationManager.Instance();
         }
 
         public Task FinalizeEpgIngest()
@@ -79,15 +66,30 @@ namespace IngestHandler
                 // Need to refresh the data from the bulk upload object after updating with the validation result
                 _bulkUpload = BulkUploadMethods.GetBulkUploadData(_bulkUpload.GroupId, _bulkUpload.Id);
 
-
                 // All separated jobs of bulkUpload were completed, we are the last one, we need to switch the alias and commit the changes.
                 if (BulkUpload.IsProcessCompletedByStatus(newStatus))
                 {
                     _logger.Debug($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}], Final part of bulk is marked, status is: [{newStatus}], finlizing bulk object");
-                    InvalidateEpgAssets();
                     RefreshAllIndexes();
+                    InvalidateEpgAssets();
                     BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, newStatus);
                     _logger.Info($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}] > Ingest Validation for entire bulk is completed, status:[{newStatus}]");
+
+                    if (newStatus == BulkUploadJobStatus.Success && !_bulkUploadJobData.DisableEpgNotification)
+                    {
+                        foreach ((var epgChannelId, var programIdToProgram) in _bulkUpload.ConstructResultsDictionary())
+                        {
+                            var minDate = DateTime.MaxValue;
+                            var maxDate = DateTime.MinValue;
+                            var linearAssetId = programIdToProgram.Values.First().LiveAssetId;
+                            foreach (var program in programIdToProgram.Values)
+                            {
+                                minDate = program.StartDate < minDate ? program.StartDate : minDate;
+                                maxDate = program.EndDate > maxDate ? program.EndDate : maxDate;
+                            }
+                            _notificationManager.ChannelWasUpdated(_requestId, _bulkUpload.GroupId, _bulkUpload.UpdaterId, linearAssetId, epgChannelId, minDate, maxDate);
+                        }
+                    }
                 }
 
                 _logger.Info($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}] > Ingest Validation for part of the bulk is completed, status:[{newStatus}]");
@@ -116,13 +118,11 @@ namespace IngestHandler
         private void RefreshAllIndexes()
         {
             var indexes = _bulkUploadJobData.DatesOfProgramsToIngest.Select(x => IndexManager.GetDailyEpgIndexName(_bulkUpload.GroupId, x));
-            var foundIndexes = new List<string>();
 
             foreach (var indexName in indexes)
             {
                 if (!_elasticSearchClient.IndexExists(indexName)) { continue; }
 
-                foundIndexes.Add(indexName);
                 _ingestRetryPolicy.Execute(() =>
                 {
                     var isSetRefreshSuccess = _elasticSearchClient.UpdateIndexRefreshInterval(indexName, INDEX_REFRESH_INTERVAL);
@@ -154,7 +154,7 @@ namespace IngestHandler
             return newStatus;
         }
 
-        public void InvalidateEpgAssets()
+        private void InvalidateEpgAssets()
         {
             var affectedProgramIds = _bulkUpload.AffectedObjects?.Select(p => (long)p.ObjectId);
             var ingestedProgramIds = _bulkUpload.Results.Where(r => r.ObjectId.HasValue).Select(r => r.ObjectId.Value) ?? new List<long>();

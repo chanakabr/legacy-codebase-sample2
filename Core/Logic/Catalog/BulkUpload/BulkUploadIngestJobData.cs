@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Reflection;
-using System.Xml.Serialization;
 using ApiObjects.BulkUpload;
 using ApiObjects.Response;
-using KLogMonitor;
 using Newtonsoft.Json;
 
 namespace Core.Catalog
@@ -15,11 +12,8 @@ namespace Core.Catalog
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class BulkUploadIngestJobData : BulkUploadJobData
     {
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private const string XML_TV_DATE_FORMAT = "yyyyMMddHHmmss";
-        private const string LOCK_KEY_DATE_FORMAT = "yyyyMMdd";
-        private static readonly XmlSerializer _XmltTVserilizer = new XmlSerializer(typeof(EpgChannels));
         public int? IngestProfileId { get; set; }
+        public bool DisableEpgNotification { get; set; }
 
         public string[] LockKeys;
 

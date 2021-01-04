@@ -115,9 +115,10 @@ namespace TVinciShared
         /// <typeparam name="T">Type of items in collection</typeparam>
         /// <param name="itemsIn">Comma separated string</param>
         /// <returns></returns>
-        public static U GetItemsIn<U, T>(this string itemsIn, bool ignoreDefaultValueValidation = false) where T : IConvertible where U : ICollection<T>
+        public static List<T> GetItemsIn<T>(this string itemsIn, out bool failed, bool ignoreDefaultValueValidation = false) where T : IConvertible
         {
-            U values = Activator.CreateInstance<U>();
+            var values = new List<T>();
+            failed = false;
 
             if (!string.IsNullOrEmpty(itemsIn))
             {
@@ -134,11 +135,11 @@ namespace TVinciShared
                     }
                     catch (Exception)
                     {
-                        // TODO - SET SOME ERROR
+                        failed = true;
                         continue;
                     }
 
-                    if (value != null && (ignoreDefaultValueValidation || !value.Equals(default(T))))
+                    if (ignoreDefaultValueValidation || !EqualityComparer<T>.Default.Equals(value, default))
                     {
                         if (!values.Contains(value))
                         {
@@ -147,12 +148,14 @@ namespace TVinciShared
                     }
                     else
                     {
-                        // TODO - SET SOME ERROR
+                        failed = true;
                     }
                 }
             }
 
             return values;
         }
+
+        public static List<T> ThrowIfFailed<T>(this List<T> list, bool failed, Func<Exception> getter) => failed ? throw getter() : list;
     }
 }

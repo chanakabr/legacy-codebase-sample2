@@ -873,6 +873,9 @@ namespace WebAPI.Reflection
                 case "KalturaEpgChannelFilter":
                     return new KalturaEpgChannelFilter(parameters);
                     
+                case "KalturaEpgNotificationSettings":
+                    return new KalturaEpgNotificationSettings(parameters);
+                    
                 case "KalturaEventNotification":
                     return new KalturaEventNotification(parameters);
                     
@@ -9873,6 +9876,49 @@ namespace WebAPI.Models.Notification
             }
         }
     }
+    public partial class KalturaEpgNotificationSettings
+    {
+        private static RuntimeSchemePropertyAttribute TimeRangeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEpgNotificationSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MaxInteger = 72,
+            MinInteger = 6,
+        };
+        public KalturaEpgNotificationSettings(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("enabled") && parameters["enabled"] != null)
+                {
+                    Enabled = (Boolean) Convert.ChangeType(parameters["enabled"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("deviceFamilyIds") && parameters["deviceFamilyIds"] != null)
+                {
+                    DeviceFamilyIds = (String) Convert.ChangeType(parameters["deviceFamilyIds"], typeof(String));
+                }
+                if (parameters.ContainsKey("liveAssetIds") && parameters["liveAssetIds"] != null)
+                {
+                    LiveAssetIds = (String) Convert.ChangeType(parameters["liveAssetIds"], typeof(String));
+                }
+                if (parameters.ContainsKey("timeRange") && parameters["timeRange"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        TimeRangeSchemaProperty.Validate("timeRange", parameters["timeRange"]);
+                    }
+                    TimeRange = (Int32) Convert.ChangeType(parameters["timeRange"], typeof(Int32));
+                }
+            }
+        }
+    }
     public partial class KalturaFeed
     {
         private static RuntimeSchemePropertyAttribute AssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFeed")
@@ -10603,6 +10649,17 @@ namespace WebAPI.Models.Notification
                 if (parameters.ContainsKey("iotEnabled") && parameters["iotEnabled"] != null)
                 {
                     IotEnabled = (Boolean) Convert.ChangeType(parameters["iotEnabled"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("epgNotification") && parameters["epgNotification"] != null)
+                {
+                    if (parameters["epgNotification"] is JObject)
+                    {
+                        EpgNotification = (KalturaEpgNotificationSettings) Deserializer.deserialize(typeof(KalturaEpgNotificationSettings), ((JObject) parameters["epgNotification"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["epgNotification"] is IDictionary)
+                    {
+                        EpgNotification = (KalturaEpgNotificationSettings) Deserializer.deserialize(typeof(KalturaEpgNotificationSettings), (Dictionary<string, object>) parameters["epgNotification"]);
+                    }
                 }
             }
         }
@@ -19571,6 +19628,10 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("json") && parameters["json"] != null)
                 {
                     Json = (String) Convert.ChangeType(parameters["json"], typeof(String));
+                }
+                if (parameters.ContainsKey("topics") && parameters["topics"] != null)
+                {
+                    Topics = (String) Convert.ChangeType(parameters["topics"], typeof(String));
                 }
             }
         }
@@ -29984,6 +30045,10 @@ namespace WebAPI.Models.Upload
                         IngestProfileIdSchemaProperty.Validate("ingestProfileId", parameters["ingestProfileId"]);
                     }
                     IngestProfileId = (Int32) Convert.ChangeType(parameters["ingestProfileId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("disableEpgNotification") && parameters["disableEpgNotification"] != null)
+                {
+                    DisableEpgNotification = (Boolean) Convert.ChangeType(parameters["disableEpgNotification"], typeof(Boolean));
                 }
             }
         }

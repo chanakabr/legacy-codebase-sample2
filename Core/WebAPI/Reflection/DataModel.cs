@@ -1087,6 +1087,8 @@ namespace WebAPI.Reflection
                 case "KalturaBulkUploadIngestJobData":
                     switch(property.Name)
                     {
+                        case "DisableEpgNotification":
+                            return "disableEpgNotification";
                         case "IngestProfileId":
                             return "ingestProfileId";
                     }
@@ -2758,6 +2760,20 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaEpgNotificationSettings":
+                    switch(property.Name)
+                    {
+                        case "DeviceFamilyIds":
+                            return "deviceFamilyIds";
+                        case "Enabled":
+                            return "enabled";
+                        case "LiveAssetIds":
+                            return "liveAssetIds";
+                        case "TimeRange":
+                            return "timeRange";
+                    }
+                    break;
+                    
                 case "KalturaEventNotification":
                     switch(property.Name)
                     {
@@ -3697,6 +3713,8 @@ namespace WebAPI.Reflection
                             return "credentialsProvider";
                         case "Json":
                             return "json";
+                        case "Topics":
+                            return "topics";
                     }
                     break;
                     
@@ -4403,6 +4421,8 @@ namespace WebAPI.Reflection
                             return "churnMailSubject";
                         case "ChurnMailTemplateName":
                             return "churnMailTemplateName";
+                        case "EpgNotification":
+                            return "epgNotification";
                         case "InboxEnabled":
                             return "inboxEnabled";
                         case "IotEnabled":

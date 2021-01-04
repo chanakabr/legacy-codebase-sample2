@@ -111,7 +111,7 @@ namespace IngestHandler
 
                 _elasticSearchUpdater.Update(serviceEvent.CrudOperations, dailyEpgIndexName);
 
-                var finalizer = new IngestFinalizer(_bulkUpload, _relevantResultsDictionary, serviceEvent.DateOfProgramsToIngest);
+                var finalizer = new IngestFinalizer(_bulkUpload, _relevantResultsDictionary, serviceEvent.DateOfProgramsToIngest, serviceEvent.RequestId);
                 await finalizer.FinalizeEpgIngest();
                 _logger.Info($"BulkUploadId: [{_eventData.BulkUploadId}] Date:[{_eventData.DateOfProgramsToIngest}] > Ingest Handler completed.");
             }

@@ -1145,7 +1145,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (image.ImageObjectType == eAssetImageType.Program)
                     {
-                        EpgAssetManager.UpdateProgramAssetPictures(groupId, image);
+                        EpgAssetManager.UpdateProgramAssetPictures(groupId, userId, image);
                     }
 
                     // invalidate asset with this image

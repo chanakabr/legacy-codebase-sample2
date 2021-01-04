@@ -24,7 +24,12 @@ namespace Core.Notification
         TopicInterests
     }
 
-    public class NotificationCache
+    public interface INotificationCache
+    {
+        NotificationPartnerSettingsResponse GetPartnerNotificationSettings(int groupId);
+    }
+
+    public class NotificationCache : INotificationCache
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -241,26 +246,23 @@ namespace Core.Notification
 
         public NotificationPartnerSettingsResponse GetPartnerNotificationSettings(int groupId)
         {
-            NotificationPartnerSettingsResponse settings = null;
+            NotificationPartnerSettingsResponse response = null;
             try
             {
-                string sKey = GetKey(eNotificationCacheTypes.PartnerNotificationConfiguration, groupId);
-                settings = Get<NotificationPartnerSettingsResponse>(sKey);
+                var cacheKey = GetKey(eNotificationCacheTypes.PartnerNotificationConfiguration, groupId);
+                response = Get<NotificationPartnerSettingsResponse>(cacheKey);
 
-                if (settings == null || settings.settings == null)
+                if (response?.settings == null)
                 {
-                    // get from DB
-                    settings = NotificationSettings.GetPartnerNotificationSettings(groupId);
-
-                    if (settings != null)
-                        Set(sKey, settings, SHORT_IN_CACHE_MINUTES);
+                    response = NotificationSettings.GetPartnerNotificationSettings(groupId);
+                    if (response != null) Set(cacheKey, response, SHORT_IN_CACHE_MINUTES);
                 }
             }
             catch (Exception ex)
             {
                 log.ErrorFormat("Error while getting cache partner notification settings. GID {0}, ex: {1}", groupId, ex);
             }
-            return settings;
+            return response;
         }
 
         public int GetEpisodeMediaTypeId(int groupId)
@@ -430,7 +432,7 @@ namespace Core.Notification
         }
 
         internal static bool TryGetTopicNotifications(int groupId, SubscribeReference subscribeReference, ref List<TopicNotification> topics)
-        {            
+        {
             bool res = false;
             try
             {
@@ -438,9 +440,9 @@ namespace Core.Notification
 
                 string key = LayeredCacheKeys.GetTopicNotificationsKey(groupId, (int)subscribeReference.Type);
 
-                Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "SubscribeReferenceType", (int)subscribeReference.Type} };
-                res = LayeredCache.Instance.Get<List<long>>(key, ref topicsIds, InitializeTopics, funcParams, groupId, 
-                                                            LayeredCacheConfigNames.GET_TOPIC_NOTIFICATIONS_LAYERED_CACHE_CONFIG_NAME, 
+                Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", groupId }, { "SubscribeReferenceType", (int)subscribeReference.Type } };
+                res = LayeredCache.Instance.Get<List<long>>(key, ref topicsIds, InitializeTopics, funcParams, groupId,
+                                                            LayeredCacheConfigNames.GET_TOPIC_NOTIFICATIONS_LAYERED_CACHE_CONFIG_NAME,
                                                             new List<string> { LayeredCacheKeys.GetTopicNotificationsInvalidationKey(groupId, (int)subscribeReference.Type) });
 
                 if (res && topicsIds.Count > 0)

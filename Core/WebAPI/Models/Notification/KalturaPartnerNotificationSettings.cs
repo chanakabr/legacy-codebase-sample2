@@ -162,7 +162,53 @@ namespace WebAPI.Models.Notification
         [JsonProperty("iotEnabled")]
         [XmlElement(ElementName = "iotEnabled", IsNullable = true)]
         public bool? IotEnabled { get; set; }
+
+        /// <summary>
+        /// Settings for epg notifications
+        /// </summary>
+        [DataMember(Name = "epgNotification")]
+        [JsonProperty("epgNotification")]
+        [XmlElement(ElementName = "epgNotification", IsNullable = true)]
+        public KalturaEpgNotificationSettings EpgNotification { get; set; }
     }
+
+    public partial class KalturaEpgNotificationSettings : KalturaOTTObject
+    {
+        /// <summary>
+        /// EPG notification capability is enabled for the account
+        /// </summary>
+        [DataMember(Name = "enabled")]
+        [JsonProperty("enabled")]
+        [XmlElement(ElementName = "enabled")]
+        public bool Enabled { get; set; }
+
+        /// <summary>
+        /// Specify which devices should receive notifications
+        /// </summary>
+        [DataMember(Name = "deviceFamilyIds")]
+        [JsonProperty("deviceFamilyIds")]
+        [XmlElement(ElementName = "deviceFamilyIds")]
+        public string DeviceFamilyIds { get; set; }
+
+        /// <summary>
+        /// Specify which live assets should fire notifications
+        /// </summary>
+        [DataMember(Name = "liveAssetIds")]
+        [JsonProperty("liveAssetIds")]
+        [XmlElement(ElementName = "liveAssetIds")]
+        public string LiveAssetIds { get; set; }
+
+        /// <summary>
+        /// The range (in hours), in which, EPG updates triggers a notification,
+        /// every program that is updated and it’s starts time falls within this range shall trigger a notification
+        /// </summary>
+        [DataMember(Name = "timeRange")]
+        [JsonProperty("timeRange")]
+        [XmlElement(ElementName = "timeRange")]
+        [SchemeProperty(MinInteger = 6, MaxInteger = 72)]
+        public int TimeRange { get; set; }
+    }
+
 
     [Obsolete]
     public partial class KalturaPartnerNotificationSettings : KalturaNotificationsPartnerSettings

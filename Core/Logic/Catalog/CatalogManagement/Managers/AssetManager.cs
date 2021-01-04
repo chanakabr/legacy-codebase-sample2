@@ -1,4 +1,5 @@
 ﻿using ApiLogic.Api.Managers;
+using ApiLogic.Notification.Managers;
 using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Catalog;
@@ -3270,14 +3271,15 @@ namespace Core.Catalog.CatalogManagement
                 switch (assetToAdd.AssetType)
                 {
                     case eAssetTypes.EPG:
-                        if (assetToAdd is EpgAsset)
+                        if (assetToAdd is EpgAsset epgAssetToAdd)
                         {
-                            result = EpgAssetManager.AddEpgAsset(groupId, (assetToAdd as EpgAsset), userId, catalogGroupCache);
+                            result = EpgAssetManager.AddEpgAsset(groupId, epgAssetToAdd, userId, catalogGroupCache);
                             if (!isFromIngest && result.HasObject())
                             {
-                                var epgAssetEvent = result.Object.ToAssetEvent(groupId, userId);
+                                var asset = result.Object;
+                                var epgAssetEvent = asset.ToAssetEvent(groupId, userId);
                                 epgAssetEvent.Insert();
-
+                                NotifyChannelWasUpdated(groupId, userId, epgAssetToAdd);
                             }
                         }
                         break;
@@ -3309,6 +3311,18 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        private static void NotifyChannelWasUpdated(int groupId, long userId, EpgAsset epgAsset)
+        {
+            EpgNotificationManager.Instance().ChannelWasUpdated(
+                KLogger.GetRequestId(),
+                groupId,
+                userId,                
+                epgAsset.LinearAssetId.Value,
+                epgAsset.EpgChannelId.Value,
+                epgAsset.StartDate.Value,
+                epgAsset.EndDate.Value);
+        }
+
         public static GenericResponse<Asset> UpdateAsset(int groupId, long id, Asset assetToUpdate, long userId, bool isFromIngest = false,
                                                         bool isCleared = false, bool isForMigration = false, bool isFromChannel = false)
         {
@@ -3328,7 +3342,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (!isForMigration && !isCleared)
                 {
-                    oldAsset = AssetManager.GetAsset(groupId, id, assetToUpdate.AssetType, true);
+                    oldAsset = GetAsset(groupId, id, assetToUpdate.AssetType, true);
 
                     if (!oldAsset.HasObject())
                     {
@@ -3341,16 +3355,15 @@ namespace Core.Catalog.CatalogManagement
                 switch (assetToUpdate.AssetType)
                 {
                     case eAssetTypes.EPG:
-                        if (assetToUpdate is EpgAsset)
+                        if (assetToUpdate is EpgAsset epgAssetToUpdate)
                         {
-                            result = EpgAssetManager.UpdateEpgAsset
-                                (groupId, (assetToUpdate as EpgAsset), userId, (oldAsset.Object as EpgAsset), catalogGroupCache);
+                            result = EpgAssetManager.UpdateEpgAsset(groupId, epgAssetToUpdate, userId, oldAsset?.Object as EpgAsset, catalogGroupCache);
 
                             if (!isFromIngest && result.HasObject())
                             {
                                 var epgAssetEvent = result.Object.ToAssetEvent(groupId, userId);
                                 epgAssetEvent.Update();
-
+                                NotifyChannelWasUpdated(groupId, userId, epgAssetToUpdate);
                             }
                         }
                         break;
@@ -3433,7 +3446,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 // validate that asset exist
                 // isAllowedToViewInactiveAssets = true because only operator can delete asset
-                List<Asset> assets = AssetManager.GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(assetType, id) }, true);
+                List<Asset> assets = GetAssets(groupId, new List<KeyValuePair<eAssetTypes, long>>() { new KeyValuePair<eAssetTypes, long>(assetType, id) }, true);
                 if (assets == null || assets.Count != 1 || assets[0] == null || assets[0].IndexStatus == AssetIndexStatus.Deleted)
                 {
                     result.Set((int)eResponseStatus.AssetDoesNotExist, eResponseStatus.AssetDoesNotExist.ToString());
@@ -3443,11 +3456,15 @@ namespace Core.Catalog.CatalogManagement
                 switch (assetType)
                 {
                     case eAssetTypes.EPG:
-                        result = EpgAssetManager.DeleteEpgAsset(groupId, id, userId);
-                        if (result.IsOkStatusCode())
+                        if (assets[0] is EpgAsset epgAsset)
                         {
-                            var epgAssetEvent = assets[0].ToAssetEvent(groupId, userId);
-                            epgAssetEvent.Delete();
+                            result = EpgAssetManager.DeleteEpgAsset(groupId, id, userId);
+                            if (result.IsOkStatusCode())
+                            {
+                                var epgAssetEvent = assets[0].ToAssetEvent(groupId, userId);
+                                epgAssetEvent.Delete();
+                                NotifyChannelWasUpdated(groupId, userId, epgAsset);
+                            }
                         }
                         break;
                     case eAssetTypes.NPVR:
@@ -3540,6 +3557,10 @@ namespace Core.Catalog.CatalogManagement
                 {
                     case eAssetTypes.EPG:
                         result = EpgAssetManager.RemoveTopicsFromProgram(groupId, topicIds, userId, catalogGroupCache, currentAsset.Object);
+                        if (result.IsOkStatusCode() && currentAsset.Object is EpgAsset epgAsset)
+                        {
+                            NotifyChannelWasUpdated(groupId, userId, epgAsset);
+                        }
                         break;
                     case eAssetTypes.MEDIA:
                         result = RemoveTopicsFromMediaAsset(groupId, id, topicIds, userId, catalogGroupCache, currentAsset.Object as MediaAsset, isFromIngest);

@@ -14,6 +14,7 @@ RUN dotnet publish -c Release "./IngestHandler/IngestHandler.csproj" -o /src/pub
 RUN dotnet publish -c Release "./IngestTransformationHandler/IngestTransformationHandler.csproj" -o /src/published/IngestTransformationHandler
 RUN dotnet publish -c Release "./IngestValidtionHandler/IngestValidtionHandler.csproj" -o /src/published/IngestValidtionHandler
 RUN dotnet publish -c Release "./CampaignHandler/CampaignHandler.csproj" -o /src/published/CampaignHandler
+RUN dotnet publish -c Release "./EpgNotificationHandler/EpgNotificationHandler.csproj" -o /src/published/EpgNotificationHandler
 
 
 # Cannot use alpine base runtime image because of this issue:
