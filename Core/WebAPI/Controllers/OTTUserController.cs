@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using ApiObjects.User;
 using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
@@ -736,13 +737,12 @@ namespace WebAPI.Controllers
             bool response = false;
             
             var ks = KS.GetFromRequest();
-            int groupId = ks.GroupId;
-            int userId = int.Parse(ks.UserId);
-            var originalUserIdExists = int.TryParse(ks.OriginalUserId, out var originalUserId);
+            var userId = ks.UserId.ParseUserId();
+            var originalUserId = ks.OriginalUserId.ParseUserId();
 
             try
             {
-                if (!originalUserIdExists)
+                if (originalUserId == 0)
                 {
                     throw new ClientException(new Status(eResponseStatus.UserImpersonationInvalid));
                 }
@@ -758,7 +758,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                response = ClientsManager.UsersClient().DeleteUser(groupId, userId);
+                response = ClientsManager.UsersClient().DeleteUser(ks.GroupId, (int)userId);
             }
             catch (ClientException ex)
             {
