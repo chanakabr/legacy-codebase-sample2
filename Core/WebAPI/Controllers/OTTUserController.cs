@@ -729,15 +729,29 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.DefaultUserCannotBeDeleted)]
         [Throws(eResponseStatus.ExclusiveMasterUserCannotBeDeleted)]
+        [Throws(eResponseStatus.UserImpersonationInvalid)]
+        [Throws(eResponseStatus.UserSelfDeleteNotPermitted)]
         static public bool Delete()
         {
             bool response = false;
-
-            int groupId = KS.GetFromRequest().GroupId;
-            int userId = int.Parse(KS.GetFromRequest().UserId);
+            
+            var ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
+            int userId = int.Parse(ks.UserId);
+            var originalUserIdExists = int.TryParse(ks.OriginalUserId, out var originalUserId);
 
             try
             {
+                if (!originalUserIdExists)
+                {
+                    throw new ClientException(new Status(eResponseStatus.UserImpersonationInvalid));
+                }
+
+                if (originalUserId == userId)
+                {
+                    throw new ClientException(new Status(eResponseStatus.UserSelfDeleteNotPermitted));
+                }
+                
                 if (!RolesManager.IsAllowedDeleteAction())
                 {
                     throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
