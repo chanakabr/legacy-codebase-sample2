@@ -78,7 +78,19 @@ namespace WebAPI.Models.General
         [JsonProperty(PropertyName = "Id")]
         [XmlElement(ElementName = "Id", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
-        public string Id { get; internal set; } 
+        public string Id { get; internal set; }
+
+        [DataMember(Name = "userId")]
+        [JsonProperty(PropertyName = "userId")]
+        [XmlElement(ElementName = "userId", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long? UserId { get; internal set; }
+
+        [DataMember(Name = "udid")]
+        [JsonProperty(PropertyName = "udid")]
+        [XmlElement(ElementName = "udid", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public string Udid { get; internal set; }
     }
 
     [Serializable]

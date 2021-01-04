@@ -382,7 +382,12 @@ namespace WebAPI.Managers.Models
 
         internal static KS GetFromRequest()
         {
-            return (KS)HttpContext.Current.Items[RequestContextUtils.REQUEST_KS];
+            if (HttpContext.Current == null) return null;
+
+            var items = HttpContext.Current.Items;
+            return items.ContainsKey(RequestContextUtils.REQUEST_KS)
+                ? (KS)items[RequestContextUtils.REQUEST_KS]
+                : null;
         }
 
         public static KS CreateKSFromApiToken(ApiToken token, string tokenVal)
@@ -435,21 +440,33 @@ namespace WebAPI.Managers.Models
             return KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, ks, KS.KSVersion.V2, fallbackSecret);
         }
 
-        public static ContextData GetContextData()
+        public static ContextData GetContextData(bool skipDomain = false)
         {
             var ks = GetFromRequest();
+
+            if (ks == null)
+            {
+                return null;
+            }
+
             long? domainId = null;
             string udid = null;
+            long originalUserId = 0;
 
-            try
+
+            if (!skipDomain)
             {
-                domainId = HouseholdUtils.GetHouseholdIDByKS();
+                try
+                {
+                    domainId = HouseholdUtils.GetHouseholdIDByKS();
+                }
+                catch (Exception) { }
             }
-            catch (Exception) { }
 
             try
             {
                 udid = KSUtils.ExtractKSPayload().UDID;
+                long.TryParse(ks.OriginalUserId, out originalUserId);
             }
             catch (Exception) { }
 
@@ -460,7 +477,8 @@ namespace WebAPI.Managers.Models
                 Udid = udid,
                 UserIp = Utils.Utils.GetClientIP(),
                 Language = Utils.Utils.GetLanguageFromRequest(),
-                Format = Utils.Utils.GetFormatFromRequest()
+                Format = Utils.Utils.GetFormatFromRequest(),
+                OriginalUserId = originalUserId
             };
 
             return contextData;

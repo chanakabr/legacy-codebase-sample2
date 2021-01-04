@@ -143,12 +143,15 @@ namespace IngestV2.Tests
             Assert.That(programsToIngest.First().Errors.First().Message, Contains.Substring("Reject").IgnoreCase);
         }
         
-        [Test]
-        public void TestOverlapInAfterIngestCutTargetMiddle()
+        [TestCase(30, 30, Description = "new epg starts and ends in the middle of existing epg")]
+        [TestCase(0, 30, Description = "new epg starts in the same time as existing epg and ends in the middle of existing epg")]
+        [TestCase(30, 90, Description = "new epg starts in the middle of existing epg and ends in the same time as existing epg")]
+        public void TestOverlapInAfterIngestCutTargetMiddle(int shiftFromExistingEpgInMinutes, int durationInMinutes)
         {
             var existingEpgStart = new DateTime(2000,1,1,0,0,0);
             var existingEpg = ProgramGenerator
                 .Generate(3)
+                .WithEpgIds()
                 .WithDuration(TimeSpan.FromHours(2))
                 .FromDate(existingEpgStart)
                 .BuildExistingPrograms();
@@ -157,15 +160,17 @@ namespace IngestV2.Tests
             
             var bulkUpload = ProgramGenerator
                 .Generate(1)
+                .WithEpgIds()
                 .StartFromId(10)
-                .FromDate(existingEpgStart.AddMinutes(30))
-                .WithDuration(TimeSpan.FromMinutes(30))
+                .FromDate(existingEpgStart.AddMinutes(shiftFromExistingEpgInMinutes))
+                .WithDuration(TimeSpan.FromMinutes(durationInMinutes))
                 .BuildBulkUploadObj();
-            var programsToIngest = bulkUpload.Results.Cast<BulkUploadProgramAssetResult>().ToList();
+
             var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.CutTarget, eIngestProfileAutofillPolicy.KeepHoles);
 
-            Assert.That(crudOperations.ItemsToAdd, Has.Count.EqualTo(1));
-            Assert.That(crudOperations.ItemsToDelete,Has.Count.EqualTo(1));
+            Assert.That(crudOperations, Is.Not.Null);
+            Assert.That(crudOperations.ItemsToAdd.Select(_ => _.EpgId), Is.EquivalentTo(new[] { 10 }));
+            Assert.That(crudOperations.ItemsToDelete.Select(_ => _.EpgId), Is.EquivalentTo(new[] { 1 }));
         }
         
         [Test]

@@ -103,6 +103,11 @@ namespace KLogMonitor
 
         private Stopwatch Watch { get; set; }
 
+        // without default constructor Jil-reflection-magic throws NullRefException,
+        // when we trying to call KMonitor.ToString() inside the KMonitor constructor(_Logger.Monitor)
+        // a bit weird to call overrided ToString on partially initialized object, especially when ToString uses reflection
+        private KMonitor() { }
+
         public KMonitor(Events.eEvent eventName, string groupID = null, string action = null, string uniqueID = null, string clientTag = null)
         {
             try

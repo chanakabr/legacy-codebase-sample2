@@ -359,12 +359,15 @@ namespace WebAPI.Managers
             }
 
             UsersClient usersClient = ClientsManager.UsersClient();
+            
+            var userRoles = usersClient.GetUserRoleIds(groupId, userId);
             var userStatus = ValidateUser(groupId, userId, usersClient);
+            
             if (!group.ApptokenUserValidationDisabled)
             {
                 userStatus.ThrowOnError();
 
-                if (group.ShouldCheckDeviceInDomain && IsEndUser())
+                if (group.ShouldCheckDeviceInDomain && IsEndUser(groupId, userRoles))
                 {
                     DomainsClient domainsClient = ClientsManager.DomainsClient();
                     ValidateDevice(groupId, userId, udid, domainId, domainsClient);
@@ -415,7 +418,6 @@ namespace WebAPI.Managers
 
             // set payload data
             var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
-            var userRoles = usersClient.GetUserRoleIds(groupId, userId);
             var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
 
             log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
@@ -441,9 +443,9 @@ namespace WebAPI.Managers
             return response;
         }
 
-        private static bool IsEndUser()
+        private static bool IsEndUser(int groupId, List<long> roleIds)
         {
-            return !RequestContextUtils.IsPartnerRequest();
+            return !RolesManager.IsPartner(groupId, roleIds);
         }
 
         private static readonly HashSet<ResponseStatus> validUserStatus = new HashSet<ResponseStatus> { ResponseStatus.OK, ResponseStatus.UserWithNoDomain, ResponseStatus.UserNotIndDomain, ResponseStatus.UserNotMasterApproved };
