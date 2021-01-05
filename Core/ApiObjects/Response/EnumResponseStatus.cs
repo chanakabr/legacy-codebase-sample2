@@ -113,8 +113,7 @@ namespace ApiObjects.Response
         ParentIdNotExist = 2059,
         UserFavoriteNotDeleted = 2060,
         ActionBlocked = 2061,
-        UserImpersonationInvalid = 2062,
-        UserSelfDeleteNotPermitted = 2063,
+        UserSelfDeleteNotPermitted = 2062,
 
         #endregion
 

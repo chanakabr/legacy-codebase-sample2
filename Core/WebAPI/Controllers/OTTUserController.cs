@@ -730,7 +730,6 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.DefaultUserCannotBeDeleted)]
         [Throws(eResponseStatus.ExclusiveMasterUserCannotBeDeleted)]
-        [Throws(eResponseStatus.UserImpersonationInvalid)]
         [Throws(eResponseStatus.UserSelfDeleteNotPermitted)]
         static public bool Delete()
         {
@@ -742,12 +741,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                if (originalUserId == 0)
-                {
-                    throw new ClientException(new Status(eResponseStatus.UserImpersonationInvalid));
-                }
-
-                if (originalUserId == userId)
+                if (originalUserId.IsAnonymous() || originalUserId == userId)
                 {
                     throw new ClientException(new Status(eResponseStatus.UserSelfDeleteNotPermitted));
                 }

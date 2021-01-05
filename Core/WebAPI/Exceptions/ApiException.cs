@@ -94,7 +94,6 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PARENTID_SHOULD_NOT_POINT_TO_ITSELF = new ClientExceptionType(eResponseStatus.ParentIdShouldNotPointToItself, "ParentId Should Not Point To Itself", "ParentId should not point to itself");
         public static ClientExceptionType PARENTID_NOT_EXIST = new ClientExceptionType(eResponseStatus.ParentIdNotExist, "ParentId Not Exist");
         public static ClientExceptionType USER_FAVORITE_NOT_DELETED = new ClientExceptionType(eResponseStatus.UserFavoriteNotDeleted, "User Favorite Not Deleted");
-        public static ClientExceptionType USER_IMPERSONATION_INVALID = new ClientExceptionType(eResponseStatus.UserImpersonationInvalid, "User Impersonation Invalid", "UserId should be used in order to proceed with this endpoint.");
         public static ClientExceptionType USER_SELF_DELETE_NOT_PERMITTED = new ClientExceptionType(eResponseStatus.UserSelfDeleteNotPermitted, "User Self Delete Not Permitted", "Self deletion is not permitted.");
 
         #endregion
