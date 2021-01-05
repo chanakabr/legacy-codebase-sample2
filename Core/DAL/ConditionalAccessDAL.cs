@@ -1400,7 +1400,7 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateUnifiedProcess(long processId, DateTime? endDate, int? processUnifiedState, long? cycle)
+        public static bool UpdateUnifiedProcess(long processId, DateTime? endDate, int? processUnifiedState, long? cycle, bool remove = false)
         {
             try
             {
@@ -1420,6 +1420,11 @@ namespace DAL
                 if (cycle.HasValue)
                 {
                     sp.AddParameter("@Cycle", cycle.Value);
+                }
+
+                if (remove)
+                {
+                    sp.AddParameter("@Status", 2);
                 }
 
                 return sp.ExecuteReturnValue<bool>();

@@ -1834,6 +1834,22 @@ namespace Core.ConditionalAccess
 
                             if (cancelResult)
                             {
+                                int unifiedPaymentId = ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "unified_process_id"); //BEO-9166
+                                if (unifiedPaymentId > 0)
+                                {
+                                    DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseUnifiedForRenewal(m_nGroupID, domainId, unifiedPaymentId);
+                                    
+                                    if (subscriptionPurchaseDt == null || (subscriptionPurchaseDt != null && subscriptionPurchaseDt.Rows != null && subscriptionPurchaseDt.Rows.Count == 0))
+                                    {
+                                        //delete from db 
+                                        bool dbRes = DAL.ConditionalAccessDAL.UpdateUnifiedProcess(unifiedPaymentId, null, null, null, true);
+                                        long billingCycle = subscriptionToCancel.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle;
+                                        bool cbRes = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(domainId, billingCycle, 0);
+
+                                        log.Debug($"BEO-9166 delete unified process {unifiedPaymentId} dbRes:{dbRes} cbres:{dbRes}");
+                                    }
+                                }
+
                                 // site guid of purchasing user
                                 WriteToUserLog(sPurchasingSiteGuid,
                                     String.Concat("Sub ID: ", subscriptionCode, " with Purchase ID: ",
@@ -2763,6 +2779,7 @@ namespace Core.ConditionalAccess
                             renewDetails.Price = finalPriceAndCouponRemainder.Item1;
                             renewDetails.RecurringData.CouponRemainder = finalPriceAndCouponRemainder.Item2;
                             isPartialPrice = true;
+                            renewDetails.IsAddToUnified = true;
                         }
                     }
                 }
