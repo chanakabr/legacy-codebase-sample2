@@ -192,10 +192,9 @@ namespace Core.Users
         static public BaseEncrypter GetBaseImpl(Int32 nGroupID)
         {
             BaseEncrypter baseEncrypter = null;
-            int nImplID = 0;
 
-            string key = string.Format("users_GetBaseEncrypterImpl_{0}", nGroupID);
-            bool bRes = UsersCache.GetItem<int>(key, out nImplID);
+            var key = string.Format("users_GetBaseEncrypterImpl_{0}", nGroupID);
+            bool bRes = UsersCache.GetItem(key, out int nImplID);
 
             if (!bRes)
             {
@@ -204,12 +203,9 @@ namespace Core.Users
                 if (dr != null)
                 {
                     nImplID = ODBCWrapper.Utils.GetIntSafeVal(dr["ENCRYPTER_IMPLEMENTATION"]);
-                    if (nImplID > 0)
-                    {
-                        UsersCache.AddItem(key, nImplID);
-                    }
                 }
             }
+            UsersCache.AddItem(key, nImplID);
 
             switch (nImplID)
             {
