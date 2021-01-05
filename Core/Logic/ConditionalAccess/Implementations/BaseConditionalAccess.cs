@@ -16855,16 +16855,22 @@ namespace Core.ConditionalAccess
 
                 HashSet<long> failedDomainIds;
                 sharedRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, sharedRecording.ChannelId, sharedRecording.EpgStartDate, sharedRecording.EpgEndDate, sharedRecording.Crid,
-                                                                domains.Select(x => x.Item1).ToList(), out failedDomainIds);
-
-                Dictionary<long, List<Recording>> deletedMap = new Dictionary<long, List<Recording>>();
+                                                                domains.Select(x => x.Item1).ToList(), out failedDomainIds, RecordingContext.PrivateDistribute);
 
                 if (sharedRecording != null && sharedRecording.Status != null && sharedRecording.Status.Code == (int)eResponseStatus.OK
                      && sharedRecording.Id > 0 && Utils.IsValidRecordingStatus(sharedRecording.RecordingStatus))
                 {
+                    Dictionary<long, List<Recording>> deletedMap = new Dictionary<long, List<Recording>>();
+
                     Parallel.ForEach(domains, options, domainSeriesData =>
                     {
                         contextData.Load();
+
+                        if (failedDomainIds?.Count > 0 && failedDomainIds.Contains(domainSeriesData.Item1))
+                        {
+                            log.Debug($"faild to record program to domain {domainSeriesData.Item1}");
+                            return;
+                        }
 
                         int recordingDuration = (int)(sharedRecording.EpgEndDate - sharedRecording.EpgStartDate).TotalSeconds;
                         log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, domainSeriesData.Item3);

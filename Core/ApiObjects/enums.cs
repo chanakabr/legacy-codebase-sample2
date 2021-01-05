@@ -675,7 +675,8 @@ namespace ApiObjects
         DeletedBySystem = 4,
         SeriesCancel = 5,
         SeriesDelete = 6,
-        DeletePending = 7
+        DeletePending = 7,
+        Failed = 8
     }
 
     public enum RecordingInternalStatus
@@ -1194,5 +1195,12 @@ namespace ApiObjects
         Ok = 0,
         Deleted = 1,
         NotUpdated = 2
+    }
+
+    public enum RecordingContext
+    {
+        Regular = 0,
+        PrivateDistribute = 1,
+        PrivateRetry = 2
     }
 }

@@ -6,20 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using TVinciShared;
-using System.Net;
-using System.Web;
-using System.ServiceModel;
 using DAL;
-using System.Threading;
-using ConfigurationManager;
 
 namespace RecordingTaskHandler
 {
     public class TaskHandler : ITaskHandler
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());        
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region ITaskHandler Members
 
@@ -47,102 +40,102 @@ namespace RecordingTaskHandler
                 switch (request.Task)
                 {
                     case eRecordingTask.GetStatusAfterProgramEnded:
-                    {
-                        var recording = Core.ConditionalAccess.Module.GetRecordingStatus(request.GroupID, request.RecordingId);
+                        {
+                            var recording = Core.ConditionalAccess.Module.GetRecordingStatus(request.GroupID, request.RecordingId);
 
-                        if (recording == null)
-                        {
-                            message = "recording is null";
-                        }
-                        else if (recording.Status == null)
-                        {
-                            message = "status is null";
-                        }
-                        else if (recording.Status.Code != 0)
-                        {
-                            message = string.Format("Status code is {0} and message is {1}", recording.Status.Code, recording.Status.Message);
-                        }
-                        else
-                        {
-                            success = true;
-                        }
-
-                        break;
-                    }
-                    case eRecordingTask.Record:
-                    {
-                        var recording = Core.ConditionalAccess.Module.RecordRetry(request.GroupID, request.RecordingId);
-
-                        if (recording == null)
-                        {
-                            message = "recording is null";
-                        }
-                        else if (recording.Status == null)
-                        {
-                            message = "status is null";
-                        }
-                        else if (recording.Status.Code != 0)
-                        {
-                            message = string.Format("Status code is {0} and message is {1}", recording.Status.Code, recording.Status.Message);
-                        }
-                        else
-                        {
-                            success = true;
-                        }
-
-                        break;
-                    }
-                    case eRecordingTask.UpdateRecording:
-                    {
-                        long[] epgs = new long[]{request.ProgramId};
-                        var status = Core.ConditionalAccess.Module.IngestRecording(request.GroupID, epgs, eAction.Update);
-
-                        if (status == null)
-                        {
-                            message = "status is null";
-                        }
-                        else if (status.Code != 0)
-                        {
-                            message = string.Format("Status code is {0} and message is {1}", status.Code, status.Message);
-                        }
-                        else
-                        {
-                            success = true;
-                        }
-
-                        break;
-                    }
-                    case eRecordingTask.DistributeRecording:
-                    {
-                        // Get epg series details (seriesId, seassonNumber and isFIsEpgFirstTimeAirDate
-                        Tuple<string, int, bool, int> epgSeriesDetails = Core.ConditionalAccess.Module.GetEpgSeriesDetails(request.GroupID, request.ProgramId);
-                        if (epgSeriesDetails != null && !string.IsNullOrEmpty(epgSeriesDetails.Item1) && epgSeriesDetails.Item2 > -1)
-                        {
-                            long maxDomainSeriesId = request.MaxDomainSeriesId.HasValue ? request.MaxDomainSeriesId.Value : 0;
-                            HashSet<long> domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, epgSeriesDetails.Item1, epgSeriesDetails.Item2, epgSeriesDetails.Item3, epgSeriesDetails.Item4, ref maxDomainSeriesId);
-                            if (domainSeriesIds != null && domainSeriesIds.Count > 0 && maxDomainSeriesId > -1)
+                            if (recording == null)
                             {
-                                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                                {
-                                    Core.ConditionalAccess.Module.DistributeRecordingWithDomainIds(request.GroupID, request.ProgramId, request.RecordingId, request.EpgStartDate, domainSeriesIds.ToArray());
-                                }
+                                message = "recording is null";
+                            }
+                            else if (recording.Status == null)
+                            {
+                                message = "status is null";
+                            }
+                            else if (recording.Status.Code != 0)
+                            {
+                                message = string.Format("Status code is {0} and message is {1}", recording.Status.Code, recording.Status.Message);
+                            }
+                            else
+                            {
+                                success = true;
                             }
 
-                            success = true;
+                            break;
                         }
-                        else
+                    case eRecordingTask.Record:
                         {
-                            success = false;
+                            var recording = Core.ConditionalAccess.Module.RecordRetry(request.GroupID, request.RecordingId);
+
+                            if (recording == null)
+                            {
+                                message = "recording is null";
+                            }
+                            else if (recording.Status == null)
+                            {
+                                message = "status is null";
+                            }
+                            else if (recording.Status.Code != 0)
+                            {
+                                message = string.Format("Status code is {0} and message is {1}", recording.Status.Code, recording.Status.Message);
+                            }
+                            else
+                            {
+                                success = true;
+                            }
+
+                            break;
                         }
+                    case eRecordingTask.UpdateRecording:
+                        {
+                            long[] epgs = new long[] { request.ProgramId };
+                            var status = Core.ConditionalAccess.Module.IngestRecording(request.GroupID, epgs, eAction.Update);
+
+                            if (status == null)
+                            {
+                                message = "status is null";
+                            }
+                            else if (status.Code != 0)
+                            {
+                                message = string.Format("Status code is {0} and message is {1}", status.Code, status.Message);
+                            }
+                            else
+                            {
+                                success = true;
+                            }
+
+                            break;
+                        }
+                    case eRecordingTask.DistributeRecording:
+                        {
+                            // Get epg series details (seriesId, seassonNumber and isFIsEpgFirstTimeAirDate
+                            Tuple<string, int, bool, int> epgSeriesDetails = Core.ConditionalAccess.Module.GetEpgSeriesDetails(request.GroupID, request.ProgramId);
+                            if (epgSeriesDetails != null && !string.IsNullOrEmpty(epgSeriesDetails.Item1) && epgSeriesDetails.Item2 > -1)
+                            {
+                                long maxDomainSeriesId = request.MaxDomainSeriesId.HasValue ? request.MaxDomainSeriesId.Value : 0;
+                                HashSet<long> domainSeriesIds = RecordingsDAL.GetSeriesFollowingDomainsIds(request.GroupID, epgSeriesDetails.Item1, epgSeriesDetails.Item2, epgSeriesDetails.Item3, epgSeriesDetails.Item4, ref maxDomainSeriesId);
+                                if (domainSeriesIds != null && domainSeriesIds.Count > 0 && maxDomainSeriesId > -1)
+                                {
+                                    using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                                    {
+                                        Core.ConditionalAccess.Module.DistributeRecordingWithDomainIds(request.GroupID, request.ProgramId, request.RecordingId, request.EpgStartDate, domainSeriesIds.ToArray());
+                                    }
+                                }
+
+                                success = true;
+                            }
+                            else
+                            {
+                                success = false;
+                            }
 
 
-                        break;
-                    }
+                            break;
+                        }
                     case eRecordingTask.CheckRecordingDuplicateCrids:
-                    {
-                        success = Core.ConditionalAccess.Module.CheckRecordingDuplicateCrids(request.GroupID, request.RecordingId);
-                        break;
-                    }
+                        {
+                            success = Core.ConditionalAccess.Module.CheckRecordingDuplicateCrids(request.GroupID, request.RecordingId);
+                            break;
+                        }
                 }
 
                 if (!success)

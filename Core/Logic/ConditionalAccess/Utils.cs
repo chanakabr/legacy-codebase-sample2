@@ -5410,6 +5410,9 @@ namespace Core.ConditionalAccess
                     case DomainRecordingStatus.Deleted:
                         result.Add(TstvRecordingStatus.Deleted);
                         break;
+                    case DomainRecordingStatus.Failed:
+                        result.Add(TstvRecordingStatus.Failed);
+                        break;
                     default:
                         break;
                 }
@@ -5528,6 +5531,9 @@ namespace Core.ConditionalAccess
                     break;
                 case DomainRecordingStatus.DeletePending:
                     recordingStatus = TstvRecordingStatus.DeletePending;
+                    break;
+                case DomainRecordingStatus.Failed:
+                    recordingStatus = TstvRecordingStatus.Failed;
                     break;
                 default:
                     break;
@@ -5989,6 +5995,7 @@ namespace Core.ConditionalAccess
                 DomainRecordingStatus.OK,
                 DomainRecordingStatus.Canceled,
                 DomainRecordingStatus.SeriesCancel,
+                DomainRecordingStatus.Failed
             };
             DataTable dt = RecordingsDAL.GetDomainRecordingsByRecordingStatuses(groupID, domainID, domainRecordingStatuses.Select(x => (int)x).ToList());
             if (dt != null && dt.Rows != null)

@@ -144,7 +144,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.Debug($"objectVirtualAssetInfo  is null for groupId {groupId}, type {virtualAssetInfo.Type} ");
                     return virtualAssetInfoResponse;
-                }                
+                }
 
                 MediaAsset virtualAsset = new MediaAsset()
                 {
@@ -220,7 +220,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 response = GetVirtualAsset(groupId, virtualAssetInfo, out bool needToCreateVirtualAsset, out Asset virtualAsset);
-                if(response.Status == VirtualAssetInfoStatus.NotRelevant)
+                if (response.Status == VirtualAssetInfoStatus.NotRelevant)
                 {
                     return response;
                 }
@@ -257,9 +257,9 @@ namespace Core.Catalog.CatalogManagement
             };
 
             bool needToCreateVirtualAsset = false;
-            response  = GetVirtualAsset(groupId, virtualAssetInfo, out needToCreateVirtualAsset, out Asset virtualAsset);
+            response = GetVirtualAsset(groupId, virtualAssetInfo, out needToCreateVirtualAsset, out Asset virtualAsset);
 
-            if(response.Status == VirtualAssetInfoStatus.NotRelevant)
+            if (response.Status == VirtualAssetInfoStatus.NotRelevant)
             {
                 return response;
             }
@@ -1896,10 +1896,10 @@ namespace Core.Catalog.CatalogManagement
             return groupAssetsMap;
         }
 
-        private static Dictionary<int, ApiObjects.SearchObjects.Media> CreateMediasFromMediaAssetAndLanguages(int groupId, MediaAsset mediaAsset, 
-                        EnumerableRowCollection<DataRow> assetFileTypes, CatalogGroupCache catalogGroupCache, 
+        private static Dictionary<int, ApiObjects.SearchObjects.Media> CreateMediasFromMediaAssetAndLanguages(int groupId, MediaAsset mediaAsset,
+                        EnumerableRowCollection<DataRow> assetFileTypes, CatalogGroupCache catalogGroupCache,
                         Dictionary<long, List<int>> linearChannelsRegionsMapping)
-        {   
+        {
             GetFileTypes(assetFileTypes, out HashSet<int> fileTypes, out HashSet<int> freeFileTypes);
             var now = DateTime.UtcNow;
             var max = DateTime.MaxValue;
@@ -2001,7 +2001,7 @@ namespace Core.Catalog.CatalogManagement
             var dateTimeType = MetaType.DateTime.ToString();
             var boolType = MetaType.Bool.ToString();
             var numberType = MetaType.Number.ToString();
-            
+
             foreach (Metas meta in metas)
             {
                 var tagName = meta.m_oTagMeta.m_sName;
@@ -2968,7 +2968,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             //BEO-8950
                             var liveAsset = assets[0] as LiveAsset;
-                            
+
                             result.m_ExternalIDs = liveAsset.EpgChannelId.ToString();
                             result.EnableCDVR = liveAsset.CdvrEnabled;
                             result.EnableCatchUp = liveAsset.CatchUpEnabled;
@@ -3247,7 +3247,7 @@ namespace Core.Catalog.CatalogManagement
                 log.Error(string.Format("Failed GetMediaForElasticSearchIndex for groupId: {0}", groupId), ex);
             }
 
-            if(result != null && result.Keys.Count > 0)
+            if (result != null && result.Keys.Count > 0)
             {
                 log.Debug($"GetMediaForElasticSearchIndex . groupId {groupId}, result.Keys.Count {result.Keys.Count}");
             }
@@ -3429,6 +3429,20 @@ namespace Core.Catalog.CatalogManagement
                 {
                     // invalidate asset
                     InvalidateAsset(assetToUpdate.AssetType, groupId, id);
+                }
+
+                //Retry if has failed recordings and start time is within 30 minutes
+                if (RecordingsDAL.GetDomainRetryRecordingDoc(groupId, id).HasValue
+                    && result.Object.StartDate.HasValue && result.Object.StartDate.Value.AddMinutes(-30) <= DateTime.UtcNow)
+                {
+                    var recordingDt = RecordingsDAL.GetRecordingByEpgId(groupId, id);
+                    long recordingId = 0;
+                    if (recordingDt != null && recordingDt.Rows != null && recordingDt.Rows.Count == 1)
+                    {
+                        var dr = recordingDt.Rows[0];
+                        recordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                    }
+                    var recording = Recordings.RecordingsManager.Instance.RecordRetry(groupId, recordingId);
                 }
             }
             catch (Exception ex)

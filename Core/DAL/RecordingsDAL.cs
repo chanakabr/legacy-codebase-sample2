@@ -164,6 +164,7 @@ namespace DAL
             spUpdateRecording.AddParameter("@Crid", string.IsNullOrEmpty(recording.Crid) ? null : recording.Crid);
 
             result = spUpdateRecording.ExecuteReturnValue<bool>();
+
             return result;
         }
 
@@ -1230,6 +1231,116 @@ namespace DAL
             return res > 0;
         }
 
+        public static bool UpdateDomainRecordingFailure(int groupId, HashSet<long> domainIds, long epgId, bool status)
+        {
+            var sp = new StoredProcedure("UpdateDomainScheduledRecordingsFailure");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@failedDomainIds", domainIds, "ID");
+            sp.AddParameter("@epgId", epgId);
+            sp.AddParameter("@status", status ? 1 : 0);
+            int res = sp.ExecuteReturnValue<int>();
+
+            return res > 0;
+        }
+
+        /// <summary>
+        /// Get list of domains that failed to (private) record an epg
+        /// </summary>
+        /// <param name="groupId">group Id</param>
+        /// <param name="epgId">record Id</param>
+        /// <returns>List of domains that failed to record an epg</returns>
+        public static List<long> GetDomainsEpgRecordingFailure(int groupId, long epgId)
+        {
+            var sp = new StoredProcedure("GetDomainRecordingFailures");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@epgId", epgId);
+
+            DataTable dt = sp.Execute();
+            var domains = new List<long>();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long domainId = Utils.GetLongSafeVal(dr, "ID", 0);
+                    domains.Add(domainId);
+                }
+            }
+
+            return domains;
+        }
+
+        public static long? GetDomainRetryRecordingDoc(int groupId, long epgId)
+        {
+            var cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            var key = UtilsDal.GetDomainRetryRecordingKey(groupId, epgId);
+            return cbClient.Get<long?>(key);
+        }
+
+        public static bool SaveDomainRetryRecordingDoc(int groupId, long epgId, long nextCheck, long ttl)
+        {
+            var result = false;
+            var cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            var key = UtilsDal.GetDomainRetryRecordingKey(groupId, epgId);
+
+            try
+            {
+                int numOfRetries = 0;
+                var r = new Random();
+
+                while (!result && numOfRetries < RETRY_LIMIT)
+                {
+                    cbClient.GetWithVersion<long?>(key, out ulong version, out CouchbaseManager.eResultStatus status);
+
+                    if (status == CouchbaseManager.eResultStatus.SUCCESS)
+                    {
+                        result = cbClient.SetWithVersion(key, nextCheck, version, (uint)ttl);
+                    }
+                    else if (status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
+                    {
+                        result = cbClient.SetWithVersion(key, nextCheck, 0, (uint)ttl);
+                    }
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.Error($"Error while Save DomainRetryRecordingDoc. number of tries: {numOfRetries}/{RETRY_LIMIT}. groupId: {groupId}, epg Id: {epgId}");
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while Save DomainRetryRecordingDoc, groupId: {groupId}, epg Id: {epgId}, ex: {ex}", ex);
+            }
+
+            return result;
+        }
+
+        public static List<long> SetRetryRecordingToFail(int groupId, long epgId, DomainRecordingStatus state = DomainRecordingStatus.Failed)
+        {
+            var sp = new StoredProcedure("UpdateDomainRecordingsFailure");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@epgId", epgId);
+            sp.AddParameter("@state", state);
+
+            DataTable dt = sp.Execute();
+            var domains = new List<long>();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long domainId = Utils.GetLongSafeVal(dr, "Domain_ID", 0);
+                    domains.Add(domainId);
+                }
+            }
+
+            return domains;
+        }
+
         public static bool UpdateDomainScheduledRecordingsUserId(int groupId, List<long> domainSceduledIdsToUpdate, string masterUserId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateDomainScheduledRecordingsUserId");
@@ -1318,7 +1429,7 @@ namespace DAL
                         //document exists
                         return true;
                     }
-                    else if (status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST 
+                    else if (status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST
                         && (shouldForceUpdate || defaultQuota >= quota))
                     {
                         domainQuota = new DomainQuota(0, Math.Max(quota, 0), true);

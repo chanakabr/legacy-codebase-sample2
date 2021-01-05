@@ -376,6 +376,11 @@ namespace DAL
             return string.Format("domain_{0}_quota", domainId);
         }
 
+        public static string GetDomainRetryRecordingKey(long groupId, long epgId)
+        {
+            return $"group_{groupId}_Epg_{epgId}_Recording_Retry";
+        }
+
         public static string GetFirstFollowerLockKey(int groupId, string seriesId, int seasonNumber, string channelId)
         {
             return string.Format("{0}_series{1}_season{2}_channel{3}", groupId, seriesId, seasonNumber, channelId);
