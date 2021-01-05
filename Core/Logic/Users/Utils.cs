@@ -204,9 +204,10 @@ namespace Core.Users
                 {
                     nImplID = ODBCWrapper.Utils.GetIntSafeVal(dr["ENCRYPTER_IMPLEMENTATION"]);
                 }
-            }
-            UsersCache.AddItem(key, nImplID);
 
+                UsersCache.AddItem(key, nImplID);
+            }
+            
             switch (nImplID)
             {
                 case 1:
