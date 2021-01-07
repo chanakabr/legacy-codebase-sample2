@@ -40,8 +40,7 @@ namespace WebAPI.Controllers
             try
             {
                 // validate announcement start date
-                if (announcement.getStartTime() > 0 &&
-                    announcement.StartTime < DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow))
+                if (announcement.getStartTime() != 0 && announcement.StartTime < DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow))
                 {
                     log.ErrorFormat("start time have passed. given time: {0}", DateUtils.UtcUnixTimestampSecondsToDateTime((long)announcement.StartTime));
                     throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "KalturaAnnouncement.startTime");
@@ -170,7 +169,7 @@ namespace WebAPI.Controllers
             try
             {
                 int groupId = KS.GetFromRequest().GroupId;
-                
+
                 // validate announcement start date
                 if (announcement.getStartTime() > 0 &&
                     announcement.StartTime < DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow))
