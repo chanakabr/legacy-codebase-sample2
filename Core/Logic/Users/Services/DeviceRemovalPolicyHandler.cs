@@ -131,8 +131,16 @@ namespace ApiLogic.Users.Services
             if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.DeviceLoginHistory.Value)
             {
                 var authClient = AuthenticationClient.GetClientFromTCM();
-                var l = authClient.GetUserLoginHistory(groupId, userId);
-                return l?.LastLoginSuccessDate;
+                var loginHistoryList = authClient.ListDevicesLoginHistory(groupId, new List<string>() { UDID });
+
+                if (loginHistoryList != null && loginHistoryList.Count() > 0)
+                {
+                    return loginHistoryList.FirstOrDefault().LastLoginDate;
+                }
+                else
+                {
+                    return null;
+                }
             }
             else
             {
