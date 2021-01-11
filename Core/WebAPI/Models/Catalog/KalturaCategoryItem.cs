@@ -117,6 +117,15 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(InsertOnly = true)]
         public string Type { get; set; }
 
+        /// <summary>
+        /// Virtual asset id
+        /// </summary>
+        [DataMember(Name = "virtualAssetId")]
+        [JsonProperty("virtualAssetId")]
+        [XmlElement(ElementName = "virtualAssetId", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long? VirtualAssetId { get; set; }
+
         internal override ICrudHandler<CategoryItem, long> Handler
         {
             get

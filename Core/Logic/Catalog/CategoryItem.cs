@@ -24,6 +24,7 @@ namespace ApiLogic.Catalog
         public bool? IsActive { get; set; }
         public TimeSlot TimeSlot { get; set; }
         public string Type{ get; set; }
+        public long? VirtualAssetId { get; set; }
 
         public CategoryItem()
         {
