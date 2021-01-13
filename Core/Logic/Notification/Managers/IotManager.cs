@@ -383,6 +383,7 @@ namespace ApiLogic.Notification
             hasConfig = true;
             var counter = 0;
             HttpResponseMessage response;
+            var _random = new Random();
             while (counter < 3)
             {
                 counter++;
@@ -442,6 +443,7 @@ namespace ApiLogic.Notification
                         httpStatus = -1;
                         return default;
                 }
+                Thread.Sleep(counter * _random.Next(0, 100));
             }
             httpStatus = -1;
             return default;

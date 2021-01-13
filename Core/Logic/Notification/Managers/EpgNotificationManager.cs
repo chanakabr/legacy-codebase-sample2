@@ -2,13 +2,16 @@
 using Core.Notification;
 using EventBus.Abstraction;
 using EventBus.RabbitMQ;
+using KLogMonitor;
 using System;
+using System.Reflection;
 using System.Threading;
 
 namespace ApiLogic.Notification.Managers
 {
     public class EpgNotificationManager
     {
+        private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private readonly IEventBusPublisher _publisher;
         private readonly NotificationCache _notificationCache;
         private static readonly Lazy<EpgNotificationManager> _instance = new Lazy<EpgNotificationManager>(() => 
@@ -23,7 +26,12 @@ namespace ApiLogic.Notification.Managers
 
         public void ChannelWasUpdated(string requestId, int groupId, long userId, long linearAssetId, long epgChannelId, DateTime startDate, DateTime endDate)
         {
-            if (!ShouldSendEvent(groupId)) return;
+            _logger.Debug($"[Epg notification] Try send. requestId:{requestId}");
+            if (!ShouldSendEvent(groupId))
+            {
+                _logger.Debug($"[Epg notification] Skip sending. requestId:{requestId}");
+                return;
+            }
 
             var @event = new EpgNotificationEvent
             {
@@ -35,12 +43,14 @@ namespace ApiLogic.Notification.Managers
                 UpdatedRange = new Range<DateTime>(startDate, endDate)
             };
             _publisher.Publish(@event);
+            _logger.Debug($"[Epg notification] Was sent successfully. requestId:{requestId}");
         }
 
         private bool ShouldSendEvent(int groupId)
         {
             var response = _notificationCache.GetPartnerNotificationSettings(groupId);
-            return response.Status.IsOkStatusCode() && response.settings.EpgNotification.Enabled;
+            return response?.Status != null && response.Status.IsOkStatusCode()
+                && response?.settings?.EpgNotification.Enabled == true;
         }
     }
 }

@@ -93,7 +93,7 @@ namespace ApiLogic.Notification
                 }
 
                 iotProfile.IotProfileAws = IotManager.Instance.CreateIotEnvironment(groupId, iotProfile);
-
+                
                 if (iotProfile.IotProfileAws == null)
                 {
                     var error = $"Error while Add Iot adapter profile for group: {groupId}.";
@@ -111,7 +111,7 @@ namespace ApiLogic.Notification
             }
             catch (Exception ex)
             {
-                log.Error($"Add profile failed, error: {ex.Message}");
+                log.Error($"Add profile failed, error: {ex.Message}", ex);
             }
 
             return response;

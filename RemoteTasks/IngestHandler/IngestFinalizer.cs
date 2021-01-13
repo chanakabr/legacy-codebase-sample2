@@ -77,6 +77,7 @@ namespace IngestHandler
 
                     if (newStatus == BulkUploadJobStatus.Success && !_bulkUploadJobData.DisableEpgNotification)
                     {
+                        _logger.Debug($"BulkUploadId: [{_bulkUpload.Id}] Try notify about epg update");
                         foreach ((var epgChannelId, var programIdToProgram) in _bulkUpload.ConstructResultsDictionary())
                         {
                             var minDate = DateTime.MaxValue;
