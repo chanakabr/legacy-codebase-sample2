@@ -1599,7 +1599,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        private static void RemoveTopicsFromProgramEpgCB(EpgCB epgCB, List<string> programMetas, List<string> programTags, string defaulLanguageCode)
+        private static void RemoveTopicsFromProgramEpgCB(EpgCB epgCB, List<string> programMetas, List<string> programTags, string defaultLanguageCode)
         {
             try
             {
@@ -1627,7 +1627,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, epgCB.Language, defaulLanguageCode);
+                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, epgCB.Language, defaultLanguageCode);
                 if (!EpgDal.SaveEpgCB(docId, epgCB))
                 {
                     log.ErrorFormat("RemoveTopicsFromProgramEpgCB - Failed to SaveEpgCB for epgId: {0}.", epgCB.EpgID);
