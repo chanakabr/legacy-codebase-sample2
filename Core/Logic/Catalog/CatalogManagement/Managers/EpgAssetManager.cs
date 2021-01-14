@@ -391,9 +391,7 @@ namespace Core.Catalog.CatalogManagement
 
             foreach (EpgCB epgCB in epgCbList)
             {
-                // the documents with main language are saved without a language code so we will send null to get key
-                var lang = epgCB.Language.Equals(catalogGroupCache.DefaultLanguage.Code) ? null : epgCB.Language;
-                var docId = GetEpgCBKey(groupId, epgId, lang);
+                var docId = GetEpgCBKey(groupId, epgId, epgCB.Language, catalogGroupCache.DefaultLanguage.Code);
                 if (!EpgDal.DeleteEpgCB(docId, epgCB))
                 {
                     log.ErrorFormat("Failed to DeleteEpgCB for epgId: {0}", epgId);
@@ -650,10 +648,7 @@ namespace Core.Catalog.CatalogManagement
                     epgCB.Tags = epgTags[currLang.Key];
                 }
 
-                // the documents with main language are saved without a language code so we will send null to get key
-                var lang = currLang.Key.Equals(defaultLanguageCode) ? null : currLang.Key;
-                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, lang, isAddAction);
-
+                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, epgCB.Language, defaultLanguageCode, isAddAction);
                 if (!EpgDal.SaveEpgCB(docId, epgCB))
                 {
                     log.ErrorFormat("Failed to SaveEpgCbToCB for epgId: {0}, languageCode: {1} in EpgAssetManager", epgCB.EpgID, currLang.Key);
@@ -1595,11 +1590,11 @@ namespace Core.Catalog.CatalogManagement
 
             foreach (EpgCB epgCB in epgCbList)
             {
-                RemoveTopicsFromProgramEpgCB(epgCB, programMetas, programTags);
+                RemoveTopicsFromProgramEpgCB(epgCB, programMetas, programTags, catalogGroupCache.DefaultLanguage.Code);
             }
         }
 
-        private static void RemoveTopicsFromProgramEpgCB(EpgCB epgCB, List<string> programMetas, List<string> programTags)
+        private static void RemoveTopicsFromProgramEpgCB(EpgCB epgCB, List<string> programMetas, List<string> programTags, string defaulLanguageCode)
         {
             try
             {
@@ -1627,7 +1622,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID);
+                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, epgCB.Language, defaulLanguageCode);
                 if (!EpgDal.SaveEpgCB(docId, epgCB))
                 {
                     log.ErrorFormat("RemoveTopicsFromProgramEpgCB - Failed to SaveEpgCB for epgId: {0}.", epgCB.EpgID);
@@ -1828,10 +1823,19 @@ namespace Core.Catalog.CatalogManagement
 
         }
 
-        public static string GetEpgCBKey(int groupId, long epgId, string langCode = null, bool isAddAction = false)
+        public static string GetEpgCBKey(int groupId, long epgId)
         {
-            var langs = string.IsNullOrEmpty(langCode) ? null : new[] { new LanguageObj() { Code = langCode } };
+            var keys = GetEpgCBKeys(groupId, epgId, null, false);
+
+            return keys.FirstOrDefault();
+        }
+
+        private static string GetEpgCBKey(int groupId, long epgId, string langCode, string defaultLangCode, bool isAddAction = false)
+        {
+            // The documents with the main language are saved without a language code so we will send null to get key
+            var langs = defaultLangCode.Equals(langCode) ? null : new[] { new LanguageObj() { Code = langCode } };
             var keys = GetEpgCBKeys(groupId, epgId, langs, isAddAction);
+
             return keys.FirstOrDefault();
         }
 
