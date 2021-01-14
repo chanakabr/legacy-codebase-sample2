@@ -820,7 +820,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool SignOut(int groupId, int userId, string ip, string deviceId, SerializableDictionary<string, KalturaStringValue> adapterData)
+        public bool SignOut(int groupId, int userId, string ip, string deviceId, KS ks, SerializableDictionary<string, KalturaStringValue> adapterData)
         {
             UserResponseObject response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -848,6 +848,8 @@ namespace WebAPI.Clients
             {
                 throw new ClientException((int)response.m_RespStatus, StatusCode.Error.ToString());
             }
+
+            Managers.AuthorizationManager.LogOut(ks);
 
             return true;
         }

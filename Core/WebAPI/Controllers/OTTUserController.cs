@@ -774,12 +774,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.UsersClient().SignOut(groupId, userId, ip, udid, adapterData);
-                if (response)
-                {
-                    response = AuthorizationManager.LogOut(ks);
-                }
-
+                response = ClientsManager.UsersClient().SignOut(groupId, userId, ip, udid, ks, adapterData);
             }
             catch (ClientException ex)
             {

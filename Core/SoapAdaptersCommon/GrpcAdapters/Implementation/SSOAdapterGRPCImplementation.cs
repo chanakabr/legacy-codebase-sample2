@@ -26,12 +26,12 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
         private T NormlizeResponse<T>(T obj) where T : new()
         {
             var objectType = obj.GetType();
+
             // cache the properties agains the type for faster access.
             var allProps = _MemoryCache.GetOrCreate(objectType, entry =>
             {
                 return obj.GetType().GetProperties().Where(p => p.CanRead && p.CanWrite); ;
             });
-
 
             foreach (var prop in allProps)
             {
@@ -116,6 +116,12 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
                 HouseholdId = request.HouseholdId,
                 UserId = request.UserId,
             };
+
+            if (request.AdapterData != null)
+            {
+                postSignInModel.AdapterData = request.AdapterData.Select(kv => new AdapaterCommon.Models.KeyValue() { Key = kv.Key, Value = kv.Value }).ToList();
+            }
+
             var result = NormlizeResponse(_SSOService.PostSignOut(request.AdapterId, postSignInModel, request.Signature));
             var response = MapSoapUserResponseToProtoUserResponse(result);
             return Task.FromResult(response);
@@ -142,7 +148,7 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
                 Password = request.Password,
                 PreventDoubleLogin = request.PreventDoubleLogin,
                 SessionId = request.SessionId,
-                UserName = request.UserName,
+                UserName = request.UserName
             };
 
             var result = NormlizeResponse(_SSOService.PreSignIn(request.AdapterId, model, request.Signature));
@@ -175,12 +181,15 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
                 HouseholdId = request.UserId,
             };
 
+            if (request.AdapterData != null)
+            {
+                model.AdapterData = request.AdapterData.Select(kv => new AdapaterCommon.Models.KeyValue() { Key = kv.Key, Value = kv.Value }).ToList();
+            }
+
             var result = NormlizeResponse(_SSOService.PreSignOut(request.AdapterId, model, request.Signature));
             var response = MapSoapUserResponseToProtoUserResponse(result);
             return Task.FromResult(response);
         }
-
-
 
         public override Task<InvokeResponse> Invoke(InvokeRequest request, ServerCallContext context)
         {
@@ -312,7 +321,5 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
                 SSOResponseStatus = MapSoapSSOResponseToProtoSSOResponse(result.SSOResponseStatus)
             };
         }
-
     }
-
 }
