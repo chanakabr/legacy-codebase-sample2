@@ -467,27 +467,32 @@ namespace Core.Catalog.CatalogManagement
                                                                                           mappingFields[FieldTypes.Tag].ContainsKey(t.SystemName.ToLower()))
                                                                              .Select(x => x.SystemName.ToLower()));
 
-                    if (EpgDal.RemoveMetasAndTagsFromProgram(groupId, epgAsset.Id, programMetaIds, programTagIds, userId))
+                    var isIngestV1 = !GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+                    if (isIngestV1)
                     {
-                        result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-                        // update Epg metas and tags 
-                        RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
-
-                        // invalidate asset
-                        AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
-
-                        // UpdateIndex
-                        bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAsset.Id }, false);
-                        if (!indexingResult)
+                        var metasAndTagsRemoved = EpgDal.RemoveMetasAndTagsFromProgram(groupId, epgAsset.Id, programMetaIds, programTagIds, userId);
+                        if (!metasAndTagsRemoved)
                         {
-                            log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromProgram", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
+                            log.ErrorFormat("Failed to remove topics from program with id: {0}, type: {1}, groupId: {2}", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
+
+                            return result;
                         }
                     }
-                    else
+
+                    // update Epg metas and tags 
+                    RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
+
+                    // invalidate asset
+                    AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
+
+                    // UpdateIndex
+                    bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAsset.Id }, false);
+                    if (!indexingResult)
                     {
-                        log.ErrorFormat("Failed to remove topics from program with id: {0}, type: {1}, groupId: {2}", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
+                        log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromProgram", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
                     }
+
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
