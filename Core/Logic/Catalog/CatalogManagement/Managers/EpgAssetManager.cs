@@ -467,8 +467,8 @@ namespace Core.Catalog.CatalogManagement
                                                                                           mappingFields[FieldTypes.Tag].ContainsKey(t.SystemName.ToLower()))
                                                                              .Select(x => x.SystemName.ToLower()));
 
-                    var isIngestV1 = !GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
-                    if (isIngestV1)
+                    var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+                    if (!isIngestV2)
                     {
                         var metasAndTagsRemoved = EpgDal.RemoveMetasAndTagsFromProgram(groupId, epgAsset.Id, programMetaIds, programTagIds, userId);
                         if (!metasAndTagsRemoved)
