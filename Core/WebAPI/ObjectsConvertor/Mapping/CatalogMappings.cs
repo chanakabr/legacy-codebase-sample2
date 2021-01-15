@@ -1179,7 +1179,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)))
               .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-              .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds, src.NullableProperties)));
+              .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds, src.NullableProperties)))
+              .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
 
             cfg.CreateMap<ApiLogic.Catalog.CategoryItem, KalturaCategoryItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1191,8 +1192,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
-                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds));
+               .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
+               .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds))
+               .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
 
             cfg.CreateMap<UnifiedChannelType, KalturaChannelType>()
                 .ConvertUsing(type =>

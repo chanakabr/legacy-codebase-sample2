@@ -484,6 +484,11 @@ namespace Core.Catalog.CatalogManagement
                     return false;
                 }
 
+                if (virtualAssetInfoResponse.Status == VirtualAssetInfoStatus.OK && virtualAssetInfoResponse.AssetId > 0)
+                {
+                    objectToAdd.VirtualAssetId = virtualAssetInfoResponse.AssetId;
+                }
+
                 // set child category's order
                 bool invalidateChilds = false;
                 if (objectToAdd.ChildrenIds?.Count > 0)

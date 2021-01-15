@@ -399,7 +399,6 @@ namespace Core.ConditionalAccess
 
                                 //unified billing cycle updates
                                 Utils.HandleUnifiedBillingCycle(groupId, domainId, entitlement.paymentGatewayId, endDateFromDB, entitlement.purchaseID, subscriptionEntitlement.UnifiedPaymentId, 0);
-
                             }
 
                             if (entitlement.endDate > DateTime.MinValue)
@@ -413,18 +412,29 @@ namespace Core.ConditionalAccess
                                 subscriptionEntitlement.endDate = entitlement.endDate;
                                 subscriptionEntitlement.nextRenewalDate = entitlement.endDate;
 
-                                if (entitlement.recurringStatus)
+                                if (subscriptionEntitlement.recurringStatus)
                                 {
-                                    // enqueue renew transaction
-                                    RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                                    DateTime nextRenewalDate = entitlement.endDate.AddMinutes(-5);
+                                    // enqueue renew transaction 
+                                    var queue = new RenewTransactionsQueue();
+                                    var nextRenewalDate = subscriptionEntitlement.endDate.AddMinutes(-5);
 
-                                    if (entitlement.paymentGatewayId > 0)
+                                    if (subscriptionEntitlement.paymentGatewayId == 0) //BEO-9428
+                                    {
+                                        var paymentDetails = Core.Billing.Module.GetPaymentDetails(cas.m_nGroupID, new List<string>() { billingGuid });
+
+                                        if (paymentDetails?.Count > 0)
+                                        {
+                                            subscriptionEntitlement.paymentGatewayId = paymentDetails[0].PaymentGatewayId;
+                                            subscriptionEntitlement.paymentMethodId = paymentDetails[0].PaymentMethodId;
+                                        }
+                                    }
+
+                                    if (subscriptionEntitlement.paymentGatewayId > 0)
                                     {
                                         var paymentGatewayResponse = Core.Billing.Module.GetPaymentGatewayById(groupId, subscriptionEntitlement.paymentGatewayId);
                                         if (!paymentGatewayResponse.HasObject())
                                         {
-                                            nextRenewalDate = entitlement.endDate.AddMinutes(paymentGatewayResponse.Object.RenewalStartMinutes);
+                                            nextRenewalDate = subscriptionEntitlement.endDate.AddMinutes(paymentGatewayResponse.Object.RenewalStartMinutes);
                                         }
                                     }
 

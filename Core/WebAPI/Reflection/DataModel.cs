@@ -1329,6 +1329,8 @@ namespace WebAPI.Reflection
                             return "unifiedChannels";
                         case "UpdateDate":
                             return "updateDate";
+                        case "VirtualAssetId":
+                            return "virtualAssetId";
                     }
                     break;
                     
