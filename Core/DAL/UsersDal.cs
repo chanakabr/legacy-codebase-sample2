@@ -41,7 +41,7 @@ namespace DAL
         private const string SP_GET_USER_TYPE = "Get_UserType";
         private const string SP_GET_DEFUALT_GROUP_OPERATOR = "Get_DefaultGroupOperator";
         private const string DELETE_USER = "Delete_User";
-        private const string SSO_ADAPTER_WONERSHIP_ERR_MSG = "This code should not be called, ownership flag of SSOAdapters has been transfered to Authentication Service, Check TCM [MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles]";
+        private const string SSO_ADAPTER_WONERSHIP_ERR_MSG = "This request is disabled on Phoenix, ownership flag of SSOAdapters is turned on and thus this action should be done on Authentication micro service, Check TCM [MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles] if this is unexpected behavior";
 
         #endregion
 
