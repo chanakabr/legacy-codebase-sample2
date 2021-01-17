@@ -1275,7 +1275,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetSecurityPartnerConfigInvalidationKey(int groupId)
         {
-            return $"invalidationKeySecurityPartnerConfig_groupId_{groupId}";
+            return $"{groupId}_InvalidatePartnerSecurityConfiguration";
         }
 
         public static string GetPlaybackPartnerConfigInvalidationKey(int groupId)
@@ -1290,7 +1290,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDomainDeviceInvalidationKey(int groupId, int domainId, string deviceId)
         {
-            return $"invalidationKey_groupId_{groupId}_domainId_{domainId}_device_{deviceId}";
+            return $"{groupId}_InvalidateHouseholdDevice_{domainId}_{deviceId}";
         }
 
         public static string GetCatalogPartnerConfigInvalidationKey(int groupId)

@@ -110,27 +110,12 @@ namespace WebAPI.Controllers
             KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
 
-            Group group = GroupsManager.GetGroup(groupId);
-            if (!group.IsSwitchingUsersAllowed)
-            {
-                throw new ForbiddenException(ForbiddenException.SWITCH_USER_NOT_ALLOWED_FOR_PARTNER);
-            }
-
-            if (string.IsNullOrEmpty(userIdToSwitch))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userIdToSwitch");
-            }
-
-            if (!AuthorizationManager.IsUserInHousehold(userIdToSwitch, groupId))
-            {
-                throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "OTT-User", userIdToSwitch);
-            }
-
             try
             {
                 // switch notification users
                 var payload = KSUtils.ExtractKSPayload();
                 ClientsManager.UsersClient().SwitchUsers(groupId, ks.UserId, userIdToSwitch, payload.UDID);
+                Group group = GroupsManager.GetGroup(groupId);
                 loginSession = AuthorizationManager.SwitchUser(userIdToSwitch, groupId, payload, ks.Privileges, group);
                 AuthorizationManager.LogOut(ks);
             }

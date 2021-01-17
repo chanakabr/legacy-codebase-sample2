@@ -271,6 +271,23 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            if (!group.IsSwitchingUsersAllowed)
+            {
+                throw new ForbiddenException(ForbiddenException.SWITCH_USER_NOT_ALLOWED_FOR_PARTNER);
+            }
+
+            if (string.IsNullOrEmpty(newUserId))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userIdToSwitch");
+            }
+
+            if (!Managers.AuthorizationManager.IsUserInHousehold(newUserId, groupId))
+            {
+                throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "OTT-User", newUserId);
+            }
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
