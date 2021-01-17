@@ -246,5 +246,25 @@ namespace AuthenticationGrpcClientWrapper
                 return null;
             }
         }
+
+        public bool ValidateKs(string ks, long ksPartnerId)
+        {
+            try
+            {
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, ksPartnerId.ToString(), "ValidateKs"))
+                {
+                    mon.Table = $"Ks:{ks}";
+                    //Grpc call to validate ks                    
+                    return _Client.GetKSRevocationStatus(new KSRevocationStatusRequest{ KS = ks, PartnerId = ksPartnerId }).KSValid;
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.Error("Error while calling ValidateKS GRPC service", e);
+                //todo gil when migrate should change to false
+                return true;
+            }
+        }
+       
     }
 }

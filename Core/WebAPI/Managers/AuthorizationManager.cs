@@ -22,7 +22,8 @@ using WebAPI.Clients;
 using ApiObjects.User;
 using ApiObjects.Response;
 using SessionManager;
-
+using AuthenticationGrpcClientWrapper;
+using CachingProvider.LayeredCache;
 
 namespace WebAPI.Managers
 {
@@ -699,7 +700,7 @@ namespace WebAPI.Managers
         }
 
         internal static bool IsKsValid(KS ks, bool validateExpiration = true)
-        {
+        {                        
             // Check if KS already validated by gateway
             string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
             if (ksRandomHeader == ks.Random)
@@ -707,6 +708,55 @@ namespace WebAPI.Managers
                 return ValidateKsSignature(ks);
             }
 
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.KSStatusCheck.Value)
+            {
+                //use cache if not found
+                //call GRPC         
+                var resultData = false;
+                var hashedKS = new Core.Users.SHA384Encrypter().Encrypt(ks.ToString(), "");
+                var key = LayeredCacheKeys.GetKsValidationResultKey(hashedKS);                
+                var invalidationKeys = new List<string>() { LayeredCacheKeys.GetValidateKsInvalidationKey(hashedKS, ks.GroupId) };
+
+                bool isCacheResultRetrived = LayeredCache.Instance.Get<bool>(key,
+                                                        ref resultData,
+                                                        GetKsValidationResult,
+                                                        new Dictionary<string, object>() { { "ks", ks.ToString() }, { "ksPartnerId", (long)ks.GroupId } },
+                                                        ks.GroupId,
+                                                        LayeredCacheConfigNames.GET_KS_VALIDATION,
+                                                        invalidationKeys);
+                //return result if found
+                //this should work with migration
+                if (isCacheResultRetrived)
+                {
+                    bool isKSValid = resultData;
+                    var isKSStatusCheckFallbackEnabled =
+                        ApplicationConfiguration.Current.MicroservicesClientConfiguration
+                        .Authentication.DataOwnershipConfiguration.KSStatusCheckFallbackEnabled.Value;
+
+
+                    //on no fallback just return the result
+                    if (!isKSStatusCheckFallbackEnabled)
+                    {
+                        return isKSValid;
+                    }
+
+                    //if ks result is not valid it means that it found revocation data in the database
+                    if (!isKSValid)
+                    {
+                        return false;
+                    }
+
+                    //if is valid it might be beacuse didnt find any revocation data
+                    //we need to check with couchbase for now until we will add migration
+                    //so itll call the legacy code
+                }
+            }
+
+            return ValidateKSLegacy(ks, validateExpiration);
+        }
+
+        private static bool ValidateKSLegacy(KS ks, bool validateExpiration)
+        {
             if (validateExpiration && ks.Expiration < DateTime.UtcNow)
             {
                 return false;
@@ -759,6 +809,40 @@ namespace WebAPI.Managers
             }
 
             return true;
+        }
+
+        private static Tuple<bool, bool> GetKsValidationResult(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<bool, bool> result = new Dictionary<bool, bool>();
+            var authClient = AuthenticationClient.GetClientFromTCM();
+            var validationResult = false;
+
+
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("ks"))
+                {
+                    var ks = funcParams["ks"] != null ? funcParams["ks"] as string : string.Empty;
+                    var ksPartnerId = funcParams["ksPartnerId"] != null ? (long)(funcParams["ksPartnerId"]): 0L;
+
+                    string ksValidationKey = LayeredCacheKeys.GetKsValidationResultKey(ks);
+                    var isValid = authClient.ValidateKs(ks,ksPartnerId);
+                    validationResult = isValid;
+                    res = true;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                res = true;
+                log.Error(string.Format("GetKsValidationResultKey failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<bool, bool>(validationResult, res);
+
+
+           
         }
 
         public static bool ValidateKsSignature(KS ks)
