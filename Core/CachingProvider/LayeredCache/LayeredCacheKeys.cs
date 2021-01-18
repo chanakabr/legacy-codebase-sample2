@@ -765,6 +765,12 @@ namespace CachingProvider.LayeredCache
             return $"ExternalChannel_groupId_{groupId}_Id_{channelId}";
         }
 
+
+        public static string GetKsValidationResultKey(string ks)
+        {
+            return $"ks_validation_result{ks}";
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1262,6 +1268,12 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeySegmentationType_groupdId_{0}_segId_{1}", groupId, segmentationTypeId);
         }
+
+        public static string GetValidateKsInvalidationKey(string ks,int groupId)
+        {            
+            return $"{groupId}_InvalidateKSRevocationStatus_{ks}";
+        }
+
 
         public static string GetGroupSegmentationTypeIdsOfActionInvalidationKey(int groupId)
         {
