@@ -379,6 +379,7 @@ namespace Core.Catalog.CatalogManagement
             return objectsListResponse;
         }
 
+        // TODO remove - not used
         public static Status UpdateOrAddBulkUploadAffectedObjects(long bulkUploadId, IEnumerable<IAffectedObject> affectedObject)
         {
             var response = new Status((int)eResponseStatus.Error);
@@ -583,6 +584,9 @@ namespace Core.Catalog.CatalogManagement
                             bulkUpload.ObjectData = bulkUploadWithResults.ObjectData;
                             bulkUpload.Results = bulkUploadWithResults.Results ?? new List<BulkUploadResult>();
                             bulkUpload.AffectedObjects = bulkUploadWithResults.AffectedObjects ?? new List<IAffectedObject>();
+                            bulkUpload.AddedObjects = bulkUploadWithResults.AddedObjects ?? new List<IAffectedObject>();
+                            bulkUpload.UpdatedObjects = bulkUploadWithResults.UpdatedObjects ?? new List<IAffectedObject>();
+                            bulkUpload.DeletedObjects = bulkUploadWithResults.DeletedObjects ?? new List<IAffectedObject>();
                             bulkUpload.Errors = bulkUploadWithResults.Errors;
                         }
                     }

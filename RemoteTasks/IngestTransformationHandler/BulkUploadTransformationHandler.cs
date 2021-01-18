@@ -106,12 +106,16 @@ namespace IngestTransformationHandler
 
                 // todo: arthur, consider unlocking dates that were locked before CRUD calculation (+-1) and evatually were no crud ops required for
 
-                // affected objects are saved on the bulk upload object.
-                // they are also used by the ingest finalizer for cache invalidation.
-                if (crudOperations.AffectedItems.Any())
-                {
-                    _bulUpload.AffectedObjects = crudOperations.AffectedItems.Cast<IAffectedObject>().ToList();
-                }
+                // objects are saved on the bulk upload object, because
+                // they are also used by the ingest finalizer for cache invalidation and update recordings quota
+                SetToBulkUpload(crudOperations.AffectedItems, (u, i) => u.AffectedObjects = i);
+                SetToBulkUpload(crudOperations.ItemsToUpdate, (u, i) => u.UpdatedObjects = i);
+                SetToBulkUpload(crudOperations.ItemsToDelete, (u, i) => u.DeletedObjects = i);
+                // new items don't have EpgId on this step, EpgId will appear in BulkUploadIngestHandler.SetResultsWithObjectId.
+                // and we'll retrieve EpgId by EpgExternalId in IngestFinalizer
+                SetToBulkUpload(crudOperations.ItemsToAdd, (u, i) => u.AddedObjects = i);
+
+
                 BulkUploadManager.UpdateBulkUpload(_bulUpload, BulkUploadJobStatus.Processed);
                 EnqueueIngestEvents(crudOperations);
             }
@@ -393,7 +397,7 @@ namespace IngestTransformationHandler
 
 
 
-        public void EnqueueIngestEvents(CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
+        private void EnqueueIngestEvents(CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
         {
             var ingestEvents = GenerateIngestEvents(crudOperations);
             if (!ingestEvents.Any())
@@ -497,6 +501,14 @@ namespace IngestTransformationHandler
             }
 
             return ingestProfile;
+        }
+
+        public void SetToBulkUpload(List<EpgProgramBulkUploadObject> items, Action<BulkUpload, List<IAffectedObject>> setter)
+        {
+            if (items.Any())
+            {
+                setter(_bulUpload, items.Cast<IAffectedObject>().ToList());
+            }
         }
     }
 }

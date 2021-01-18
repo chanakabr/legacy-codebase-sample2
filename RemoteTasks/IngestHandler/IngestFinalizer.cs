@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -58,10 +58,10 @@ namespace IngestHandler
 
                 if (!isRefreshSuccess)
                 {
-                    _logger.Error($"BulkId [{_bulkUpload.Id}], Date:[{_dateOfProgramsToIngest}] > index refresh failed");
+                    _logger.Error($"BulkUploadId [{_bulkUpload.Id}], Date:[{_dateOfProgramsToIngest}] > index refresh failed");
                 }
 
-                var newStatus = SetOkayStatusToallResults(_bulkUpload);
+                var newStatus = SetOkayStatusToAllResults();
 
                 // Need to refresh the data from the bulk upload object after updating with the validation result
                 _bulkUpload = BulkUploadMethods.GetBulkUploadData(_bulkUpload.GroupId, _bulkUpload.Id);
@@ -72,17 +72,20 @@ namespace IngestHandler
                     _logger.Debug($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}], Final part of bulk is marked, status is: [{newStatus}], finlizing bulk object");
                     RefreshAllIndexes();
                     InvalidateEpgAssets();
+                    BulkUploadResultsDictionary bulkUploadResultsDictionaries = _bulkUpload.ConstructResultsDictionary();
+                    var operations = CalculateOperations(bulkUploadResultsDictionaries);
+                    UpdateRecordings(operations);
+
                     BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, newStatus);
                     _logger.Info($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}] > Ingest Validation for entire bulk is completed, status:[{newStatus}]");
-
                     if (newStatus == BulkUploadJobStatus.Success && !_bulkUploadJobData.DisableEpgNotification)
                     {
-                        foreach ((var epgChannelId, var programIdToProgram) in _bulkUpload.ConstructResultsDictionary())
+                        foreach ((var epgChannelId, var externalIdToProgram) in bulkUploadResultsDictionaries)
                         {
                             var minDate = DateTime.MaxValue;
                             var maxDate = DateTime.MinValue;
-                            var linearAssetId = programIdToProgram.Values.First().LiveAssetId;
-                            foreach (var program in programIdToProgram.Values)
+                            var linearAssetId = externalIdToProgram.Values.First().LiveAssetId;
+                            foreach (var program in externalIdToProgram.Values)
                             {
                                 minDate = program.StartDate < minDate ? program.StartDate : minDate;
                                 maxDate = program.EndDate > maxDate ? program.EndDate : maxDate;
@@ -128,7 +131,7 @@ namespace IngestHandler
                     var isSetRefreshSuccess = _elasticSearchClient.UpdateIndexRefreshInterval(indexName, INDEX_REFRESH_INTERVAL);
                     if (!isSetRefreshSuccess)
                     {
-                        _logger.Error($"BulkId [{_bulkUpload.Id}], Date:[{_dateOfProgramsToIngest}] > index set refresh to -1 failed [{isSetRefreshSuccess}]]");
+                        _logger.Error($"BulkUploadId [{_bulkUpload.Id}], Date:[{_dateOfProgramsToIngest}] > index set refresh to -1 failed [{isSetRefreshSuccess}]]");
                         throw new Exception("Could not set index refresh interval");
                     }
                 });
@@ -144,7 +147,7 @@ namespace IngestHandler
 
         
 
-        private BulkUploadJobStatus SetOkayStatusToallResults(BulkUpload _bulkUploadObject)
+        private BulkUploadJobStatus SetOkayStatusToAllResults()
         {
             var bulkUploadResultsOfCurrentDate = _relevantResults.SelectMany(channel => channel.Value).Select(prog => prog.Value).ToList();
             bulkUploadResultsOfCurrentDate.ForEach(r => r.Status = BulkUploadResultStatus.Ok);
@@ -177,6 +180,64 @@ namespace IngestHandler
 
                 _logger.Debug($"SetInvalidationKey: [{invalidationKey}] done with result: [{invalidationResult}]");
             }
+        }
+
+        // Logically hard part, which could have errors, should be tested
+        // Logical trick: DeletedObjects - it's all EPGs, which should be removed from Elastic. Even just updated EPGs are added to DeletedObjects
+        // Probably this calculation should be in BulkUploadTransformationHandler
+        private Operations CalculateOperations(BulkUploadResultsDictionary result)
+        {
+            // _bulkUpload.AddedObjects don't have EpgIds, because they were added in BulkUploadTransformationHandler, before inserting to DB
+            // so we take EpgIds by EpgExternalIds
+            var addedEpgIds = _bulkUpload.AddedObjects.Where(_ => !_.IsAutoFill).Select(o => result[o.ChannelId][o.EpgExternalId].ObjectId.Value).ToArray();
+
+            // Formulas:
+            // AddedObjects = really-added
+            // really-updated = AffectedObjects ∪ UpdatedObjects
+            // DeletedObjects = really-deleted ∪ really-updated
+            var deletedObjects = _bulkUpload.DeletedObjects.Where(_ => !_.IsAutoFill).Select(_ => (long)_.ObjectId);
+            var updatedObjects = _bulkUpload.UpdatedObjects.Where(_ => !_.IsAutoFill).Select(_ => (long)_.ObjectId);
+            var affectedObjects = _bulkUpload.AffectedObjects.Where(_ => !_.IsAutoFill).Select(_ => (long)_.ObjectId);
+
+            var reallyUpdated = affectedObjects.Union(updatedObjects).ToArray();
+            var reallyDeleted = deletedObjects.Except(reallyUpdated).ToArray();
+
+            return new Operations
+            {
+                AddedEpgIds = addedEpgIds,
+                UpdatedEpgIds = reallyUpdated,
+                DeletedEpgIds = reallyDeleted
+            };
+        }        
+
+        private void UpdateRecordings(Operations operations)
+        {
+            UpdateRecordings(operations.DeletedEpgIds, eAction.Delete);
+            UpdateRecordings(operations.AddedEpgIds, eAction.On);
+            UpdateRecordings(operations.UpdatedEpgIds, eAction.Update);
+        }
+
+        private void UpdateRecordings(long[] epgIds, eAction action)
+        {
+            if (epgIds.Length == 0) return;
+
+            var logSuffix = $"bulkUploadId:[{_bulkUpload.Id}] action:[{action}] EPGids:[{string.Join(',', epgIds)}]";
+            _logger.Info($"Try to update recordings. {logSuffix}");
+            try
+            {
+                Core.ConditionalAccess.Module.IngestRecording(_bulkUpload.GroupId, epgIds, action);
+            }
+            catch (Exception exception)
+            {
+                _logger.Error($"Failed to update recordings. {logSuffix}", exception);
+            }
+        }
+
+        private class Operations
+        {
+            public long[] AddedEpgIds;
+            public long[] UpdatedEpgIds;
+            public long[] DeletedEpgIds;
         }
     }
 }
