@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Users.Security;
+using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Api;
@@ -51,7 +52,7 @@ namespace ApiLogic.Api.Managers
             }
 
             return response;
-        }       
+        }
 
         internal static Status UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
         {
@@ -780,7 +781,7 @@ namespace ApiLogic.Api.Managers
                 }
 
                 if (needToUpdate)
-                {                   
+                {
                     if (!ApiDAL.SaveCatalogPartnerConfig(groupId, catalogPartnerConfig))
                     {
                         log.Error($"Error while save PlaybackPartnerConfig. groupId: {groupId}.");
@@ -1060,7 +1061,7 @@ namespace ApiLogic.Api.Managers
                 if (groupId.HasValue)
                 {
                     generalPartnerConfig = ApiDAL.GetObjectVirtualAssetPartnerConfiguration(groupId.Value, out resultStatus);
-                    
+
                     if (resultStatus == eResultStatus.KEY_NOT_EXIST)
                     {
                         // save null document
@@ -1213,7 +1214,7 @@ namespace ApiLogic.Api.Managers
             {
                 int? groupId = funcParams["groupId"] as int?;
                 if (groupId.HasValue)
-                {                    
+                {
                     partnerConfig = ApiDAL.GetPlaybackPartnerConfig(groupId.Value, out eResultStatus resultStatus);
                     result = true;
 
@@ -1343,5 +1344,99 @@ namespace ApiLogic.Api.Managers
 
 
         #endregion
+
+        #region Security Config
+        public static Status UpdateSecurityConfig(int groupId, SecurityPartnerConfig partnerConfig, long userId)
+        {
+            var currentConfig = GetSecurityConfig(groupId);
+            var alreadyExist = currentConfig.Encryption?.Username != null;
+            if (alreadyExist) return new Status(eResponseStatus.NotAllowed, "Can't alter account's security parameters");
+
+            // save randomly-generated encryption key
+            var keyStorage = UserEncryptionKeyStorage.Instance();
+            var encryptionType = partnerConfig.Encryption.Username.EncryptionType;
+            var newKey = new EncryptionKey(-1, groupId, keyStorage.GenerateRandomEncryptionKey(encryptionType), encryptionType);
+            if (!keyStorage.AddEncryptionKey(newKey, userId)) return new Status(eResponseStatus.Error, "Encryption key is not added");
+
+            // save security config
+
+            // we need to be sure, that all machines start applying Encryption in the same time (or at least with small diff).
+            // but we save security configuration to the cache, because of performance. this cache will be invalidated after X sec.
+            // it means that all machines will have the same config after 2*X sec for sure,
+            // that's why we have 2*X delay in applying and using this config            
+            partnerConfig.Encryption.Username.ApplyAfter = DateTime.UtcNow.AddSeconds(2 * GetSecurityConfigInMemoryTTL());
+            if (!ApiDAL.SaveSecurityPartnerConfig(groupId, partnerConfig)) return new Status(eResponseStatus.Error, "SecurityPartnerConfig not saved");
+
+            var invalidationKey = LayeredCacheKeys.GetSecurityPartnerConfigInvalidationKey(groupId);
+            LayeredCache.Instance.SetInvalidationKey(invalidationKey);
+
+            return new Status(eResponseStatus.OK);
+        }
+
+        public static SecurityPartnerConfig GetSecurityConfig(int groupId)
+        {
+            var partnerConfig = ApiDAL.GetSecurityPartnerConfig(groupId, out var resultStatus);
+            if (resultStatus == eResultStatus.KEY_NOT_EXIST)
+            {
+                var emptyConfig = new SecurityPartnerConfig();
+                ApiDAL.SaveSecurityPartnerConfig(groupId, emptyConfig);
+                return emptyConfig;
+            }
+            return partnerConfig;
+        }
+
+        public static GenericListResponse<SecurityPartnerConfig> GetSecurityConfigList(int groupId)
+        {
+            var response = new GenericListResponse<SecurityPartnerConfig>();
+            response.Objects.Add(GetSecurityConfig(groupId));
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+        }
+
+        // This method is used in performance critical places.
+        // If we use this method to return response in PartnerConfigurationController,
+        // we'll have different responses in different machines because of delay in cache invalidation => bad user experience
+        internal static GenericResponse<SecurityPartnerConfig> GetSecurityPartnerConfigFromCache(int groupId)
+        {
+            SecurityPartnerConfig partnerConfig = null;
+            var key = LayeredCacheKeys.GetSecurityPartnerConfigKey(groupId);
+            var invalidationKey = new List<string>() { LayeredCacheKeys.GetSecurityPartnerConfigInvalidationKey(groupId) };
+
+            var success = LayeredCache.Instance.Get(
+                key,
+                ref partnerConfig,
+                GetSecurityConfig,
+                new Dictionary<string, object>() { { "groupId", groupId } },
+                groupId,
+                LayeredCacheConfigNames.GET_SECURITY_PARTNER_CONFIG,
+                invalidationKey);
+
+            return success
+                ? new GenericResponse<SecurityPartnerConfig>(Status.Ok, partnerConfig)
+                : new GenericResponse<SecurityPartnerConfig>(Status.Error);
+        }
+
+        private static Tuple<SecurityPartnerConfig, bool> GetSecurityConfig(Dictionary<string, object> funcParams)
+        {
+            try
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                if (groupId.HasValue) return Tuple.Create(GetSecurityConfig(groupId.Value), true);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"GetSecurityPartnerConfigDB failed, parameters : {string.Join(";", funcParams.Keys)}", ex);
+            }
+
+            return Tuple.Create<SecurityPartnerConfig, bool>(null, false);
+        }
+
+        private static uint GetSecurityConfigInMemoryTTL()
+        {
+            LayeredCache.Instance.TryGetInvalidationKeyLayeredCacheConfig(LayeredCacheConfigNames.GET_SECURITY_PARTNER_CONFIG, out var configs);
+            return configs?.FirstOrDefault(_ => _.Type == LayeredCacheType.InMemoryCache)?.TTL ?? 0;
+        }
+        #endregion Security Config
+
     }
 }

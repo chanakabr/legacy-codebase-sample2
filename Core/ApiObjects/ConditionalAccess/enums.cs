@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-
-namespace ApiObjects.ConditionalAccess
+﻿namespace ApiObjects.ConditionalAccess
 {
     public enum PriceReason : int
     {
@@ -23,7 +17,8 @@ namespace ApiObjects.ConditionalAccess
         UserSuspended = 12,
         NotForPurchase = 13,
         InvalidCurrency = 14,
-        CurrencyNotDefinedOnPriceCode = 15
+        CurrencyNotDefinedOnPriceCode = 15,
+        PendingEntitlement = 16
     }
 
     public enum MediaFileStatus
@@ -51,7 +46,8 @@ namespace ApiObjects.ConditionalAccess
         RenewPayment = 2,
         RenewCancledSubscription = 3,
         CancelSubscriptionOrder = 4,
-        SubscriptionDateChanged = 5
+        SubscriptionDateChanged = 5,
+        Pending = 6
     }
 
     public enum UserCAStatus

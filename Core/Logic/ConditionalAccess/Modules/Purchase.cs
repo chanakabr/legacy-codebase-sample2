@@ -34,6 +34,7 @@ namespace Core.ConditionalAccess.Modules
         public abstract eTransactionType type { get; }
 
         public string couponCode { get; set; }
+        public bool IsPending{ get; set; }
 
         #endregion
 

@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
+using System.Collections.Generic;
 
 namespace WebAPI.Models.API
 {
@@ -47,6 +48,14 @@ namespace WebAPI.Models.API
         [JsonProperty(PropertyName = "json")]
         [XmlElement(ElementName = "json")]
         public string Json { get; set; }
+
+        /// <summary>
+        /// topics
+        /// </summary>
+        [DataMember(Name = "topics")]
+        [JsonProperty(PropertyName = "topics")]
+        [XmlElement(ElementName = "topics")]
+        public string Topics { get; set; }
     }
 
     public partial class KalturaCredentialsProvider : KalturaOTTObject

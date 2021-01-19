@@ -630,7 +630,7 @@ namespace Core.Pricing
             }
         }
 
-        public static CouponsStatus SetCouponUses(int nGroupID, string sCouponCode, string sSiteGUID, Int32 nMediaFileID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode, long domainId)
+        public static CouponsStatus SetCouponUses(int nGroupID, string sCouponCode, string sSiteGUID, Int32 nMediaFileID, Int32 nSubCode, Int32 nCollectionCode, int nPrePaidCode, long domainId, bool doReduce = false)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[Constants.USER_ID] = sSiteGUID != null ? sSiteGUID : "null";
@@ -639,7 +639,7 @@ namespace Core.Pricing
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return t.SetCouponUsed(sCouponCode, sSiteGUID, nMediaFileID, nSubCode, nCollectionCode, nPrePaidCode, domainId);
+                return t.SetCouponUsed(sCouponCode, sSiteGUID, nMediaFileID, nSubCode, nCollectionCode, nPrePaidCode, domainId, doReduce);
             }
             else
             {
@@ -1820,6 +1820,20 @@ namespace Core.Pricing
         public static GenericListResponse<CouponData> GetCoupons(int groupId, List<string> couponCodes, long householdId)
         {
             throw new NotImplementedException();
+        }
+
+        public static GenericListResponse<DiscountDetails> GetValidDiscounts(int groupId)
+        {
+            var response = new GenericListResponse<DiscountDetails>();
+
+            BasePricing t = null;
+            t = Utils.GetBasePricing(groupId, "GetValidDiscounts");
+            if (t != null)
+            {
+                return t.GetValidDiscounts();
+            }
+
+            return response;
         }
     }
 }

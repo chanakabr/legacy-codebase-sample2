@@ -10,58 +10,13 @@ namespace ConfigurationManager.Types
 {
     public abstract class BaseHttpClientConfiguration : BaseConfig<BaseHttpClientConfiguration>
     {
-//<<<<<<< HEAD
-        public BaseValue<int> MaxConnectionsPerServer = new BaseValue<int>("max_connections_per_server",5,false,"The maximum number of concurrent connections (per server endpoint) allowed when making requests using HttpClient. Limit is per server endpoint");
-        public BaseValue<bool> CheckCertificateRevocationList = new BaseValue<bool>("check_certificate_revocation",false,false,"Indicates whether the certificate is checked against the certificate authority revocation list");
-        public BaseValue<string> EnabledSslProtocols = new BaseValue<string>("enabled_ssl_protocols", "Ssl2,Ssl3,Tls,Tls11,Tls12", false,"the TLS/SSL protocols to be enabled by the HttpClient. Possible values Tls/Tls11/Tls12/Tls13/Ssl2/Ssl3/Default/None");
-        public BaseValue<string> EnabledDecompressionMethods = new BaseValue<string>("enabled_decompression_methods","Deflate,GZip",false,"Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All");
-        public BaseValue<int> TimeOutInMiliSeconds = new BaseValue<int>("timeout",100000,false,"The timeout in milliseconds for the HttpClient");
-//=======
-//        public NumericConfigurationValue MaxConnectionsPerServer;
-//        public BooleanConfigurationValue CheckCertificateRevocationList;
-//        public StringConfigurationValue EnabledSslProtocols;
-//        public StringConfigurationValue EnabledDecompressionMethods;
-//        public NumericConfigurationValue TimeOutInMiliSeconds;
+        public BaseValue<int> MaxConnectionsPerServer = new BaseValue<int>("max_connections_per_server", 5, false, "The maximum number of concurrent connections (per server endpoint) allowed when making requests using HttpClient. Limit is per server endpoint");
+        public BaseValue<bool> CheckCertificateRevocationList = new BaseValue<bool>("check_certificate_revocation", false, false, "Indicates whether the certificate is checked against the certificate authority revocation list");
+        public BaseValue<string> EnabledSslProtocols = new BaseValue<string>("enabled_ssl_protocols", "Ssl2,Ssl3,Tls,Tls11,Tls12", false, "the TLS/SSL protocols to be enabled by the HttpClient. Possible values Tls/Tls11/Tls12/Tls13/Ssl2/Ssl3/Default/None");
+        public BaseValue<string> EnabledDecompressionMethods = new BaseValue<string>("enabled_decompression_methods", "Deflate,GZip", false, "Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All");
+        public BaseValue<int> TimeOutInMiliSeconds = new BaseValue<int>("timeout", 100000, false, "The timeout in milliseconds for the HttpClient");
 
-//        public HttpClientConfiguration(string key) : base(key)
-//        {
-//            MaxConnectionsPerServer = new NumericConfigurationValue("max_connections_per_server", this)
-//            {
-//                DefaultValue = 5,
-//                ShouldAllowEmpty = true,
-//                Description = "The maximum number of concurrent connections (per server endpoint) allowed when making requests using HttpClient. Limit is per server endpoint"
-//            };
-//>>>>>>> origin/master
-
-      
-
-//<<<<<<< HEAD
         public override bool Validate()
-//=======
-//            EnabledSslProtocols = new StringConfigurationValue("enabled_ssl_protocols", this)
-//            {
-//                DefaultValue = "Tls,Tls11,Tls12",
-//                ShouldAllowEmpty = true,
-//                Description = "the TLS/SSL protocols to be enabled by the HttpClient. Possible values Tls/Tls11/Tls12/Tls13/Ssl2/Ssl3/Default/None"
-//            };
-
-//            EnabledDecompressionMethods = new StringConfigurationValue("enabled_decompression_methods", this)
-//            {                
-//                DefaultValue = "Deflate,Gzip",
-//                ShouldAllowEmpty = true,
-//                Description = "Represents the file compression and decompression encoding format to be enabled by HttpClient to compress the data received in the response. Possible values Brotli/Deflate/Gzip/None/All"
-//            };
-
-//            TimeOutInMiliSeconds = new NumericConfigurationValue("timeout", this)
-//            {
-//                DefaultValue = 100000,
-//                ShouldAllowEmpty = true,
-//                Description = "The timeout in milliseconds for the HttpClient"
-//            };
-//        }
-
-//        internal override bool Validate()
-//>>>>>>> origin/master
         {
             bool isValid = base.Validate();
             if (isValid)
@@ -115,7 +70,7 @@ namespace ConfigurationManager.Types
         private bool ValidateEnum(string stringValue)
         {
             System.Security.Authentication.SslProtocols sslProtocol;
-            if (! Enum.TryParse(stringValue, out sslProtocol))
+            if (!Enum.TryParse(stringValue, out sslProtocol))
             {
                 _Logger.Error($"Invalid casting to SslProtocols enum, param {stringValue}");
                 StringBuilder sb = new StringBuilder();
@@ -130,17 +85,17 @@ namespace ConfigurationManager.Types
         }
 
         public List<SslProtocols> GetSslProtocols()
-        {            
+        {
             List<SslProtocols> SslProtocols = new List<SslProtocols>();
             if (!string.IsNullOrEmpty(EnabledSslProtocols.Value))
             {
-                SslProtocols tempSslProtocols;                
+                SslProtocols tempSslProtocols;
                 string splitValue = EnabledSslProtocols.Value.Contains(",") ? "," : EnabledSslProtocols.Value.Contains(";") ? ";" : string.Empty;
                 if (!string.IsNullOrEmpty(splitValue))
                 {
                     string[] splitedSslProtocols = EnabledSslProtocols.Value.Split(new string[] { splitValue }, StringSplitOptions.RemoveEmptyEntries);
                     if (splitedSslProtocols != null && splitedSslProtocols.Length > 0)
-                    {                        
+                    {
                         foreach (string splitedSslProtocol in splitedSslProtocols)
                         {
                             if (!string.IsNullOrEmpty(splitedSslProtocol) && Enum.TryParse(splitedSslProtocol, out tempSslProtocols))
@@ -160,7 +115,7 @@ namespace ConfigurationManager.Types
                 SslProtocols.Add(System.Security.Authentication.SslProtocols.None);
             }
 
-            return SslProtocols;            
+            return SslProtocols;
         }
 
         private bool ValidateDecompressionMethods()
@@ -238,8 +193,6 @@ namespace ConfigurationManager.Types
             return DecompressionMethods;
         }
     }
-
-
 
     public class HttpClientConfiguration : BaseHttpClientConfiguration
     {

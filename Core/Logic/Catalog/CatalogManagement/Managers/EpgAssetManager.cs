@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Notification.Managers;
+using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.Response;
@@ -103,7 +104,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 eAssetTypes assetType = eAssetTypes.EPG;
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), epgIds);
-                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(assetType.ToString(), epgIds);
+                Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(groupId, assetType.ToString(), epgIds);
 
                 if (!LayeredCache.Instance.GetValues<EpgAsset>(keyToOriginalValueMap,
                                                                ref epgAssets,
@@ -476,7 +477,7 @@ namespace Core.Catalog.CatalogManagement
                         RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
 
                         // invalidate asset
-                        AssetManager.InvalidateAsset(eAssetTypes.EPG, epgAsset.Id);
+                        AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
 
                         // UpdateIndex
                         bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAsset.Id }, false);
@@ -518,7 +519,7 @@ namespace Core.Catalog.CatalogManagement
                     string invalidationKey;
                     if (doesGroupUsesTemplates)
                     {
-                        invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(assetType, currEpgId);
+                        invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(groupId, assetType, currEpgId);
                     }
                     else
                     {
@@ -709,6 +710,7 @@ namespace Core.Catalog.CatalogManagement
                 ParentGroupID = groupId,
                 EpgIdentifier = epgAsset.EpgIdentifier,
                 ChannelID = channelId,
+                LinearMediaId = epgAsset.LinearAssetId.GetValueOrDefault(0), // TODO review, was it a bug or not?
                 StartDate = epgAsset.StartDate ?? DateTime.MinValue,
                 EndDate = epgAsset.EndDate ?? DateTime.MinValue,
                 UpdateDate = updateDate,
@@ -1637,7 +1639,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        internal static void UpdateProgramAssetPictures(int groupId, Image image)
+        internal static void UpdateProgramAssetPictures(int groupId, long userId, Image image)
         {
             var docId = GetEpgCBKey(groupId, image.ImageObjectId);
             var program = EpgDal.GetEpgCB(docId);
@@ -1690,10 +1692,20 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                if (!EpgDal.SaveEpgCB(docId, program))
+                if (EpgDal.SaveEpgCB(docId, program))
+                {
+                    EpgNotificationManager.Instance().ChannelWasUpdated(
+                        KLogger.GetRequestId(),
+                        groupId,
+                        userId,
+                        program.LinearMediaId,
+                        program.ChannelID,
+                        program.StartDate,
+                        program.EndDate);
+                }
+                else
                 {
                     log.ErrorFormat("Error while update epgCB at SetContent. imageId:{0}", image.Id);
-
                 }
             }
         }

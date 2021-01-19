@@ -82,7 +82,7 @@ namespace Phoenix.Rest.Services
 
         private bool TryGetByResponseFormat(string responseFormat, out BaseFormatter formatter)
         {
-            if (Enum.TryParse(KALTURA_RESPONSE_TYPE, responseFormat, out var kalturaResponseType))
+            if (Enum.TryParse(KALTURA_RESPONSE_TYPE, responseFormat, true, out var kalturaResponseType))
             {
                 var responseFromatType = (KalturaResponseType)kalturaResponseType;
                 if (_FormattersByResponseType.TryGetValue(responseFromatType, out var formatterByResponseType))

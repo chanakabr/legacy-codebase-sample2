@@ -1,24 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 
 namespace Core.Users
 {
     public class MD5Encrypter : BaseEncrypter
     {
-        int m_nGroupID;
-
-        public MD5Encrypter()
-        {
-        }
-
-        public MD5Encrypter(int nGroupID)
-        {
-            m_nGroupID = nGroupID;
-        }
-
-        public override string Encrypt(string sPass, string key)
+        public override string Encrypt(string sPass, string key/*not used*/)
         {
             // step 1, calculate MD5 hash from input
             using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
@@ -34,11 +20,6 @@ namespace Core.Users
                 }
                 return sb.ToString().ToLower();
             }
-        }
-
-        public override void GenerateEncryptPassword(string clearPassword, ref string EncryptPassword, ref string salt)
-        {
-            EncryptPassword = Encrypt(clearPassword, "");
         }
     }
 }

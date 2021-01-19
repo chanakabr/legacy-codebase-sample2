@@ -1,4 +1,4 @@
-﻿using APILogic.ConditionalAccess.Managers;
+﻿using ApiLogic.ConditionalAccess.Modules;
 using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.ConditionalAccess;
@@ -7,9 +7,9 @@ using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.ConditionalAccess.Modules;
 using Core.ConditionalAccess.Response;
 using Core.Pricing;
-using Core.Pricing.Handlers;
 using Core.Users;
 using DAL;
 using KLogMonitor;
@@ -20,7 +20,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+using System.Xml;
 using TVinciShared;
 
 namespace Core.ConditionalAccess
@@ -367,7 +367,7 @@ namespace Core.ConditionalAccess
                             string userId = null;
 
                             var subscriptionEntitlementResponse = GetEntitlementById(cas, entitlement.purchaseID, domainId, ref billingGuid, ref endDateFromDB, ref userId, entitlement.paymentGatewayId == 0);
-                            
+
                             if (!subscriptionEntitlementResponse.HasObject())
                             {
                                 response.status.Set(subscriptionEntitlementResponse.Status);
@@ -399,7 +399,6 @@ namespace Core.ConditionalAccess
 
                                 //unified billing cycle updates
                                 Utils.HandleUnifiedBillingCycle(groupId, domainId, entitlement.paymentGatewayId, endDateFromDB, entitlement.purchaseID, subscriptionEntitlement.UnifiedPaymentId, 0);
-
                             }
 
                             if (entitlement.endDate > DateTime.MinValue)
@@ -413,18 +412,29 @@ namespace Core.ConditionalAccess
                                 subscriptionEntitlement.endDate = entitlement.endDate;
                                 subscriptionEntitlement.nextRenewalDate = entitlement.endDate;
 
-                                if (entitlement.recurringStatus)
+                                if (subscriptionEntitlement.recurringStatus)
                                 {
-                                    // enqueue renew transaction
-                                    RenewTransactionsQueue queue = new RenewTransactionsQueue();
-                                    DateTime nextRenewalDate = entitlement.endDate.AddMinutes(-5);
+                                    // enqueue renew transaction 
+                                    var queue = new RenewTransactionsQueue();
+                                    var nextRenewalDate = subscriptionEntitlement.endDate.AddMinutes(-5);
 
-                                    if (entitlement.paymentGatewayId > 0)
+                                    if (subscriptionEntitlement.paymentGatewayId == 0) //BEO-9428
+                                    {
+                                        var paymentDetails = Core.Billing.Module.GetPaymentDetails(cas.m_nGroupID, new List<string>() { billingGuid });
+
+                                        if (paymentDetails?.Count > 0)
+                                        {
+                                            subscriptionEntitlement.paymentGatewayId = paymentDetails[0].PaymentGatewayId;
+                                            subscriptionEntitlement.paymentMethodId = paymentDetails[0].PaymentMethodId;
+                                        }
+                                    }
+
+                                    if (subscriptionEntitlement.paymentGatewayId > 0)
                                     {
                                         var paymentGatewayResponse = Core.Billing.Module.GetPaymentGatewayById(groupId, subscriptionEntitlement.paymentGatewayId);
                                         if (!paymentGatewayResponse.HasObject())
                                         {
-                                            nextRenewalDate = entitlement.endDate.AddMinutes(paymentGatewayResponse.Object.RenewalStartMinutes);
+                                            nextRenewalDate = subscriptionEntitlement.endDate.AddMinutes(paymentGatewayResponse.Object.RenewalStartMinutes);
                                         }
                                     }
 
@@ -447,7 +457,7 @@ namespace Core.ConditionalAccess
                             response.entitelments.Add(subscriptionEntitlement);
 
                             break;
-                        }          
+                        }
                     case eTransactionType.PPV:
                         {
                             var entitlements = GetUsersEntitlementPPVItems(cas, cas.m_nGroupID, new List<int>(), false, (int)domainId, true, -1, 0, EntitlementOrderBy.PurchaseDateAsc);
@@ -520,7 +530,7 @@ namespace Core.ConditionalAccess
 
             if (response.status.IsOkStatusCode())
             {
-                string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(domainId);
+                string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
@@ -530,7 +540,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private static GenericResponse<Entitlement> GetEntitlementById(BaseConditionalAccess cas, long purchaseId, long domainId, ref string billingGuid, 
+        private static GenericResponse<Entitlement> GetEntitlementById(BaseConditionalAccess cas, long purchaseId, long domainId, ref string billingGuid,
             ref DateTime endDateFromDB, ref string userId, bool includeNonRecurring = false)
         {
             var response = new GenericResponse<Entitlement>();
@@ -550,7 +560,7 @@ namespace Core.ConditionalAccess
                 return response;
             }
 
-            var subscriptionEntitlement = CreateSubscriptionEntitelment(cas, dr, false, null);
+            var subscriptionEntitlement = CreateSubscriptionEntitelment(cas, dr, false, null, domainId);
 
             if (!subscriptionEntitlement.recurringStatus)
             {
@@ -658,7 +668,7 @@ namespace Core.ConditionalAccess
                 ConditionalAccess.Response.Entitlement entitlement = null;
                 foreach (DataRow dr in iterationRows)
                 {
-                    entitlement = CreateSubscriptionEntitelment(cas, dr, isExpired, renewPaymentDetails, purchaseIdToScheduledSubscriptionId);
+                    entitlement = CreateSubscriptionEntitelment(cas, dr, isExpired, renewPaymentDetails, domainId, purchaseIdToScheduledSubscriptionId);
                     if (entitlement != null && long.TryParse(entitlement.entitlementId, out subId))
                     {
                         entitlementsResponse.entitelments.Add(entitlement);
@@ -782,7 +792,8 @@ namespace Core.ConditionalAccess
             return entitlementsResponse;
         }
 
-        private static Entitlement CreateSubscriptionEntitelment(BaseConditionalAccess cas, DataRow dataRow, bool isExpired, List<PaymentDetails> renewPaymentDetails, Dictionary<long, long> purchaseIdToScheduledSubscriptionId = null)
+        private static Entitlement CreateSubscriptionEntitelment(BaseConditionalAccess cas, DataRow dataRow, bool isExpired, 
+            List<PaymentDetails> renewPaymentDetails, long domainId, Dictionary<long, long> purchaseIdToScheduledSubscriptionId = null)
         {
             var entitlement = new Entitlement()
             {
@@ -802,7 +813,8 @@ namespace Core.ConditionalAccess
                 deviceName = string.Empty,
                 mediaFileID = 0,
                 IsSuspended = ODBCWrapper.Utils.GetIntSafeVal(dataRow["subscription_status"]) == (int)SubscriptionPurchaseStatus.Suspended,
-                UnifiedPaymentId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "unified_process_id")
+                UnifiedPaymentId = ODBCWrapper.Utils.GetLongSafeVal(dataRow, "unified_process_id"),
+                IsPending = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "IS_PENDING") == 1
             };
 
             DateTime endDate = ODBCWrapper.Utils.GetDateSafeVal(dataRow, "END_DATE");
@@ -854,7 +866,9 @@ namespace Core.ConditionalAccess
                 entitlement.cancelWindow = cancellationWindow;
             }
 
-            entitlement.paymentMethod = Utils.GetBillingTransMethod(ODBCWrapper.Utils.GetIntSafeVal(dataRow, "billing_transaction_id"), billingGuid);
+            var billingData = Utils.GetBillingTransactionData(ODBCWrapper.Utils.GetIntSafeVal(dataRow, "billing_transaction_id"), billingGuid);
+
+            entitlement.paymentMethod = billingData != null ? billingData.Item1 : ePaymentMethod.Unknown;
 
             if (!string.IsNullOrEmpty(entitlement.deviceUDID))
             {
@@ -865,6 +879,9 @@ namespace Core.ConditionalAccess
             {
                 entitlement.ScheduledSubscriptionId = purchaseIdToScheduledSubscriptionId[entitlement.purchaseID];
             }
+
+            string customdata = billingData != null ? billingData.Item2 : null;
+            entitlement.PriceDetails = GetSubscriptionEntitlementPriceDetails(cas.m_nGroupID, entitlement, customdata, domainId);           
 
             return entitlement;
         }
@@ -991,6 +1008,7 @@ namespace Core.ConditionalAccess
             entitlement.maxUses = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MAX_NUM_OF_USES");
             entitlement.mediaFileID = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "MEDIA_FILE_ID");
             entitlement.mediaID = 0;
+            entitlement.IsPending = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "IS_PENDING") == 1;
 
             return entitlement;
 
@@ -1032,6 +1050,9 @@ namespace Core.ConditionalAccess
                 cas.IsCancellationWindow(ref oUsageModule, entitlement.entitlementId, entitlement.purchaseDate, ref cancellationWindow, eTransactionType.Collection);
                 entitlement.cancelWindow = cancellationWindow;
             }
+
+            entitlement.IsPending = ODBCWrapper.Utils.GetIntSafeVal(dataRow, "IS_PENDING") == 1;
+
             return entitlement;
         }
 
@@ -1257,7 +1278,7 @@ namespace Core.ConditionalAccess
                                     groupId, domainId, scheduledSubscriptionId, subscriptionSetModifyDetailsId);
                 }
 
-                string invalidationKey = LayeredCacheKeys.GetCancelSubscriptionRenewalInvalidationKey(domainId);
+                string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key on CancelScheduledSubscription key = {0}", invalidationKey);
@@ -1315,6 +1336,13 @@ namespace Core.ConditionalAccess
                     status.Set(eResponseStatus.OtherCouponIsAlreadyAppliedForSubscription);
                     return status;
                 }
+
+                if (renewData != null && renewData.CampaignDetails != null && renewData.CampaignDetails.Id > 0)
+                {
+                    status.Set(eResponseStatus.CampaignIsAlreadyAppliedForSubscription);
+                    return status;
+                }
+
 
                 bool validCoupon = false;
                 // look if this coupon group id exsits in coupon list 
@@ -1419,6 +1447,761 @@ namespace Core.ConditionalAccess
             }
 
             return renewData;
+        }
+
+        public static ApiObjects.Response.Status UpdatePendingEntitlement(int groupId, eTransactionType productType, string billingGuid, PaymentGateway paymentGateway)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                switch (productType)
+                {
+                    case eTransactionType.PPV:
+                        {
+                            return UpdatePendingPPVEntitlement(groupId, billingGuid);
+
+                        }
+                    case eTransactionType.Subscription:
+                        {
+                            return UpdatePendingSubscriptionEntitlement(groupId, billingGuid, paymentGateway);
+
+                        }
+                    case eTransactionType.Collection:
+                        {
+                            return UpdatePendingCollectionEntitlement(groupId, billingGuid);
+                        }
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An Exception was occurred in UpdatePendingEntitlement. groupId: {groupId} billingGuid:{billingGuid}.", ex);
+                status.Set(eResponseStatus.Error);
+            }
+
+            return status;
+        }
+
+        private static ApiObjects.Response.Status UpdatePendingSubscriptionEntitlement(int groupId, string billingGuid, PaymentGateway paymentGateway)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                // Get subscriptions_purchase
+                DataTable dt = ConditionalAccessDAL.GetSubscriptionsPurchasesByBillingGuid(groupId, billingGuid);
+                if (dt?.Rows.Count > 0)
+                {
+                    DateTime now = DateTime.UtcNow;
+
+                    var row = dt.Rows[0];
+
+                    if (row != null)
+                    {
+                        int purchaseId = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+                        string siteGuid = ODBCWrapper.Utils.ExtractString(row, "SITE_USER_GUID");
+                        int houseHoldId = ODBCWrapper.Utils.ExtractInteger(row, "DOMAIN_ID");
+
+                        //Get subscription
+                        string productId = ODBCWrapper.Utils.ExtractString(row, "SUBSCRIPTION_CODE");
+                        bool isRecurring = ODBCWrapper.Utils.ExtractInteger(row, "IS_RECURRING_STATUS") == 1;
+
+                        Subscription subscription = Utils.GetSubscription(groupId, int.Parse(productId));
+                        DateTime endDate = Utils.CalcSubscriptionEndDate(subscription, false, now);
+
+                        SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(groupId)
+                        {
+                            purchaseId = purchaseId,
+                            productId = productId,
+                            siteGuid = siteGuid,
+                            isRecurring = isRecurring,
+                            startDate = now,
+                            endDate = endDate,
+                            entitlementDate = now,
+                            houseHoldId = houseHoldId,
+                            billingGuid = billingGuid,
+                            IsPending = false,
+                            UpdateFromPending = true
+                        };
+
+                        subscriptionPurchase.Update();
+
+                        if (isRecurring)
+                        {
+                            //create renew msg
+                            DateTime nextRenewalDate = endDate.AddMinutes(-5);
+
+                            if (paymentGateway == null)
+                            {
+                                paymentGateway = Core.Billing.Module.GetPaymentGatewayByBillingGuid(groupId, houseHoldId, billingGuid);
+                            }
+
+                            if (paymentGateway != null)
+                            {
+                                nextRenewalDate = endDate.AddMinutes(paymentGateway.RenewalStartMinutes);
+                            }
+
+                            long endDateUnix = DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate);
+
+                            PurchaseManager.RenewTransactionMessageInQueue(groupId, siteGuid, billingGuid, purchaseId, endDateUnix, nextRenewalDate, houseHoldId);
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An Exception was occurred in UpdatePendingSubscriptionEntitlement. groupId: {groupId} billingGuid:{billingGuid}.", ex);
+                status.Set(eResponseStatus.Error);
+            }
+
+            return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
+        }
+
+        private static ApiObjects.Response.Status UpdatePendingPPVEntitlement(int groupId, string billingGuid)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                // Get subscriptions_purchase
+                DataTable dt = ConditionalAccessDAL.GetPPVPurchasesByBillingGuid(groupId, billingGuid);
+                if (dt?.Rows.Count > 0)
+                {
+                    DateTime now = DateTime.UtcNow;
+
+                    var row = dt.Rows[0];
+
+                    if (row != null)
+                    {
+                        int purchaseId = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+                        string siteGuid = ODBCWrapper.Utils.ExtractString(row, "SITE_USER_GUID");
+                        int houseHoldId = ODBCWrapper.Utils.ExtractInteger(row, "DOMAIN_ID");
+
+                        string customdata = ODBCWrapper.Utils.ExtractString(row, "CUSTOMDATA");
+                        int contentId = ODBCWrapper.Utils.ExtractInteger(row, "MEDIA_FILE_ID");
+
+                        int ppvmTagLength = 6;
+                        int ppvTagStart = customdata.IndexOf("<ppvm>") + ppvmTagLength;
+                        int ppvTagEnd = customdata.IndexOf("</ppvm>");
+
+                        int productId = 0;
+                        if (int.TryParse(customdata.Substring(ppvTagStart, ppvTagEnd - ppvTagStart), out productId))
+                        {
+                            PPVModule ppvModule = null;
+                            status = Utils.ValidatePPVModuleCode(groupId, productId, contentId, ref ppvModule);
+                            if (status.Code != (int)eResponseStatus.OK)
+                            {
+                                return status;
+                            }
+
+                            DateTime endDate = Utils.GetEndDateTime(now, ppvModule.m_oUsageModule.m_tsMaxUsageModuleLifeCycle, true, true);
+
+                            PpvPurchase ppvPurchase = new PpvPurchase(groupId)
+                            {
+                                purchaseId = purchaseId,
+                                contentId = contentId,
+                                siteGuid = siteGuid,
+                                startDate = now,
+                                endDate = endDate,
+                                entitlementDate = now,
+                                houseHoldId = houseHoldId,
+                                billingGuid = billingGuid,
+                                IsPending = false
+                            };
+
+                            bool res = ppvPurchase.Update();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An Exception was occurred in UpdatePendingPPVEntitlement. groupId: {groupId} billingGuid:{billingGuid}.", ex);
+                status.Set(eResponseStatus.Error);
+            }
+
+            return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
+        }
+
+        private static ApiObjects.Response.Status UpdatePendingCollectionEntitlement(int groupId, string billingGuid)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                // Get subscriptions_purchase
+                DataTable dt = ConditionalAccessDAL.GetCollectionsPurchasesByBillingGuid(groupId, billingGuid);
+                if (dt?.Rows.Count > 0)
+                {
+                    DateTime now = DateTime.UtcNow;
+
+                    var row = dt.Rows[0];
+
+                    if (row != null)
+                    {
+                        int purchaseId = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+                        string siteGuid = ODBCWrapper.Utils.ExtractString(row, "SITE_USER_GUID");
+                        int houseHoldId = ODBCWrapper.Utils.ExtractInteger(row, "DOMAIN_ID");
+
+                        string productId = ODBCWrapper.Utils.ExtractString(row, "COLLECTION_CODE");
+
+                        Collection collection = Pricing.Module.GetCollectionData(groupId, productId, string.Empty, string.Empty, string.Empty, false);
+                        DateTime endDate = Utils.CalcCollectionEndDate(collection, now);
+
+                        CollectionPurchase collectionPurchase = new CollectionPurchase(groupId)
+                        {
+                            purchaseId = purchaseId,
+                            productId = productId,
+                            siteGuid = siteGuid,
+                            startDate = now,
+                            endDate = endDate,
+                            createAndUpdateDate = now,
+                            houseHoldId = houseHoldId,
+                            billingGuid = billingGuid,
+                            IsPending = false
+                        };
+
+                        collectionPurchase.Update();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An Exception was occurred in UpdatePendingCollectionEntitlement. groupId: {groupId} billingGuid:{billingGuid}.", ex);
+                status.Set(eResponseStatus.Error);
+            }
+
+            return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.OK };
+        }
+
+        public static ApiObjects.Response.Status DeletePendingEntitlement(int groupId, eTransactionType productType, string billingGuid)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                switch (productType)
+                {
+                    case eTransactionType.PPV:
+                        {
+                            status = DeletePendingPPVEntitlement(groupId, billingGuid);
+                            break;
+                        }
+                    case eTransactionType.Subscription:
+                        {
+                            status = DeletePendingSubscriptionEntitlement(groupId, billingGuid);
+                            break;
+                        }
+                    case eTransactionType.Collection:
+                        {
+                            status = DeletePendingCollectionEntitlement(groupId, billingGuid);
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An Exception was occurred in DeletePendingEntitlement. groupId: {groupId} billingGuid:{billingGuid}.", ex);
+                status.Set(eResponseStatus.Error);
+            }
+
+            return status;
+        }
+
+        private static ApiObjects.Response.Status DeletePendingSubscriptionEntitlement(int groupId, string billingGuid)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                // Get subscriptions_purchase
+                DataTable dt = ConditionalAccessDAL.GetSubscriptionsPurchasesByBillingGuid(groupId, billingGuid);
+                if (dt?.Rows.Count > 0)
+                {
+                    var row = dt.Rows[0];
+
+                    if (row != null)
+                    {
+                        string siteGuid = ODBCWrapper.Utils.ExtractString(row, "SITE_USER_GUID");
+                        int householdId = ODBCWrapper.Utils.ExtractInteger(row, "DOMAIN_ID");
+                        string productId = ODBCWrapper.Utils.ExtractString(row, "SUBSCRIPTION_CODE");
+
+                        SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(groupId)
+                        {
+                            productId = productId,
+                            siteGuid = siteGuid,
+                            houseHoldId = householdId
+                        };
+
+                        var dalResult = subscriptionPurchase.Delete();
+
+                        if (dalResult)
+                        {
+                            status.Set(eResponseStatus.OK);
+
+                            string coupon = ODBCWrapper.Utils.ExtractString(row, "coupon_code");
+                            
+                            if (!string.IsNullOrEmpty(coupon))
+                            {
+                                // reduce coupon count
+                                Pricing.Module.SetCouponUses(groupId, coupon, siteGuid, 0, 0, 0, 0, householdId, true);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An Exception was occurred in DeletePendingSubscriptionEntitlement. groupId: {groupId} billingGuid:{billingGuid}.", ex);
+                status.Set(eResponseStatus.Error);
+            }
+
+            return status;
+        }
+
+        private static ApiObjects.Response.Status DeletePendingPPVEntitlement(int groupId, string billingGuid)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                // Get subscriptions_purchase
+                DataTable dt = ConditionalAccessDAL.GetPPVPurchasesByBillingGuid(groupId, billingGuid);
+                if (dt?.Rows.Count > 0)
+                {
+                    DateTime now = DateTime.UtcNow;
+
+                    var row = dt.Rows[0];
+
+                    if (row != null)
+                    {
+                        int purchaseId = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+                        string siteGuid = ODBCWrapper.Utils.ExtractString(row, "SITE_USER_GUID");
+                        int householdId = ODBCWrapper.Utils.ExtractInteger(row, "DOMAIN_ID");
+                        int contentId = ODBCWrapper.Utils.ExtractInteger(row, "MEDIA_FILE_ID");
+
+                        PpvPurchase ppvPurchase = new PpvPurchase(groupId)
+                        {
+                            contentId = contentId,
+                            siteGuid = siteGuid,
+                            houseHoldId = householdId
+                        };
+
+                        if (ppvPurchase.Delete())
+                        {
+                            status.Set(eResponseStatus.OK);
+
+                            string customdata = ODBCWrapper.Utils.ExtractString(row, "CUSTOMDATA");
+                            int couponTagLength = 4;
+                            int couponTagStart = customdata.IndexOf("<cc>") + couponTagLength;
+                            int couponTagEnd = customdata.IndexOf("</cc>");
+
+                            string coupon = customdata.Substring(couponTagStart, couponTagEnd - couponTagStart);
+                            if (!string.IsNullOrEmpty(coupon))
+                            {
+                                // reduce coupon count
+                                Pricing.Module.SetCouponUses(groupId, coupon, siteGuid, 0, 0, 0, 0, householdId, true);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An Exception was occurred in DeletePendingPPVEntitlement. groupId: {groupId} billingGuid:{billingGuid}.", ex);
+                status.Set(eResponseStatus.Error);
+            }
+
+            return status;
+        }
+
+        private static ApiObjects.Response.Status DeletePendingCollectionEntitlement(int groupId, string billingGuid)
+        {
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+
+            try
+            {
+                // Get subscriptions_purchase
+                DataTable dt = ConditionalAccessDAL.GetCollectionsPurchasesByBillingGuid(groupId, billingGuid);
+                if (dt?.Rows.Count > 0)
+                {
+                    DateTime now = DateTime.UtcNow;
+
+                    var row = dt.Rows[0];
+
+                    if (row != null)
+                    {
+                        int purchaseId = ODBCWrapper.Utils.ExtractInteger(row, "ID");
+                        string siteGuid = ODBCWrapper.Utils.ExtractString(row, "SITE_USER_GUID");
+                        int householdId = ODBCWrapper.Utils.ExtractInteger(row, "DOMAIN_ID");
+                        string productId = ODBCWrapper.Utils.ExtractString(row, "COLLECTION_CODE");
+
+                        CollectionPurchase collectionPurchase = new CollectionPurchase(groupId)
+                        {
+                            productId = productId,
+                            siteGuid = siteGuid,
+                            houseHoldId = householdId
+                        };
+
+                        if (collectionPurchase.Delete())
+                        {
+                            status.Set(eResponseStatus.OK);
+
+                            string customdata = ODBCWrapper.Utils.ExtractString(row, "CUSTOMDATA");
+                            int couponTagLength = 4;
+                            int couponTagStart = customdata.IndexOf("<cc>") + couponTagLength;
+                            int couponTagEnd = customdata.IndexOf("</cc>");
+
+                            string coupon = customdata.Substring(couponTagStart, couponTagEnd - couponTagStart);
+                            if (!string.IsNullOrEmpty(coupon))
+                            {
+                                // reduce coupon count
+                                Pricing.Module.SetCouponUses(groupId, coupon, siteGuid, 0, 0, 0, 0, householdId, true);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An Exception was occurred in DeletePendingCollectionEntitlement. groupId: {groupId} billingGuid:{billingGuid}.", ex);
+                status.Set(eResponseStatus.Error);
+            }
+
+            return status;
+        }
+
+        private static EntitlementPriceDetails GetSubscriptionEntitlementPriceDetails(int groupId, Entitlement entitlement, string customData, long domainId)
+        {
+            EntitlementPriceDetails entitlementPriceDetails = null;
+
+            try
+            {
+                // get subscription data for entitlement.PriceDetails
+                var subscription = Pricing.Module.GetSubscriptionData(groupId, entitlement.entitlementId, string.Empty, string.Empty, string.Empty, false);
+
+                if (subscription != null)
+                {
+                    entitlementPriceDetails = new EntitlementPriceDetails();
+
+                    GetDataFromCustomData(customData, out double customDataPrice, out string currencyCode, out string countryCode, out string customDataCoupon, out string customDataCampaign,
+                                            out string customDataCompansation);
+
+                    #region price + discount
+                    PriceReason priceReason = PriceReason.UnKnown;
+                    PriceCode priceCode = subscription.m_oSubscriptionPriceCode;
+
+                    var subOriginalPrice = Utils.HandlePriceCodeAndExternalDiscount(ref priceReason, groupId, ref currencyCode, ref countryCode,
+                                                                                subscription.m_oExtDisountModule, out DiscountModule externalDiscount, ref priceCode);
+
+                    if (subOriginalPrice == null)
+                    {
+                        log.Debug($"subOriginalPrice  is null for group {groupId} entitlementId {entitlement.entitlementId} customData {customData}");
+                        return null;
+                    }
+
+                    entitlementPriceDetails.FullPrice = subOriginalPrice;
+
+                    DiscountEntitlementDiscountDetails discountEntitlementDiscountDetails = null;
+
+                    if (externalDiscount != null)
+                    {
+                        Price priceAfterDiscount = Utils.GetPriceAfterDiscount(subOriginalPrice, externalDiscount, 1);
+                        discountEntitlementDiscountDetails = new DiscountEntitlementDiscountDetails()
+                        {
+                            Id = externalDiscount.m_nObjectID,
+                            Amount = subOriginalPrice.m_dPrice - priceAfterDiscount.m_dPrice,
+                            EndDate = entitlement.recurringStatus ? DateUtils.DateTimeToUtcUnixTimestampSeconds(externalDiscount.m_dEndDate) : DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate),
+                        };
+                    }
+                    #endregion
+
+                    var recurringData = ConditionalAccessDAL.GetRecurringRenewDetails(entitlement.purchaseID);
+                    bool freeTrail = recurringData != null && recurringData.IsPurchasedWithPreviewModule && recurringData.TotalNumOfRenews == 0;
+
+                    #region Trail
+                    if (freeTrail && subscription.m_oPreviewModule?.m_nID > 0)
+                    {
+                        entitlementPriceDetails.AddDiscountDetails(new TrailEntitlementDiscountDetails()
+                        {
+                            Id = subscription.m_oPreviewModule.m_nID,
+                            Amount = subOriginalPrice.m_dPrice,
+                            EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate),
+                        });
+                    }
+                    #endregion
+
+                    if (entitlement.recurringStatus)
+                    {
+                        if (recurringData != null)
+                        {
+                            #region Discount
+                            if (discountEntitlementDiscountDetails != null)
+                            {
+                                if (!freeTrail)
+                                {
+                                    discountEntitlementDiscountDetails.StartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate);
+                                }
+
+                                entitlementPriceDetails.AddDiscountDetails(discountEntitlementDiscountDetails);
+                            }
+                            #endregion
+
+                            #region coupon
+                            if (!string.IsNullOrEmpty(recurringData.CouponCode))
+                            {
+                                CouponEntitlementDiscountDetails cedd = new CouponEntitlementDiscountDetails() { CouponCode = recurringData.CouponCode };
+
+                                if (freeTrail || string.IsNullOrEmpty(customDataCoupon) || !customDataCoupon.Equals(recurringData.CouponCode))
+                                {
+                                    cedd.StartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate);
+                                }
+
+                                if (!string.IsNullOrEmpty(customDataCoupon) && !customDataCoupon.Equals(recurringData.CouponCode))
+                                {
+                                    CouponEntitlementDiscountDetails ocedd = new CouponEntitlementDiscountDetails()
+                                    {
+                                        CouponCode = customDataCoupon,
+                                        EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
+                                    };
+
+                                    var discount1 = Utils.GetLowestPriceByCouponCode(groupId, customDataCoupon, subscription, subOriginalPrice, domainId);
+                                    ocedd.Amount = subOriginalPrice.m_dPrice - discount1.m_dPrice;
+
+                                    entitlementPriceDetails.AddDiscountDetails(ocedd);
+                                }
+
+                                if (recurringData.IsCouponHasEndlessRecurring)
+                                {
+                                    cedd.EndlessCoupon = true;
+                                }
+                                else
+                                {
+                                    if (subscription.m_MultiSubscriptionUsageModule.Length == 1)
+                                    {
+                                        cedd.EndDate = GetEntitlementPriceDetailsEndDate(subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, recurringData.LeftCouponRecurring, entitlement.endDate);
+                                    }
+                                }
+
+                                var discount = Utils.GetLowestPriceByCouponCode(groupId, recurringData.CouponCode, subscription, subOriginalPrice, domainId);
+                                cedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
+
+                                entitlementPriceDetails.AddDiscountDetails(cedd);
+                            }
+                            else if (!string.IsNullOrEmpty(customDataCoupon))
+                            {
+                                CouponEntitlementDiscountDetails cedd = new CouponEntitlementDiscountDetails()
+                                {
+                                    CouponCode = customDataCoupon,
+                                    EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
+                                };
+
+                                var discount = Utils.GetLowestPriceByCouponCode(groupId, customDataCoupon, subscription, subOriginalPrice, domainId);
+                                cedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
+
+                                entitlementPriceDetails.AddDiscountDetails(cedd);
+                            }
+                            #endregion
+
+                            #region Campaign
+                            if (recurringData.CampaignDetails?.Id > 0)
+                            {
+                                CampaignEntitlementDiscountDetails cedd = new CampaignEntitlementDiscountDetails() { Id = recurringData.CampaignDetails.Id };
+
+                                if (freeTrail)
+                                {
+                                    cedd.StartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate);
+                                }
+
+                                if (subscription.m_MultiSubscriptionUsageModule.Length == 1)
+                                {
+                                    cedd.EndDate = GetEntitlementPriceDetailsEndDate(subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, recurringData.CampaignDetails.LeftRecurring, entitlement.endDate);
+                                }
+
+                                //get campaign by id
+                                CampaignIdInFilter campaignFilter = new CampaignIdInFilter()
+                                {
+                                    IdIn = new List<long>() { recurringData.CampaignDetails.Id },
+                                    IsAllowedToViewInactiveCampaigns = true
+                                };
+
+                                ApiObjects.Base.ContextData contextData = new ApiObjects.Base.ContextData(groupId);
+
+                                var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(contextData, campaignFilter);
+
+                                if (campaigns.HasObjects())
+                                {
+                                    Price priceBeforeCouponDiscount = subOriginalPrice;
+
+                                    var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(campaigns.Objects[0].Promotion.DiscountModuleId), countryCode, subOriginalPrice.m_oCurrency.m_sCurrencyCD3);
+
+                                    Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, discountModule, 0);
+                                    cedd.Amount = subOriginalPrice.m_dPrice - priceResult.m_dPrice;
+                                }
+
+                                entitlementPriceDetails.AddDiscountDetails(cedd);
+                            }
+                            #endregion
+
+                            #region Compensation
+                            if (recurringData.Compensation?.Id > 0)
+                            {
+                                CompensationEntitlementDiscountDetails cedd = new CompensationEntitlementDiscountDetails()
+                                {
+                                    Amount = recurringData.Compensation.CompensationType == CompensationType.FixedAmount ? recurringData.Compensation.Amount : subOriginalPrice.m_dPrice * recurringData.Compensation.Amount / 100,
+                                    Id = recurringData.Compensation.Id
+                                };
+
+                                if (freeTrail || string.IsNullOrEmpty(customDataCompansation))
+                                {
+                                    cedd.StartDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate);
+                                }
+
+                                if (subscription.m_MultiSubscriptionUsageModule.Length == 1)
+                                {
+                                    cedd.EndDate = GetEntitlementPriceDetailsEndDate(subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle, recurringData.Compensation.TotalRenewals - recurringData.Compensation.Renewals, entitlement.endDate);
+                                }
+
+                                entitlementPriceDetails.AddDiscountDetails(cedd);
+                            }
+                            #endregion
+                        }
+                    }
+                    else if (!freeTrail)
+                    {
+                        #region Discount
+                        if (discountEntitlementDiscountDetails != null)
+                        {
+                            entitlementPriceDetails.AddDiscountDetails(discountEntitlementDiscountDetails);
+                        }
+                        #endregion
+
+                        #region Coupon
+                        if (!string.IsNullOrEmpty(customDataCoupon))
+                        {
+                            CouponEntitlementDiscountDetails ocedd = new CouponEntitlementDiscountDetails()
+                            {
+                                CouponCode = customDataCoupon,
+                                EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
+                            };
+
+                            var discount = Utils.GetLowestPriceByCouponCode(groupId, customDataCoupon, subscription, subOriginalPrice, domainId);
+                            ocedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
+
+                            entitlementPriceDetails.AddDiscountDetails(ocedd);
+                        }
+                        #endregion
+
+                        #region Compansation
+                        if (!string.IsNullOrEmpty(customDataCompansation))
+                        {
+                            Compensation currentCompensation = ConditionalAccessDAL.GetSubscriptionCompensationByPurchaseId(entitlement.purchaseID);
+
+                            CompensationEntitlementDiscountDetails cedd = new CompensationEntitlementDiscountDetails()
+                            {
+                                Amount = currentCompensation.CompensationType == CompensationType.FixedAmount ? currentCompensation.Amount : subOriginalPrice.m_dPrice * currentCompensation.Amount / 100,
+                                Id = currentCompensation.Id,
+                                EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
+                            };
+
+                            entitlementPriceDetails.AddDiscountDetails(cedd);
+                        }
+                        #endregion
+
+                        #region Campaign
+                        if (!string.IsNullOrEmpty(customDataCampaign) && int.TryParse(customDataCampaign, out int campaignId))
+                        {
+                            CampaignEntitlementDiscountDetails cedd = new CampaignEntitlementDiscountDetails()
+                            {
+                                Id = campaignId,
+                                EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
+                            };
+
+                            //get campaign by id
+
+                            CampaignIdInFilter campaignFilter = new CampaignIdInFilter()
+                            {
+                                IdIn = new List<long>() { campaignId },
+                                IsAllowedToViewInactiveCampaigns = true
+                            };
+
+                            ApiObjects.Base.ContextData contextData = new ApiObjects.Base.ContextData(groupId);
+
+                            var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(contextData, campaignFilter);
+
+                            if (campaigns.HasObjects())
+                            {
+                                Price priceBeforeCouponDiscount = subOriginalPrice;
+
+                                var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(campaigns.Objects[0].Promotion.DiscountModuleId), countryCode, subOriginalPrice.m_oCurrency.m_sCurrencyCD3);
+
+                                Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, discountModule, 0);
+                                cedd.Amount = subOriginalPrice.m_dPrice - priceResult.m_dPrice;
+                            }
+
+                            entitlementPriceDetails.AddDiscountDetails(cedd);
+                        }
+                        #endregion
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"error GetSubscriptionEntitlementPriceDetails entitlementId:{entitlement.entitlementId}", ex);
+            }
+
+            return entitlementPriceDetails;
+        }
+
+        
+        private static void GetDataFromCustomData(string customData, out double customDataPrice, out string customDataCurrency, out string countryCode,
+            out string coupon, out string campaign, out string compansation)
+        {
+            customDataPrice = 0.0;
+            customDataCurrency = string.Empty;
+            coupon = string.Empty;
+            campaign = string.Empty;
+            compansation = string.Empty;
+            countryCode = string.Empty;
+
+            try
+            {              
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(customData);
+                XmlNode theRequest = doc.FirstChild;
+
+                customDataCurrency = XmlUtils.GetSafeValue(BaseConditionalAccess.CURRENCY, ref theRequest);
+                coupon = XmlUtils.GetSafeValue(BaseConditionalAccess.COUPON_CODE, ref theRequest);
+                campaign = XmlUtils.GetSafeValue(BaseConditionalAccess.CAMPAIGN_CODE, ref theRequest);
+                compansation = XmlUtils.GetElement(doc, BaseConditionalAccess.COMPANSATION_CODE);
+                countryCode = XmlUtils.GetSafeValue(BaseConditionalAccess.COUNTRY_CODE, ref theRequest);
+
+                if (!Double.TryParse(XmlUtils.GetSafeValue(BaseConditionalAccess.PRICE, ref theRequest), out customDataPrice))
+                {
+                    customDataPrice = 0.0;
+                }
+
+            }
+            catch (Exception exc)
+            {
+                log.Error($"exception while getting data from customData. exc: {exc}");                
+            }
+        }        
+
+        public static long GetEntitlementPriceDetailsEndDate(long lifeCycle, int recurring, DateTime endDate)
+        {
+            for (int index = 0; index < recurring; index++)
+            {
+                endDate = Utils.GetEndDateTime(endDate, lifeCycle);
+            }
+
+            return DateUtils.DateTimeToUtcUnixTimestampSeconds(endDate);
         }
     }
 }

@@ -94,6 +94,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PARENTID_SHOULD_NOT_POINT_TO_ITSELF = new ClientExceptionType(eResponseStatus.ParentIdShouldNotPointToItself, "ParentId Should Not Point To Itself", "ParentId should not point to itself");
         public static ClientExceptionType PARENTID_NOT_EXIST = new ClientExceptionType(eResponseStatus.ParentIdNotExist, "ParentId Not Exist");
         public static ClientExceptionType USER_FAVORITE_NOT_DELETED = new ClientExceptionType(eResponseStatus.UserFavoriteNotDeleted, "User Favorite Not Deleted");
+        public static ClientExceptionType USER_SELF_DELETE_NOT_PERMITTED = new ClientExceptionType(eResponseStatus.UserSelfDeleteNotPermitted, "User Self Delete Not Permitted", "Self deletion is not permitted.");
 
         #endregion
 
@@ -151,7 +152,10 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType SUBSCRIPTION_CANCELLATION_IS_BLOCKED = new ClientExceptionType(eResponseStatus.SubscriptionCancellationIsBlocked, "The cancellation for the specified subscription is blocked");
         public static ClientExceptionType UNKNOWN_PRICE_REASON = new ClientExceptionType(eResponseStatus.UnknownPriceReason, "Unknown price reason", "Unknown price reason");
         public static ClientExceptionType SUBSCRIPTION_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.SubscriptionDoesNotExist, "The subscription does not exist", "The subscription does not exist");
-
+        public static ClientExceptionType OTHER_COUPON_ALREADY_APPLIED = new ClientExceptionType(eResponseStatus.OtherCouponIsAlreadyAppliedForSubscription, "Other coupon is already applied for subscription", "Other coupon is already applied for subscription");
+        public static ClientExceptionType CAMPAIGN_ALREADY_APPLIED = new ClientExceptionType(eResponseStatus.CampaignIsAlreadyAppliedForSubscription, "Campaign is already applied for subscription", "Campaign is already applied for subscription");
+        public static ClientExceptionType PURCHASE_PENDING_FAILED = new ClientExceptionType(eResponseStatus.PurchasePendingFailed, "");
+        public static ClientExceptionType PENDING_ENTITELMENT = new ClientExceptionType(eResponseStatus.PendingEntitlement, "", "Entitlement is pending");
 
         #endregion
 

@@ -32,6 +32,7 @@ namespace ApiObjects.ConditionalAccess
         public SubscriptionPurchaseStatus SubscriptionStatus { get; set; }
         public bool IsUseCouponRemainder { get; set; }
         public RecurringRenewDetails RecurringData { get; set; }
+        public bool IsAddToUnified { get; set; }
 
         public eTransactionType Type { get { return eTransactionType.Subscription; } }
     }

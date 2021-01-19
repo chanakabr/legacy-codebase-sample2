@@ -90,7 +90,7 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // invalidate asset
-                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, (int)mediaAsset.Id);
+                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, (int)mediaAsset.Id);
                 }
 
                 response.SetStatus(eResponseStatus.OK);

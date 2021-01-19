@@ -271,6 +271,23 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
+            Group group = GroupsManager.GetGroup(groupId);
+
+            if (!group.IsSwitchingUsersAllowed)
+            {
+                throw new ForbiddenException(ForbiddenException.SWITCH_USER_NOT_ALLOWED_FOR_PARTNER);
+            }
+
+            if (string.IsNullOrEmpty(newUserId))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userIdToSwitch");
+            }
+
+            if (!Managers.AuthorizationManager.IsUserInHousehold(newUserId, groupId))
+            {
+                throw new NotFoundException(NotFoundException.OBJECT_ID_NOT_FOUND, "OTT-User", newUserId);
+            }
+
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -820,7 +837,7 @@ namespace WebAPI.Clients
             return true;
         }
 
-        public bool SignOut(int groupId, int userId, string ip, string deviceId, SerializableDictionary<string, KalturaStringValue> adapterData)
+        public bool SignOut(int groupId, int userId, string ip, string deviceId, KS ks, SerializableDictionary<string, KalturaStringValue> adapterData)
         {
             UserResponseObject response = null;
             Group group = GroupsManager.GetGroup(groupId);
@@ -848,6 +865,8 @@ namespace WebAPI.Clients
             {
                 throw new ClientException((int)response.m_RespStatus, StatusCode.Error.ToString());
             }
+
+            Managers.AuthorizationManager.LogOut(ks);
 
             return true;
         }
@@ -1610,6 +1629,11 @@ namespace WebAPI.Clients
             }
 
             return response;
+        }
+
+        internal ResponseStatus GetUserActivationState(int groupId, long userId)
+        {
+            return Core.Users.Module.GetUserActivationState(groupId, (int)userId);
         }
     }
 }

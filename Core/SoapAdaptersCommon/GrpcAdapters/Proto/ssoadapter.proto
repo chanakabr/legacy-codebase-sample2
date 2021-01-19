@@ -6,13 +6,13 @@ option csharp_namespace = "SoapAdaptersCommon.GrpcAdapters";
 service SSOAdapterGRPC {
 	rpc SetConfiguration(SetConfigurationRequest) returns (SetConfigurationResponse);
 	rpc GetConfiguration(GetConfigurationRequest) returns (GetConfigurationResponse);
-	
+
 	rpc PreSignIn(PreSignInRequest) returns (PreSignInResponse);
 	rpc PostSignIn(PostSignInRequest) returns (UserResponse);
-	
+
 	rpc PreSignOut(PreSignOutRequest) returns (UserResponse);
 	rpc PostSignOut(PostSignOutRequest) returns (UserResponse);
-	
+
 	rpc PreGetUserData(PreGetUserDataRequest) returns (UserResponse);
 	rpc PostGetUserData(PostGetUserDataRequest) returns (UserResponse);
 
@@ -46,9 +46,9 @@ message GetConfigurationResponse{
 message PreSignInRequest{
 	int32 AdapterId=1;
 	int32 UserId=2;
-	string UserName=3; 
+	string UserName=3;
 	string Password=4;
-	int32 MaxFailCount=5; 
+	int32 MaxFailCount=5;
 	int32 LockMin=6;
 	int64 PartnerId=7;
 	string SessionId=8;
@@ -82,18 +82,14 @@ message UserResponse{
 	SSOResponseStatus SSOResponseStatus=3;
 }
 
-
-
-
-
 message PreSignOutRequest{
 	int32 AdapterId=1;
 	string DeviceUdid=2;
 	int32 HouseholdId=3;
 	int32 UserId=4;
 	string Signature=5;
+	map<string, string> AdapterData=6;
 }
-
 
 message PostSignOutRequest{
 	int32 AdapterId=1;
@@ -102,6 +98,7 @@ message PostSignOutRequest{
 	int32 HouseholdId=4;
 	int32 UserId=5;
 	string Signature=6;
+	map<string, string> AdapterData=7;
 }
 
 message PostGetUserDataRequest{
@@ -221,11 +218,11 @@ enum AdapterStatusCode {
 
 
  enum SSOMethods {
-    PerSignIn = 0;
-    PostSignIn = 1;
-    PreGetUserData = 2;
-    PostGetUserData = 3;
-	PreSignOut = 4;
-	PostSignOut = 5;
-	Invoke = 6;
-}
+	 PreSignIn = 0;
+	 PostSignIn = 1;
+	 PreGetUserData = 2;
+	 PostGetUserData = 3;
+	 PreSignOut = 4;
+	 PostSignOut = 5;
+	 Invoke = 6;
+ }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using ApiObjects.User;
 using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
@@ -357,6 +358,7 @@ namespace WebAPI.Controllers
         [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.InvalidToken)]
         static public KalturaOTTUser setInitialPassword(int partnerId, string token, string password)
         {
             KalturaOTTUser response = null;
@@ -395,6 +397,7 @@ namespace WebAPI.Controllers
         [Obsolete("Please use setInitialPassword instead")]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [OldStandardAction("resetPassword")]
+        [ApiAuthorize]
         static public bool setPassword(int partnerId, string username, string password)
         {
             bool response = false;
@@ -727,22 +730,29 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.DefaultUserCannotBeDeleted)]
         [Throws(eResponseStatus.ExclusiveMasterUserCannotBeDeleted)]
+        [Throws(eResponseStatus.UserSelfDeleteNotPermitted)]
         static public bool Delete()
         {
             bool response = false;
-
-            int groupId = KS.GetFromRequest().GroupId;
-            int userId = int.Parse(KS.GetFromRequest().UserId);
+            
+            var ks = KS.GetFromRequest();
+            var userId = ks.UserId.ParseUserId();
+            var originalUserId = ks.OriginalUserId.ParseUserId();
 
             try
             {
+                if (originalUserId.IsAnonymous() || originalUserId == userId)
+                {
+                    throw new ClientException(new Status(eResponseStatus.UserSelfDeleteNotPermitted));
+                }
+                
                 if (!RolesManager.IsAllowedDeleteAction())
                 {
                     throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
                 }
 
                 // call client
-                response = ClientsManager.UsersClient().DeleteUser(groupId, userId);
+                response = ClientsManager.UsersClient().DeleteUser(ks.GroupId, (int)userId);
             }
             catch (ClientException ex)
             {
@@ -772,12 +782,7 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.UsersClient().SignOut(groupId, userId, ip, udid, adapterData);
-                if (response)
-                {
-                    response = AuthorizationManager.LogOut(ks);
-                }
-
+                response = ClientsManager.UsersClient().SignOut(groupId, userId, ip, udid, ks, adapterData);
             }
             catch (ClientException ex)
             {

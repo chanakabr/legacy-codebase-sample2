@@ -42,6 +42,8 @@ namespace ConfigurationManager
         CouchBase,
         ElasticSearch,
         RabbitMQ,
-        ThirdParty
+        ThirdParty,
+        Redis,
+        Kafka
     }
 }

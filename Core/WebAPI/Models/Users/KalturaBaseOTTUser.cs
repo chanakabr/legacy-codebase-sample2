@@ -27,6 +27,7 @@ namespace WebAPI.Models.Users
         [DataMember(Name = "username")]
         [JsonProperty("username")]
         [XmlElement(ElementName = "username")]
+        [SchemeProperty(MaxLength = 256)]
         public string Username { get; set; }
 
         /// <summary>
@@ -36,6 +37,7 @@ namespace WebAPI.Models.Users
         [JsonProperty("firstName")]
         [XmlElement(ElementName = "firstName")]
         [OldStandardProperty("first_name")]
+        [SchemeProperty(MaxLength = 128)]
         public string FirstName { get; set; }
 
         /// <summary>
@@ -45,6 +47,7 @@ namespace WebAPI.Models.Users
         [JsonProperty("lastName")]
         [XmlElement(ElementName = "lastName")]
         [OldStandardProperty("last_name")]
+        [SchemeProperty(MaxLength = 128)]
         public string LastName { get; set; }
     }
 }

@@ -868,7 +868,7 @@ namespace Core.ConditionalAccess
                 {
                     string key = string.Format("mfDrmAdapterId_{0}", nMediaFileID);
 
-                    if (CachingManager.CachingManager.Exist(key))
+                    if (CachingManager.CachingManager.Exists(key))
                     {
                         int.TryParse((string)CachingManager.CachingManager.GetCachedData(key), out drmAdapterId);
                     }

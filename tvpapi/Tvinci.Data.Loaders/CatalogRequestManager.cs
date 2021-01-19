@@ -198,12 +198,9 @@ namespace Tvinci.Data.Loaders
         /// <param name="response"></param>
         /// <param name="medias"></param>
         /// <param name="epgs"></param>
-        protected void GetAssets(string cacheKey, UnifiedSearchResponse response, out List<MediaObj> medias,
+        protected void GetAssets(UnifiedSearchResponse response, out List<MediaObj> medias,
                                 out List<ProgramObj> epgs, out List<ProgramObj> recordings)
         {
-            // Insert the UnifiedSearchResponse to cache for failover support
-            CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey);
-
             medias = null;
             epgs = null;
             recordings = null;

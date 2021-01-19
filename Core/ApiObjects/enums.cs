@@ -675,7 +675,8 @@ namespace ApiObjects
         DeletedBySystem = 4,
         SeriesCancel = 5,
         SeriesDelete = 6,
-        DeletePending = 7
+        DeletePending = 7,
+        Failed = 8
     }
 
     public enum RecordingInternalStatus
@@ -724,7 +725,8 @@ namespace ApiObjects
         SystemAnnouncement = 0,
         Followed = 1,
         Engagement = 2,
-        Interest = 3
+        Interest = 3,
+        Campaign = 4
     }
 
     public enum eMessageState
@@ -878,7 +880,7 @@ namespace ApiObjects
         HouseholdCancel = 4,
         Switched = 5,
         Switched_To = 6,
-        Suspended = 7,
+        Suspended = 7
     }
 
     public enum PlayContextType
@@ -1126,7 +1128,12 @@ namespace ApiObjects
         Header,
         UserSubscription,
         AssetSubscription,
-        UserRole
+        UserRole,
+        DeviceBrand,
+        DeviceFamily,
+        DeviceManufacturer,
+        DeviceModel,
+        DeviceUdidDynamicList
     }
 
     public enum RuleActionTaskType
@@ -1188,5 +1195,12 @@ namespace ApiObjects
         Ok = 0,
         Deleted = 1,
         NotUpdated = 2
+    }
+
+    public enum RecordingContext
+    {
+        Regular = 0,
+        PrivateDistribute = 1,
+        PrivateRetry = 2
     }
 }

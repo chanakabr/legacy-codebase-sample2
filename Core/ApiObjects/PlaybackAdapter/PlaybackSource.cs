@@ -20,5 +20,7 @@ namespace ApiObjects.PlaybackAdapter
         public int DrmId;
 
         public bool IsTokenized;
+
+        public BusinessModuleDetails BusinessModuleDetails { get; set; }
     }
 }

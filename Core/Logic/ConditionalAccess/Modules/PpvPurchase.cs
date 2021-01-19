@@ -1,10 +1,6 @@
 ﻿using ApiObjects;
 using DAL;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Core.ConditionalAccess.Modules
 {
@@ -14,7 +10,7 @@ namespace Core.ConditionalAccess.Modules
 
         public int contentId { get; set; }
         public int maxNumOfViews { get; set; }
-       
+
         public string subscriptionCode { get; set; }
 
         public DateTime entitlementDate { get; set; }
@@ -37,7 +33,7 @@ namespace Core.ConditionalAccess.Modules
 
         public PpvPurchase(int groupId)
             : base(groupId)
-        {            
+        {
         }
 
         public PpvPurchase Clone()
@@ -65,7 +61,7 @@ namespace Core.ConditionalAccess.Modules
             {
                 this.purchaseId = ConditionalAccessDAL.Insert_NewPPVPurchase(this.GroupId, this.contentId, this.siteGuid, this.price, this.currency, this.maxNumOfViews,
                                                                 this.customData, this.subscriptionCode, this.billingTransactionId, this.startDate.Value, this.endDate.Value,
-                                                                this.entitlementDate, this.country, string.Empty, this.deviceName, this.houseHoldId, this.billingGuid);
+                                                                this.entitlementDate, this.country, string.Empty, this.deviceName, this.houseHoldId, this.billingGuid, this.IsPending);
                 if (this.purchaseId > 0)
                 {
                     success = true;
@@ -75,12 +71,21 @@ namespace Core.ConditionalAccess.Modules
             {
             }
 
-            return success;        
+            return success;
         }
 
         protected override bool DoUpdate()
         {
             bool success = false;
+
+            try
+            {
+                success = ConditionalAccessDAL.UpdatePPVPurchases(this.GroupId, this.purchaseId, this.startDate.Value, this.endDate.Value, this.IsPending);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed UpdatePPVPurchases for purchaseId: {purchaseId}, groupId = {GroupId}",ex);
+            }
 
             return success;
         }

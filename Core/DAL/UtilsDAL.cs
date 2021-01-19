@@ -25,7 +25,7 @@ namespace DAL
 
         #region Generic Methods
 
-        public static bool SaveObjectWithVersionCheckInCB<T>(uint ttl, eCouchbaseBucket couchbaseBucket, string key, Action<T> updateObjectAction)
+        public static bool SaveObjectWithVersionCheckInCB<T>(uint ttl, eCouchbaseBucket couchbaseBucket, string key, Action<T> updateObjectAction, bool updateObjectActionIfNotExist = false) where T : new()
         {
             var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
             var numOfTries = 0;
@@ -41,11 +41,16 @@ namespace DAL
 
                     if (getResult == eResultStatus.KEY_NOT_EXIST)
                     {
-                        log.ErrorFormat("KeyNotFound - Error while SaveObjectWithVersionCheckInCB. key:{0}.", key);
-                        return false;
+                        if (!updateObjectActionIfNotExist)
+                        {
+                            log.ErrorFormat("KeyNotFound - Error while SaveObjectWithVersionCheckInCB. key:{0}.", key);
+                            return false;
+                        }
+
+                        objectToSave = new T();
                     }
 
-                    if (getResult == eResultStatus.SUCCESS)
+                    if (getResult != eResultStatus.ERROR)
                     {
                         updateObjectAction(objectToSave);
 
@@ -369,6 +374,11 @@ namespace DAL
         public static string GetDomainQuotaKey(long domainId)
         {
             return string.Format("domain_{0}_quota", domainId);
+        }
+
+        public static string GetDomainRetryRecordingKey(long groupId, long epgId)
+        {
+            return $"group_{groupId}_Epg_{epgId}_Recording_Retry";
         }
 
         public static string GetFirstFollowerLockKey(int groupId, string seriesId, int seasonNumber, string channelId)
@@ -1096,6 +1106,27 @@ namespace DAL
             }
 
             return res;
+        }
+
+        public static IEnumerable<int> GetGroupsThatImplementFeature(string featureKey)
+        {
+            var query = new ODBCWrapper.DataSetSelectQuery();
+            query += "select GROUP_ID from tvinci.dbo.groups_features g where STATUS = 1 and ";
+            query += ODBCWrapper.Parameter.NEW_PARAM("FEATURE", "=", featureKey);
+            query.Execute("query", true);
+            
+            var groupIds = new List<int>();
+            if (query.Table("query").DefaultView.Count > 0)
+            {
+                var table = query.Table("query").Rows;
+                foreach (DataRow row in table)
+                {
+                    var groupId = ODBCWrapper.Utils.ExtractInteger(row, "GROUP_ID");
+                    groupIds.Add(groupId);
+                }
+            }
+
+            return groupIds;
         }
 
         public static Dictionary<GroupFeature, bool> GetGroupFeatures(int groupId)

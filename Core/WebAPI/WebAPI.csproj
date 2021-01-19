@@ -59,6 +59,7 @@
     <ProjectReference Include="..\..\Core\ServiceExtensions\ServiceExtensions.csproj" />
     <ProjectReference Include="..\..\Core\TvinciCache\TvinciCache.csproj" />
     <ProjectReference Include="..\..\Core\TVinciShared\TVinciShared.csproj" />
+    <ProjectReference Include="..\..\Core\SessionManager\SessionManager.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Controllers\DomainsController.cs" />

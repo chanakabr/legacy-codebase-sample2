@@ -157,6 +157,14 @@ namespace ApiObjects.Segmentation
             var response = new GenericResponse<SegmentationType>();
             response.SetStatus(eResponseStatus.OK);
 
+            GetSegmentationType(this.GroupId, this.Id, out Status status);
+
+            if (!status.IsOkStatusCode())
+            {
+                response.SetStatus(status);
+                return response;
+            }
+
             if (Actions != null)
             {
                 foreach (var action in Actions)
@@ -178,15 +186,12 @@ namespace ApiObjects.Segmentation
             bool result = false;
 
             CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
-            string segmentationTypesKey = GetGroupSegmentationTypeDocumentKey(this.GroupId);
 
-            GroupSegmentationTypes groupSegmentationTypes = couchbaseManager.Get<GroupSegmentationTypes>(segmentationTypesKey);
-            SegmentationType source = couchbaseManager.Get<SegmentationType>(GetSegmentationTypeDocumentKey(this.GroupId, this.Id), true);
+            SegmentationType source = GetSegmentationType(this.GroupId, this.Id, out Status status);
 
-            if (groupSegmentationTypes == null || groupSegmentationTypes.segmentationTypes == null || !groupSegmentationTypes.segmentationTypes.Contains(this.Id) ||
-                source == null)
+            if(!status.IsOkStatusCode())
             {
-                this.ActionStatus = new Status((int)eResponseStatus.ObjectNotExist, "Given Id does not exist for group");
+                this.ActionStatus = status;
                 return false;
             }
 
@@ -684,6 +689,30 @@ namespace ApiObjects.Segmentation
             return new Tuple<GroupSegmentationTypes, bool>(result, result != null);
         }
 
+        public static SegmentationType GetSegmentationType(int groupId, long segmentationTypeId, out Status status )
+        {
+            status = new Status() { Code = (int)eResponseStatus.OK };
+            CouchbaseManager.CouchbaseManager couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS);
+            string segmentationTypesKey = GetGroupSegmentationTypeDocumentKey(groupId);
+
+            GroupSegmentationTypes groupSegmentationTypes = couchbaseManager.Get<GroupSegmentationTypes>(segmentationTypesKey);
+            SegmentationType source = couchbaseManager.Get<SegmentationType>(GetSegmentationTypeDocumentKey(groupId, segmentationTypeId), true);
+
+            if (groupSegmentationTypes == null || groupSegmentationTypes.segmentationTypes == null || !groupSegmentationTypes.segmentationTypes.Contains(segmentationTypeId) ||
+                source == null)
+            {
+                status = new Status((int)eResponseStatus.ObjectNotExist, "Given Id does not exist for group");                
+            }
+
+            return source;
+        }
+
+        public Status ValidateForDelete(int groupid, long segmentationTypeId)
+        {
+            GetSegmentationType(groupid, segmentationTypeId, out Status status);
+
+            return status;
+        }
     }
 
     public class GroupSegmentationTypes

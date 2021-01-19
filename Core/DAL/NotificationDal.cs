@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Tvinci.Core.DAL;
+using static ODBCWrapper.Utils;
 
 namespace DAL
 {
@@ -60,6 +61,11 @@ namespace DAL
             return string.Format("inbox_message:{0}:{1}:{2}", groupId, userId, messageId);
         }
 
+        private static string GetInboxMessageCampaignMappingKey(int groupId, long userId)
+        {
+            return $"user_inbox_campaigns:{groupId}:{userId}";
+        }
+
         private static string GetUserPushKey(int groupId, long userId)
         {
             return string.Format("user_push:{0}:{1}", groupId, userId);
@@ -86,7 +92,6 @@ namespace DAL
         {
             return string.Format("system_inbox:{0}:{1}", groupId, messageId);
         }
-
         private static string GetNotificationCleanupKey()
         {
             return "notification_cleanup";
@@ -754,15 +759,17 @@ namespace DAL
             if (settings.IsIotEnabled.HasValue)
                 sp.AddParameter("@isIotEnabled", settings.IsIotEnabled.Value);
 
+            if (settings.EpgNotification != null) 
+                sp.AddParameter("@epgNotification", SerializeEpgSettings(settings.EpgNotification));
+
             return sp.ExecuteReturnValue<bool>();
         }
 
         public static List<NotificationPartnerSettings> GetNotificationPartnerSettings(int groupID)
         {
-            List<NotificationPartnerSettings> settings = new List<NotificationPartnerSettings>();
-            bool automaticIssueFollowNotification = true;
+            var settings = new List<NotificationPartnerSettings>();
 
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_NotificationPartnerSettings");
+            var sp = new ODBCWrapper.StoredProcedure("Get_NotificationPartnerSettings");
             sp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
 
             if (groupID > 0)
@@ -771,41 +778,65 @@ namespace DAL
                 sp.AddParameter("@groupID", null);
 
             DataTable dt = sp.Execute();
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            if (dt?.Rows != null && dt.Rows.Count > 0)
             {
                 foreach (DataRow row in dt.Rows)
                 {
-                    string automaticSending = ODBCWrapper.Utils.GetSafeStr(row, "automatic_sending");
-
-                    if (!string.IsNullOrEmpty(automaticSending))
-                        automaticIssueFollowNotification = automaticSending.Equals("1");
+                    var automaticSending = GetSafeStr(row, "automatic_sending");
+                    var automaticIssueFollowNotification = string.IsNullOrEmpty(automaticSending) || automaticSending.Equals("1");
 
                     settings.Add(new NotificationPartnerSettings()
                     {
-                        IsPushNotificationEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "push_notification_enabled") == 1 ? true : false,
-                        IsPushSystemAnnouncementsEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "push_system_announcements_enabled") == 1 ? true : false,
-                        PushStartHour = ODBCWrapper.Utils.GetIntSafeVal(row, "push_start_hour"),
-                        PushEndHour = ODBCWrapper.Utils.GetIntSafeVal(row, "push_end_hour"),
-                        IsInboxEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "is_inbox_enable") == 1 ? true : false,
-                        MessageTTLDays = ODBCWrapper.Utils.GetIntSafeVal(row, "message_ttl"),
+                        IsPushNotificationEnabled = GetIntSafeVal(row, "push_notification_enabled") == 1,
+                        IsPushSystemAnnouncementsEnabled = GetIntSafeVal(row, "push_system_announcements_enabled") == 1,
+                        PushStartHour = GetIntSafeVal(row, "push_start_hour"),
+                        PushEndHour = GetIntSafeVal(row, "push_end_hour"),
+                        IsInboxEnabled = GetIntSafeVal(row, "is_inbox_enable") == 1,
+                        MessageTTLDays = GetIntSafeVal(row, "message_ttl"),
                         AutomaticIssueFollowNotifications = automaticIssueFollowNotification,
-                        PartnerId = ODBCWrapper.Utils.GetIntSafeVal(row, "group_id"),
-                        TopicExpirationDurationDays = ODBCWrapper.Utils.GetIntSafeVal(row, "topic_cleanup_expiration_days"),
-                        IsRemindersEnabled = ODBCWrapper.Utils.GetIntSafeVal(row, "is_reminder_enabled") == 1 ? true : false,
-                        RemindersPrePaddingSec = ODBCWrapper.Utils.GetIntSafeVal(row, "reminder_offset_sec"),
-                        PushAdapterUrl = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "push_adapter_url"),
-                        ChurnMailSubject = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "churn_mail_subject"),
-                        ChurnMailTemplateName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "churn_mail_template_name"),
-                        MailSenderName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "mail_sender_name"),
-                        SenderEmail = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "sender_email"),
-                        MailNotificationAdapterId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "MAIL_NOTIFICATION_ADAPTER_ID"),
-                        IsSMSEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_sms_enable") == 1 ? true : false,
-                        IsIotEnabled = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "is_iot_enable") == 1 ? true : false
+                        PartnerId = GetIntSafeVal(row, "group_id"),
+                        TopicExpirationDurationDays = GetIntSafeVal(row, "topic_cleanup_expiration_days"),
+                        IsRemindersEnabled = GetIntSafeVal(row, "is_reminder_enabled") == 1,
+                        RemindersPrePaddingSec = GetIntSafeVal(row, "reminder_offset_sec"),
+                        PushAdapterUrl = GetSafeStr(row, "push_adapter_url"),
+                        ChurnMailSubject = GetSafeStr(row, "churn_mail_subject"),
+                        ChurnMailTemplateName = GetSafeStr(row, "churn_mail_template_name"),
+                        MailSenderName = GetSafeStr(row, "mail_sender_name"),
+                        SenderEmail = GetSafeStr(row, "sender_email"),
+                        MailNotificationAdapterId = GetLongSafeVal(row, "MAIL_NOTIFICATION_ADAPTER_ID"),
+                        IsSMSEnabled = GetIntSafeVal(row, "is_sms_enable") == 1,
+                        IsIotEnabled = GetIntSafeVal(row, "is_iot_enable") == 1,
+                        EpgNotification = DeserializeEpgSettings(GetSafeStr(row, "epg_notification"))
                     });
                 }
             }
 
             return settings;
+        }
+
+        private static string SerializeEpgSettings(EpgNotificationSettings epgSettings)
+        {
+            return JsonConvert.SerializeObject(new DTO.Notification.EpgNotificationSettings
+            {
+                Enabled = epgSettings.Enabled,
+                DeviceFamilyIds = epgSettings.DeviceFamilyIds,
+                LiveAssetIds = epgSettings.LiveAssetIds,
+                TimeRange = epgSettings.TimeRange
+            });
+        }
+
+        private static EpgNotificationSettings DeserializeEpgSettings(string epgNotificationString)
+        {
+            if (string.IsNullOrEmpty(epgNotificationString)) return new EpgNotificationSettings();
+
+            var dto = JsonConvert.DeserializeObject<DTO.Notification.EpgNotificationSettings>(epgNotificationString);
+            return new EpgNotificationSettings
+            {
+                Enabled = dto.Enabled,
+                DeviceFamilyIds = dto.DeviceFamilyIds,
+                LiveAssetIds = dto.LiveAssetIds,
+                TimeRange = dto.TimeRange
+            };            
         }
 
         public static DataRow GetNotificationSettings(int groupID, int userID)
@@ -952,27 +983,25 @@ namespace DAL
             ODBCWrapper.StoredProcedure spInsert = new ODBCWrapper.StoredProcedure("InsertMessageAnnouncement");
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             spInsert.AddParameter("@recipients", recipients);
-            spInsert.AddParameter("@name", name);
-            spInsert.AddParameter("@message", message);
+            spInsert.AddParameter("@name", name, true);
+            spInsert.AddParameter("@message", message, true);
             spInsert.AddParameter("@start_time", startTime);
             spInsert.AddParameter("@timezone", timezone);
             spInsert.AddParameter("@group_id", groupId);
             spInsert.AddParameter("@updater_id", updaterId);
             spInsert.AddParameter("@is_active", enabled ? 1 : 0);
-            spInsert.AddParameter("@result_message_id", resultMsgId);
+            spInsert.AddParameter("@result_message_id", resultMsgId, true);
             spInsert.AddParameter("@update_date", DateTime.UtcNow);
-            spInsert.AddParameter("@message_reference", messageReference);
-            spInsert.AddParameter("@image_url", imageUrl);
+            spInsert.AddParameter("@message_reference", messageReference, true);
+            spInsert.AddParameter("@image_url", imageUrl, true);
             if (announcement_id != 0)
                 spInsert.AddParameter("@announcement_id", announcement_id);
             spInsert.AddParameter("@includeMail", includeMail);
-            spInsert.AddParameter("@mailTemplate", mailTemplate);
-            spInsert.AddParameter("@mailSubject", mailSubject);
+            spInsert.AddParameter("@mailTemplate", mailTemplate, true);
+            spInsert.AddParameter("@mailSubject", mailSubject, true);
             spInsert.AddParameter("@includeSMS", includeSMS);
             if (includeIot)
-            {
                 spInsert.AddParameter("@includeIOT", includeIot);
-            }
 
             DataSet ds = spInsert.ExecuteDataSet();
             if (ds == null || ds.Tables == null || ds.Tables.Count == 0)
@@ -992,17 +1021,17 @@ namespace DAL
             spInsert.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             spInsert.AddParameter("@ID", id);
             spInsert.AddParameter("@recipients", recipients);
-            spInsert.AddParameter("@name", name);
-            spInsert.AddParameter("@message", message);
+            spInsert.AddParameter("@name", name, true);
+            spInsert.AddParameter("@message", message, true);
             spInsert.AddParameter("@is_active", enabled ? 1 : 0);
             spInsert.AddParameter("@start_time", startTime);
             spInsert.AddParameter("@timezone", timezone);
             spInsert.AddParameter("@updater_id", updaterId);
-            spInsert.AddParameter("@result_message_id", resultMsgId);
-            spInsert.AddParameter("@image_url", imageUrl);
+            spInsert.AddParameter("@result_message_id", resultMsgId, true);
+            spInsert.AddParameter("@image_url", imageUrl, true);
             spInsert.AddParameter("@includeMail", includeMail);
-            spInsert.AddParameter("@mailTemplate", mailTemplate);
-            spInsert.AddParameter("@mailSubject", mailSubject);
+            spInsert.AddParameter("@mailTemplate", mailTemplate, true);
+            spInsert.AddParameter("@mailSubject", mailSubject, true);
             spInsert.AddParameter("@includeIot", includeIot);
             spInsert.AddParameter("@includeSms", includeSms);
 
@@ -1877,47 +1906,17 @@ namespace DAL
             return userInboxMessage;
         }
 
-        public static bool SetUserInboxMessage(int groupId, InboxMessage inboxMessage, int ttlDays)
+        public static List<InboxMessage> GetUserInboxMessagesByIds(int groupId, long userId, List<string> messagesIds)
         {
-            bool result = false;
-            try
-            {
-                int numOfTries = 0;
-                while (!result && numOfTries < NUM_OF_INSERT_TRIES)
-                {
-                    result = cbManager.Set(GetInboxMessageKey(groupId, inboxMessage.UserId, inboxMessage.Id), inboxMessage, (uint)TimeSpan.FromDays(ttlDays).TotalSeconds);
+            var keys = messagesIds.Select(x => GetInboxMessageKey(groupId, userId, x)).ToList();
+            return UtilsDal.GetObjectListFromCB<InboxMessage>(eCouchbaseBucket.NOTIFICATION, keys);
+        }
 
-                    if (!result)
-                    {
-                        numOfTries++;
-                        log.ErrorFormat("Error while setting inbox message. number of tries: {0}/{1}. GID: {2}, user ID: {3}. data: {4}",
-                             numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            groupId,
-                            inboxMessage.UserId,
-                            JsonConvert.SerializeObject(inboxMessage));
-                        Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                    }
-                    else
-                    {
-                        // log success on retry
-                        if (numOfTries > 0)
-                        {
-                            numOfTries++;
-                            log.DebugFormat("successfully set inbox message. number of tries: {0}/{1}. object {2}",
-                            numOfTries,
-                            NUM_OF_INSERT_TRIES,
-                            JsonConvert.SerializeObject(inboxMessage));
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while setting inbox message. GID: {0}, user ID: {1}, message ID: {2}, ex: {3}", groupId, inboxMessage.UserId, inboxMessage.Id, ex);
-            }
-
-            return result;
+        public static bool SetUserInboxMessage(int groupId, InboxMessage inboxMessage, double ttlDays)
+        {
+            var ttl = (uint)TimeSpan.FromDays(ttlDays).TotalSeconds;
+            var key = GetInboxMessageKey(groupId, (int)inboxMessage.UserId, inboxMessage.Id);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.NOTIFICATION, key, inboxMessage, false, ttl);
         }
 
         public static bool UpdateInboxMessageState(int groupId, int userId, string messageId, eMessageState messageState)
@@ -1974,6 +1973,73 @@ namespace DAL
             }
 
             return result;
+        }
+
+        public static bool SaveToCampaignInboxMessageMapCB(long campaignId, int groupId, long userId, CampaignMessageDetails inboxMessage)
+        {
+            var key = GetInboxMessageCampaignMappingKey(groupId, userId);
+            var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<CampaignInboxMessageMap>(0, eCouchbaseBucket.NOTIFICATION, key, mapping =>
+            {
+                if (mapping.Campaigns.ContainsKey(campaignId))
+                {
+                    mapping.Campaigns[campaignId] = inboxMessage;
+                }
+                else
+                {
+                    mapping.Campaigns.Add(campaignId, inboxMessage);
+                }
+            }, true);
+
+            return isSaveSuccess;
+        }
+
+        public static bool RemoveOldCampaignsFromInboxMessageMapCB(int groupId, long userId, long utcNow)
+        {
+            var key = GetInboxMessageCampaignMappingKey(groupId, userId);
+            var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<CampaignInboxMessageMap>(0, eCouchbaseBucket.NOTIFICATION, key, mapping =>
+            {
+                var idsToDelete = mapping.Campaigns.Where(x => x.Value.ExpiredAt < utcNow).Select(x => x.Key).ToArray();
+                foreach (int campaignId in idsToDelete)
+                {
+                    mapping.Campaigns.Remove(campaignId);
+                }
+            }, true);
+
+            return isSaveSuccess;
+        }
+
+        public static CampaignInboxMessageMap GetCampaignInboxMessageMapCB(int groupId, long userId)
+        {
+            CampaignInboxMessageMap campaignInboxMessageMap = cbManager.Get<CampaignInboxMessageMap>(GetInboxMessageCampaignMappingKey(groupId, userId));
+
+            return campaignInboxMessageMap ?? new CampaignInboxMessageMap();
+        }
+
+        public static DeviceTriggerCampaignsUses GetDeviceTriggerCampainsUses(int groupId, string udid)
+        {
+            string key = $"device_campaign_uses_{groupId}_{udid}";
+            DeviceTriggerCampaignsUses deviceTriggerCampaignsUses = cbManager.Get<DeviceTriggerCampaignsUses>(key);
+
+            return deviceTriggerCampaignsUses;
+        }
+
+        public static bool SaveToDeviceTriggerCampaignsUses(int groupId, string udid, long campaignId, long utcNow)
+        {
+            string key = $"device_campaign_uses_{groupId}_{udid}";
+            var isSaveSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<DeviceTriggerCampaignsUses>(60*24*365, eCouchbaseBucket.NOTIFICATION, key, mapping =>
+            {
+                if (string.IsNullOrEmpty(mapping.Udid))
+                {
+                    mapping.Udid = udid;
+                }
+
+                if (!mapping.Uses.ContainsKey(campaignId))
+                {
+                    mapping.Uses.Add(campaignId, utcNow);
+                }
+            }, true);
+
+            return isSaveSuccess;
         }
 
         public static List<string> GetSystemInboxMessagesView(int groupId, long fromDate)

@@ -3,6 +3,7 @@ using System.Data;
 using Tvinci.Core.DAL;
 using ODBCWrapper;
 using System.Collections.Generic;
+using ApiObjects;
 using Newtonsoft.Json;
 
 namespace DAL
@@ -124,6 +125,8 @@ namespace DAL
             ref string m_pin,
             ref string externalId,
             ref string macAddress,
+            ref string model,
+            ref long? manufacturerId,
             ref Dictionary<string, string> dynamicData,
             ref int m_domainID,
             ref DateTime m_activationDate)
@@ -164,7 +167,9 @@ namespace DAL
                 m_pin = ODBCWrapper.Utils.GetSafeStr(dr["pin"]);
                 externalId = ODBCWrapper.Utils.GetSafeStr(dr["external_id"]);
                 macAddress = ODBCWrapper.Utils.GetSafeStr(dr["mac_address"]);
-                dynamicData = ToDynamicData(ODBCWrapper.Utils.GetSafeStr(dr["dynamic_data"]));
+                model = ODBCWrapper.Utils.GetSafeStr(dr["model"]);
+                manufacturerId = ODBCWrapper.Utils.GetNullableLong(dr, "manufacturer_id");
+                dynamicData = DeserializeDynamicData(ODBCWrapper.Utils.GetSafeStr(dr["dynamic_data"]));
 
                 //PopulateDeviceStreamTypeAndProfile();
 
@@ -374,6 +379,8 @@ namespace DAL
             string sPin,
             string externalId,
             string macAddress = "",
+            string model = "",
+            long? manufacturerId = null,
             Dictionary<string, string> dynamicData = null)
         {
             StoredProcedure sp = new StoredProcedure("Insert_NewDevice");
@@ -388,14 +395,10 @@ namespace DAL
             sp.AddParameter("@Pin", sPin);
             sp.AddParameter("@CreateDate", DateTime.UtcNow);
             sp.AddParameter("@ExternalID", externalId);
-            if (!string.IsNullOrEmpty(macAddress))
-            {
-                sp.AddParameter("@MacAddress", macAddress);
-            }
-            if (dynamicData != null)
-            {
-                sp.AddParameter("@DynamicData", FromDynamicData(dynamicData));
-            }
+            if (!string.IsNullOrEmpty(macAddress)) sp.AddParameter("@MacAddress", macAddress);
+            if (!string.IsNullOrEmpty(model)) sp.AddParameter("@Model", model);
+            if (manufacturerId.HasValue) sp.AddParameter("@Manufacturer_Id", manufacturerId);
+            if (dynamicData != null) sp.AddParameter("@DynamicData", SerializeDynamicData(dynamicData));
 
             return sp.ExecuteReturnValue<int>();
         }
@@ -411,6 +414,8 @@ namespace DAL
             int status,
             string externalId,
             string macAddress,
+            string model,
+            long? manufacturerId,
             Dictionary<string, string> dynamicData,
             bool allowNullExternalId,
             bool allowNullMacAddress,
@@ -442,9 +447,12 @@ namespace DAL
                     updateQuery += Parameter.NEW_PARAM("mac_address", "=", macAddress);
                 }
 
+                if (!string.IsNullOrEmpty(model)) updateQuery += Parameter.NEW_PARAM("model", "=", model);
+                if (manufacturerId.HasValue) updateQuery += Parameter.NEW_PARAM("manufacturer_Id", "=", manufacturerId.Value);
+
                 if (dynamicData != null || allowNullDynamicData)
                 {
-                    updateQuery += Parameter.NEW_PARAM("dynamic_data", "=", FromDynamicData(dynamicData));
+                    updateQuery += Parameter.NEW_PARAM("dynamic_data", "=", SerializeDynamicData(dynamicData));
                 }
 
                 updateQuery += "where";
@@ -534,14 +542,14 @@ namespace DAL
             return sNewPIN;
         }
 
-        public static Dictionary<string, string> ToDynamicData(string dynamicDataString)
+        public static Dictionary<string, string> DeserializeDynamicData(string dynamicDataString)
         {
             return dynamicDataString == null
                     ? null
                     : JsonConvert.DeserializeObject<Dictionary<string, string>>(dynamicDataString);
         }
 
-        private static string FromDynamicData(Dictionary<string, string> dynamicData)
+        private static string SerializeDynamicData(Dictionary<string, string> dynamicData)
         {
             return dynamicData == null
                 ? null

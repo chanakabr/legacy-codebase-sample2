@@ -1,6 +1,9 @@
-﻿using ApiObjects.Response;
+﻿using ApiLogic.Users.Services;
+using ApiObjects.Base;
+using ApiObjects.Response;
 using System;
 using System.Linq;
+using ApiObjects.User;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -39,16 +42,18 @@ namespace WebAPI.Controllers
             try
             {
                 var userRoles = RolesManager.GetRoleIds(ks);
+                long domainId = 0;
                 if (userRoles.Contains(RolesManager.OPERATOR_ROLE_ID) || userRoles.Contains(RolesManager.MANAGER_ROLE_ID) || userRoles.Contains(RolesManager.ADMINISTRATOR_ROLE_ID))
                 {
-                    res = ClientsManager.DomainsClient().DeleteDevice(groupId, udid);
+                    res = ClientsManager.DomainsClient().DeleteDevice(groupId, udid, out domainId);
                 }
                 else
                 {
                     res = ClientsManager.DomainsClient().RemoveDeviceFromDomain(groupId, (int)householdId, udid);
                 }
 
-                AuthorizationManager.RevokeDeviceSessions(groupId, householdId, udid);
+                DeviceRemovalPolicyHandler.Instance.DeleteDomainDeviceUsageDate(udid, groupId);
+                AuthorizationManager.RevokeHouseholdSessions(groupId, udid, null, domainId);
             }
             catch (ClientException ex)
             {
@@ -113,22 +118,24 @@ namespace WebAPI.Controllers
 
             int groupId = KS.GetFromRequest().GroupId;
             int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-            string userId = KS.GetFromRequest().UserId;
-            var dynamicData = Utils.Utils.ConvertSerializeableDictionary(device.DynamicData, true);
+            long userId = KS.GetFromRequest().UserId.ParseUserId();
+            var contextData = new ContextData(groupId) { UserId = userId };
 
             try
             {
+                ClientsManager.DomainsClient().ValidateDeviceReferencesData(contextData, device);
+
                 if (HouseholdUtils.IsUserMaster())
                 {
-                    device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId, device.MacAddress, dynamicData);
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, householdId, device);
                 }
                 else if (device.HouseholdId != 0)
                 {
-                    device = ClientsManager.DomainsClient().AddDevice(groupId, device.HouseholdId, device.Name, device.Udid, device.getBrandId(), device.ExternalId, device.MacAddress, dynamicData);
+                    device = ClientsManager.DomainsClient().AddDevice(groupId, device.HouseholdId, device);
                 }
                 else
                 {
-                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId, device.Udid, device.Name, device.getBrandId(), device.ExternalId, device.MacAddress, dynamicData);
+                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId.ToString(), device);
                 }
             }
             catch (ClientException ex)
@@ -305,6 +312,12 @@ namespace WebAPI.Controllers
 
             try
             {
+                string userId = KS.GetFromRequest().UserId;
+                int.TryParse(userId, out int _userId);
+                var contextData = new ContextData(groupId) { UserId = _userId };
+
+                ClientsManager.DomainsClient().ValidateDeviceReferencesData(contextData, device);
+
                 // check device registration status - return forbidden if device not in domain        
                 var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
                 if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
@@ -317,8 +330,8 @@ namespace WebAPI.Controllers
                 var allowNullDynamicData = device.NullableProperties != null && device.NullableProperties.Contains("dynamicdata");
 
                 // call client
-                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device.Name, udid, 
-                    device.MacAddress, device.ExternalId, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
+                device.Udid = udid;
+                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
             }
             catch (ClientException ex)
             {
@@ -353,7 +366,7 @@ namespace WebAPI.Controllers
                 }
 
                 // call client
-                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid, string.Empty, string.Empty, null);
+                ClientsManager.DomainsClient().SetDeviceInfo(groupId, device_name, udid);
             }
             catch (ClientException ex)
             {

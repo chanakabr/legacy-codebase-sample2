@@ -164,6 +164,7 @@ namespace DAL
             spUpdateRecording.AddParameter("@Crid", string.IsNullOrEmpty(recording.Crid) ? null : recording.Crid);
 
             result = spUpdateRecording.ExecuteReturnValue<bool>();
+
             return result;
         }
 
@@ -541,7 +542,7 @@ namespace DAL
         }
 
         //this is the save to domain series table
-        public static DataTable FollowSeries(int groupId, string userId, long domainID, long epgId, long epgChannelId, string seriesId, int seasonNumber, int episodeNumber,int recordType)
+        public static DataTable FollowSeries(int groupId, string userId, long domainID, long epgId, long epgChannelId, string seriesId, int seasonNumber, int episodeNumber, int recordType)
         {
             ODBCWrapper.StoredProcedure spFollowSeries = new ODBCWrapper.StoredProcedure("FollowSeries");
             spFollowSeries.SetConnectionKey(RECORDING_CONNECTION);
@@ -741,10 +742,10 @@ namespace DAL
             sp.AddParameter("@EpgId", recording.EpgId);
             sp.AddParameter("@EpgChannelId", recording.ChannelId);
             sp.AddParameter("@ExternalRecordingId", recording.ExternalRecordingId);
-            sp.AddParameter("@ExternalDomainRecordingId", recording.ExternalDomainRecordingId);            
+            sp.AddParameter("@ExternalDomainRecordingId", recording.ExternalDomainRecordingId);
             sp.AddParameter("@RecordingType", recording.Type);
             sp.AddParameter("@StartDate", recording.EpgStartDate);
-            sp.AddParameter("@EndDate", recording.EpgEndDate);            
+            sp.AddParameter("@EndDate", recording.EpgEndDate);
             sp.AddParameter("@ViewableUntilDate", viewableUntilDate);
             sp.AddParameter("@ViewableUntilEpoch", recording.ViewableUntilDate);
             sp.AddParameter("@Crid", recording.Crid);
@@ -756,7 +757,7 @@ namespace DAL
             return sp.Execute();
         }
 
-        public static HashSet<long> GetSeriesFollowingDomainsIds(int groupId, string seriesId, int seasonNumber, bool isFIsEpgFirstTimeAirDate, ref long maxDomainSeriesId)
+        public static HashSet<long> GetSeriesFollowingDomainsIds(int groupId, string seriesId, int seasonNumber, bool isFIsEpgFirstTimeAirDate, int epgChannelId, ref long maxDomainSeriesId)
         {
             HashSet<long> domainSeriesIds = new HashSet<long>();
             ODBCWrapper.StoredProcedure spGetSeriesFollowingDomainsIds = new ODBCWrapper.StoredProcedure("GetSeriesFollowingDomainsIds");
@@ -766,6 +767,7 @@ namespace DAL
             spGetSeriesFollowingDomainsIds.AddParameter("@SeasonNumber", seasonNumber);
             spGetSeriesFollowingDomainsIds.AddParameter("@IsEpgFirstTimeAirDate", isFIsEpgFirstTimeAirDate ? 1 : 0);
             spGetSeriesFollowingDomainsIds.AddParameter("@MaxId", maxDomainSeriesId);
+            spGetSeriesFollowingDomainsIds.AddParameter("@EpgChannelId", epgChannelId);
             DataTable dt = spGetSeriesFollowingDomainsIds.Execute();
 
             if (dt != null && dt.Rows != null)
@@ -1043,20 +1045,20 @@ namespace DAL
                 int numOfRetries = 0;
                 while (numOfRetries < limitRetries)
                 {
-                    CouchbaseManager.eResultStatus cbResponse;                    
+                    CouchbaseManager.eResultStatus cbResponse;
                     domainId = cbClient.Get<long>(firstFollowerLockKey, out cbResponse);
                     if (cbResponse == CouchbaseManager.eResultStatus.ERROR)
-                    {                        
+                    {
                         log.ErrorFormat("Error while GetFirstFollowerLock. number of tries: {0}/{1}. groupId: {2}, seriesId: {3}, seasonNumber: {4}, channelId: {5}",
                                         numOfRetries, limitRetries, groupId, seriesId, seasonNumber, channelId);
                         System.Threading.Thread.Sleep(r.Next(50));
                     }
-                    else if(cbResponse == CouchbaseManager.eResultStatus.KEY_NOT_EXIST ||
+                    else if (cbResponse == CouchbaseManager.eResultStatus.KEY_NOT_EXIST ||
                         cbResponse == CouchbaseManager.eResultStatus.SUCCESS)
-                    {                         
-                        return domainId; 
+                    {
+                        return domainId;
                     }
-                    
+
                     numOfRetries++;
                 }
 
@@ -1229,6 +1231,116 @@ namespace DAL
             return res > 0;
         }
 
+        public static bool UpdateDomainRecordingFailure(int groupId, HashSet<long> domainIds, long epgId, bool status)
+        {
+            var sp = new StoredProcedure("UpdateDomainScheduledRecordingsFailure");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddIDListParameter("@failedDomainIds", domainIds, "ID");
+            sp.AddParameter("@epgId", epgId);
+            sp.AddParameter("@status", status ? 1 : 0);
+            int res = sp.ExecuteReturnValue<int>();
+
+            return res > 0;
+        }
+
+        /// <summary>
+        /// Get list of domains that failed to (private) record an epg
+        /// </summary>
+        /// <param name="groupId">group Id</param>
+        /// <param name="epgId">record Id</param>
+        /// <returns>List of domains that failed to record an epg</returns>
+        public static List<long> GetDomainsEpgRecordingFailure(int groupId, long epgId)
+        {
+            var sp = new StoredProcedure("GetDomainRecordingFailures");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@epgId", epgId);
+
+            DataTable dt = sp.Execute();
+            var domains = new List<long>();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long domainId = Utils.GetLongSafeVal(dr, "ID", 0);
+                    domains.Add(domainId);
+                }
+            }
+
+            return domains;
+        }
+
+        public static long? GetDomainRetryRecordingDoc(int groupId, long epgId)
+        {
+            var cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            var key = UtilsDal.GetDomainRetryRecordingKey(groupId, epgId);
+            return cbClient.Get<long?>(key);
+        }
+
+        public static bool SaveDomainRetryRecordingDoc(int groupId, long epgId, long nextCheck, long ttl)
+        {
+            var result = false;
+            var cbClient = new CouchbaseManager.CouchbaseManager(CouchbaseManager.eCouchbaseBucket.RECORDINGS);
+            var key = UtilsDal.GetDomainRetryRecordingKey(groupId, epgId);
+
+            try
+            {
+                int numOfRetries = 0;
+                var r = new Random();
+
+                while (!result && numOfRetries < RETRY_LIMIT)
+                {
+                    cbClient.GetWithVersion<long?>(key, out ulong version, out CouchbaseManager.eResultStatus status);
+
+                    if (status == CouchbaseManager.eResultStatus.SUCCESS)
+                    {
+                        result = cbClient.SetWithVersion(key, nextCheck, version, (uint)ttl);
+                    }
+                    else if (status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
+                    {
+                        result = cbClient.SetWithVersion(key, nextCheck, 0, (uint)ttl);
+                    }
+                    if (!result)
+                    {
+                        numOfRetries++;
+                        log.Error($"Error while Save DomainRetryRecordingDoc. number of tries: {numOfRetries}/{RETRY_LIMIT}. groupId: {groupId}, epg Id: {epgId}");
+                        System.Threading.Thread.Sleep(r.Next(50));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while Save DomainRetryRecordingDoc, groupId: {groupId}, epg Id: {epgId}, ex: {ex}", ex);
+            }
+
+            return result;
+        }
+
+        public static List<long> SetRetryRecordingToFail(int groupId, long epgId, DomainRecordingStatus state = DomainRecordingStatus.Failed)
+        {
+            var sp = new StoredProcedure("UpdateDomainRecordingsFailure");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@epgId", epgId);
+            sp.AddParameter("@state", state);
+
+            DataTable dt = sp.Execute();
+            var domains = new List<long>();
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dt.Rows)
+                {
+                    long domainId = Utils.GetLongSafeVal(dr, "Domain_ID", 0);
+                    domains.Add(domainId);
+                }
+            }
+
+            return domains;
+        }
+
         public static bool UpdateDomainScheduledRecordingsUserId(int groupId, List<long> domainSceduledIdsToUpdate, string masterUserId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateDomainScheduledRecordingsUserId");
@@ -1287,6 +1399,7 @@ namespace DAL
             return result;
         }
 
+
         public static bool UpdateDomainUsedQuota(long domainId, int quota, int defaultQuota, bool shouldForceUpdate = true)
         {
             bool result = false;
@@ -1306,25 +1419,21 @@ namespace DAL
                 while (!result && numOfRetries < limitRetries)
                 {
                     ulong version;
-                    CouchbaseManager.eResultStatus status;
-                    DomainQuota domainQuota = cbClient.GetWithVersion<DomainQuota>(domainQuotaKey, out version, out status); // get the domain quota from CB only for version issue
+
+                    // get the domain quota from CB only for version issue
+                    DomainQuota domainQuota = cbClient.GetWithVersion<DomainQuota>(domainQuotaKey, out version, out CouchbaseManager.eResultStatus status);
                     log.DebugFormat("after GetWithVersion domainQuota: {0}, status:{1}", domainQuota != null ? domainQuota.ToString() : "null", status.ToString());
+
                     if (status == CouchbaseManager.eResultStatus.SUCCESS)
                     {
-                        int total = domainQuota.Total == 0 ? defaultQuota : domainQuota.Total;
-                        if (shouldForceUpdate || total - domainQuota.Used >= quota)
-                        {
-                            domainQuota.Used += quota;
-                            result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, version);
-                        }
+                        //document exists
+                        return true;
                     }
-                    else if (status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST)
+                    else if (status == CouchbaseManager.eResultStatus.KEY_NOT_EXIST
+                        && (shouldForceUpdate || defaultQuota >= quota))
                     {
-                        if (shouldForceUpdate || defaultQuota >= quota)
-                        {
-                            domainQuota = new DomainQuota(0, Math.Max(quota, 0), true);
-                            result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, 0);
-                        }
+                        domainQuota = new DomainQuota(0, Math.Max(quota, 0), true);
+                        result = cbClient.SetWithVersion<DomainQuota>(domainQuotaKey, domainQuota, 0);
                     }
 
                     if (!result)

@@ -1,6 +1,7 @@
+using CachingProvider.LayeredCache;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
-using EventBus.Models;
+using EventBus.Abstraction;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -60,8 +61,25 @@ namespace EventBus.Kafka.Test
         [Test]
         public void TestProducer()
         {
-            var ottUserInvalidationEvent = new OTTUserInvalidationEvent(100);
-            _Publisher.Publish(ottUserInvalidationEvent);
+            var cacheInvalidationEvent = new ProductTestEvent(100, "100");
+            _Publisher.Publish(cacheInvalidationEvent);
         }
     }
+
+    [ServiceEventName("OTTUser")]
+    public class ProductTestEvent : ServiceEvent
+    {
+        private string _userId;
+        private int _partnerId;
+
+        public ProductTestEvent(int partnerId, string userId)
+        {
+            _userId = userId;
+            _partnerId = partnerId;
+        }
+
+        public override string EventKey => LayeredCacheKeys.GetUserInvalidationKey(_partnerId, _userId);
+
+    }
+
 }

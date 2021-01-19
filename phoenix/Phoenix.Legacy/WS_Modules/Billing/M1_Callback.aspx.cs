@@ -110,7 +110,7 @@ namespace WS_Billing
                 int domainId = 0;
                 string userEmail = null;
                 Utils.IsUserExist(userId, nGroupID, ref userEmail, ref domainId);
-                string invalidationKey = CachingProvider.LayeredCache.LayeredCacheKeys.GetPurchaseInvalidationKey(domainId);
+                string invalidationKey = CachingProvider.LayeredCache.LayeredCacheKeys.GetDomainEntitlementInvalidationKey(nGroupID, domainId);
                 if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key on M1_Callback.Page_Load key = {0}", invalidationKey);

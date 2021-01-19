@@ -314,7 +314,7 @@ namespace Core.Users.Cache
                 string key = LayeredCacheKeys.GetDomainKey(domainId);
                 Domain domainToGet = null;
                 if (!LayeredCache.Instance.Get<Domain>(key, ref domainToGet, GetDomain, new Dictionary<string, object>() { { "groupId", groupId }, { "domainId", domainId } }, groupId,
-                                                    LayeredCacheConfigNames.DOMAIN_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetHouseholdInvalidationKey(domainId) }))
+                                                    LayeredCacheConfigNames.DOMAIN_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetHouseholdInvalidationKey(groupId, domainId) }))
                 {
                     log.DebugFormat("GetDomain - Couldn't get domainId {0}", domainId);
                 }
@@ -407,12 +407,12 @@ namespace Core.Users.Cache
         }
         */
 
-        internal bool RemoveDomain(int domainId)
+        internal bool RemoveDomain(int groupId, int domainId)
         {
             bool res = false;
             try
             {
-                string invalidationKey = LayeredCacheKeys.GetHouseholdInvalidationKey(domainId);
+                string invalidationKey = LayeredCacheKeys.GetHouseholdInvalidationKey(groupId, domainId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed removing domain {0} from cache", domainId);
@@ -575,7 +575,7 @@ namespace Core.Users.Cache
                 string key = LayeredCacheKeys.GetDlmKey(dlmId);
                 LimitationsManager dlmToGet = null;
                 if (!LayeredCache.Instance.Get<LimitationsManager>(key, ref dlmToGet, GetDlm, new Dictionary<string, object>() { { "groupId", groupId }, { "dlmId", dlmId } }, groupId,
-                                                    LayeredCacheConfigNames.DLM_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetDlmInvalidationKey(dlmId) }))
+                                                    LayeredCacheConfigNames.DLM_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetDlmInvalidationKey(groupId, dlmId) }))
                 {
                     log.DebugFormat("GetDLM - Couldn't get dlmId {0}", dlmId);
                 }
@@ -629,12 +629,12 @@ namespace Core.Users.Cache
         }
         */
 
-        internal bool RemoveDLM(int dlmId)
+        internal bool RemoveDLM(int groupId, int dlmId)
         {
             bool res = false;
             try
             {
-                string invalidationKey = LayeredCacheKeys.GetDlmInvalidationKey(dlmId);
+                string invalidationKey = LayeredCacheKeys.GetDlmInvalidationKey(groupId, dlmId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed removing DLM {0} from cache", dlmId);

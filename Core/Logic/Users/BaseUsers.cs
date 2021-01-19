@@ -1,7 +1,9 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Users.Security;
+using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Statistics;
+using ApiObjects.User;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using DAL;
@@ -470,9 +472,9 @@ namespace Core.Users
             ApiObjects.Response.Status response = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() };
             try
             {
-                bool isGracePeriod = false;
-                string userName = string.Empty;
-                UserActivationState userActivationState = GetUserActivationStatus(ref userName, ref userID, ref isGracePeriod);
+                bool notUsedBool = false;
+                string notUsed = string.Empty;
+                UserActivationState userActivationState = GetUserActivationStatus(ref notUsed, ref userID, ref notUsedBool);
 
                 switch (userActivationState)
                 {
@@ -1153,9 +1155,9 @@ namespace Core.Users
 
             if (parse)
             {
-                string userName = string.Empty;
-                bool isGracePeriod = false;
-                activStatus = (UserActivationState)DAL.UsersDal.GetUserActivationState(groupID, 0, ref userName, ref userId, ref isGracePeriod);
+                string notUsed = string.Empty;
+                bool notUsedBool = false;
+                activStatus = UserStorage.Instance().GetUserActivationState(groupID, 0, ref notUsed, ref userId, ref notUsedBool);
             }
             if (userId <= 0)
             {
@@ -1465,7 +1467,7 @@ namespace Core.Users
             try
             {
                 // if this is an anonymous user - simply return an empty list (just like the stored procedure returns)
-                if (string.IsNullOrEmpty(userId) || userId == "0")
+                if (userId.IsAnonymous())
                 {
                     response.Ids = new List<long>();
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -1477,7 +1479,7 @@ namespace Core.Users
 
                     // try to get from cache            
                     if (LayeredCache.Instance.Get<List<long>>(key, ref roleIds, Utils.Get_UserRoleIds, new Dictionary<string, object>() { { "groupId", m_nGroupID }, { "userId", userId } },
-                                                              m_nGroupID, USER_ROLES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserRolesInvalidationKey(userId) }))
+                                                              m_nGroupID, USER_ROLES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserRolesInvalidationKey(m_nGroupID, userId) }))
                     {
                         response.Ids = roleIds;
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -1515,7 +1517,7 @@ namespace Core.Users
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                     // add invalidation key for user roles cache
-                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId);
+                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, userId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on AddRoleToUser key = {0}", invalidationKey);

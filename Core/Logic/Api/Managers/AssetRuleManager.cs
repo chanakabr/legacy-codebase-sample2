@@ -153,7 +153,7 @@ namespace Core.Api.Managers
                     {
                         if (ApiDAL.RemoveCountryRulesFromMedia(groupId, mediaId, assetRuleIdsToRemove))
                         {
-                            string invalidationKey = LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId);
+                            string invalidationKey = LayeredCacheKeys.GetMediaCountriesInvalidationKey(groupId, mediaId);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on media countries key = {0}", invalidationKey);
@@ -333,7 +333,7 @@ namespace Core.Api.Managers
                                         modifiedAssetIds.AddRange(assetIds);
                                         foreach (var assetId in assetIds)
                                         {
-                                            string invalidationKey = LayeredCacheKeys.GetMediaCountriesInvalidationKey(assetId);
+                                            string invalidationKey = LayeredCacheKeys.GetMediaCountriesInvalidationKey(groupId, assetId);
                                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                                             {
                                                 log.ErrorFormat("Failed to set invalidation key on media countries key = {0}", invalidationKey);
@@ -514,7 +514,7 @@ namespace Core.Api.Managers
                         log.ErrorFormat("Failed UpsertMedia index for assetId: {0}", assetId);
                     }
 
-                    Catalog.CatalogManagement.AssetManager.InvalidateAsset(eAssetTypes.MEDIA, assetId);
+                    Catalog.CatalogManagement.AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetId);
 
                 }
                 return mediaToUpdate.Count;
@@ -1011,7 +1011,7 @@ namespace Core.Api.Managers
 
             if (assetRuleId.HasValue)
             {
-                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetRuleInvalidationKey(assetRuleId.Value));
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetRuleInvalidationKey(groupId, assetRuleId.Value));
             }
         }
 
@@ -1255,7 +1255,7 @@ namespace Core.Api.Managers
                     int mediaId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_ID");
                     mediaIds.Add(mediaId);
 
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaCountriesInvalidationKey(groupId, mediaId));
                 }
 
                 if (Catalog.Module.UpdateIndex(mediaIds, groupId, eAction.Update))

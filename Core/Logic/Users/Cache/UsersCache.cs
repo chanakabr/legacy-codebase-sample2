@@ -9,6 +9,7 @@ using CachingProvider;
 using KLogMonitor;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using ApiLogic.Users.Security;
 
 namespace Core.Users
 {
@@ -92,55 +93,50 @@ namespace Core.Users
             return domainId;
         }
 
-        // try getting the user from the cache
-        /*internal User GetUser(int userID, int groupID)
-        {
-            User userObject = null;
-            try
-            {
-                if (shouldUseCache)
-                {
-                    string sKey = string.Format("group_{0}_{1}_{2}", groupID, userKeyCache, userID);
-                    // try getting the userID from the cache, the result is not relevant since we return null if no user is found
-                    bool isSuccess = this.cache.GetJsonAsT<User>(sKey, out userObject);
-                }
-
-                if (userObject != null)
-                {
-                    userObject.SetReadingInvalidationKeys();
-                }
-
-                return userObject;
-            }
-            catch (Exception ex)
-            {
-                log.Debug("GetUser - " + string.Format("Couldn't get user {0}, ex = {1}", userID, ex.Message), ex);
-                return null;
-            }
-        }
-        */
-
         internal User GetUser(int userId, int groupId)
         {
             User user = null;
             try
             {
                 string key = LayeredCacheKeys.GetUserKey(userId, groupId);
-                if (!LayeredCache.Instance.Get(key, 
-                                               ref user, 
-                                               GetUser, 
+                if (LayeredCache.Instance.Get(key,
+                                               ref user,
+                                               GetUser,
                                                new Dictionary<string, object>()
                                                {
                                                    { "groupId", groupId },
                                                    { "userId", userId }
-                                               }, 
+                                               },
                                                groupId,
-                                               LayeredCacheConfigNames.USER_LAYERED_CACHE_CONFIG_NAME, 
+                                               LayeredCacheConfigNames.USER_LAYERED_CACHE_CONFIG_NAME,
                                                new List<string>()
                                                {
-                                                   LayeredCacheKeys.GetUserInvalidationKey(userId.ToString()),
-                                                   LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString())
+                                                   LayeredCacheKeys.GetUserInvalidationKey(groupId, userId.ToString()),
+                                                   LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, userId.ToString()),
+                                                   LayeredCacheKeys.GetUserLoginHistoryInvalidationKey(groupId, userId)
                                                }))
+                {
+                    if (user != null) // copy, in order to prevent mutation of in-memory cache object
+                    {
+                        var basicData = (UserBasicData)user.m_oBasicData.Clone();
+                        basicData.m_sUserName = UserDataEncryptor.Instance().DecryptUsername(groupId, basicData.m_sUserName);
+                        var dynamicData = user.m_oDynamicData.Clone(); 
+                        
+                        user = new User 
+                        {
+                            m_oBasicData = basicData,
+                            m_oDynamicData = dynamicData,
+                            m_sSiteGUID = user.m_sSiteGUID,
+                            m_domianID = user.m_domianID,
+                            m_eUserState = user.m_eUserState,
+                            m_eSuspendState = user.m_eSuspendState,
+                            m_nSSOOperatorID = user.m_nSSOOperatorID,
+                            m_isDomainMaster = user.m_isDomainMaster,
+                            GroupId = groupId
+                        };
+                    }
+                }
+                else
                 {
                     log.DebugFormat("GetUser - Couldn't get userId {0}", userId);
                 }
@@ -153,125 +149,19 @@ namespace Core.Users
             return user;
         }
 
-        /*internal bool InsertUser(User user, int groupID)
-        {
-            bool isInsertSuccess = false;
-            Random r = new Random();
-            int limitRetries = RETRY_LIMIT;
-            try
-            {
-                if (shouldUseCache)
-                {
-                    if (user == null)
-                    {
-                        return false;
-                    }
-
-                    string key = string.Format("group_{0}_{1}_{2}", groupID, userKeyCache, user.m_sSiteGUID);
-
-                    //insert user to cache
-                    while (limitRetries > 0)
-                    {
-                        isInsertSuccess = this.cache.SetJson<User>(key, user, cacheTTL);
-                        if (!isInsertSuccess)
-                        {
-                            Thread.Sleep(r.Next(50));
-                            limitRetries--;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-
-                    if (!isInsertSuccess)
-                    {
-                        log.Error(string.Format("Failed inserting user {0} to cache", user.m_sSiteGUID));
-                    }
-
-                    return isInsertSuccess;
-                }
-                else
-                {
-                    return true;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed inserting user {0} to cache, ex = {1}", user != null ? user.m_sSiteGUID : "0", ex.Message), ex);
-                return false;
-            }
-        }
-        */
-
-        /*internal bool RemoveUser(int userID, int groupID)
-        {
-            bool isRemoveSuccess = false;
-            Random r = new Random();
-            int limitRetries = RETRY_LIMIT;
-            try
-            {
-                if (shouldUseCache)
-                {
-                    string key = string.Format("group_{0}_{1}_{2}", groupID, userKeyCache, userID);
-
-                    //remove user from cache
-                    while (limitRetries > 0)
-                    {
-                        BaseModuleCache cacheModule = cache.Remove(key);
-                        if (cacheModule != null && cacheModule.result != null)
-                        {
-                            isRemoveSuccess = (bool)cacheModule.result;
-                        }
-                        if (!isRemoveSuccess)
-                        {
-                            Thread.Sleep(r.Next(50));
-                            limitRetries--;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-
-                    if (!isRemoveSuccess)
-                    {
-                        log.Error(string.Format("Failed removing user {0} from cache", userID.ToString()));
-                    }
-                    else
-                    {
-                        User.InvalidateUser(userID.ToString());
-                    }
-
-                    return isRemoveSuccess;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed removing user {0} from cache, ex = {1}", userID, ex.Message), ex);
-                return false;
-            }
-        }
-        */
-
         internal bool RemoveUser(int userId, int groupId)
         {
             bool res = false;
             try
             {
-                string invalidationKey = LayeredCacheKeys.GetUserInvalidationKey(userId.ToString());
+                string invalidationKey = LayeredCacheKeys.GetUserInvalidationKey(groupId, userId.ToString());
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed removing user {0} from cache", invalidationKey);
                     return res;
                 }
 
-                invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(userId.ToString());
+                invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, userId.ToString());
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed removing user {0} from cache", invalidationKey);
@@ -304,6 +194,12 @@ namespace Core.Users
                     int? userId = funcParams["userId"] as int?;
                     user = new User();
                     res = groupId.HasValue && userId.HasValue && user.Initialize(userId.Value, groupId.Value, true);
+                    if (res) // encrypt username before put to cache
+                    {
+                        var dataEncryptor = UserDataEncryptor.Instance();
+                        var encryptionType = dataEncryptor.GetUsernameEncryptionType(groupId.Value);
+                        user.m_oBasicData.m_sUserName = dataEncryptor.EncryptUsername(groupId.Value, encryptionType, user.m_oBasicData.m_sUserName);
+                    }
                 }
             }
             catch (Exception ex)

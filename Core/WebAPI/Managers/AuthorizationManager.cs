@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
-using ApiLogic.Authorization;
 using ApiLogic.Users.Services;
 using TVinciShared;
 using WebAPI.ClientManagers;
@@ -19,6 +18,12 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
+using WebAPI.Clients;
+using ApiObjects.User;
+using ApiObjects.Response;
+using SessionManager;
+using AuthenticationGrpcClientWrapper;
+using CachingProvider.LayeredCache;
 
 namespace WebAPI.Managers
 {
@@ -29,16 +34,17 @@ namespace WebAPI.Managers
         private const string APP_TOKEN_PRIVILEGE_SESSION_ID = "sessionid";
         private const string APP_TOKEN_PRIVILEGE_APP_TOKEN = "apptoken";
         private const string CB_SECTION_NAME = "tokens";
-
-        private const string USERS_SESSIONS_KEY_FORMAT = "sessions_{0}";
-        private const string REVOKED_KS_KEY_FORMAT = "r_ks_{0}";
         private const string REVOKED_SESSION_KEY_FORMAT = "r_session_{0}";
-
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
 
         public static KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.RefreshToken.Value)
+            {
+                throw new Exception("This code should not be called, ownership flag of refresh token has been transfered to Authentication Service, Check TCM [MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.RefreshToken]");
+            }
+
             KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
 
@@ -91,7 +97,7 @@ namespace WebAPI.Managers
 
             // update the sessions data
             var ksData = KSUtils.ExtractKSPayload(token.KsObject);
-            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
+            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, token.AccessTokenExpiration))
             {
                 log.ErrorFormat("RefreshSession: Failed to store updated users sessions, userId = {0}", userId);
                 throw new UnauthorizedException(UnauthorizedException.REFRESH_TOKEN_FAILED);
@@ -104,7 +110,7 @@ namespace WebAPI.Managers
                 throw new UnauthorizedException(UnauthorizedException.REFRESH_TOKEN_FAILED);
             }
 
-            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid,groupId);
+            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid, groupId);
             return new KalturaLoginSession()
             {
                 KS = token.KS,
@@ -137,7 +143,7 @@ namespace WebAPI.Managers
 
             // update the sessions data
             var ksData = KSUtils.ExtractKSPayload(token.KsObject);
-            if (!UpdateUsersSessionsRevocationTime(group, token.UserId, token.Udid, ksData.CreateDate, (int)token.AccessTokenExpiration))
+            if (!UpdateUsersSessionsRevocationTime(group, token.UserId, token.Udid, ksData.CreateDate, token.AccessTokenExpiration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", token.UserId);
                 throw new InternalServerErrorException();
@@ -148,11 +154,29 @@ namespace WebAPI.Managers
             if (group.IsRefreshTokenEnabled)
             {
                 // try store in CB, will return false if the same token already exists
-                if (!cbManager.Add(tokenKey, token, (uint)(token.RefreshTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)), true))
+                uint refreshTokenExpirationSeconds = (uint)(token.RefreshTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow));
+
+                if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.RefreshToken.Value)
                 {
-                    log.ErrorFormat("GenerateSession: Failed to store refreshed token");
-                    throw new InternalServerErrorException();
+                    var authClient = AuthenticationGrpcClientWrapper.AuthenticationClient.GetClientFromTCM();
+                    var refreshTokenFromAuthMs = authClient.GenerateRefreshToken(token.GroupID, token.KS, refreshTokenExpirationSeconds);
+                    if (refreshTokenFromAuthMs == null)
+                    {
+                        log.ErrorFormat("GenerateSession: Failed to generate refresh token using authentication microservice");
+                        throw new InternalServerErrorException();
+                    }
+
+                    token.RefreshToken = refreshTokenFromAuthMs;
                 }
+                else
+                {
+                    if (!cbManager.Add(tokenKey, token, refreshTokenExpirationSeconds, true))
+                    {
+                        log.ErrorFormat("GenerateSession: Failed to store refreshed token");
+                        throw new InternalServerErrorException();
+                    }
+                }
+
 
                 session.RefreshToken = token.RefreshToken;
             }
@@ -180,7 +204,7 @@ namespace WebAPI.Managers
         private static void ValidateUser(int groupId, string userId)
         {
             // if anonymous user
-            if (userId == "0")
+            if (userId.IsAnonymous())
                 return;
 
             List<KalturaOTTUser> usersResponse = null;
@@ -265,7 +289,7 @@ namespace WebAPI.Managers
         {
             KalturaSessionInfo response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GetGroupConfiguration(groupId);
 
             // 1. get token from cb by id
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
@@ -321,6 +345,7 @@ namespace WebAPI.Managers
             KalturaSessionType sessionType = KalturaSessionType.USER;
 
             // 7. get session user id from cb token - if not defined - use the supplied userId
+
             if (!string.IsNullOrEmpty(appToken.SessionUserId))
             {
                 userId = appToken.SessionUserId;
@@ -334,19 +359,39 @@ namespace WebAPI.Managers
                 }
             }
 
+            UsersClient usersClient = ClientsManager.UsersClient();
+            
+            var userRoles = usersClient.GetUserRoleIds(groupId, userId);
+            var userStatus = ValidateUser(groupId, userId, usersClient);
+            
+            if (!group.ApptokenUserValidationDisabled)
+            {
+                userStatus.ThrowOnError();
+
+                if (group.ShouldCheckDeviceInDomain && IsEndUser(groupId, userRoles))
+                {
+                    DomainsClient domainsClient = ClientsManager.DomainsClient();
+                    ValidateDevice(groupId, userId, udid, domainId, domainsClient);
+                }
+            }
+            else if (userStatus == null || !userStatus.IsOkStatusCode())
+            {
+                log.Warn($"StartSessionWithAppToken InvalidUser groupId:{groupId}, userId:{userId}");
+            }
+
             // 8. get the group secret by the session type
             string secret = sessionType == KalturaSessionType.ADMIN ? group.AdminSecret : group.UserSecret;
 
             // 9. privileges - we do not support it so copy from app token
-            var privilagesList = new Dictionary<string, string>();
+            var privilegesList = new Dictionary<string, string>();
 
-            if (!privilagesList.ContainsKey(APP_TOKEN_PRIVILEGE_APP_TOKEN))
+            if (!privilegesList.ContainsKey(APP_TOKEN_PRIVILEGE_APP_TOKEN))
             {
-                privilagesList.Add(APP_TOKEN_PRIVILEGE_APP_TOKEN, appToken.Token);
+                privilegesList.Add(APP_TOKEN_PRIVILEGE_APP_TOKEN, appToken.Token);
             }
-            if (!privilagesList.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
+            if (!privilegesList.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
             {
-                privilagesList.Add(APP_TOKEN_PRIVILEGE_SESSION_ID, appToken.Token);
+                privilegesList.Add(APP_TOKEN_PRIVILEGE_SESSION_ID, appToken.Token);
             }
 
             if (!string.IsNullOrEmpty(appToken.SessionPrivileges))
@@ -357,15 +402,15 @@ namespace WebAPI.Managers
                     foreach (var privilige in splitedPrivileges)
                     {
                         var splitedPrivilege = privilige.Split(':');
-                        if (splitedPrivilege != null && splitedPrivilege.Length > 0 && !privilagesList.ContainsKey(splitedPrivilege[0]))
+                        if (splitedPrivilege != null && splitedPrivilege.Length > 0 && !privilegesList.ContainsKey(splitedPrivilege[0]))
                         {
                             if (splitedPrivilege.Length == 2)
                             {
-                                privilagesList.Add(splitedPrivilege[0], splitedPrivilege[1]);
+                                privilegesList.Add(splitedPrivilege[0], splitedPrivilege[1]);
                             }
                             else
                             {
-                                privilagesList.Add(splitedPrivilege[0], null);
+                                privilegesList.Add(splitedPrivilege[0], null);
                             }
                         }
                     }
@@ -374,27 +419,66 @@ namespace WebAPI.Managers
 
             // set payload data
             var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
-            var userRoles = ClientsManager.UsersClient().GetUserRoleIds(groupId, userId);
             var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
 
             log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
             var ksData = new KS.KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId, userSegments, userRoles);
-            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, (int)sessionDuration))
+            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, sessionDuration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", userId);
                 throw new InternalServerErrorException();
             }
 
             // 10. build the ks:
-            KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, ksData, privilagesList, KS.KSVersion.V2);
+            KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, ksData, privilegesList, KS.KSVersion.V2);
 
             //11. update last login date
-            ClientsManager.UsersClient().UpdateLastLoginDate(groupId, userId);
+            usersClient.UpdateLastLoginDate(groupId, userId);
 
-            // 12. build the response from the ks:
+            //12. update udid last activity
+            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid, groupId);
+
+            // 13. build the response from the ks:
             response = new KalturaSessionInfo(ks);
 
             return response;
+        }
+
+        private static bool IsEndUser(int groupId, List<long> roleIds)
+        {
+            return !RolesManager.IsPartner(groupId, roleIds);
+        }
+
+        private static readonly HashSet<ResponseStatus> validUserStatus = new HashSet<ResponseStatus> { ResponseStatus.OK, ResponseStatus.UserWithNoDomain, ResponseStatus.UserNotIndDomain, ResponseStatus.UserNotMasterApproved };
+        // TODO remove duplication with ValidateUser(int groupId, string userId)
+        private static Status ValidateUser(int groupId, string userIdString, UsersClient usersClient)
+        {
+            var userId = userIdString.ParseUserId(invalidValue: -1);
+            if (userId == -1) throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "userId");
+            if (userId.IsAnonymous()) return Status.Ok;
+
+            var userStatus = usersClient.GetUserActivationState(groupId, userId);
+
+            if (validUserStatus.Contains(userStatus)) return Status.Ok;
+
+            // ConvertResponseStatusToResponseObject use WrongPasswordOrUserName for ResponseStatus.UserDoesNotExist
+            // but we want to return more meaningful status 
+            var errorResponse = userStatus == ResponseStatus.UserDoesNotExist
+                ? new Status(eResponseStatus.InvalidUser)
+                : Core.Users.Utils.ConvertResponseStatusToResponseObject(userStatus);
+            return errorResponse;
+        }
+
+        private static void ValidateDevice(int groupId, string userIdString, string udid, int domainId, DomainsClient domainsClient)
+        {
+            var skipValidation = userIdString.IsAnonymous();
+            if (skipValidation) return;
+
+            if (domainId <= 0) throw new ClientException(new Status(eResponseStatus.DeviceNotInDomain));
+            if (string.IsNullOrEmpty(udid)) throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "udid");
+
+            // throw ClientException if status != OK
+            domainsClient.GetDevice(groupId, domainId, udid, userIdString);
         }
 
         internal static KalturaAppToken AddAppToken(KalturaAppToken appToken, int groupId)
@@ -606,7 +690,7 @@ namespace WebAPI.Managers
         {
             Group group = GroupsManager.GetGroup(groupId);
 
-            if (!UpdateUsersSessionsRevocationTime(group, userId, string.Empty, (int)DateUtils.GetUtcUnixTimestampNow(), 0, true))
+            if (!UpdateUsersSessionsRevocationTime(group, userId, string.Empty, DateUtils.GetUtcUnixTimestampNow(), 0, true))
             {
                 log.ErrorFormat("RevokeKs: Failed to store users sessions");
                 throw new InternalServerErrorException();
@@ -616,7 +700,7 @@ namespace WebAPI.Managers
         }
 
         internal static bool IsKsValid(KS ks, bool validateExpiration = true)
-        {
+        {                        
             // Check if KS already validated by gateway
             string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
             if (ksRandomHeader == ks.Random)
@@ -624,6 +708,55 @@ namespace WebAPI.Managers
                 return ValidateKsSignature(ks);
             }
 
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.KSStatusCheck.Value)
+            {
+                //use cache if not found
+                //call GRPC         
+                var resultData = false;
+                var hashedKS = new Core.Users.SHA384Encrypter().Encrypt(ks.ToString(), "");
+                var key = LayeredCacheKeys.GetKsValidationResultKey(hashedKS);                
+                var invalidationKeys = new List<string>() { LayeredCacheKeys.GetValidateKsInvalidationKey(hashedKS, ks.GroupId) };
+
+                bool isCacheResultRetrived = LayeredCache.Instance.Get<bool>(key,
+                                                        ref resultData,
+                                                        GetKsValidationResult,
+                                                        new Dictionary<string, object>() { { "ks", ks.ToString() }, { "ksPartnerId", (long)ks.GroupId } },
+                                                        ks.GroupId,
+                                                        LayeredCacheConfigNames.GET_KS_VALIDATION,
+                                                        invalidationKeys);
+                //return result if found
+                //this should work with migration
+                if (isCacheResultRetrived)
+                {
+                    bool isKSValid = resultData;
+                    var isKSStatusCheckFallbackEnabled =
+                        ApplicationConfiguration.Current.MicroservicesClientConfiguration
+                        .Authentication.DataOwnershipConfiguration.KSStatusCheckFallbackEnabled.Value;
+
+
+                    //on no fallback just return the result
+                    if (!isKSStatusCheckFallbackEnabled)
+                    {
+                        return isKSValid;
+                    }
+
+                    //if ks result is not valid it means that it found revocation data in the database
+                    if (!isKSValid)
+                    {
+                        return false;
+                    }
+
+                    //if is valid it might be beacuse didnt find any revocation data
+                    //we need to check with couchbase for now until we will add migration
+                    //so itll call the legacy code
+                }
+            }
+
+            return ValidateKSLegacy(ks, validateExpiration);
+        }
+
+        private static bool ValidateKSLegacy(KS ks, bool validateExpiration)
+        {
             if (validateExpiration && ks.Expiration < DateTime.UtcNow)
             {
                 return false;
@@ -678,6 +811,40 @@ namespace WebAPI.Managers
             return true;
         }
 
+        private static Tuple<bool, bool> GetKsValidationResult(Dictionary<string, object> funcParams)
+        {
+            bool res = false;
+            Dictionary<bool, bool> result = new Dictionary<bool, bool>();
+            var authClient = AuthenticationClient.GetClientFromTCM();
+            var validationResult = false;
+
+
+            try
+            {
+                if (funcParams != null && funcParams.ContainsKey("ks"))
+                {
+                    var ks = funcParams["ks"] != null ? funcParams["ks"] as string : string.Empty;
+                    var ksPartnerId = funcParams["ksPartnerId"] != null ? (long)(funcParams["ksPartnerId"]): 0L;
+
+                    string ksValidationKey = LayeredCacheKeys.GetKsValidationResultKey(ks);
+                    var isValid = authClient.ValidateKs(ks,ksPartnerId);
+                    validationResult = isValid;
+                    res = true;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                res = true;
+                log.Error(string.Format("GetKsValidationResultKey failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<bool, bool>(validationResult, res);
+
+
+           
+        }
+
         public static bool ValidateKsSignature(KS ks)
         {
             var group = GroupsManager.GetGroup(ks.GroupId);
@@ -705,16 +872,14 @@ namespace WebAPI.Managers
 
         private static string GetUserSessionsKeyFormat(Group group)
         {
-            return SessionManager.GetUserSessionsKeyFormat(group.UserSessionsKeyFormat);
+            return SessionManager.SessionManager.GetUserSessionsKeyFormat(group.UserSessionsKeyFormat);
         }
 
-        private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, int revocationTime, int expiration, bool revokeAll = false)
+        private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, long revocationTime, long expiration, bool revokeAll = false)
         {
-
-           return SessionManager.UpdateUsersSessionsRevocationTime(group.UserSessionsKeyFormat,
-                group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds, userId, udid, revocationTime,
-                expiration, revokeAll);
-            
+            return SessionManager.SessionManager.UpdateUsersSessionsRevocationTime(group.UserSessionsKeyFormat,
+                 group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds, userId, udid, revocationTime,
+                 expiration, revokeAll);
         }
 
         internal static void RemoveUserSessions(Group group, string userId)
@@ -749,37 +914,40 @@ namespace WebAPI.Managers
             return loginSession;
         }
 
-        public static void RevokeDeviceSessions(int groupId, long householdId, string udid)
+        public static void RevokeHouseholdSessions(int groupId, string udid = null, List<string> householdUserIds = null, long domainId = 0)
         {
-            List<string> householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true);
-
-            if (householdUserIds == null || householdUserIds.Count == 0)
-                return;
-
-            Group group = GroupsManager.GetGroup(groupId);
-            long utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
-            long maxSessionDuration = utcNow + Math.Max(group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds);
-
-            foreach (string userId in householdUserIds)
+            try
             {
-                if (!UpdateUsersSessionsRevocationTime(group, userId, udid, (int)utcNow, (int)maxSessionDuration))
+                if (householdUserIds == null)
                 {
-                    log.ErrorFormat("RevokeDeviceSessions: Failed to revoke session for UDID = {0}, userId = {1}", udid, userId);
+                    householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId, true);
+
+                    if (householdUserIds == null)
+                    {
+                        //BEO-9133: If Admin/Operator, should get list by udid
+                        householdUserIds = Core.ConditionalAccess.Utils.GetDomainsUsers((int)domainId, groupId)?.Select(x => x.ToString()).ToList();
+                    }
+                }
+
+                if (householdUserIds == null || householdUserIds.Count == 0)
+                    return;
+
+                Group group = GroupsManager.GetGroup(groupId);
+                long utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+                long maxSessionDuration = utcNow + Math.Max(group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds);
+                bool revokeAll = string.IsNullOrEmpty(udid) ? true : false;
+
+                foreach (string userId in householdUserIds)
+                {
+                    if (!UpdateUsersSessionsRevocationTime(group, userId, udid, utcNow, (int)maxSessionDuration, revokeAll))
+                    {
+                        log.ErrorFormat("RevokeDeviceSessions: Failed to revoke session for userId = {0}, UDID = {1}", userId, revokeAll ? "All" : udid);
+                    }
                 }
             }
-        }
-
-        private static void ValidateUdid(int groupId, string udid)
-        {
-            if (string.IsNullOrEmpty(udid))
-                return;
-
-            List<string> udids = HouseholdUtils.GetHouseholdUdids(groupId);
-
-            if (udids == null || udids.Contains(udid))
+            catch (Exception ex)
             {
-                log.ErrorFormat("ValidateUdid: UDID not found in household. UDID = {0}", udid);
-                throw new UnauthorizedException(UnauthorizedException.INVALID_UDID, udid);
+                log.Error($"RevokeHouseholdSessions error: {ex.Message}", ex);
             }
         }
 

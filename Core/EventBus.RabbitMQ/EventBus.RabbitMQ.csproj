@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <Compile Remove="EventBusConsumerRabbitMQ.cs" />
-    <Compile Remove="KalturaEventBusRabbitMQConsumerService.cs" />
     <Compile Remove="KalturaEventBusRabbitMQConsumerServiceExtensions.cs" />
   </ItemGroup>
 
@@ -30,7 +29,6 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
     <Compile Include="EventBusConsumerRabbitMQ.cs" />
-    <Compile Include="KalturaEventBusRabbitMQConsumerService.cs" />
     <Compile Include="KalturaEventBusRabbitMQConsumerServiceExtensions.cs" />
   </ItemGroup>
 

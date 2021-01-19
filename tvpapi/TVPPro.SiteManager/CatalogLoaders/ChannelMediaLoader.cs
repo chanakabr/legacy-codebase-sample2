@@ -73,17 +73,9 @@ namespace TVPPro.SiteManager.CatalogLoaders
             string cacheKey = GetLoaderCachekey();
             if (m_oResponse != null && ((ChannelResponse)m_oResponse).m_nMedias != null && ((ChannelResponse)m_oResponse).m_nMedias.Count > 0)
             {
-                CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey);
                 m_oMediaCache = new MediaCache(((ChannelResponse)m_oResponse).m_nMedias, GroupID, m_sUserIP, m_oFilter);
             }
-            else if (m_oResponse == null)// No Response from Catalog, gets medias from cache
-            {
-                m_oResponse = CacheManager.Cache.GetFailOverResponse(cacheKey);
-                if (m_oResponse != null && ((ChannelResponse)m_oResponse).m_nMedias != null && ((ChannelResponse)m_oResponse).m_nMedias.Count > 0)
-                {
-                    m_oMediaCache = new MediaCache(((ChannelResponse)m_oResponse).m_nMedias, GroupID, m_sUserIP, m_oFilter);
-                }
-            }
+
             if (m_oMediaCache != null)
             {
                 m_oMediaCache.BuildRequest();

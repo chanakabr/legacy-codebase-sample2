@@ -20,7 +20,6 @@ namespace WebAPI.Models.API
         [DataMember(Name = "udid")]
         [JsonProperty(PropertyName = "udid")]
         [XmlElement(ElementName = "udid")]
-        //[scj]
         public string Udid { get; set; }
 
         //Cognito

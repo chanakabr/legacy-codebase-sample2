@@ -1,4 +1,5 @@
 ﻿using ApiLogic.Users;
+using ApiLogic.Users.Security;
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.Segmentation;
@@ -141,53 +142,30 @@ namespace Core.Users
         /// <param name="userName"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        internal override UserResponseObject MidSignIn(Int32 siteGuid, string userName, string password, int maxFailCount, int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin)
+        internal override UserResponseObject MidSignIn(int siteGuid, string userName, string password, int maxFailCount, int lockMin, int groupId, string sessionId, string ip, string deviceId, bool preventDoubleLogin)
         {
             var userResponseObject = new UserResponseObject();
-            Int32 oldSiteGuid = siteGuid;
+            int oldSiteGuid = siteGuid;
             bool isGracePeriod = false;
 
-            UserActivationState userStatus = GetUserStatus(ref userName, ref siteGuid, ref isGracePeriod);
-
-            if (userStatus != UserActivationState.Activated)
+            var userStatus = GetUserActivationState(ref userName, ref siteGuid, ref isGracePeriod);
+            var responseStatus = Utils.MapToResponseStatus(userStatus);
+            if (responseStatus != ResponseStatus.OK && responseStatus != ResponseStatus.UserSuspended)
             {
-                switch (userStatus)
+                userResponseObject.m_user = responseStatus == ResponseStatus.InternalError || responseStatus == ResponseStatus.UserDoesNotExist
+                    ? null
+                    : new User(groupId, siteGuid);
+                userResponseObject.m_RespStatus = responseStatus;
+
+                if (responseStatus == ResponseStatus.UserWithNoDomain)
                 {
-                    case UserActivationState.UserDoesNotExist:
-                        userResponseObject.m_RespStatus = ResponseStatus.UserDoesNotExist;
-                        break;
-
-                    case UserActivationState.NotActivated:
-                        userResponseObject.m_user = new User(groupId, siteGuid);
-                        userResponseObject.m_RespStatus = ResponseStatus.UserNotActivated;
-                        break;
-
-                    case UserActivationState.NotActivatedByMaster:
-                        userResponseObject.m_user = new User(groupId, siteGuid);
-                        userResponseObject.m_RespStatus = ResponseStatus.UserNotMasterApproved;
-                        break;
-
-                    case UserActivationState.UserRemovedFromDomain:
-                        userResponseObject.m_user = new User(groupId, siteGuid);
-                        userResponseObject.m_RespStatus = ResponseStatus.UserNotIndDomain;
-                        break;
-                    case UserActivationState.UserWIthNoDomain:
-                        userResponseObject.m_user = new User(groupId, siteGuid);
-                        bool bValidDomainStat = MidAddDomain(ref userResponseObject, userResponseObject.m_user, userName, siteGuid, new DomainInfo(groupId));
-                        if (!bValidDomainStat)
-                            return userResponseObject;
-                        break;
-                    case UserActivationState.UserSuspended:
-                        userResponseObject.m_user = new User(groupId, siteGuid);
-                        userResponseObject.m_RespStatus = ResponseStatus.UserSuspended;
-                        break;
-                    default:
-                        userResponseObject.m_RespStatus = ResponseStatus.InternalError;
-                        break;
+                    var success = MidAddDomain(ref userResponseObject, userResponseObject.m_user, userName, siteGuid, new DomainInfo(groupId));
+                    if (!success) return userResponseObject;
                 }
-
-                if (userStatus != UserActivationState.UserWIthNoDomain)
+                else
+                {
                     return userResponseObject;
+                }
             }
 
             if (oldSiteGuid == 0)
@@ -287,7 +265,7 @@ namespace Core.Users
 
         internal override void InitSendWelcomeMail(ref UserResponseObject userResponse, ref WelcomeMailRequest mailRequest, string firstName, string userName, string password, string email, string facebookId)
         {
-            mailRequest.m_sToken = DAL.UsersDal.GetActivationToken(GroupId, userName);
+            mailRequest.m_sToken = UserStorage.Instance().GetActivationToken(GroupId, userName);
             mailRequest.m_sTemplateName = WelcomeMailTemplate;
             mailRequest.m_eMailType = eMailTemplateType.Welcome;
             mailRequest.m_sFirstName = firstName;
@@ -330,7 +308,7 @@ namespace Core.Users
                 userResponse.m_user.m_oBasicData.RoleIds.Add(roleId);
                 if (UsersDal.UpsertUserRoleIds(GroupId, userId, userResponse.m_user.m_oBasicData.RoleIds))
                 {
-                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(siteGuid);
+                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, siteGuid);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on MidCreateDefaultRules key = {0}", invalidationKey);
@@ -349,13 +327,6 @@ namespace Core.Users
         }
 
         public override void PostDefaultRules(ref UserResponseObject userResponse, bool passed, string siteGuid, int groupId, ref User userBo, ref List<KeyValuePair> keyValueList) { }
-
-        public UserActivationState GetUserStatus(ref string username, ref Int32 userId, ref bool isGracePeriod)
-        {
-            UserActivationState activStatus = (UserActivationState)UsersDal.GetUserActivationState(GroupId, activationMustHours, ref username, ref userId, ref isGracePeriod);
-
-            return activStatus;
-        }
 
         internal override DomainResponseObject AddNewDomain(string username, int userId, int groupId)
         {

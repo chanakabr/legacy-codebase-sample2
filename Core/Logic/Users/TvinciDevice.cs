@@ -37,7 +37,7 @@ namespace Core.Users
             string sNewDevicePIN = DeviceRepository.GenerateNewPIN(nGroupID);
             device.m_pin = sNewDevicePIN;
 
-            var nDeviceID = device.Save(0, 1); // Returns device ID, 0 otherwise
+            var nDeviceID = device.Save(0, 1, new DomainDevice()); // Returns device ID, 0 otherwise
 
             return nDeviceID != 0 ? sNewDevicePIN : string.Empty;
         }
@@ -48,7 +48,8 @@ namespace Core.Users
             ApiObjects.Response.Status status = null;
             Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
             device.Initialize(sDeviceUDID);
-            bool isSetSucceeded = device.SetDeviceInfo(sDeviceName, string.Empty, string.Empty, null);
+            var dDevice = new DomainDevice { Udid = sDeviceUDID, Name = sDeviceName };
+            bool isSetSucceeded = device.SetDeviceInfo(dDevice);
 
             // in case set device Succeeded
             // domain should be remove from the cache 
@@ -66,7 +67,7 @@ namespace Core.Users
                         DomainsCache oDomainCache = DomainsCache.Instance();
                         foreach (var domain in domains)
                         {
-                            oDomainCache.RemoveDomain(domain.m_nDomainID);
+                            oDomainCache.RemoveDomain(nGroupID, domain.m_nDomainID);
 
                         }
                     }
@@ -89,18 +90,14 @@ namespace Core.Users
 
         public override DeviceResponseObject SetDevice(
             int nGroupID,
-            string sDeviceUDID,
-            string sDeviceName,
-            string macAddress,
-            string externalId,
-            Dictionary<string, string> dynamicData,
+            DomainDevice dDevice,
             bool allowNullExternalId,
             bool allowNullMacAddress = false,
             bool allowNullDynamicData = false)
         {
             DeviceResponseObject ret = new DeviceResponseObject();
-            Device device = new Device(sDeviceUDID, 0, nGroupID, sDeviceName);
-            var init = device.Initialize(sDeviceUDID);
+            Device device = new Device(dDevice.Udid, 0, nGroupID, dDevice.Name);
+            var init = device.Initialize(dDevice.Udid);
 
             if (!init)
             {
@@ -109,7 +106,7 @@ namespace Core.Users
             }
 
             //Check if external id already exists
-            var device_Id = DeviceRepository.GetDeviceIdByExternalId(nGroupID, externalId);
+            var device_Id = DeviceRepository.GetDeviceIdByExternalId(nGroupID, dDevice.ExternalId);
 
             //already exists
             if (!string.IsNullOrEmpty(device_Id) && device.m_id != device_Id)
@@ -119,8 +116,8 @@ namespace Core.Users
                 return ret;
             }
 
-            var _deviceName = !string.IsNullOrEmpty(sDeviceName) ? sDeviceName : device.m_deviceName;
-            bool isSetSucceeded = device.SetDeviceInfo(_deviceName, macAddress, externalId, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
+            dDevice.Name = string.IsNullOrEmpty(dDevice.Name) ? device.m_deviceName : dDevice.Name;
+            bool isSetSucceeded = device.SetDeviceInfo(dDevice, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
 
             // in case set device Succeeded
             // domain should be remove from the cache 
@@ -134,14 +131,13 @@ namespace Core.Users
 
                 if (baseDomain != null)
                 {
-                    List<Domain> domains = baseDomain.GetDeviceDomains(sDeviceUDID);
+                    List<Domain> domains = baseDomain.GetDeviceDomains(dDevice.Udid);
                     if (domains != null && domains.Count > 0)
                     {
                         DomainsCache oDomainCache = DomainsCache.Instance();
                         foreach (var domain in domains)
                         {
-                            oDomainCache.RemoveDomain(domain.m_nDomainID);
-
+                            oDomainCache.RemoveDomain(m_nGroupID, domain.m_nDomainID);
                         }
                     }
                 }

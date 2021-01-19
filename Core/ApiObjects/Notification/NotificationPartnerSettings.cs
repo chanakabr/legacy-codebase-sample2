@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ApiObjects.Notification
 {
@@ -23,6 +24,7 @@ namespace ApiObjects.Notification
         public long? MailNotificationAdapterId { get; set; }
         public bool? IsSMSEnabled { get; set; }
         public bool? IsIotEnabled { get; set; }
+        public EpgNotificationSettings EpgNotification { get; set; }
 
         public NotificationPartnerSettings()
         {
@@ -42,5 +44,13 @@ namespace ApiObjects.Notification
             if (!RemindersPrePaddingSec.HasValue)
                 TopicExpirationDurationDays = 300;
         }
+    }
+
+    public class EpgNotificationSettings
+    {
+        public bool Enabled { get; set; } = false;
+        public IReadOnlyCollection<int> DeviceFamilyIds { get; set; } = new List<int>(0);
+        public IReadOnlyCollection<long> LiveAssetIds { get; set; } = new List<long>(0);
+        public int TimeRange { get; set; } = 24;
     }
 }

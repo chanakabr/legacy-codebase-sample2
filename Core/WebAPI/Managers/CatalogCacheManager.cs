@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Caching;
 using System.Threading;
 using System.Web;
+using CachingProvider;
 using Core.Catalog;
 using Core.Catalog.Response;
 using TVinciShared;
@@ -24,6 +25,12 @@ namespace WebAPI.Managers
     {
         private const int DEFAULT_DURATION = 86400;
         private ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
+        private SingleInMemoryCache cache;
+
+        public Cache()
+        {
+            cache = SingleInMemoryCache.GetInstance(InMemoryCacheType.General, DEFAULT_DURATION);
+        }
 
         public List<BaseObject> GetObjects(List<CacheKey> cacheKeys, string keyPrefix, out List<long> missingIds)
         {
@@ -43,7 +50,7 @@ namespace WebAPI.Managers
                       cacheLock.EnterReadLock();
                       try
                       {
-                          cacheObj = HttpContext.Current.GetCache().Get(string.Format("{0}_{1}", keyPrefix, cacheKey.ID));
+                          cacheObj = cache.Get<BaseObject>(string.Format("{0}_{1}", keyPrefix, cacheKey.ID));
                       }
                       finally
                       {
@@ -74,7 +81,7 @@ namespace WebAPI.Managers
 
         public void StoreObjects(List<BaseObject> objects, string keyPrefix, int duration)
         {
-            var experationTime = duration > 0 ? DateTimeOffset.UtcNow.AddSeconds(duration) : DateTimeOffset.UtcNow.AddSeconds(DEFAULT_DURATION);
+            var expirationTime = duration > 0 ? DateTimeOffset.UtcNow.AddSeconds(duration) : DateTimeOffset.UtcNow.AddSeconds(DEFAULT_DURATION);
             foreach (BaseObject obj in objects)
             {
                 if (obj != null)
@@ -82,61 +89,14 @@ namespace WebAPI.Managers
                     cacheLock.EnterWriteLock();
                     try
                     {
-                        var cacheItemPolicy = new CacheItemPolicy
-                        {
-                           AbsoluteExpiration = experationTime,
-                           Priority = CacheItemPriority.Default,
-                        };
-
                         var key = string.Format("{0}_{1}", keyPrefix, obj.AssetId);
-                        HttpContext.Current.GetCache().Add(key, obj, cacheItemPolicy);
+                        cache.Set(key, obj, expirationTime);
                     }
                     finally
                     {
                         cacheLock.ExitWriteLock();
                     }
                 }
-            }
-        }
-
-        public BaseResponse GetFailOverResponse(string key)
-        {
-            BaseResponse response = null;
-
-            object cacheObj;
-            cacheLock.EnterReadLock();
-            try
-            {
-                cacheObj = HttpContext.Current.GetCache().Get(key);
-            }
-            finally
-            {
-                cacheLock.ExitReadLock();
-            }
-
-            if (cacheObj != null)
-            {
-                response = cacheObj as BaseResponse;
-            }
-            return response;
-        }
-
-        public void InsertFailOverResponse(BaseResponse response, string key)
-        {
-            cacheLock.EnterWriteLock();
-            try
-            {
-                var cacheItemPolicy = new CacheItemPolicy
-                {
-                    Priority = CacheItemPriority.Default,
-                    AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(DEFAULT_DURATION),
-                };
-
-                HttpContext.Current.GetCache().Add(key, response, cacheItemPolicy);
-            }
-            finally
-            {
-                cacheLock.ExitWriteLock();
             }
         }
     }

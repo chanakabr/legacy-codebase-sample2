@@ -3,10 +3,12 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 using KLogMonitor;
 using System.Reflection;
 using CachingProvider.LayeredCache;
+using ApiObjects;
 
 namespace Core.Users
 {
@@ -51,6 +53,14 @@ namespace Core.Users
         public string MacAddress;
 
         public Dictionary<string, string> DynamicData;
+
+        public string Model;
+        
+        public long? LastActivityTime;
+
+        public string Manufacturer { get; set; }
+
+        public long? ManufacturerId { get; set; }
 
         public Device(string sUDID, int nDeviceBrandID, int nGroupID, string deviceName, int domainID)
         {            
@@ -146,8 +156,17 @@ namespace Core.Users
             bool result = InitDeviceInfo(nDeviceID.ToString(), false);
             return result;
         }
+        
+        public int Save(int nIsActive, int nStatus = 1, DomainDevice device = null, bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
+        {
+            if (device == null)
+                device = new DomainDevice();
 
-        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string macAddress = "", string externalId = "", Dictionary<string, string> dynamicData = null,
+            return Save(nIsActive, nStatus, device.DeviceId, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId, device.Manufacturer, device.DynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
+        }
+
+        public int Save(int nIsActive, int nStatus = 1, int? nDeviceID = null, string macAddress = "", string externalId = "",
+            string model = "", long? manufacturerId = null, string manufacturer = null, Dictionary<string, string> dynamicData = null, 
             bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
         {
             int retVal = (nDeviceID.HasValue && nDeviceID.Value > 0)
@@ -156,14 +175,20 @@ namespace Core.Users
 
             bool deviceFound = retVal > 0;
 
+            log.Debug($"Device for Save: nIsActive: {nIsActive}, nStatus: {nStatus}, nDeviceID: {nDeviceID}, macAddress: {macAddress}, externalId: {externalId}," +
+                $" model: {model}, manufacturerId: {manufacturerId}, allowNullExternalId: {allowNullExternalId}, allowNullMacAddress: {allowNullMacAddress}, " +
+                $"deviceFound: {deviceFound}, retVal: {retVal}");
+
             if (!deviceFound) // New Device
             {
-                retVal = DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, nIsActive, nStatus, m_pin, externalId, macAddress, dynamicData);
+                retVal = DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID,
+                    nIsActive, nStatus, m_pin, externalId, macAddress, model, manufacturerId, dynamicData);
             }
             else // Update Device
             {
                 bool bUpdateRetVal = DeviceDal.UpdateDevice(retVal, m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_groupID,
-                    m_deviceName, nIsActive, nStatus, externalId, macAddress, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
+                    m_deviceName, nIsActive, nStatus, externalId, macAddress, model, manufacturerId, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
+                    
                 if (!bUpdateRetVal)
                 {
                     retVal = 0;
@@ -179,20 +204,27 @@ namespace Core.Users
                 ExternalId = externalId;
                 MacAddress = macAddress;
                 DynamicData = dynamicData;
+                Model = model;
+                ManufacturerId = manufacturerId;
             }
+
+            if (ManufacturerId.HasValue)
+                Manufacturer = manufacturer;
 
             return retVal;
         }
 
-        public bool SetDeviceInfo(string sDeviceName, string macAddress, string externalId, Dictionary<string, string> dynamicData,
-            bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
+        public bool SetDeviceInfo(DomainDevice device, bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
         {
             bool res = false;
-            m_deviceName = sDeviceName;
+            m_deviceName = device.Name;
+
+            log.Debug($"SetDeviceInfo: DomainDevice: {JsonConvert.SerializeObject(device)}, device: {this.ToString()} " +
+                $"m_state: {m_state}");
 
             if (m_state >= DeviceState.Pending)
             {
-                int nDeviceID = Save(-1, 1, null, macAddress, externalId, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData); // Returns device ID, 0 otherwise
+                int nDeviceID = Save(-1, 1, device, allowNullExternalId, allowNullMacAddress, allowNullDynamicData); // Returns device ID, 0 otherwise
                 if (nDeviceID != 0)
                 {
                     res = true;
@@ -246,7 +278,15 @@ namespace Core.Users
                 m_pin = ODBCWrapper.Utils.GetSafeStr(dr["pin"]);
                 ExternalId = ODBCWrapper.Utils.GetSafeStr(dr["external_id"]);
                 MacAddress = ODBCWrapper.Utils.GetSafeStr(dr["mac_address"]);
-                DynamicData = DeviceDal.ToDynamicData(ODBCWrapper.Utils.GetSafeStr(dr["dynamic_data"]));
+                DynamicData = DeviceDal.DeserializeDynamicData(ODBCWrapper.Utils.GetSafeStr(dr["dynamic_data"]));
+                Model = ODBCWrapper.Utils.GetSafeStr(dr["model"]);
+                ManufacturerId = ODBCWrapper.Utils.GetIntSafeVal(dr["manufacturer_id"]);
+                if (this.ManufacturerId.HasValue && this.ManufacturerId.Value > 0)
+                {
+                    var _filter = new DeviceManufacturersReferenceDataFilter() { IdsIn = new List<int>() { (int)ManufacturerId.Value } };
+                    var cd = new ApiObjects.Base.ContextData(m_groupID);
+                    Manufacturer = ApiLogic.Users.Managers.DeviceReferenceDataManager.Instance.List(cd, _filter, null)?.Objects?.FirstOrDefault()?.Name;
+                }
 
                 PopulateDeviceStreamTypeAndProfile();
 
@@ -336,7 +376,7 @@ namespace Core.Users
         {
             List<string> invalidationKeys = new List<string>()
             {
-                LayeredCacheKeys.GetDomainDeviceInvalidationKey(m_domainID, m_id)
+                LayeredCacheKeys.GetDomainDeviceInvalidationKey(m_groupID, m_domainID, m_id)
             };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
@@ -414,6 +454,8 @@ namespace Core.Users
             string m_pin = string.Empty;
             string externalId = null;
             string macAddress = null;
+            string model = null;
+            long? manufacturerId = null;
             Dictionary<string, string> dynamicData = null;
             int m_domainID = 0;
             DateTime m_activationDate = DateTime.UtcNow;
@@ -428,6 +470,8 @@ namespace Core.Users
                 ref m_pin,
                 ref externalId,
                 ref macAddress,
+                ref model,
+                ref manufacturerId,
                 ref dynamicData,
                 ref m_domainID,
                 ref m_activationDate);
@@ -440,11 +484,23 @@ namespace Core.Users
                 m_deviceFamily = DeviceDal.Get_DeviceFamilyIDAndName(m_deviceBrandID, ref notUsed);
             }
 
+            string manufacturer = null;
+            if (manufacturerId.HasValue && manufacturerId.Value > 0)
+            {
+                var filter = new DeviceManufacturersReferenceDataFilter { IdsIn = new List<int> { (int)manufacturerId.Value } };
+                var cd = new ApiObjects.Base.ContextData(m_groupID);
+                
+                manufacturer = ApiLogic.Users.Managers.DeviceReferenceDataManager.Instance.List(cd, filter, null)?.Objects?.FirstOrDefault()?.Name;
+            }
+
             device = new Device(m_deviceUDID, m_deviceBrandID, m_groupID, m_deviceName, m_domainID, m_id,
                 m_deviceFamilyID, m_deviceFamily, m_pin, m_activationDate, m_state)                
             {
                 ExternalId = externalId,
                 MacAddress = macAddress,
+                Model = model,
+                ManufacturerId = manufacturerId,
+                Manufacturer = manufacturer,
                 DynamicData = dynamicData
             };
 

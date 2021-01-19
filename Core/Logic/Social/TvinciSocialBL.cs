@@ -21,6 +21,7 @@ using Core.Catalog.Response;
 using Core.Catalog.Request;
 using Core.Catalog;
 using ConfigurationManager;
+using ApiLogic.Users.Security;
 
 namespace Core.Social
 {
@@ -355,7 +356,6 @@ namespace Core.Social
             List<FBUser> lRes = new List<FBUser>();
 
             DataTable dt = m_oSocialSQL.GetFBFriends(lFBFriendList);
-
             if (dt != null && dt.DefaultView.Count > 0)
             {
                 lRes = dt.AsEnumerable()
@@ -366,7 +366,7 @@ namespace Core.Social
                         first_name = ODBCWrapper.Utils.GetSafeStr(user, "first_name"),
                         last_name = ODBCWrapper.Utils.GetSafeStr(user, "last_name"),
                         email = ODBCWrapper.Utils.GetSafeStr(user, "email_add"),
-                        name = ODBCWrapper.Utils.GetSafeStr(user, "username")
+                        name = UserDataEncryptor.Instance().DecryptUsername(m_nGroupID, ODBCWrapper.Utils.GetSafeStr(user, "username")) // TODO is it used?
                     }
                     ).ToList();
             }

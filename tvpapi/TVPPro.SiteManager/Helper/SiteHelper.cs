@@ -1504,9 +1504,18 @@ namespace TVPPro.SiteManager.Helper
 
             if (ip.Equals("127.0.0.1") || ip.Equals("::1") || ip.StartsWith("192.168.")) ip = "81.218.199.175";
 
+            // when header contains :, it can be of two: either it has a port, or it is an IPv6.
             if (ip.Contains(':'))
             {
-                ip = ip.Substring(0, ip.IndexOf(':'));
+                IPAddress address;
+                if (IPAddress.TryParse(ip, out address))
+                {
+                    ip = address.ToString();
+                }
+                else
+                {
+                    ip = ip.Substring(0, ip.IndexOf(':'));
+                }
             }
 
             return ip.Trim();

@@ -62,6 +62,10 @@ namespace Core.ConditionalAccess.Response
 
         public long UnifiedPaymentId { get; set; } // subscription only
 
+        public bool IsPending { get; set; }
+
+        public EntitlementPriceDetails PriceDetails  { get; set; } // subscription only
+
         public Entitlement(PermittedSubscriptionContainer item)
         {
             this.type = eTransactionType.Subscription;
@@ -82,7 +86,7 @@ namespace Core.ConditionalAccess.Response
             this.isRenewable = item.m_bIsSubRenewable;
             this.IsInGracePeriod = item.m_bIsInGracePeriod;
             this.ScheduledSubscriptionId = item.ScheduledSubscriptionId;
-            this.mediaFileID = 0;
+            this.mediaFileID = 0;            
         }
 
         public Entitlement(PermittedCollectionContainer item)

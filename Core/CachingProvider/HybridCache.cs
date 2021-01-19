@@ -23,7 +23,7 @@ namespace CachingProvider
         /// <param name="externalCacheName"></param>
         private HybridCache(eCouchbaseBucket externalCacheName, string internalCacheName)
         {
-            this.inMemoryCache = new SingleInMemoryCache(0);
+            this.inMemoryCache = SingleInMemoryCache.GetInstance(InMemoryCacheType.General, 0);
             this.couchbaseCache = CouchBaseCache<TO>.GetInstance(externalCacheName.ToString());
             this.secondsInMemory = ApplicationConfiguration.Current.BaseCacheConfiguration.TTLSeconds.Value;
 

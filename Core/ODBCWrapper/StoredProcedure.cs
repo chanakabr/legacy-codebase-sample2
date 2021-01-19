@@ -63,13 +63,25 @@ namespace ODBCWrapper
 
         public void AddParameter(string key, object value)
         {
+            AddParameter(key, value, false);
+        }
+
+        public void AddParameter(string key, object value, bool isUnicode)
+        {
             if (value == null)
             {
                 value = DBNull.Value;
             }
 
-            m_Parameters.Add(key, value);
-
+            if (isUnicode)
+            {
+                m_Parameters.Add(key, Tuple.Create(isUnicode, value));
+            }
+            else
+            {
+                m_Parameters.Add(key, value);
+            }
+            
             Utils.CheckDBReadWrite(key, value, procedureName, m_bIsWritable, ref Utils.UseWritable);
         }
 
@@ -279,7 +291,7 @@ namespace ODBCWrapper
 
             foreach (string item in m_Parameters.Keys)
             {
-                command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
+                AddParameter(command, item);
             }
             string sConn = string.Empty;
             if (shouldGoToSlave)
@@ -349,7 +361,7 @@ namespace ODBCWrapper
 
             foreach (string item in m_Parameters.Keys)
             {
-                command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
+                AddParameter(command, item);
             }
             string sConn = string.Empty;
             if (shouldGoToSlave)
@@ -395,6 +407,28 @@ namespace ODBCWrapper
             return result;
         }
 
+        private void AddParameter(SqlCommand command, string item)
+        {
+            if (m_Parameters[item] is Tuple<bool, object>)
+            {
+                var t = (Tuple<bool, object>)m_Parameters[item];
+                if (t.Item1)
+                {
+                    var _param = new SqlParameter(item, SqlDbType.NVarChar);
+                    _param.Value = t.Item2;
+                    command.Parameters.Add(_param);
+                }
+                else
+                {
+                    command.Parameters.Add(new SqlParameter(item, t.Item2));
+                }
+            }
+            else
+            {
+                command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
+            }
+        }
+
         /// <summary>
         /// Execute stored procedure that return value.
         /// </summary>
@@ -413,7 +447,7 @@ namespace ODBCWrapper
 
             foreach (string item in m_Parameters.Keys)
             {
-                command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
+                AddParameter(command, item);
             }
 
             SqlParameter sqlReturnedValueParam = new SqlParameter();
@@ -474,7 +508,7 @@ namespace ODBCWrapper
 
             foreach (string item in m_Parameters.Keys)
             {
-                command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
+                AddParameter(command, item);
             }
 
             SqlParameter sqlReturnedValueParam = new SqlParameter();
@@ -532,7 +566,7 @@ namespace ODBCWrapper
 
             foreach (string item in m_Parameters.Keys)
             {
-                command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
+                AddParameter(command, item);
             }
 
             string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
@@ -586,7 +620,7 @@ namespace ODBCWrapper
                     if (type.FullName == typeof(System.String).FullName || type.FullName == typeof(System.Boolean).FullName || type.FullName == typeof(System.Int32).FullName
                         || type.FullName == typeof(System.DateTime).FullName)
                     {
-                        command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
+                        AddParameter(command, item);
                     }
                     else
                     {
@@ -666,7 +700,7 @@ namespace ODBCWrapper
 
             foreach (string item in m_Parameters.Keys)
             {
-                command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
+                AddParameter(command, item);
             }
 
             SqlParameter sqlReturnedValueParam = new SqlParameter();
@@ -709,14 +743,14 @@ namespace ODBCWrapper
             return true;
         }
 
-        public void AddOrderKeyValueListParameter<T1,T2>(string sKey, List<KeyValuePair<T1, T2>> oListValue, string colNameKey, string colNameValue)
+        public void AddOrderKeyValueListParameter<T1, T2>(string sKey, List<KeyValuePair<T1, T2>> oListValue, string colNameKey, string colNameValue)
         {
             m_Parameters.Add(sKey, CreateOrderedDataTable<T1, T2>(oListValue, colNameKey, colNameValue));
 
             Utils.CheckDBReadWrite(sKey, oListValue, procedureName, m_bIsWritable, ref Utils.UseWritable);
         }
 
-        private object CreateOrderedDataTable<T1,T2>(List<KeyValuePair<T1, T2>> oListValue, string colNameKey, string colNameValue)
+        private object CreateOrderedDataTable<T1, T2>(List<KeyValuePair<T1, T2>> oListValue, string colNameKey, string colNameValue)
 
         {
             DataTable table = new DataTable();
@@ -745,19 +779,19 @@ namespace ODBCWrapper
 
             return table;
         }
-        
+
         public void AddOrderKeyListParameter<T>(string sKey, ICollection<T> oListValue, string colName)
         {
             m_Parameters.Add(sKey, CreateOrderedKeyDataTable<T>(oListValue, colName));
 
             Utils.CheckDBReadWrite(sKey, oListValue, procedureName, m_bIsWritable, ref Utils.UseWritable);
-        }      
+        }
 
         private object CreateOrderedKeyDataTable<T>(IEnumerable<T> ids, string colName)
 
         {
             DataTable table = new DataTable();
-            table.Columns.Add(colName, typeof(T));            
+            table.Columns.Add(colName, typeof(T));
             table.Columns.Add(new DataColumn()
             {
                 ColumnName = "Ordered",

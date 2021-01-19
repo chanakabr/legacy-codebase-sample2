@@ -5,6 +5,7 @@ using System.Text;
 
 namespace ApiObjects
 {
+    [Serializable]
     public class CRUDOperations<T> where T : IEquatable<T>
     {
         public List<T> ItemsToAdd { get; set; }
@@ -13,7 +14,7 @@ namespace ApiObjects
         public List<T> RemainingItems { get; set; }
 
         /// <summary>
-        /// Use only in special cases to distinguish between items to update that were explicitly requesyed
+        /// Use only in special cases to distinguish between items to update that were explicitly requested
         /// and items that require updates implicitly
         /// </summary>
         public List<T> AffectedItems { get; set; }
@@ -29,7 +30,7 @@ namespace ApiObjects
         }
 
         public void AddRange(CRUDOperations<T> crudsToAdd)
-        {
+        {            
             ItemsToAdd.AddRange(crudsToAdd.ItemsToAdd);
             ItemsToUpdate.AddRange(crudsToAdd.ItemsToUpdate);
             ItemsToDelete.AddRange(crudsToAdd.ItemsToDelete);
@@ -39,7 +40,7 @@ namespace ApiObjects
 
         public override string ToString()
         {
-            return $"ItemsToAdd:[{ItemsToAdd.Count}], ItemsToAdd:[{ItemsToDelete.Count}], ItemsToUpdate:[{ItemsToUpdate.Count}], AffectedItems:[{AffectedItems.Count}]";
+            return $"add:[{ItemsToAdd.Count}], delete:[{ItemsToDelete.Count}], update:[{ItemsToUpdate.Count}], affected:[{AffectedItems.Count}], remaining[{RemainingItems.Count}]";
         }
 
 

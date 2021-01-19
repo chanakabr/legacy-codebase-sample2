@@ -129,8 +129,8 @@ namespace GroupsCacheManager
 
         private void InitializeCachingService(string cacheName, uint expirationInSeconds)
         {
-            this.groupCacheService = new SingleInMemoryCache(expirationInSeconds);
-            this.channelsCache = new SingleInMemoryCache(expirationInSeconds);
+            this.groupCacheService = SingleInMemoryCache.GetInstance(InMemoryCacheType.General, expirationInSeconds);
+            this.channelsCache = SingleInMemoryCache.GetInstance(InMemoryCacheType.General, expirationInSeconds);
         }
 
         #endregion

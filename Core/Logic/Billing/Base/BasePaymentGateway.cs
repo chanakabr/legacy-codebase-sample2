@@ -1,5 +1,7 @@
 ﻿using ApiObjects;
 using ApiObjects.Billing;
+using ApiObjects.ConditionalAccess;
+using ApiObjects.Pricing;
 using ApiObjects.Response;
 using KLogMonitor;
 using QueueWrapper;
@@ -8,11 +10,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using APILogic.ConditionalAccess.Modules;
 using System.Xml;
 using TVinciShared;
-using ApiObjects.ConditionalAccess;
-using ConfigurationManager;
 using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Billing
@@ -219,6 +218,13 @@ namespace Core.Billing
                             return response;
                         }
                     }
+                }
+
+                var status = paymentGateway.ValidateRetries();
+                if(!status.IsOkStatusCode())
+                {
+                    response.Status.Set(status);
+                    return response;
                 }
 
                 bool isSet = DAL.BillingDAL.SetPaymentGateway(groupID, paymentGateway);
@@ -613,8 +619,7 @@ namespace Core.Billing
 
                 if (paymentGateway.RenewalIntervalMinutes < MIN_RENEWAL_INTERVAL_MINUTES)
                 {
-                    response.Status = new Status((int)eResponseStatus.Error,
-                        string.Format("Renewal interval must be larger then {0} minutes", MIN_RENEWAL_INTERVAL_MINUTES));
+                    response.Status = new Status((int)eResponseStatus.Error,$"Renewal interval must be larger than {MIN_RENEWAL_INTERVAL_MINUTES} minutes");
                     return response;
                 }
 
@@ -624,7 +629,20 @@ namespace Core.Billing
                     return response;
                 }
 
-                //check External Identiifer uniqueness 
+                if (string.IsNullOrEmpty(paymentGateway.ExternalIdentifier))
+                {
+                    response.Status = new Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
+                    return response;
+                }
+
+                var status = paymentGateway.ValidateRetries();
+                if(!status.IsOkStatusCode())
+                {
+                    response.Status.Set(status);
+                    return response;
+                }
+
+                //check External Identifier uniqueness 
                 int paymentGWID = DAL.BillingDAL.GetPaymentGWInternalID(groupID, paymentGateway.ExternalIdentifier);
 
                 if (paymentGWID > 0)
@@ -1714,7 +1732,7 @@ namespace Core.Billing
             return ossAdapterResponse;
         }
 
-        public virtual TransactResult ProcessRenewal(RenewDetails renewDetails, string productCode)
+        public virtual TransactResult ProcessRenewal(RenewDetails renewDetails, string productCode, List<KeyValuePair<VerificationPaymentGateway, string>> productCodes)
         {
             TransactResult transactionResponse = new TransactResult();
             PaymentGateway paymentGateway = null;
@@ -1768,6 +1786,18 @@ namespace Core.Billing
                 }
 
                 bool isVerification = IsVerificationPaymentGateway(paymentGateway);
+
+                if (isVerification) //BEO-9071
+                {
+                    var kvp = productCodes.FirstOrDefault(x => x.Key.ToString().ToLower() == paymentGateway.Name.ToLower());
+
+                    if (!kvp.Equals(new KeyValuePair<VerificationPaymentGateway, string>()))
+                    {
+                        productCode = kvp.Value;
+                    }
+
+                    log.Debug($"BEO-9071 Verification adapter {paymentGateway.Name} productCode {productCode}");
+                }
 
                 if (!isVerification && !isOssValid)
                 {
@@ -1854,7 +1884,7 @@ namespace Core.Billing
                 renewDetails.Price,                                                                  // {1}
                 renewDetails.Currency ?? string.Empty,                             // {2}
                 renewDetails.ProductId,                                                              // {3}
-                productCode != null ? productCode : string.Empty,                       // {4}
+                productCode ?? string.Empty,                       // {4}
                 renewDetails.PaymentNumber,                                                          // {5}
                 renewDetails.NumOfPayments,                                                       // {6}
                 renewDetails.UserId ?? string.Empty,                             // {7}
@@ -2118,12 +2148,18 @@ namespace Core.Billing
                                 {
                                     //set return response values
                                     response.State = eTransactionState.Pending;
+                                    DateTime nextRetryDate = DateTime.UtcNow.AddMinutes(paymentGateway.PendingInterval);
+
+                                    if (paymentGateway.IsAsyncPolicy && paymentGateway.PendingInterval == 0)
+                                    {
+                                        nextRetryDate = DateTime.UtcNow.AddMinutes(PaymentGateway.DEFAULT_PENDING_INTERVAL_MINUTES);
+                                    }
 
                                     // set PaymentGWPending for saving
                                     PaymentGatewayPending paymentGWPending = new PaymentGatewayPending()
                                     {
                                         PaymentGatewayTransactionId = paymentGatewayTransactionId,
-                                        NextRetryDate = DateTime.UtcNow.AddMinutes(paymentGateway.PendingInterval),
+                                        NextRetryDate = nextRetryDate,
                                         BillingGuid = billingGuid,
                                         AdapterRetryCount = 0
                                     };
@@ -2143,7 +2179,7 @@ namespace Core.Billing
                                     else
                                     {
                                         // Retry only if gateway has defined pending retires amount
-                                        if (paymentGateway.PendingRetries > 0)
+                                        if (paymentGateway.PendingRetries > 0 || paymentGateway.IsAsyncPolicy )
                                         {
                                             EnqueuPendingRequest(groupID, productId, (int)productType, siteGuid, paymentGWPending);
                                         }
@@ -2289,7 +2325,7 @@ namespace Core.Billing
 
             if (adapterResponse != null && adapterResponse.Transaction != null)
             {
-                bool createTransaction = DAL.BillingDAL.GetPaymentGatewayFailReason(adapterResponse.Transaction.FailReasonCode, out failReasonCodeExist);
+                bool createTransaction = DAL.BillingDAL.GetPaymentGatewayFailReason(adapterResponse.Transaction.FailReasonCode, out failReasonCodeExist, out string failreason);
 
                 if (!failReasonCodeExist)
                 {
@@ -2700,10 +2736,12 @@ namespace Core.Billing
                     return response;
                 }
 
+                string failreason = string.Empty;
+
                 if (transactionStatus == eTransactionState.Failed)
                 {
                     bool failReasonCodeExist = false;
-                    bool createTransaction = DAL.BillingDAL.GetPaymentGatewayFailReason(failReason, out failReasonCodeExist);
+                    bool createTransaction = DAL.BillingDAL.GetPaymentGatewayFailReason(failReason, out failReasonCodeExist, out failreason);
 
                     if (!failReasonCodeExist)
                     {
@@ -2735,12 +2773,14 @@ namespace Core.Billing
                     return response;
                 }
 
+                /*  BEO-8661
                 // validate signature
                 if (!TVinciShared.EncryptUtils.IsSignatureValid(string.Concat(paymentGatewayId, adapterTransactionState, externalTransactionId, externalStatus, externalMessage, failReason), signature, paymentGateway.SharedSecret))
                 {
                     response.Status = new Status((int)eResponseStatus.SignatureDoesNotMatch, SIGNATURE_DOES_NOT_MATCH);
                     return response;
                 }
+                */
 
                 // get relevant transaction data
                 string billingGuid;
@@ -2768,6 +2808,7 @@ namespace Core.Billing
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     response.TransactionState = (eTransactionState)adapterTransactionState;
                     response.DomainId = (long)domainId;
+                    response.IsAsyncPolicy = paymentGateway.IsAsyncPolicy;
                 }
                 // update failed
                 else
@@ -2775,6 +2816,14 @@ namespace Core.Billing
                     response.Status = new Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, ERROR_UPDATING_PENDING_TRANSACTION);
                     log.DebugFormat("Failed to update pending transaction. paymentGatewayId = {0}, adapterTransactionState = {1}, failReason = {2}, externalTransactionId = {3}, externalStatus = {4}, externalMessage = {5}",
                         paymentGatewayId, adapterTransactionState, failReason, externalTransactionId, externalStatus, externalMessage);
+                }
+
+                if (transactionStatus == eTransactionState.Failed)
+                {
+                    if(!DAL.ApiDAL.Update_BillingStatusAndReason_ByBillingGuid(billingGuid, 1, failreason))
+                    { 
+                        //add log
+                    }
                 }
             }
 
@@ -2889,6 +2938,42 @@ namespace Core.Billing
                 paymentGateway = paymentGatewaysList[0];
 
                 #endregion
+
+                if (paymentGateway.IsAsyncPolicy && paymentGateway.PendingRetries == 0)
+                {
+                    if (!DAL.ApiDAL.Update_BillingStatusAndReason_ByBillingGuid(billingGuid, 1, FAIL_REASON_EXCEEDED_RETRY_LIMIT_CODE.ToString()))
+                    {
+                        result = new TransactResult()
+                        {
+                            State = eTransactionState.Failed,
+                            TransactionID = paymentGatewayTransaction.ID,
+                            PaymentDetails = paymentGatewayTransaction.PaymentDetails,
+                            PaymentMethod = paymentGatewayTransaction.PaymentMethod,
+                            Status = new Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, ERROR_UPDATING_PENDING_TRANSACTION)
+                        }                        ;
+                        log.Debug($"Failed to update pending transaction. paymentGateway = {paymentGatewayId}" +
+                            $" adapterTransactionId = {paymentGatewayTransaction.ID}, paymentDetails = {paymentGatewayTransaction.PaymentDetails}, " +
+                            $"Status = {ERROR_UPDATING_PENDING_TRANSACTION}");
+
+                        return result;
+                    }
+
+                    result = new TransactResult()
+                    {
+                        State = eTransactionState.Failed,
+                        TransactionID = paymentGatewayTransaction.ID,
+                        PaymentDetails = paymentGatewayTransaction.PaymentDetails,
+                        PaymentMethod = paymentGatewayTransaction.PaymentMethod,
+                        
+                        Status = new Status()
+                        {
+                            Code = (int)eResponseStatus.OK,
+                            Message = string.Empty
+                        }
+                    };
+
+                    return result;
+                }
 
                 // Create request to adapter and check its status
                 PendingTransactionRequest request = new PendingTransactionRequest()

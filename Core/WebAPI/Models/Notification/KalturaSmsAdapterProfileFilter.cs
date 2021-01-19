@@ -23,7 +23,7 @@ namespace WebAPI.Models.Notification
             return new KalturaSmsAdapterProfile().List(contextData);
         }
 
-        public override void Validate()
+        public override void Validate(ContextData contextData)
         {
         }
     }

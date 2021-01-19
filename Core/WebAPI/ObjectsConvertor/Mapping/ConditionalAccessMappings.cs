@@ -132,6 +132,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsSuspended, opt => opt.MapFrom(src => src.IsSuspended))
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.entitlementId))
                .ForMember(dest => dest.UnifiedPaymentId, opt => opt.MapFrom(src => src.UnifiedPaymentId))
+               .ForMember(dest => dest.PriceDetails, opt => opt.MapFrom(src => src.PriceDetails))
                ;
 
             cfg.CreateMap<SubscriptionPurchase, KalturaSubscriptionEntitlement>()
@@ -147,7 +148,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.endDate)))
               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
               .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
-              .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.productId));
+              .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.productId))
+              .ForMember(dest => dest.IsPending, opt => opt.MapFrom(src => src.IsPending))
+              ;
 
             cfg.CreateMap<CollectionPurchase, KalturaCollectionEntitlement>()
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.collection))
@@ -160,7 +163,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.PurchaseDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)))
               .ForMember(dest => dest.CurrentDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)))
               .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.endDate)))
-              .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumberOfUses));
+              .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxNumberOfUses))
+              ;
 
             cfg.CreateMap<Entitlement, KalturaPpvEntitlement>()
                .ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.entitlementId))
@@ -180,6 +184,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.MaxUses, opt => opt.MapFrom(src => src.maxUses))
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.entitlementId))
+               .ForMember(dest => dest.IsPending, opt => opt.MapFrom(src => src.IsPending))
                ;
             cfg.CreateMap<PpvPurchase, KalturaPpvEntitlement>()
               //.ForMember(dest => dest.EntitlementId, opt => opt.MapFrom(src => src.ppv))
@@ -202,6 +207,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.NextRenewalDate, opt => opt.MapFrom(src => GetNullableInt(0)))
                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.siteGuid))
                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.houseHoldId))
+               .ForMember(dest => dest.IsPending, opt => opt.MapFrom(src => src.IsPending))
                ;
 
             cfg.CreateMap<Entitlement, KalturaCollectionEntitlement>()
@@ -224,6 +230,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.PurchaseId, opt => opt.MapFrom(src => src.purchaseID))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => KalturaTransactionType.collection))
               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.entitlementId))
+              .ForMember(dest => dest.IsPending, opt => opt.MapFrom(src => src.IsPending))
               ;
 
             cfg.CreateMap<PpvPurchase, KalturaEntitlementCancellation>()
@@ -292,6 +299,36 @@ namespace WebAPI.ObjectsConvertor.Mapping
             //.ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.paymentMethod))
             //.ForMember(dest => dest.IsInGracePeriod, opt => opt.MapFrom(src => src.IsInGracePeriod))
             //.ForMember(dest => dest.MediaId, opt => opt.MapFrom(src => src.mediaID));
+
+            cfg.CreateMap<EntitlementPriceDetails, KalturaEntitlementPriceDetails>()
+              .ForMember(dest => dest.FullPrice, opt => opt.MapFrom(src => src.FullPrice))
+              .ForMember(dest => dest.DiscountDetails, opt => opt.MapFrom(src => src.DiscountDetails));
+
+            cfg.CreateMap<EntitlementDiscountDetails, KalturaEntitlementDiscountDetails>()
+              .ForMember(dest => dest.Amount, opt => opt.MapFrom(src => src.Amount))
+              .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
+              .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate));
+
+            cfg.CreateMap<CouponEntitlementDiscountDetails, KalturaCouponEntitlementDiscountDetails>()
+                .IncludeBase<EntitlementDiscountDetails, KalturaEntitlementDiscountDetails>()
+                .ForMember(dest => dest.CouponCode, opt => opt.MapFrom(src => src.EndlessCoupon))
+                .ForMember(dest => dest.CouponCode, opt => opt.MapFrom(src => src.CouponCode));
+
+            cfg.CreateMap<EntitlementDiscountDetailsIdentifier, KalturaEntitlementDiscountDetailsIdentifier>()
+                .IncludeBase<EntitlementDiscountDetails, KalturaEntitlementDiscountDetails>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+
+            cfg.CreateMap<CompensationEntitlementDiscountDetails, KalturaCompensationEntitlementDiscountDetails>()
+                .IncludeBase<EntitlementDiscountDetailsIdentifier, KalturaEntitlementDiscountDetailsIdentifier>();
+
+            cfg.CreateMap<CampaignEntitlementDiscountDetails, KalturaCampaignEntitlementDiscountDetails>()
+                .IncludeBase<EntitlementDiscountDetailsIdentifier, KalturaEntitlementDiscountDetailsIdentifier>();
+
+            cfg.CreateMap<DiscountEntitlementDiscountDetails, KalturaDiscountEntitlementDiscountDetails>()
+                .IncludeBase<EntitlementDiscountDetailsIdentifier, KalturaEntitlementDiscountDetailsIdentifier>();
+
+            cfg.CreateMap<TrailEntitlementDiscountDetails, KalturaTrailEntitlementDiscountDetails>()
+                .IncludeBase<EntitlementDiscountDetailsIdentifier, KalturaEntitlementDiscountDetailsIdentifier>();
 
             #endregion
 
@@ -564,6 +601,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.FullLifeCycle))
             .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
 
+            cfg.CreateMap<BusinessModuleDetails, KalturaBusinessModuleDetails>()
+              .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
+              .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => ConvertKalturaTransactionType(src.BusinessModuleType)))
+              ;
+
+            cfg.CreateMap<KalturaBusinessModuleDetails, BusinessModuleDetails>()
+              .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
+              .ForMember(dest => dest.BusinessModuleType, opt => opt.ResolveUsing(src => ConvertKalturaTransactionType(src.BusinessModuleType)))
+              ;
+
             cfg.CreateMap<MediaFile, KalturaPlaybackSource>()
               .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.MediaId.ToString()))
               .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
@@ -579,6 +626,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.AdsPolicy, opt => opt.ResolveUsing(src => ConvertAdsPolicy(src.AdsPolicy)))
               .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => 0))
               .ForMember(dest => dest.Opl, opt => opt.ResolveUsing(src => src.Opl))
+              .ForMember(dest => dest.BusinessModuleDetails, opt => opt.ResolveUsing(src => src.BusinessModuleDetails))
               ;
 
             cfg.CreateMap<PlaybackContextResponse, KalturaPlaybackContext>()
@@ -646,6 +694,26 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     return eTransactionType.PPV;
                 case KalturaTransactionType.subscription:
                     return eTransactionType.Subscription;
+                default:
+                    break;
+            }
+            throw new NotImplementedException();
+        }
+
+        internal static KalturaTransactionType? ConvertKalturaTransactionType(eTransactionType? businessModuleTypeEqual)
+        {
+            if (!businessModuleTypeEqual.HasValue)
+            {
+                return null;
+            }
+            switch (businessModuleTypeEqual)
+            {
+                case eTransactionType.Collection:
+                    return KalturaTransactionType.collection;
+                case eTransactionType.PPV:
+                    return KalturaTransactionType.ppv;
+                case eTransactionType.Subscription:
+                    return KalturaTransactionType.subscription;
                 default:
                     break;
             }

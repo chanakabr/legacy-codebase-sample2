@@ -166,6 +166,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet)]
         [Throws(eResponseStatus.SubscriptionNotAllowedForUserType)]
         [Throws(eResponseStatus.MissingBasePackage)]
+        [Throws(eResponseStatus.PurchasePendingFailed)]
+        [Throws(eResponseStatus.PendingEntitlement)]
         static public KalturaTransaction Purchase(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();

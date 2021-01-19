@@ -51,6 +51,7 @@ namespace ElasticSearch.Searcher
         public string OrderDirection;
 
         public string Script;
+        public int? Missing;
 
         #endregion
 
@@ -126,6 +127,11 @@ namespace ElasticSearch.Searcher
             if (!string.IsNullOrEmpty(this.Field))
             {
                 sb.AppendFormat("\"field\": \"{0}\",", this.Field);
+            }
+
+            if (this.Missing.HasValue)
+            {
+                sb.AppendFormat("\"missing\": \"{0}\",", this.Missing);
             }
 
             if (!string.IsNullOrEmpty(this.Order))

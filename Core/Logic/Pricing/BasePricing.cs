@@ -130,5 +130,10 @@ namespace Core.Pricing
         {
             throw new NotImplementedException();
         }
+
+        public virtual GenericListResponse<DiscountDetails> GetValidDiscounts()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

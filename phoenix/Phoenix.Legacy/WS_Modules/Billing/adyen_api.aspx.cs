@@ -149,7 +149,7 @@ namespace WS_Billing
 
                 string userId = ApiDAL.GetUserIdByBillingTransactionId(lIDInBillingTransactions, out groupId);
                 Core.Billing.Utils.IsUserExist(userId, groupId, ref userEmail, ref domainId);
-                string invalidationKey = CachingProvider.LayeredCache.LayeredCacheKeys.GetCancelTransactionInvalidationKey(domainId);
+                string invalidationKey = CachingProvider.LayeredCache.LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId);
                 if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key on UpdateDataFromAdyenNotificationInDB key = {0}", invalidationKey);
@@ -1499,7 +1499,7 @@ namespace WS_Billing
                     UpdateAdyenPPVPurchaseID(adyenID, (int)purchaseId);
                 }
 
-                string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(domainId);
+                string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupID, domainId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key on HandleSubscrptionTransaction key = {0}", invalidationKey);
@@ -1641,7 +1641,7 @@ namespace WS_Billing
                                                                              sCustomData, !string.IsNullOrEmpty(srelevantsub) ? srelevantsub : string.Empty, lBillingTransactionID, DateTime.UtcNow, endDate,
                                                                              DateTime.UtcNow, sCountryCode, sLangCode, sDevice, domainId, null);
 
-                string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(domainId);
+                string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupID, domainId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key on HandlePPVTransaction key = {0}", invalidationKey);

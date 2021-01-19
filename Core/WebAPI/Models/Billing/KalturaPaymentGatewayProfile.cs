@@ -128,6 +128,14 @@ namespace WebAPI.Models.Billing
         [XmlElement(ElementName = "externalVerification")]
         public bool ExternalVerification { get; set; }
 
+        /// <summary>
+        /// Payment gateway - Support asynchronous purchase 
+        /// </summary>
+        [DataMember(Name = "isAsyncPolicy")]
+        [JsonProperty("isAsyncPolicy")]
+        [XmlElement(ElementName = "isAsyncPolicy")]
+        public bool IsAsyncPolicy { get; set; }
+        
         internal int getId()
         {
             return Id.HasValue ? (int)Id : 0;

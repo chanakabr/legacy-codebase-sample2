@@ -74,13 +74,13 @@ namespace WebAPI.Managers.Models
             List<long> userSegments = new List<long>();
             if (pl.ContainsKey(PAYLOAD_USER_SEGMENTS))
             {
-                userSegments.AddRange(pl[PAYLOAD_USER_SEGMENTS].GetItemsIn<List<long>, long>());
+                userSegments.AddRange(pl[PAYLOAD_USER_SEGMENTS].GetItemsIn<long>(out _));
             }
 
             List<long> userRoles = new List<long>();
             if (pl.ContainsKey(PAYLOAD_USER_ROLES))
             {
-                userRoles.AddRange(pl[PAYLOAD_USER_ROLES].GetItemsIn<List<long>, long>());
+                userRoles.AddRange(pl[PAYLOAD_USER_ROLES].GetItemsIn<long>(out _));
             }
 
             var signature = string.Empty;

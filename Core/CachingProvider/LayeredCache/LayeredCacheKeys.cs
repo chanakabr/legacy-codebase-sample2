@@ -54,7 +54,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("ip_{0}", ip);
         }
-        
+
         public static string GetKeyForCountryName(string countryName)
         {
             return string.Format("countryName_{0}", countryName);
@@ -77,7 +77,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDomainBundlesKey(int groupId, int domainId)
         {
-            return string.Format("domainBundlesV2_groupId_{0}_domainId_{1}", groupId, domainId);
+            return string.Format("domainBundlesV3_groupId_{0}_domainId_{1}", groupId, domainId);
         }
 
         public static string GetGroupLanguagesCacheKey(int groupId)
@@ -346,8 +346,6 @@ namespace CachingProvider.LayeredCache
             return string.Format("Asset_V1_type_{0}_id_{1}_lang_{2}", assetType, id, languageId);
         }
 
-        
-
         public static string GetGroupImageTypesKey(int groupId)
         {
             return string.Format("GroupImageTypes_groupId_{0}", groupId);
@@ -452,7 +450,7 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("TstvAccountSettingsExists_groupId_{0}", groupId);
         }
-        
+
         public static string GetDeviceRulesByBrandIdKey(int groupId, int brandId)
         {
             return string.Format("deviceRules_groupId_{0}_brandId_{1}", groupId, brandId);
@@ -540,7 +538,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDomainKey(int domainId)
         {
-            return string.Format("domain_V2_{0}", domainId);
+            return string.Format("domain_V3_{0}", domainId);
         }
 
         public static string GetDlmKey(int dlmId)
@@ -581,6 +579,11 @@ namespace CachingProvider.LayeredCache
         public static string GetSSOAdapaterByGroupKey(int groupId)
         {
             return string.Format("sso_adapter_by_group_{0}", groupId);
+        }
+
+        public static string GetDeviceReferenceDataByGroupKey(int groupId)
+        {
+            return string.Format("device_reference_data_by_group_V1_{0}", groupId);
         }
 
         public static string GetSmsAdapaterByGroupKey(int groupId)
@@ -631,8 +634,8 @@ namespace CachingProvider.LayeredCache
         public static string GetDomainRecordingsKey(long domainId)
         {
             return string.Format("DomainRecordings_domainId_{0}", domainId);
-		}
-		
+        }
+
         public static string GetMediaStatsKey(int assetId)
         {
             return string.Format("MediaStats_{0}", assetId);
@@ -693,6 +696,10 @@ namespace CachingProvider.LayeredCache
             return string.Format("commerce_partner_config_{0}", groupId);
         }
 
+        public static string GetSecurityPartnerConfigKey(int groupId)
+        {
+            return $"security_partner_config_{groupId}";
+        }
         public static string GetGroupCategoriesKey(int groupId)
         {
             return $"groupCategoriesKey_groupId_{groupId}";
@@ -718,53 +725,76 @@ namespace CachingProvider.LayeredCache
             return string.Format("catalog_partner_config_{0}", groupId);
         }
 
+        public static string GetGroupCampaignKey(int groupId, int campaignType)
+        {
+            return $"group_campaign_{groupId}_type_{campaignType}";
+        }
+
+        public static string GetCampaignKey(int groupId, long campaignId)
+        {
+            return $"group_campaign_{groupId}_id_{campaignId}";
+        }
+
+        public static string GetDynamicListKey(int groupId, long id)
+        {
+            return $"group_DynamicList_{groupId}_id_{id}";
+        }
+
+        public static string GetDynamicListGroupMappingKey(int groupId, int type)
+        {
+            return $"group_DynamicList_Mapping_{groupId}_type_{type}";
+        }
+
+        public static Dictionary<string, string> GetExternalChannelsKeysMap(int groupId, List<int> channelIds)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            if (channelIds != null && channelIds.Count > 0)
+            {
+                channelIds = channelIds.Distinct().ToList();
+                foreach (int id in channelIds)
+                {
+                    result.Add(GetExternalChannelKey(groupId, id), id.ToString());
+                }
+            }
+
+            return result;
+        }
+
+        public static string GetExternalChannelKey(int groupId, int channelId)
+        {
+            return $"ExternalChannel_groupId_{groupId}_Id_{channelId}";
+        }
+
+
+        public static string GetKsValidationResultKey(string ks)
+        {
+            return $"ks_validation_result{ks}";
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
 
-        public static string GetUserRolesInvalidationKey(string userId)
+        public static string GetDomainEntitlementInvalidationKey(int groupId, long domainId)
         {
-            return string.Format("add_role_userId_{0}", userId);
+            return string.Format("invalidationKey_domainEntitlements_groupId_{0}_domainId_{1}", groupId, domainId);
         }
 
-        public static string GetCancelSubscriptionInvalidationKey(long domainId)
+        public static string GetUserRolesInvalidationKey(int partnerId, string userId)
         {
-            return string.Format("cancel_subscription_domainId_{0}", domainId);
+            return string.Format($"{partnerId}_InvalidateUserRoles_{userId}");
         }
 
-        public static string GetCancelSubscriptionRenewalInvalidationKey(long domainId)
+        // This key was added to user Get \ initilize method because when its connected to authentication miscroservice
+        // it will be invalidated when microservice invalidates the user login history recotd
+        public static string GetUserLoginHistoryInvalidationKey(int partnerId, int userId)
         {
-            return string.Format("cancel_subscription_renewal_domainId_{0}", domainId);
+            return $"{partnerId}_InvalidateUserLoginHistory_{userId}";
         }
 
-        public static string GetSubscriptionSuspendInvalidationKey(long domainId)
+        public static string GetSubscriptionSuspendInvalidationKey(int groupId, long domainId)
         {
-            return string.Format("subscription_suspend_domainId_{0}", domainId);
-        }
-
-        public static string GetCancelTransactionInvalidationKey(long domainId)
-        {
-            return string.Format("cancel_transaction_domainId_{0}", domainId);
-        }
-
-        public static string GetPurchaseInvalidationKey(long domainId)
-        {
-            return string.Format("purchase_domainId_{0}", domainId);
-        }
-
-        public static string GetGrantEntitlementInvalidationKey(long domainId)
-        {
-            return string.Format("grant_domainId_{0}", domainId);
-        }
-
-        public static string GetCancelServiceNowInvalidationKey(int domainId)
-        {
-            return string.Format("cancel_now_domainId_{0}", domainId);
-        }
-
-        public static string GetRenewInvalidationKey(long domainId)
-        {
-            return string.Format("renew_domainId_{0}", domainId);
+            return string.Format("subscription_suspend_groupId_{0}_domainId_{1}", groupId, domainId);
         }
 
         public static string GetRemindersInvalidationKey(int groupId, long reminderId)
@@ -874,7 +904,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetPriceCodeInvalidationKey(int groupId, int id)
         {
-            return string.Format("invalidationKeyPriceCode_id_{0}_groupId_{1}", id, groupId);
+            return string.Format("invalidationKeyPriceCode_groupId_{0}_id_{1}", groupId, id);
         }
 
         public static string GetGroupUnifiedBillingCycleInvalidationKey(int groupId)
@@ -882,9 +912,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeyUnifiedBillingCycle_groupId_{0}", groupId);
         }
 
-        public static string GetHouseholdUnifiedBillingCycleInvalidationKey(int domainID, long renewLifeCycle)
+        public static string GetHouseholdUnifiedBillingCycleInvalidationKey(int groupId, int domainID, long renewLifeCycle)
         {
-            return string.Format("invalidationKeyUnifiedBillingCycle_domainId_{0}_renewLifeCycle", domainID, renewLifeCycle);
+            return string.Format("invalidationKeyUBCycle_groupId_{0}_domainId_{1}_RLCycle_{2}", groupId, domainID, renewLifeCycle);
         }
 
         public static string GetCatalogGroupCacheInvalidationKey(int groupId)
@@ -902,14 +932,14 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeyGroupGeoBlockRules_groupId_{0}", groupId);
         }
 
-        public static string GetAssetInvalidationKey(string assetType, long id)
+        public static string GetAssetInvalidationKey(int groupId, string assetType, long id)
         {
-            return string.Format("invalidationKey_Asset_type_{0}_id_{1}", assetType, id);
+            return string.Format("invalidationKey_groupId_{0}_AssetType_{1}_id_{2}", groupId, assetType, id);
         }
 
         public static string GetMediaConcurrencyRulesDeviceLimitationModuleInvalidationKey(int groupId, int dlmId)
         {
-            return string.Format("invalidationKey_mediaConcurrencyRules_by_domainLimitationModule_{0}", dlmId);
+            return string.Format("invalidationKey_groupId_{0}_MCRules_by_DLimitationModule_{1}", groupId, dlmId);
         }
 
         public static string GetGroupImageTypesInvalidationKey(int groupId)
@@ -967,7 +997,7 @@ namespace CachingProvider.LayeredCache
             return $"InvalidationKey_smsAdapter_groupId_{groupId}";
         }
 
-        public static Dictionary<string, List<string>> GetAssetsInvalidationKeysMap(string assetType, List<long> ids)
+        public static Dictionary<string, List<string>> GetAssetsInvalidationKeysMap(int groupId, string assetType, List<long> ids)
         {
             Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
             if (ids != null && ids.Count > 0)
@@ -975,7 +1005,7 @@ namespace CachingProvider.LayeredCache
                 ids = ids.Distinct().ToList();
                 foreach (long id in ids)
                 {
-                    result.Add(GetAssetKey(assetType, id), new List<string>() { GetAssetInvalidationKey(assetType, id) });
+                    result.Add(GetAssetKey(assetType, id), new List<string>() { GetAssetInvalidationKey(groupId, assetType, id) });
                 }
             }
 
@@ -1005,26 +1035,26 @@ namespace CachingProvider.LayeredCache
                 ids = ids.Distinct().ToList();
                 foreach (long id in ids)
                 {
-                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetEpgInvalidationKey(groupId, id) });                    
+                    result.Add(GetAssetWithLanguageKey(assetType, id.ToString(), languageId), new List<string>() { GetEpgInvalidationKey(groupId, id) });
                 }
             }
 
             return result;
-        }        
+        }
 
-        public static string GetUserParentalRuleInvalidationKey(string siteGuid)
+        public static string GetUserParentalRuleInvalidationKey(int groupId, string siteGuid)
         {
-            return string.Format("user_parental_rules_{0}", siteGuid);
+            return string.Format("invalidationKey_groupId_{0}_UParentalRules_{1}", groupId, siteGuid);
         }
 
         public static string GetCouponsGroupInvalidationKey(int groupId, long couponsGroup)
         {
-            return string.Format("invalidationKey_coupons_group_{0}_groupId_{1}", couponsGroup, groupId);
+            return string.Format("invalidationKey_groupId_{0}_couponsGroupId_{1}", groupId, couponsGroup);
         }
 
         public static string GetCouponsGroupsInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_coupons_groups_groupId_{0}", groupId);
+            return string.Format("invalidationKeyCouponGroups_groupId_{0}", groupId);
         }
 
         public static string GetAllAssetRulesInvalidationKey()
@@ -1037,9 +1067,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_all_asset_rules_groupId_{0}", groupId);
         }
 
-        public static string GetAssetRuleInvalidationKey(long ruleId)
+        public static string GetAssetRuleInvalidationKey(int groupId, long ruleId)
         {
-            return string.Format("invalidationKey_asset_rule_{0}", ruleId);
+            return string.Format("invalidationKey_groupId_{0}_AssetRuleId_{1}", groupId, ruleId);
         }
 
         public static string GetAssetUserRuleIdsGroupInvalidationKey(int groupId)
@@ -1047,14 +1077,14 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_asset_user_rule_ids_groupId_{0}", groupId);
         }
 
-        public static string GetAssetUserRuleInvalidationKey(long ruleId)
+        public static string GetAssetUserRuleInvalidationKey(int groupId, long ruleId)
         {
-            return string.Format("invalidationKey_asset_user_rule_{0}", ruleId);
+            return string.Format("invalidationKey_groupId_{0}_assetUserRuleId_{1}", groupId, ruleId);
         }
 
-        public static string GetUserToAssetUserRuleIdsInvalidationKey(long userId)
+        public static string GetUserToAssetUserRuleIdsInvalidationKey(int groupId, long userId)
         {
-            return string.Format("invalidationKey_user_asset_user_rule_ids_userId_{0}", userId);
+            return string.Format("invalidationKey_groupId_{0}_UserToUserAssetRuleIds_{1}", groupId, userId);
         }
 
         public static string GetGroupDiscountsInvalidationKey(int groupId)
@@ -1097,9 +1127,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("InvalidationKey_groupParentalRules_groupId_{0}", groupId);
         }
 
-        public static string GetDlmInvalidationKey(int dlmId)
+        public static string GetDlmInvalidationKey(int groupId, int dlmId)
         {
-            return string.Format("invalidationKey_dlm_{0}", dlmId);
+            return string.Format("invalidationKey_groupId_{0}_dlmId_{1}", groupId, dlmId);
         }
 
         public static string GetGroupFeatureInvalidationKey(int groupId)
@@ -1112,19 +1142,19 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKey_all_business_module_rules_groupId_{0}", groupId);
         }
 
-        public static string GetBusinessModuleRuleInvalidationKey(long ruleId)
+        public static string GetBusinessModuleRuleInvalidationKey(int groupId, long ruleId)
         {
-            return string.Format("invalidationKey_business_module_rule_{0}", ruleId);
+            return string.Format("invalidationKey_groupId_{0}_business_module_rule_{1}", groupId, ruleId);
         }
 
-        public static string GetSSOAdapaterInvalidationKey(int groupId)
+        public static string GetSSOAdapaterInvalidationKey(int partnerId)
         {
-            return string.Format("invalidationKey_sso_adapater_{0}", groupId);
+            return $"{partnerId}_InvalidatePartnerSSOAdapterProfiles";
         }
 
-        public static string GetSSOAdapaterImplementationsInvalidationKey(int adapaterId)
+        public static string GetDeviceReferenceDataInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_sso_adapater_implementations_{0}", adapaterId);
+            return string.Format("invalidationKey_device_reference_data_{0}", groupId);
         }
 
         public static string GroupManagerGetGroupInvalidationKey(int groupId)
@@ -1164,7 +1194,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetMediaFileTypeByIdInvalidationKey(int groupId, int fileId)
         {
-            return string.Format("invalidationKey_MediaFileTypeID_{0}_group_{1}", fileId, groupId);
+            return string.Format("invalidationKey_groupId_{0}_MediaFileTypeID_{1}", groupId, fileId);
         }
 
         public static string GetAllEpgPicturesKey(int groupId)
@@ -1172,9 +1202,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("all_epg_pictures_groupId_{0}", groupId);
         }
 
-        public static string GetDomainRecordingsInvalidationKeys(long domainId)
+        public static string GetDomainRecordingsInvalidationKeys(int groupId, long domainId)
         {
-            return string.Format("invalidationKey_{0}", GetDomainRecordingsKey(domainId));
+            return string.Format("invalidationKeyDomainRecordings_groupId_{0}_DomainId_{1}", groupId, domainId);
         }
 
         public static string GetBulkUploadsKey(int groupId, string bulkObjectType, int status)
@@ -1209,93 +1239,125 @@ namespace CachingProvider.LayeredCache
 
         public static string GetUserRolesToPasswordPolicyInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_{0}", GetUserRolesToPasswordPolicyKey(groupId));
+            return string.Format("invalidationKeyUserRolesToPassPolicy_groupId_{0}", groupId);
         }
 
-        public static string GetPasswordPolicyInvalidationKey(long roleId)
+        public static string GetPasswordPolicyInvalidationKey(int groupId, long roleId)
         {
-            return string.Format("invalidationKey_{0}", GetPasswordPolicyKey(roleId));
+            return string.Format("invalidationKeyPassPolicy_groupId_{0}_roleId_{1}", groupId, roleId);
         }
 
         public static string GetGeneralPartnerConfigInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_general_partner_config_{0}", groupId);
+            return string.Format("invalidationKeyGeneralPartnerConfig_groupdId_{0}", groupId);
         }
 
         public static string GetObjectVirtualAssetPartnerConfigInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_object_virtual_asset_partner_config_{0}", groupId);
+            return string.Format("invalidationKeyObjectVirtualAssetPartnerConfig_groupId_{0}", groupId);
         }
 
         public static string GetGroupSegmentationTypesInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_group_segmentation_types_{0}", groupId);
+            return string.Format("invalidationKeyGroupSegmentationTypes_groupId_{0}", groupId);
         }
 
 
         // todo: arthur map to kafka ...
         public static string GetSegmentationTypeInvalidationKey(int groupId, long segmentationTypeId)
         {
-            return string.Format("invalidationKey_segmentation_type_{0}_{1}", groupId, segmentationTypeId);
+            return string.Format("invalidationKeySegmentationType_groupdId_{0}_segId_{1}", groupId, segmentationTypeId);
         }
+
+        public static string GetValidateKsInvalidationKey(string ks,int groupId)
+        {            
+            return $"{groupId}_InvalidateKSRevocationStatus_{ks}";
+        }
+
 
         public static string GetGroupSegmentationTypeIdsOfActionInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_group_segmentation_type_of_action_{0}", groupId);
+            return string.Format("invalidationKeyGroupSegmentationTypeOfAction_groupId_{0}", groupId);
         }
 
         public static string GetCommercePartnerConfigInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_{0}", GetCommercePartnerConfigKey(groupId));
+            return string.Format("invalidationKeyCommercePartnerConfig_groupId_{0}", groupId);
+        }
+
+        public static string GetSecurityPartnerConfigInvalidationKey(int groupId)
+        {
+            return $"{groupId}_InvalidatePartnerSecurityConfiguration";
         }
 
         public static string GetPlaybackPartnerConfigInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_{0}", GetPlaybackPartnerConfigKey(groupId));
+            return string.Format("invalidationKeyPlaybackPartnerConfig_groupId_{0}", groupId);
         }
 
         public static string GetPaymentPartnerConfigInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_{0}", GetPaymentPartnerConfigKey(groupId));
+            return string.Format("invalidationKeyPaymentPartnerConfig_groupId_{0}", groupId);
         }
 
-        public static string GetDomainDeviceInvalidationKey(int domainId, string deviceId)
+        public static string GetDomainDeviceInvalidationKey(int groupId, int domainId, string deviceId)
         {
-            return $"invalidationKey_domain_{domainId}_device_{deviceId}";
+            return $"{groupId}_InvalidateHouseholdDevice_{domainId}_{deviceId}";
         }
 
         public static string GetCatalogPartnerConfigInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_{0}", GetCatalogPartnerConfigKey(groupId));
+            return string.Format("invalidationKeyCatalogPartnerConfig_groupId_{0}", groupId);
         }
 
-        #endregion
-
-        #region Domains
-
-        public static string GetHouseholdInvalidationKey(long householdId)
+        public static string GetGroupIotClientConfigInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_domain_{0}", householdId);
+            return string.Format("invalidationKeyGroupIotClientConfig_groupId_{0}", groupId);
         }
 
-        public static string GetHouseholdUserInalidationKey(long householId, string siteGuid)
+        public static string GetGroupCampaignInvalidationKey(int groupId, int type)
         {
-            return string.Format("invalidationKey_domain_{0}_user_{1}", householId, siteGuid);
+            return $"invalidationKeyGroupCampaign_groupId_{groupId}_type_{type}";
         }
 
-        public static string GetRoleIdInvalidationKey(int roleId)
+        public static string GetCampaignInvalidationKey(int groupId, long campaignId)
         {
-            return string.Format("invalidationKey_roleId_{0}", roleId);
+            return $"invalidationKeyGroupCampaign_groupId_{groupId}_id_{campaignId}";
         }
 
-        public static string GetPermissionsRolesIdsInvalidationKey(int groupId)
+        public static string GetDynamicListInvalidationKey(int groupId, long id)
         {
-            return string.Format("invalidationKey_permissionRoleIds_groupId_{0}", groupId);
+            return $"invalidationKeyGroupDynamicList_groupId_{groupId}_id_{id}";
+        }
+
+        public static string GetDynamicListGroupMappingInvalidationKey(int groupId, int type)
+        {
+            return $"invalidationKeygroupDynamicListMapping_groupId_{groupId}_type_{type}";
+        }
+
+        public static string GetHouseholdInvalidationKey(int groupId, long householdId)
+        {
+            return string.Format("invalidationKeyDomain_groupId_{0}_domainId_{1}", groupId, householdId);
+        }
+
+        public static string GetHouseholdUserInalidationKey(int groupId, long householId, string siteGuid)
+        {
+            return string.Format("invalidationKeyDomainUser_groupId_{0}_domainId_{1}_userId_{2}",groupId, householId, siteGuid);
+        }
+
+        public static string GetRoleIdInvalidationKey(int groupId, int roleId)
+        {
+            return string.Format("invalidationKeyRole_groupId_{0}_roleId_{1}", groupId, roleId);
+        }
+
+        public static string GetPermissionsRolesIdsInvalidationKey(int partnerId)
+        {
+            return string.Format($"{partnerId}_InvalidatePartnerRoles");
         }
 
         public static string GetGroupPermissionItemsDictionaryInvalidationKey(int groupId)
         {
-            return string.Format("invalidationKey_groupPermissionItemsDictionaryKey_groupId_{0}", groupId);
+            return string.Format("invalidationKeyGroupPermissionItemsDictionaryKey_groupId_{0}", groupId);
         }
 
         public static string GetAssetStatsSortInvalidationKey()
@@ -1305,100 +1367,32 @@ namespace CachingProvider.LayeredCache
 
         public static string GetGroupCategoriesInvalidationKey(int groupId)
         {
-            return $"invalidationKey_groupCategoriesKey_groupId_{groupId}";
-        }      
-
-        public static string GetCategoryIdInvalidationKey(long categoryId)
-        {
-            return $"invalidationKey_categoryId_{categoryId}";
+            return $"invalidationKeyGroupCategories_groupId_{groupId}";
         }
 
-        #endregion
-
-        #region Users
-
-        public static string GetUserInvalidationKey(string siteGuid)
+        public static string GetCategoryIdInvalidationKey(int groupId, long categoryId)
         {
-            return string.Format("invalidationKey_user_{0}", siteGuid);
+            return $"invalidationKeyCategory_groupId_{groupId}_Id_{categoryId}";
         }
 
-        public static string GetUserWatchedMediaIdsInvalidationKey(int userId)
+        public static string GetUserInvalidationKey(int partnerId, string userId)
         {
-            return string.Format("invalidationkey_userWatchedMediaIds_user_{0}", userId);
+            return string.Format($"{partnerId}_InvalidateOTTUser_{userId}");
         }
 
-        public static string GetMediaCountriesInvalidationKey(long mediaId)
+        public static string GetUserWatchedMediaIdsInvalidationKey(int groupId, int userId)
         {
-            return string.Format("invalidationkey_mediaCountries_{0}", mediaId);
+            return string.Format("invalidationkeyUserWatchedMediaIds_groupId_{0}_userId_{1}", groupId, userId);
         }
 
-        #endregion
-
-        #region Invalidation keys functions
-
-        public static List<string> GetDomainEntitlementInvalidationKeys(int domainId)
+        public static string GetMediaCountriesInvalidationKey(int groupId, long mediaId)
         {
-            return new List<string>()
-            {
-                GetCancelSubscriptionInvalidationKey(domainId),
-                GetCancelTransactionInvalidationKey(domainId),
-                GetPurchaseInvalidationKey(domainId),
-                GetGrantEntitlementInvalidationKey(domainId),
-                GetCancelServiceNowInvalidationKey(domainId),
-                GetRenewInvalidationKey(domainId),
-                GetCancelSubscriptionRenewalInvalidationKey(domainId)
-            };
+            return string.Format("invalidationkeyMediaCountries_groupId_{0}_mediaId_{1}", groupId, mediaId);
         }
 
-        public static List<string> GetDomainBundlesInvalidationKeys(int domainId)
+        public static string GetExternalChannelInvalidationKey(int groupId, int channelId)
         {
-            List<string> invalidationKeys = new List<string>();
-            invalidationKeys.Add(GetSubscriptionSuspendInvalidationKey(domainId));
-            invalidationKeys.AddRange(GetDomainEntitlementInvalidationKeys(domainId));
-
-            return invalidationKeys;
-        }
-
-        // call this when changes on asset may affect your cache
-        public static List<string> GetAssetMultipleInvalidationKeys(int groupId, string assetType, long id)
-        {
-            return new List<string>()
-            {
-                GetAssetInvalidationKey(assetType, id),
-                GetMediaInvalidationKey(groupId, id)
-            };
-        }
-
-        public static string GetGroupIotClientConfigInvalidationKey(int groupId)
-        {
-            return string.Format("invalidationKey_groupIotClientConfig_groupId_{0}", groupId);
-        }
-
-        #endregion
-
-        public static string GetAllLanguageListKey()
-        {
-            return "allLanguageList";
-        }
-
-        public static Dictionary<string, string> GetExternalChannelsKeysMap(int groupId, List<int> channelIds)
-        {
-            Dictionary<string, string> result = new Dictionary<string, string>();
-            if (channelIds != null && channelIds.Count > 0)
-            {
-                channelIds = channelIds.Distinct().ToList();
-                foreach (int id in channelIds)
-                {
-                    result.Add(GetExternalChannelKey(groupId, id), id.ToString());
-                }
-            }
-
-            return result;
-        }
-
-        public static string GetExternalChannelKey(int groupId, int channelId)
-        {
-            return $"ExternalChannel_groupId_{groupId}_Id_{channelId}";
+            return $"invalidationKeyExternalChannel_groupId_{groupId}_Id_{channelId}";
         }
 
         public static Dictionary<string, List<string>> GetExternalChannelsInvalidationKeysMap(int groupId, List<int> channelIds)
@@ -1416,9 +1410,31 @@ namespace CachingProvider.LayeredCache
             return result;
         }
 
-        public static string GetExternalChannelInvalidationKey(int groupId, int channelId)
+        #endregion
+
+        #region Invalidation keys functions
+
+        public static List<string> GetDomainBundlesInvalidationKeys(int groupId, int domainId)
         {
-            return $"invalidationKey_ExternalChannel_groupId_{groupId}_Id_{channelId}";
+            return new List<string>() { GetSubscriptionSuspendInvalidationKey(groupId, domainId), GetDomainEntitlementInvalidationKey(groupId, domainId) };
         }
+
+        // call this when changes on asset may affect your cache
+        public static List<string> GetAssetMultipleInvalidationKeys(int groupId, string assetType, long id)
+        {
+            return new List<string>()
+            {
+                GetAssetInvalidationKey(groupId, assetType, id),
+                GetMediaInvalidationKey(groupId, id)
+            };
+        }
+
+        #endregion
+
+        public static string GetAllLanguageListKey()
+        {
+            return "allLanguageList";
+        }
+
     }
 }

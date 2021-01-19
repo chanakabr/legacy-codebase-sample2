@@ -17,6 +17,7 @@ namespace DAL
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
         private static readonly uint CACHED_ENTITLEMENT_RESULTS_TTL_SEC = (uint)ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.CacheTimeInSeconds.Value;
+        private const string CA_CONNECTION_STRING = "CA_CONNECTION_STRING";
 
         public static DataTable Get_MediaFileByProductCode(int nGroupID, string sProductCode)
         {
@@ -65,7 +66,7 @@ namespace DAL
             }
 
             return sCoGuid;
-        }
+        }       
 
         public static bool InsertPPVPurchase(int nGroupID, string sSubCode, int nMediaFileID, string sSiteGUID, double dPrice, string sCurrency, int nNumOfUses, string sCustomData, int transactionID,
                                              string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, int maxNumOfUses, int nIsActive, int nStatus, DateTime? dtEndDate, int domainId)
@@ -565,7 +566,8 @@ namespace DAL
         }
 
         public static bool Get_AllUsersPurchases(List<int> p_lstUserIDs, List<int> p_lstFileIds, int p_nFileID, string p_sPPVCode, ref int p_nPPVID, ref string p_sSubCode,
-            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate, ref DateTime? p_dtEndDate, int domainID = 0)
+            ref string p_sPPCode, ref int p_nWaiver, ref DateTime p_dCreateDate, ref string p_sPurchasedBySiteGuid, ref int p_nPurchasedAsMediaFileID, ref DateTime? p_dtStartDate,
+            ref DateTime? p_dtEndDate, ref bool isPending, int domainID = 0)
         {
             bool res = false;
             ODBCWrapper.StoredProcedure spGet_AllUsersPurchases = new ODBCWrapper.StoredProcedure("Get_AllUsersPurchases");
@@ -602,6 +604,7 @@ namespace DAL
                             p_dCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
                             p_dtStartDate = ODBCWrapper.Utils.ExtractNullableDateTime(dr, "START_DATE");
                             p_dtEndDate = ODBCWrapper.Utils.ExtractNullableDateTime(dr, "END_DATE");
+                            isPending = ODBCWrapper.Utils.GetIntSafeVal(dr["is_pending"]) == 1;
                         }
                     }
                 }
@@ -735,7 +738,7 @@ namespace DAL
         }
 
         public static long Insert_NewPPVPurchase(long groupID, long contentID, string siteGuid, double price, string currency, long maxNumOfUses, string customData, string subscriptionCode,
-            long billingTransactionID, DateTime startDate, DateTime endDate, DateTime createAndUpdateDate, string country, string language, string deviceName, long householdID, string billingGuid = null)
+            long billingTransactionID, DateTime startDate, DateTime endDate, DateTime createAndUpdateDate, string country, string language, string deviceName, long householdID, string billingGuid = null, bool isPending = false)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewPPVPurchase");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
@@ -773,6 +776,8 @@ namespace DAL
             {
                 sp.AddParameter("@SubscriptionCode", subscriptionCode);
             }
+            sp.AddParameter("@isPending", isPending ? 1 : 0);
+
 
             return sp.ExecuteReturnValue<long>();
         }
@@ -781,7 +786,7 @@ namespace DAL
             double dPrice, string sCurrencyCode, string sCustomData, string sCountryCode, string sLanguageCode,
             string sDeviceName, long lMaxNumOfUses, long lViewLifeCycleSecs, bool bIsRecurringStatus,
             long lBillingTransactionID, long lPreviewModuleID, DateTime dtSubscriptionStartDate, DateTime dtSubscriptionEndDate,
-            DateTime dtCreateAndUpdateDate, string sConnKey, int domainID, long processId = 0)
+            DateTime dtCreateAndUpdateDate, string sConnKey, int domainID, long processId = 0, bool isPending = false)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
@@ -819,6 +824,8 @@ namespace DAL
             {
                 sp.AddParameter("@unifiedProcessId", processId);
             }
+            sp.AddParameter("@isPending", isPending ? 1 : 0);
+
             return sp.ExecuteReturnValue<long>();
 
         }
@@ -1009,7 +1016,7 @@ namespace DAL
             double dPrice, string sCurrencyCode, string sCustomData, string sCountryCode, string sLanguageCode,
             string sDeviceName, long lMaxNumOfUses, long lViewLifeCycleSecs,
             long lBillingTransactionID, DateTime startDate, DateTime endDate,
-            DateTime dtCreateAndUpdateDate, string sConnKey, long domainID)
+            DateTime dtCreateAndUpdateDate, string sConnKey, long domainID, bool isPending = false)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewColPurchase");
             sp.SetConnectionKey(!string.IsNullOrEmpty(sConnKey) ? sConnKey : "CA_CONNECTION_STRING");
@@ -1037,6 +1044,7 @@ namespace DAL
             sp.AddParameter("@DeviceName", sDeviceName);
             sp.AddParameter("@FailCount", 0);
             sp.AddParameter("@domainID", domainID);
+            sp.AddParameter("@isPending", isPending ? 1 : 0);
 
             return sp.ExecuteReturnValue<long>();
 
@@ -1064,7 +1072,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static bool CancelSubscriptionPurchaseTransaction(string sSiteGuid, object assetID, int domainID = 0, int subscriptionPurchaseStatus = 2)
+        public static bool CancelSubscriptionPurchaseTransaction(string sSiteGuid, object assetID, int domainID = 0, int subscriptionPurchaseStatus = 2, long subscriptionPurchaseId = 0)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("CancelSubscriptionPurchaseTransaction");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
@@ -1072,7 +1080,8 @@ namespace DAL
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", assetID);
             sp.AddParameter("@DomainID", domainID);
-            sp.AddParameter("@SubscriptionPurchaseStatus", subscriptionPurchaseStatus);
+            sp.AddParameter("@SubscriptionPurchaseStatus", subscriptionPurchaseStatus);            
+            sp.AddParameter("@id", subscriptionPurchaseId);
 
             return sp.ExecuteReturnValue<bool>();
         }
@@ -1391,7 +1400,7 @@ namespace DAL
             return null;
         }
 
-        public static bool UpdateUnifiedProcess(long processId, DateTime? endDate, int? processUnifiedState, long? cycle)
+        public static bool UpdateUnifiedProcess(long processId, DateTime? endDate, int? processUnifiedState, long? cycle, bool remove = false)
         {
             try
             {
@@ -1413,6 +1422,11 @@ namespace DAL
                     sp.AddParameter("@Cycle", cycle.Value);
                 }
 
+                if (remove)
+                {
+                    sp.AddParameter("@Status", 2);
+                }
+
                 return sp.ExecuteReturnValue<bool>();
             }
             catch
@@ -1421,7 +1435,7 @@ namespace DAL
             }
         }
 
-        public static DataTable Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(int nSubscriptionCode, List<int> UserIDs, int nGroupID, int domainID = 0)
+        public static DataTable Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(int nSubscriptionCode, List<int> UserIDs, int nGroupID, int domainID = 0, bool includeSuspended = false)
         {
             if (UserIDs == null)
             {
@@ -1433,7 +1447,7 @@ namespace DAL
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddIDListParameter<int>("@UserIDs", UserIDs, "Id");
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@groupID", nGroupID);
             spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@DomainID", domainID);
-
+            spGet_AllPPVPurchasesByUserIDsAndMediaFileID.AddParameter("@includeSuspended", includeSuspended);
 
             DataSet ds = spGet_AllPPVPurchasesByUserIDsAndMediaFileID.ExecuteDataSet();
 
@@ -1580,7 +1594,7 @@ namespace DAL
                 }
                 return null;
             }
-            catch 
+            catch
             {
                 return null;
             }
@@ -1994,7 +2008,7 @@ namespace DAL
         public static long Insert_NewMPPPurchase(int groupID, string subscriptionCode, string siteGUID, double price, string currency, string customData,
             string country, string deviceName, int maxNumOfUses, int viewLifeCycle,
             bool isRecurring, long billingTransactionID, long previewModuleID, DateTime subscriptionStartDate, DateTime subscriptionEndDate,
-            DateTime createAndUpdateDate, long householdId, string billingGuid, long processId, int purchaseStatus = 0, string coupon = null)
+            DateTime createAndUpdateDate, long householdId, string billingGuid, long processId, int purchaseStatus = 0, string coupon = null, bool isPending = false)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewMPPPurchase");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
@@ -2026,13 +2040,15 @@ namespace DAL
             {
                 sp.AddParameter("@unifiedProcessId", processId);
             }
+            sp.AddParameter("@isPending", isPending ? 1 : 0);
+
             return sp.ExecuteReturnValue<long>();
         }
 
         public static long Insert_NewMColPurchase(int groupID, string collectionCode, string siteGUID, double price, string currency, string customData,
                                                   string country, string deviceName, int maxNumOfUses, int viewLifeCycle, long billingTransactionID,
                                                   DateTime collectionStartDate, DateTime collectionEndDate, DateTime createAndUpdateDate, long householdId,
-                                                  string billingGuid)
+                                                  string billingGuid, bool isPending = false)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_NewColPurchase");
             sp.SetConnectionKey("CA_CONNECTION_STRING");
@@ -2054,6 +2070,7 @@ namespace DAL
             sp.AddParameter("@DeviceName", deviceName);
             sp.AddParameter("@domainID", householdId);
             sp.AddParameter("@billingGuid", billingGuid);
+            sp.AddParameter("@isPending", isPending ? 1 : 0);
 
             return sp.ExecuteReturnValue<long>();
         }
@@ -2164,6 +2181,7 @@ namespace DAL
                     int mediaFileID = Utils.GetIntSafeVal(dr["MEDIA_FILE_ID"]);
                     int ppvTagStart = customData.IndexOf("<ppvm>") + ppvmTagLength;
                     int ppvTagEnd = customData.IndexOf("</ppvm>");
+
                     if (int.TryParse(customData.Substring(ppvTagStart, ppvTagEnd - ppvTagStart), out ppvCode))
                     {
                         string entitlementKey = mediaFileID + "_" + ppvCode;
@@ -2173,6 +2191,9 @@ namespace DAL
                                                     Utils.GetIntSafeVal(dr, "WAIVER"), Utils.GetSafeStr(dr["SITE_USER_GUID"]), mediaFileID,
                                                     ppvCode, Utils.GetDateSafeVal(dr, "CREATE_DATE"), Utils.ExtractNullableDateTime(dr, "START_DATE"),
                                                     Utils.ExtractNullableDateTime(dr, "END_DATE"), Utils.GetIntSafeVal(dr, "NUM_OF_USES"));
+
+                            entitlement.isPending = Utils.GetIntSafeVal(dr, "is_pending") == 1;
+
                             allEntitlments.Add(entitlementKey, entitlement);
                         }
                     }
@@ -3468,7 +3489,7 @@ namespace DAL
             string key = GetResumRenewAdapterDataKey(purchaseId);
             return UtilsDal.GetObjectFromCB<List<ApiObjects.KeyValuePair>>(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key);
         }
-        
+
         private static string GetResumRenewUnifiedAdapterDataKey(long processId)
         {
             return $"resum_renew_unified_adapterData_processId_{processId}";
@@ -3484,6 +3505,99 @@ namespace DAL
         {
             string key = GetResumRenewUnifiedAdapterDataKey(processId);
             return UtilsDal.GetObjectFromCB<List<ApiObjects.KeyValuePair>>(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public static bool UpdateSubscriptionsPurchases(int groupId, long purchaseId, DateTime startDate, DateTime endDate, bool isPending)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@startDate", startDate }, { "@endDate", endDate },
+                                                                    { "@purchaseId", purchaseId }, { "@isPending", isPending ? 1: 0 }};
+                return UtilsDal.ExecuteReturnValue<long>("Update_SubscriptionsPurchases", parameters, CA_CONNECTION_STRING) > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while UpdateSubscriptionsPurchases from DB, groupId = {groupId}", ex);
+            }
+
+            return false;
+        }
+
+        public static bool UpdatePPVPurchases(int groupId, long purchaseId, DateTime startDate, DateTime endDate, bool isPending)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@startDate", startDate }, { "@endDate", endDate },
+                                                                    { "@purchaseId", purchaseId }, { "@isPending", isPending ? 1: 0 }};            
+                return UtilsDal.ExecuteReturnValue<long>("Update_PPVPurchases", parameters, CA_CONNECTION_STRING) > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while UpdatePPVPurchases from DB, groupId = {groupId}", ex);
+            }
+
+            return false;
+        }
+
+        public static bool UpdateCollectionPurchases(int groupId, long purchaseId, DateTime startDate, DateTime endDate, bool isPending)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@startDate", startDate }, { "@endDate", endDate },
+                                                                    { "@purchaseId", purchaseId }, { "@isPending", isPending ? 1: 0 }};
+                return UtilsDal.ExecuteReturnValue<long>("Update_CollectionPurchases", parameters, CA_CONNECTION_STRING) > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while UpdateCollectionPurchases from DB, groupId = {groupId}", ex);
+            }
+
+            return false;
+        }
+
+        public static DataTable GetSubscriptionsPurchasesByBillingGuid(int groupId, string billingGuid)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@billingGuid", billingGuid }};
+                return UtilsDal.Execute("Get_SubscriptionsPurchasesByBillingGuid", parameters, CA_CONNECTION_STRING);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while Get_SubscriptionsPurchasesByBillingGuid from DB, groupId = {groupId}", ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable GetCollectionsPurchasesByBillingGuid(int groupId, string billingGuid)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@billingGuid", billingGuid } };
+                return UtilsDal.Execute("Get_CollectionsPurchasesByBillingGuid", parameters, CA_CONNECTION_STRING);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while GetCollectionsPurchasesByBillingGuid from DB, groupId = {groupId}", ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable GetPPVPurchasesByBillingGuid(int groupId, string billingGuid)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@billingGuid", billingGuid } };
+                return UtilsDal.Execute("Get_PPVPurchasesByBillingGuid", parameters, CA_CONNECTION_STRING);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while GetPPVPurchasesByBillingGuid from DB, groupId = {groupId}", ex);
+            }
+
+            return null;
         }
     }
 }

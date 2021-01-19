@@ -8,6 +8,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
 using WebAPI.Models.General;
+using static ApiObjects.SecurityPartnerConfig;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -22,15 +23,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // map DeviceConcurrencyPriority to KalturaConcurrencyPartnerConfig
             cfg.CreateMap<DeviceConcurrencyPriority, KalturaConcurrencyPartnerConfig>()
-                .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => string.Join(",", src.DeviceFamilyIds)))
+                .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => src.GetDeviceFamilyIds()))
                 .ForMember(dest => dest.EvictionPolicy, opt => opt.ResolveUsing(src => ConvertDowngradePolicyToEvictionPolicy(src.PriorityOrder)))
-                .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds)); 
+                .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds))
+                .ForMember(dest => dest.RevokeOnDeviceDelete, opt => opt.MapFrom(src => src.RevokeOnDeviceDelete)); 
 
             // map KalturaConcurrencyPartnerConfig to DeviceConcurrencyPriority
             cfg.CreateMap<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>()
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => src.GetDeviceFamilyIds()))
+                .AfterMap((src, dest) => dest.DeviceFamilyIds = src.DeviceFamilyIds != null ? dest.DeviceFamilyIds : null)
                 .ForMember(dest => dest.PriorityOrder, opt => opt.ResolveUsing(src => ConvertEvictionPolicyToDowngradePolicy(src.EvictionPolicy)))
-                .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds));
+                .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds))
+                .ForMember(dest => dest.RevokeOnDeviceDelete, opt => opt.MapFrom(src => src.RevokeOnDeviceDelete));
 
             // map RollingDeviceRemovalData to KalturaRollingDeviceRemovalData
             cfg.CreateMap<RollingDeviceRemovalData, KalturaRollingDeviceRemovalData>()
@@ -159,6 +163,30 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<PlaybackPartnerConfig, KalturaPlaybackPartnerConfig>()
                .ForMember(dest => dest.DefaultAdapters, opt => opt.MapFrom(src => src.DefaultAdapters));
+
+
+            cfg.CreateMap<KalturaEncryptionType, EncryptionType>().ConvertUsing(value =>
+                {
+                    switch (value)
+                    {
+                        case KalturaEncryptionType.AES256: return EncryptionType.aes256;
+                        default: throw new ClientException((int)StatusCode.Error, "Unknown encryption type");
+                    }
+                });
+            cfg.CreateMap<EncryptionType, KalturaEncryptionType>().ConvertUsing(value =>
+            {
+                switch (value)
+                {
+                    case EncryptionType.aes256: return KalturaEncryptionType.AES256;
+                    default: throw new ClientException((int)StatusCode.Error, "Unknown encryption type");
+                }
+            });
+            cfg.CreateMap<KalturaSecurityPartnerConfig, SecurityPartnerConfig>();
+            cfg.CreateMap<SecurityPartnerConfig, KalturaSecurityPartnerConfig>();
+            cfg.CreateMap<KalturaDataEncryption, DataEncryption>();
+            cfg.CreateMap<DataEncryption, KalturaDataEncryption>();
+            cfg.CreateMap<KalturaEncryption, Encryption>();
+            cfg.CreateMap<Encryption, KalturaEncryption>();
 
             cfg.CreateMap<KalturaDefaultPlaybackAdapters, DefaultPlaybackAdapters>()
                .ForMember(dest => dest.EpgAdapterId, opt => opt.MapFrom(src => src.EpgAdapterId))
@@ -314,39 +342,45 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        private static KalturaEvictionPolicyType ConvertDowngradePolicyToEvictionPolicy(DowngradePolicy priorityOrder)
+        private static KalturaEvictionPolicyType? ConvertDowngradePolicyToEvictionPolicy(DowngradePolicy? priorityOrder)
         {
-            KalturaEvictionPolicyType result;
+            KalturaEvictionPolicyType? result = null;
 
-            switch (priorityOrder)
+            if (priorityOrder.HasValue)
             {
-                case DowngradePolicy.FIFO:
-                    result = KalturaEvictionPolicyType.FIFO;
-                    break;
-                case DowngradePolicy.LIFO:
-                    result = KalturaEvictionPolicyType.LIFO;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Downgrade Policy type");
+                switch (priorityOrder)
+                {
+                    case DowngradePolicy.FIFO:
+                        result = KalturaEvictionPolicyType.FIFO;
+                        break;
+                    case DowngradePolicy.LIFO:
+                        result = KalturaEvictionPolicyType.LIFO;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown Downgrade Policy type");
+                }
             }
 
             return result;
         }
 
-        private static DowngradePolicy ConvertEvictionPolicyToDowngradePolicy(KalturaEvictionPolicyType evictionPolicy)
+        private static DowngradePolicy? ConvertEvictionPolicyToDowngradePolicy(KalturaEvictionPolicyType? evictionPolicy)
         {
-            DowngradePolicy result;
+            DowngradePolicy? result = null;
 
-            switch (evictionPolicy)
+            if (evictionPolicy.HasValue)
             {
-                case KalturaEvictionPolicyType.FIFO:
-                    result = DowngradePolicy.FIFO;
-                    break;
-                case KalturaEvictionPolicyType.LIFO:
-                    result = DowngradePolicy.LIFO;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown Eviction Policy type");
+                switch (evictionPolicy)
+                {
+                    case KalturaEvictionPolicyType.FIFO:
+                        result = DowngradePolicy.FIFO;
+                        break;
+                    case KalturaEvictionPolicyType.LIFO:
+                        result = DowngradePolicy.LIFO;
+                        break;
+                    default:
+                        throw new ClientException((int)StatusCode.Error, "Unknown Eviction Policy type");
+                }
             }
 
             return result;

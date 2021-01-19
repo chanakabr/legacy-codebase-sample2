@@ -192,10 +192,9 @@ namespace Core.Users
         static public BaseEncrypter GetBaseImpl(Int32 nGroupID)
         {
             BaseEncrypter baseEncrypter = null;
-            int nImplID = 0;
 
-            string key = string.Format("users_GetBaseEncrypterImpl_{0}", nGroupID);
-            bool bRes = UsersCache.GetItem<int>(key, out nImplID);
+            var key = string.Format("users_GetBaseEncrypterImpl_{0}", nGroupID);
+            bool bRes = UsersCache.GetItem(key, out int nImplID);
 
             if (!bRes)
             {
@@ -204,26 +203,24 @@ namespace Core.Users
                 if (dr != null)
                 {
                     nImplID = ODBCWrapper.Utils.GetIntSafeVal(dr["ENCRYPTER_IMPLEMENTATION"]);
-                    if (nImplID > 0)
-                    {
-                        UsersCache.AddItem(key, nImplID);
-                    }
                 }
-            }
 
+                UsersCache.AddItem(key, nImplID);
+            }
+            
             switch (nImplID)
             {
                 case 1:
-                    baseEncrypter = new MD5Encrypter(nGroupID);
+                    baseEncrypter = new MD5Encrypter();
                     break;
                 case 2:
-                    baseEncrypter = new SHA1Encrypter(nGroupID);
+                    baseEncrypter = new SHA1Encrypter();
                     break;
                 case 3:
-                    baseEncrypter = new SHA256Encrypter(nGroupID);
+                    baseEncrypter = new SHA256Encrypter();
                     break;
                 case 4:
-                    baseEncrypter = new SHA384Encrypter(nGroupID);
+                    baseEncrypter = new SHA384Encrypter();
                     break;
                 default:
                     break;
@@ -321,22 +318,21 @@ namespace Core.Users
             return ret;
         }
 
-        static public Country GetIPCountry2(string sIP)
+        static public Country GetIPCountry2(int groupId, string sIP)
         {
-            Int32 nCountry = 0;
-            string[] splited = sIP.Split('.');
-
-            Int64 nIPVal = Int64.Parse(splited[3]) + Int64.Parse(splited[2]) * 256 + Int64.Parse(splited[1]) * 256 * 256 + Int64.Parse(splited[0]) * 256 * 256 * 256;
-            //Int32 nID = 0;
-            nCountry = DAL.UtilsDal.GetCountryIDFromIP(nIPVal);
-
-            if (nCountry == 0)
+            var id = 0;
+            try
             {
-                return null;
+                var country = Core.Api.api.GetCountryByIp(groupId, sIP);
+                id = country?.Id ?? 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed Utils.GetIPCountry2 with groupId: {0}, ip: {1}", groupId, sIP), ex);
             }
 
-            Country ret = new Country();
-            ret.Initialize(nCountry);
+            var ret = new Country();
+            ret.Initialize(id);
             return ret;
         }
 
@@ -449,7 +445,7 @@ namespace Core.Users
                         res.Add(hn);
                     }
                     // remove current domain from cache
-                    oDomainCache.RemoveDomain((int)lDomainID);
+                    oDomainCache.RemoveDomain(nGroupID, (int)lDomainID);
                 }
                 else
                 {
@@ -519,7 +515,7 @@ namespace Core.Users
         {
             string res = null;
             Dictionary<string, string> minPeriods;
-            if (CachingManager.CachingManager.Exist("MinPeriods"))
+            if (CachingManager.CachingManager.Exists("MinPeriods"))
             {
                 minPeriods = CachingManager.CachingManager.GetCachedData("MinPeriods") as Dictionary<string, string>;
             }
@@ -553,7 +549,23 @@ namespace Core.Users
             return
                 (string.Format("{0:dd-MM-yyyy_hh-mm-ss}", dateTime));
         }
-        
+
+        public static ResponseStatus MapToResponseStatus(UserActivationState activationState)
+        {
+            switch (activationState)
+            {
+                case UserActivationState.Error: return ResponseStatus.InternalError;
+                case UserActivationState.UserDoesNotExist: return ResponseStatus.UserDoesNotExist;
+                case UserActivationState.Activated: return ResponseStatus.OK;
+                case UserActivationState.NotActivated: return ResponseStatus.UserNotActivated;
+                case UserActivationState.NotActivatedByMaster: return ResponseStatus.UserNotMasterApproved;
+                case UserActivationState.UserRemovedFromDomain: return ResponseStatus.UserNotIndDomain;
+                case UserActivationState.UserWIthNoDomain: return ResponseStatus.UserWithNoDomain;
+                case UserActivationState.UserSuspended: return ResponseStatus.UserSuspended;
+                default: return ResponseStatus.InternalError;
+            };
+        }
+
         public static ApiObjects.Response.Status ConvertResponseStatusToResponseObject(ResponseStatus responseStatus, ApiObjects.Response.Status status = null, bool isLogin = false, int externalCode = 0, string externalMessage = null)
         {
             var result = new ApiObjects.Response.Status();

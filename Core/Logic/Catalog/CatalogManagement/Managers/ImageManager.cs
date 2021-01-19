@@ -361,12 +361,12 @@ namespace Core.Catalog.CatalogManagement
             // invalidate media
             if (assetImageType == eAssetImageType.Media)
             {
-                AssetManager.InvalidateAsset(eAssetTypes.MEDIA, id, callingMethod);
+                AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, id, callingMethod);
             }
             // invalidate program
             if (assetImageType == eAssetImageType.Program)
             {
-                AssetManager.InvalidateAsset(eAssetTypes.EPG, id, callingMethod);
+                AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, id, callingMethod);
             }
             // invalidate channel
             else if (assetImageType == eAssetImageType.Channel)
@@ -1145,7 +1145,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (image.ImageObjectType == eAssetImageType.Program)
                     {
-                        EpgAssetManager.UpdateProgramAssetPictures(groupId, image);
+                        EpgAssetManager.UpdateProgramAssetPictures(groupId, userId, image);
                     }
 
                     // invalidate asset with this image

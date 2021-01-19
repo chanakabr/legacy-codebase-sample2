@@ -10,7 +10,7 @@ namespace WebAPI.Models.General
     public interface IKalturaCrudFilter<ICrudHandeledObject>
     {
         Type RelatedObjectFilterType { get; }
-        void Validate();
+        void Validate(ContextData contextData);
         GenericListResponse<ICrudHandeledObject> List(ContextData contextData, CorePager pager);
     }
 
@@ -23,7 +23,7 @@ namespace WebAPI.Models.General
     {
         protected static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public virtual Type RelatedObjectFilterType { get { return null;} }
-        public abstract void Validate();
+        public abstract void Validate(ContextData contextData);
         public abstract GenericListResponse<ICrudHandeledObject> List(ContextData contextData, CorePager pager);
         
         public KalturaCrudFilter(Dictionary<string, object> parameters = null) : base(parameters)

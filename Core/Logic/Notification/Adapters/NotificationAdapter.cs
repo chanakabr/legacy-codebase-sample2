@@ -236,36 +236,20 @@ namespace Core.Notification.Adapters
         /// <param name="message">Message body</param>
         /// <param name="topic">With groupId prefix</param>
         /// <returns></returns>
-        public static IotPublishResponse IotPublishAnnouncement(int groupId, string message, string topic)
+        public static bool IotPublishAnnouncement(int groupId, string message, string topic)
         {
-            IotPublishResponse response = null;
             var _topic = $@"{groupId}/{topic}";
 
             try
             {
-                var request = new { GroupId = groupId.ToString(), Message = @message, Topic = _topic, ExternalAnnouncementId = "string" };
-                response = IotManager.Instance.SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post, out int httpStatus, out bool hasConfig);
-
-                if (!hasConfig)
-                {
-                    var update = IotManager.Instance.UpdateIotProfile(groupId, new ApiObjects.Base.ContextData(groupId));
-                    if (update != null)
-                    {
-                        response = IotManager.Instance.SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post, out httpStatus, out hasConfig);
-                    }
-                }
-
-                if (response == null || response.ResponseObject == null || !response.ResponseObject.IsSuccess)
-                    log.Error($"Error while trying to publish announcement. message: {message}");
-                else
-                    log.Debug($"successfully published announcement.");
+                return IotManager.Instance.PublishIotMessage(groupId, @message, _topic);
             }
             catch (Exception ex)
             {
                 log.Error($"Error while trying to publish announcement. message: {message} ex: {ex}");
             }
 
-            return response;
+            return false;
         }
 
         public static bool AddPrivateMessageToShadowIot(int groupId, string message, string thingArn, string udid)
@@ -274,20 +258,10 @@ namespace Core.Notification.Adapters
 
             try
             {
-                var request = new { GroupId = groupId.ToString(), ThingArn = thingArn, Message = message, Udid = udid };
-                response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post, out int httpStatus, out bool hasConfig);
-
-                if (!hasConfig)
-                {
-                    var update = IotManager.Instance.UpdateIotProfile(groupId, new ApiObjects.Base.ContextData(groupId));
-                    if (update != null)
-                    {
-                        response = IotManager.Instance.SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post, out httpStatus, out hasConfig);
-                    }
-                }
+                response = IotManager.Instance.AddToThingShadow(groupId, message, thingArn, udid);
 
                 if (!response)
-                    log.Error($"Error while trying to add message to thing shadow. message: {message}, thing: {thingArn}");
+                    log.Error($"Error while trying to add message to thing shadow. group: {groupId}, message: {message}, thing: {thingArn}");
                 else
                     log.Debug($"successfully added message to thing shadow");
             }

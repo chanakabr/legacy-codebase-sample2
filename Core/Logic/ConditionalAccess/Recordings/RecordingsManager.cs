@@ -115,7 +115,8 @@ namespace Core.Recordings
 
         #region Public Methods
 
-        public Recording Record(int groupId, long programId, long epgChannelID, DateTime startDate, DateTime endDate, string crid, List<long> domainIds, out HashSet<long> failedDomainIds)
+        public Recording Record(int groupId, long programId, long epgChannelID, DateTime startDate, DateTime endDate, string crid,
+            List<long> domainIds, out HashSet<long> failedDomainIds, RecordingContext recordingContext = RecordingContext.Regular)
         {
             Recording recording = null;
             failedDomainIds = null;
@@ -129,6 +130,7 @@ namespace Core.Recordings
             syncParmeters.Add("endDate", endDate);
             syncParmeters.Add("domainIds", new List<long>() { });
             syncParmeters.Add("isPrivateCopy", false);
+            syncParmeters.Add("recordingContext", recordingContext);
 
             try
             {
@@ -234,9 +236,52 @@ namespace Core.Recordings
                     }
                     else
                     {
+                        List<long> domainIds = new List<long>();
                         HashSet<long> failedDomainIds;
-                        CallAdapterRecord(groupId, recording.EpgId.ToString(), recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, false, recording, false,
-                                            new List<long>(), out failedDomainIds);
+
+                        RecordingContext recordingContext = RecordingContext.Regular;
+
+                        //BEO-9046 - get domainIds + paging 500
+                        if (ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId).IsPrivateCopyEnabled.Value)
+                        {
+                            domainIds = RecordingsDAL.GetDomainsEpgRecordingFailure(groupId, recording.EpgId);
+                            if (domainIds.Count == 0)
+                            {
+                                recording.Status = new Status((int)eResponseStatus.OK);
+                                return recording;
+                            }
+
+                            recordingContext = RecordingContext.PrivateRetry;
+
+                            //BEO-9298/9302, mark as deleted and remove from all domains
+                            if (recording.Id == 0 || !ConditionalAccess.Utils.IsValidRecordingStatus(recording.RecordingStatus))
+                            {
+                                var state = ConditionalAccess.Utils.ConvertToDomainRecordingStatus(recording.RecordingStatus);
+                                var affectedDomains = RecordingsDAL.SetRetryRecordingToFail(groupId, recording.EpgId, state ?? DomainRecordingStatus.Failed);
+                                if (affectedDomains.Count > 0)
+                                {
+                                    affectedDomains.ForEach(domainId =>
+                                                       LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(groupId, domainId)));
+                                }
+
+                                return recording;
+                            }
+
+                            int index = 0;
+                            var ids = new List<long>();
+                            do
+                            {
+                                ids = domainIds.Skip(index * 500).Take(500).ToList();
+                                CallAdapterRecord(groupId, recording.EpgId.ToString(), recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, recording,
+                                              ids, out failedDomainIds, recordingContext);
+                                index++;
+                            } while (ids.Count > 0);
+                        }
+                        else
+                        {
+                            CallAdapterRecord(groupId, recording.EpgId.ToString(), recording.ChannelId, recording.EpgStartDate, recording.EpgEndDate, recording,
+                                                domainIds, out failedDomainIds, recordingContext);
+                        }
 
                         // If we got through here without any exception, we're ok.
                         recording.Status = new Status((int)eResponseStatus.OK);
@@ -819,7 +864,7 @@ namespace Core.Recordings
                     string externalDomainRecordingId = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "EXTERNAL_DOMAIN_RECORDING_ID");
                     if (domainRecordingId > 0 && !string.IsNullOrEmpty(externalDomainRecordingId))
                     {
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(groupId, domainId));
 
                         bool isNew = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "IS_NEW", -1) == 1;
                         Recording domainRecording = ConditionalAccess.Utils.ValidateRecordID(groupId, domainId, domainRecordingId, false);
@@ -920,6 +965,7 @@ namespace Core.Recordings
             List<long> domainIds = (List<long>)parameters["domainIds"];
             bool isPrivateCopy = (bool)parameters["isPrivateCopy"];
             bool shouldInsertRecording = (bool)parameters["shouldInsertRecording"];
+            RecordingContext recordingContext = parameters.ContainsKey("recordingContext") ? (RecordingContext)parameters["recordingContext"] : RecordingContext.Regular;
 
             // for private copy we always issue a recording            
             Recording recording = ConditionalAccess.Utils.GetRecordingByEpgId(groupId, programId);
@@ -979,11 +1025,12 @@ namespace Core.Recordings
                 Recording copyRecording = new Recording(recording);
 
                 // Async - call adapter. Main flow is done                
-                System.Threading.Tasks.Task async = Task.Run(() =>
+                Task async = Task.Run(() =>
                 {
-                    HashSet<long> failedDomainIds;
-                    CallAdapterRecord(groupId, programId.ToString(), epgChannelID, startDate, endDate, isCanceled, (Recording)copyRecording, isPrivateCopy, domainIds, out failedDomainIds);
-                    if (failedDomainIds != null && failedDomainIds.Count > 0)
+                    CallAdapterRecord(groupId, programId.ToString(), epgChannelID, startDate, endDate, copyRecording,
+                        domainIds, out HashSet<long> failedDomainIds, recordingContext);
+
+                    if (failedDomainIds?.Count > 0)
                     {
                         parameters["failedDomainIds"] = failedDomainIds;
                     }
@@ -1113,33 +1160,76 @@ namespace Core.Recordings
                 nextCheck = recording.EpgStartDate.AddSeconds(-30);
             }
 
+            bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId).IsPrivateCopyEnabled.Value;
+
             // continue checking until the program started. 
             if (DateTime.UtcNow < recording.EpgStartDate &&
                 DateTime.UtcNow < nextCheck)
             {
-                log.DebugFormat("Retry task before program started: program didn't start yet, we will enqueue a message now for recording {0}",
-                    recording.Id);
-                EnqueueMessage(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, nextCheck, task);
+                if (isPrivateCopy)
+                {
+                    var _nextCheck = RecordingsDAL.GetDomainRetryRecordingDoc(groupId, recording.EpgId);
+                    var next = DateUtils.ToUtcUnixTimestampSeconds(nextCheck);
+
+                    if (!_nextCheck.HasValue || (_nextCheck.HasValue && _nextCheck.Value <= DateUtils.GetUtcUnixTimestampNow()) 
+                        || _nextCheck.Value > next)
+                    {
+                        log.Debug($"Updating retry document for epg: {recording.EpgId}, group: {groupId}");
+                        //enqueue - only if no existing cb document
+                        if (!_nextCheck.HasValue)
+                        {
+                            EnqueueMessage(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, nextCheck, task);
+                        }
+                        //Update document
+                        RecordingsDAL.SaveDomainRetryRecordingDoc(groupId, recording.EpgId, next, CalcTtl(nextCheck));
+                    }
+                }
+                else
+                {
+                    log.DebugFormat("Retry task before program started: program didn't start yet, we will enqueue a message now for recording {0}",
+                        recording.Id);
+                    EnqueueMessage(groupId, recording.EpgId, recording.Id, recording.EpgStartDate, nextCheck, task);
+                }
             }
             else
             // If it is still not ok - mark as failed
             {
-                log.DebugFormat("Retry task before program started: program started already, we will mark recording {0} as failed.", recording.Id);
-                recording.RecordingStatus = TstvRecordingStatus.Failed;
-
-                // Update recording after updating the status
-                ConditionalAccess.Utils.UpdateRecording(recording, groupId, 1, 1, RecordingInternalStatus.Failed);
-
-                // Update all domains that have this recording   
-                try
+                if (!isPrivateCopy)
                 {
-                    EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength: 0);
+                    log.DebugFormat("Retry task before program started: program started already, we will mark recording {0} as failed.", recording.Id);
+                    recording.RecordingStatus = TstvRecordingStatus.Failed;
+
+                    // Update recording after updating the status
+                    ConditionalAccess.Utils.UpdateRecording(recording, groupId, 1, 1, RecordingInternalStatus.Failed);
+
+                    // Update all domains that have this recording   
+                    try
+                    {
+                        EnqueueRecordingModificationEvent(groupId, recording, oldRecordingLength: 0);
+                    }
+                    catch (Exception e)
+                    {
+                        log.Error($"Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {recording.Id}, groupId: {groupId}", e);
+                    }
                 }
-                catch (Exception e)
+                else
                 {
-                    log.Error($"Failed to queue ExpiredRecording task for RetryTaskAfterProgramEnded when recording FAILED, recordingId: {recording.Id}, groupId: {groupId}", e);
+                    log.DebugFormat("Retry task before program started: program started already, Domain recording {0} is marked as failed.", recording.Id);
+                    //BEO-9046 - Mark as failed for all failed domains by recording_id
+                    var affectedDomains = RecordingsDAL.SetRetryRecordingToFail(groupId, recording.EpgId);
+                    if (affectedDomains.Count > 0)
+                    {
+                        affectedDomains.ForEach(domainId =>
+                                           LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(groupId, domainId)));
+                    }
                 }
             }
+        }
+
+        private static long CalcTtl(DateTime nextCheck)
+        {
+            var newExpiration = nextCheck.AddHours(1);
+            return DateUtils.ToUtcUnixTimestampSeconds(newExpiration);
         }
 
         private static Status CreateFailStatus(RecordResult adapterResponse)
@@ -1150,8 +1240,8 @@ namespace Core.Recordings
             return failStatus;
         }
 
-        private static void CallAdapterRecord(int groupId, string epgId, long epgChannelID, DateTime startDate, DateTime endDate, bool isCanceled, Recording currentRecording,
-                                                bool isPrivateRecording, List<long> domainIds, out HashSet<long> failedDomainIds)
+        private static void CallAdapterRecord(int groupId, string epgId, long epgChannelID, DateTime startDate, DateTime endDate, Recording currentRecording,
+                                                List<long> domainIds, out HashSet<long> failedDomainIds, RecordingContext context = RecordingContext.Regular)
         {
             log.DebugFormat("Call adapter record for recording {0}", currentRecording.Id);
             bool shouldRetry = true;
@@ -1176,7 +1266,7 @@ namespace Core.Recordings
             }
             catch (Exception ex)
             {
-                currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller excpetion: " + ex.Message);
+                currentRecording.Status = new Status((int)eResponseStatus.Error, "Adapter controller exception: " + ex.Message);
             }
 
             if (adapterResponse == null)
@@ -1204,7 +1294,7 @@ namespace Core.Recordings
                     shouldRetry = true;
                 }
 
-                // If we have a resposne AND we didn't set the status to be invalid
+                // If we have a response AND we didn't set the status to be invalid
                 if (adapterResponse != null && (currentRecording.Status == null || currentRecording.Status.Code == (int)eResponseStatus.OK))
                 {
                     // if provider failed
@@ -1215,7 +1305,7 @@ namespace Core.Recordings
                     else
                     {
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
-                        currentRecording.RecordingStatus = RecordingsManager.GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);
+                        currentRecording.RecordingStatus = GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);
                         currentRecording.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                         // Insert the new links of the recordings
@@ -1224,13 +1314,27 @@ namespace Core.Recordings
                             RecordingsDAL.InsertRecordingLinks(adapterResponse.Links, groupId, currentRecording.Id);
                         }
 
-                        if (adapterResponse.FailedDomainIds != null && adapterResponse.FailedDomainIds.Count > 0)
+                        if (context != RecordingContext.PrivateDistribute)
                         {
-                            failedDomainIds = new HashSet<long>(adapterResponse.FailedDomainIds);
-                        }
+                            shouldRetry = adapterResponse.FailedDomainIds?.Count > 0;
 
-                        // everything is good                        
-                        shouldRetry = false;
+                            if (context == RecordingContext.PrivateRetry)
+                            {
+                                var newSuccess = domainIds.Except(adapterResponse.FailedDomainIds).ToList();
+
+                                if (newSuccess?.Count > 0)
+                                {
+                                    //Update successful retry
+                                    RecordingsDAL.UpdateDomainRecordingFailure(groupId, new HashSet<long>(newSuccess), currentRecording.EpgId, true);
+                                }
+                            }
+
+                            if (context == RecordingContext.Regular && shouldRetry)
+                            {
+                                RecordingsDAL.UpdateDomainRecordingFailure(groupId, new HashSet<long>(adapterResponse.FailedDomainIds),
+                                    currentRecording.EpgId, false);
+                            }
+                        }
 
                         newRecordingInternalStatus = RecordingInternalStatus.OK;
                     }
@@ -1250,7 +1354,7 @@ namespace Core.Recordings
                 currentRecording.Status = new Status((int)eResponseStatus.Error, "Failed inserting/updating recording in database and queue.");
             }
 
-            if (shouldRetry && !isPrivateRecording)
+            if (context != RecordingContext.PrivateDistribute && shouldRetry)
             {
                 log.DebugFormat("Call adapter record for recording {0} will retry", currentRecording.Id);
                 RetryTaskBeforeProgramStarted(groupId, currentRecording, eRecordingTask.Record);
@@ -1355,6 +1459,5 @@ namespace Core.Recordings
         }
 
         #endregion
-
     }
 }

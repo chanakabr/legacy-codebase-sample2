@@ -133,6 +133,42 @@ namespace WebAPI.Models.Domains
         [XmlElement(ElementName = "dynamicData", IsNullable = true)]
         [SchemeProperty(IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
+        
+        /// <summary>
+        /// model
+        /// </summary>
+        [DataMember(Name = "model")]
+        [JsonProperty("model")]
+        [XmlElement(ElementName = "model", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MaxLength = 255)]
+        public string Model { get; set; }
+
+        /// <summary>
+        /// manufacturer
+        /// </summary>
+        [DataMember(Name = "manufacturer")]
+        [JsonProperty("manufacturer")]
+        [XmlElement(ElementName = "manufacturer", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MaxLength = 128)]
+        public string Manufacturer { get; set; }
+
+        /// <summary>
+        /// manufacturer Id, read only
+        /// </summary>
+        [DataMember(Name = "manufacturerId")]
+        [JsonProperty("manufacturerId")]
+        [XmlElement(ElementName = "manufacturerId", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, ReadOnly = true)]
+        public long? ManufacturerId { get; set; }
+
+        /// <summary>
+        /// Last Activity Time, read only
+        /// </summary>
+        [DataMember(Name = "lastActivityTime")]
+        [JsonProperty("lastActivityTime")]
+        [XmlElement(ElementName = "lastActivityTime", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, ReadOnly = true)]
+        public long? LastActivityTime { get; set; }
 
         internal int getBrandId()
         {
@@ -147,13 +183,14 @@ namespace WebAPI.Models.Domains
 
     public static class KalturaHouseholdDeviceValidator
     {
-        private static readonly int MAX_KEY_VALUES = 5; // numbers from BEO-8671
-        private static readonly int MAX_VALUE_LENGTH = 128;
+        private const int MaxKeyValues = 5; // numbers from BEO-8671
+        private const int MaxKeyLength = 128;
+        private const int MaxValueLength = 256;
 
         public static void Validate(this KalturaHouseholdDevice device)
         {
             if (device.Udid.IsNullOrEmptyOrWhiteSpace()) throw new BadRequestException(ARGUMENT_CANNOT_BE_EMPTY, "udid");
-            device.DynamicData.Validate(MAX_KEY_VALUES, MAX_VALUE_LENGTH);
+            device.DynamicData.Validate(MaxKeyValues, MaxKeyLength, MaxValueLength);
         }
     }
 }

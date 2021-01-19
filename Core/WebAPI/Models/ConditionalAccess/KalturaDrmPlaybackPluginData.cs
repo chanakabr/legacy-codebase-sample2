@@ -24,6 +24,14 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("licenseURL")]
         [XmlElement(ElementName = "licenseURL")]
         public string LicenseURL { get; set; }
+
+        /// <summary>
+        /// Dynamic data
+        /// </summary>
+        [DataMember(Name = "dynamicData")]
+        [JsonProperty("dynamicData")]
+        [XmlElement(ElementName = "dynamicData", IsNullable = true)]
+        public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
     }
 
     public partial class KalturaPluginData : KalturaOTTObject

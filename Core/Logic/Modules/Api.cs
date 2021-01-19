@@ -10,6 +10,7 @@ using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using Core.Api.Managers;
 using Core.Api.Modules;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Response;
 using Core.Pricing;
 using KLogMonitor;
@@ -2035,7 +2036,15 @@ namespace Core.Api
                             UserId = userId
                         };
 
-                        api.AddVirtualAsset(groupId, virtualAssetInfo);
+                        var res = api.AddVirtualAsset(groupId, virtualAssetInfo);
+
+                        if (res.Status == VirtualAssetInfoStatus.Error)
+                        {
+                            log.Error($"Error while AddVirtualAsset - segmentationType: {segmentationType.Id} will delete ");
+                            DeleteSegmentationType(groupId, segmentationType.Id, userId, true);
+                            response.SetStatus(eResponseStatus.Error, "Failed inserting segmentation type.");
+                            return response;
+                        }
                     }
 
                     response.Object = segmentationType;
@@ -2053,6 +2062,7 @@ namespace Core.Api
 
         public static GenericResponse<SegmentationType> UpdateSegmentationType(int groupId, SegmentationType segmentationType, long userId)
         {
+            segmentationType.GroupId = groupId;
             GenericResponse<SegmentationType> response = segmentationType.ValidateForUpdate();
             if (!response.IsOkStatusCode())
             {
@@ -2075,7 +2085,24 @@ namespace Core.Api
                     return response;
                 }
 
-                segmentationType.GroupId = groupId;
+                // Due to atomic action update virtual asset before segmentation update
+                var virtualAssetInfo = new VirtualAssetInfo()
+                {
+                    Type = ObjectVirtualAssetInfoType.Segment,
+                    Id = segmentationType.Id,
+                    Name = segmentationType.Name,
+                    Description = segmentationType.Description,
+                    UserId = userId
+                };
+
+                var virtualAssetInfoResponse = api.UpdateVirtualAsset(groupId, virtualAssetInfo);
+
+                if (virtualAssetInfoResponse.Status == VirtualAssetInfoStatus.Error)
+                {
+                    log.Error($"Error while update segmentationType's virtualAsset. groupId: {groupId}, segmentationTypeId: {segmentationType.Id}, segmentationTypeName: {segmentationType.Name} ");
+                    response.SetStatus(eResponseStatus.Error, "Error while updating segmentation type.");
+                    return response;
+                }
 
                 if (!segmentationType.Update())
                 {
@@ -2083,16 +2110,6 @@ namespace Core.Api
                 }
                 else
                 {
-                    var virtualAssetInfo = new VirtualAssetInfo()
-                    {
-                        Type = ObjectVirtualAssetInfoType.Segment,
-                        Id = segmentationType.Id,
-                        Name = segmentationType.Name,
-                        Description = segmentationType.Description,
-                        UserId = userId
-                    };
-
-                    api.UpdateVirtualAsset(groupId, virtualAssetInfo);
 
                     response.Object = segmentationType;
                     response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -2107,41 +2124,48 @@ namespace Core.Api
             return response;
         }
 
-        public static Status DeleteSegmentationType(int groupId, long id, long userId)
+        public static Status DeleteSegmentationType(int groupId, long id, long userId, bool DBOnly = false)
         {
             Status result = new Status();
             bool deleteResult = false;
             try
             {
-                var assetSearchDefinition = new AssetSearchDefinition() { UserId = userId };
-                var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>() { id });
-                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
-                {
-                    return filter.Status;
-                }
+                SegmentationType segmentationType = new SegmentationType();
+                result = segmentationType.ValidateForDelete(groupId, id);
 
-                if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                if(!result.IsOkStatusCode())
                 {
-                    result.Set(eResponseStatus.ObjectNotExist, eResponseStatus.ObjectNotExist.ToString());
                     return result;
                 }
 
-                SegmentationType segmentationType = new SegmentationType()
+                if (!DBOnly)
                 {
-                    GroupId = groupId,
-                    Id = id
-                };
+                    var assetSearchDefinition = new AssetSearchDefinition() { UserId = userId };
+                    var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>() { id });
+                    if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                    {
+                        return filter.Status;
+                    }
 
-                deleteResult = segmentationType.Delete();
-
-                if (!deleteResult)
-                {
-                    result = segmentationType.ActionStatus;
+                    if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                    {
+                        result.Set(eResponseStatus.ObjectNotExist, eResponseStatus.ObjectNotExist.ToString());
+                        return result;
+                    }                    
                 }
-                else
-                {
-                    result = new Status();
 
+                var segmentationTypeList = SegmentationType.List(groupId, new List<long>() { id }, 0, 0, out int totalcount);
+                if (segmentationTypeList == null || segmentationTypeList.Count != 1 || segmentationTypeList[0].Id != id)
+                {
+                    result.Set(eResponseStatus.ObjectNotExist, "Given Id does not exist for group");
+                    return result;
+                }
+
+                segmentationType = segmentationTypeList[0];
+
+                if(!DBOnly)
+                {
+                    // Due to atomic action delete virtual asset before SegmentationType delete
                     // Delete the virtual asset
                     var virtualAssetInfo = new VirtualAssetInfo()
                     {
@@ -2152,8 +2176,26 @@ namespace Core.Api
                         UserId = userId
                     };
 
-                    api.DeleteVirtualAsset(groupId, virtualAssetInfo);
+                    var response = api.DeleteVirtualAsset(groupId, virtualAssetInfo);
+                    if (response.Status == VirtualAssetInfoStatus.Error)
+                    {
+                        log.Error($"Error while delete segment virtual asset id {virtualAssetInfo.ToString()}");
+                        result.Set(eResponseStatus.Error, $"Failed to delete segmentationType { id}");
+                        return result;
+                    }
                 }
+
+                deleteResult = segmentationType.Delete();
+
+                if (!deleteResult)
+                {
+                    result = segmentationType.ActionStatus;
+                }
+                else
+                {
+                    result.Set(eResponseStatus.OK);
+                }
+
             }
             catch (Exception ex)
             {

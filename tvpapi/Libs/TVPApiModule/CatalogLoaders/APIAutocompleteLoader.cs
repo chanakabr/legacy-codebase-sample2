@@ -34,20 +34,12 @@ namespace TVPApiModule.CatalogLoaders
         {
             TVPApiModule.Objects.Responses.AutocompleteResponse result = null;
 
-            string cacheKey = GetLoaderCachekey();
-
             // No response from Catalog, gets medias from cache
             if (m_oResponse == null)
             {
-                m_oResponse = CacheManager.Cache.GetFailOverResponse(cacheKey);
-
-                // No response from Catalog and no response from cache
-                if (m_oResponse == null)
-                {
-                    result = new Objects.Responses.AutocompleteResponse();
-                    result.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
-                    return result;
-                }
+                result = new Objects.Responses.AutocompleteResponse();
+                result.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+                return result;
             }
 
             UnifiedSearchResponse response = (UnifiedSearchResponse)m_oResponse;
@@ -71,7 +63,7 @@ namespace TVPApiModule.CatalogLoaders
                 List<ProgramObj> epgs;
                 List<ProgramObj> recordings;
 
-                GetAssets(cacheKey, response, out medias, out epgs, out recordings);
+                GetAssets(response, out medias, out epgs, out recordings);
 
                 // Gets one list including both medias and EPGs, ordered by Catalog order
                 result.Assets = OrderAndCompleteSlimResults(response.searchResults, medias, epgs);

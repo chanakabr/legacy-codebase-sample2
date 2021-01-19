@@ -19,6 +19,7 @@ namespace ApiObjects
         public DateTime? startDate;
         public DateTime? endDate;
         public int numOfUses;
+        public bool isPending;
 
         public EntitlementObject(int p_ID, string p_subscriptionCode, string p_relPP, int p_waiver, string p_purchasedBySiteGuid, 
             int p_purchasedAsMediaFileID, int p_ppvCode, DateTime p_createDate, DateTime? p_startDate, DateTime? p_endDate, int uses)

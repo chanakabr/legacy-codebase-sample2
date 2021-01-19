@@ -61,7 +61,7 @@ namespace Core.Users
             {
                 status = ValidateDeviceFamilyConcurrency(devicePlayData, groupId, domain);
             }
-            
+
             return status;
         }
 
@@ -347,8 +347,8 @@ namespace Core.Users
         private static DomainResponseStatus CheckDeviceConcurrencyPrioritization(int groupId, DevicePlayData currDevicePlayData, List<DevicePlayData> otherDeviceFamilyIds)
         {
             DeviceConcurrencyPriority deviceConcurrencyPriority = Api.api.GetDeviceConcurrencyPriority(groupId);
-            
-            if (deviceConcurrencyPriority != null)
+
+            if (deviceConcurrencyPriority?.DeviceFamilyIds?.Count > 0)
             {
                 int currDevicePriorityIndex = deviceConcurrencyPriority.DeviceFamilyIds.IndexOf(currDevicePlayData.DeviceFamilyId);
 
@@ -461,6 +461,53 @@ namespace Core.Users
         internal static int GetConcurrencyMillisecThreshold(int groupId)
         {
             return (int)GetDevicePlayDataExpirationTTL(groupId, eExpirationTTL.Short) * 1000;
+        }
+
+        public static GenericListResponse<DevicePlayData> GetDevicePlayDataList(int groupId, long domainId, ePlayType playType)
+        {
+            var response = new GenericListResponse<DevicePlayData>
+            {
+                Objects = new List<DevicePlayData>()
+            };
+
+            try
+            {
+                var domainDevices = GetDomainDevices((int)domainId, groupId);
+
+                if (domainDevices == null || domainDevices.Count == 0)
+                    return default;
+
+                var pl = new List<ePlayType>() { playType };
+                response.Objects = CatalogDAL.GetDevicePlayDataList(domainDevices, pl, GetConcurrencyMillisecThreshold(groupId), string.Empty);
+
+                response.SetStatus(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error during GetDevicePlayDataList, ex: {ex.Message}", ex);
+                response.SetStatus(eResponseStatus.Error);
+            }
+
+            return response;
+        }
+
+        internal static void HandleRevokePlaybackSession(int groupId, string udid)
+        {
+            var deviceConcurrencyPriority = Api.api.GetDeviceConcurrencyPriority(groupId);
+            if (deviceConcurrencyPriority != null && deviceConcurrencyPriority.RevokeOnDeviceDelete.HasValue && deviceConcurrencyPriority.RevokeOnDeviceDelete.Value)
+            {
+                var devicePlayData = CatalogDAL.GetDevicePlayData(udid);
+                if (devicePlayData != null)
+                {
+                    devicePlayData.Revoke = true;
+                    uint expirationTTL = ConcurrencyManager.GetDevicePlayDataExpirationTTL(groupId, ApiObjects.Catalog.eExpirationTTL.Long);
+
+                    // save updated devicePlayData
+                    CatalogDAL.UpdateOrInsertDevicePlayData(devicePlayData, false, expirationTTL);
+
+                    log.Debug($"Revoke device play data - udid:{udid}");
+                }
+            }
         }
     }
 }

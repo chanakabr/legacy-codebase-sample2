@@ -237,8 +237,7 @@ namespace Core.Domains
             return response;
         }
 
-
-        public static DeviceResponse AddDevice(int nGroupID, int nDomainID, string udid, string deviceName, int deviceBrandID, string externalId, string macAddress, Dictionary<string, string> dynamicData)
+        public static DeviceResponse AddDevice(int nGroupID, int nDomainID, Users.DomainDevice device)
         {
             var response = new DeviceResponse
             {
@@ -249,11 +248,10 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref baseDomain, nGroupID);
             if (baseDomain != null)
             {
-                response = baseDomain.AddDevice(nGroupID, nDomainID, udid, deviceName, deviceBrandID, externalId, macAddress, dynamicData);
+                response = baseDomain.AddDevice(nGroupID, nDomainID, device);
             }
             return response;
         }
-
 
         public static DomainStatusResponse RemoveDeviceFromDomain(int nGroupID, int nDomainID, string udid)
         {
@@ -838,11 +836,7 @@ namespace Core.Domains
 
         public static DeviceResponse SetDevice(
             int nGroupID,
-            string sDeviceUDID,
-            string sDeviceName,
-            string macAddress,
-            string externalId = "",
-            Dictionary<string, string> dynamicData = null,
+            Users.DomainDevice device,
             bool allowNullExternalId = false,
             bool allowNullMacAddress = false,
             bool allowNullDynamicData = false)
@@ -851,8 +845,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                DeviceResponseObject responseObject = t.SetDevice(nGroupID, sDeviceUDID, sDeviceName, 
-                    macAddress, externalId, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
+                DeviceResponseObject responseObject = t.SetDevice(nGroupID, device, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
 
                 DeviceResponse response = new DeviceResponse()
                 {
@@ -945,8 +938,7 @@ namespace Core.Domains
         }
 
 
-        public static DeviceResponse SubmitAddDeviceToDomain(int nGroupID, int domainID, string userID, string deviceUdid, string deviceName,
-            int brandID, string externalId, string macAddress, Dictionary<string, string> dynamicData)
+        public static DeviceResponse SubmitAddDeviceToDomain(int nGroupID, int domainID, string userID, Users.DomainDevice device)
         {
             DeviceResponse response = new DeviceResponse() { Status = new ApiObjects.Response.Status() { Code = (int)eResponseStatus.Error, Message = eResponseStatus.Error.ToString() } };
 
@@ -957,7 +949,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                response = t.SubmitAddDeviceToDomain(nGroupID, domainID, userID, deviceUdid, deviceName, brandID, externalId, macAddress, dynamicData);
+                response = t.SubmitAddDeviceToDomain(nGroupID, domainID, userID, device);
             }
 
             return response;
@@ -989,15 +981,16 @@ namespace Core.Domains
             return response;
         }
 
-        public static ApiObjects.Response.Status DeleteDevice(int groupId, string udid)
+        public static ApiObjects.Response.Status DeleteDevice(int groupId, string udid, out long domainId)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            domainId = 0;
 
             Core.Users.BaseDomain t = null;
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                response = t.DeleteDevice(groupId, udid);
+                response = t.DeleteDevice(groupId, udid, out domainId);
             }
 
             return response;

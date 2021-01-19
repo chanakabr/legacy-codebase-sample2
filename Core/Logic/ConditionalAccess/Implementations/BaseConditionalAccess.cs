@@ -113,6 +113,8 @@ namespace Core.ConditionalAccess
         public const string RECURRING_NUMBER = "recurringnumber";
         public const string IS_ORIGINAL_BROADCAST_KEY = "isOriginalBroadcast";
         public const string IS_ORIGINAL_BROADCAST_VALUE = "true";
+        public const string CAMPAIGN_CODE = "campcode";
+        public const string COMPANSATION_CODE = "compensation"; 
 
         protected const int PAYMENT_GATEWAY = 1000;
 
@@ -149,16 +151,16 @@ namespace Core.ConditionalAccess
 
         protected internal abstract bool HandlePPVBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Subscription relevantSub, double price, string currency,
                                                         string coupon, string userIP, string country, string deviceName, long billingTransactionId, string customData,
-                                                        PPVModule thePPVModule, int productID, int contentID, string billingGuid, DateTime entitlementDate, ref long purchaseID);
+                                                        PPVModule thePPVModule, int productID, int contentID, string billingGuid, DateTime entitlementDate, ref long purchaseID, DateTime? endDate = null, bool isPending = false);
 
         protected internal abstract bool HandleSubscriptionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Subscription subscription, double price, string currency, string coupon,
                                                                  string userIP, string country, string deviceName, long billingTransactionId, string customData,
                                                                  int productID, string billingGuid, bool isEntitledToPreviewModule, bool isRecurring, DateTime? entitlementDate,
-                                                                 ref long purchaseID, ref DateTime? subscriptionEndDate, SubscriptionPurchaseStatus subscriptionPurchaseStatus, long process_purchases_id = 0);
+                                                                 ref long purchaseID, ref DateTime? subscriptionEndDate, SubscriptionPurchaseStatus subscriptionPurchaseStatus, long process_purchases_id = 0, bool isPending = false);
 
         protected internal abstract bool HandleCollectionBillingSuccess(ref TransactionResponse response, string siteGUID, long houseHoldID, Collection collection, double price, string currency, string coupon,
                                                               string userIP, string country, string deviceName, long billingTransactionId, string customData, int productID,
-                                                              string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID);
+                                                              string billingGuid, bool isEntitledToPreviewModule, DateTime entitlementDate, ref long purchaseID, DateTime? endDate = null, bool isPending = false);
 
 
         /*
@@ -1066,20 +1068,6 @@ namespace Core.ConditionalAccess
             return InAppRes.m_oBillingResponse;
         }
 
-        protected DateTime CalcCollectionEndDate(Collection col, DateTime dtToInitializeWith)
-        {
-            DateTime res = dtToInitializeWith;
-            if (col != null)
-            {
-                if (col.m_oCollectionUsageModule != null)
-                {
-                    // calc end date as before.
-                    res = Utils.GetEndDateTime(res, col.m_oCollectionUsageModule.m_tsMaxUsageModuleLifeCycle);
-                }
-            }
-            return res;
-        }
-
         /// <summary>
         /// In App Charge User For Subscription
         /// </summary>
@@ -1692,7 +1680,7 @@ namespace Core.ConditionalAccess
                         {
                             WriteToUserLog(sSiteGUID,
                                 String.Concat("Sub ID: ", sSubscriptionCode, " with Purchase ID: ", nSubscriptionPurchaseID, " has been canceled."));
-                            if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(domainId)))
+                            if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId)))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on CancelSubscription for domainId = {0}");
                             }
@@ -1832,10 +1820,36 @@ namespace Core.ConditionalAccess
                             }
 
                             // Try to cancel subscription
-                            cancelResult = ConditionalAccessDAL.CancelSubscription(purchaseID, m_nGroupID, sPurchasingSiteGuid, subscriptionCode, (int)SubscriptionPurchaseStatus.Cancel) > 0;
+
+                            SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(m_nGroupID)
+                            {
+                                purchaseId = purchaseID,
+                                productId = subscriptionCode,
+                                siteGuid = sPurchasingSiteGuid,
+                                status = SubscriptionPurchaseStatus.Cancel,
+                                UpdateFromCancelRenewal = true
+                            };
+
+                            cancelResult = subscriptionPurchase.Update();
 
                             if (cancelResult)
                             {
+                                int unifiedPaymentId = ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "unified_process_id"); //BEO-9166
+                                if (unifiedPaymentId > 0)
+                                {
+                                    DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseUnifiedForRenewal(m_nGroupID, domainId, unifiedPaymentId);
+                                    
+                                    if (subscriptionPurchaseDt == null || (subscriptionPurchaseDt != null && subscriptionPurchaseDt.Rows != null && subscriptionPurchaseDt.Rows.Count == 0))
+                                    {
+                                        //delete from db 
+                                        bool dbRes = DAL.ConditionalAccessDAL.UpdateUnifiedProcess(unifiedPaymentId, null, null, null, true);
+                                        long billingCycle = subscriptionToCancel.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle;
+                                        bool cbRes = UnifiedBillingCycleManager.SetDomainUnifiedBillingCycle(domainId, billingCycle, 0);
+
+                                        log.Debug($"BEO-9166 delete unified process {unifiedPaymentId} dbRes:{dbRes} cbres:{dbRes}");
+                                    }
+                                }
+
                                 // site guid of purchasing user
                                 WriteToUserLog(sPurchasingSiteGuid,
                                     String.Concat("Sub ID: ", subscriptionCode, " with Purchase ID: ",
@@ -1856,7 +1870,7 @@ namespace Core.ConditionalAccess
 
                                 EnqueueEventRecord(NotifiedAction.CancelDomainSubscriptionRenewal, dicData, userId, udid, userIp);
 
-                                string invalidationKey = LayeredCacheKeys.GetCancelSubscriptionRenewalInvalidationKey(domainId);
+                                string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId);
                                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                                 {
                                     log.ErrorFormat("Failed to set invalidation key on CancelSubscriptionRenewal key = {0}", invalidationKey);
@@ -2492,7 +2506,7 @@ namespace Core.ConditionalAccess
                             long domainId = 0;
                             Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
 
-                            string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(domainId);
+                            string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on InApp_RenewSubscription key = {0}", invalidationKey);
@@ -2657,7 +2671,8 @@ namespace Core.ConditionalAccess
         }
 
         protected internal bool GetMultiSubscriptionUsageModule(RenewDetails renewDetails, string userIp, ref int recPeriods, ref bool isMPPRecurringInfinitely,
-                                                                Subscription subscription, ref SubscriptionCycle subscriptionCycle, int groupId = 0, bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
+                                                                Subscription subscription, ref SubscriptionCycle subscriptionCycle, int groupId = 0,
+                                                                bool ignoreUnifiedBillingCycle = true, bool isRenew = true)
         {
             bool isSuccess = false;
             if (subscription == null) { return isSuccess; }
@@ -2718,6 +2733,12 @@ namespace Core.ConditionalAccess
 
                 bool recurringCouponFirstExceeded = false;
                 var originalPrice = renewDetails.Price;
+
+                if (string.IsNullOrEmpty(renewDetails.RecurringData.CouponCode))
+                {
+                    bool used = HandleRecurringCampaign(renewDetails, subscription, oCurrency);
+                }
+
                 HandleRecurringCoupon(renewDetails, subscription, oCurrency, out recurringCouponFirstExceeded);
 
                 if (renewDetails.RecurringData.Compensation != null)
@@ -2758,6 +2779,7 @@ namespace Core.ConditionalAccess
                             renewDetails.Price = finalPriceAndCouponRemainder.Item1;
                             renewDetails.RecurringData.CouponRemainder = finalPriceAndCouponRemainder.Item2;
                             isPartialPrice = true;
+                            renewDetails.IsAddToUnified = true;
                         }
                     }
                 }
@@ -2849,7 +2871,7 @@ namespace Core.ConditionalAccess
                         long domainId = 0;
                         Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
 
-                        string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(domainId);
+                        string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
                             log.ErrorFormat("Failed to set invalidation key on DD_BaseRenewMultiUsageSubscription key = {0}", invalidationKey);
@@ -3428,6 +3450,98 @@ namespace Core.ConditionalAccess
             {
                 log.Error("HandleRecurringCoupon error - , PurchaseID: " + renewDetails.PurchaseId.ToString() + ",Exception:" + ex.ToString(), ex);
             }
+        }
+
+        private bool HandleRecurringCampaign(RenewDetails renewDetails, Subscription theSub, Currency oCurrency)
+        {
+            bool use = false;
+            try
+            {
+                if (renewDetails.RecurringData.CampaignDetails == null || renewDetails.RecurringData.CampaignDetails.Id == 0)
+                {
+                    return use;
+                    #region recurring - not for now
+                    /*
+                    Price originalPrice = new Price
+                    {
+                        m_dPrice = renewDetails.Price,
+                        m_oCurrency = oCurrency
+                    };
+
+                    Price finalPrice = new Price
+                    {
+                        m_dPrice = renewDetails.Price,
+                        m_oCurrency = oCurrency
+                    };
+
+                    var campaign = Utils.GetValidCampaign(renewDetails.GroupId, (int)renewDetails.DomainId, originalPrice, ref finalPrice,
+                        eTransactionType.Subscription, oCurrency.m_sCurrencyCD3, long.Parse(theSub.m_SubscriptionCode), string.Empty, true);
+
+                    if (campaign != null)
+                    {
+                        if (renewDetails.RecurringData.CampaignDetails == null)
+                        {
+                            renewDetails.RecurringData.CampaignDetails = new RecurringCampaignDetails();
+                        }
+
+                        renewDetails.RecurringData.CampaignDetails.Id = campaign.Id;
+                        renewDetails.RecurringData.CampaignDetails.LeftRecurring = campaign.Promotion.NumberOfRecurring ?? 0;                        
+
+                        renewDetails.Price = finalPrice.m_dPrice;
+                        
+                        use = true;
+                    }
+
+                    return use;
+                    */
+                    #endregion
+                }
+                else
+                {
+                    var campaignDetails = renewDetails.RecurringData.CampaignDetails;
+
+                    if (campaignDetails.LeftRecurring > 0)
+                    {
+                        CampaignIdInFilter campaignFilter = new CampaignIdInFilter()
+                        {
+                            IdIn = new List<long>() { campaignDetails.Id }
+                        };
+
+                        ApiObjects.Base.ContextData contextData = new ApiObjects.Base.ContextData(m_nGroupID);
+
+                        var campaigns = ApiLogic.Users.Managers.CampaignManager.Instance.ListCampaingsByIds(contextData, campaignFilter);
+
+                        if (campaigns.HasObjects())
+                        {
+                            Price priceBeforeCouponDiscount = new Price
+                            {
+                                m_dPrice = renewDetails.Price,
+                                m_oCurrency = oCurrency
+                            };
+
+                            var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(m_nGroupID, (int)(campaigns.Objects[0].Promotion.DiscountModuleId), renewDetails.CountryCode, oCurrency.m_sCurrencyCD3);
+
+                            Price priceResult = Utils.GetPriceAfterDiscount(priceBeforeCouponDiscount, discountModule, 0);
+
+                            renewDetails.Price = priceResult.m_dPrice;
+                            use = true;
+                        }
+                    }
+                    else if (campaignDetails.Remainder > 0)
+                    {
+                        renewDetails.RecurringData.CampaignDetails.IsUseRemainder = true;
+                        renewDetails.Price = Math.Max(renewDetails.Price - campaignDetails.Remainder, 0);
+
+                        use = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("HandleRecurringCoupon error - , PurchaseID: " + renewDetails.PurchaseId.ToString() + ",Exception:" + ex.ToString(), ex);
+            }
+
+            return use;
         }
 
         protected bool isDevicePlayValid(string sSiteGUID, string sDEVICE_NAME, ref Domain userDomain)
@@ -5215,7 +5329,7 @@ namespace Core.ConditionalAccess
 
                         if (oResponse.m_oStatus == BillingResponseStatus.Success)
                         {
-                            string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(uObj.m_user.m_domianID);
+                            string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, uObj.m_user.m_domianID);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on CC_BaseChargeUserForMediaFile key = {0}", invalidationKey);
@@ -5306,7 +5420,7 @@ namespace Core.ConditionalAccess
                         Subscription relevantSub = null;
                         Collection relevantCol = null;
                         PrePaidModule relevantPP = null;
-                        Campaign relevantCamp = null;
+                        Core.Pricing.Campaign relevantCamp = null;
                         PPVModule thePPVModule = Pricing.Module.GetPPVModuleData(m_nGroupID, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                         if (!string.IsNullOrEmpty(sCampaignCode))
                         {
@@ -5510,7 +5624,7 @@ namespace Core.ConditionalAccess
 
                         PriceReason theReason = PriceReason.UnKnown;
                         PPVModule theBundle = null;
-                        Campaign relevantCamp = null;
+                        Core.Pricing.Campaign relevantCamp = null;
                         Price price = null;
 
                         switch (bundleType)
@@ -6132,7 +6246,7 @@ namespace Core.ConditionalAccess
                         }
                         if (ret.m_oStatus == BillingResponseStatus.Success)
                         {
-                            string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(uObj.m_user.m_domianID);
+                            string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, uObj.m_user.m_domianID);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on CC_BaseChargeUserForBundle key = {0}", invalidationKey);
@@ -6337,23 +6451,35 @@ namespace Core.ConditionalAccess
                     {
                         string coupon = couponCode;
                         string subscriptionCode = subscriptions[i];
-                        PriceReason theReason = PriceReason.UnKnown;
 
-                        double couponRemainder = 0;
+
                         Subscription s = null;
-                        SubscriptionCycle subscriptionCycle = null;
-                        Price price = Utils.GetSubscriptionFinalPrice(m_nGroupID, subscriptionCode, userId, ref coupon, ref theReason, ref s, string.Empty, languageCode, udid, ip,
-                                                                      ref subscriptionCycle, out couponRemainder, currencyCode, false, blockEntitlement);
 
-                        if (price != null)
+                        var price = Utils.GetSubscriptionFullPrice(m_nGroupID, subscriptionCode, userId, coupon, ref s, string.Empty, languageCode, udid, ip,
+                                                                      currencyCode, false, blockEntitlement);
+
+                        coupon = price.CouponCode;
+                        double couponRemainder = price.CouponRemainder;
+                        var subscriptionCycle = price.SubscriptionCycle;
+
+                        if (price.FinalPrice != null)
                         {
                             SubscriptionsPricesContainer cont = new SubscriptionsPricesContainer();
                             long? endDate = null;
-                            if (subscriptionCycle != null && subscriptionCycle.UnifiedBillingCycle != null && theReason != PriceReason.EntitledToPreviewModule && string.IsNullOrEmpty(coupon))
+                            if (subscriptionCycle != null && subscriptionCycle.UnifiedBillingCycle != null && price.PriceReason != PriceReason.EntitledToPreviewModule && string.IsNullOrEmpty(coupon))
                             {
                                 endDate = subscriptionCycle.UnifiedBillingCycle.endDate;
                             }
-                            cont.Initialize(subscriptionCode, price, theReason, endDate);
+                            cont.Initialize(subscriptionCode, price.FinalPrice, price.PriceReason, price.OriginalPrice, endDate);
+
+                            if (price.CampaignDetails != null)
+                            {
+                                cont.PromotionInfo = new PromotionInfo()
+                                {
+                                    CampaignId = price.CampaignDetails.Id
+                                };
+                            }
+
                             resp.Add(cont);
                         }
                     }
@@ -7367,7 +7493,7 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get User Billing History
         /// </summary>
-        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0, 
+        protected virtual BillingTransactions GetUserBillingHistoryExt(string sUserGUID, DateTime dStartDate, DateTime dEndDate, int nStartIndex = 0, int nNumberOfItems = 0,
             TransactionHistoryOrderBy orderBy = TransactionHistoryOrderBy.CreateDateDesc)
         {
             BillingTransactionsResponse theResp = new BillingTransactionsResponse();
@@ -7581,6 +7707,11 @@ namespace Core.ConditionalAccess
                         res.ExternalTransactionId = paymentGatewayTransaction.ExternalTransactionId;
                         res.m_sPaymentMethodExtraDetails += string.Format(", PaymentMethod:{0}, PaymentDetails:{1}",
                             paymentGatewayTransaction.PaymentMethod, paymentGatewayTransaction.PaymentDetails);
+
+                        if (paymentGatewayTransaction.State == (int)eTransactionState.Pending)
+                        {
+                            res.m_eBillingAction = BillingAction.Pending;
+                        }
                     }
                 }
                 else
@@ -7749,7 +7880,7 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get CustomData string  
         /// </summary>
-        protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Campaign campaign,
+        protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Core.Pricing.Campaign campaign,
                string sSiteGUID, double dPrice, string sCurrency,
                Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode, string sCampaignCode, string sCouponCode, string sUserIP,
                string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate)
@@ -7826,7 +7957,7 @@ namespace Core.ConditionalAccess
         }
 
         // Get CustomData string
-        protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Campaign campaign,
+        protected internal virtual string GetCustomData(Subscription relevantSub, PPVModule thePPVModule, Core.Pricing.Campaign campaign,
                                                string sSiteGUID, double dPrice, string sCurrency, Int32 nMediaFileID, Int32 nMediaID, string sPPVModuleCode,
                                                string sCampaignCode, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, long domainId)
         {
@@ -7837,7 +7968,7 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get Custom Data For Pre Paid
         /// </summary>
-        protected virtual string GetCustomDataForPrePaid(PrePaidModule thePrePaidModule, Campaign campaign, string sPrePaidCode, string sCampaignCode,
+        protected virtual string GetCustomDataForPrePaid(PrePaidModule thePrePaidModule, Core.Pricing.Campaign campaign, string sPrePaidCode, string sCampaignCode,
         string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
         string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate)
         {
@@ -7912,7 +8043,7 @@ namespace Core.ConditionalAccess
 
         }
 
-        protected virtual string GetCustomDataForPrePaid(PrePaidModule thePrePaidModule, Campaign campaign, string sPrePaidCode, string sCampaignCode,
+        protected virtual string GetCustomDataForPrePaid(PrePaidModule thePrePaidModule, Core.Pricing.Campaign campaign, string sPrePaidCode, string sCampaignCode,
            string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
@@ -7923,9 +8054,9 @@ namespace Core.ConditionalAccess
         /// <summary>
         /// Get Custom Data For Subscription
         /// </summary>
-        protected internal virtual string GetCustomDataForSubscription(Subscription theSub, Campaign campaign, string sSubscriptionCode, string sCampaignCode, string sSiteGUID,
+        protected internal virtual string GetCustomDataForSubscription(Subscription theSub, Core.Pricing.Campaign campaign, string sSubscriptionCode, string sCampaignCode, string sSiteGUID,
             double dPrice, string sCurrency, string sCouponCode, string sUserIP, string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, string sOverrideEndDate, string sPreviewModuleID,
-            bool previewEntitled, bool isDummy = false, int recurringNumber = 0, bool saveHistory = false, int? context = null, bool isPartialPrice = false)
+            bool previewEntitled, bool isDummy = false, int recurringNumber = 0, bool saveHistory = false, int? context = null, bool isPartialPrice = false, long campaignId = 0)
         {
             bool bIsRecurring = theSub.m_bIsRecurring;
 
@@ -8020,6 +8151,10 @@ namespace Core.ConditionalAccess
             {
                 sb.Append(string.Format("<partialPrice>{0}</partialPrice>", isPartialPrice));
             }
+            if (campaignId > 0)
+            {
+                sb.Append($"<campaign>{campaignId}</campaign>");
+            }
             sb.Append("</customdata>");
             return sb.ToString();
         }
@@ -8085,7 +8220,7 @@ namespace Core.ConditionalAccess
 
         }
 
-        protected virtual string GetCustomDataForSubscription(Subscription theSub, Campaign campaign, string sSubscriptionCode, string sCampaignCode,
+        protected virtual string GetCustomDataForSubscription(Subscription theSub, Core.Pricing.Campaign campaign, string sSubscriptionCode, string sCampaignCode,
                                                                 string sSiteGUID, double dPrice, string sCurrency, string sCouponCode, string sUserIP,
                                                                 string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, long domainId)
         {
@@ -9249,6 +9384,11 @@ namespace Core.ConditionalAccess
                 sb.Append(string.Format("<partialPrice>{0}</partialPrice>", isPartialPrice));
             }
 
+            if (renewSubscriptionDetails.RecurringData.CampaignDetails?.Id > 0) // add to custom data CampaignDetails
+            {
+                sb.Append($"<campaign>{renewSubscriptionDetails.RecurringData.CampaignDetails.Id}</campaign>");
+            }
+
             sb.Append("</customdata>");
 
             return sb.ToString();
@@ -10045,7 +10185,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // Check if within cancellation window
-                    bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid);
+                    bool isInCancellationWindow = GetCancellationWindow(assetID, transactionType, ref userPurchasesTable, domainId, ref billingGuid, true);
 
                     // Check if the user purchased the asset at all
                     if (userPurchasesTable == null || userPurchasesTable.Rows == null || userPurchasesTable.Rows.Count == 0)
@@ -10103,6 +10243,25 @@ namespace Core.ConditionalAccess
                         else
                         {
                             bool dalResult = false;
+
+                            if (!HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_KS))
+                            {
+                                if (!string.IsNullOrEmpty(userId))
+                                {
+                                    if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_USER_ID))
+                                        HttpContext.Current.Items[RequestContextUtils.REQUEST_USER_ID] = userId;
+                                    else
+                                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_USER_ID, userId);
+                                }
+
+                                if (!string.IsNullOrEmpty(udid))
+                                {
+                                    if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_UDID))
+                                        HttpContext.Current.Items[RequestContextUtils.REQUEST_UDID] = udid;
+                                    else
+                                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_UDID, udid);
+                                }
+                            }
 
                             // Cancel NOW - according to type
                             switch (transactionType)
@@ -10223,7 +10382,7 @@ namespace Core.ConditionalAccess
                                     EnqueueCancelServiceRecord(domainId, assetID, transactionType, dtEndDate, updaterUser, udid, userIp);
                                 }
 
-                                string invalidationKey = LayeredCacheKeys.GetCancelServiceNowInvalidationKey(domainId);
+                                string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId);
                                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                                 {
                                     log.ErrorFormat("Failed to set invalidation key on CancelServiceNow key = {0}", invalidationKey);
@@ -10576,7 +10735,7 @@ namespace Core.ConditionalAccess
                     WriteToUserLog(p_sSiteGuid, string.Format("user :{0} CancelTransaction for {1} item :{2}", p_sSiteGuid, Enum.GetName(typeof(eTransactionType), p_enmTransactionType), p_nAssetID));
                     //call billing to the client specific billing gateway to perform a cancellation action on the external billing gateway                   
 
-                    string invalidationKey = LayeredCacheKeys.GetCancelTransactionInvalidationKey((long)domainid);
+                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainid);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on CancelTransaction key = {0}", invalidationKey);
@@ -10608,7 +10767,7 @@ namespace Core.ConditionalAccess
         /// <param name="p_dtUserPurchases"></param>
         /// <param name="p_domainID"></param>
         /// <returns></returns>
-        private bool GetCancellationWindow(int p_nAssetID, eTransactionType p_enmServiceType, ref DataTable p_dtUserPurchases, int p_domainID, ref string billingGuid)
+        private bool GetCancellationWindow(int p_nAssetID, eTransactionType p_enmServiceType, ref DataTable p_dtUserPurchases, int p_domainID, ref string billingGuid, bool includeSuspended = false)
         {
             UsageModule oUsageModule = null;
             bool bCancellationWindow = false;
@@ -10625,7 +10784,7 @@ namespace Core.ConditionalAccess
                     }
                 case eTransactionType.Subscription:
                     {
-                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, null, m_nGroupID, p_domainID);
+                        p_dtUserPurchases = ConditionalAccessDAL.Get_AllSubscriptionPurchasesByUserIDsAndSubscriptionCode(p_nAssetID, null, m_nGroupID, p_domainID, includeSuspended);
                         break;
                     }
                 case eTransactionType.Collection:
@@ -11095,12 +11254,13 @@ namespace Core.ConditionalAccess
 
                         if (transactionType.HasValue && businessModuleId > 0)
                         {
+                            response.Data.ProductType = transactionType.Value;
+                            response.Data.ProductId = businessModuleId;
+
                             var commerceConfig = PartnerConfigurationManager.GetCommercePartnerConfig(this.m_nGroupID);
                             if (commerceConfig.HasObject() && commerceConfig.Object.BookmarkEventThresholds?.Count > 0 && commerceConfig.Object.BookmarkEventThresholds.ContainsKey(transactionType.Value))
                             {
                                 response.Data.BookmarkEventThreshold = commerceConfig.Object.BookmarkEventThresholds[transactionType.Value];
-                                response.Data.ProductType = transactionType.Value;
-                                response.Data.ProductId = businessModuleId;
                             }
                         }
                     }
@@ -11751,7 +11911,7 @@ namespace Core.ConditionalAccess
 
                             if (handleBillingPassed)
                             {
-                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(householdId));
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, householdId));
                                 WriteToUserLog(siteguid, string.Format("PPV Purchase, ProductID:{0}, ContentID:{1}, PurchaseID:{2}, BillingTransactionID:{3}",
                                     productId, contentId, purchaseId, response.TransactionID));
 
@@ -11891,7 +12051,7 @@ namespace Core.ConditionalAccess
 
                                 if (handleBillingPassed && subscriptionEndDate.HasValue)
                                 {
-                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(householdId));
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, householdId));
                                     // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
                                     if (subscription.m_nDomainLimitationModule != 0)
                                     {
@@ -12076,7 +12236,7 @@ namespace Core.ConditionalAccess
 
                             if (handleBillingPassed)
                             {
-                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetPurchaseInvalidationKey(householdId));
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, householdId));
                                 // entitlement passed, update domain DLM with new DLM from subscription or if no DLM in new subscription, with last domain DLM
 
                                 // entitlement passed - build notification message
@@ -12198,54 +12358,43 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                // if status pending or completed - nothing to update
-                if (billingResponse.TransactionState == eTransactionState.OK || billingResponse.TransactionState == eTransactionState.Pending)
+                // if status OK or Pending
+                if (billingResponse.TransactionState != eTransactionState.Failed)
                 {
-                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    return response;
-                }
-                // update cas
-                else
-                {
-                    bool isUpdated = false;
-                    switch (billingResponse.ProductType)
+                    if (billingResponse.TransactionState == eTransactionState.OK && billingResponse.IsAsyncPolicy)
                     {
-                        case eTransactionType.PPV:
-                            isUpdated = ConditionalAccessDAL.UpdatePPVPurchaseActiveStatus(billingResponse.BillingGuid, 0);
-                            break;
-                        case eTransactionType.Subscription:
-                            {
-                                int purchaseId = ConditionalAccessDAL.UpdateSubscriptionPurchaseActiveStatus(billingResponse.BillingGuid, 0, 0);
+                        response = EntitlementManager.UpdatePendingEntitlement(m_nGroupID, billingResponse.ProductType, billingResponse.BillingGuid, null);
 
-                                isUpdated = purchaseId > 0;
+                        if (!response.IsOkStatusCode())
+                        {
+                            log.Error($"Failed to set Update PendingEntitlement ProductType: {billingResponse.ProductType}, BillingGuid:{billingResponse.BillingGuid}");
+                            return response;
+                        }
 
-                                if (isUpdated)
-                                {
-                                    long endDateUnix = DateUtils.GetUtcUnixTimestampNow();
-                                    RenewManager.EnqueueSubscriptionEndsMessage(this.m_nGroupID, string.Empty, purchaseId, endDateUnix);
-                                }
-
-                                break;
-                            }
-                        case eTransactionType.Collection:
-                            isUpdated = ConditionalAccessDAL.UpdateCollectionPurchaseActiveStatus(billingResponse.BillingGuid, 0);
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (isUpdated)
-                    {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        string invalidationKey = LayeredCacheKeys.GetCancelTransactionInvalidationKey(billingResponse.DomainId);
+                        string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, billingResponse.DomainId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
-                            log.ErrorFormat("Failed to set invalidation key on UpdatePendingTransaction key = {0}", invalidationKey);
+                            log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
                         }
                     }
-                    else
+
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                }
+                else
+                {
+                    // if status Failed
+                    response = EntitlementManager.DeletePendingEntitlement(m_nGroupID, billingResponse.ProductType, billingResponse.BillingGuid);
+
+                    if (!response.IsOkStatusCode())
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, "error while updating pending transaction entitlement");
+                        log.Error($"Failed to set Update PendingEntitlement ProductType: {billingResponse.ProductType}, BillingGuid:{billingResponse.BillingGuid}");
+                        return response;
+                    }
+
+                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, billingResponse.DomainId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat("Failed to set invalidation key on CheckPendingTransaction key = {0}", invalidationKey);
                     }
                 }
             }
@@ -12254,6 +12403,7 @@ namespace Core.ConditionalAccess
                 log.Error("UpdatePendingTransaction  ", ex);
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "error while updating pending transaction");
             }
+
             return response;
         }
 
@@ -12282,7 +12432,6 @@ namespace Core.ConditionalAccess
 
                 #endregion
 
-                //GetEntitlement(
                 // update billing
                 var billingResponse = Billing.Module.CheckPendingTransaction(m_nGroupID, paymentGatewayPendingId, numberOfRetries, billingGuid, paymentGatewayTransactionId, siteGuid);
 
@@ -12299,60 +12448,57 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                // if status pending or completed - nothing to update
-                if (billingResponse.State == eTransactionState.OK ||
-                    billingResponse.State == eTransactionState.Pending)
+                // if status pending or completed
+                if (billingResponse.State != eTransactionState.Failed)
                 {
                     WriteToUserLog(siteGuid, string.Format("Check Pending Transaction : TransactionID:{0}, State:{1}", billingResponse.TransactionID, billingResponse.State));
+
+                    if (billingResponse.State == eTransactionState.OK)
+                    {
+                        // Get Adapter Data
+                        PaymentGateway paymentGateway = DAL.BillingDAL.GetPaymentGateway(m_nGroupID, (int)paymentGatewayPendingId, 1, 1);
+
+                        if (paymentGateway != null && paymentGateway.IsAsyncPolicy)
+                        {
+                            response = EntitlementManager.UpdatePendingEntitlement(m_nGroupID, (eTransactionType)productType, billingGuid, paymentGateway);
+
+                            if (!response.IsOkStatusCode())
+                            {
+                                log.Error($"Failed to set Update PendingEntitlement ProductType: {productType}, BillingGuid:{billingGuid}");
+                                return response;
+                            }
+
+                            string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId);
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                            {
+                                log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
+                            }
+                        }
+                    }
 
                     response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     return response;
                 }
-                // update cas
                 else
                 {
-                    bool isUpdated = false;
-                    switch ((eTransactionType)productType)
+                    // if status Failed
+                    response = EntitlementManager.DeletePendingEntitlement(m_nGroupID, (eTransactionType)productType, billingGuid);
+
+                    if (!response.IsOkStatusCode())
                     {
-                        case eTransactionType.PPV:
-                            isUpdated = ConditionalAccessDAL.UpdatePPVPurchaseActiveStatus(billingGuid, 0);
-                            break;
-                        case eTransactionType.Subscription:
-                            {
-                                int purchaseId = ConditionalAccessDAL.UpdateSubscriptionPurchaseActiveStatus(billingGuid, 0, 0);
-
-                                isUpdated = purchaseId > 0;
-
-                                if (isUpdated)
-                                {
-                                    long endDateUnix = DateUtils.GetUtcUnixTimestampNow();
-                                    RenewManager.EnqueueSubscriptionEndsMessage(this.m_nGroupID, siteGuid, purchaseId, endDateUnix);
-                                }
-
-                                break;
-                            }
-                        case eTransactionType.Collection:
-                            isUpdated = ConditionalAccessDAL.UpdateCollectionPurchaseActiveStatus(billingGuid, 0);
-                            break;
-                        default:
-                            break;
+                        log.Error($"Failed to set Update PendingEntitlement ProductType: {productType}, BillingGuid:{billingGuid}");
+                        return response;
                     }
 
-                    if (isUpdated)
-                    {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                        WriteToUserLog(siteGuid, string.Format("Check Pending Transaction - Remove Entitlement: TransactionID:{0}, State:{1}, FailReasonCode:{2}, ",
-                            billingResponse.TransactionID, billingResponse.State, billingResponse.FailReasonCode));
+                    response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-                        string invalidationKey = LayeredCacheKeys.GetCancelTransactionInvalidationKey(domainId);
-                        if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                        {
-                            log.ErrorFormat("Failed to set invalidation key on CheckPendingTransaction key = {0}", invalidationKey);
-                        }
-                    }
-                    else
+                    WriteToUserLog(siteGuid, string.Format("Check Pending Transaction - Remove Entitlement: TransactionID:{0}, State:{1}, FailReasonCode:{2}, ",
+                        billingResponse.TransactionID, billingResponse.State, billingResponse.FailReasonCode));
+
+                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
-                        response = new ApiObjects.Response.Status((int)eResponseStatus.ErrorUpdatingPendingTransaction, "error while updating pending transaction entitlement");
+                        log.ErrorFormat("Failed to set invalidation key on CheckPendingTransaction key = {0}", invalidationKey);
                     }
                 }
             }
@@ -12364,7 +12510,6 @@ namespace Core.ConditionalAccess
 
             return response;
         }
-
 
         public ApiObjects.Response.Status GrantEntitlements(string userId, long householdId, int contentId, int productId, eTransactionType transactionType, string ip,
             string udid, bool history)
@@ -12831,7 +12976,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // invalidate purchase key anyway - BEO-6693
-                string invalidationKey = LayeredCacheKeys.GetPurchaseInvalidationKey(householdId);
+                string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, householdId);
                 if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key on Purchase key = {0}", invalidationKey);
@@ -13344,7 +13489,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                //// in case adapterId is the group selected CDVR Adapter  - delete isn’t allowed
+                //// in case adapterId is the group selected CDVR Adapter  - delete isnï¿½t allowed
                 ////-------------------------------------------------------------------------------
                 //object defaultAdapter = ODBCWrapper.Utils.GetTableSingleVal("groups_parameters", "OSS_ADAPTER", "GROUP_ID", "=", m_nGroupID, "billing_connection");
                 //int cdvrAdapterIdentifier = 0;
@@ -13654,7 +13799,7 @@ namespace Core.ConditionalAccess
 
                     if (canRecord)
                     {
-                        int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                        var recordingDuration = QuotaManager.GetRecordingDurationSeconds(recording);
                         log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, quotaOverage);
                         if (quotaOverage) // if QuotaOverage then call delete recorded as needed                               
                         {
@@ -13711,22 +13856,16 @@ namespace Core.ConditionalAccess
         {
             try
             {
-                if (QuotaManager.Instance.IncreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
+                if (QuotaManager.Instance.SetDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
                 {
                     recording.Type = recordingType;
 
                     if (RecordingsDAL.UpdateOrInsertDomainRecording(m_nGroupID, long.Parse(userID), domainID, recording, domainSeriesRecordingId))
                     {
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainID));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainID));
                     }
                     else
                     {
-                        // increase the quota back to the user                               
-                        if (!QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainID, recordingDuration))
-                        {
-                            log.ErrorFormat("Failed giving the quota back to the domain, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
-                        }
-
                         log.ErrorFormat("Failed saving record to domain recordings table, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, recording.ToString());
                         recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                     }
@@ -13821,16 +13960,16 @@ namespace Core.ConditionalAccess
 
                 if (res)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
 
                     if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
                     {
                         recording.Status = RecordingsManager.Instance.CacnelOrDeleteExternalRecording(m_nGroupID, recording.Id, recording.EpgId, tstvRecordingStatus == TstvRecordingStatus.Deleted);
                     }
-                    else if (QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds))
+                    else
                     {
                         ContextData contextData = new ContextData();
-                        System.Threading.Tasks.Task async = Task.Run(() =>
+                        Task async = Task.Run(() =>
                         {
                             contextData.Load();
                             if (!CompleteDomainSeriesRecordings((long)domainId))
@@ -13946,10 +14085,11 @@ namespace Core.ConditionalAccess
                 // if the recording is of type Single then quota should be checked for each valid recording
                 if (isSingleRecording || shouldCheckQuota)
                 {
-                    int totalSeconds = QuotaManager.Instance.GetDomainAvailableQuota(this.m_nGroupID, domainID);
+                    int totalSeconds = QuotaManager.Instance.GetDomainAvailableQuota(this.m_nGroupID, domainID, out int usedQuota);
+
                     if (recording.RecordingStatus == TstvRecordingStatus.OK)
                     {
-                        int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                        int recordingDuration = QuotaManager.GetRecordingDurationSeconds(recording);
                         if (recordingDuration > totalSeconds)
                         {
                             recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.ExceededQuota, eResponseStatus.ExceededQuota.ToString());
@@ -14272,7 +14412,7 @@ namespace Core.ConditionalAccess
             foreach (var recording in domainRecording)
             {
                 if (recording.Value.isExternalRecording && IsContained(
-                        (recording.Value as ExternalRecording).MetaData.ToDictionary(x => x.Key.ToLower(),
+                        (recording.Value as ExternalRecording)?.MetaData?.ToDictionary(x => x.Key.ToLower(),
                             x => x.Value.ToLowerOrNull()), metaDataFilter))
                 {
                     ret.Add(recording.Key, recording.Value);
@@ -14284,6 +14424,11 @@ namespace Core.ConditionalAccess
 
         private bool IsContained(Dictionary<string, string> metaData, Dictionary<string, string> filters)
         {
+            if (metaData == null)
+            {
+                return false;
+            }
+
             foreach (var filter in filters)
             {
                 string value;
@@ -14554,7 +14699,7 @@ namespace Core.ConditionalAccess
                                     {
                                         // check if the epg is series by getting the fields mappings for the epg
                                         Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg);
-                                        if (epgFieldMappings != null && epgFieldMappings.Count > 0)
+                                        if (epgFieldMappings != null && epgFieldMappings.Count > 0 && epgFieldMappings.ContainsKey(Utils.SERIES_ID))
                                         {
                                             long channelId;
                                             if (!long.TryParse(epg.EPG_CHANNEL_ID, out channelId))
@@ -14844,7 +14989,7 @@ namespace Core.ConditionalAccess
                     if (RecordingsDAL.SetDomainsRecordings(recording.Id, protectedUntilDate, protectedUntilEpoch, metaDataStr, recordingToUpdate.ViewableUntilDate))
                     {
                         UpdateRecordingSuccessed((recording as ExternalRecording), protectedUntilEpoch, (recordingToUpdate as ExternalRecording).MetaData, recordingToUpdate.ViewableUntilDate);
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainID));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainID));
                     }
                     else
                     {
@@ -14963,7 +15108,7 @@ namespace Core.ConditionalAccess
                     // Try to Update protection details for domain recording and update recording status
                     if (RecordingsDAL.ProtectRecording(recording.Id, protectedUntilDate, protectedUntilEpoch))
                     {
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainID));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainID));
                         UpdateRecordingSuccessed(recording, protectedUntilEpoch);
                     }
                     else
@@ -15411,7 +15556,7 @@ namespace Core.ConditionalAccess
                         domainRecordingStatus = DomainRecordingStatus.DeletedBySystem;
                     }
 
-                    int recordingDuration = (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds;
+                    int recordingDuration = QuotaManager.GetRecordingDurationSeconds(recording);
                     long maxDomainRecordingId = 0;
                     DataTable modifiedDomainRecordings = RecordingsDAL.UpdateAndGetDomainsRecordingsByRecordingIdAndProtectDate(task.RecordingId, task.ScheduledExpirationEpoch == 0 ? -1 : task.ScheduledExpirationEpoch,
                         status, domainRecordingStatus.Value, maxDomainRecordingId);
@@ -15423,7 +15568,7 @@ namespace Core.ConditionalAccess
                         maxDegreeOfParallelism = 5;
                     }
 
-                    System.Collections.Concurrent.ConcurrentBag<long> domainIds = new System.Collections.Concurrent.ConcurrentBag<long>();
+                    ConcurrentBag<long> domainIds = new ConcurrentBag<long>();
                     ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
                     while (modifiedDomainRecordings != null && modifiedDomainRecordings.Rows != null && modifiedDomainRecordings.Rows.Count > 0)
                     {
@@ -15435,26 +15580,17 @@ namespace Core.ConditionalAccess
                             if (dr != null)
                             {
                                 long domainId = ODBCWrapper.Utils.GetLongSafeVal(dr, "DOMAIN_ID", 0);
-                                bool quotaSuccessfullyUpdated = false;
 
                                 // BEO - BEO-7188
                                 if (recordingDuration > 0)
                                 {
-                                    quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainUsedQuota(task.GroupId, domainId, recordingDuration);
-                                }
-
-                                if (quotaSuccessfullyUpdated)
-                                {
                                     domainIds.Add(domainId);
+
                                     if (!CompleteDomainSeriesRecordings(domainId))
                                     {
                                         log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", task.RecordingId, domainId);
                                     }
-                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
-                                }
-                                else
-                                {
-                                    log.ErrorFormat("Failed Updating domain {0} available quota", domainId);
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
                                 }
                             }
                             else
@@ -15545,19 +15681,10 @@ namespace Core.ConditionalAccess
                         long domainId = userDomainlist[i].DomainId;
                         if (domainId > 0)
                         {
-                            bool quotaSuccessfullyUpdated = QuotaManager.Instance.DecreaseDomainUsedQuota(m_nGroupID, domainId, (int)(recording.EpgEndDate - recording.EpgStartDate).TotalSeconds);
-
-                            if (quotaSuccessfullyUpdated)
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
+                            if (!CompleteDomainSeriesRecordings(domainId))
                             {
-                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
-                                if (!CompleteDomainSeriesRecordings(domainId))
-                                {
-                                    log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", recording.Id, domainId);
-                                }
-                            }
-                            else
-                            {
-                                log.ErrorFormat("Failed Updating domain {0} available quota", domainId);
+                                log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after modifiedRecordingId: {0}, for domainId: {1}", recording.Id, domainId);
                             }
                         }
                     });
@@ -15579,7 +15706,7 @@ namespace Core.ConditionalAccess
             {
                 long epgId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "epg_id");
                 //Check user Entitled for the channel 
-                //Updated definitions for future/scheduled single recordings on channel entitlements revoke – to allow lazy removal
+                //Updated definitions for future/scheduled single recordings on channel entitlements revoke ï¿½ to allow lazy removal
                 List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
                 if (epgs == null || epgs.Count == 0)
                 {
@@ -15620,7 +15747,7 @@ namespace Core.ConditionalAccess
 
                     if (!isUserAddToDic)
                     {
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(userDomainPair.Value));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, userDomainPair.Value));
                     }
                 }
 
@@ -15672,7 +15799,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // get household quota - if no quota - nothing to do
-                int availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId);
+                int availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId, out int used);
 
                 // min quota threshold for skipping this process                
                 if (availibleQuota <= 60 && (!tstvSettings.QuotaOveragePolicy.HasValue ||
@@ -15789,7 +15916,7 @@ namespace Core.ConditionalAccess
                             {
                                 log.DebugFormat("successfully recorded episode for domainId = {0}, epgId = {1}, new recordingId = {2}", domainId, epgId, recording.Id);
 
-                                availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId);
+                                availibleQuota = QuotaManager.Instance.GetDomainAvailableQuota(m_nGroupID, domainId, out int _used);
 
                                 if (!recordedCridsPerChannel.ContainsKey(epgChannelId))
                                 {
@@ -15901,6 +16028,20 @@ namespace Core.ConditionalAccess
                     if (!long.TryParse(Utils.GetStringParamFromExtendedSearchResult(epg, "epg_channel_id"), out epgChannelId))
                     {
                         log.ErrorFormat("failed parsing epgChannelId on HandleFirstFollowerRecording, domainId: {0}, channelId: {1}, seriesId: {2}, seassonNumber: {3}", domainId, channelId, seriesId, seasonNumber);
+                        continue;
+                    }
+
+                    //Get Program
+                    List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
+                    if (epgs == null || epgs.Count == 0)
+                    {
+                        log.Debug($"Failed Getting EPG from Catalog, EpgId: {epgId}");
+                        continue;
+                    }
+
+                    if (epgs[0].ENABLE_CDVR == 0)
+                    {
+                        log.Debug($"EPG not for recording, EpgId: {epgId}");
                         continue;
                     }
 
@@ -16330,7 +16471,7 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(domainId));
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
 
                             if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
                             {
@@ -16484,7 +16625,7 @@ namespace Core.ConditionalAccess
 
             /* insert a new message for the next batch of 500 domainSeriesIds with distribution time = epgStartDate */
             if (followingDomains != null && followingDomains.Rows != null && followingDomains.Rows.Count > 0 && maxDomainSeriesId > -1)
-            {                
+            {
                 RecordingsManager.EnqueueMessage(m_nGroupID, epgId, id, epgStartDate, epgStartDate, eRecordingTask.DistributeRecording, maxDomainSeriesId);
             }
 
@@ -16579,7 +16720,7 @@ namespace Core.ConditionalAccess
                         }
                     }
                 }
-            });            
+            });
 
             return result;
         }
@@ -16714,16 +16855,22 @@ namespace Core.ConditionalAccess
 
                 HashSet<long> failedDomainIds;
                 sharedRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, sharedRecording.ChannelId, sharedRecording.EpgStartDate, sharedRecording.EpgEndDate, sharedRecording.Crid,
-                                                                domains.Select(x => x.Item1).ToList(), out failedDomainIds);
-
-                Dictionary<long, List<Recording>> deletedMap = new Dictionary<long, List<Recording>>();
+                                                                domains.Select(x => x.Item1).ToList(), out failedDomainIds, RecordingContext.PrivateDistribute);
 
                 if (sharedRecording != null && sharedRecording.Status != null && sharedRecording.Status.Code == (int)eResponseStatus.OK
                      && sharedRecording.Id > 0 && Utils.IsValidRecordingStatus(sharedRecording.RecordingStatus))
                 {
+                    Dictionary<long, List<Recording>> deletedMap = new Dictionary<long, List<Recording>>();
+
                     Parallel.ForEach(domains, options, domainSeriesData =>
                     {
                         contextData.Load();
+
+                        if (failedDomainIds?.Count > 0 && failedDomainIds.Contains(domainSeriesData.Item1))
+                        {
+                            log.Debug($"faild to record program to domain {domainSeriesData.Item1}");
+                            return;
+                        }
 
                         int recordingDuration = (int)(sharedRecording.EpgEndDate - sharedRecording.EpgStartDate).TotalSeconds;
                         log.DebugFormat("recordingDuration = {0}, quotaOverage={1}", recordingDuration, domainSeriesData.Item3);
@@ -17061,13 +17208,13 @@ namespace Core.ConditionalAccess
                     {
                         Domain domain;
                         ApiObjects.Response.Status status = Utils.ValidateDomain(m_nGroupID, domainId, out domain);
-                        
+
                         if (status == null)
                         {
                             log.ErrorFormat("Failed to validate domain = {0}", domainId);
                             return result;
                         }
-                        
+
                         if (status.Code != (int)eResponseStatus.OK)
                         {
                             log.ErrorFormat("Failed to validate domain = {0}, code = {1}, message = {2}", domainId, status.Code, status.Message);
@@ -17132,7 +17279,7 @@ namespace Core.ConditionalAccess
                             res = RecordingsDAL.DeleteDomainQuota(domainId);
 
                             result = ApiObjects.Response.Status.Ok;
-                            
+
                         }
                         catch (Exception ex)
                         {
@@ -17147,9 +17294,9 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        public Tuple<string, int, bool> GetEpgSeriesDetails(long epgId)
+        public Tuple<string, int, bool, int> GetEpgSeriesDetails(long epgId)
         {
-            Tuple<string, int, bool> result = new Tuple<string, int, bool>(string.Empty, -1, false);
+            Tuple<string, int, bool, int> result = new Tuple<string, int, bool, int>(string.Empty, -1, false, 0);
             List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
             if (epgs == null || epgs.Count != 1)
             {
@@ -17173,7 +17320,14 @@ namespace Core.ConditionalAccess
                 return result;
             }
 
-            return new Tuple<string, int, bool>(seriesId, epgSeasonNumber, IsEpgFirstTimeAirDate(epg));
+            int epgChannelId = 0;
+            if (!int.TryParse(epg.EPG_CHANNEL_ID, out epgChannelId))
+            {
+                log.ErrorFormat("failed parsing EPG_CHANNEL_ID, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
+                return result;
+            }
+
+            return new Tuple<string, int, bool, int>(seriesId, epgSeasonNumber, IsEpgFirstTimeAirDate(epg), epgChannelId);
         }
 
         public SearchableRecording[] GetDomainSearchableRecordings(int groupID, long domainId)
@@ -17427,9 +17581,9 @@ namespace Core.ConditionalAccess
                     response = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed to suspend household payment gateway");
                     return response;
                 }
-                
+
                 bool doInvalidate = false;
-                
+
                 // get entitelments 
                 DataTable dt = ConditionalAccessDAL.GetUnifiedProcessIdByHouseholdPaymentGateway(m_nGroupID, paymentGatewayId, householdId);
 
@@ -17468,7 +17622,7 @@ namespace Core.ConditionalAccess
 
                 if (doInvalidate)
                 {
-                    string invalidationKey = LayeredCacheKeys.GetSubscriptionSuspendInvalidationKey(householdId);
+                    string invalidationKey = LayeredCacheKeys.GetSubscriptionSuspendInvalidationKey(m_nGroupID, householdId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on SuspendPaymentGatewayEntitlements key = {0}", invalidationKey);
@@ -17476,7 +17630,7 @@ namespace Core.ConditionalAccess
 
                     if (householdPaymentGateway.SuspendSettings.RevokeEntitlements)
                     {
-                        invalidationKey = LayeredCacheKeys.GetCancelServiceNowInvalidationKey((int)householdId);
+                        invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, householdId);
                         if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                         {
                             log.ErrorFormat("Failed to set invalidation key on revoke key = {0}", invalidationKey);
@@ -17683,7 +17837,7 @@ namespace Core.ConditionalAccess
             }
             else if (endDateFromRow < DateTime.UtcNow.AddSeconds(2))
             {
-                string key = LayeredCacheKeys.GetCancelSubscriptionInvalidationKey(householdId);
+                string key = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, householdId);
                 LayeredCache.Instance.SetInvalidationKey(key);
             }
 

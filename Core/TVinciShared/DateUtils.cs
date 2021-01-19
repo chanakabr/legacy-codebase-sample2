@@ -1,3 +1,4 @@
+using ApiObjects.SearchObjects;
 using System;
 using System.Globalization;
 
@@ -136,29 +137,29 @@ namespace TVinciShared
                 string sDate = "";
                 TimeSpan ts = DateTime.UtcNow - theDate;
                 if (ts.TotalSeconds <= 1)
-                    sDate = "îîù îòëùéå";
+                    sDate = "Ã®Ã®Ã¹ Ã®Ã²Ã«Ã¹Ã©Ã¥";
                 else if (ts.TotalSeconds == 2)
-                    sDate = "ìôðé ùúé ùðéåú";
+                    sDate = "Ã¬Ã´Ã°Ã© Ã¹ÃºÃ© Ã¹Ã°Ã©Ã¥Ãº";
                 else if (ts.TotalSeconds == 3)
-                    sDate = "ìôðé ùìåù ùðéåú";
+                    sDate = "Ã¬Ã´Ã°Ã© Ã¹Ã¬Ã¥Ã¹ Ã¹Ã°Ã©Ã¥Ãº";
                 else if (ts.TotalSeconds < 60)
-                    sDate = "ìôðé " + Math.Round(ts.TotalSeconds, 0).ToString() + " ùðéåú";
+                    sDate = "Ã¬Ã´Ã°Ã© " + Math.Round(ts.TotalSeconds, 0).ToString() + " Ã¹Ã°Ã©Ã¥Ãº";
                 else if (ts.TotalMinutes < 60)
                 {
 
                     if (ts.TotalMinutes == 1)
-                        sDate += "ìôðé ã÷ä";
+                        sDate += "Ã¬Ã´Ã°Ã© Ã£Ã·Ã¤";
                     else if (ts.TotalMinutes == 2)
-                        sDate += "ìôðé ùúé ã÷åú";
+                        sDate += "Ã¬Ã´Ã°Ã© Ã¹ÃºÃ© Ã£Ã·Ã¥Ãº";
                     else if (ts.TotalMinutes == 3)
-                        sDate += "ìôðé ùìåù ã÷åú";
+                        sDate += "Ã¬Ã´Ã°Ã© Ã¹Ã¬Ã¥Ã¹ Ã£Ã·Ã¥Ãº";
                     else
                     {
-                        sDate = "ìôðé ";
+                        sDate = "Ã¬Ã´Ã°Ã© ";
                         //if (ts.TotalMinutes < 10)
                         //sDate += "0";
                         sDate += Math.Round(ts.TotalMinutes, 0).ToString();
-                        sDate += " ã÷åú";
+                        sDate += " Ã£Ã·Ã¥Ãº";
                     }
                     //if (ts.Seconds < 10)
                     //sDate += "0";
@@ -167,22 +168,22 @@ namespace TVinciShared
                 else if (ts.TotalHours < 24)
                 {
                     if (ts.TotalHours == 1)
-                        sDate += "ìôðé ùòä";
+                        sDate += "Ã¬Ã´Ã°Ã© Ã¹Ã²Ã¤";
                     else if (ts.TotalHours == 2)
-                        sDate += "ìôðé ùòúééí";
+                        sDate += "Ã¬Ã´Ã°Ã© Ã¹Ã²ÃºÃ©Ã©Ã­";
                     else if (ts.TotalHours == 3)
-                        sDate += "ìôðé ùìåù ùòåú";
+                        sDate += "Ã¬Ã´Ã°Ã© Ã¹Ã¬Ã¥Ã¹ Ã¹Ã²Ã¥Ãº";
                     else
                     {
-                        sDate = "ìôðé ";
+                        sDate = "Ã¬Ã´Ã°Ã© ";
                         //if (ts.TotalHours < 10)
                         //sDate += "0";
                         sDate += Math.Round(ts.TotalHours, 0).ToString();
-                        sDate += " ùòåú";
+                        sDate += " Ã¹Ã²Ã¥Ãº";
                     }
                 }
                 else if (ts.TotalDays < 2)
-                    sDate = "àúîåì";
+                    sDate = "Ã ÃºÃ®Ã¥Ã¬";
                 else
                 {
                     Int32 nYear = theDate.Year;
@@ -278,19 +279,19 @@ namespace TVinciShared
         public static string GetDayName(DayOfWeek theDay)
         {
             if (theDay == DayOfWeek.Friday)
-                return "ùéùé";
+                return "Ã¹Ã©Ã¹Ã©";
             if (theDay == DayOfWeek.Monday)
-                return "ùðé";
+                return "Ã¹Ã°Ã©";
             if (theDay == DayOfWeek.Saturday)
-                return "ùáú";
+                return "Ã¹Ã¡Ãº";
             if (theDay == DayOfWeek.Sunday)
-                return "øàùåï";
+                return "Ã¸Ã Ã¹Ã¥Ã¯";
             if (theDay == DayOfWeek.Thursday)
-                return "çîéùé";
+                return "Ã§Ã®Ã©Ã¹Ã©";
             if (theDay == DayOfWeek.Tuesday)
-                return "ùìéùé";
+                return "Ã¹Ã¬Ã©Ã¹Ã©";
             if (theDay == DayOfWeek.Wednesday)
-                return "øáéòé";
+                return "Ã¸Ã¡Ã©Ã²Ã©";
             return "";
 
         }
@@ -385,10 +386,10 @@ namespace TVinciShared
         {
             DateTime parsedDate;
             if (DateTime.TryParseExact(date, MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out parsedDate))
-            if (DateTime.TryParseExact(date, MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out parsedDate))
-            {
-                return DateTimeToUtcUnixTimestampSeconds(parsedDate);
-            }
+                if (DateTime.TryParseExact(date, MAIN_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal, out parsedDate))
+                {
+                    return DateTimeToUtcUnixTimestampSeconds(parsedDate);
+                }
 
             return 0;
         }
@@ -420,11 +421,11 @@ namespace TVinciShared
             DateTime result = DateTime.ParseExact(dateTime, format, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
             return result;
         }
+        
         public static DateTime TruncateMilliSeconds(this DateTime dateTime)
         {
             return dateTime.AddTicks(-(dateTime.Ticks % TimeSpan.TicksPerSecond));
         }
-
 
         public static DateTime StartOfDay(this DateTime dateTime)
         {
@@ -434,6 +435,29 @@ namespace TVinciShared
         public static DateTime EndOfDay(this DateTime dateTime)
         {
             return dateTime.Date.AddDays(1).AddTicks(-1);
+        }
+
+        public static string ToESDateFormat(this DateTime dateTime)
+        {
+            return dateTime.ToString(ESMediaFields.DATE_FORMAT);
+        }
+
+        public static DateTime Round(this DateTime date, TimeSpan span)
+        {
+            long ticks = (date.Ticks + (span.Ticks / 2) + 1) / span.Ticks;
+            return new DateTime(ticks * span.Ticks);
+        }
+
+        public static DateTime Floor(this DateTime date, TimeSpan span)
+        {
+            long ticks = (date.Ticks / span.Ticks);
+            return new DateTime(ticks * span.Ticks);
+        }
+
+        public static DateTime Ceil(this DateTime date, TimeSpan span)
+        {
+            long ticks = (date.Ticks + span.Ticks - 1) / span.Ticks;
+            return new DateTime(ticks * span.Ticks);
         }
     }
 }

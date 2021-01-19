@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Serialization;
 using TVinciShared;
+using ApiObjects.Notification;
 
 namespace Core.Catalog
 {
@@ -428,7 +429,7 @@ namespace Core.Catalog
                 tagMeta.m_sType = topicsMapBySystemName[systemName].Type.ToString();
             }
 
-            var values = columnValue.Value.ToString().GetItemsIn<List<string>, string>();
+            var values = columnValue.Value.ToString().GetItemsIn<string>(out _);
             List<LanguageContainer[]> languageContainers = new List<LanguageContainer[]>();
             foreach (var value in values)
             {
@@ -453,5 +454,10 @@ namespace Core.Catalog
         }
 
         #endregion
+
+        internal virtual AssetEvent ToAssetEvent(int groupId, long userId)
+        {
+            return null;
+        }
     }
 }

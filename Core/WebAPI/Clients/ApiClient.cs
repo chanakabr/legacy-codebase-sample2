@@ -4550,5 +4550,20 @@ namespace WebAPI.Clients
             result.TotalCount = response.TotalCount;
             return result;
         }
+
+        internal KalturaPartnerConfigurationListResponse GetSecurityConfiguration(int groupId)
+        {
+            var result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<SecurityPartnerConfig>> getPartnerConfigListFunc = () =>
+                PartnerConfigurationManager.GetSecurityConfigList(groupId);
+
+            KalturaGenericListResponse<KalturaSecurityPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaSecurityPartnerConfig, SecurityPartnerConfig>(getPartnerConfigListFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+            return result;
+        }
     }
 }

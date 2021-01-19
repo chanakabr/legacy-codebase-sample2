@@ -6,6 +6,7 @@ namespace ApiObjects.Base
         public int GroupId { get; private set; }
         public long? DomainId { get; set; }
         public long? UserId { get; set; }
+        public long? OriginalUserId { get; set; }
         public string Udid { get; set; }
         public string UserIp { get; set; }
         public string Language { get; set; }

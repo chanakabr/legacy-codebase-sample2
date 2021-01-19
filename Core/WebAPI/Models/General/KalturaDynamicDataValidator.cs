@@ -5,7 +5,7 @@ namespace WebAPI.Models.General
 {
     public static class KalturaDynamicDataValidator
     {
-        public static void Validate(this SerializableDictionary<string, KalturaStringValue> dynamicData, int maxKeyValues, int maxValueLength)
+        public static void Validate(this SerializableDictionary<string, KalturaStringValue> dynamicData, int maxKeyValues, int maxKeyLength, int maxValueLength)
         {            
             if (dynamicData == null) return;
 
@@ -13,7 +13,7 @@ namespace WebAPI.Models.General
 
             foreach (var keyValue in dynamicData)
             { 
-                if (keyValue.Key.Length > maxValueLength) throw new BadRequestException(ARGUMENT_MAX_LENGTH_CROSSED, "dynamicData.key.length", maxValueLength);
+                if (keyValue.Key.Length > maxKeyLength) throw new BadRequestException(ARGUMENT_MAX_LENGTH_CROSSED, "dynamicData.key.length", maxKeyLength);
                 if (keyValue.Value?.value.Length > maxValueLength) throw new BadRequestException(ARGUMENT_MAX_LENGTH_CROSSED, "dynamicData.value.length", maxValueLength);
             }
         }

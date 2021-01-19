@@ -98,5 +98,4 @@ namespace HealthCheck
             Task.Run(() => taskToRun).ConfigureAwait(false).GetAwaiter().GetResult();
         }
     }
-
 }

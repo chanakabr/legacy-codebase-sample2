@@ -111,14 +111,9 @@ namespace TVPApiModule.CatalogLoaders
 
             if (m_oResponse == null)// No response from Catalog, gets medias from cache
             {
-                m_oResponse = CacheManager.Cache.GetFailOverResponse(cacheKey);
-
-                if (m_oResponse == null)// No response from Catalog and no response from cache
-                {
-                    result = new Objects.Responses.UnifiedSearchResponse();
-                    result.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
-                    return result;
-                }
+                result = new Objects.Responses.UnifiedSearchResponse();
+                result.Status = ResponseUtils.ReturnGeneralErrorStatus("Error while calling webservice");
+                return result;
             }
 
             UnifiedSearchResponse response = (UnifiedSearchResponse)m_oResponse;
@@ -138,13 +133,11 @@ namespace TVPApiModule.CatalogLoaders
 
             if (response.searchResults != null && response.searchResults.Count > 0)
             {
-                CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey); // Insert the UnifiedSearchResponse to cache for failover support
-
                 List<MediaObj> medias;
                 List<ProgramObj> epgs;
                 List<ProgramObj> recordings;
 
-                GetAssets(cacheKey, response, out medias, out epgs, out recordings);
+                GetAssets(response, out medias, out epgs, out recordings);
 
                 // add extraData to tags only for EPG           
                 Util.UpdateProgramsTags(epgs, eAssetTypes.EPG, response.searchResults);

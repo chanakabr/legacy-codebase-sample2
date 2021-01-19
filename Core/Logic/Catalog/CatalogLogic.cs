@@ -43,6 +43,7 @@ using System.Threading.Tasks;
 using System.Web;
 using Tvinci.Core.DAL;
 using TVinciShared;
+using Status = ApiObjects.Response.Status;
 
 namespace Core.Catalog
 {
@@ -91,6 +92,8 @@ namespace Core.Catalog
         internal const string STAT_ACTION_FIRST_PLAY = "firstplay";
         internal const string STAT_ACTION_LIKE = "like";
         internal const string STAT_ACTION_RATES = "rates";
+        internal const string STAT_ACTION_COUNT_VALUE_FIELD = "count";
+        internal static readonly string SUB_SUM_AGGREGATION_NAME = "sub_sum";
         internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
         internal static readonly string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
         private static readonly long UNIX_TIME_1980 = DateUtils.DateTimeToUtcUnixTimestampSeconds(new DateTime(1980, 1, 1, 0, 0, 0));
@@ -135,7 +138,9 @@ namespace Core.Catalog
             "epg_id",
             STATUS,
             "linear_media_id",
-            ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID
+            ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID,
+            ESUnifiedQueryBuilder.ENABLE_CDVR,
+            ESUnifiedQueryBuilder.ENABLE_CATCHUP,
         };
 
         private static readonly HashSet<string> reservedUnifiedDateFields = new HashSet<string>()
@@ -3295,7 +3300,7 @@ namespace Core.Catalog
                                 LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
                                 if (doesGroupUsesTemplates)
                                 {
-                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(eAssetType.MEDIA.ToString(), id));
+                                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetAssetInvalidationKey(groupId, eAssetType.MEDIA.ToString(), id));
                                 }
                             }
                         }
@@ -4034,7 +4039,7 @@ namespace Core.Catalog
                 case StatsType.MEDIA:
                     {
                         List<string> aggregations = new List<string>(3);
-                        aggregations.Add(BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_FIRST_PLAY)); // views count
+                        aggregations.Add(BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_FIRST_PLAY, true)); // views count
                         aggregations.Add(BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE));
                         aggregations.Add(BuildSlidingWindowStatisticsAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD));
 
@@ -4042,21 +4047,18 @@ namespace Core.Catalog
 
                         List<string> responses = ParseResponsesFromMultiAggregations(esResp);
                         string currResp = responses[0];
-                        Dictionary<string, Dictionary<int, int>> viewsRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp);
+                        Dictionary<string, Dictionary<int, int>> viewsRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp, SUB_SUM_AGGREGATION_NAME);
                         currResp = responses[1];
                         Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp);
                         currResp = responses[2];
                         Dictionary<string, List<StatisticsAggregationResult>> ratesRaw = ESAggregationsResult.DeserializeStatisticsAggregations(currResp, "sub_stats");
 
-                        Dictionary<int, int> views = null, likes = null;
+                        Dictionary<int, int> views, likes;
                         List<StatisticsAggregationResult> rates = null;
                         viewsRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out views);
                         likesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
                         ratesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out rates);
-
-                        InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, views != null ? views : new Dictionary<int, int>(0),
-                            likes != null ? likes : new Dictionary<int, int>(0),
-                            rates != null ? rates : new List<StatisticsAggregationResult>(0));
+                        InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, views, likes, rates);
                         break;
                     }
                 case StatsType.EPG:
@@ -4088,35 +4090,38 @@ namespace Core.Catalog
         }
 
         private static void InjectResultsIntoAssetStatsResponse(Dictionary<int, AssetStatsResult> assetIDsToStatsMapping,
-            Dictionary<int, int> views, Dictionary<int, int> likes,
-            List<StatisticsAggregationResult> rates)
+            Dictionary<int, int> views, Dictionary<int, int> likes, List<StatisticsAggregationResult> rates)
         {
-
-            // views and likes
-
-            foreach (KeyValuePair<int, AssetStatsResult> kvp in assetIDsToStatsMapping)
+            if (assetIDsToStatsMapping != null)
             {
-                if (views.ContainsKey(kvp.Key))
+                // views and likes
+                foreach (KeyValuePair<int, AssetStatsResult> kvp in assetIDsToStatsMapping)
                 {
-                    kvp.Value.m_nViews = views[kvp.Key];
-                }
-                if (likes.ContainsKey(kvp.Key))
-                {
-                    kvp.Value.m_nLikes = likes[kvp.Key];
-                }
-            }
-
-            // rates
-            for (int i = 0; i < rates.Count; i++)
-            {
-                int assetId = 0;
-
-                if (Int32.TryParse(rates[i].key, out assetId) && assetId > 0 && assetIDsToStatsMapping.ContainsKey(assetId))
-                {
-                    assetIDsToStatsMapping[assetId].m_nVotes = rates[i].count;
-                    assetIDsToStatsMapping[assetId].m_dRate = rates[i].avg;
+                    if (views != null && views.ContainsKey(kvp.Key))
+                    {
+                        kvp.Value.m_nViews = views[kvp.Key];
+                    }
+                    if (likes != null && likes.ContainsKey(kvp.Key))
+                    {
+                        kvp.Value.m_nLikes = likes[kvp.Key];
+                    }
                 }
 
+                if (rates != null)
+                {
+                    // rates
+                    for (int i = 0; i < rates.Count; i++)
+                    {
+                        int assetId = 0;
+
+                        if (Int32.TryParse(rates[i].key, out assetId) && assetId > 0 && assetIDsToStatsMapping.ContainsKey(assetId))
+                        {
+                            assetIDsToStatsMapping[assetId].m_nVotes = rates[i].count;
+                            assetIDsToStatsMapping[assetId].m_dRate = rates[i].avg;
+                        }
+
+                    }
+                }
             }
         }
 
@@ -4874,97 +4879,6 @@ namespace Core.Catalog
             }
         }
 
-        internal static List<ChannelViewsResult> GetChannelViewsResult(int nGroupID)
-        {
-            List<ChannelViewsResult> channelViews = new List<ChannelViewsResult>();
-
-            #region Define Aggregations Query
-            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
-            {
-                PageIndex = 0,
-                PageSize = 1
-            };
-            filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
-
-            BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
-            filter.AddChild(new ESTerm(true)
-            {
-                Key = "group_id",
-                Value = nGroupID.ToString()
-            });
-
-            #region define date filter
-            ESRange dateRange = new ESRange(false)
-            {
-                Key = "action_date"
-            };
-            string sMax = DateTime.UtcNow.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            string sMin = DateTime.UtcNow.AddSeconds(-30.0).ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
-            filter.AddChild(dateRange);
-            #endregion
-
-            #region define action filter
-            ESTerms esActionTerm = new ESTerms(false)
-            {
-                Key = "action"
-            };
-            esActionTerm.Value.Add(STAT_ACTION_MEDIA_HIT);
-            filter.AddChild(esActionTerm);
-            #endregion
-
-            filteredQuery.Filter.FilterSettings = filter;
-
-            var aggregations = new ESBaseAggsItem()
-            {
-                Name = "stats",
-                Field = "media_id",
-                Type = eElasticAggregationType.terms,
-            };
-
-            filteredQuery.Aggregations.Add(aggregations);
-
-            #endregion
-
-            string aggregationsQuery = filteredQuery.ToString();
-
-            //Search
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupID);
-            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
-
-            if (!string.IsNullOrEmpty(retval))
-            {
-                //Get aggregations results
-                Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval);
-
-                if (aggregationResults != null && aggregationResults.Count > 0)
-                {
-                    Dictionary<string, int> aggregationResult;
-                    //retrieve channel_views aggregations results
-                    aggregationResults.TryGetValue("channel_views", out aggregationResult);
-
-                    if (aggregationResult != null && aggregationResult.Count > 0)
-                    {
-                        foreach (string key in aggregationResult.Keys)
-                        {
-                            int count = aggregationResult[key];
-
-                            int nChannelID;
-                            if (int.TryParse(key, out nChannelID))
-                            {
-                                channelViews.Add(new ChannelViewsResult(nChannelID, count));
-                            }
-
-                        }
-                    }
-                }
-            }
-
-            return channelViews;
-        }
-
         internal static bool IsAnonymousUser(string siteGuid)
         {
             int nSiteGuid = 0;
@@ -5176,7 +5090,7 @@ namespace Core.Catalog
         }
 
         private static string BuildSlidingWindowCountAggregationRequest(int groupID, List<int> mediaIDs, DateTime startDate, DateTime endDate,
-            string action)
+            string action, bool setSubSum = false)
         {
             #region Define Aggregation Query
             ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
@@ -5254,7 +5168,19 @@ namespace Core.Catalog
                 ShardSize = 0
             };
 
+            if (setSubSum)
+            {
+                aggregation.SubAggrgations.Add(new ESBaseAggsItem()
+                {
+                    Name = SUB_SUM_AGGREGATION_NAME,
+                    Type = eElasticAggregationType.sum,
+                    Field = STAT_ACTION_COUNT_VALUE_FIELD,
+                    Missing = 1
+                });
+            }
+            
             filteredQuery.Aggregations.Add(aggregation);
+
             #endregion
 
             return filteredQuery.ToString();
@@ -5313,7 +5239,7 @@ namespace Core.Catalog
                 if (!string.IsNullOrEmpty(retval))
                 {
                     //Get aggregations results
-                    Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval);
+                    Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval, SUB_SUM_AGGREGATION_NAME);
 
                     if (aggregationResults != null && aggregationResults.Count > 0)
                     {
@@ -5356,7 +5282,7 @@ namespace Core.Catalog
             if (!string.IsNullOrEmpty(retval))
             {
                 //Get aggregations results
-                Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval);
+                Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval, SUB_SUM_AGGREGATION_NAME);
 
                 if (aggregationResults != null && aggregationResults.Count > 0)
                 {
@@ -5462,7 +5388,7 @@ namespace Core.Catalog
             {
                 Name = "sub_stats",
                 Type = eElasticAggregationType.stats,
-                Field = CatalogLogic.STAT_ACTION_RATE_VALUE_FIELD
+                Field = valueField
             });
 
             filteredQuery.Aggregations.Add(aggregation);
@@ -6699,19 +6625,30 @@ namespace Core.Catalog
 
         }
 
-        public static UnifiedSearchResponse ChannelUnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel)
+        private static UnifiedSearchResponse ChannelUnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel)
         {
-            UnifiedSearchResponse response = new UnifiedSearchResponse()
-            {
-                status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
+            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+            if (searcher == null) return new UnifiedSearchResponse { status = Status.ErrorMessage("Failed getting instance of searcher") };
 
-            List<UnifiedSearchResult> searchResults = new List<UnifiedSearchResult>();
-            int pageIndex = 0;
-            int pageSize = 0;
+            if (unifiedSearchDefinitions.groupBy?.Count == 1 // only one group by
+                && unifiedSearchDefinitions.groupBy.Single().Key == unifiedSearchDefinitions.distinctGroup.Key) // distinct is on
+            {
+                var parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
+                parentGroupId = parentGroupId == 0 ? groupId : parentGroupId;
+                var aggregation = searcher.UnifiedSearchForGroupBy(unifiedSearchDefinitions, parentGroupId);
+                
+                return new UnifiedSearchResponse
+                {
+                    aggregationResults = new List<AggregationsResult> { aggregation },
+                    m_nTotalItems = aggregation.totalItems,
+                    status = Status.Ok
+                };
+            }
 
             // If this is a manual channel, a sliding window or we have an additional filter - 
             // the initial search will not be paged. Paging will be done later on
+            int pageIndex = 0;
+            int pageSize = 0;
             if (channel.m_nChannelTypeID == (int)ChannelType.Manual || ChannelRequest.IsSlidingWindow(channel))
             {
                 pageIndex = unifiedSearchDefinitions.pageIndex;
@@ -6720,38 +6657,25 @@ namespace Core.Catalog
                 unifiedSearchDefinitions.pageIndex = 0;
             }
 
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-
-            if (searcher == null)
-            {
-                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
-                return response;
-            }
-
-            int to = 0;
-            int totalItems = 0;
-            List<AggregationsResult> aggregationsResult;
-
             // Perform initial search of channel
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResult);
+            int notUsed = 0;
+            int totalItems = 0;
+            List<AggregationsResult> aggregationsResult;            
+            var searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref notUsed, out aggregationsResult);
 
-            if (searchResults == null)
-            {
-                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
-                return response;
-            }
-
+            if (searchResults == null) return new UnifiedSearchResponse { status = Status.ErrorMessage("Failed performing channel search") };
             if (totalItems == 0)
             {
-                response.searchResults = searchResults;
-                response.m_nTotalItems = totalItems;
-                response.aggregationResults = aggregationsResult;
-                response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
-
-                return response;
+                return new UnifiedSearchResponse
+                {
+                    searchResults = searchResults,
+                    m_nTotalItems = totalItems,
+                    aggregationResults = aggregationsResult,
+                    status = Status.Ok
+                };
             }
 
-            List<int> assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
+            var assetIDs = searchResults.Select(item => int.Parse(item.AssetId)).ToList();
 
             #region Sliding Window
 
@@ -6853,20 +6777,15 @@ namespace Core.Catalog
 
             #endregion
 
-            if (assetIDs == null)
+            if (assetIDs == null) return new UnifiedSearchResponse { status = Status.ErrorMessage("Failed performing channel search") };
+
+            return new UnifiedSearchResponse
             {
-                searchResults = null;
-                totalItems = 0;
-                response.status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed performing channel search");
-                return response;
-            }
-
-            response.searchResults = searchResults;
-            response.m_nTotalItems = totalItems;
-            response.aggregationResults = aggregationsResult;
-            response.status = new ApiObjects.Response.Status((int)eResponseStatus.OK);
-
-            return response;
+                searchResults = searchResults,
+                m_nTotalItems = totalItems,
+                aggregationResults = aggregationsResult,
+                status = Status.Ok
+            };
         }
 
         private static UnifiedSearchResponse GetUnifiedSearchChannelResultsFromCache(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel, string cacheKey)
@@ -6989,7 +6908,7 @@ namespace Core.Catalog
                         string parentalRulesKey = LayeredCacheKeys.GetUserParentalRulesKey(groupId, userId);
                         bool parentalRulesCacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(parentalRulesKey, ref ruleIds,
                             APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", userId } },
-                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId) });
+                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, userId) });
 
                         if (parentalRulesCacheResult && ruleIds != null && ruleIds.Count > 0)
                         {
@@ -7089,7 +7008,7 @@ namespace Core.Catalog
                         string parentalRulesKey = LayeredCacheKeys.GetUserParentalRulesKey(groupId, userId);
                         bool parentalRulesCacheResult = LayeredCache.Instance.Get<Dictionary<long, eRuleLevel>>(parentalRulesKey, ref ruleIds,
                             APILogic.Utils.GetUserParentalRules, new Dictionary<string, object>() { { "groupId", groupId }, { "userId", userId } },
-                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId) });
+                            groupId, LayeredCacheConfigNames.USER_PARENTAL_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, userId) });
 
                         if (parentalRulesCacheResult && ruleIds != null && ruleIds.Count > 0)
                         {
@@ -8266,7 +8185,20 @@ namespace Core.Catalog
             }
             else
             {
-                GetOrderValues(ref searcherOrderObj, channel.m_OrderObject);
+                // change default channel order to ID when we have groupBy + orderBy is not supported
+                // because we don't support all orderBy's with groupBy
+                var defaultChannelOrder = channel.m_OrderObject;
+                if (request.searchGroupBy?.groupBy?.Count == 1 
+                    && defaultChannelOrder != null
+                    && !ElasticsearchWrapper.GroupBySearchIsSupportedForOrder(defaultChannelOrder.m_eOrderBy))
+                {
+                    defaultChannelOrder = new OrderObj
+                    {
+                        m_eOrderBy = OrderBy.ID,
+                        m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                    };
+                }
+                GetOrderValues(ref searcherOrderObj, defaultChannelOrder);
             }
 
             definitions.order = searcherOrderObj;

@@ -46,7 +46,7 @@ namespace WebAPI.Utils
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Exception received while calling catalog service. user ID: {0}, request type: {1}, exception: {3}",
+                    log.ErrorFormat("Exception received while calling catalog service. user ID: {0}, request type: {1}, exception: {2}",
                         request.m_sSiteGuid != null ? request.m_sSiteGuid : string.Empty,                            // 0
                         request.GetType(),                                                                           // 1
                         ex);                                                                                         // 2
@@ -55,22 +55,9 @@ namespace WebAPI.Utils
                     ErrorUtils.HandleWSException(ex);
                 }
 
-                if (baseResponse == null && shouldSupportFailOverCaching && !string.IsNullOrEmpty(cacheKey))
-                {
-                    // No response from Catalog -> gets medias from cache
-                    baseResponse = CatalogCacheManager.Cache.GetFailOverResponse(cacheKey);
-                }
-
                 if (baseResponse != null && baseResponse is T)
                 {
-                    // response received
-                    if (shouldSupportFailOverCaching && !string.IsNullOrEmpty(cacheKey))
-                    {
-                        // insert to cache for failover support
-                        CatalogCacheManager.Cache.InsertFailOverResponse(baseResponse, cacheKey);
-                    }
-
-                    // convert response to requires object
+                    // convert response to required object
                     response = baseResponse as T;
                     passed = true;
                 }

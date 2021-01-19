@@ -12,20 +12,35 @@ using Newtonsoft.Json;
 using ApiObjects.Notification;
 using DAL;
 using TVinciShared;
-using ConfigurationManager.Types;
 using ConfigurationManager;
 using System.Text;
 using Core.Notification.Adapters;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using CachingProvider.LayeredCache;
+using System.Linq;
+using System.Security.Cryptography;
+using ApiObjects.EventBus;
+using System.Threading;
 
 namespace ApiLogic.Notification
 {
-    public class IotManager : ICrudHandler<Iot, long>
+    public interface IIotManager : ICrudHandler<Iot, long>
+    {
+        bool PublishIotMessage(int groupId, string message, string topic);
+        bool AddToThingShadow(int groupId, string message, string thingArn, string udid);
+        IotProfileAws CreateIotEnvironment(int groupId, IotProfile iotProfile);
+        IotProfileAws UpdateIotEnvironment(int groupId, IotProfile newConfigurations);
+        int GetTopicPartitionsCount();
+        string GetTopicFormat(int groupId, EventType eventType);
+    }
+
+    public class IotManager : IIotManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly Lazy<IotManager> lazy = new Lazy<IotManager>(() => new IotManager());
+        private static readonly Lazy<IotManager> lazy = new Lazy<IotManager>(() => new IotManager(), LazyThreadSafetyMode.PublicationOnly);
         private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.Current.IotHttpClientConfiguration);
+        private readonly ThreadLocal<MD5> md5 = new ThreadLocal<MD5>(() => MD5.Create());
+
         private const string REGISTER = "/api/IOT/RegisterDevice";
         private const string GET_IOT_CONFIGURATION = "/api/IOT/Configuration/List?";
         public const string ADD_TO_SHADOW = "/api/IOT/AddToShadow";
@@ -34,7 +49,7 @@ namespace ApiLogic.Notification
         public const string SYSTEM_ANNOUNCEMENT = "SystemAnnouncement";
         public const string ADD_CONFIG = "/api/IOT/Configuration/Update";
         private const string CREATE_ENVIRONMENT = "/api/IOT/Environment/Create";
-
+        private const int TOPIC_PARTITIONS_COUNT = 10;
         public static IotManager Instance { get { return lazy.Value; } }
 
         private IotManager() { }
@@ -54,33 +69,22 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
-                var _request = new { GroupId = groupId.ToString(), Udid = udid };
+                response.Object = RegisterDevice(groupId, udid);
 
-                var msResponse = SendToAdapter<Iot>(groupId, IotAction.REGISTER, _request, MethodType.Post, out int httpStatus, out bool hasConfig);
 
-                if (!hasConfig)
-                {
-                    var update = UpdateIotProfile(groupId, contextData);
-                    if (update != null)
-                    {
-                        msResponse = SendToAdapter<Iot>(groupId, IotAction.REGISTER, _request, MethodType.Post, out httpStatus, out hasConfig);
-                    }
-                }
-
-                if (msResponse == null)
+                if (response.Object == null)
                 {
                     log.Error($"Error while registering udid: {udid} for group: {groupId}.");
                     return response;
                 }
 
-                var saved = SaveRegisteredDevice(groupId, udid, msResponse);
+                var saved = SaveRegisteredDevice(groupId, udid, response.Object);
 
                 response.SetStatus(saved ? Status.Ok : Status.Error);
-                response.Object = msResponse;
             }
             catch (Exception ex)
             {
-                log.Error($"Register failed, error: {ex.Message}");
+                log.Error($"Register failed, group: {groupId}, error: {ex.Message}", ex);
             }
 
             return response;
@@ -105,6 +109,11 @@ namespace ApiLogic.Notification
             return true;
         }
 
+        public string GetTopicFormat(int groupId, EventType eventType)
+        {
+            return $"{groupId}/{eventType.ToString()}/{{0}}";
+        }
+
         public GenericResponse<IotClientConfiguration> GetClientConfiguration(ContextData contextData)
         {
             var response = new GenericResponse<IotClientConfiguration>();
@@ -118,7 +127,16 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
-                response.Object = GetClientConfigurationCache(groupId);
+                var groupConfig = GetClientConfigurationCache(groupId);
+                var deviceConfig = new IotClientConfiguration
+                {
+                    AnnouncementTopic = groupConfig.AnnouncementTopic,
+                    CognitoUserPool = groupConfig.CognitoUserPool,
+                    CredentialsProvider = groupConfig.CredentialsProvider,
+                    Json = groupConfig.Json,
+                    Topics = GetTopicsForDevice(contextData, partnerSettings)
+                };
+                response.Object = deviceConfig;
 
                 response.SetStatus(Status.Ok);
             }
@@ -134,19 +152,66 @@ namespace ApiLogic.Notification
             return response;
         }
 
+        private List<string> GetTopicsForDevice(ContextData contextData, NotificationPartnerSettingsResponse ns)
+        {
+            var response = new List<string>();
+            if (ValidateEpgTopicsAllowed(contextData, ns)) // what if unrecognized device
+            {
+                var partitionNumber = HashUdid(contextData.Udid) % GetTopicPartitionsCount();
+                var topicFormat = GetTopicFormat(contextData.GroupId, EventType.epg_update);
+                response.Add(string.Format(topicFormat, partitionNumber));
+            }
+            //TODO - Add other events if allowed?
+            return response;
+        }
+
+        /// <summary>
+        /// Check if epg update is allowed for the given device family Id
+        /// </summary>
+        /// <param name="contextData"></param>
+        /// <param name="ns"></param>
+        /// <returns></returns>
+        private bool ValidateEpgTopicsAllowed(ContextData contextData, NotificationPartnerSettingsResponse ns)
+        {
+            var resp = Core.Domains.Module.GetDeviceInfo(contextData.GroupId, contextData.Udid, true);
+            int familyId;
+            if (resp?.m_oDevice == null || resp.m_oDevice.m_deviceFamilyID == 0)
+            {
+                familyId = 0;
+            }
+            else
+            {
+                familyId = resp.m_oDevice.m_deviceFamilyID;
+            }
+            return ns.settings.EpgNotification.Enabled &&
+                (ns.settings.EpgNotification.DeviceFamilyIds.Count == 0 || ns.settings.EpgNotification.DeviceFamilyIds.Contains(familyId));
+        }
+
+        private int HashUdid(string udid)
+        {
+            var hashed = md5.Value.ComputeHash(Encoding.UTF8.GetBytes(udid));
+            var result = BitConverter.ToInt32(hashed, 0);
+            return Math.Abs(result);
+        }
+
+        public int GetTopicPartitionsCount()
+        {
+            return TOPIC_PARTITIONS_COUNT;
+        }
+
         private IotClientConfiguration GetClientConfigurationCache(int groupId)
         {
             var result = new IotClientConfiguration();
             try
             {
-                string key = CachingProvider.LayeredCache.LayeredCacheKeys.GetGroupIotClientConfig(groupId);
-                string invalidationKey = CachingProvider.LayeredCache.LayeredCacheKeys.GetGroupIotClientConfigInvalidationKey(groupId);
+                string key = LayeredCacheKeys.GetGroupIotClientConfig(groupId);
+                string invalidationKey = LayeredCacheKeys.GetGroupIotClientConfigInvalidationKey(groupId);
 
-                var _result = CachingProvider.LayeredCache.LayeredCache.Instance.Get
-                    (key, ref result, this.GetClientConfiguration, new System.Collections.Generic.Dictionary<string, object>() { { "groupId", groupId } },
-                groupId, CachingProvider.LayeredCache.LayeredCacheConfigNames.GET_IOT_CLIENT_CONFIGURATION, new System.Collections.Generic.List<string> { invalidationKey });
+                var success = LayeredCache.Instance.Get
+                        (key, ref result, GetClientConfiguration, new Dictionary<string, object>() { { "groupId", groupId } },
+                        groupId, LayeredCacheConfigNames.GET_IOT_CLIENT_CONFIGURATION, new List<string> { invalidationKey });
 
-                if (!_result || result == null)
+                if (!success || result == null)
                 {
                     log.ErrorFormat("Failed GetClientConfiguration, groupId: {0}", groupId);
                 }
@@ -161,14 +226,14 @@ namespace ApiLogic.Notification
 
         public void InvalidateClientConfiguration(int groupId)
         {
-            string invalidationKey = CachingProvider.LayeredCache.LayeredCacheKeys.GetGroupIotClientConfigInvalidationKey(groupId);
-            if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+            string invalidationKey = LayeredCacheKeys.GetGroupIotClientConfigInvalidationKey(groupId);
+            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
             {
                 log.ErrorFormat("Failed to set invalidation key on InvalidateClientConfiguration key = {0}", invalidationKey);
             }
         }
 
-        private Tuple<IotClientConfiguration, bool> GetClientConfiguration(System.Collections.Generic.Dictionary<string, object> funcParams)
+        private Tuple<IotClientConfiguration, bool> GetClientConfiguration(Dictionary<string, object> funcParams)
         {
             IotClientConfiguration result = null;
             try
@@ -239,21 +304,9 @@ namespace ApiLogic.Notification
                 }
                 var partnerSettings = NotificationCache.Instance().GetPartnerNotificationSettings(m_nGroupID);
 
-                //Todo - Matan Create perm object
-                var _request = new { GroupId = m_nGroupID.ToString(), Udid = udid, IdentityId = iotDevice.IdentityId };
+                var response = DeleteDevice(m_nGroupID, iotDevice);
 
-                var msResponse = SendToAdapter<bool>(m_nGroupID, IotAction.DELETE_DEVICE, _request, MethodType.Delete, out int httpStatus, out bool hasConfig);
-
-                if (!hasConfig)
-                {
-                    var update = UpdateIotProfile(m_nGroupID, new ContextData(m_nGroupID));
-                    if (update != null)
-                    {
-                        msResponse = SendToAdapter<bool>(m_nGroupID, IotAction.DELETE_DEVICE, _request, MethodType.Delete, out httpStatus, out hasConfig);
-                    }
-                }
-
-                if (!msResponse)
+                if (!response)
                 {
                     log.Error($"Failed removing udid: {udid} from group: {m_nGroupID}");
                     return false;
@@ -320,7 +373,7 @@ namespace ApiLogic.Notification
             return $"{adapterUrl}{configValue}";
         }
 
-        public T SendToAdapter<T>(int groupId, IotAction action, object request, MethodType method, out int httpStatus, out bool hasConfig, IotProfile iotProfile = null, bool groupNeeded = false)
+        private T SendToAdapter<T>(int groupId, IotAction action, object request, MethodType method, out int httpStatus, out bool hasConfig, IotProfile iotProfile = null, bool groupNeeded = false)
         {
             var url = GetAdapterUrl(groupId, action, iotProfile);
             if (groupNeeded)
@@ -330,6 +383,7 @@ namespace ApiLogic.Notification
             hasConfig = true;
             var counter = 0;
             HttpResponseMessage response;
+            var _random = new Random();
             while (counter < 3)
             {
                 counter++;
@@ -389,6 +443,7 @@ namespace ApiLogic.Notification
                         httpStatus = -1;
                         return default;
                 }
+                Thread.Sleep(counter * _random.Next(0, 100));
             }
             httpStatus = -1;
             return default;
@@ -411,6 +466,62 @@ namespace ApiLogic.Notification
             hasConfig = (int)status != 204;
             return new List<int> { 204 /*NoContent*/, 208 /*AlreadyReported*/ }.Contains((int)status);
         }
+
+
+        #region commonIotRequests
+        public bool PublishIotMessage(int groupId, string message, string topic)
+        {
+            var request = new { GroupId = groupId.ToString(), Message = @message, Topic = topic, ExternalAnnouncementId = "string" };
+            var response = SendToAdapter<IotPublishResponse>(groupId, IotAction.PUBLISH, request, MethodType.Post, out int httpStatus, out bool hasConfig);
+            return response != null && response.AdapterStatusCode == 0;
+        }
+
+        public bool AddToThingShadow(int groupId, string message, string thingArn, string udid)
+        {
+            var request = new { GroupId = groupId.ToString(), ThingArn = thingArn, Message = message, Udid = udid };
+            var response = SendToAdapter<bool>(groupId, IotAction.ADD_TO_SHADOW, request, MethodType.Post, out int httpStatus, out bool hasConfig);
+            return response;
+        }
+
+        private Iot RegisterDevice(int groupId, string udid)
+        {
+            var _request = new { GroupId = groupId.ToString(), Udid = udid };
+            var response = SendToAdapter<Iot>(groupId, IotAction.REGISTER, _request, MethodType.Post, out int httpStatus, out bool hasConfig);
+            return response;
+        }
+
+        private bool DeleteDevice(int groupId, Iot iot)
+        {
+            var _request = new { GroupId = groupId.ToString(), Udid = iot.Udid, IdentityId = iot.IdentityId };
+            var response = SendToAdapter<bool>(groupId, IotAction.DELETE_DEVICE, _request, MethodType.Delete, out int httpStatus, out bool hasConfig);
+            return response;
+        }
+
+        public IotProfileAws CreateIotEnvironment(int groupId, IotProfile iotProfile)
+        {
+            var _request = new { GroupId = groupId.ToString() };
+            var response = SendToAdapter<IotProfileAws>(groupId, IotAction.CREATE_ENVIRONMENT, _request,
+                MethodType.Post, out int httpStatus, out bool hasConfig, iotProfile);
+            return response;
+        }
+
+        public IotProfileAws UpdateIotEnvironment(int groupId, IotProfile newConfigurations)
+        {
+            return SendToAdapter<IotProfileAws>(groupId, IotAction.ADD_CONFIG, newConfigurations.IotProfileAws, MethodType.Put, out int httpStatus,
+                out bool hasConfig, newConfigurations, true);
+        }
+
+        /// <summary>
+        /// Call the adapter and get the client configuration
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        public IotProfileAws GetClientConfiguration(int groupId)
+        {
+            var urlSuffix = $"groupId={groupId}&forClient={false}";
+            return SendToAdapter<IotProfileAws>(groupId, IotAction.GET_IOT_CONFIGURATION, urlSuffix, MethodType.Get, out int httpStatus, out bool hasConfig);
+        }
+        #endregion
     }
 
     public enum IotAction

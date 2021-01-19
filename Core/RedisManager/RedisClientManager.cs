@@ -4,6 +4,9 @@ using System.Reflection;
 using KLogMonitor;
 using System;
 using Newtonsoft.Json;
+using System.Collections.Generic;
+using System.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace RedisManager
 {
@@ -62,6 +65,8 @@ namespace RedisManager
             return result;
         }
 
+        #region Util Methods
+
         private static string ObjectToJson<T>(T value)
         {
             if (value != null)
@@ -101,6 +106,89 @@ namespace RedisManager
                 return default(T);
             }
         }
+
+        private static HashEntry[] ObjectToHashFields<T>(string key, T value, bool getPropNameFromJsonPropAttribute)
+        {            
+            if (value == null)
+            {
+                log.Warn($"{key} is null, can not convert to hash fields");
+                return null;
+            }
+
+            List<HashEntry> hashFields = new List<HashEntry>();
+
+            try
+            {
+                foreach (PropertyInfo prop in value.GetType().GetProperties())
+                {
+                    var name = prop.Name;
+                    if (getPropNameFromJsonPropAttribute)
+                    {    
+                        var jsonProperty = prop.GetCustomAttribute<JsonPropertyAttribute>(true);
+                        if (jsonProperty != null)
+                        {
+                            name = jsonProperty.PropertyName;
+                        }
+                    }
+
+                    hashFields.Add(new HashEntry(name, prop.GetValue(value)?.ToString()));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed ObjectToHashFields", ex);
+            }
+
+            return hashFields?.ToArray();
+        }
+
+        private static HashEntry[] DictionaryToHashFields(string key, Dictionary<string, object> hashSetEntries)
+        {
+            if (hashSetEntries == null)
+            {
+                log.Warn($"{key} is null, can not convert hashSetEntries to hash fields");
+                return null;
+            }
+
+            List<HashEntry> hashFields = new List<HashEntry>();
+
+            try
+            {
+                foreach (KeyValuePair<string, object> pair in hashSetEntries)
+                {
+                    hashFields.Add(new HashEntry(pair.Key, RedisValue.Unbox(pair.Value)));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed ObjectToHashFields", ex);
+            }
+
+            return hashFields?.ToArray();
+        }
+
+        #endregion
+
+        #region Exist Methods
+
+        public bool IsKeyExists(string key)
+        {
+            bool result = false;
+            try
+            {
+                result = database.KeyExists(key);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed checking if key exists for key {key}", ex);
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Get Methods
 
         public RedisClientResponse<string> Get(string key)
         {
@@ -146,6 +234,10 @@ namespace RedisManager
             return result;
         }
 
+        #endregion
+
+        #region Set Methods
+
         public bool Set(string key, string value, double ttlInSeconds)
         {
             bool result = false;
@@ -158,6 +250,7 @@ namespace RedisManager
                     {
                         expiry = TimeSpan.FromSeconds(ttlInSeconds);
                     }
+
                     result = database.StringSet(key, value, expiry);
                 }
             }
@@ -185,5 +278,156 @@ namespace RedisManager
             return result;
         }
 
+        #endregion
+
+        #region Delete Methods
+
+        public bool Delete(string key)
+        {
+            bool result = false;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_REDIS, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = $"key {key}" })
+                {
+                    result = database.KeyDelete(key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed deleting key {key}", ex);
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region HashSet Methods
+
+        private bool UpsertHashSet(string key, HashEntry[] hashFields, double ttlInSeconds)
+        {
+            bool result = false;
+            if (hashFields?.Length > 0)
+            {
+                try
+                {
+                    database.HashSet(key, hashFields);
+                    if (ttlInSeconds > 0)
+                    {
+                        result = database.KeyExpire(key, TimeSpan.FromSeconds(ttlInSeconds));
+                    }
+                    else
+                    {
+                        result = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Failed UpsertHashSet key {key}, ttlInSeconds {ttlInSeconds}", ex);
+                }
+            }
+
+            return result;
+        }
+
+        public bool UpsertHashSet(string key, Dictionary<string, object> hashSetEntries, double ttlInSeconds)
+        {
+            bool result = false;
+            try
+            {
+                result = UpsertHashSet(key, DictionaryToHashFields(key, hashSetEntries), ttlInSeconds);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed UpsertHashSet key {key}, ttlInSeconds {ttlInSeconds}", ex);
+            }
+
+            return result;
+        }
+
+        public bool UpsertHashSet<T>(string key, T value, double ttlInSeconds, bool getPropNameFromJsonPropAttribute = true)
+        {
+            bool result = false;
+            try
+            {
+                result = UpsertHashSet(key, ObjectToHashFields<T>(key, value, getPropNameFromJsonPropAttribute), ttlInSeconds);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed UpsertHashSet key {key}, ttlInSeconds {ttlInSeconds}", ex);
+            }
+
+            return result;
+        }
+
+        public bool IncrementHashSetField(string key, string field, double incrementAmount = 1)
+        {
+            bool result = false;
+            try
+            {
+                if (!IsKeyExists(key))
+                {
+                    log.Debug($"{key} does not exist, can not increment hash set field {field}");
+                    result = false;
+                }
+
+                // ***** This is a big assumption that the operation was successful... currently the only other option is storing the previous value and then comparing, bad for performance *****
+                result = database.HashIncrement(key, field, incrementAmount) > 0;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed IncrementHashSetField, key {key}, field {field}, incrementAmount {incrementAmount}", ex);
+            }
+
+            return result;
+        }
+
+        public bool IncrementHashSetField<T>(string key, string field, T value, double ttlInSeconds = 0, double incrementAmount = 1)
+        {
+            bool result = false;
+            try
+            {
+                if (!IsKeyExists(key))
+                {
+                    result = UpsertHashSet<T>(key, value, ttlInSeconds);
+                }
+                else
+                {
+                    // ***** This is a big assumption that the operation was successful... currently the only other option is storing the previous value and then comparing, bad for performance *****
+                    result = database.HashIncrement(key, field, incrementAmount) > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed IncrementHashSetField, key {key}, field {field}, ttlInSeconds {ttlInSeconds}, incrementAmount {incrementAmount}", ex);
+            }
+
+            return result;
+        }
+
+        public object GetHashSetFieldValue(string key, string field)
+        {
+            object result = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_REDIS, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = $"key {key}, field {field}" })
+                {
+                    Type a = typeof(long);
+                    RedisValue redisValue = database.HashGet(key, field);
+                    if (redisValue.HasValue)
+                    {
+                        result = redisValue;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed fetching key {key}", ex);
+            }
+
+            return result;
+        }
+
+        #endregion
     }
 }

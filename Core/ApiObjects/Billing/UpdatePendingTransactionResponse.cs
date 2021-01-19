@@ -16,5 +16,6 @@ namespace ApiObjects.Billing
         public eTransactionState TransactionState { get; set; }
 
         public long DomainId { get; set; }
+        public bool IsAsyncPolicy { get; set; }
     }
 }

@@ -40,7 +40,7 @@ namespace Core.Catalog.CatalogManagement
             GenericResponse<BulkUpload> response = new GenericResponse<BulkUpload>();
             try
             {
-                DataTable dt = CatalogDAL.GetBulkUpload(bulkUploadId);
+                DataTable dt = CatalogDAL.GetBulkUpload(bulkUploadId, groupId);
                 response.Object = CreateBulkUploadFromDataTable(dt, groupId, true);
                 if (response.Object == null)
                 {
@@ -173,10 +173,8 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
-                GenericResponse<string> saveFileResponse;
                 // save the bulkUpload file to server (cut it from iis) and set fileURL                                
-                saveFileResponse = fileData.SaveFile(response.Object.Id,"KalturaBulkUpload");
-
+                GenericResponse<string> saveFileResponse = fileData.SaveFile(response.Object.Id,"KalturaBulkUpload");
                 if (!saveFileResponse.HasObject())
                 {
                     log.ErrorFormat("Error while saving BulkUpload File to file server. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
@@ -326,6 +324,10 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 string msg = $"An Exception was occurred in ProcessBulkUpload. groupId:{groupId}, userId:{userId}, bulkUploadId:{bulkUpload.Id}.";
+                if (ex is OverlapException)
+                {
+                    msg += ex.Message;
+                }
                 bulkUploadResponse.Object.AddError(eResponseStatus.Error, msg);
                 bulkUploadResponse = UpdateBulkUploadStatusWithVersionCheck(bulkUploadResponse.Object, BulkUploadJobStatus.Fatal);
                 log.Error(msg, ex);
@@ -512,14 +514,14 @@ namespace Core.Catalog.CatalogManagement
             {
                 var originalStatus = bulkUploadToUpdate.Status;
                 response.Object = bulkUploadToUpdate;
-
+                response.Object.Status = newStatus;
                 BulkUploadJobStatus updatedStatus;
                 if (!CatalogDAL.SaveBulkUploadStatusAndErrorsCB(response.Object, BULK_UPLOAD_CB_TTL, out updatedStatus))
                 {
                     log.ErrorFormat("UpdateBulkUploadStatusWithVersionCheck > Error while saving BulkUpload to CB. bulkUploadId:{0}, status:{1}.", response.Object.Id, newStatus);
                 }
                 log.Debug($"UpdateBulkUploadStatusWithVersionCheck > status by results is:[{updatedStatus}], status to set:[{newStatus}]");
-                response.Object.Status = newStatus;
+                response.Object.Status = updatedStatus;
 
                 UpdateBulkUploadInSqlAndInvalidateKeys(response.Object, originalStatus);
 
@@ -694,11 +696,12 @@ namespace Core.Catalog.CatalogManagement
                         log.Error($"UpdateBulkUploadInSqlAndInvalidateKeys > Failed to send notification to consumers, failed to detch updated bulkUpload object.");
                     }
 
-                    if (bulkUpload.JobData is BulkUploadIngestJobData ingestJobData)
-                    {
-                        var locker = new DistributedLock(bulkUpload.GroupId);
-                        locker.Unlock(ingestJobData.LockKeys);
-                    }
+                    // every day of ingest wil gradually unlock now .. so we dont want to unloc the keys if they were started already by another ingest
+                    //if (bulkUpload.JobData is BulkUploadIngestJobData ingestJobData)
+                    //{
+                    //    var locker = new DistributedLock(bulkUpload.GroupId);
+                    //    locker.Unlock(ingestJobData.LockKeys);
+                    //}
                 }
             }
         }

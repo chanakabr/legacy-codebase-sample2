@@ -1,7 +1,10 @@
 ﻿using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.SSOAdapter;
+using AuthenticationGrpcClientWrapper;
 using ConfigurationManager;
 using CouchbaseManager;
+using Google.Protobuf.Collections;
 using KLogMonitor;
 using ODBCWrapper;
 using System;
@@ -9,6 +12,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Tvinci.Core.DAL;
 
 namespace DAL
@@ -29,7 +33,6 @@ namespace DAL
         private const string SP_GET_USER_DOMAINS = "sp_GetUserDomains";
         private const string SP_INSERT_USER = "sp_InsertUser";
         private const string SP_GET_IS_ACTIVATION_NEEDED = "Get_IsActivationNeeded";
-        private const string SP_GET_ACTIVATION_TOKEN = "Get_ActivationToken";
         private const string SP_GET_GROUP_USERS = "Get_GroupUsers";
         private const string SP_GET_GROUP_USERS_SEARCH_FIELDS = "Get_GroupUsersSearchFields";
         private const string SP_GET_DEVICES_TO_USERS_NON_PUSH = "Get_DevicesToUsersNonPushAction";
@@ -38,6 +41,7 @@ namespace DAL
         private const string SP_GET_USER_TYPE = "Get_UserType";
         private const string SP_GET_DEFUALT_GROUP_OPERATOR = "Get_DefaultGroupOperator";
         private const string DELETE_USER = "Delete_User";
+        private const string SSO_ADAPTER_WONERSHIP_ERR_MSG = "This request is disabled on Phoenix, ownership flag of SSOAdapters is turned on and thus this action should be done on Authentication micro service, Check TCM [MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles] if this is unexpected behavior";
 
         #endregion
 
@@ -267,7 +271,8 @@ namespace DAL
 
         public static int InsertUser(string sUserName, string sPassword, string sSalt, string sFirstName, string sLastName, string sFacebookID, string sFacebookImage, string sFacebookToken,
                                     int nIsFacebookImagePermitted, string sEmail, int nActivateStatus, string sActivationToken, string sCoGuid, string sExternalToken, int? nUserTypeID,
-                                    string sAddress, string sCity, int countryID, int stateID, string sZip, string sPhone, string sAffiliateCode, string sTwitterToken, string sTwitterTokenSecret, int nGroupID)
+                                    string sAddress, string sCity, int countryID, int stateID, string sZip, string sPhone, string sAffiliateCode, string sTwitterToken, string sTwitterTokenSecret, 
+                                    int nGroupID, bool usernameEncryptionEnabled)
         {
             int nInserted = 0;
 
@@ -301,6 +306,10 @@ namespace DAL
                 if (nUserTypeID != null)
                 {
                     spInsertUser.AddParameter("@userTypeID", nUserTypeID.Value);
+                }
+                if (usernameEncryptionEnabled)
+                {
+                    spInsertUser.AddParameter("@usernameEncryptionEnabled", 1);
                 }
 
                 spInsertUser.AddParameter("@address", sAddress);
@@ -358,6 +367,7 @@ namespace DAL
             return res;
         }
 
+        /// <summary>WARNING do not use directly. use UserStorage class instead</summary>
         public static int GetUserIDByUsername(string sUsername, int nGroupID)
         {
             int nUserID = 0;
@@ -552,12 +562,26 @@ namespace DAL
             return nAllowedLogins;
         }
 
-        public static bool UpdateFailCount(int nUserID, int nAdd, bool setLoginDate)
+        public static bool UpdateFailCount(int groupId, int nUserID, int nAdd, bool setLoginDate)
         {
             bool updateRes = false;
             ODBCWrapper.DirectQuery directQuery = null;
             try
             {
+                if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.UserLoginHistory.Value)
+                {
+                    var authClient = AuthenticationClient.GetClientFromTCM();
+                    var isSuccessfulLogin = nAdd == 0;
+                    if (isSuccessfulLogin)
+                    {
+                        return authClient.RecordUserSuccessfulLogin(groupId, nUserID);
+                    }
+                    else
+                    {
+                        return authClient.RecordUserFailedLogin(groupId, nUserID);
+                    }
+                }
+
                 directQuery = new ODBCWrapper.DirectQuery();
                 directQuery.SetConnectionKey("USERS_CONNECTION_STRING");
 
@@ -747,9 +771,11 @@ namespace DAL
             return retVal;
         }
 
+        /// <summary>WARNING do not use directly. use UserStorage class instead</summary>
         public static int GetUserPasswordFailHistory(string username, int groupId, ref DateTime dNow, ref int failCount, ref DateTime lastFailDate, ref DateTime lastHitDate, ref DateTime passwordUpdateDate)
         {
             int userId = 0;
+
             var sp = new StoredProcedure("Get_LoginFailCount");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@username", username);
@@ -769,6 +795,21 @@ namespace DAL
                     lastFailDate = Utils.GetDateSafeVal(dt.Rows[0], "LAST_FAIL_DATE");
                     lastHitDate = Utils.GetDateSafeVal(dt.Rows[0], "LAST_HIT_DATE");
                     passwordUpdateDate = Utils.GetDateSafeVal(dt.Rows[0], "PASSWORD_UPDATE_DATE");
+                }
+            }
+
+            // in case we are connected to the authentication microservice
+            // we need to overwrite the fail count, last fail date and last hit date.
+            // we cannot remove te call to the origianl SPR because the password update date and userId are not owned by the authentication MS
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.UserLoginHistory.Value)
+            {
+                var authClient = AuthenticationClient.GetClientFromTCM();
+                var failHistory = authClient.GetUserLoginHistory(groupId, userId);
+                if (failHistory != null)
+                {
+                    failCount = failHistory.ConsecutiveFailedLoginCount;
+                    lastFailDate = DateTimeOffset.FromUnixTimeSeconds(failHistory.LastLoginFailureDate).UtcDateTime;
+                    lastHitDate = DateTimeOffset.FromUnixTimeSeconds(failHistory.LastLoginAttemptDate).UtcDateTime;
                 }
             }
 
@@ -801,6 +842,106 @@ namespace DAL
             return res;
         }
 
+        public static ApiObjects.Response.GenericResponse<DeviceReferenceData> InsertDeviceReferenceData(ContextData contextData, DeviceReferenceData coreObject, long utcNow)
+        {
+            var response = new ApiObjects.Response.GenericResponse<DeviceReferenceData>();
+            var sp = new StoredProcedure("Insert_DeviceReferenceData");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupID", contextData.GroupId);
+            sp.AddParameter("@updaterID", contextData.UserId);
+            sp.AddParameter("@createDate", utcNow);
+            sp.AddParameter("@name", coreObject.Name.Trim().ToUpper());
+            sp.AddParameter("@type", coreObject.GetReferenceType());
+
+            var id = sp.ExecuteReturnValue<int>();
+
+            if (id == -1)
+            {
+                response.SetStatus(ApiObjects.Response.eResponseStatus.AlreadyExist,
+                    $"Device Reference already exist with name: {coreObject.Name}");
+            }
+            else if (id > 0)
+            {
+                coreObject.Id = id;
+                response.Object = coreObject;
+                response.SetStatus(ApiObjects.Response.eResponseStatus.OK);
+            }
+            else
+                response.SetStatus(ApiObjects.Response.eResponseStatus.Error, $"Failed adding {coreObject.Name}");
+
+            return response;
+        }
+
+        public static List<DeviceReferenceData> GetDeviceReferenceData(int groupId)
+        {
+            var res = new List<DeviceReferenceData>();
+            var sp = new StoredProcedure("GetDeviceReferenceData");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (dt.Rows[i] != null)
+                    {
+                        if (Utils.GetLongSafeVal(dt.Rows[i], "type") == (int)DeviceInformationType.Manufacturer)
+                        {
+                            res.Add(new DeviceManufacturerInformation
+                            {
+                                Id = Utils.GetLongSafeVal(dt.Rows[i], "id"),
+                                Name = Utils.GetSafeStr(dt.Rows[i], "name"),
+                                Type = (int)DeviceInformationType.Manufacturer
+                            });
+                        }
+                    }
+                }
+            }
+
+            return res;
+        }
+
+        public static ApiObjects.Response.Status UpdateDeviceReferenceData(ContextData contextData, DeviceReferenceData coreObject)
+        {
+            var response = new ApiObjects.Response.Status(ApiObjects.Response.eResponseStatus.Error);
+            var sp = new StoredProcedure("Update_DeviceReferenceData");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupID", contextData.GroupId);
+            sp.AddParameter("@id", coreObject.Id);
+            sp.AddParameter("@name", coreObject.Name.Trim().ToUpper());
+            sp.AddParameter("@updaterId", contextData.UserId);
+            sp.AddParameter("@status", coreObject.Status);
+
+            var id = sp.ExecuteReturnValue<int>();
+
+            if (id > 0)
+                response = new ApiObjects.Response.Status(ApiObjects.Response.eResponseStatus.OK);
+            else
+                response = new ApiObjects.Response.Status(ApiObjects.Response.eResponseStatus.Error, $"Failed updating {coreObject.Name}");
+
+            return response;
+        }
+
+        public static ApiObjects.Response.GenericResponse<bool> DeleteDeviceInformation(int groupId, long? updaterId, long id)
+        {
+            var response = new ApiObjects.Response.GenericResponse<bool>();
+            var sp = new StoredProcedure("Delete_DeviceReferenceData");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@updaterId", updaterId);
+
+            response.Object = sp.ExecuteReturnValue<bool>();
+            if (response.Object)
+            {
+                response.SetStatus(ApiObjects.Response.eResponseStatus.OK);
+            }
+            return response;
+        }
+
+        /// <summary>WARNING do not use directly. use UserStorage class instead</summary>
         public static string GetActivationToken(int nGroupID, string sUserName)
         {
             string sActivationToken = string.Empty;
@@ -1157,6 +1298,7 @@ namespace DAL
         }
 
         /// <summary>
+        /// WARNING do not use directly. use UserStorage class instead.
         /// GetUserActivationState
         /// </summary>
         /// <param name="arrGroupIDs"></param>
@@ -1190,7 +1332,7 @@ namespace DAL
                 if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 {
                     // in case sent userid doesnt exist
-                    if (ds.Tables.Count == 1)
+                    if (ds.Tables.Count == 1) // looks like, SP returns 2 tables always and this code is never executed
                     {
                         res = DALUserActivationState.UserDoesNotExist;
                     }
@@ -1198,7 +1340,13 @@ namespace DAL
                     {
                         DataTable userDetails = ds.Tables[0];
                         DataTable domainDetails = ds.Tables[1];
-                        if (userDetails != null && userDetails.Rows != null && userDetails.Rows.Count > 0)
+                        var userExist = userDetails != null
+                            && userDetails.Rows != null
+                            && userDetails.Rows.Count > 0
+                            // dirty-hack: stored procedure shouldn't return rows when no-user/deleted, but it does return.
+                            // USERNAME is not null column, that's why it's chosen as indicator of user's abscense.
+                            && userDetails.Rows[0]["USERNAME"] != DBNull.Value;
+                        if (userExist)
                         {
                             DataRow dr = userDetails.Rows[0];
                             if (nUserID <= 0)
@@ -1266,6 +1414,7 @@ namespace DAL
             return res;
         }
 
+        // TODO remove, not used
         public static bool IsUserActivated(int nGroupID, int nActivationMustHours, ref string sUserName, ref int nUserID)
         {
             bool bRet = false;
@@ -1357,10 +1506,10 @@ namespace DAL
         }
 
 
-        public static bool SaveBasicData(int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted,
+        public static bool SaveBasicData(int groupId, int nUserID, string sPassword, string sSalt, string sFacebookID, string sFacebookImage, bool bIsFacebookImagePermitted,
                                          string sFacebookToken, string sUserName, string sFirstName, string sLastName, string sEmail, string sAddress, string sCity,
-                                         int nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
-                                         DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount, bool updateUserPassword)
+                                         int? nCountryID, int nStateID, string sZip, string sPhone, string sAffiliateCode, string twitterToken, string twitterTokenSecret,
+                                         DateTime updateDate, string sCoGuid, string externalToken, bool resetFailCount, bool updateUserPassword, bool usernameEncryptionEnabled)
         {
             try
             {
@@ -1394,7 +1543,7 @@ namespace DAL
                     updateQuery += Parameter.NEW_PARAM("COGUID", "=", sCoGuid);
                 }
 
-                if (nCountryID >= 0)
+                if (nCountryID.HasValue && nCountryID >= 0)
                 {
                     updateQuery += Parameter.NEW_PARAM("COUNTRY_ID", "=", nCountryID);
                 }
@@ -1406,13 +1555,27 @@ namespace DAL
 
                 if (resetFailCount)
                 {
-                    updateQuery += Parameter.NEW_PARAM("FAIL_COUNT", "=", 0);
+                    if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.UserLoginHistory.Value)
+                    {
+                        var authClient = AuthenticationClient.GetClientFromTCM();
+                        _ = authClient.ResetUserFailedLoginCount(groupId, nUserID);
+                    }
+                    else
+                    {
+                        updateQuery += Parameter.NEW_PARAM("FAIL_COUNT", "=", 0);
+                    }
+
                 }
 
                 if (updateUserPassword)
                 {
                     updateQuery += Parameter.NEW_PARAM("PASSWORD", "=", sPassword);
                     updateQuery += Parameter.NEW_PARAM("PASSWORD_UPDATE_DATE", "=", updateDate);
+                }
+
+                if (usernameEncryptionEnabled)
+                {
+                    updateQuery += Parameter.NEW_PARAM("USERNAME_ENCRYPTION", "=", 1);
                 }
 
                 updateQuery += "WHERE";
@@ -1429,6 +1592,21 @@ namespace DAL
             }
 
             return false;
+        }
+
+        // WARNING Should be used in username-lazy-migration ONLY. remove after lazy migration finish
+        public static long? UpdateUsername(int groupId, string clearUsername, string encryptedUsername)
+        {
+            var sp = new StoredProcedure("Migrate_Username");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@currentUsername", clearUsername, true);
+            sp.AddParameter("@newUsername", encryptedUsername, true);
+            sp.AddParameter("@groupId", groupId);
+            var table = sp.Execute();
+            var userId = table?.Rows.Count > 0
+                ? Utils.GetNullableLong(table.Rows[0], "ID")
+                : null;
+            return userId;
         }
 
         private static void HandleException(Exception ex)
@@ -1608,6 +1786,7 @@ namespace DAL
             return res;
         }
 
+        // TODO remove. Cinepolis is not used
         public static string Get_UsernameBySiteGuid(long lSiteGuid, string sConnKey)
         {
             string res = string.Empty;
@@ -2233,6 +2412,31 @@ namespace DAL
 
         public static IEnumerable<SSOAdapter> GetSSOAdapters(int groupId)
         {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            {
+                var authClient = AuthenticationClient.GetClientFromTCM();
+                var ssoAdapters = authClient.ListSSOAdapterProfiles(groupId);
+                if (ssoAdapters != null)
+                {
+                    var ssoAdaptersResponse = ssoAdapters.SSOAdapterProfiles.Select(s => new SSOAdapter
+                    {
+                        Id = (int)s.Id,
+                        ExternalIdentifier = s.ExternalId,
+                        AdapterUrl = s.AdapterUrl,
+                        GroupId = groupId,
+                        IsActive = s.IsActive ? 1 : 0,
+                        Name = s.Name,
+                        SharedSecret = s.SharedSecret,
+                        Settings = ConvertSSOConfigDictionaryToListOfSSOParams(s.Id, groupId, s.SSOConfiguration),
+                    });
+                    return ssoAdaptersResponse;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
             var sp = new StoredProcedure("Get_GroupSSOAdapters");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
@@ -2252,8 +2456,28 @@ namespace DAL
             return adaptersList;
         }
 
+        private static IList<SSOAdapterParam> ConvertSSOConfigDictionaryToListOfSSOParams(long adapterId, int groupId, IDictionary<string, string> ssoConfiguration)
+        {
+            if (ssoConfiguration == null) { return null; }
+            var response = ssoConfiguration.Select(kv => new SSOAdapterParam
+            {
+                AdapterId = (int)adapterId,
+                GroupId = groupId,
+                Key = kv.Key,
+                Value = kv.Value,
+
+            }).ToList();
+            return response;
+        }
+
         public static SSOAdapter AddSSOAdapters(SSOAdapter adapterDetails, int updaterId)
         {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            {
+                log.Error(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+                throw new Exception(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+            }
+
             var sp = new StoredProcedure("Insert_SSOAdapter");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@groupId", adapterDetails.GroupId);
@@ -2275,6 +2499,13 @@ namespace DAL
 
         public static SSOAdapter UpdateSSOAdapter(SSOAdapter adapterDetails, int updaterId)
         {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            {
+                var msg = "This code should not be called, ownership flag of SSOAdapters has been transfered to Authentication Service, Check TCM [MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles]";
+                log.Error(msg);
+                throw new Exception(msg);
+            }
+
             var updateAdapterSp = new StoredProcedure("Update_SSOAdapter");
             updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
             updateAdapterSp.AddParameter("@groupId", adapterDetails.GroupId);
@@ -2313,6 +2544,12 @@ namespace DAL
 
         public static bool DeleteSSOAdapter(int ssoAdapterId, int updaterId)
         {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            {
+                log.Error(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+                throw new Exception(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+            }
+
             var updateAdapterSp = new StoredProcedure("Delete_SSOAdapter");
             updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
             updateAdapterSp.AddParameter("@adapterId", ssoAdapterId);
@@ -2324,6 +2561,12 @@ namespace DAL
 
         public static SSOAdapter SetSharedSecret(int ssoAdapterId, string sharedSecret, int updaterId)
         {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            {
+                log.Error(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+                throw new Exception(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+            }
+
             var updateAdapterSp = new StoredProcedure("Set_SSOAdapterSecret");
             updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
             updateAdapterSp.AddParameter("@adapterId", ssoAdapterId);
@@ -2337,6 +2580,13 @@ namespace DAL
 
         public static SSOAdapter GetSSOAdapterByExternalId(string ssoAdapterExternalId)
         {
+            // this method is called suring Add\update adapater to verify unique external id
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            {
+                log.Error(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+                throw new Exception(SSO_ADAPTER_WONERSHIP_ERR_MSG);
+            }
+
             var updateAdapterSp = new StoredProcedure("Get_SSOAdapterByExternalId");
             updateAdapterSp.SetConnectionKey("USERS_CONNECTION_STRING");
             updateAdapterSp.AddParameter("@externalId", ssoAdapterExternalId);
@@ -2350,7 +2600,6 @@ namespace DAL
         public static List<long> GetUserIdsByRoleIds(int groupId, HashSet<long> roleIds)
         {
             List<long> userIds = null;
-
             try
             {
                 StoredProcedure sp = new StoredProcedure("GetUserIdsByRoleIds");
@@ -2417,11 +2666,18 @@ namespace DAL
             return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleKey);
         }
 
+        #region Password History
         private static string GetPasswordsHistoryKey(long userId)
         {
             return string.Format("user_passwords_history_{0}", userId);
         }
 
+        private static string GetHashedPasswordHistoryKey(long userId)
+        {
+            return string.Format("user_passwords_history_V2_{0}", userId);
+        }
+
+        // TODO should be removed when all passwords history will be converted to hashed version(BEO-8869)
         public static HashSet<string> GetPasswordsHistory(long userId)
         {
             var key = GetPasswordsHistoryKey(userId);
@@ -2434,32 +2690,26 @@ namespace DAL
             return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, passwordsHistory);
         }
 
+        public static bool DeletePasswordsHistory(long userId)
+        {
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, GetPasswordsHistoryKey(userId));
+        }
+
+        public static PasswordHistory GetHashedPasswordHistory(long userId)
+        {
+            return UtilsDal.GetObjectFromCB<PasswordHistory>(eCouchbaseBucket.OTT_APPS, GetHashedPasswordHistoryKey(userId));
+        }
+
+        public static bool SaveHashedPasswordHistory(long userId, PasswordHistory passwordHistory)
+        {
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, GetHashedPasswordHistoryKey(userId), passwordHistory);
+        }
+        #endregion Password History
+
         public static bool DeleteUserRolesToPasswordPolicy(int groupId, Dictionary<long, HashSet<long>> policies)
         {
             var key = GetUserRolesToPasswordPolicyKey(groupId);
             return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, policies);
-        }
-
-        private static string GetUserLoginInfoKey(int groupId, long userId)
-        {
-            return $"user_login_info_{groupId}_{userId}";
-        }
-
-        public static UserLoginInfo GetUserLoginInfo(int groupId, long userId)
-        {
-            if (userId > 0)
-            {
-                string key = GetUserLoginInfoKey(groupId, userId);
-                return UtilsDal.GetObjectFromCB<UserLoginInfo>(eCouchbaseBucket.OTT_APPS, key);
-            }
-
-            return null;
-        }
-
-        public static bool SaveUserLoginInfo(int groupId, long userId, UserLoginInfo userLoginInfo)
-        {
-            string key = GetUserLoginInfoKey(groupId, userId);
-            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, userLoginInfo);
         }
 
         public static bool RevokePasswordToken(int userId)
@@ -2498,6 +2748,48 @@ namespace DAL
             selectQuery.Finish();
             selectQuery = null;
             return nRet;
+        }
+
+        public static List<EncryptionKey> GetEncryptionKeys(int groupId)
+        {
+            var sp = new StoredProcedure("List_encryption_keys");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            var table = sp.ExecuteDataSet().Tables[0];
+
+            var list = new List<EncryptionKey>(table.Rows.Count);
+            foreach (DataRow row in table.Rows)
+            {
+                list.Add(new EncryptionKey(
+                    Utils.GetLongSafeVal(row, "ID"),
+                    Utils.GetIntSafeVal(row, "group_id"),
+                    Convert.FromBase64String(Utils.GetSafeStr(row, "value")),
+                    (EncryptionType)Utils.GetIntSafeVal(row, "encryption_type")
+                ));
+            }
+
+            return list;
+        }
+
+        public static int InsertEncryptionKey(EncryptionKey encryptionKey, long updaterId)
+        {
+            try
+            {
+                var keyAsString = Convert.ToBase64String(encryptionKey.Value);
+                var sp = new StoredProcedure("Insert_encryption_key");
+                sp.SetConnectionKey("USERS_CONNECTION_STRING");
+                sp.AddParameter("@groupId", encryptionKey.GroupId);
+                sp.AddParameter("@type", (int)encryptionKey.Type);
+                sp.AddParameter("@value", keyAsString, true);
+                sp.AddParameter("@updaterId", updaterId);
+
+                return sp.ExecuteReturnValue<int>();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"InsertEncryptionKey in DB, groupId: {encryptionKey.GroupId}, ex:{ex.Message}", ex);
+                return 0;
+            }
         }
     }
 }

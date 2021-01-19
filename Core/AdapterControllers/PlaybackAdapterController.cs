@@ -3,6 +3,7 @@ using ApiObjects;
 using ApiObjects.PlaybackAdapter;
 using ApiObjects.Response;
 using KLogMonitor;
+using Newtonsoft.Json;
 using Synchronizer;
 using System;
 using System.Collections.Generic;
@@ -20,9 +21,9 @@ namespace AdapterControllers
         private const string PARAMETER_ADAPTER = "adapter";
         private const string LOCKER_STRING_FORMAT = "Playback_Adapter_Locker_{0}";
         private const int STATUS_NO_CONFIGURATION_FOUND = 3;
-
         private static PlaybackAdapterController instance;
         private static readonly object generalLocker = new object();
+        private const int MAX_ALLOWED_DYNAMIC_DATA_PAIRS = 20;
 
 
         // Gets the singleton instance of the adapter controller
@@ -52,7 +53,7 @@ namespace AdapterControllers
         public ServiceClient GetPlaybackAdapterServiceClient(string adapterUrl)
         {
             log.Debug($"Constructing GetPlaybackAdapterServiceClient Client with url:[{adapterUrl}]");
-            var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding_IService;
+            var SSOAdapaterServiceEndpointConfiguration = ServiceClient.EndpointConfiguration.BasicHttpBinding;
             var adapterClient = new ServiceClient(SSOAdapaterServiceEndpointConfiguration, adapterUrl);
             adapterClient.ConfigureServiceClient();
 
@@ -216,12 +217,17 @@ namespace AdapterControllers
 
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
+                log.Debug($"GetAdapterPlaybackContext " +
+                    $"contextOptions: {JsonConvert.SerializeObject(contextOptions)}, " +
+                    $"request: {JsonConvert.SerializeObject(requestPlaybackContextOptions)}");
                 //call adapter
                 adapterResponse = adapterClient.GetPlaybackContextAsync(contextOptions, requestPlaybackContextOptions).ExecuteAndWait();
             }
 
             if (adapterResponse != null)
             {
+                log.Debug($"GetAdapterPlaybackContext response: {JsonConvert.SerializeObject(adapterResponse)}");
+
                 log.DebugFormat("success. playback adapter response for GetPlaybackContext: status.code = {0}",
                     adapterResponse.Status != null ? adapterResponse.Status.Code.ToString() : "null");
             }
@@ -294,7 +300,12 @@ namespace AdapterControllers
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
                             Protocols = x.Protocols,
-                            Type = x.Type
+                            Type = x.Type,
+                            BusinessModuleDetails = new BusinessModuleDetails
+                            {
+                                BusinessModuleId = x.BusinessModuleId,
+                                BusinessModuleType = ConvertModuleType(x.BusinessModuleType)
+                            }
                         }).ToList();
                 }
 
@@ -319,9 +330,47 @@ namespace AdapterControllers
             return kalturaPlaybackContext;
         }
 
+        private static eTransactionType? ConvertModuleType(TransactionType? businessModuleType)
+        {
+            if (!businessModuleType.HasValue)
+            {
+                return null;
+            }
+            switch (businessModuleType)
+            {
+                case TransactionType.Collection:
+                    return eTransactionType.Collection;
+                case TransactionType.PPV:
+                    return eTransactionType.PPV;
+                case TransactionType.Subscription:
+                    return eTransactionType.Subscription;
+                default:
+                    throw new KalturaException($"Unknown Transaction Type: {businessModuleType}", (int)eResponseStatus.Error);
+            }
+        }
+
+        private static TransactionType? ConvertModuleType(eTransactionType? businessModuleType)
+        {
+            if (!businessModuleType.HasValue)
+            {
+                return null;
+            }
+            switch (businessModuleType)
+            {
+                case eTransactionType.Collection:
+                    return TransactionType.Collection;
+                case eTransactionType.PPV:
+                    return TransactionType.PPV;
+                case eTransactionType.Subscription:
+                    return TransactionType.Subscription;
+                default:
+                    throw new KalturaException($"Unknown Transaction Type: {businessModuleType}", (int)eResponseStatus.Error);
+            }
+        }
+
         private static List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> ParseDrm(List<PlaybackAdapter.DrmPlaybackPluginData> drms)
         {
-            List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> drmPlaybackPluginDatas = new List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData>();
+            var drmPlaybackPluginDatas = new List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData>();
 
             ApiObjects.PlaybackAdapter.DrmPlaybackPluginData drm;
             foreach (var item in drms)
@@ -350,10 +399,56 @@ namespace AdapterControllers
                 drm.LicenseURL = item.LicenseURL;
                 drm.Scheme = (ApiObjects.PlaybackAdapter.DrmSchemeName)item.Scheme;
 
+                if (item?.DynamicData?.Count > 0)
+                {
+                    var isValidDynamicData = ValidateDrmDynamicData(item.DynamicData);
+                    if (!isValidDynamicData.IsOkStatusCode())
+                    {
+                        throw new KalturaException(isValidDynamicData.Message, (int)eResponseStatus.Error);
+                    }
+                    drm.DynamicData = item.DynamicData.ToDictionary(x => x.Key, x => x.Value);
+                }
+
                 drmPlaybackPluginDatas.Add(drm);
             }
 
             return drmPlaybackPluginDatas;
+        }
+
+        private static Status ValidateDrmDynamicData(List<KeyValue> dynamicData = null)
+        {
+            var status = new Status();
+
+            if (dynamicData?.Count > MAX_ALLOWED_DYNAMIC_DATA_PAIRS)
+            {
+                var error = $"DynamicData failed validation, exceeded maximum allowed amount of {MAX_ALLOWED_DYNAMIC_DATA_PAIRS}";
+                log.Error(error);
+                status.Set(eResponseStatus.Error, error);
+            }
+            else
+            {
+                status.Set(eResponseStatus.OK);
+            }
+
+            return status;
+        }
+
+        private static Status ValidateDrmDynamicData(Dictionary<string, string> dynamicData = null)
+        {
+            var status = new Status();
+
+            if (dynamicData?.Count > MAX_ALLOWED_DYNAMIC_DATA_PAIRS)
+            {
+                var error = $"DynamicData failed validation, exceeded maximum allowed amount of {MAX_ALLOWED_DYNAMIC_DATA_PAIRS}";
+                log.Error(error);
+                status.Set(eResponseStatus.Error, error);
+            }
+            else
+            {
+                status.Set(eResponseStatus.OK);
+            }
+
+            return status;
         }
 
         private List<PlaybackAdapter.DrmPlaybackPluginData> ParseDrm(List<ApiObjects.PlaybackAdapter.DrmPlaybackPluginData> drms)
@@ -365,7 +460,7 @@ namespace AdapterControllers
             {
                 if (item is ApiObjects.PlaybackAdapter.FairPlayPlaybackPluginData)
                 {
-                    ApiObjects.PlaybackAdapter.FairPlayPlaybackPluginData tmpDrm = item as ApiObjects.PlaybackAdapter.FairPlayPlaybackPluginData;
+                    var tmpDrm = item as ApiObjects.PlaybackAdapter.FairPlayPlaybackPluginData;
                     drm = new PlaybackAdapter.FairPlayPlaybackPluginData()
                     {
                         Certificate = tmpDrm.Certificate,
@@ -373,7 +468,7 @@ namespace AdapterControllers
                 }
                 else if (item is ApiObjects.PlaybackAdapter.CustomDrmPlaybackPluginData)
                 {
-                    ApiObjects.PlaybackAdapter.CustomDrmPlaybackPluginData tmpDrm = item as ApiObjects.PlaybackAdapter.CustomDrmPlaybackPluginData;
+                    var tmpDrm = item as ApiObjects.PlaybackAdapter.CustomDrmPlaybackPluginData;
                     drm = new PlaybackAdapter.CustomDrmPlaybackPluginData()
                     {
                         Data = tmpDrm.Data,
@@ -386,6 +481,16 @@ namespace AdapterControllers
 
                 drm.LicenseURL = item.LicenseURL;
                 drm.Scheme = (PlaybackAdapter.DrmSchemeName)item.Scheme;
+
+                if (item?.DynamicData?.Count > 0)
+                {
+                    var isValidDynamicData = ValidateDrmDynamicData(item.DynamicData);
+                    if (!isValidDynamicData.IsOkStatusCode())
+                    {
+                        throw new KalturaException(isValidDynamicData.Message, (int)eResponseStatus.Error);
+                    }
+                    drm.DynamicData = item.DynamicData.Select(x => new KeyValue() { Key = x.Key, Value = x.Value })?.ToList();
+                }
 
                 drmPlaybackPluginDatas.Add(drm);
             }
@@ -450,7 +555,9 @@ namespace AdapterControllers
                             Format = x.Format,
                             IsTokenized = x.IsTokenized,
                             Protocols = x.Protocols,
-                            Type = x.Type
+                            Type = x.Type,
+                            BusinessModuleId = x.BusinessModuleDetails?.BusinessModuleId,
+                            BusinessModuleType = ConvertModuleType(x.BusinessModuleDetails?.BusinessModuleType)
                         }).ToList();
                 }
 
@@ -618,12 +725,12 @@ namespace AdapterControllers
 
                 PlaybackAdapter.AdapterPlaybackContextOptions contextOption = new PlaybackAdapter.AdapterPlaybackContextOptions()
                 {
-                    AdapterId = adapter.Id,                    
+                    AdapterId = adapter.Id,
                     PlaybackContext = adapterPlaybackContext,
-                    PartnerId = groupId,                    
+                    PartnerId = groupId,
                     TimeStamp = unixTimestamp,
                     Signature = System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))),
-                    AdapterData = playbackAdapterData.ToList(), 
+                    AdapterData = playbackAdapterData.ToList(),
                     UserId = userId
                 };
 

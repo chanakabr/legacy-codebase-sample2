@@ -4782,7 +4782,7 @@ namespace Core.Api
                         status.Code = (int)eResponseStatus.OK;
                         status.Message = string.Empty;
 
-                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, siteGuid));
                     }
                     else if (newId == -260)
                     {
@@ -4944,7 +4944,7 @@ namespace Core.Api
                             // if we updated a user only - set its key as invalid
                             if (!string.IsNullOrEmpty(siteGuid))
                             {
-                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
+                                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, siteGuid));
                             }
                             // otherwise - set all of the domain's users keys as invalid
                             else
@@ -4991,7 +4991,7 @@ namespace Core.Api
                 // Set invalidation key for each of its users
                 foreach (var userId in domain.m_UsersIDs)
                 {
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(userId.ToString()));
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, userId.ToString()));
                 }
             }
         }
@@ -5374,7 +5374,7 @@ namespace Core.Api
                         if (!string.IsNullOrEmpty(siteGuid) && siteGuid != "0")
                         {
                             List<string> userParentalRulesInvalidationKeys = new List<string>();
-                            userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
+                            userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, siteGuid));
 
                             // user rules 
                             key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
@@ -5536,7 +5536,7 @@ namespace Core.Api
                     else if (epgRuleIds != null && epgRuleIds.Count > 0)
                     {
                         List<string> userParentalRulesInvalidationKeys = new List<string>();
-                        userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(siteGuid));
+                        userParentalRulesInvalidationKeys.Add(LayeredCacheKeys.GetUserParentalRuleInvalidationKey(groupId, siteGuid));
 
                         // user rules 
                         key = LayeredCacheKeys.GetUserParentalRulesKey(groupId, siteGuid);
@@ -7904,6 +7904,7 @@ namespace Core.Api
 
                 if (response.ExternalChannels == null || response.ExternalChannels.Count == 0)
                 {
+                    //new comment
                     response.Status = new Status((int)eResponseStatus.OK, "no external channels related to group");
                 }
                 else
@@ -10769,7 +10770,7 @@ namespace Core.Api
                         { "userId", userId }
                         },
                     groupId, LayeredCacheConfigNames.GET_USER_WATCHED_MEDIA_IDS_LAYERED_CACHE_CONFIG_NAME,
-                    new List<string>() { LayeredCacheKeys.GetUserWatchedMediaIdsInvalidationKey(userId) });
+                    new List<string>() { LayeredCacheKeys.GetUserWatchedMediaIdsInvalidationKey(groupId, userId) });
 
                 if (!cacheResult)
                 {
@@ -11108,7 +11109,7 @@ namespace Core.Api
 
             string key = LayeredCacheKeys.GetMediaCountriesKey(mediaId);
             if (!LayeredCache.Instance.Get<DataTable>(key, ref mediaCountries, GetMediaCountries, new Dictionary<string, object>() { { "mediaId", mediaId } },
-                groupId, LayeredCacheConfigNames.GET_MEDIA_COUNTRIES, new List<string>() { LayeredCacheKeys.GetMediaCountriesInvalidationKey(mediaId) }))
+                groupId, LayeredCacheConfigNames.GET_MEDIA_COUNTRIES, new List<string>() { LayeredCacheKeys.GetMediaCountriesInvalidationKey(groupId, mediaId) }))
             {
                 log.ErrorFormat("Failed media countries from LayeredCache, key: {0}", key);
             }
@@ -11187,33 +11188,35 @@ namespace Core.Api
                     needToUpdate = deviceConcurrencyPriorityToUpdate.SetUnchangedProperties(deviceConcurrencyPriority);
                 }
 
-                if (deviceConcurrencyPriorityToUpdate?.DeviceFamilyIds == null)
+                if (deviceConcurrencyPriorityToUpdate.DeviceFamilyIds?.Count > 0)
                 {
-                    deviceConcurrencyPriorityToUpdate.DeviceFamilyIds = deviceConcurrencyPriority.DeviceFamilyIds;
+                    // validate deviceFamilyIds
+                    var deviceFamilyList = GetDeviceFamilyList();
+                    if (deviceFamilyList == null ||
+                        deviceFamilyList.Status.Code != (int)eResponseStatus.OK ||
+                        deviceFamilyList.DeviceFamilies.Count == 0)
+                    {
+                        response.Message = "No DeviceFamilies";
+                        return response;
+                    }
+
+                    var notDeviceFamilies = deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.FindAll(x => !deviceFamilyList.DeviceFamilies.Any(y => y.Id == x));
+                    if (notDeviceFamilies != null && notDeviceFamilies.Count > 0)
+                    {
+                        response.Set((int)eResponseStatus.NonExistingDeviceFamilyIds,
+                                     string.Format("The ids: {0} are non-existing DeviceFamilyIds", string.Join(", ", notDeviceFamilies)));
+                        return response;
+                    }
+
+                    needToUpdate = true;
                 }
-                else
+                else if (deviceConcurrencyPriorityToUpdate.DeviceFamilyIds != null && deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.Count == 0)
                 {
                     needToUpdate = true;
-                    if (deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.Count > 0)
-                    {
-                        // validate deviceFamilyIds
-                        var deviceFamilyList = GetDeviceFamilyList();
-                        if (deviceFamilyList == null ||
-                            deviceFamilyList.Status.Code != (int)eResponseStatus.OK ||
-                            deviceFamilyList.DeviceFamilies.Count == 0)
-                        {
-                            response.Message = "No DeviceFamilies";
-                            return response;
-                        }
-
-                        var notDeviceFamilies = deviceConcurrencyPriorityToUpdate.DeviceFamilyIds.FindAll(x => !deviceFamilyList.DeviceFamilies.Any(y => y.Id == x));
-                        if (notDeviceFamilies != null && notDeviceFamilies.Count > 0)
-                        {
-                            response.Set((int)eResponseStatus.NonExistingDeviceFamilyIds,
-                                         string.Format("The ids: {0} are non-existing DeviceFamilyIds", string.Join(", ", notDeviceFamilies)));
-                            return response;
-                        }
-                    }
+                }
+                else if (needToUpdate && deviceConcurrencyPriorityToUpdate.DeviceFamilyIds == null && deviceConcurrencyPriority.DeviceFamilyIds != null)
+                {
+                    deviceConcurrencyPriorityToUpdate.DeviceFamilyIds = deviceConcurrencyPriority.DeviceFamilyIds;
                 }
 
                 if (needToUpdate)
@@ -11226,8 +11229,9 @@ namespace Core.Api
                     }
 
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceConcurrencyPriorityInvalidationKey(groupId));
-                    response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
+
+                response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
             catch (Exception ex)
             {
@@ -11974,19 +11978,19 @@ namespace Core.Api
             return response;
         }
 
-        internal static void AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
+        internal static VirtualAssetInfoResponse AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
         {
-            AssetManager.AddVirtualAsset(groupId, virtualAssetInfo, type);
+            return AssetManager.AddVirtualAsset(groupId, virtualAssetInfo, type);
         }
 
-        internal static void DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        internal static VirtualAssetInfoResponse DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
-            AssetManager.DeleteVirtualAsset(groupId, virtualAssetInfo);
+            return AssetManager.DeleteVirtualAsset(groupId, virtualAssetInfo);
         }
 
-        internal static void UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        internal static VirtualAssetInfoResponse UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
-            AssetManager.UpdateVirtualAsset(groupId, virtualAssetInfo);
+            return AssetManager.UpdateVirtualAsset(groupId, virtualAssetInfo);
         }
 
         internal static ObjectVirtualAssetFilter GetObjectVirtualAssetObjectIds(int groupId, AssetSearchDefinition assetSearchDefinition,

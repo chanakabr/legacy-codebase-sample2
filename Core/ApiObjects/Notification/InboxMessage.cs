@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ApiObjects.Notification
 {
@@ -17,6 +13,48 @@ namespace ApiObjects.Notification
         public long CreatedAtSec { get; set; }
         public long UpdatedAtSec { get; set; }
         public eMessageState State { get; set; }
+        public long? CampaignId { get; set; }
+    }
 
+    public class CampaignInboxMessageMap
+    {
+        //Key: CampaignId, Value: InboxMessageTTL
+        public Dictionary<long, CampaignMessageDetails> Campaigns { get; set; }
+
+        public CampaignInboxMessageMap()
+        {
+            this.Campaigns = new Dictionary<long, CampaignMessageDetails>();
+        }
+    }
+
+    public class CampaignMessageDetails
+    {
+        public string MessageId { get; set; }
+        public long ExpiredAt { get; set; }
+        public eCampaignType Type { get; set; }
+
+        /// <summary>
+        /// ProductId to CreateDate of the use for prodcutId
+        /// </summary>
+        public Dictionary<long, long> SubscriptionUses { get; set; }
+
+        public List<string> Devices { get; set; }
+
+        public CampaignMessageDetails()
+        {
+            this.SubscriptionUses = new Dictionary<long, long>();
+            this.Devices = new List<string>();
+        }
+    }
+
+    public class DeviceTriggerCampaignsUses
+    {
+        public Dictionary<long, long> Uses { get; set; }
+        public string Udid { get; set; }
+
+        public DeviceTriggerCampaignsUses()
+        {
+            this.Uses = new Dictionary<long, long>();
+        }
     }
 }

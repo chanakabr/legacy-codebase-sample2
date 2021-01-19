@@ -9,6 +9,9 @@ using WebAPI.Models.Pricing;
 using ApiObjects.Pricing;
 using ApiObjects;
 using WebAPI.Models.API;
+using System.Linq;
+using System;
+using System.Collections.Generic;
 
 namespace WebAPI.Mapping.ObjectsConvertor
 {
@@ -30,7 +33,12 @@ namespace WebAPI.Mapping.ObjectsConvertor
                     new KalturaCustomDrmPlaybackPluginData(null) { Data = src.LicenseData, Scheme = KalturaDrmSchemeName.CUSTOM_DRM } : null))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                 .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress))
+                .ForMember(dest => dest.Model, opt => opt.MapFrom(src => src.Model))
+                .ForMember(dest => dest.Manufacturer, opt => opt.MapFrom(src => src.Manufacturer))
+                .ForMember(dest => dest.ManufacturerId, opt => opt.MapFrom(src => src.ManufacturerId))
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.m_deviceFamilyID))
+                .ForMember(dest => dest.LastActivityTime, opt => opt.MapFrom(src => src.LastActivityTime))
+                .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => Utils.Utils.ConvertToSerializableDictionary(src.DynamicData)))
                 ;
 
             cfg.CreateMap<Device, KalturaDevice>()
@@ -120,7 +128,28 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                 .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress))
+                .ForMember(dest => dest.Model, opt => opt.MapFrom(src => src.Model))
+                .ForMember(dest => dest.Manufacturer, opt => opt.MapFrom(src => src.Manufacturer))
+                .ForMember(dest => dest.ManufacturerId, opt => opt.MapFrom(src => src.ManufacturerId))
+                .ForMember(dest => dest.LastActivityTime, opt => opt.MapFrom(src => src.LastActivityTime))
+                .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => Utils.Utils.ConvertToSerializableDictionary(src.DynamicData)))
             ;
+
+            cfg.CreateMap<KalturaHouseholdDevice, DomainDevice>()
+                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.DomainId, opt => opt.MapFrom(src => src.HouseholdId))
+                .ForMember(dest => dest.DeviceBrandId, opt => opt.ResolveUsing(src => src.BrandId ?? 0))
+                .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.ActivatedOn ?? 0)))
+                .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
+                .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress))
+                .ForMember(dest => dest.LastActivityTime, opt => opt.MapFrom(src => src.LastActivityTime))
+                .ForMember(dest => dest.Model, opt => opt.MapFrom(src => src.Model))
+                .ForMember(dest => dest.Manufacturer, opt => opt.MapFrom(src => src.Manufacturer))
+                .ForMember(dest => dest.ManufacturerId, opt => opt.MapFrom(src => src.ManufacturerId))
+                .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)))
+                ;
 
             //CouponWallet, KalturaHouseholdCoupon
             cfg.CreateMap<ApiObjects.Pricing.CouponWallet, KalturaHouseholdCoupon>()
@@ -199,6 +228,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.CredentialsProvider, opt => opt.MapFrom(src => src.CredentialsProvider))
                 .ForMember(dest => dest.AnnouncementTopic, opt => opt.MapFrom(src => src.AnnouncementTopic))
                 .ForMember(dest => dest.Json, opt => opt.MapFrom(src => src.Json))
+                .ForMember(dest => dest.Topics, opt => opt.MapFrom(src => string.Join(",", src.Topics)))
                 ;
 
             cfg.CreateMap<KalturaIotClientConfiguration, IotClientConfiguration>()
@@ -206,6 +236,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.CredentialsProvider, opt => opt.MapFrom(src => src.CredentialsProvider))
                 .ForMember(dest => dest.AnnouncementTopic, opt => opt.MapFrom(src => src.AnnouncementTopic))
                 .ForMember(dest => dest.Json, opt => opt.MapFrom(src => src.Json))
+                .ForMember(dest => dest.Topics, opt => opt.ResolveUsing(src => src.Topics.GetItemsIn<string>(out _)))
                 ;
 
             cfg.CreateMap<CognitoUserPool, KalturaCognitoUserPool>()

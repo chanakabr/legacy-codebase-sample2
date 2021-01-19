@@ -50,7 +50,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.PicWidth))
                  .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.Ratio))
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version));
+                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
+                 .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId));
 
             cfg.CreateMap<Image, KalturaMediaImage>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.ContentId))
@@ -59,7 +60,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Version, opt => opt.MapFrom(src => src.Version))
                 .ForMember(dest => dest.Ratio, opt => opt.MapFrom(src => src.RatioName))
                 .ForMember(dest => dest.Height, opt => opt.MapFrom(src => src.Height.ToNullable()))
-                .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.Width.ToNullable()));
+                .ForMember(dest => dest.Width, opt => opt.MapFrom(src => src.Width.ToNullable()))
+                .ForMember(dest => dest.ImageTypeId, opt => opt.MapFrom(src => src.ImageTypeId));
 
             #endregion
 
@@ -1115,6 +1117,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.ProgramExternalId, opt => opt.MapFrom(src => src.ProgramExternalId))
               .ForMember(dest => dest.LiveAssetId, opt => opt.MapFrom(src => src.LiveAssetId));
 
+            cfg.CreateMap<BulkUploadDynamicListResult, KalturaBulkUploadDynamicListResult>()
+               .IncludeBase<BulkUploadResult, KalturaBulkUploadResult>();
+
+            cfg.CreateMap<BulkUploadUdidDynamicListResult, KalturaBulkUploadUdidDynamicListResult>()
+              .IncludeBase<BulkUploadDynamicListResult, KalturaBulkUploadDynamicListResult>()
+              .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid));
+
             cfg.CreateMap<KalturaBulkUploadJobData, BulkUploadJobData>();
 
             cfg.CreateMap<KalturaBulkUploadExcelJobData, BulkUploadExcelJobData>()
@@ -1147,6 +1156,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.key))
              .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.value));
 
+            cfg.CreateMap<KalturaBulkUploadDynamicListData, BulkUploadDynamicListData>()
+               .IncludeBase<KalturaBulkUploadObjectData, BulkUploadObjectData>()
+               .ForMember(dest => dest.DynamicListId, opt => opt.MapFrom(src => src.DynamicListId));
+
+            cfg.CreateMap<KalturaBulkUploadUdidDynamicListData, BulkUploadUdidDynamicListData>()
+               .IncludeBase<KalturaBulkUploadDynamicListData, BulkUploadDynamicListData>();
+
             #endregion
 
             #region CategoryItem
@@ -1163,7 +1179,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)))
               .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-              .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds, src.NullableProperties)));
+              .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds, src.NullableProperties)))
+              .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
 
             cfg.CreateMap<ApiLogic.Catalog.CategoryItem, KalturaCategoryItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1175,8 +1192,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-                .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
-                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds));
+               .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
+               .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds))
+               .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
 
             cfg.CreateMap<UnifiedChannelType, KalturaChannelType>()
                 .ConvertUsing(type =>
@@ -1298,6 +1316,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
+            cfg.CreateMap<KalturaAssetType, ePlayType>()
+            .ConvertUsing(type =>
+            {
+                switch (type)
+                {
+                    case KalturaAssetType.media:
+                        return ePlayType.MEDIA;
+                    case KalturaAssetType.recording:
+                        return ePlayType.NPVR;
+                    case KalturaAssetType.epg:
+                        return ePlayType.EPG;
+                    default:
+                        throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown Play Type: {type.ToString()}");
+                }
+            });
+
             cfg.CreateMap<KalturaAssetType?, eAssetTypes>()
                 .ConvertUsing(assetType =>
                 {
@@ -1367,6 +1401,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
+            cfg.CreateMap<ApiObjects.MediaMarks.DevicePlayData, KalturaStreamingDevice>()
+               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+               .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.UDID))
+               .ForMember(dest => dest.Asset, opt => opt.ResolveUsing(src => ResolveKalturaSlimAsset(src)))
+               ;
         }
 
         private static int? ConvertToNullableInt(bool? value)
@@ -2153,9 +2192,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         result.DynamicOrderBy = new KalturaDynamicOrderBy() { OrderBy = metaOrderBy, Name = orderObj.m_sOrderValue };
                         break;
                     }
+                case OrderBy.LIKE_COUNTER:
+                    {
+                        result.orderBy = KalturaChannelOrderBy.LIKES_DESC;   
+                        break;
+                    }
                 case OrderBy.RECOMMENDATION:
                 case OrderBy.RANDOM:
-                case OrderBy.LIKE_COUNTER:
                 case OrderBy.NONE:
                 case OrderBy.ID:
                 default:
@@ -2406,6 +2449,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             }
 
             return result;
+        }
+
+        private static KalturaSlimAsset ResolveKalturaSlimAsset(ApiObjects.MediaMarks.DevicePlayData devicePlayData)
+        {
+            if (devicePlayData == null || devicePlayData.AssetId == 0)
+                return null;
+
+            var sa = new KalturaSlimAsset{Id = devicePlayData.AssetId.ToString()};
+            
+            if (Enum.TryParse<KalturaAssetType>(devicePlayData.playType, out KalturaAssetType _type))
+                sa.Type = _type;
+
+            return sa;
         }
 
         // KalturaWatchStatus to eWatchStatus

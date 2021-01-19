@@ -53,8 +53,6 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
         protected virtual object Process()
         {
-            string cacheKey = GetLoaderCachekey();
-
             if (m_oResponse is UnifiedSearchResponse)
             {
                 UnifiedSearchResponse usr = (m_oResponse as UnifiedSearchResponse);
@@ -70,17 +68,9 @@ namespace TVPPro.SiteManager.CatalogLoaders
 
             if (m_oResponse != null && ((MediaIdsResponse)m_oResponse).m_nMediaIds != null && ((MediaIdsResponse)m_oResponse).m_nMediaIds.Count > 0)
             {
-                CacheManager.Cache.InsertFailOverResponse(m_oResponse, cacheKey);
                 m_oMediaCache = new MediaCache(((MediaIdsResponse)m_oResponse).m_nMediaIds, GroupID, m_sUserIP, m_oFilter);
             }
-            else if (m_oResponse == null)// No Response from Catalog, gets medias from cache
-            {
-                m_oResponse = CacheManager.Cache.GetFailOverResponse(cacheKey);
-                if (m_oResponse != null && ((MediaIdsResponse)m_oResponse).m_nMediaIds != null && ((MediaIdsResponse)m_oResponse).m_nMediaIds.Count > 0)
-                {
-                    m_oMediaCache = new MediaCache(((MediaIdsResponse)m_oResponse).m_nMediaIds, GroupID, m_sUserIP, m_oFilter);
-                }
-            }
+
             if (m_oMediaCache != null)
             {
                 m_oMediaCache.BuildRequest();

@@ -38,17 +38,13 @@ namespace WebAPI.Clients
         internal KalturaPartnerNotificationSettings Get(int groupId)
         {
             NotificationPartnerSettingsResponse response = null;
-            KalturaPartnerNotificationSettings settings = null;
 
             try
             {
-                log.Debug(string.Format("GroupId={0}", groupId));
-
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Notification.Module.GetNotificationPartnerSettings(groupId);
                 }
-                log.Debug("return from Notification.GetNotificationPartnerSettings");
             }
             catch (Exception ex)
             {
@@ -61,16 +57,12 @@ namespace WebAPI.Clients
                 throw new ClientException(StatusCode.Error);
             }
 
-            if (response.Status.Code != (int)StatusCode.OK)
+            if (!response.Status.IsOkStatusCode())
             {
                 throw new ClientException(response.Status);
             }
-            else
-            {
-                settings = AutoMapper.Mapper.Map<KalturaPartnerNotificationSettings>(response.settings);
 
-                return settings;
-            }
+            return Mapper.Map<KalturaPartnerNotificationSettings>(response.settings);
         }
 
         internal KalturaSmsAdapterProfile GenerateSmsAdapaterSharedSecret(int groupId, int smsAdapterId, int updaterId)
@@ -191,20 +183,16 @@ namespace WebAPI.Clients
             }
         }
 
-        internal bool Update(int groupId, KalturaNotificationsPartnerSettings settings)
+        internal bool Update(int groupId, KalturaNotificationsPartnerSettings settingsDto)
         {
-            bool success = false;
             Status response = null;
             try
             {
-
-                NotificationPartnerSettings settingsObj = null;
-                settingsObj = AutoMapper.Mapper.Map<NotificationPartnerSettings>(settings);
-
+                var settings = Mapper.Map<NotificationPartnerSettings>(settingsDto);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Notification.Module.UpdateNotificationPartnerSettings(groupId, settingsObj);
+                    response = Core.Notification.Module.UpdateNotificationPartnerSettings(groupId, settings);
                 }
             }
             catch (Exception ex)
@@ -221,13 +209,8 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(response);
             }
-            else
-            {
-                success = true;
-            }
 
-            return success;
-
+            return true;
         }
 
         internal bool Update(int groupId, string userId, KalturaNotificationsSettings settings)

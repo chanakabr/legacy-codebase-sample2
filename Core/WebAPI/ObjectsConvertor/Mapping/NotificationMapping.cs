@@ -84,6 +84,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailNotificationAdapterId, opt => opt.MapFrom(src => src.MailNotificationAdapterId))
                  .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
                  .ForMember(dest => dest.IotEnabled, opt => opt.MapFrom(src => src.IsIotEnabled))
+                 .ForMember(dest => dest.EpgNotification, opt => opt.MapFrom(src => src.EpgNotification))
                  ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
@@ -106,7 +107,25 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.MailSenderName, opt => opt.MapFrom(src => src.MailSenderName))
                  .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
                  .ForMember(dest => dest.IsIotEnabled, opt => opt.MapFrom(src => src.IotEnabled))
+                 .ForMember(dest => dest.EpgNotification, opt => opt.MapFrom(src => src.EpgNotification))
                  ;
+
+            cfg.CreateMap<KalturaEpgNotificationSettings, EpgNotificationSettings>()
+                .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
+                .ForMember(dest => dest.TimeRange, opt => opt.ResolveUsing(src => src.TimeRange == 0 ? 24 : src.TimeRange))
+                .ForMember(dest => dest.DeviceFamilyIds, opt => opt.ResolveUsing(src => src.DeviceFamilyIds
+                    .GetItemsIn<int>(out var failed, true)
+                    .ThrowIfFailed(failed, () => new ClientException((int)StatusCode.InvalidArgumentValue, "invalid value in deviceFamilyIds"))))
+                .ForMember(dest => dest.LiveAssetIds, opt => opt.ResolveUsing(src => src.LiveAssetIds
+                    .GetItemsIn<long>(out var failed, true)
+                    .ThrowIfFailed(failed, () => new ClientException((int)StatusCode.InvalidArgumentValue, "invalid value in liveAssetIds"))))
+                ;
+            cfg.CreateMap<EpgNotificationSettings, KalturaEpgNotificationSettings>()
+                .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
+                .ForMember(dest => dest.TimeRange, opt => opt.MapFrom(src => src.TimeRange))
+                .ForMember(dest => dest.DeviceFamilyIds, opt => opt.ResolveUsing(src => string.Join(",", src.DeviceFamilyIds)))
+                .ForMember(dest => dest.LiveAssetIds, opt => opt.ResolveUsing(src => string.Join(",", src.LiveAssetIds)))
+                ;
 
             cfg.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))
@@ -344,7 +363,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertInboxMessageStatus(src.State)))
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
-                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertInboxMessageType(src.Category)));
+                 .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertInboxMessageType(src.Category)))
+                 .ForMember(dest => dest.CampaignId, opt => opt.MapFrom(src => src.CampaignId))
+                 ;
 
             //KalturaInboxMessage TO InboxMessage
             cfg.CreateMap<KalturaInboxMessage, InboxMessage>()
@@ -353,7 +374,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                  .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))
                  .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertInboxMessageStatus(src.Status)))
-                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url));
+                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
+                 ;
 
             //DbAnnouncement to KalturaTopic
             cfg.CreateMap<DbAnnouncement, KalturaTopic>()
@@ -537,6 +559,28 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
+            cfg.CreateMap<KalturaAssetEvent, AssetEvent>()
+                .IncludeBase<KalturaOTTObject, CoreObject>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId));
+
+            cfg.CreateMap<KalturaProgramAssetEvent, EpgAssetEvent>()
+                .IncludeBase<KalturaAssetEvent, AssetEvent>()
+                .ForMember(dest => dest.LiveAssetId, opt => opt.MapFrom(src => src.LiveAssetId));
+
+            cfg.CreateMap<AssetEvent, KalturaAssetEvent>()
+                .IncludeBase<CoreObject, KalturaOTTObject>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.AssetId, opt => opt.MapFrom(src => src.AssetId))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId));
+
+            cfg.CreateMap<EpgAssetEvent, KalturaProgramAssetEvent>()
+                .IncludeBase<AssetEvent, KalturaAssetEvent>()
+                .ForMember(dest => dest.LiveAssetId, opt => opt.MapFrom(src => src.LiveAssetId));
+
             #region Engagement Adapter
 
             cfg.CreateMap<KalturaEngagementAdapter, EngagementAdapter>()
@@ -700,10 +744,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Sound, opt => opt.MapFrom(src => src.Sound))
                 .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.Url))
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
-                .ForMember(dest => dest.PushChannels, opt => opt.MapFrom(src => ConvertPushChannels(src.PushChannels)));                
+                .ForMember(dest => dest.PushChannels, opt => opt.MapFrom(src => ConvertPushChannels(src.PushChannels)));
 
             #endregion
-        }        
+        }
 
         public static KalturaEngagementType ConvertEngagementType(eEngagementType eEngagementType)
         {
@@ -849,6 +893,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaInboxMessageType.Interest:
                     result = eMessageCategory.Interest;
                     break;
+                case KalturaInboxMessageType.Campaign:
+                    result = eMessageCategory.Campaign;
+                    break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown inbox message type");
             }
@@ -872,6 +919,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case eMessageCategory.Interest:
                     result = KalturaInboxMessageType.Interest;
+                    break;
+                case eMessageCategory.Campaign:
+                    result = KalturaInboxMessageType.Campaign;
                     break;
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown inbox message type");
@@ -1056,6 +1106,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     break;
                 case KalturaInboxMessageType.Interest:
                     messageCategory = eMessageCategory.Interest;
+                    break;
+                case KalturaInboxMessageType.Campaign:
+                    messageCategory = eMessageCategory.Campaign;
                     break;
                 default:
                     break;
@@ -1316,7 +1369,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             default:
                                 break;
                         }
-                    }                    
+                    }
                 }
             }
             return pushChannelList;

@@ -1159,7 +1159,7 @@ namespace TVinciShared
                 string sTypeInParentGroup = "";
                 Int32 nFictivicGroupID = 0;
                 Int32 nTagTypeID = 0;
-                if (CachingManager.CachingManager.Exist("BuildOrUpdateFictivicMedia" + nGroupID.ToString() + sTagType) == true)
+                if (CachingManager.CachingManager.Exists("BuildOrUpdateFictivicMedia" + nGroupID.ToString() + sTagType) == true)
                 {
                     string[] theCached = (string[])(CachingManager.CachingManager.GetCachedData("BuildOrUpdateFictivicMedia" + nGroupID.ToString() + sTagType));
                     sTypeInParentGroup = theCached[0];

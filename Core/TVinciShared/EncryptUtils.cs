@@ -58,64 +58,10 @@ namespace TVinciShared
 
         public static byte[] HashSHA1(byte[] payload)
         {
-            var sha1 = SHA1Managed.Create();
-            return sha1.ComputeHash(payload);
-        }
-
-        public static bool IsSignatureValid(string paramsString, string signature, string secret)
-        {
-            byte[] decryptedSignature = AesDecrypt(System.Convert.FromBase64String(signature), secret);
-            byte[] sha1Params = HashSHA1(paramsString);
-
-            return (decryptedSignature.SequenceEqual(sha1Params));
-        }
-
-        private static byte[] AesDecrypt(byte[] encryptedText, string secret)
-        {
-            // Key
-            byte[] hashedKey = HashSHA1(secret);
-            byte[] keyBytes = new byte[BLOCK_SIZE];
-            Array.Copy(hashedKey, 0, keyBytes, 0, BLOCK_SIZE);
-
-            //IV
-            byte[] ivBytes = new byte[BLOCK_SIZE];
-
-            // Decrypt
-            using (Aes aesAlg = Aes.Create())
+            using (var sha1 = SHA1Managed.Create())
             {
-                aesAlg.Key = keyBytes.Select(b => (byte)b).ToArray();
-                aesAlg.IV = ivBytes;
-                aesAlg.Mode = CipherMode.CBC;
-                aesAlg.Padding = PaddingMode.None;
-
-                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    using (CryptoStream cst = new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
-                    {
-                        cst.Write(encryptedText, 0, encryptedText.Length);
-                        return TrimRight(ms.ToArray());
-                    }
-                }
+                return sha1.ComputeHash(payload);
             }
-        }
-
-        public static byte[] TrimRight(byte[] arr)
-        {
-            bool isFound = false;
-            return arr.Reverse().SkipWhile(x =>
-            {
-                if (isFound)
-                    return false;
-                if (x == 0)
-                    return true;
-                else
-                {
-                    isFound = true;
-                    return false;
-                }
-            }).Reverse().ToArray();
         }
 
         public static string EncryptRJ128(string key, string iv, string text)
@@ -158,25 +104,26 @@ namespace TVinciShared
             return BitConverter.ToString(encrypted).Replace("-", "").ToLower();
         }
 
-        public static byte[] AesDecrypt(string secretForSigning, byte[] text, int blockSize)
+        // "For AES, NIST selected three members of the Rijndael family, each with a block size of 128 bits, but three different key lengths: 128, 192 and 256 bits."
+        // https://en.wikipedia.org/wiki/Advanced_Encryption_Standard
+        public static byte[] AesDecrypt(byte[] text, string secretForSigning)
         {
             // Key
             byte[] hashedKey = HashSHA1(secretForSigning);
-            byte[] keyBytes = new byte[blockSize];
-            Array.Copy(hashedKey, 0, keyBytes, 0, blockSize);
+            byte[] keyBytes = new byte[BLOCK_SIZE];
+            Array.Copy(hashedKey, 0, keyBytes, 0, BLOCK_SIZE);
+            return AesDecrypt(text, keyBytes);
+        }
 
+        public static byte[] AesDecrypt(byte[] text, byte[] key)
+        {
             //IV
-            byte[] ivBytes = new byte[blockSize];
-
-            // Text
-            int textSize = ((text.Length + blockSize - 1) / blockSize) * blockSize;
-            byte[] textAsBytes = new byte[textSize];
-            Array.Copy(text, 0, textAsBytes, 0, text.Length);
+            byte[] ivBytes = new byte[BLOCK_SIZE];
 
             // Decrypt
             using (Aes aesAlg = Aes.Create())
             {
-                aesAlg.Key = keyBytes;
+                aesAlg.Key = key;
                 aesAlg.IV = ivBytes;
                 aesAlg.Mode = CipherMode.CBC;
                 aesAlg.Padding = PaddingMode.None;
@@ -188,31 +135,42 @@ namespace TVinciShared
                     using (CryptoStream cst = new CryptoStream(ms, decryptor, CryptoStreamMode.Write))
                     {
                         cst.Write(text, 0, text.Length);
-                        return ms.ToArray();
+                        var arrayWithZeroChars = ms.ToArray();
+
+                        var realLength = arrayWithZeroChars.Length;
+                        while (realLength > 0 && arrayWithZeroChars[realLength - 1] == '\0') realLength--;
+
+                        byte[] textAsBytes = new byte[realLength];
+                        Array.Copy(arrayWithZeroChars, 0, textAsBytes, 0, realLength);
+                        return textAsBytes;
                     }
                 }
             }
         }
 
-        public static byte[] AesEncrypt(string secretForSigning, byte[] text, int blockSize)
+        public static byte[] AesEncrypt(byte[] text, string secretForSigning)
         {
             // Key
             byte[] hashedKey = HashSHA1(secretForSigning);
-            byte[] keyBytes = new byte[blockSize];
-            Array.Copy(hashedKey, 0, keyBytes, 0, blockSize);
+            byte[] keyBytes = new byte[BLOCK_SIZE];
+            Array.Copy(hashedKey, 0, keyBytes, 0, BLOCK_SIZE);
+            return AesEncrypt(text, keyBytes);
+        }
 
+        public static byte[] AesEncrypt(byte[] text, byte[] key)
+        {
             //IV
-            byte[] ivBytes = new byte[blockSize];
+            byte[] ivBytes = new byte[BLOCK_SIZE];
 
             // Text
-            int textSize = ((text.Length + blockSize - 1) / blockSize) * blockSize;
+            int textSize = ((text.Length + BLOCK_SIZE - 1) / BLOCK_SIZE) * BLOCK_SIZE;
             byte[] textAsBytes = new byte[textSize];
-            Array.Copy(text, 0, textAsBytes, 0, text.Length);
+            Array.Copy(text, 0, textAsBytes, 0, text.Length);  // we will have '\0' chars in the end of the array, which will be trimmed in decryption. why do we need this???
 
             // Encrypt
             using (Aes aesAlg = Aes.Create())
             {
-                aesAlg.Key = keyBytes;
+                aesAlg.Key = key;
                 aesAlg.IV = ivBytes;
                 aesAlg.Mode = CipherMode.CBC;
                 aesAlg.Padding = PaddingMode.None;
@@ -229,6 +187,7 @@ namespace TVinciShared
                 }
             }
         }
+
         public static string HashMD5(string payload)
         {
             string response = null;
@@ -236,7 +195,7 @@ namespace TVinciShared
             {
                 using (MD5 md5 = MD5.Create())
                 {
-                    var hashed = md5.ComputeHash(Encoding.ASCII.GetBytes(payload));
+                    var hashed = md5.ComputeHash(Encoding.UTF8.GetBytes(payload));
                     response = hashed.Aggregate(string.Empty, (x, y) => x + y.ToString("X2").ToLower());
                 }
             }

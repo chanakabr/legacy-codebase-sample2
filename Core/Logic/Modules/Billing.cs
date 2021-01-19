@@ -13,6 +13,7 @@ using APILogic.ConditionalAccess.Modules;
 using ApiObjects.ConditionalAccess;
 using KeyValuePair = ApiObjects.KeyValuePair;
 using ApiObjects.Response;
+using ApiObjects.Pricing;
 
 namespace Core.Billing
 {
@@ -830,7 +831,7 @@ namespace Core.Billing
             return response;
         }
 
-        public static TransactResult ProcessRenewal(RenewDetails renewDetails, string productCode)
+        public static TransactResult ProcessRenewal(RenewDetails renewDetails, string productCode, List<KeyValuePair<VerificationPaymentGateway, string>> productCodes = null)
         {
             // add siteguid to logs/monitor
             HttpContext.Current.Items[KLogMonitor.Constants.USER_ID] = renewDetails.UserId ?? "null";
@@ -842,7 +843,7 @@ namespace Core.Billing
                 BasePaymentGateway t = new BasePaymentGateway(renewDetails.GroupId);
                 if (t != null)
                 {
-                    return t.ProcessRenewal(renewDetails, productCode);
+                    return t.ProcessRenewal(renewDetails, productCode, productCodes);
                 }
                 else
                 {

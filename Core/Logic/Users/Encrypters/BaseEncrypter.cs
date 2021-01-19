@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace Core.Users
 {
@@ -10,7 +7,7 @@ namespace Core.Users
     {
         public abstract string Encrypt(string sPass, string key);
 
-        protected string GetRand64String()
+        public static string GetRand64String()
         {
             using (RandomNumberGenerator rng = new RNGCryptoServiceProvider())
             {
@@ -21,6 +18,10 @@ namespace Core.Users
             }
         }
 
-        public abstract void GenerateEncryptPassword(string clearPassword, ref string EncryptPassword, ref string salt);
+        public void GenerateEncryptPassword(string clearPassword, ref string encryptPassword, ref string salt)
+        {
+            salt = GetRand64String();
+            encryptPassword = Encrypt(clearPassword, salt);
+        }
     }
 }

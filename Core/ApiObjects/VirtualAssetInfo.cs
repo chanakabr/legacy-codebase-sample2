@@ -18,9 +18,25 @@ namespace ApiObjects
 
         public DateTime? EndDate { get; set; }
 
+        public bool withExtendedTypes { get; set; }
+
         public override string ToString()
         {
             return $"VirtualAssetInfo: Id: {Id}, Type: {Type}, UserId: {UserId}";
         }
     }
+
+    public class VirtualAssetInfoResponse
+    {
+        public VirtualAssetInfoStatus Status { get; set; }
+        public long AssetId { get; set; }
+    }
+
+    public enum VirtualAssetInfoStatus
+    {
+        NotRelevant = 0,
+        OK = 1,
+        Error = 2,
+    }
+
 }

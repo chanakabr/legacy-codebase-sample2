@@ -1019,7 +1019,7 @@ namespace Core.Users
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                return Users.Utils.GetIPCountry2(sUserIP);
+                return Users.Utils.GetIPCountry2(nGroupID, sUserIP);
             }
             else
             {
@@ -1983,6 +1983,30 @@ namespace Core.Users
             }
 
             return stringUserIds;
+        }
+
+        public static ResponseStatus GetUserActivationState(int groupId, int userId)
+        {
+            ResponseStatus responseStatus = ResponseStatus.InternalError;
+            try
+            {
+                var kalturaUser = new KalturaUsers(groupId);
+                if (kalturaUser == null)
+                {
+                    return responseStatus;
+                }
+                string notUsed = null;
+                bool notUsedBool = false;
+
+                var userActivationStatus = kalturaUser.GetUserActivationState(ref notUsed, ref userId, ref notUsedBool);
+                responseStatus = Utils.MapToResponseStatus(userActivationStatus);
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error while GetUserActivationState, groupId:{0}, userId:{1} ex:{2}", groupId, userId, ex);
+            }
+
+            return responseStatus;
         }
     }
 }

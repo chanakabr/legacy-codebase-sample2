@@ -1,10 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using ApiObjects.Response;
+using System.Collections.Generic;
 using System.Xml.Serialization;
 
 namespace ApiObjects.Billing
 {
     public class PaymentGateway : PaymentGatewayBase
     {
+        public const int DEFAULT_PENDING_INTERVAL_MINUTES = 60;
+        private const int MAX_PENDING_INTERVAL_MINUTES = 1440;
+
+
         public int IsActive { get; set; }
         public string AdapterUrl { get; set; }
         public string TransactUrl { get; set; }
@@ -20,6 +25,8 @@ namespace ApiObjects.Billing
         public List<PaymentGatewaySettings> Settings { get; set; }
         public List<PaymentMethod> PaymentMethods { get; set; }
         public bool ExternalVerification { get; set; }
+
+        public bool IsAsyncPolicy { get; set; }
 
         [XmlIgnore]
         public int Status { get; set; }
@@ -51,6 +58,38 @@ namespace ApiObjects.Billing
             this.RenewalStartMinutes = paymentGateway.RenewalStartMinutes;
             this.SupportPaymentMethod = paymentGateway.SupportPaymentMethod;
             this.ExternalVerification = paymentGateway.ExternalVerification;
+            this.IsAsyncPolicy = paymentGateway.IsAsyncPolicy;
+        }
+
+        public Status ValidateRetries()
+        {
+            Status status = new Status() { Code = (int)eResponseStatus.OK };
+            if (IsAsyncPolicy)
+            {
+
+                // need to check the Interval & retries 
+                if (PendingRetries == 0 && PendingInterval > MAX_PENDING_INTERVAL_MINUTES)
+                {
+                    return new Status((int)eResponseStatus.Error, $"Pending interval must be lower or equal to {MAX_PENDING_INTERVAL_MINUTES} minutes");
+                }                                
+            }
+
+            return status;
+        }
+
+        public int GetAsyncPendingMinutes()
+        {            
+            if( PendingInterval == 0)
+            {
+                return DEFAULT_PENDING_INTERVAL_MINUTES;
+            }
+
+            if(PendingRetries == 0)
+            {
+                return PendingInterval;
+            }
+
+            return PendingInterval * PendingRetries;
         }
     }
 }

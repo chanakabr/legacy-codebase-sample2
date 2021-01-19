@@ -52,6 +52,15 @@ namespace WebAPI.Models.Upload
         [SchemeProperty(MinInteger = 1)]
         public int? IngestProfileId { get; set; }
 
+        /// <summary>
+        /// By default, after the successful ingest, devices will be notified about changes in epg channels.
+        /// This parameter disables this notification.
+        /// </summary>
+        [DataMember(Name = "disableEpgNotification")]
+        [JsonProperty(PropertyName = "disableEpgNotification")]
+        [XmlElement(ElementName = "disableEpgNotification")]
+        public bool DisableEpgNotification { get; set; } = false;
+
         internal override void Validate(KalturaOTTFile fileData)
         {
             // TODO: Arthur Validate

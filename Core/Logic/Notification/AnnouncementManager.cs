@@ -51,13 +51,20 @@ namespace Core.Notification
             AddMessageAnnouncementResponse response = new AddMessageAnnouncementResponse();
             response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
-            if (ConvertStartTimeToUtc(ref announcement) == false)
+            if (announcement.StartTime == 0)
+            {
+                //BEO-9216
+                announcement.StartTime = DateUtils.GetUtcUnixTimestampNow();
+                announcement.Timezone = TimeZoneInfo.Utc.Id;
+            }
+            
+            if (!ConvertStartTimeToUtc(ref announcement))
             {
                 response.Status = new Status((int)eResponseStatus.AnnouncementInvalidTimezone, "Invalid timezone");
                 return response;
             }
 
-            // validation of start start time is relevant only for system announcements
+            // validation of start time is relevant only for system announcements
             if (validateMsgStartTime)
                 response.Status = ValidateAnnouncement(groupId, announcement);
 
@@ -1029,7 +1036,7 @@ namespace Core.Notification
             DbAnnouncement iotAnnouncement = null;
 
             if (announcements != null)
-                iotAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.All 
+                iotAnnouncement = announcements.FirstOrDefault(x => x.RecipientsType == eAnnouncementRecipientsType.All
                 || x.RecipientsType == eAnnouncementRecipientsType.LoggedIn
                 || x.RecipientsType == eAnnouncementRecipientsType.Other);
 
@@ -1038,7 +1045,7 @@ namespace Core.Notification
                 var result = NotificationAdapter.IotPublishAnnouncement(groupId,
                     ODBCWrapper.Utils.GetSafeStr(messageAnnouncementDataRow, "message"), IotManager.SYSTEM_ANNOUNCEMENT);
 
-                if (result == null || result.ResponseObject == null || !result.ResponseObject.IsSuccess)
+                if (!result)
                 {
                     log.Error($"Failed to send IOT system announcement to adapter. annoucementId = {iotAnnouncement.ID}");
                 }

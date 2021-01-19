@@ -15,6 +15,7 @@ using System.Text;
 using ApiLogic.Users.Services;
 using KeyValuePair = ApiObjects.KeyValuePair;
 using ApiObjects.Base;
+using ApiLogic.Users.Security;
 
 namespace Core.Users
 {
@@ -333,22 +334,22 @@ namespace Core.Users
             return oDomainResponseObject;
         }
 
-        public virtual DeviceResponse AddDevice(int groupId, int domainId, string udid, string deviceName, int brandId, string externalId, string macAddress, Dictionary<string, string> dynamicData)
+        public virtual DeviceResponse AddDevice(int groupId, int domainId, DomainDevice dDevice)
         {
             DeviceResponse response = new DeviceResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // validate UDID is not empty
-            if (string.IsNullOrEmpty(udid))
+            if (string.IsNullOrEmpty(dDevice.Udid))
                 return response;
 
-            var device_Id = DeviceDal.GetDeviceIdByExternalId(groupId, externalId);
+            var device_Id = DeviceDal.GetDeviceIdByExternalId(groupId, dDevice.ExternalId);
 
             //device with same external Id already exists
             if (!string.IsNullOrEmpty(device_Id))
             {
                 response.Status = new ApiObjects.Response.Status(eResponseStatus.ExternalIdAlreadyExists,
-                    $"External Id: '{externalId}' Already Exists in Group {groupId}");
+                    $"External Id: '{dDevice.ExternalId}' Already Exists in Group {groupId}");
                 return response;
             }
 
@@ -360,32 +361,32 @@ namespace Core.Users
             if (domain == null || domain.m_DomainStatus == DomainStatus.Error)
             {
                 // error getting domain
-                log.ErrorFormat("Domain doesn't exists. nGroupID: {0}, nDomainID: {1}, sUDID: {2}, sDeviceName: {3}, nBrandID: {4}", groupId, domainId, udid, deviceName, brandId);
+                log.Error($"Domain doesn't exists. nGroupID: {groupId}, nDomainID: {domainId}, sUDID: {dDevice.Udid}, " +
+                    $"sDeviceName: {dDevice.Name}, nBrandID: {dDevice.DeviceBrandId}");
                 domainResponseStatus = DomainResponseStatus.DomainNotExists;
             }
             else
             {
                 // create new device
-                Device device = new Device(udid, brandId, m_nGroupID, deviceName, domainId);
-                if (device.Initialize(udid))
+                Device device = new Device(dDevice.Udid, dDevice.DeviceBrandId, m_nGroupID, dDevice.Name, domainId);
+                if (device.Initialize(dDevice.Udid))
                 {
-                    device.m_deviceName = deviceName.Trim();
+                    device.m_deviceName = dDevice.Name.Trim();
                 }
 
-                if (!string.IsNullOrEmpty(externalId))
-                {
-                    device.ExternalId = externalId;
-                }
+                if (!string.IsNullOrEmpty(dDevice.ExternalId))
+                    device.ExternalId = dDevice.ExternalId;
+                if (!string.IsNullOrEmpty(dDevice.MacAddress))
+                    device.MacAddress = dDevice.MacAddress;
+                if (!string.IsNullOrEmpty(dDevice.Model))
+                    device.Model = dDevice.Model;
+                if (dDevice.ManufacturerId.HasValue)
+                    device.ManufacturerId = dDevice.ManufacturerId;
 
-                if (!string.IsNullOrEmpty(macAddress))
-                {
-                    device.MacAddress = macAddress;
-                }
-
-                if (dynamicData != null) device.DynamicData = dynamicData;
+                if (dDevice.DynamicData != null) device.DynamicData = dDevice.DynamicData;
 
                 // add device to domain
-                domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, udid, deviceName, brandId, ref device);
+                domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, dDevice.Udid, dDevice.Name, dDevice.DeviceBrandId, ref device);
                 if (domainResponseStatus == DomainResponseStatus.OK)
                 {
                     // update domain info (to include new device)
@@ -522,7 +523,7 @@ namespace Core.Users
             DomainResponseObject resp = new DomainResponseObject();
 
             // Check the Master User
-            int masterUserID = DAL.UsersDal.GetUserIDByUsername(sMasterUN, m_nGroupID);
+            int masterUserID = UserStorage.Instance().GetUserIDByUsername(sMasterUN, m_nGroupID);
 
             User masterUser = new User();
             bool bInit = masterUser.Initialize(masterUserID, m_nGroupID);
@@ -749,7 +750,7 @@ namespace Core.Users
             {
                 // remove domain from cache 
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain((int)lDomainID);
+                oDomainCache.RemoveDomain(m_nGroupID, (int)lDomainID);
 
                 res.eReason = NetworkResponseStatus.OK;
                 res.bSuccess = true;
@@ -787,7 +788,7 @@ namespace Core.Users
                 if (res != null && res.Code == (int)eResponseStatus.OK)
                 {
                     DomainsCache oDomainCache = DomainsCache.Instance();
-                    oDomainCache.RemoveDomain((int)domainID);
+                    oDomainCache.RemoveDomain(m_nGroupID, (int)domainID);
                 }
             }
             catch (Exception ex)
@@ -816,7 +817,7 @@ namespace Core.Users
             if (res != null && res.Code == (int)ApiObjects.Response.eResponseStatus.OK)
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain((int)lDomainID);
+                oDomainCache.RemoveDomain(m_nGroupID, (int)lDomainID);
             }
             return res;
         }
@@ -1029,7 +1030,7 @@ namespace Core.Users
                 }
 
                 // Remove Domain
-                oDomainCache.RemoveDomain(nDomainID);
+                oDomainCache.RemoveDomain(m_nGroupID, nDomainID);
                 UsersCache usersCache = UsersCache.Instance();
                 foreach (int userID in domain.m_UsersIDs)
                 {
@@ -1119,7 +1120,7 @@ namespace Core.Users
                     bool resultSuspendedUsers = UpdateSuspendedUserRoles(domain, m_nGroupID, currentRoleId.HasValue ? currentRoleId.Value : 0, null);
                 }
                 // Remove Domain
-                oDomainCache.RemoveDomain(nDomainID);
+                oDomainCache.RemoveDomain(m_nGroupID, nDomainID);
                 UsersCache usersCache = UsersCache.Instance();
                 foreach (int userID in domain.m_UsersIDs)
                 {
@@ -1563,7 +1564,7 @@ namespace Core.Users
             try
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                bool bRes = oDomainCache.RemoveDLM(nDlmID);
+                bool bRes = oDomainCache.RemoveDLM(m_nGroupID, nDlmID);
                 if (bRes)
                     resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 else
@@ -1608,7 +1609,7 @@ namespace Core.Users
                             bool bSuccess = domain.CompareDLM(oLimitationsManager, ref oChangeDLMObj);
                         }
                     }
-                    oDomainsCache.RemoveDomain(domainID);
+                    oDomainsCache.RemoveDomain(m_nGroupID, domainID);
                 }
                 else
                 {
@@ -1669,7 +1670,7 @@ namespace Core.Users
 
                 if (DomainDal.UpdateDomainRegion(domainId, groupId, extRegionId, lookupKey))
                 {
-                    DomainsCache.Instance().RemoveDomain(domainId);
+                    DomainsCache.Instance().RemoveDomain(m_nGroupID, domainId);
                     status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
                 }
                 else
@@ -1928,7 +1929,7 @@ namespace Core.Users
 
                 // remove domain from cache 
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                oDomainCache.RemoveDomain((int)domainId);
+                oDomainCache.RemoveDomain(m_nGroupID, (int)domainId);
 
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
@@ -1936,12 +1937,11 @@ namespace Core.Users
             return response;
         }
 
-        public virtual DeviceResponse SubmitAddDeviceToDomain(int groupID, int domainID, string userID, string deviceUdid, string deviceName, 
-            int brandID, string externalId, string macAddress, Dictionary<string, string> dynamicData)
+        public virtual DeviceResponse SubmitAddDeviceToDomain(int groupID, int domainID, string userID, DomainDevice dDevice)
         {
             DeviceResponse response = new DeviceResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
-            if (domainID <= 0 || string.IsNullOrEmpty(deviceUdid))
+            if (domainID <= 0 || string.IsNullOrEmpty(dDevice.Udid))
             {
                 return response;
             }
@@ -1954,27 +1954,28 @@ namespace Core.Users
                 return response;
             }
 
-            var device = new Device(deviceUdid, brandID, m_nGroupID, deviceName, domainID);
+            var device = new Device(dDevice.Udid, dDevice.DeviceBrandId, m_nGroupID, dDevice.Name, domainID);
 
             //externalId already exists
-            if (!string.IsNullOrEmpty(DeviceDal.GetDeviceIdByExternalId(m_nGroupID, externalId)))
+            if (!string.IsNullOrEmpty(DeviceDal.GetDeviceIdByExternalId(m_nGroupID, dDevice.ExternalId)))
             {
                 response.Status = new ApiObjects.Response.Status(eResponseStatus.ExternalIdAlreadyExists,
-                $"External Id: '{externalId}' Already Exists in Group {m_nGroupID}");
+                $"External Id: '{dDevice.ExternalId}' Already Exists in Group {m_nGroupID}");
                 return response;
             }
 
-            if (!string.IsNullOrEmpty(externalId))
-            {
-                device.ExternalId = externalId;
-            }
+            if (!string.IsNullOrEmpty(dDevice.ExternalId))
+                device.ExternalId = dDevice.ExternalId;
+            if (!string.IsNullOrEmpty(dDevice.MacAddress))
+                device.MacAddress = dDevice.MacAddress;
+            if (!string.IsNullOrEmpty(dDevice.Model))
+                device.Model = dDevice.Model;
+            if (!string.IsNullOrEmpty(dDevice.Manufacturer))
+                device.Manufacturer = dDevice.Manufacturer;
+            if (dDevice.ManufacturerId.HasValue)
+                device.ManufacturerId = dDevice.ManufacturerId;
 
-            if (!string.IsNullOrEmpty(macAddress))
-            {
-                device.MacAddress = macAddress;
-            }
-
-            if (dynamicData != null) device.DynamicData = dynamicData;
+            if (dDevice.DynamicData != null) device.DynamicData = dDevice.DynamicData;
 
             DomainResponseStatus domainResponseStatus;
             int userId = 0;
@@ -1989,13 +1990,13 @@ namespace Core.Users
                 ((domain.m_DomainRestriction == DomainRestriction.DeviceMasterRestricted || domain.m_DomainRestriction == DomainRestriction.DeviceUserMasterRestricted) &&
                 (domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0) && (domain.m_masterGUIDs.Contains(userId))))
             {
-                domainResponseStatus = domain.AddDeviceToDomain(groupID, domain.m_nDomainID, deviceUdid, deviceName, brandID, ref device);
+                domainResponseStatus = domain.AddDeviceToDomain(groupID, domain.m_nDomainID, dDevice.Udid, dDevice.Name, dDevice.DeviceBrandId, ref device);
                 response.Device = new DeviceResponseObject() { m_oDevice = device, m_oDeviceResponseStatus = DeviceResponseStatus.OK };
                 response.Status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
                 return response;
             }
 
-            domainResponseStatus = domain.SubmitAddDeviceToDomainRequest(groupID, deviceUdid, deviceName, ref device);
+            domainResponseStatus = domain.SubmitAddDeviceToDomainRequest(groupID, dDevice.Udid, dDevice.Name, ref device);
             response.Device = new DeviceResponseObject() { m_oDevice = device, m_oDeviceResponseStatus = DeviceResponseStatus.OK };
             response.Status = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
             return response;
@@ -2255,9 +2256,10 @@ namespace Core.Users
             return response;
         }
 
-        internal ApiObjects.Response.Status DeleteDevice(int groupId, string udid)
+        internal ApiObjects.Response.Status DeleteDevice(int groupId, string udid, out long domainId)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            domainId = 0;
 
             int deviceId = DeviceDal.GetDeviceIdByUDID(udid, groupId);
             if (deviceId == 0)
@@ -2274,6 +2276,7 @@ namespace Core.Users
                 }
                 else
                 {
+                    domainId = deviceDomains[0].m_nDomainID;
                     DomainResponseStatus domainResponseStatus = deviceDomains[0].RemoveDeviceFromDomain(udid, true, deviceId);
                     response = Utils.ConvertDomainResponseStatusToResponseObject(domainResponseStatus);
                     if (response.Code != (int)eResponseStatus.OK)

@@ -152,7 +152,9 @@ namespace Core.ConditionalAccess
             {
                 renewDetails.BillingGuid = billingGuid;
                 renewDetails.GracePeriodMinutes = subscription.m_GracePeriodMinutes;
-                transactionResponse = Billing.Module.ProcessRenewal(renewDetails, subscription.m_ProductCode);
+
+                transactionResponse = Billing.Module.ProcessRenewal(renewDetails, subscription.m_ProductCode, subscription.ExternalProductCodes);
+                
                 if (transactionResponse == null || transactionResponse.Status == null)
                 {
                     // PG returned error
@@ -193,14 +195,14 @@ namespace Core.ConditionalAccess
                         if (!ignoreUnifiedBillingCycle && subscriptionCycle != null && subscriptionCycle.UnifiedBillingCycle != null) //should be part of unified cycle 
                         {
                             var paymentGatewayId = paymentDetails != null ? paymentDetails.PaymentGatewayId : 0;
-                            unifiedProcess = UpdateMPPRenewalProcessId(groupId, purchaseId, renewDetails.DomainId, subscriptionCycle, paymentGatewayId, renewDetails.MaxVLCOfSelectedUsageModule);
+                            unifiedProcess = UpdateMPPRenewalProcessId(groupId, renewDetails, subscriptionCycle, paymentGatewayId);
                         }
 
                         res = HandleRenewSubscriptionSuccess(cas, renewDetails, logString, subscription, transactionResponse, subscriptionCycle, unifiedProcess);
 
                         if (res)
                         {
-                            string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(domainId);
+                            string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, domainId);
                             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on Renew key = {0}", invalidationKey);
@@ -244,7 +246,7 @@ namespace Core.ConditionalAccess
                             if (!ignoreUnifiedBillingCycle && subscriptionCycle != null && subscriptionCycle.UnifiedBillingCycle != null) //should be part of unified cycle 
                             {
                                 res = true;
-                                unifiedProcess = UpdateMPPRenewalProcessId(groupId, (int)renewDetails.PurchaseId, domainId, subscriptionCycle, paymentDetails.PaymentGatewayId, renewDetails.MaxVLCOfSelectedUsageModule);
+                                unifiedProcess = UpdateMPPRenewalProcessId(groupId, renewDetails, subscriptionCycle, paymentDetails.PaymentGatewayId);
                                     //GetRenewalProcessId(groupId, domainId, paymentDetails.PaymentGatewayId);
                                 if (unifiedProcess != null && unifiedProcess.isNew)
                                 {
@@ -286,27 +288,33 @@ namespace Core.ConditionalAccess
         /// <param name="paymentGatewayId"></param>
         /// <param name="maxVLCOfSelectedUsageModule"></param>
         /// <returns></returns>
-        private static UnifiedProcess UpdateMPPRenewalProcessId(int groupId, long purchaseId, long householdId, SubscriptionCycle subscriptionCycle, int paymentGatewayId, long renewUsageModule)
-        { 
+        private static UnifiedProcess UpdateMPPRenewalProcessId(int groupId, RenewDetails renewDetails, SubscriptionCycle subscriptionCycle, int paymentGatewayId)
+        {   
             UnifiedProcess unifiedProcess = null;
 
             try
             {
-                var renewDuration = new Duration(renewUsageModule);
+                var renewDuration = new Duration(renewDetails.MaxVLCOfSelectedUsageModule);
                 if (subscriptionCycle.HasCycle && subscriptionCycle.SubscriptionLifeCycle.Equals(renewDuration))
                 {
-                    unifiedProcess = GetRenewalProcessId(groupId, householdId, paymentGatewayId, renewUsageModule);
+                    if (renewDetails.IsAddToUnified)
+                    {
+                        unifiedProcess = GetRenewalProcessId(groupId, renewDetails.DomainId, paymentGatewayId, renewDetails.MaxVLCOfSelectedUsageModule, subscriptionCycle.UnifiedBillingCycle.endDate);
+                    }
 
                     if (unifiedProcess == null) // need to create new process id 
                     {
-                        DateTime endDate = DateUtils.UtcUnixTimestampMillisecondsToDateTime(subscriptionCycle.UnifiedBillingCycle.endDate);
-                        long processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, endDate, householdId, renewUsageModule, (int)ProcessUnifiedState.Renew);
+                        renewDetails.EndDate = Utils.GetEndDateTime(renewDetails.EndDate.Value, renewDetails.MaxVLCOfSelectedUsageModule);                     
+
+                        long processId = ConditionalAccessDAL.InsertUnifiedProcess(groupId, paymentGatewayId, renewDetails.EndDate.Value, renewDetails.DomainId, 
+                            renewDetails.MaxVLCOfSelectedUsageModule, (int)ProcessUnifiedState.Renew);
+                        
                         if (processId > 0)
                         {
                             unifiedProcess = new UnifiedProcess()
                             {
                                 Id = processId,
-                                EndDate = endDate,
+                                EndDate = renewDetails.EndDate.Value,
                                 isNew = true
                             };
                         }
@@ -315,18 +323,18 @@ namespace Core.ConditionalAccess
                     if (unifiedProcess?.Id > 0)
                     {
                         // update subscription Purchase
-                        DAL.ConditionalAccessDAL.UpdateMPPRenewalProcessId(new List<int>() { (int)purchaseId }, unifiedProcess.Id);
+                        DAL.ConditionalAccessDAL.UpdateMPPRenewalProcessId(new List<int>() { (int)renewDetails.PurchaseId }, unifiedProcess.Id);
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("fail update process id for specific renew groupId = {0}, purchaseId = {1}, householdId = {2}, ex = {3}", groupId, purchaseId, householdId, ex);
+                log.Error($"fail update process id for specific renew groupId={groupId}, purchaseId={renewDetails.PurchaseId}, DomainId={renewDetails.DomainId}", ex);
             }
             return unifiedProcess;
         }
 
-        private static UnifiedProcess GetRenewalProcessId(int groupId, long householdId, int paymentGatewayId, long cycle)
+        private static UnifiedProcess GetRenewalProcessId(int groupId, long householdId, int paymentGatewayId, long cycle, long cycleDate = 0)
         {
             UnifiedProcess unifiedProcess = null;
             try
@@ -343,7 +351,19 @@ namespace Core.ConditionalAccess
 
                             if (count == 0)
                             {
-                                //TODO - remove unified
+                                var endDate = ODBCWrapper.Utils.GetDateSafeVal(row, "END_DATE");
+                                
+                                if (cycleDate == DateUtils.DateTimeToUtcUnixTimestampMilliseconds(endDate))
+                                {
+                                    unifiedProcess = new UnifiedProcess()
+                                    {
+                                        Id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID"),
+                                        EndDate = endDate,
+                                    };
+
+                                    log.Debug($"BEO-9166 GetRenewalProcessId (sp_count=0) {unifiedProcess.Id}");
+                                }
+                                
                             }
                             else
                             {
@@ -502,7 +522,11 @@ namespace Core.ConditionalAccess
             // update unified billing cycle for domian with next end date
             else if (unifiedProcess?.Id > 0)
             {
-                subscriptionCycle = Utils.GetSubscriptionCycle(renewDetails.GroupId, (int)renewDetails.DomainId, renewDetails.MaxVLCOfSelectedUsageModule);
+                if (subscriptionCycle == null)
+                {
+                    subscriptionCycle = Utils.GetSubscriptionCycle(renewDetails.GroupId, (int)renewDetails.DomainId, renewDetails.MaxVLCOfSelectedUsageModule);
+                }
+                
                 if (subscriptionCycle.HasCycle)
                 {
                     if (subscriptionCycle.UnifiedBillingCycle == null)
@@ -813,7 +837,7 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
-            string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(householdId);
+            string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, householdId);
             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
             {
                 log.ErrorFormat("Failed to set invalidation key on Renew key = {0}", invalidationKey);
@@ -1296,7 +1320,7 @@ namespace Core.ConditionalAccess
             {
                 if (successTransactions.Count > 0)
                 {
-                    string invalidationKey = LayeredCacheKeys.GetRenewInvalidationKey(householdId);
+                    string invalidationKey = LayeredCacheKeys.GetDomainEntitlementInvalidationKey(groupId, householdId);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on Renew key = {0}", invalidationKey);
@@ -1560,6 +1584,12 @@ namespace Core.ConditionalAccess
                         log.ErrorFormat("Failed to update subscription compensation use. compensationId = {0}, billingTransactionId = {1}, renewalNumber = {2}",
                                          renewDetails.RecurringData.Compensation.Id, transactionId, renewDetails.RecurringData.Compensation.Renewals);
                     }
+
+                    if (renewDetails.RecurringData.Compensation.TotalRenewals > 0 
+                        && renewDetails.RecurringData.Compensation.Renewals == renewDetails.RecurringData.Compensation.TotalRenewals)
+                    {
+                        renewDetails.RecurringData.Compensation = null;
+                    }
                 }
 
                 if (renewDetails.IsUseCouponRemainder ||
@@ -1573,9 +1603,28 @@ namespace Core.ConditionalAccess
                 }
 
                 renewDetails.RecurringData.TotalNumOfRenews++;
+
                 if (renewDetails.RecurringData.LeftCouponRecurring > 0)
                 {
                     renewDetails.RecurringData.LeftCouponRecurring--;
+                }
+
+                if (renewDetails.RecurringData.CampaignDetails != null)
+                {
+                    if (renewDetails.RecurringData.CampaignDetails.IsUseRemainder)
+                    {
+                        renewDetails.RecurringData.CampaignDetails = null;
+                    }
+
+                    if (renewDetails.RecurringData.CampaignDetails.LeftRecurring > 0)
+                    {
+                        renewDetails.RecurringData.CampaignDetails.LeftRecurring--;
+
+                        if (renewDetails.RecurringData.CampaignDetails.LeftRecurring == 0 && renewDetails.RecurringData.CampaignDetails.Remainder == 0)
+                        {
+                            renewDetails.RecurringData.CampaignDetails = null;
+                        }
+                    }
                 }
 
                 ConditionalAccessDAL.SaveRecurringRenewDetails(renewDetails.RecurringData, renewDetails.PurchaseId);

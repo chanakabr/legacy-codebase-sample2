@@ -80,6 +80,8 @@ namespace WebAPI.Managers
                             {
                                 foreach (KalturaPermission permission in role.Permissions)
                                 {
+                                    bool isExcluded = role.ExcludedPermissionNames.Contains(permission.Name);
+
                                     // if the permission is group permission, get the users group list to append later
                                     if (permission is KalturaGroupPermission)
                                     {
@@ -151,7 +153,7 @@ namespace WebAPI.Managers
 
                                         foreach (KeyValuePair<string, bool> pair in keyToExcludeMap)
                                         {
-                                            bool isExcluded = pair.Value;
+                                            isExcluded |= pair.Value;
 
                                             // if the dictionary already contains the action, try to append the role and /or the users group
                                             if (result.ContainsKey(pair.Key))
@@ -195,10 +197,9 @@ namespace WebAPI.Managers
             {
                 string key = LayeredCacheKeys.GetGroupPermissionItemsDictionaryKey(groupId);
                 string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
-                if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>>>(key, ref result, BuildGroupPermissionItemsDictionary,
+                if (!LayeredCache.Instance.Get<Dictionary<string, Dictionary<long, KeyValuePair<string, bool>>>>(key, ref result, BuildGroupPermissionItemsDictionary,
                                                                                                                 new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                                                                                                                 LayeredCacheConfigNames.GET_GROUP_PERMISSION_ITEMS_BY_GROUP_ID,
-                                                                                                                ApplicationConfiguration.Current.GroupsManagerConfiguration.CacheTTLSeconds.Value,
                                                                                                                 new List<string>() { invalidationKey }))
                 {
                     log.ErrorFormat("Failed getting GetGroupPermissionItemsDictionary from LayeredCache, groupId: {0}, key: {1}", groupId, key);
@@ -309,27 +310,9 @@ namespace WebAPI.Managers
                 throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
 
             //BEO-7703 - No cache for operator+
-            var roles = ClientsManager.ApiClient().GetRoles(ks.GroupId, roleIds);
-            if (roles?.Count > 0)
+            if (IsPartner(ks.GroupId, roleIds))
             {
-                bool isPartner = roles.Any(x => x.Profile != null && (x.Profile == KalturaUserRoleProfile.PARTNER || x.Profile == KalturaUserRoleProfile.SYSTEM));
-
-                if (isPartner)
-                {
-                    if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TAGS))
-                    {
-                        var tags = (HashSet<string>)HttpContext.Current.Items[RequestContextUtils.REQUEST_TAGS];
-                        if (!tags.Contains(RequestContextUtils.REQUEST_TAGS_PARTNER_ROLE))
-                        {
-                            tags.Add(RequestContextUtils.REQUEST_TAGS_PARTNER_ROLE);
-                            HttpContext.Current.Items[RequestContextUtils.REQUEST_TAGS] = tags;
-                        }
-                    }
-                    else
-                    {
-                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_TAGS, new HashSet<string>() { RequestContextUtils.REQUEST_TAGS_PARTNER_ROLE });
-                    }
-                }
+                RequestContextUtils.SetIsPartnerRequest();
             }
 
             string allowedUsersGroup = null;
@@ -363,6 +346,16 @@ namespace WebAPI.Managers
                     throw new UnauthorizedException(UnauthorizedException.SERVICE_FORBIDDEN);
                 }
             }
+        }
+
+        public static bool IsPartner(int groupId, List<long> roleIds)
+        {
+            var roles = ClientsManager.ApiClient().GetRoles(groupId, roleIds);
+            if (roles?.Count > 0)
+            {
+                return roles.Any(x => x.Profile != null && (x.Profile == KalturaUserRoleProfile.PARTNER || x.Profile == KalturaUserRoleProfile.SYSTEM));
+            }
+            return false;
         }
 
         /// <summary>
@@ -500,10 +493,9 @@ namespace WebAPI.Managers
             {
                 string key = LayeredCacheKeys.GetPermissionItemsToFeaturesDictionaryKey(groupId);
                 string invalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
-                if (!LayeredCache.Instance.GetWithAppDomainCache<Dictionary<string, List<string>>>(key, ref result, BuildPermissionItemsToFeaturesDictionary,
+                if (!LayeredCache.Instance.Get<Dictionary<string, List<string>>>(key, ref result, BuildPermissionItemsToFeaturesDictionary,
                                                                                                                 new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                                                                                                                 LayeredCacheConfigNames.GET_PERMISSION_ITEMS_TO_FEATURES,
-                                                                                                                ApplicationConfiguration.Current.GroupsManagerConfiguration.CacheTTLSeconds.Value,
                                                                                                                 new List<string>() { invalidationKey }))
                 {
                     log.ErrorFormat("Failed getting GetGroupPermissionItemsDictionary from LayeredCache, groupId: {0}, key: {1}", groupId, key);
