@@ -1817,11 +1817,6 @@ namespace Core.Pricing
             return response;
         }
 
-        public static GenericListResponse<CouponData> GetCoupons(int groupId, List<string> couponCodes, long householdId)
-        {
-            throw new NotImplementedException();
-        }
-
         public static GenericListResponse<DiscountDetails> GetValidDiscounts(int groupId)
         {
             var response = new GenericListResponse<DiscountDetails>();
