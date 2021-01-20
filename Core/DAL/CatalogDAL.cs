@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.CouchbaseWrapperObjects;
@@ -1471,6 +1472,37 @@ namespace Tvinci.Core.DAL
 
         }
 
+        public static List<KeyValuePair<long, int>> GetAssociatedAsset(int groupId, int userId, long entityId)
+        {
+            var affectedAssetIds = new List<KeyValuePair<long, int>>();
+            var sp = new StoredProcedure("Get_AssetByRelatedEntityId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@EntityId", entityId);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                { 
+                    foreach (System.Data.DataRow row in dt.Rows)
+                    {
+                        var id = Utils.GetLongSafeVal(row, "id");
+                        var assetId = Utils.GetLongSafeVal(row, "asset_id");
+                        var assetTypeId = Utils.GetIntSafeVal(row, "asset_type");
+                        var jsonRelated = Utils.GetSafeStr(row, "Related_entities_data");
+                        var jsonValue = JsonConvert.DeserializeObject<List<RelatedEntity>>(jsonRelated);
+                        jsonValue = jsonValue.Where(x => x.Id != entityId.ToString()).ToList();
+
+                        if (UpdateAssetRelatedEntities(groupId, userId, id, assetId, JsonConvert.SerializeObject(jsonValue, Formatting.None)))
+                            affectedAssetIds.Add(new KeyValuePair<long, int>(assetId, assetTypeId));
+                    }
+                }
+            }
+            return affectedAssetIds;
+        }
+
         public static bool GetPicEpgURL(int groupID, ref string baseUrl, ref string width, ref string height)
         {
             bool res = false;
@@ -1540,6 +1572,19 @@ namespace Tvinci.Core.DAL
             }
 
             return res;
+        }
+
+        public static bool UpdateAssetRelatedEntities(int groupId, int userId, long id, long assetId, string relatedEntitiesJson)
+        {
+            var sp = new StoredProcedure("UpdateAssetRelatedChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@userId", userId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@assetId", assetId);
+            sp.AddParameter("@relatedEntitiesJson", relatedEntitiesJson);
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
         public static Dictionary<int, List<EpgPicture>> GetGroupTreePicEpgUrl(int parentGroupID)
@@ -2816,7 +2861,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataTable Get_ValidateMediaFiles(int[] mediaFiles, int groupId)
-        {            
+        {
             DataTable dt = null;
             try
             {
@@ -5178,7 +5223,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@opl", opl);
 
             return sp.ExecuteDataSet();
-        }        
+        }
 
         public static DataSet GetMediaFilesByAssetIds(int groupId, List<long> assetIds)
         {
@@ -5245,7 +5290,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetMediaFilesByExternalIdAndAltExternalId(int groupId, string externalId, string altExternalId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFilesByExternalId"); 
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFilesByExternalId");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@externalId", externalId);
