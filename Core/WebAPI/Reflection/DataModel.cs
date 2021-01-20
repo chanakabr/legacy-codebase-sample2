@@ -4510,6 +4510,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaOpcPartnerConfiguration":
+                    switch(property.Name)
+                    {
+                        case "ResetPassword":
+                            return "resetPassword";
+                    }
+                    break;
+                    
                 case "KalturaOrCondition":
                     switch(property.Name)
                     {
@@ -6021,6 +6029,28 @@ namespace WebAPI.Reflection
                             return "skipCondition";
                         case "UserID":
                             return "userId";
+                    }
+                    break;
+                    
+                case "KalturaResetPasswordPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "TemplateListLabel":
+                            return "templateListLabel";
+                        case "Templates":
+                            return "templates";
+                    }
+                    break;
+                    
+                case "KalturaResetPasswordPartnerConfigTemplate":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "IsDefault":
+                            return "isDefault";
+                        case "Label":
+                            return "label";
                     }
                     break;
                     

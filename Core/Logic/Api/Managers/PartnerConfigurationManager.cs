@@ -9,6 +9,7 @@ using Core.Pricing;
 using CouchbaseManager;
 using DAL;
 using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -133,6 +134,19 @@ namespace ApiLogic.Api.Managers
             }
         }
 
+        internal static GenericListResponse<OpcPartnerConfig> GetOpcPartnerConfiguration(int groupId)
+        {
+            var response = new GenericListResponse<OpcPartnerConfig>();
+            var opcPartnerConfig = GetOpcPartnerConfig(groupId);
+            if (opcPartnerConfig != null)
+            {
+                response.Objects.Add(opcPartnerConfig);
+                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+
+            return response;
+        }
+
         internal static GenericListResponse<GeneralPartnerConfig> GetGeneralPartnerConfiguration(int groupId)
         {
             GenericListResponse<GeneralPartnerConfig> response = new GenericListResponse<GeneralPartnerConfig>();
@@ -143,6 +157,32 @@ namespace ApiLogic.Api.Managers
                 response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
             }
 
+            return response;
+        }
+
+        internal static Status UpdateOpcPartnerConfig(int groupId, OpcPartnerConfig partnerConfigToUpdate)
+        {
+            Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
+            {
+                if (!ApiDAL.UpdateOpcPartnerResetPassword(groupId, partnerConfigToUpdate.ResetPassword))
+                {
+                    log.Error($"Error while update OpcPartnerResetPassword [ResetPassword]. groupId: {groupId}");
+                    return response;
+                }
+
+                var invalidationKey = LayeredCacheKeys.GetOpcPartnerConfigInvalidationKey(groupId);
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                {
+                    log.ErrorFormat("Failed to set invalidation key for opcPartnerConfig with invalidationKey: {0}", invalidationKey);
+                }
+
+                response.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("UpdateOpcPartnerConfig failed ex={0}, groupId={1}", ex, groupId);
+            }
             return response;
         }
 
@@ -890,6 +930,53 @@ namespace ApiLogic.Api.Managers
             return generalPartnerConfig;
         }
 
+        internal static OpcPartnerConfig GetOpcPartnerConfig(int groupId)
+        {
+            OpcPartnerConfig opcPartnerConfig = null;
+
+            try
+            {
+                var key = LayeredCacheKeys.GetOpcPartnerConfig(groupId);
+                var configInvalidationKey = new List<string>() { LayeredCacheKeys.GetOpcPartnerConfigInvalidationKey(groupId) };
+                if (!LayeredCache.Instance.Get<OpcPartnerConfig>(key,
+                                                          ref opcPartnerConfig,
+                                                          GetOpcPartnerConfigDB,
+                                                          new Dictionary<string, object>() { { "groupId", groupId } },
+                                                          groupId,
+                                                          LayeredCacheConfigNames.GET_OPC_PARTNER_CONFIG,
+                                                          configInvalidationKey))
+                {
+                    log.ErrorFormat("Failed getting OpcPartnerConfig from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGeneralPartnerConfig for groupId: {0}", groupId), ex);
+            }
+
+            return opcPartnerConfig;
+        }
+
+
+        private static Tuple<OpcPartnerConfig, bool> GetOpcPartnerConfigDB(Dictionary<string, object> funcParams)
+        {
+            var generalPartnerConfig = new OpcPartnerConfig();
+            try
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                if (groupId.HasValue)
+                {
+                    generalPartnerConfig.ResetPassword = ApiDAL.GetResetPasswordPartnerConfig(groupId.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("GetOpcPartnerConfig failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+            }
+
+            return new Tuple<OpcPartnerConfig, bool>(generalPartnerConfig, generalPartnerConfig != null);
+        }
+
         private static Tuple<GeneralPartnerConfig, bool> GetGeneralPartnerConfigDB(Dictionary<string, object> funcParams)
         {
             GeneralPartnerConfig generalPartnerConfig = null;
@@ -969,6 +1056,7 @@ namespace ApiLogic.Api.Managers
                                 generalPartnerConfig.SecondaryCurrencies.Add(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_ID"));
                             }
                         }
+
                     }
                 }
             }
