@@ -28229,6 +28229,16 @@ namespace WebAPI.Models.Users
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute EmailEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaOTTUserFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -28266,6 +28276,14 @@ namespace WebAPI.Models.Users
                         RoleIdsInSchemaProperty.Validate("roleIdsIn", parameters["roleIdsIn"]);
                     }
                     RoleIdsIn = (String) Convert.ChangeType(parameters["roleIdsIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("emailEqual") && parameters["emailEqual"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        EmailEqualSchemaProperty.Validate("emailEqual", parameters["emailEqual"]);
+                    }
+                    EmailEqual = (String) Convert.ChangeType(parameters["emailEqual"], typeof(String));
                 }
             }
         }

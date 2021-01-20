@@ -4657,6 +4657,8 @@ namespace WebAPI.Reflection
                 case "KalturaOTTUserFilter":
                     switch(property.Name)
                     {
+                        case "EmailEqual":
+                            return "emailEqual";
                         case "ExternalIdEqual":
                             return "externalIdEqual";
                         case "IdIn":

@@ -34990,6 +34990,10 @@ namespace WebAPI.Models.Users
             }
             var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
+            if(EmailEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "EmailEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("emailEqual")))
+            {
+                ret.Add("emailEqual", "\"emailEqual\": " + "\"" + EscapeJson(EmailEqual) + "\"");
+            }
             if(ExternalIdEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "ExternalIdEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("externalIdEqual")))
             {
                 ret.Add("externalIdEqual", "\"externalIdEqual\": " + "\"" + EscapeJson(ExternalIdEqual) + "\"");
@@ -35021,6 +35025,10 @@ namespace WebAPI.Models.Users
             }
             var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
+            if(EmailEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "EmailEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("emailEqual")))
+            {
+                ret.Add("emailEqual", "<emailEqual>" + EscapeXml(EmailEqual) + "</emailEqual>");
+            }
             if(ExternalIdEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "ExternalIdEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("externalIdEqual")))
             {
                 ret.Add("externalIdEqual", "<externalIdEqual>" + EscapeXml(ExternalIdEqual) + "</externalIdEqual>");

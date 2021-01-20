@@ -49,6 +49,15 @@ namespace WebAPI.Models.Users
         [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, DynamicMinInt = 0)]
         public string RoleIdsIn { get; set; }
 
+        /// <summary>
+        /// User email
+        /// </summary>
+        [DataMember(Name = "emailEqual")]
+        [XmlElement("emailEqual", IsNullable = true)]
+        [JsonProperty("emailEqual")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
+        public string EmailEqual { get; set; }
+
         internal void Validate(bool isOperatorOrAbove)
         {
             // validate that filter is only by username
@@ -74,6 +83,12 @@ namespace WebAPI.Models.Users
                                                   "KalturaOTTUserFilter.userNameEqual",
                                                   "KalturaOTTUserFilter.roleIdsIn");
                 }
+                if (!string.IsNullOrEmpty(EmailEqual))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                                                  "KalturaOTTUserFilter.userNameEqual",
+                                                  "KalturaOTTUserFilter.emailEqual");
+                }
             }
             // validate that filter is only by externalId
             else if (!string.IsNullOrEmpty(ExternalIdEqual))
@@ -89,6 +104,29 @@ namespace WebAPI.Models.Users
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
                                                   "KalturaOTTUserFilter.externalIdEqual",
+                                                  "KalturaOTTUserFilter.roleIdsIn");
+                }
+                if (!string.IsNullOrEmpty(EmailEqual))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                                                  "KalturaOTTUserFilter.externalIdEqual",
+                                                  "KalturaOTTUserFilter.emailEqual");
+                }
+            }
+            // validate that filter is only by email
+            else if (!string.IsNullOrEmpty(EmailEqual))
+            {
+                if (!string.IsNullOrEmpty(IdIn))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                                                  "KalturaOTTUserFilter.emailEqualEqual",
+                                                  "KalturaOTTUserFilter.idIn");
+                }
+
+                if (!string.IsNullOrEmpty(RoleIdsIn))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                                                  "KalturaOTTUserFilter.emailEqualEqual",
                                                   "KalturaOTTUserFilter.roleIdsIn");
                 }
             }

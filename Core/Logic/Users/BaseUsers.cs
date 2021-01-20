@@ -89,6 +89,7 @@ namespace Core.Users
         public abstract UserResponseObject SignOut(int siteGuid, string sessionID, string sIP, string deviceID);
         public abstract UserResponseObject GetUserByFacebookID(string sFacebookID, Int32 nGroupID);
         public abstract UserResponseObject GetUserByCoGuid(string sCoGuid, int operatorID);
+        public abstract List<UserResponseObject> GetUsersByEmailAddress(string email, int operatorID);
         public abstract UserResponseObject GetUserByUsername(string sUsername, Int32 nGroupID);
         public abstract UserResponseObject GetUserData(string sSiteGUID, bool shouldSaveInCache = true);
         public abstract List<UserBasicData> GetUsersBasicData(long[] nSiteGUIDs);
@@ -103,6 +104,7 @@ namespace Core.Users
         public abstract ApiObjects.Response.Status DeleteUser(int userId);
         public abstract ApiObjects.Response.Status ChangeUsers(string userId, string userIdToChange, string udid, int groupId);
         public abstract GenericResponse<UserResponseObject> GetUserByExternalID(string externalID, int operatorID);
+        public abstract GenericListResponse<UserResponseObject> GetUsersByEmail(string email, int operatorID);
         public abstract GenericResponse<UserResponseObject> GetUserByName(string userName, int groupId);
         public abstract UserResponseObject CheckToken(string sToken);
         public abstract bool ResendWelcomeMail(string sUN);
