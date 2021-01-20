@@ -34990,6 +34990,10 @@ namespace WebAPI.Models.Users
             }
             var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
+            if(EmailEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "EmailEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("emailEqual")))
+            {
+                ret.Add("emailEqual", "\"emailEqual\": " + "\"" + EscapeJson(EmailEqual) + "\"");
+            }
             if(ExternalIdEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "ExternalIdEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("externalIdEqual")))
             {
                 ret.Add("externalIdEqual", "\"externalIdEqual\": " + "\"" + EscapeJson(ExternalIdEqual) + "\"");
@@ -35021,6 +35025,10 @@ namespace WebAPI.Models.Users
             }
             var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
+            if(EmailEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "EmailEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("emailEqual")))
+            {
+                ret.Add("emailEqual", "<emailEqual>" + EscapeXml(EmailEqual) + "</emailEqual>");
+            }
             if(ExternalIdEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "ExternalIdEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("externalIdEqual")))
             {
                 ret.Add("externalIdEqual", "<externalIdEqual>" + EscapeXml(ExternalIdEqual) + "</externalIdEqual>");
@@ -36670,6 +36678,46 @@ namespace WebAPI.Models.Partner
             return ret;
         }
     }
+    public partial class KalturaOpcPartnerConfiguration
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(ResetPassword != null && (retrievedProperties == null || retrievedProperties.Contains("resetPassword")))
+            {
+                propertyValue = ResetPassword.ToJson(currentVersion, omitObsolete);
+                ret.Add("resetPassword", "\"resetPassword\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(ResetPassword != null && (retrievedProperties == null || retrievedProperties.Contains("resetPassword")))
+            {
+                propertyValue = ResetPassword.ToXml(currentVersion, omitObsolete);
+                ret.Add("resetPassword", "<resetPassword>" + propertyValue + "</resetPassword>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaPartnerConfiguration
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -36892,6 +36940,108 @@ namespace WebAPI.Models.Partner
             {
                 propertyValue = DefaultAdapters.ToXml(currentVersion, omitObsolete);
                 ret.Add("defaultAdapters", "<defaultAdapters>" + propertyValue + "</defaultAdapters>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaResetPasswordPartnerConfig
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(TemplateListLabel != null && (retrievedProperties == null || retrievedProperties.Contains("templateListLabel")))
+            {
+                ret.Add("templateListLabel", "\"templateListLabel\": " + "\"" + EscapeJson(TemplateListLabel) + "\"");
+            }
+            if(Templates != null && (retrievedProperties == null || retrievedProperties.Contains("templates")))
+            {
+                propertyValue = "[" + String.Join(", ", Templates.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("templates", "\"templates\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(TemplateListLabel != null && (retrievedProperties == null || retrievedProperties.Contains("templateListLabel")))
+            {
+                ret.Add("templateListLabel", "<templateListLabel>" + EscapeXml(TemplateListLabel) + "</templateListLabel>");
+            }
+            if(Templates != null && (retrievedProperties == null || retrievedProperties.Contains("templates")))
+            {
+                propertyValue = Templates.Count > 0 ? "<item>" + String.Join("</item><item>", Templates.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("templates", "<templates>" + propertyValue + "</templates>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaResetPasswordPartnerConfigTemplate
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("isDefault")))
+            {
+                ret.Add("isDefault", "\"isDefault\": " + IsDefault.ToString().ToLower());
+            }
+            if(Label != null && (retrievedProperties == null || retrievedProperties.Contains("label")))
+            {
+                ret.Add("label", "\"label\": " + "\"" + EscapeJson(Label) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("isDefault")))
+            {
+                ret.Add("isDefault", "<isDefault>" + IsDefault.ToString().ToLower() + "</isDefault>");
+            }
+            if(Label != null && (retrievedProperties == null || retrievedProperties.Contains("label")))
+            {
+                ret.Add("label", "<label>" + EscapeXml(Label) + "</label>");
             }
             return ret;
         }

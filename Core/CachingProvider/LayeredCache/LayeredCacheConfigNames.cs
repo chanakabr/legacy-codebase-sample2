@@ -129,6 +129,7 @@
         public const string GET_DYNAMIC_LIST_BY_ID = "Get_DynamicListByIdDB";
         public const string GET_DYNAMIC_LIST_MAP = "Get_DynamicListMap";
         public const string GET_KS_VALIDATION = "Get_KsValidation";
+        public const string GET_OPC_PARTNER_CONFIG = "GetOpcPartnerConfig";
 
         #endregion
 

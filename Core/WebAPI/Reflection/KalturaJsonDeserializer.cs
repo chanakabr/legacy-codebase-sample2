@@ -1317,6 +1317,9 @@ namespace WebAPI.Reflection
                 case "KalturaOnDemandResponseProfile":
                     return new KalturaOnDemandResponseProfile(parameters);
                     
+                case "KalturaOpcPartnerConfiguration":
+                    return new KalturaOpcPartnerConfiguration(parameters);
+                    
                 case "KalturaOrCondition":
                     return new KalturaOrCondition(parameters);
                     
@@ -1721,6 +1724,12 @@ namespace WebAPI.Reflection
                     
                 case "KalturaRequestConfiguration":
                     return new KalturaRequestConfiguration(parameters);
+                    
+                case "KalturaResetPasswordPartnerConfig":
+                    return new KalturaResetPasswordPartnerConfig(parameters);
+                    
+                case "KalturaResetPasswordPartnerConfigTemplate":
+                    return new KalturaResetPasswordPartnerConfigTemplate(parameters);
                     
                 case "KalturaRollingDeviceRemovalData":
                     return new KalturaRollingDeviceRemovalData(parameters);
@@ -28220,6 +28229,16 @@ namespace WebAPI.Models.Users
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute EmailEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 1,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaOTTUserFilter(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -28257,6 +28276,14 @@ namespace WebAPI.Models.Users
                         RoleIdsInSchemaProperty.Validate("roleIdsIn", parameters["roleIdsIn"]);
                     }
                     RoleIdsIn = (String) Convert.ChangeType(parameters["roleIdsIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("emailEqual") && parameters["emailEqual"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        EmailEqualSchemaProperty.Validate("emailEqual", parameters["emailEqual"]);
+                    }
+                    EmailEqual = (String) Convert.ChangeType(parameters["emailEqual"], typeof(String));
                 }
             }
         }
@@ -29439,6 +29466,26 @@ namespace WebAPI.Models.Partner
             }
         }
     }
+    public partial class KalturaOpcPartnerConfiguration
+    {
+        public KalturaOpcPartnerConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("resetPassword") && parameters["resetPassword"] != null)
+                {
+                    if (parameters["resetPassword"] is JObject)
+                    {
+                        ResetPassword = (KalturaResetPasswordPartnerConfig) Deserializer.deserialize(typeof(KalturaResetPasswordPartnerConfig), ((JObject) parameters["resetPassword"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["resetPassword"] is IDictionary)
+                    {
+                        ResetPassword = (KalturaResetPasswordPartnerConfig) Deserializer.deserialize(typeof(KalturaResetPasswordPartnerConfig), (Dictionary<string, object>) parameters["resetPassword"]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaPartnerConfiguration
     {
         public KalturaPartnerConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
@@ -29547,6 +29594,81 @@ namespace WebAPI.Models.Partner
                     {
                         DefaultAdapters = (KalturaDefaultPlaybackAdapters) Deserializer.deserialize(typeof(KalturaDefaultPlaybackAdapters), (Dictionary<string, object>) parameters["defaultAdapters"]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaResetPasswordPartnerConfig
+    {
+        public KalturaResetPasswordPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("templateListLabel") && parameters["templateListLabel"] != null)
+                {
+                    TemplateListLabel = (String) Convert.ChangeType(parameters["templateListLabel"], typeof(String));
+                }
+                if (parameters.ContainsKey("templates") && parameters["templates"] != null)
+                {
+                    if (parameters["templates"] is JArray)
+                    {
+                        Templates = buildList<KalturaResetPasswordPartnerConfigTemplate>(typeof(KalturaResetPasswordPartnerConfigTemplate), (JArray) parameters["templates"]);
+                    }
+                    else if (parameters["templates"] is IList)
+                    {
+                        Templates = buildList(typeof(KalturaResetPasswordPartnerConfigTemplate), parameters["templates"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaResetPasswordPartnerConfigTemplate
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaResetPasswordPartnerConfigTemplate")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = 255,
+            MinLength = 1,
+        };
+        private static RuntimeSchemePropertyAttribute LabelSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaResetPasswordPartnerConfigTemplate")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = 255,
+            MinLength = 1,
+        };
+        public KalturaResetPasswordPartnerConfigTemplate(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
+                }
+                if (parameters.ContainsKey("label") && parameters["label"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        LabelSchemaProperty.Validate("label", parameters["label"]);
+                    }
+                    Label = (String) Convert.ChangeType(parameters["label"], typeof(String));
+                }
+                if (parameters.ContainsKey("isDefault") && parameters["isDefault"] != null)
+                {
+                    IsDefault = (Boolean) Convert.ChangeType(parameters["isDefault"], typeof(Boolean));
                 }
             }
         }

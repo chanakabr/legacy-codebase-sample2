@@ -8,7 +8,6 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
 using WebAPI.Models.General;
-using static ApiObjects.SecurityPartnerConfig;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -26,7 +25,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.MapFrom(src => src.GetDeviceFamilyIds()))
                 .ForMember(dest => dest.EvictionPolicy, opt => opt.ResolveUsing(src => ConvertDowngradePolicyToEvictionPolicy(src.PriorityOrder)))
                 .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds))
-                .ForMember(dest => dest.RevokeOnDeviceDelete, opt => opt.MapFrom(src => src.RevokeOnDeviceDelete)); 
+                .ForMember(dest => dest.RevokeOnDeviceDelete, opt => opt.MapFrom(src => src.RevokeOnDeviceDelete));
 
             // map KalturaConcurrencyPartnerConfig to DeviceConcurrencyPriority
             cfg.CreateMap<KalturaConcurrencyPartnerConfig, DeviceConcurrencyPriority>()
@@ -38,10 +37,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             // map RollingDeviceRemovalData to KalturaRollingDeviceRemovalData
             cfg.CreateMap<RollingDeviceRemovalData, KalturaRollingDeviceRemovalData>()
-                .ForMember(dest => dest.RollingDeviceRemovalFamilyIds, opt => opt.MapFrom(src => src.RollingDeviceRemovalFamilyIds != null ? 
+                .ForMember(dest => dest.RollingDeviceRemovalFamilyIds, opt => opt.MapFrom(src => src.RollingDeviceRemovalFamilyIds != null ?
                     string.Join(",", src.RollingDeviceRemovalFamilyIds) : string.Empty))
                 .ForMember(dest => dest.RollingDeviceRemovalPolicy, opt => opt.ResolveUsing(src => ConvertRollingDevicePolicy(src.RollingDeviceRemovalPolicy)))
-                
+
                 ;
 
             // map KalturaRollingDeviceRemovalData to KalturaRollingDeviceRemovalData
@@ -50,6 +49,38 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.RollingDeviceRemovalPolicy, opt => opt.ResolveUsing(src => ConvertRollingDevicePolicy(src.RollingDeviceRemovalPolicy)))
                 ;
 
+            // map BEO-9373 ResetPasswordPartnerConfigTemplate
+            cfg.CreateMap<ResetPasswordPartnerConfigTemplate, KalturaResetPasswordPartnerConfigTemplate>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Label, opt => opt.MapFrom(src => src.Label))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+                ;
+
+            cfg.CreateMap<ResetPasswordPartnerConfig, KalturaResetPasswordPartnerConfig>()
+                .ForMember(dest => dest.TemplateListLabel, opt => opt.MapFrom(src => src.TemplateListLabel))
+                .ForMember(dest => dest.Templates, opt => opt.MapFrom(src => src.Templates))
+                .AfterMap((src, dest) => dest.Templates = src.Templates != null ? dest.Templates : null)
+                ;
+
+            cfg.CreateMap<KalturaResetPasswordPartnerConfigTemplate, ResetPasswordPartnerConfigTemplate>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Label, opt => opt.MapFrom(src => src.Label))
+                .ForMember(dest => dest.IsDefault, opt => opt.MapFrom(src => src.IsDefault))
+                ;
+
+            cfg.CreateMap<KalturaResetPasswordPartnerConfig, ResetPasswordPartnerConfig>()
+                .ForMember(dest => dest.TemplateListLabel, opt => opt.MapFrom(src => src.TemplateListLabel))
+                .ForMember(dest => dest.Templates, opt => opt.MapFrom(src => src.Templates))
+                .AfterMap((src, dest) => dest.Templates = src.Templates != null ? dest.Templates : null)
+                ;
+
+            cfg.CreateMap<OpcPartnerConfig, KalturaOpcPartnerConfiguration>()
+                .ForMember(dest => dest.ResetPassword, opt => opt.MapFrom(src => src.ResetPassword))
+                ;
+
+            cfg.CreateMap<KalturaOpcPartnerConfiguration, OpcPartnerConfig>()
+                .ForMember(dest => dest.ResetPassword, opt => opt.MapFrom(src => src.ResetPassword))
+                ;
 
             // map GeneralPartnerConfig to KalturaGeneralPartnerConfig
             cfg.CreateMap<GeneralPartnerConfig, KalturaGeneralPartnerConfig>()
@@ -66,7 +97,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EnableRegionFiltering, opt => opt.MapFrom(src => src.EnableRegionFiltering))
                 .ForMember(dest => dest.DefaultRegion, opt => opt.MapFrom(src => src.DefaultRegion))
                 .ForMember(dest => dest.RollingDeviceRemovalData, opt => opt.MapFrom(src => src.RollingDeviceRemovalData))
-                .ForMember(dest => dest.FinishedPercentThreshold, opt => opt.MapFrom(src => src.FinishedPercentThreshold));
+                .ForMember(dest => dest.FinishedPercentThreshold, opt => opt.MapFrom(src => src.FinishedPercentThreshold))
+                ;
 
             // map KalturaGeneralPartnerConfig to GeneralPartnerConfig
             cfg.CreateMap<KalturaGeneralPartnerConfig, GeneralPartnerConfig>()
@@ -111,7 +143,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.AssetStructId, opt => opt.MapFrom(src => src.AssetStructId))
                 .ForMember(dest => dest.MetaId, opt => opt.MapFrom(src => src.MetaId))
-                .ForMember(dest => dest.ExtendedTypes, opt => opt.MapFrom(src => src.ExtendedTypes != null ? src.ExtendedTypes.ToDictionary(k => k.Key, v =>v.Value) : null))
+                .ForMember(dest => dest.ExtendedTypes, opt => opt.MapFrom(src => src.ExtendedTypes != null ? src.ExtendedTypes.ToDictionary(k => k.Key, v => v.Value) : null))
                 ;
 
             cfg.CreateMap<KalturaObjectVirtualAssetInfoType, ObjectVirtualAssetInfoType>()
@@ -127,7 +159,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return ObjectVirtualAssetInfoType.Category;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown KalturaObjectVirtualAssetInfoType value : {0}", type.ToString()));
-                    }                   
+                    }
                 });
 
             cfg.CreateMap<ObjectVirtualAssetInfoType, KalturaObjectVirtualAssetInfoType>()
@@ -290,7 +322,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     res = KalturaRollingDevicePolicy.ACTIVE_DEVICE_ASCENDING;
                     break;
                 default:
-                    throw new ClientException((int) StatusCode.Error, "Unknown partner configuration type");
+                    throw new ClientException((int)StatusCode.Error, "Unknown partner configuration type");
             }
 
             return res;
@@ -314,7 +346,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     res = RollingDevicePolicy.ACTIVE_DEVICE_ASCENDING;
                     break;
                 default:
-                    throw new ClientException((int) StatusCode.Error, "Unknown partner configuration type");
+                    throw new ClientException((int)StatusCode.Error, "Unknown partner configuration type");
             }
 
             return res;

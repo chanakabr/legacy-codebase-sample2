@@ -363,6 +363,27 @@ namespace DAL
             return sPIN;
         }
 
+        public static bool UpdateOpcPartnerResetPassword(int groupId, ResetPasswordPartnerConfig resetPassword)
+        {
+            if (resetPassword != null && !string.IsNullOrEmpty(resetPassword.TemplateListLabel) && resetPassword.Templates?.Count > 0)
+            {
+                var key = UtilsDal.GetPartnerResetPasswordKey(groupId);
+                if (!UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, resetPassword))
+                {
+                    log.Error($"Failed saving ResetPasswordPartnerConfig to cb, key: {key}");
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public static ResetPasswordPartnerConfig GetResetPasswordPartnerConfig(int groupId)
+        {
+            var key = UtilsDal.GetPartnerResetPasswordKey(groupId);
+            return UtilsDal.GetObjectFromCB<ResetPasswordPartnerConfig>(eCouchbaseBucket.OTT_APPS, key);
+        }
+
         public static DataTable Get_CodeForParentalPIN(string sSiteGuid, int RuleID)
         {
             ODBCWrapper.StoredProcedure spCodeForParentalPIN = new ODBCWrapper.StoredProcedure("Get_CodeForParentalPIN");
@@ -6225,7 +6246,7 @@ namespace DAL
             if (!success)
             {
                 log.Error($"Error while save SecurityPartnerConfig. groupId: {groupId}.");
-            }            
+            }
             return success;
         }
 
@@ -6346,7 +6367,8 @@ namespace DAL
             {
                 var mapKey = GetDynamicListGroupMappingKey(groupId, dynamicList.Type);
                 status = UtilsDal.SaveObjectWithVersionCheckInCB<List<long>>(0, eCouchbaseBucket.OTT_APPS, mapKey, mapping =>
-                {if (mapping.Contains(dynamicList.Id))
+                {
+                    if (mapping.Contains(dynamicList.Id))
                     {
                         mapping.Remove(dynamicList.Id);
                     }

@@ -671,6 +671,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("general_partner_configV1_{0}", groupId);
         }
 
+        public static string GetOpcPartnerConfig(int groupId)
+        {
+            return $"opc_partner_config_{groupId}";
+        }
+
         public static string GetObjectVirtualAssetPartnerConfig(int groupId)
         {
             return string.Format("object_virtual_asset_config_{0}", groupId);
@@ -1250,6 +1255,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGeneralPartnerConfigInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyGeneralPartnerConfig_groupdId_{0}", groupId);
+        }
+
+        public static string GetOpcPartnerConfigInvalidationKey(int groupId)
+        {
+            return $"invalidationKeyOpcPartnerConfig_groupdId_{groupId}";
         }
 
         public static string GetObjectVirtualAssetPartnerConfigInvalidationKey(int groupId)

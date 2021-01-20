@@ -1842,6 +1842,19 @@ namespace Core.Users
             return response;
         }
 
+        public static GenericListResponse<UserResponseObject> GetUsersByEmail(int nGroupID, string email, int operatorID)
+        {
+            var response = new GenericListResponse<UserResponseObject>();
+
+            BaseUsers t = null;
+            Utils.GetBaseImpl(ref t, nGroupID);
+            if (t != null)
+            {
+                response = t.GetUsersByEmail(email, operatorID);
+            }
+            return response;
+        }
+
         public static GenericResponse<UserResponseObject> GetUserByName(int nGroupID, string username)
         {
             var response = new GenericResponse<UserResponseObject>();

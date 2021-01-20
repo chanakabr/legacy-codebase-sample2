@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.ClientManagers.Client;
@@ -37,7 +38,7 @@ namespace WebAPI.Models.Partner
         /// </summary>
         [DataMember(Name = "secondaryLanguages")]
         [JsonProperty("secondaryLanguages")]
-        [XmlElement(ElementName = "secondaryLanguages")]        
+        [XmlElement(ElementName = "secondaryLanguages")]
         public string SecondaryLanguages { get; set; }
 
         /// <summary>
@@ -132,7 +133,7 @@ namespace WebAPI.Models.Partner
 
         internal List<int> GetSecondaryLanguagesIds()
         {
-            return GetItemsIn<List< int >, int> (SecondaryLanguages, "KalturaGeneralPartnerConfig.secondaryLanguages", false, false);
+            return GetItemsIn<List<int>, int>(SecondaryLanguages, "KalturaGeneralPartnerConfig.secondaryLanguages", false, false);
         }
 
         internal List<int> GetSecondaryCurrenciesIds()

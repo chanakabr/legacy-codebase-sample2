@@ -2503,6 +2503,16 @@ namespace Core.Api
             return PartnerConfigurationManager.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate);
         }
 
+        public static Status UpdateOpcPartnerConfig(int groupId, OpcPartnerConfig partnerConfigToUpdate)
+        {
+            return PartnerConfigurationManager.UpdateOpcPartnerConfig(groupId, partnerConfigToUpdate);
+        }
+
+        public static GenericListResponse<OpcPartnerConfig> GetOpcPartnerConfiguration(int groupId)
+        {
+            return PartnerConfigurationManager.GetOpcPartnerConfiguration(groupId);
+        }
+
         public static GenericListResponse<GeneralPartnerConfig> GetGeneralPartnerConfiguration(int groupId)
         {
             return PartnerConfigurationManager.GetGeneralPartnerConfiguration(groupId);

@@ -4148,6 +4148,32 @@ namespace WebAPI.Clients
             return true;
         }
 
+        internal bool UpdateOpcPartnerConfiguration(int groupId, KalturaOpcPartnerConfiguration partnerConfig)
+        {
+            Func<OpcPartnerConfig, Status> UpdateOpcPartnerConfigFunc = (OpcPartnerConfig partnerConfigToUpdate) =>
+                   Core.Api.Module.UpdateOpcPartnerConfig(groupId, partnerConfigToUpdate);
+
+            ClientUtils.GetResponseStatusFromWS<KalturaOpcPartnerConfiguration, OpcPartnerConfig>(UpdateOpcPartnerConfigFunc, partnerConfig);
+
+            return true;
+        }
+
+        internal KalturaPartnerConfigurationListResponse GetOpcPartnerConfiguration(int groupId)
+        {
+            var result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<OpcPartnerConfig>> getOpcPartnerConfigFunc = () =>
+                Core.Api.Module.GetOpcPartnerConfiguration(groupId);
+
+            KalturaGenericListResponse<KalturaOpcPartnerConfiguration> response =
+                ClientUtils.GetResponseListFromWS<KalturaOpcPartnerConfiguration, OpcPartnerConfig>(getOpcPartnerConfigFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
         internal KalturaPartnerConfigurationListResponse GetGeneralPartnerConfiguration(int groupId)
         {
             KalturaPartnerConfigurationListResponse result = new KalturaPartnerConfigurationListResponse();

@@ -1178,6 +1178,42 @@ namespace WebAPI.Clients
             return listUser;
         }
 
+        internal KalturaOTTUserListResponse GetUsersByEmail(int groupId, string email)
+        {
+            GenericListResponse<UserResponseObject> response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Users.Module.GetUsersByEmail(groupId, email, -1);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while GetUsersByEmail. group id: {groupId}, email: {email}, ex: {ex}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (!response.IsOkStatusCode())
+            {
+                throw new ClientException(response.Status);
+            }
+
+            if (response.Objects == null)
+            {
+                throw new ClientException(StatusCode.Error);
+            }
+
+            var listUser = new KalturaOTTUserListResponse()
+            {
+                Users = Mapper.Map<List<KalturaOTTUser>>(response.Objects),
+                TotalCount = response.Objects.Count,
+            };
+
+            return listUser;
+        }
+
         internal KalturaOTTUserListResponse GetUserByName(int groupId, string userName)
         {
             GenericResponse<UserResponseObject> response = null;
