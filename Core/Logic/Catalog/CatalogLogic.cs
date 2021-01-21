@@ -401,7 +401,7 @@ namespace Core.Catalog
                 {
                     return CatalogManagement.AssetManager.GetMediaObj(groupId, nMedia);
                 }
-                
+
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(groupId);
                 MediaObj oMediaObj = new MediaObj();
@@ -413,7 +413,7 @@ namespace Core.Catalog
                 List<LanguageObj> languages = new List<LanguageObj>();
                 LanguageObj language = null;
 
-                if (group.isGeoAvailabilityWindowingEnabled && !managementData)
+                if (group.isGeoAvailabilityWindowingEnabled || managementData)
                     sEndDate = "GEO";
                 else
                     sEndDate = ProtocolsFuncs.GetFinalEndDateField(true, managementData);
@@ -625,7 +625,7 @@ namespace Core.Catalog
                     tagTypeNameAndValues = new Dictionary<string, List<KeyValuePair<int, string>>>();
                     dicTagIdLanguageContainers = new Dictionary<string, List<KeyValuePair<int, List<LanguageContainer>>>>();
                     MediaTagsTranslations mediaTagsTranslations = null;
-                    
+
                     if (group.isTagsSingleTranslation)
                     {
                         //GET asset tags translations
@@ -659,12 +659,12 @@ namespace Core.Catalog
 
                             if (group.isTagsSingleTranslation && mediaTagsTranslations != null && mediaTagsTranslations.Translations?.Count > 0)
                             {
-                                    var tagsTranslations = mediaTagsTranslations.Translations.Where(x => x.TagId == tagId).ToList();
-                                    if (tagsTranslations?.Count > 0)
-                                    {
-                                        //get translate values for tag_id + add to tagLangContainerList
-                                        tagLangContainerList.AddRange(GetTagsLanguageContainer(tagsTranslations, group.GetLangauges()));
-                                    }
+                                var tagsTranslations = mediaTagsTranslations.Translations.Where(x => x.TagId == tagId).ToList();
+                                if (tagsTranslations?.Count > 0)
+                                {
+                                    //get translate values for tag_id + add to tagLangContainerList
+                                    tagLangContainerList.AddRange(GetTagsLanguageContainer(tagsTranslations, group.GetLangauges()));
+                                }
                             }
                             else if (tagLangs != null && tagLangs.Rows.Count > 0)
                             {
@@ -2074,7 +2074,7 @@ namespace Core.Catalog
             {
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(groupId);
-                
+
                 if (group != null && group.isRegionalizationEnabled)
                 {
                     isRegionalizationEnabled = true;
@@ -2152,7 +2152,7 @@ namespace Core.Catalog
                     }
                 }
             }
-            
+
             if (isRegionalizationEnabled)
             {
                 var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
@@ -2169,7 +2169,7 @@ namespace Core.Catalog
                     }
                 }
             }
-            
+
             return regionId;
         }
 
@@ -4237,7 +4237,7 @@ namespace Core.Catalog
                             }
                         }
 
-                        
+
 
                         break;
                     }
@@ -5178,7 +5178,7 @@ namespace Core.Catalog
                     Missing = 1
                 });
             }
-            
+
             filteredQuery.Aggregations.Add(aggregation);
 
             #endregion
@@ -6636,7 +6636,7 @@ namespace Core.Catalog
                 var parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
                 parentGroupId = parentGroupId == 0 ? groupId : parentGroupId;
                 var aggregation = searcher.UnifiedSearchForGroupBy(unifiedSearchDefinitions, parentGroupId);
-                
+
                 return new UnifiedSearchResponse
                 {
                     aggregationResults = new List<AggregationsResult> { aggregation },
@@ -6660,7 +6660,7 @@ namespace Core.Catalog
             // Perform initial search of channel
             int notUsed = 0;
             int totalItems = 0;
-            List<AggregationsResult> aggregationsResult;            
+            List<AggregationsResult> aggregationsResult;
             var searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref notUsed, out aggregationsResult);
 
             if (searchResults == null) return new UnifiedSearchResponse { status = Status.ErrorMessage("Failed performing channel search") };
@@ -6716,7 +6716,7 @@ namespace Core.Catalog
                 {
                     Dictionary<int, int> IdsToManualOrder = new Dictionary<int, int>();
                     int index = 0;
-                    foreach(int aid in assetIDs)
+                    foreach (int aid in assetIDs)
                     {
                         IdsToManualOrder.Add(aid, index);
                         index++;
@@ -8188,7 +8188,7 @@ namespace Core.Catalog
                 // change default channel order to ID when we have groupBy + orderBy is not supported
                 // because we don't support all orderBy's with groupBy
                 var defaultChannelOrder = channel.m_OrderObject;
-                if (request.searchGroupBy?.groupBy?.Count == 1 
+                if (request.searchGroupBy?.groupBy?.Count == 1
                     && defaultChannelOrder != null
                     && !ElasticsearchWrapper.GroupBySearchIsSupportedForOrder(defaultChannelOrder.m_eOrderBy))
                 {
@@ -9340,7 +9340,7 @@ namespace Core.Catalog
                 if (allUserAssetMarks == null || allUserAssetMarks.mediaMarks == null || allUserAssetMarks.mediaMarks.Count == 0)
                 {
                     return unFilteredresult;
-                }            
+                }
 
                 // build date filter
                 long minFilterdate = numOfDays > 0 ? DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddDays(-numOfDays)) : 0;
@@ -9362,7 +9362,8 @@ namespace Core.Catalog
                 int userId = 0;
                 int.TryParse(siteGuid, out userId);
 
-                unFilteredresult = mediaMarkLogs.Select(mediaMarkLog => {
+                unFilteredresult = mediaMarkLogs.Select(mediaMarkLog =>
+                {
                     int recordingId = 0;
                     int.TryParse(mediaMarkLog.LastMark.NpvrID, out recordingId);
 
@@ -9506,12 +9507,12 @@ namespace Core.Catalog
                     HashSet<string> episodes = new HashSet<string>(searchResults.Select(x => x.AssetId).ToList());
 
                     var latest = usersWatchHistory.Where(x => episodes.Contains(x.AssetId)).OrderByDescending(i => i.LastWatch).FirstOrDefault();
-                    
+
                     response.SetStatus(eResponseStatus.OK);
                     response.Object = ConvertToUserWatchHistory(latest);
-                    
+
                     if (!latest.IsFinishedWatching)
-                    {    
+                    {
                         return response;
                     }
 
@@ -9927,7 +9928,7 @@ namespace Core.Catalog
                         if (language != null)
                             langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
                     }
-                }                
+                }
             }
             return langContainers;
         }
