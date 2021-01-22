@@ -28174,6 +28174,7 @@ namespace WebAPI.Models.Users
                         DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
+                
             }
         }
     }
@@ -32145,6 +32146,14 @@ namespace WebAPI.Models.Domains
                         LastActivityTimeSchemaProperty.Validate("lastActivityTime", parameters["lastActivityTime"]);
                     }
                     LastActivityTime = (Int64) Convert.ChangeType(parameters["lastActivityTime"], typeof(Int64));
+                }
+
+                if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
+                {
+                    if (parameters["dynamicData"] is JObject)
+                    {
+                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                    }
                 }
             }
         }
