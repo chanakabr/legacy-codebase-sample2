@@ -202,13 +202,9 @@ pipeline {
     }
     post {
         always {
-            stage("Report & Delete output folder after publish"){
-            steps{
-                report()
-                sleep 10
-                cleanWs()
-            }
-        }
+            report()
+            sleep 10
+            cleanWs()
         }
     }
     
