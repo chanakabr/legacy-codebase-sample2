@@ -339,9 +339,36 @@ namespace IngestV2.Tests
 
             Assert.That(crudOps.ItemsToDelete, Has.Count.EqualTo(1));
             Assert.That(crudOps.ItemsToUpdate, Has.Count.EqualTo(1));
+        }
 
+        [Test]
+        public void TestAddShallowCopyOfProgramToDeleteIfCrossMidnight()
+        {
+            var existingEpgStart = new DateTime(2021, 1, 20, 22, 30, 0);
+            var existingEpg = ProgramGenerator
+                .Generate(1)
+                .FromDate(existingEpgStart)
+                .WithEpgIds()
+                .StartFromId(1000)
+                .WithDuration(TimeSpan.FromHours(3))
+                .BuildExistingPrograms();
 
+            var epgRepositoryMock = GetMockEpgRepo(existingEpg);
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
 
+            var bulkUpload = ProgramGenerator
+                .Generate(1)
+                .FromDate(existingEpgStart.AddMinutes(-30))
+                .WithEpgIds()
+                .WithDuration(TimeSpan.FromHours(3))
+                .BuildBulkUploadObj();
+            
+            var crudOps = crudManager
+                .CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.CutTarget, eIngestProfileAutofillPolicy.Autofill);
+            
+            Assert.That(crudOps.ItemsToDelete, Has.Count.EqualTo(2));
+            Assert.That(crudOps.ItemsToAdd, Has.Count.EqualTo(1));
+            Assert.That(crudOps.AffectedItems, Has.Count.EqualTo(1));
         }
 
         private static Mock<IEpgRepository> GetMockEpgRepo(List<EpgProgramBulkUploadObject> existingEpg)
@@ -352,10 +379,5 @@ namespace IngestV2.Tests
                 .Returns(existingEpg);
             return epgRepositoryMock;
         }
-
-
-      
-
-        
     }
 };
