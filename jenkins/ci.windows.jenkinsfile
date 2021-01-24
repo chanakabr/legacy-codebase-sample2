@@ -199,18 +199,18 @@ pipeline {
                 )
             }
         }
-        stage("Delete output folder after publish"){
+    }
+    post {
+        always {
+            stage("Report & Delete output folder after publish"){
             steps{
                 sleep 10
                 cleanWs()
             }
         }
-    }
-    post {
-        always {
-            report()
         }
     }
+    
 }
 
 def buildMsProject(projectFilePath, outputPath, component){
