@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.Base;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.CouchbaseWrapperObjects;
@@ -1485,7 +1484,7 @@ namespace Tvinci.Core.DAL
             {
                 DataTable dt = ds.Tables[0];
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                { 
+                {
                     foreach (System.Data.DataRow row in dt.Rows)
                     {
                         var id = Utils.GetLongSafeVal(row, "id");
@@ -2115,7 +2114,11 @@ namespace Tvinci.Core.DAL
             }
             else
             {
-                var relevantMediaMark = mediaMarks.mediaMarks.FirstOrDefault(m => m.AssetId == userMediaMark.AssetID && m.AssetType == userMediaMark.AssetType);
+                var relevantMediaMark = mediaMarks.mediaMarks.FirstOrDefault(m =>
+                                                                        m.AssetType == eAssetTypes.NPVR && !string.IsNullOrEmpty(m.NpvrId) ?
+                                                                        m.NpvrId == userMediaMark.NpvrID :
+                                                                        m.AssetId == userMediaMark.AssetID && m.AssetType == userMediaMark.AssetType); // TODO ask Ira BEO-9356
+
                 if (relevantMediaMark != null)
                 {
                     mediaMarks.mediaMarks.Remove(relevantMediaMark);
@@ -2127,7 +2130,8 @@ namespace Tvinci.Core.DAL
                 AssetId = userMediaMark.AssetID,
                 AssetType = userMediaMark.AssetType,
                 CreatedAt = userMediaMark.CreatedAtEpoch,
-                ExpiredAt = userMediaMark.ExpiredAt
+                ExpiredAt = userMediaMark.ExpiredAt,
+                NpvrId = userMediaMark.NpvrID
             });
 
             // order by create date, only select top [TCM] (let's say 300, it should cater 99% of users)

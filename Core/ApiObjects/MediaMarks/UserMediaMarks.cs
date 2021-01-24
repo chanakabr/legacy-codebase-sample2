@@ -21,7 +21,7 @@ namespace ApiObjects.MediaMarks
     {
         [JsonProperty("assetId")]
         public int AssetId { get; set; }
-        
+
         [JsonProperty("assetType")]
         public eAssetTypes AssetType { get; set; }
 
@@ -30,6 +30,9 @@ namespace ApiObjects.MediaMarks
 
         [JsonProperty("ExpiredAt")]
         public long ExpiredAt { get; set; }
+
+        [JsonProperty("npvrId")]
+        public string NpvrId { get; set; }
 
         public AssetAndLocation()
         {
