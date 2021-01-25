@@ -365,7 +365,15 @@ namespace IngestV2.Tests
             
             var crudOps = crudManager
                 .CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.CutTarget, eIngestProfileAutofillPolicy.Autofill);
+
+
+            var shallowCopyEpg = crudOps.ItemsToDelete[0];
+            var epgToCut = crudOps.ItemsToDelete[1];
+            var expectedStartDateOfCutTargetProgram = new DateTime(2021, 1, 21, 1, 0, 0);
             
+            Assert.That(shallowCopyEpg.StartDate, Is.EqualTo(existingEpgStart));
+            Assert.That(epgToCut.StartDate, Is.EqualTo(expectedStartDateOfCutTargetProgram));
+            Assert.That(shallowCopyEpg, Is.Not.SameAs(epgToCut));
             Assert.That(crudOps.ItemsToDelete, Has.Count.EqualTo(2));
             Assert.That(crudOps.ItemsToAdd, Has.Count.EqualTo(1));
             Assert.That(crudOps.AffectedItems, Has.Count.EqualTo(1));
