@@ -431,43 +431,38 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 // validate topicsIds exist on asset
-                EpgAsset epgAsset = asset as EpgAsset;
-                if (epgAsset != null)
+                if (asset is EpgAsset epgAsset)
                 {
-                    List<long> existingTopicsIds = epgAsset.Metas.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
-                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
-                                                                    .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id).ToList();
-                    existingTopicsIds.AddRange(epgAsset.Tags.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName)
-                                                                    && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
-                                                                    .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id).ToList());
-                    List<long> noneExistingMetaIds = topicIds.Except(existingTopicsIds).ToList();
-                    if (noneExistingMetaIds != null && noneExistingMetaIds.Count > 0)
+                    var existingTopicsIds = epgAsset.Metas
+                        .Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName))
+                        .SelectMany(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].Select(v => v.Value.Id))
+                        .ToList();
+                    existingTopicsIds.AddRange(
+                        epgAsset.Tags
+                            .Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) && catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType))
+                            .Select(x => catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id));
+
+                    var noneExistingMetaIds = topicIds.Except(existingTopicsIds).ToArray();
+                    if (noneExistingMetaIds.Any())
                     {
-                        result = new Status((int)eResponseStatus.MetaIdsDoesNotExistOnAsset, string.Format("{0} for the following Meta Ids: {1}",
-                                                    eResponseStatus.MetaIdsDoesNotExistOnAsset.ToString(), string.Join(",", noneExistingMetaIds)));
+                        result = new Status((int) eResponseStatus.MetaIdsDoesNotExistOnAsset, $"{eResponseStatus.MetaIdsDoesNotExistOnAsset.ToString()} for the following Meta Ids: {string.Join(",", noneExistingMetaIds)}");
                         return result;
                     }
 
                     // get topics to removed             
-                    List<Topic> topics = catalogGroupCache.TopicsMapById.Where(x => topicIds.Contains(x.Key) && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName.ToLower())).Select(x => x.Value).ToList();
+                    var topics = catalogGroupCache.TopicsMapById
+                        .Where(x => topicIds.Contains(x.Key) && !CatalogManager.TopicsToIgnore.Contains(x.Value.SystemName.ToLower()))
+                        .Select(x => x.Value)
+                        .ToArray();
+                    var mappingFields = GetMappingFields(groupId);
 
-                    Dictionary<FieldTypes, Dictionary<string, int>> mappingFields = GetMappingFields(groupId);
+                    var metaTopics = topics.Where(t => mappingFields.ContainsKey(FieldTypes.Meta) && mappingFields[FieldTypes.Meta].ContainsKey(t.SystemName.ToLower())).ToArray();
+                    var programMetaIds = metaTopics.Select(x => mappingFields[FieldTypes.Meta][x.SystemName.ToLower()]).ToList();
+                    var metasToRemoveByName = metaTopics.Select(x => x.SystemName.ToLower()).ToList();
 
-                    List<int> programMetaIds = new List<int>(topics.Where(t => mappingFields.ContainsKey(FieldTypes.Meta) &&
-                                                                               mappingFields[FieldTypes.Meta].ContainsKey(t.SystemName.ToLower()))
-                                                                   .Select(x => mappingFields[FieldTypes.Meta][x.SystemName.ToLower()]));
-
-                    List<string> metasToRemoveByName = new List<string>(topics.Where(t => mappingFields.ContainsKey(FieldTypes.Meta) &&
-                                                                                          mappingFields[FieldTypes.Meta].ContainsKey(t.SystemName.ToLower()))
-                                                                              .Select(x => x.SystemName.ToLower()));
-
-                    List<int> programTagIds = new List<int>(topics.Where(t => mappingFields.ContainsKey(FieldTypes.Tag) &&
-                                                                               mappingFields[FieldTypes.Tag].ContainsKey(t.SystemName.ToLower()))
-                                                                  .Select(x => mappingFields[FieldTypes.Tag][x.SystemName.ToLower()]));
-
-                    List<string> tagsToRemoveByName = new List<string>(topics.Where(t => mappingFields.ContainsKey(FieldTypes.Tag) &&
-                                                                                          mappingFields[FieldTypes.Tag].ContainsKey(t.SystemName.ToLower()))
-                                                                             .Select(x => x.SystemName.ToLower()));
+                    var tagTopics = topics.Where(t => mappingFields.ContainsKey(FieldTypes.Tag) && mappingFields[FieldTypes.Tag].ContainsKey(t.SystemName.ToLower())).ToArray();
+                    var programTagIds = tagTopics.Select(x => mappingFields[FieldTypes.Tag][x.SystemName.ToLower()]).ToList();
+                    var tagsToRemoveByName = tagTopics.Select(x => x.SystemName.ToLower()).ToList();
 
                     if (EpgDal.RemoveMetasAndTagsFromProgram(groupId, epgAsset.Id, programMetaIds, programTagIds, userId))
                     {
