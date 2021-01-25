@@ -654,7 +654,8 @@ namespace Core.Users
                             MacAddress = device.MacAddress,
                             Model = device.Model,
                             Manufacturer = device.Manufacturer,
-                            ManufacturerId = device.ManufacturerId
+                            ManufacturerId = device.ManufacturerId,
+                            DynamicData = device.DynamicData
                         };
 
                         bool updated = domainDevice.Update();
@@ -714,7 +715,8 @@ namespace Core.Users
                     MacAddress = device.MacAddress,
                     Model = device.Model,
                     Manufacturer = device.Manufacturer,
-                    ManufacturerId = device.ManufacturerId
+                    ManufacturerId = device.ManufacturerId,
+                    DynamicData = device.DynamicData
                 };
 
                 bool domainDeviceInsertSuccess = domainDevice.Insert();
@@ -752,7 +754,8 @@ namespace Core.Users
                         MacAddress = device.MacAddress,
                         Model = device.Model,
                         Manufacturer = device.Manufacturer,
-                        ManufacturerId = device.ManufacturerId
+                        ManufacturerId = device.ManufacturerId,
+                        DynamicData = device.DynamicData
                     };
 
                     bool updated = domainDevice.Update();
@@ -2240,7 +2243,8 @@ namespace Core.Users
                 MacAddress = device.MacAddress,
                 ExternalId = device.ExternalId,
                 Model = device.Model,
-                Manufacturer = device.Manufacturer
+                Manufacturer = device.Manufacturer,
+                DynamicData = device.DynamicData
             };
 
             bool domainDeviceInsertSuccess = domainDevice.Insert();

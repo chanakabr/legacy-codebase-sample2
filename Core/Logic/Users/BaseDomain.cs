@@ -383,7 +383,10 @@ namespace Core.Users
                 if (dDevice.ManufacturerId.HasValue)
                     device.ManufacturerId = dDevice.ManufacturerId;
 
-                if (dDevice.DynamicData != null) device.DynamicData = dDevice.DynamicData;
+                if (dDevice.DynamicData?.Any() == true)
+                {
+                    device.DynamicData = dDevice.DynamicData;
+                }
 
                 // add device to domain
                 domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, dDevice.Udid, dDevice.Name, dDevice.DeviceBrandId, ref device);
@@ -1975,7 +1978,10 @@ namespace Core.Users
             if (dDevice.ManufacturerId.HasValue)
                 device.ManufacturerId = dDevice.ManufacturerId;
 
-            if (dDevice.DynamicData != null) device.DynamicData = dDevice.DynamicData;
+            if (dDevice.DynamicData != null)
+            {
+                device.DynamicData = dDevice.DynamicData;
+            }
 
             DomainResponseStatus domainResponseStatus;
             int userId = 0;

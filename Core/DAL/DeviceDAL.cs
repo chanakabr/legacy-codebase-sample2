@@ -3,7 +3,7 @@ using System.Data;
 using Tvinci.Core.DAL;
 using ODBCWrapper;
 using System.Collections.Generic;
-using ApiObjects;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace DAL
@@ -551,9 +551,9 @@ namespace DAL
 
         private static string SerializeDynamicData(Dictionary<string, string> dynamicData)
         {
-            return dynamicData == null
-                ? null
-                : JsonConvert.SerializeObject(dynamicData);
+            return dynamicData?.Any() == true
+                ? JsonConvert.SerializeObject(dynamicData)
+                : null;
         }
     }
 }
