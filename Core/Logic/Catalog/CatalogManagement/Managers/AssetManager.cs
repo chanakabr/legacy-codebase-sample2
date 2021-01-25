@@ -2883,9 +2883,15 @@ namespace Core.Catalog.CatalogManagement
         private static VirtualAssetInfoResponse GetVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, out bool needToCreateVirtualAsset, out Asset asset)
         {
             VirtualAssetInfoResponse response = new VirtualAssetInfoResponse() { Status = VirtualAssetInfoStatus.NotRelevant };
-
             asset = null;
             needToCreateVirtualAsset = false;
+
+            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            if (!doesGroupUsesTemplates)
+            {
+                return response;
+            }
+
             if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
             {
                 log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
