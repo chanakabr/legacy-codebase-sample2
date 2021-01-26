@@ -29,7 +29,6 @@ namespace ConfigurationManager.Types
         public BaseValue<bool> SSOAdapterProfiles = new BaseValue<bool>("sso_adapter_profiles", false);
         public BaseValue<bool> RefreshToken = new BaseValue<bool>("refresh_token", false);
         public BaseValue<bool> KSStatusCheck = new BaseValue<bool>("ks_status_check", false,description:"when set to true will call ks validation in auth ms");
-        public BaseValue<bool> KSStatusCheckFallbackEnabled = new BaseValue<bool>("ks_status_check_fallback_enabled", true,description:"when set to true,upon validate ks result = true will check the legacy code in coucbase");
     }
 
     public class MicroServicesLayeredCacheConfiguration : BaseConfig<MicroServicesLayeredCacheConfiguration>
