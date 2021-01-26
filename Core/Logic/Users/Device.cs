@@ -197,9 +197,8 @@ namespace Core.Users
             }
             else // Update Device
             {
-                bool bUpdateRetVal = DeviceDal.UpdateDevice(retVal, m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_groupID,
-                    m_deviceName, nIsActive, nStatus, externalId, macAddress, model, manufacturerId, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
-                    
+                bool bUpdateRetVal = DeviceDal.UpdateDevice(retVal, m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_groupID, m_deviceName, nIsActive, nStatus, externalId, macAddress, model, manufacturerId, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
+
                 if (!bUpdateRetVal)
                 {
                     retVal = 0;

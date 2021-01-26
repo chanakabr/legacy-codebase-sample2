@@ -369,14 +369,14 @@ namespace DAL
         }
 
         public static int InsertNewDevice(
-            string sDeviceUDID,
-            int nDeviceBrandID,
-            int nDeviceFamilyID,
-            string sDeviceName,
-            int nGroupID,
-            int nIsActive,
-            int nStatus,
-            string sPin,
+            string deviceUdid,
+            int deviceBrandId,
+            int deviceFamilyId,
+            string deviceName,
+            int groupId,
+            int isActive,
+            int status,
+            string pin,
             string externalId,
             string macAddress = "",
             string model = "",
@@ -385,14 +385,14 @@ namespace DAL
         {
             StoredProcedure sp = new StoredProcedure("Insert_NewDevice");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
-            sp.AddParameter("@DeviceUDID", sDeviceUDID);
-            sp.AddParameter("@DeviceBrandID", nDeviceBrandID);
-            sp.AddParameter("@DeviceFamilyID", nDeviceFamilyID);
-            sp.AddParameter("@DeviceName", sDeviceName);
-            sp.AddParameter("@GroupID", nGroupID);
-            sp.AddParameter("@IsActive", nIsActive);
-            sp.AddParameter("@Status", nStatus);
-            sp.AddParameter("@Pin", sPin);
+            sp.AddParameter("@DeviceUDID", deviceUdid);
+            sp.AddParameter("@DeviceBrandID", deviceBrandId);
+            sp.AddParameter("@DeviceFamilyID", deviceFamilyId);
+            sp.AddParameter("@DeviceName", deviceName);
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@IsActive", isActive);
+            sp.AddParameter("@Status", status);
+            sp.AddParameter("@Pin", pin);
             sp.AddParameter("@CreateDate", DateTime.UtcNow);
             sp.AddParameter("@ExternalID", externalId);
             if (!string.IsNullOrEmpty(macAddress)) sp.AddParameter("@MacAddress", macAddress);

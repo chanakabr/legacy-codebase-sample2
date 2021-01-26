@@ -112,9 +112,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
         [Throws(eResponseStatus.NoUsersInDomain)]
-        static public KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
+        public static KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
         {
-            device.Validate(true);
+            device.Validate();
 
             int groupId = KS.GetFromRequest().GroupId;
             int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -303,9 +303,10 @@ namespace WebAPI.Controllers
         [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.DeviceNotExists)]
-        static public KalturaHouseholdDevice Update(string udid, KalturaHouseholdDevice device)
+        public static KalturaHouseholdDevice Update(string udid, KalturaHouseholdDevice device)
         {
-            device.Validate(false);
+            device.Udid = udid;
+            device.Validate();
 
             int groupId = KS.GetFromRequest().GroupId;
             
@@ -329,7 +330,6 @@ namespace WebAPI.Controllers
                 var allowNullDynamicData = device.NullableProperties != null && device.NullableProperties.Contains("dynamicdata");
 
                 // call client
-                device.Udid = udid;
                 return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
             }
             catch (ClientException ex)
