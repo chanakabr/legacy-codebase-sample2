@@ -16,6 +16,7 @@ using Core.Api.Managers;
 using Core.Catalog.Response;
 using Core.Pricing;
 using Core.Users;
+using Core.Users.Cache;
 using DAL;
 using KLogMonitor;
 using System;
@@ -937,9 +938,8 @@ namespace Core.ConditionalAccess
             };
         }
 
-        public static PlaybackContextResponse GetPlaybackManifest(int groupId, string assetId, eAssetTypes assetType,
-                                                                List<long> fileIds, StreamerType? streamerType, string mediaProtocol, PlayContextType context,
-                                                                string sourceType = null)
+        public static PlaybackContextResponse GetPlaybackManifest(int groupId, string assetId, eAssetTypes assetType, List<long> fileIds,
+                StreamerType? streamerType, string mediaProtocol, PlayContextType context, string sourceType = null, string userId = null, string udid = null)
         {
             PlaybackContextResponse response = new PlaybackContextResponse()
             {
@@ -954,7 +954,14 @@ namespace Core.ConditionalAccess
                 bool isExternalRecordingIgnoreMode = assetType == eAssetTypes.NPVR && TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EXTERNAL_RECORDINGS);
                 if (assetType != eAssetTypes.MEDIA)
                 {
-                    response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, string.Empty, null, string.Empty, out mediaId, out recording, out program);
+                    Domain domain = null;
+                    if (int.TryParse(userId, out int user))
+                    {
+                        long domainId = UsersCache.Instance().GetDomainIdByUser(int.Parse(userId), groupId);
+                        domain = DomainsCache.Instance().GetDomain((int)domainId, groupId);
+                    }
+
+                    response.Status = Utils.GetMediaIdForAsset(groupId, assetId, assetType, userId, domain, udid, out mediaId, out recording, out program);
                 }
                 else
                 {

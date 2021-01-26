@@ -17451,7 +17451,7 @@ namespace Core.ConditionalAccess
 
             if (isPlaybackManifest)
             {
-                return PlaybackManager.GetPlaybackManifest(m_nGroupID, assetId, assetType, fileIds, streamerType, mediaProtocol, context, sourceType);
+                return PlaybackManager.GetPlaybackManifest(m_nGroupID, assetId, assetType, fileIds, streamerType, mediaProtocol, context, sourceType, userId, udid);
             }
             else
             {
