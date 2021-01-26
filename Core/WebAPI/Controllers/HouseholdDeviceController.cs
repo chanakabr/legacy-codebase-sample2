@@ -114,7 +114,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NoUsersInDomain)]
         static public KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
         {
-            device.Validate();
+            device.Validate(true);
 
             int groupId = KS.GetFromRequest().GroupId;
             int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
@@ -305,11 +305,10 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotExists)]
         static public KalturaHouseholdDevice Update(string udid, KalturaHouseholdDevice device)
         {
-            device.Validate();
+            device.Validate(false);
 
             int groupId = KS.GetFromRequest().GroupId;
-            var dynamicData = Utils.Utils.ConvertSerializeableDictionary(device.DynamicData, true);
-
+            
             try
             {
                 string userId = KS.GetFromRequest().UserId;

@@ -187,9 +187,13 @@ namespace WebAPI.Models.Domains
         private const int MaxKeyLength = 128;
         private const int MaxValueLength = 256;
 
-        public static void Validate(this KalturaHouseholdDevice device)
+        public static void Validate(this KalturaHouseholdDevice device, bool isUdidRequired)
         {
-            if (device.Udid.IsNullOrEmptyOrWhiteSpace()) throw new BadRequestException(ARGUMENT_CANNOT_BE_EMPTY, "udid");
+            if (isUdidRequired && device.Udid.IsNullOrEmptyOrWhiteSpace())
+            {
+                throw new BadRequestException(ARGUMENT_CANNOT_BE_EMPTY, "udid");
+            }
+
             device.DynamicData.Validate(MaxKeyValues, MaxKeyLength, MaxValueLength);
         }
     }
