@@ -207,11 +207,11 @@ namespace DAL
             return null;
         }
 
-        public static int GetDeviceId(string deviceUDID, int groupId, int? deviceBrandId = null, int? deviceFamilyId = null, int? status = null)
+        public static int GetDeviceId(string deviceUdid, int groupId, int? deviceBrandId = null, int? deviceFamilyId = null, int? status = null)
         {
             var sp = new StoredProcedure("Get_DeviceID");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
-            sp.AddParameter("@DeviceUDID", deviceUDID);
+            sp.AddParameter("@DeviceUDID", deviceUdid);
             sp.AddParameter("@GroupID", groupId);
             sp.AddParameter("@DeviceBrandID", deviceBrandId);
             sp.AddParameter("@DeviceFamilyID", deviceFamilyId);
