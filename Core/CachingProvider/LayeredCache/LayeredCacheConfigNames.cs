@@ -130,6 +130,7 @@
         public const string GET_DYNAMIC_LIST_MAP = "Get_DynamicListMap";
         public const string GET_KS_VALIDATION = "Get_KsValidation";
         public const string GET_OPC_PARTNER_CONFIG = "GetOpcPartnerConfig";
+        public const string GET_SUB_GROUPS_CACHE_CONFIG = "GetSubGroupsCacheConfig";
 
         #endregion
 

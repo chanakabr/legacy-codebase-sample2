@@ -37,6 +37,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using Core.GroupManagers;
 using TVinciShared;
 using Tvinic.GoogleAPI;
 
@@ -7793,6 +7794,8 @@ namespace Core.ConditionalAccess
                                                                         { "assetType", assetType } }, groupId, LayeredCacheConfigNames.MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME,
                                                                         new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
 
+            allMediafiles = ValidateMediaFilesUponSecurity(allMediafiles, groupId);
+            
             // filter
             if (allMediafiles != null && allMediafiles.Count > 0)
             {
@@ -7816,6 +7819,18 @@ namespace Core.ConditionalAccess
             }
 
             return files;
+        }
+
+        private static List<MediaFile> ValidateMediaFilesUponSecurity(List<MediaFile> allMediafiles, int groupId)
+        {
+            if (!GroupSettingsManager.IsOpc(groupId))
+            {
+                // If group is not OPC, we should check child subgroups for permissions as well.
+                var groupsInfos = SubgroupManager.Instance.GetSubGroups(groupId);
+                return allMediafiles.Where(m => groupsInfos.Any(gi => gi.Id == m.GroupId) || m.GroupId == groupId).ToList();
+            }
+
+            return allMediafiles.Where(m => m.GroupId == groupId).ToList();
         }
 
         internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain, string udid,

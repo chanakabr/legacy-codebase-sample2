@@ -49,6 +49,8 @@ namespace ApiObjects
         public string Opl { get; set; }
 
         public BusinessModuleDetails BusinessModuleDetails { get; set; }
+
+        public long GroupId { get; set; }
     }
 
     public class BusinessModuleDetails

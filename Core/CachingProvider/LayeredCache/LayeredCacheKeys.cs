@@ -776,6 +776,11 @@ namespace CachingProvider.LayeredCache
             return $"ks_validation_result{ks}";
         }
 
+        public static string GetSubGroupsKey(int groupId)
+        {
+            return $"GetSubGroups_group_{groupId}";
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
