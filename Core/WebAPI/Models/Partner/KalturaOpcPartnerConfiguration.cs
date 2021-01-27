@@ -26,7 +26,7 @@ namespace WebAPI.Models.Partner
             return ClientsManager.ApiClient().UpdateOpcPartnerConfiguration(groupId, this);
         }
 
-        internal override void ValidateForUpdate()
+        public override void ValidateForUpdate()
         {
             base.ValidateForUpdate();
 

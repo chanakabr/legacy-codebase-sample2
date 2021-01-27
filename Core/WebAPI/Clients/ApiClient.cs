@@ -4567,7 +4567,7 @@ namespace WebAPI.Clients
             var result = new KalturaPartnerConfigurationListResponse();
 
             Func<GenericListResponse<CatalogPartnerConfig>> getPartnerConfigListFunc = () =>
-                PartnerConfigurationManager.GetCatalogConfigList(groupId);
+                CatalogPartnerConfigManager.Instance.GetCatalogConfigList(groupId);
 
             KalturaGenericListResponse<KalturaCatalogPartnerConfig> response =
                 ClientUtils.GetResponseListFromWS<KalturaCatalogPartnerConfig, CatalogPartnerConfig>(getPartnerConfigListFunc);

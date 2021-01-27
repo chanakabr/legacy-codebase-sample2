@@ -712,7 +712,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetCategoryItemKey(int groupId, long id)
         {
-            return $"categoryItem_{groupId}_{id}";
+            return $"categoryItem_V1_{groupId}_{id}";
         }
 
         public static string GetPlaybackPartnerConfigKey(int groupId)
@@ -770,6 +770,20 @@ namespace CachingProvider.LayeredCache
             return $"ExternalChannel_groupId_{groupId}_Id_{channelId}";
         }
 
+        public static string GetCategoryVersionKey(int groupId, long categoryVersionId)
+        {
+            return $"category_version_group_{groupId}_id_{categoryVersionId}";
+        }
+
+        public static string GetCategoryVersionDefaultsKey(int groupId)
+        {
+            return $"category_version_defaults_{groupId}";
+        }
+
+        public static string GetCategoryVersionsOfTreeKey(int groupId, long treeId)
+        {
+            return $"category_version_group_{groupId}_tree_{treeId}";
+        }
 
         public static string GetKsValidationResultKey(string ks)
         {
@@ -1418,6 +1432,21 @@ namespace CachingProvider.LayeredCache
             }
 
             return result;
+        }
+
+        public static string GetCategoryVersionInvalidationKey(int groupId, long categoryId)
+        {
+            return $"invalidationKey_{GetCategoryVersionKey(groupId, categoryId)}";
+        }
+
+        public static string GetCategoryVersionDefaultsInvalidationKey(int groupId)
+        {
+            return $"invalidationKey_{GetCategoryVersionDefaultsKey(groupId)}";
+        }
+
+        public static string GetCategoryVersionsOfTreeInvalidationKey(int groupId, long treeId)
+        {
+            return $"invalidationKey_{GetCategoryVersionsOfTreeKey(groupId, treeId)}";
         }
 
         #endregion

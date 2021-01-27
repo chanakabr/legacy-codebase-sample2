@@ -3,6 +3,7 @@
     public class CatalogPartnerConfig
     {
         public bool? SingleMultilingualMode { get; set; }
+        public CategoryManagement CategoryManagement { get; set; }
 
         public bool SetUnchangedProperties(CatalogPartnerConfig oldConfig)
         {
@@ -14,6 +15,15 @@
             else
             {
                 this.SingleMultilingualMode = oldConfig.SingleMultilingualMode;
+            }
+
+            if (this.CategoryManagement != null)
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                this.CategoryManagement = oldConfig.CategoryManagement;
             }
 
             return needToUpdate;

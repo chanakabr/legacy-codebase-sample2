@@ -65,7 +65,7 @@ namespace Core.Catalog.Request
 
                 if (!isReportingMode)
                 {
-                    deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
+                    deviceFamilyId = Api.api.Instance.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
                 }
             }
 

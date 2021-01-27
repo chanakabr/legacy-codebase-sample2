@@ -38,7 +38,7 @@ namespace WebAPI.Models.Partner
             return true;
         }
 
-        internal override void ValidateForUpdate()
+        public override void ValidateForUpdate()
         {
             if (UnifiedBillingCycles != null && UnifiedBillingCycles.Count > 0)
             {

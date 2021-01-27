@@ -6726,7 +6726,7 @@ namespace Core.ConditionalAccess
             try
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetEpgFieldTypeEntitysForOpcAccount", groupId);
                     return epgFieldMappings;
@@ -6899,7 +6899,7 @@ namespace Core.ConditionalAccess
             if (CatalogManager.DoesGroupUsesTemplates(groupId))
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetSeriesMetaTagsFieldsNamesForSearch", groupId);
                     return false;
@@ -7017,7 +7017,7 @@ namespace Core.ConditionalAccess
             try
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetEpgRelatedToSeriesRecordingForOpcAccount", groupId);
                     return epgMatch;

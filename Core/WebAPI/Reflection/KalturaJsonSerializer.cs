@@ -15795,6 +15795,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
             }
+            if(VersionId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("versionId")))
+            {
+                ret.Add("versionId", "\"versionId\": " + VersionId);
+            }
             if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
             {
                 ret.Add("virtualAssetId", "\"virtualAssetId\": " + VirtualAssetId);
@@ -15858,6 +15862,10 @@ namespace WebAPI.Models.Catalog
             if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
                 ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
+            }
+            if(VersionId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("versionId")))
+            {
+                ret.Add("versionId", "<versionId>" + VersionId + "</versionId>");
             }
             if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
             {
@@ -16117,6 +16125,14 @@ namespace WebAPI.Models.Catalog
                 propertyValue = "[" + String.Join(", ", UnifiedChannels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("unifiedChannels", "\"unifiedChannels\": " + propertyValue);
             }
+            if(VersionId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("versionId")))
+            {
+                ret.Add("versionId", "\"versionId\": " + VersionId);
+            }
+            if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
+            {
+                ret.Add("virtualAssetId", "\"virtualAssetId\": " + VirtualAssetId);
+            }
             return ret;
         }
         
@@ -16175,6 +16191,238 @@ namespace WebAPI.Models.Catalog
                 propertyValue = UnifiedChannels.Count > 0 ? "<item>" + String.Join("</item><item>", UnifiedChannels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("unifiedChannels", "<unifiedChannels>" + propertyValue + "</unifiedChannels>");
             }
+            if(VersionId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("versionId")))
+            {
+                ret.Add("versionId", "<versionId>" + VersionId + "</versionId>");
+            }
+            if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
+            {
+                ret.Add("virtualAssetId", "<virtualAssetId>" + VirtualAssetId + "</virtualAssetId>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCategoryVersion
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("baseVersionId")))
+            {
+                ret.Add("baseVersionId", "\"baseVersionId\": " + BaseVersionId);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("categoryRootId")))
+            {
+                ret.Add("categoryRootId", "\"categoryRootId\": " + CategoryRootId);
+            }
+            if(Comment != null && (retrievedProperties == null || retrievedProperties.Contains("comment")))
+            {
+                ret.Add("comment", "\"comment\": " + "\"" + EscapeJson(Comment) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "\"createDate\": " + CreateDate);
+            }
+            if(DefaultDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("defaultDate")))
+            {
+                ret.Add("defaultDate", "\"defaultDate\": " + DefaultDate);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + Id);
+            }
+            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("state")))
+            {
+                ret.Add("state", "\"state\": " + "\"" + Enum.GetName(typeof(KalturaCategoryVersionState), State) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("treeId")))
+            {
+                ret.Add("treeId", "\"treeId\": " + TreeId);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("updaterId")))
+            {
+                ret.Add("updaterId", "\"updaterId\": " + UpdaterId);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("baseVersionId")))
+            {
+                ret.Add("baseVersionId", "<baseVersionId>" + BaseVersionId + "</baseVersionId>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("categoryRootId")))
+            {
+                ret.Add("categoryRootId", "<categoryRootId>" + CategoryRootId + "</categoryRootId>");
+            }
+            if(Comment != null && (retrievedProperties == null || retrievedProperties.Contains("comment")))
+            {
+                ret.Add("comment", "<comment>" + EscapeXml(Comment) + "</comment>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            }
+            if(DefaultDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("defaultDate")))
+            {
+                ret.Add("defaultDate", "<defaultDate>" + DefaultDate + "</defaultDate>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + Id + "</id>");
+            }
+            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("state")))
+            {
+                ret.Add("state", "<state>" + "" + Enum.GetName(typeof(KalturaCategoryVersionState), State) + "" + "</state>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("treeId")))
+            {
+                ret.Add("treeId", "<treeId>" + TreeId + "</treeId>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("updaterId")))
+            {
+                ret.Add("updaterId", "<updaterId>" + UpdaterId + "</updaterId>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCategoryVersionFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
+    public partial class KalturaCategoryVersionFilterByTree
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(StateEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("stateEqual")))
+            {
+                ret.Add("stateEqual", "\"stateEqual\": " + "\"" + Enum.GetName(typeof(KalturaCategoryVersionState), StateEqual) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("treeIdEqual")))
+            {
+                ret.Add("treeIdEqual", "\"treeIdEqual\": " + TreeIdEqual);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(StateEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("stateEqual")))
+            {
+                ret.Add("stateEqual", "<stateEqual>" + "" + Enum.GetName(typeof(KalturaCategoryVersionState), StateEqual) + "" + "</stateEqual>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("treeIdEqual")))
+            {
+                ret.Add("treeIdEqual", "<treeIdEqual>" + TreeIdEqual + "</treeIdEqual>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCategoryVersionListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
             return ret;
         }
     }
@@ -36171,6 +36419,11 @@ namespace WebAPI.Models.Partner
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(CategoryManagement != null && (retrievedProperties == null || retrievedProperties.Contains("categoryManagement")))
+            {
+                propertyValue = CategoryManagement.ToJson(currentVersion, omitObsolete);
+                ret.Add("categoryManagement", "\"categoryManagement\": " + propertyValue);
+            }
             if(SingleMultilingualMode.HasValue && (retrievedProperties == null || retrievedProperties.Contains("singleMultilingualMode")))
             {
                 ret.Add("singleMultilingualMode", "\"singleMultilingualMode\": " + SingleMultilingualMode.ToString().ToLower());
@@ -36189,9 +36442,62 @@ namespace WebAPI.Models.Partner
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(CategoryManagement != null && (retrievedProperties == null || retrievedProperties.Contains("categoryManagement")))
+            {
+                propertyValue = CategoryManagement.ToXml(currentVersion, omitObsolete);
+                ret.Add("categoryManagement", "<categoryManagement>" + propertyValue + "</categoryManagement>");
+            }
             if(SingleMultilingualMode.HasValue && (retrievedProperties == null || retrievedProperties.Contains("singleMultilingualMode")))
             {
                 ret.Add("singleMultilingualMode", "<singleMultilingualMode>" + SingleMultilingualMode.ToString().ToLower() + "</singleMultilingualMode>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCategoryManagement
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(DefaultCategoryTreeId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("defaultTreeId")))
+            {
+                ret.Add("defaultTreeId", "\"defaultTreeId\": " + DefaultCategoryTreeId);
+            }
+            if(DeviceFamilyToCategoryTree != null && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyToCategoryTree")))
+            {
+                propertyValue = "{" + String.Join(", ", DeviceFamilyToCategoryTree.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("deviceFamilyToCategoryTree", "\"deviceFamilyToCategoryTree\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(DefaultCategoryTreeId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("defaultTreeId")))
+            {
+                ret.Add("defaultTreeId", "<defaultTreeId>" + DefaultCategoryTreeId + "</defaultTreeId>");
+            }
+            if(DeviceFamilyToCategoryTree != null && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyToCategoryTree")))
+            {
+                propertyValue = DeviceFamilyToCategoryTree.Count > 0 ? "<item>" + String.Join("</item><item>", DeviceFamilyToCategoryTree.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("deviceFamilyToCategoryTree", "<deviceFamilyToCategoryTree>" + propertyValue + "</deviceFamilyToCategoryTree>");
             }
             return ret;
         }

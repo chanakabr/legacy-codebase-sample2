@@ -1656,7 +1656,7 @@ namespace Core.Api
 
         public static DeviceFamilyResponse GetDeviceFamilyList(int groupId)
         {
-            return Core.Api.api.GetDeviceFamilyList();
+            return api.Instance.GetDeviceFamilyList();
         }
 
         public static DeviceBrandResponse GetDeviceBrandList(int groupId)
@@ -2036,7 +2036,7 @@ namespace Core.Api
                             UserId = userId
                         };
 
-                        var res = api.AddVirtualAsset(groupId, virtualAssetInfo);
+                        var res = api.Instance.AddVirtualAsset(groupId, virtualAssetInfo);
 
                         if (res.Status == VirtualAssetInfoStatus.Error)
                         {
@@ -2072,7 +2072,7 @@ namespace Core.Api
             try
             {
                 var assetSearchDefinition = new AssetSearchDefinition() { UserId = userId };
-                var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>() { segmentationType.Id });
+                var filter = api.Instance.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>() { segmentationType.Id });
                 if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                 {
                     response.SetStatus(filter.Status);
@@ -2095,7 +2095,7 @@ namespace Core.Api
                     UserId = userId
                 };
 
-                var virtualAssetInfoResponse = api.UpdateVirtualAsset(groupId, virtualAssetInfo);
+                var virtualAssetInfoResponse = api.Instance.UpdateVirtualAsset(groupId, virtualAssetInfo);
 
                 if (virtualAssetInfoResponse.Status == VirtualAssetInfoStatus.Error)
                 {
@@ -2141,7 +2141,7 @@ namespace Core.Api
                 if (!DBOnly)
                 {
                     var assetSearchDefinition = new AssetSearchDefinition() { UserId = userId };
-                    var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>() { id });
+                    var filter = api.Instance.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>() { id });
                     if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                     {
                         return filter.Status;
@@ -2176,7 +2176,7 @@ namespace Core.Api
                         UserId = userId
                     };
 
-                    var response = api.DeleteVirtualAsset(groupId, virtualAssetInfo);
+                    var response = api.Instance.DeleteVirtualAsset(groupId, virtualAssetInfo);
                     if (response.Status == VirtualAssetInfoStatus.Error)
                     {
                         log.Error($"Error while delete segment virtual asset id {virtualAssetInfo.ToString()}");
@@ -2212,7 +2212,7 @@ namespace Core.Api
 
             try
             {
-                var filter = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, ids, pageIndex, pageSize);
+                var filter = api.Instance.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, ids, pageIndex, pageSize);
                 if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                 {
                     result.SetStatus(filter.Status);
@@ -2266,7 +2266,7 @@ namespace Core.Api
                     var segmentTypeIds = SegmentBaseValue.GetSegmentationTypeOfSegmentIds(userSegments.Select(x => x.SegmentId).ToList());
                     if (segmentTypeIds?.Count > 0)
                     {
-                        var filtered = api.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>(segmentTypeIds.Values.ToList()));
+                        var filtered = api.Instance.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>(segmentTypeIds.Values.ToList()));
                         if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                         {
                             result.SetStatus(filtered.Status);
@@ -2338,7 +2338,7 @@ namespace Core.Api
                         return response;
                     }
 
-                    var filter = api.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition() { UserId = long.Parse(userSegment.UserId) },
+                    var filter = api.Instance.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition() { UserId = long.Parse(userSegment.UserId) },
                         ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { segmentationTypeId });
 
                     if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
@@ -2385,7 +2385,7 @@ namespace Core.Api
                     return new Status(eResponseStatus.ObjectNotExist, "Segment not exist");
                 }
 
-                var filter = api.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition() { UserId = long.Parse(userId) },
+                var filter = api.Instance.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition() { UserId = long.Parse(userId) },
                     ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { segmentationTypeId });
 
                 if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
@@ -2618,12 +2618,12 @@ namespace Core.Api
 
         public static Status UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
         {
-            return PartnerConfigurationManager.UpdateObjectVirtualAssetPartnerConfiguration(groupId, partnerConfigToUpdate);
+            return VirtualAssetPartnerConfigManager.Instance.UpdateObjectVirtualAssetPartnerConfiguration(groupId, partnerConfigToUpdate);
         }
 
         public static GenericListResponse<ObjectVirtualAssetPartnerConfig> GetObjectVirtualAssetPartnerConfiguration(int groupId)
         {
-            return PartnerConfigurationManager.GetObjectVirtualAssetPartnerConfiguration(groupId);
+            return VirtualAssetPartnerConfigManager.Instance.GetObjectVirtualAssetPartnerConfiguration(groupId);
         }
 
         public static List<long> GetUserAndHouseholdSegmentIds(int groupId, string userId, long householdId = -1)

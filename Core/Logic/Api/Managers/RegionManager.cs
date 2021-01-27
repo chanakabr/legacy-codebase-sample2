@@ -336,7 +336,7 @@ namespace ApiLogic.Api.Managers
 
         public static IReadOnlyDictionary<long, List<int>> GetLinearMediaToRegionsMapWhenEnabled(int groupId)
         {
-            var linearChannelsRegionsMapping = CatalogManager.IsRegionalizationEnabled(groupId)
+            var linearChannelsRegionsMapping = CatalogManager.Instance.IsRegionalizationEnabled(groupId)
                 ? GetLinearMediaRegions(groupId)
                 : new Dictionary<long, List<int>>();
 

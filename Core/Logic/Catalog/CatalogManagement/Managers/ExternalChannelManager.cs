@@ -8,17 +8,30 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
+using System.Threading;
 using Tvinci.Core.DAL;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public class ExternalChannelManager
+    public interface IExternalChannelManager
+    {
+        GenericResponse<ExternalChannel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId);
+    }
+
+    public class ExternalChannelManager : IExternalChannelManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        internal static GenericResponse<ExternalChannel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
+        private static readonly Lazy<ExternalChannelManager> lazy = new Lazy<ExternalChannelManager>(() => new ExternalChannelManager(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static ExternalChannelManager Instance { get { return lazy.Value; } }
+
+        private ExternalChannelManager()
+        {
+        }
+
+        public GenericResponse<ExternalChannel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
         {
             GenericResponse<ExternalChannel> response = new GenericResponse<ExternalChannel>();
             List<ExternalChannel> channels = GetChannels(groupId, new List<int>() { channelId }, isAllowedToViewInactiveAssets);
@@ -43,7 +56,6 @@ namespace Core.Catalog.CatalogManagement
             }
             return response;
         }
-
 
         private static List<ExternalChannel> GetChannels(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets)
         {

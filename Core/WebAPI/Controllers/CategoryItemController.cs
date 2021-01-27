@@ -1,12 +1,7 @@
 ﻿using ApiLogic.Catalog;
 using ApiObjects.Response;
-using Core.Catalog.Handlers;
-using WebAPI.ClientManagers.Client;
-using WebAPI.Exceptions;
-using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Catalog;
-using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -19,7 +14,8 @@ namespace WebAPI.Controllers
                     eResponseStatus.ChannelDoesNotExist,
                     eResponseStatus.ChildCategoryNotExist,
                     eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory,
-                    eResponseStatus.CategoryTypeNotExist
+                    eResponseStatus.CategoryTypeNotExist,
+                    eResponseStatus.CategoryIsAlreadyAssociatedToVersion
         }
      )]
 
@@ -34,14 +30,19 @@ namespace WebAPI.Controllers
             eResponseStatus.ParentIdShouldNotPointToItself,
             eResponseStatus.ChildCategoryCannotBeTheCategoryItself,
             eResponseStatus.ChildCategoryAlreadyBelongsToAnotherCategory,
-            eResponseStatus.InvalidValue}
+            eResponseStatus.InvalidValue,
+            eResponseStatus.CategoryVersionIsNotDraft,
+            eResponseStatus.CategoryIsAlreadyAssociatedToVersion
+        }
     )]
 
     [DeleteAction(Summary = "Remove category",
         IdDescription = "Category identifier",
         ClientThrows = new eResponseStatus[] { 
             eResponseStatus.CategoryNotExist,
-            eResponseStatus.ImageDoesNotExist}
+            eResponseStatus.ImageDoesNotExist,
+            eResponseStatus.CategoryVersionIsNotDraft,
+            eResponseStatus.CategoryItemIsRoot }
     )]
 
     [ListAction(Summary = "Gets all categoryItem items", IsFilterOptional = true, IsPagerOptional = true)]

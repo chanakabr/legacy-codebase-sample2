@@ -19,7 +19,19 @@ using System.Threading;
 
 namespace DAL
 {
-    public class ApiDAL
+    public interface IVirtualAssetPartnerConfigRepository
+    {
+        ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfiguration(int groupId, out eResultStatus resultStatus);
+        bool UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate);
+    }
+
+    public interface ICatalogPartnerRepository
+    {
+        bool SaveCatalogPartnerConfig(int groupId, CatalogPartnerConfig partnerConfig);
+        CatalogPartnerConfig GetCatalogPartnerConfig(int groupId);
+    }
+
+    public class ApiDAL : ICatalogPartnerRepository, IVirtualAssetPartnerConfigRepository
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
@@ -29,6 +41,14 @@ namespace DAL
         private const int NUM_OF_TRIES = 3;
         private const int SLEEP_BETWEEN_RETRIES_MILLI = 1000;
         private const uint BULK_UPLOAD_CB_TTL = 5184000; // 60 DAYS after all results in bulk upload are in status Success (in sec)
+
+        private static readonly Lazy<ApiDAL> lazy = new Lazy<ApiDAL>(() => new ApiDAL(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static ApiDAL Instance { get { return lazy.Value; } }
+
+        private ApiDAL()
+        {
+        }
 
         public static DataTable Get_GeoBlockPerMedia(int nGroupID, int nMediaID)
         {
@@ -6183,7 +6203,7 @@ namespace DAL
             return false;
         }
 
-        public static bool UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
+        public bool UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
         {
             if (partnerConfigToUpdate != null)
             {
@@ -6199,13 +6219,13 @@ namespace DAL
             return $"object_virtual_asset_partner_config_{groupId}";
         }
 
-        public static ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfiguration(int groupId, out eResultStatus resultStatus)
+        public ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfiguration(int groupId, out eResultStatus resultStatus)
         {
             string key = GetObjectVirtualAssetPartnerConfigKey(groupId);
             return UtilsDal.GetObjectFromCB<ObjectVirtualAssetPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, out resultStatus);
         }
 
-        public static ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfiguration(int groupId)
+        public ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfiguration(int groupId)
         {
             eResultStatus resultStatus;
             return GetObjectVirtualAssetPartnerConfiguration(groupId, out resultStatus);
@@ -6304,13 +6324,13 @@ namespace DAL
             return $"catalog_partner_config_{groupId}";
         }
 
-        public static CatalogPartnerConfig GetCatalogPartnerConfig(int groupId)
+        public CatalogPartnerConfig GetCatalogPartnerConfig(int groupId)
         {
             string key = GetCatalogPartnerConfigKey(groupId);
             return UtilsDal.GetObjectFromCB<CatalogPartnerConfig>(eCouchbaseBucket.OTT_APPS, key);
         }
 
-        public static bool SaveCatalogPartnerConfig(int groupId, CatalogPartnerConfig partnerConfig)
+        public bool SaveCatalogPartnerConfig(int groupId, CatalogPartnerConfig partnerConfig)
         {
             string key = GetCatalogPartnerConfigKey(groupId);
             return UtilsDal.SaveObjectInCB<CatalogPartnerConfig>(eCouchbaseBucket.OTT_APPS, key, partnerConfig);

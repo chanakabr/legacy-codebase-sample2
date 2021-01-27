@@ -437,7 +437,7 @@ namespace IngestHandler
         {
             try
             {
-                CatalogManager.TryGetCatalogGroupCacheFromCache(_eventData.GroupId, out var catalogGroupCache);
+                CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(_eventData.GroupId, out var catalogGroupCache);
                 var groupManager = new GroupManager();
                 groupManager.RemoveGroup(_eventData.GroupId);
                 var group = groupManager.GetGroup(_eventData.GroupId);

@@ -66,7 +66,7 @@ namespace ElasticSearchHandler.IndexBuilders
             List<LanguageObj> languages = new List<LanguageObj>();
             if (doesGroupUsesTemplates)
             {
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling PopulateEpgIndex", groupId);
                     return;

@@ -1259,5 +1259,16 @@ namespace ODBCWrapper
             DateTime origin = GetTruncDateTimeUtc();
             return origin.AddSeconds(timestamp);
         }
+
+        public static long? GetDateAsUnixTimestampSafeVal(DataRow dr, string columnName)
+        {
+            var datetime = Utils.ExtractNullableDateTime(dr, columnName);
+            if (datetime.HasValue)
+            {
+                return DateTimeToUtcUnixTimestampSeconds(datetime.Value);
+            }
+
+            return null;
+        }
     }
 }

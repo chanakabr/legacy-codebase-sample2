@@ -1,6 +1,5 @@
 ﻿using ApiLogic.Catalog;
 using ApiObjects;
-using ApiObjects.Base;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
@@ -8,7 +7,6 @@ using ApiObjects.SearchObjects;
 using AutoMapper;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
-using Core.Catalog.Handlers;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using KLogMonitor;
@@ -67,11 +65,11 @@ namespace WebAPI.Clients
             {
                 if (metaId > 0)
                 {
-                    return Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByTopicId(groupId, metaId, isProtected);
+                    return Core.Catalog.CatalogManagement.CatalogManager.Instance.GetAssetStructsByTopicId(groupId, metaId, isProtected);
                 }
                 else
                 {
-                    return Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructsByIds(groupId, ids, isProtected);
+                    return Core.Catalog.CatalogManagement.CatalogManager.Instance.GetAssetStructsByIds(groupId, ids, isProtected);
                 }
             };
 
@@ -120,7 +118,7 @@ namespace WebAPI.Clients
         public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
             Func<AssetStruct, GenericResponse<AssetStruct>> addAssetStructFunc = (AssetStruct assetStructToAdd) =>
-                Core.Catalog.CatalogManagement.CatalogManager.AddAssetStruct(groupId, assetStructToAdd, userId);
+                Core.Catalog.CatalogManagement.CatalogManager.Instance.AddAssetStruct(groupId, assetStructToAdd, userId);
 
             KalturaAssetStruct result =
                 ClientUtils.GetResponseFromWS<KalturaAssetStruct, AssetStruct>(assetStrcut, addAssetStructFunc);
@@ -132,7 +130,7 @@ namespace WebAPI.Clients
         {
             bool shouldUpdateMetaIds = assetStrcut.MetaIds != null;
             Func<AssetStruct, GenericResponse<AssetStruct>> updateAssetStructFunc = (AssetStruct assetStructToUpdate) =>
-                Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetStruct(groupId, id, assetStructToUpdate, shouldUpdateMetaIds, userId);
+                Core.Catalog.CatalogManagement.CatalogManager.Instance.UpdateAssetStruct(groupId, id, assetStructToUpdate, shouldUpdateMetaIds, userId);
 
             KalturaAssetStruct result =
                 ClientUtils.GetResponseFromWS<KalturaAssetStruct, AssetStruct>(assetStrcut, updateAssetStructFunc);
@@ -142,14 +140,14 @@ namespace WebAPI.Clients
 
         public bool DeleteAssetStruct(int groupId, long id, long userId)
         {
-            Func<Status> deleteAssetStructFunc = () => Core.Catalog.CatalogManagement.CatalogManager.DeleteAssetStruct(groupId, id, userId);
+            Func<Status> deleteAssetStructFunc = () => Core.Catalog.CatalogManagement.CatalogManager.Instance.DeleteAssetStruct(groupId, id, userId);
             return ClientUtils.GetResponseStatusFromWS(deleteAssetStructFunc);
         }
 
         public KalturaAssetStruct GetAssetStruct(int groupId, long id)
         {
             Func<GenericResponse<AssetStruct>> getAssetStructFunc = () =>
-               Core.Catalog.CatalogManagement.CatalogManager.GetAssetStruct(groupId, id);
+               Core.Catalog.CatalogManagement.CatalogManager.Instance.GetAssetStruct(groupId, id);
 
             KalturaAssetStruct response =
                 ClientUtils.GetResponseFromWS<KalturaAssetStruct, AssetStruct>(getAssetStructFunc);
@@ -172,11 +170,11 @@ namespace WebAPI.Clients
 
                 if (assetStructId.HasValue)
                 {
-                    return Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByAssetStructId(groupId, assetStructId.Value, metaType);
+                    return Core.Catalog.CatalogManagement.CatalogManager.Instance.GetTopicsByAssetStructId(groupId, assetStructId.Value, metaType);
                 }
                 else
                 {
-                    return Core.Catalog.CatalogManagement.CatalogManager.GetTopicsByIds(groupId, ids, metaType);
+                    return Core.Catalog.CatalogManagement.CatalogManager.Instance.GetTopicsByIds(groupId, ids, metaType);
                 }
             };
 
@@ -227,7 +225,7 @@ namespace WebAPI.Clients
         public KalturaMeta AddMeta(int groupId, KalturaMeta meta, long userId)
         {
             Func<Topic, GenericResponse<Topic>> addTopicFunc = (Topic topicToAdd) =>
-                Core.Catalog.CatalogManagement.CatalogManager.AddTopic(groupId, topicToAdd, userId);
+                Core.Catalog.CatalogManagement.CatalogManager.Instance.AddTopic(groupId, topicToAdd, userId);
 
             KalturaMeta result =
                 ClientUtils.GetResponseFromWS<KalturaMeta, Topic>(meta, addTopicFunc);
@@ -238,7 +236,7 @@ namespace WebAPI.Clients
         public KalturaMeta UpdateMeta(int groupId, long id, KalturaMeta meta, long userId)
         {
             Func<Topic, GenericResponse<Topic>> updateTopicFunc = (Topic topicToUpdate) =>
-                Core.Catalog.CatalogManagement.CatalogManager.UpdateTopic(groupId, id, topicToUpdate, userId);
+                Core.Catalog.CatalogManagement.CatalogManager.Instance.UpdateTopic(groupId, id, topicToUpdate, userId);
 
             KalturaMeta result =
                 ClientUtils.GetResponseFromWS<KalturaMeta, Topic>(meta, updateTopicFunc);
@@ -248,7 +246,7 @@ namespace WebAPI.Clients
 
         public bool DeleteMeta(int groupId, long id, long userId)
         {
-            Func<Status> deleteTopicFunc = () => Core.Catalog.CatalogManagement.CatalogManager.DeleteTopic(groupId, id, userId);
+            Func<Status> deleteTopicFunc = () => Core.Catalog.CatalogManagement.CatalogManager.Instance.DeleteTopic(groupId, id, userId);
             return ClientUtils.GetResponseStatusFromWS(deleteTopicFunc);
         }
 
@@ -497,7 +495,7 @@ namespace WebAPI.Clients
         public KalturaAssetStructMeta UpdateAssetStructMeta(long assetStructId, long MetaId, KalturaAssetStructMeta assetStructMeta, int groupId, long userId)
         {
             Func<AssetStructMeta, GenericResponse<AssetStructMeta>> updateAssetStructMetaFunc = (AssetStructMeta assetStructMetaToUpdate) =>
-                Core.Catalog.CatalogManagement.CatalogManager.UpdateAssetStructMeta
+                Core.Catalog.CatalogManagement.CatalogManager.Instance.UpdateAssetStructMeta
                         (assetStructId, MetaId, assetStructMetaToUpdate, groupId, userId);
 
             KalturaAssetStructMeta result =
@@ -511,7 +509,7 @@ namespace WebAPI.Clients
             KalturaAssetStructMetaListResponse result = new KalturaAssetStructMetaListResponse() { TotalCount = 0 };
 
             Func<GenericListResponse<AssetStructMeta>> getAssetStructMetaListFunc = () =>
-               Core.Catalog.CatalogManagement.CatalogManager.GetAssetStructMetaList(groupId, assetStructId, metaId);
+               Core.Catalog.CatalogManagement.CatalogManager.Instance.GetAssetStructMetaList(groupId, assetStructId, metaId);
 
             KalturaGenericListResponse<KalturaAssetStructMeta> response =
                 ClientUtils.GetResponseListFromWS<KalturaAssetStructMeta, AssetStructMeta>(getAssetStructMetaListFunc);
@@ -3215,7 +3213,7 @@ namespace WebAPI.Clients
 
             Func<GenericListResponse<ApiObjects.SearchObjects.TagValue>> searchTagsFunc = delegate ()
             {
-                return Core.Catalog.CatalogManagement.CatalogManager.GetTags(groupId, idIn, pageIndex, pageSize);
+                return Core.Catalog.CatalogManagement.CatalogManager.Instance.GetTags(groupId, idIn, pageIndex, pageSize);
             };
 
             KalturaGenericListResponse<KalturaTag> response =
@@ -3230,7 +3228,7 @@ namespace WebAPI.Clients
         internal KalturaTag AddTag(int groupId, KalturaTag tag, long userId)
         {
             Func<TagValue, GenericResponse<TagValue>> addTagFunc = (TagValue requestTag) =>
-                Core.Catalog.CatalogManagement.CatalogManager.AddTag(groupId, requestTag, userId);
+                Core.Catalog.CatalogManagement.CatalogManager.Instance.AddTag(groupId, requestTag, userId);
 
             KalturaTag result =
                 ClientUtils.GetResponseFromWS<KalturaTag, TagValue>(tag, addTagFunc);
@@ -3337,7 +3335,7 @@ namespace WebAPI.Clients
             KalturaImageListResponse result = new KalturaImageListResponse() { TotalCount = 0 };
 
             Func<GenericListResponse<Image>> getImagesByObjectFunc = () =>
-               Core.Catalog.CatalogManagement.ImageManager.GetImagesByObject(groupId, imageObjectId, CatalogMappings.ConvertImageObjectType(imageObjectType), isDefault);
+               Core.Catalog.CatalogManagement.ImageManager.Instance.GetImagesByObject(groupId, imageObjectId, CatalogMappings.ConvertImageObjectType(imageObjectType), isDefault);
 
             KalturaGenericListResponse<KalturaImage> response =
                 ClientUtils.GetResponseListFromWS<KalturaImage, Image>(getImagesByObjectFunc);
@@ -3350,14 +3348,14 @@ namespace WebAPI.Clients
 
         internal bool DeleteImage(int groupId, long userId, long id)
         {
-            Func<Status> deleteImageFunc = () => Core.Catalog.CatalogManagement.ImageManager.DeleteImage(groupId, id, userId);
+            Func<Status> deleteImageFunc = () => Core.Catalog.CatalogManagement.ImageManager.Instance.DeleteImage(groupId, id, userId);
             return ClientUtils.GetResponseStatusFromWS(deleteImageFunc);
         }
 
         internal KalturaImage AddImage(int groupId, long userId, KalturaImage image)
         {
             Func<Image, GenericResponse<Image>> addImageFunc = (Image requestImage) =>
-               Core.Catalog.CatalogManagement.ImageManager.AddImage(groupId, requestImage, userId);
+               Core.Catalog.CatalogManagement.ImageManager.Instance.AddImage(groupId, requestImage, userId);
 
             KalturaImage result =
                 ClientUtils.GetResponseFromWS<KalturaImage, Image>(image, addImageFunc);
@@ -3373,7 +3371,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ImageManager.SetContent(groupId, userId, id, url);
+                    response = Core.Catalog.CatalogManagement.ImageManager.Instance.SetContent(groupId, userId, id, url);
                 }
             }
             catch (Exception ex)
@@ -3650,7 +3648,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannel(groupId, channelId, isAllowedToViewInactiveAssets, true, userId);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.Instance.GetChannel(groupId, channelId, isAllowedToViewInactiveAssets, true, userId);
                 }
             }
             catch (Exception ex)
@@ -3775,7 +3773,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.UpdateChannel(groupId, id, channelToUpdate, userId);
+                    response = Core.Catalog.CatalogManagement.ChannelManager.Instance.UpdateChannel(groupId, id, channelToUpdate, userId);
                 }
             }
             catch (Exception ex)
@@ -3918,7 +3916,7 @@ namespace WebAPI.Clients
 
         internal bool DeleteChannel(int groupId, int channelId, long userId)
         {
-            Func<Status> deleteChannelFunc = () => Core.Catalog.CatalogManagement.ChannelManager.DeleteChannel(groupId, channelId, userId);
+            Func<Status> deleteChannelFunc = () => Core.Catalog.CatalogManagement.ChannelManager.Instance.DeleteChannel(groupId, channelId, userId);
             return ClientUtils.GetResponseStatusFromWS(deleteChannelFunc); ;
         }
 

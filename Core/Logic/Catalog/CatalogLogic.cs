@@ -1607,7 +1607,7 @@ namespace Core.Catalog
             Type type;
             if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
             {
-                return CatalogManagement.CatalogManager.GetUnifiedSearchKey(groupId, originalKey, out isTagOrMeta, out type);
+                return CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, originalKey, out isTagOrMeta, out type);
             }
             else
             {
@@ -1823,7 +1823,7 @@ namespace Core.Catalog
             if (CatalogManager.DoesGroupUsesTemplates(groupId))
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetParentMediaTypesAssociations", groupId);
                     return;
@@ -1958,7 +1958,7 @@ namespace Core.Catalog
                 {
                     if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
                     {
-                        if (!CatalogManagement.CatalogManager.CheckMetaExsits(request.m_nGroupID, searchObj.m_oOrder.m_sOrderValue.ToLower()))
+                        if (!CatalogManagement.CatalogManager.Instance.CheckMetaExsits(request.m_nGroupID, searchObj.m_oOrder.m_sOrderValue.ToLower()))
                         {
                             //return error - meta not erxsits
                             log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, searchObj.m_oOrder.m_sOrderValue);
@@ -2062,7 +2062,7 @@ namespace Core.Catalog
             if (isOPC)
             {
                 CatalogGroupCache catalogGroupCache;
-                if (CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
+                if (CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
                 {
                     isRegionalizationEnabled = catalogGroupCache.IsRegionalizationEnabled;
                     defaultRegion = catalogGroupCache.DefaultRegion;
@@ -2136,7 +2136,7 @@ namespace Core.Catalog
             {
                 if (CatalogManager.DoesGroupUsesTemplates(groupId))
                 {
-                    if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
+                    if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
                     {
                         isRegionalizationEnabled = true;
                         defaultRegion = catalogGroupCache.DefaultRegion;
@@ -2751,7 +2751,7 @@ namespace Core.Catalog
             {
                 if (!isReportingMode && devicePlayData.DeviceFamilyId == 0)
                 {
-                    devicePlayData.DeviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(devicePlayData.DomainId, groupId, devicePlayData.UDID);
+                    devicePlayData.DeviceFamilyId = Api.api.Instance.GetDeviceFamilyIdByUdid(devicePlayData.DomainId, groupId, devicePlayData.UDID);
                 }
 
                 ePlayType playType = devicePlayData.GetPlayType();
@@ -6565,14 +6565,14 @@ namespace Core.Catalog
                 long userId = 0;
                 long.TryParse(request.m_sSiteGuid, out userId);
 
-                GenericResponse<GroupsCacheManager.Channel> response = ChannelManager.GetChannelById(request.m_nGroupID, channelId, request.isAllowedToViewInactiveAssets, userId);
+                GenericResponse<GroupsCacheManager.Channel> response = ChannelManager.Instance.GetChannelById(request.m_nGroupID, channelId, request.isAllowedToViewInactiveAssets, userId);
                 if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                 {
                     return response.Status;
                 }
 
                 channel = response.Object;
-                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(request.m_nGroupID, out catalogGroupCache))
+                if (!CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(request.m_nGroupID, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetInternalChannelAssets", request.m_nGroupID);
                     return new ApiObjects.Response.Status((int)eResponseStatus.Error, "failed to get catalogGroupCache");
@@ -7118,7 +7118,7 @@ namespace Core.Catalog
 
             Filter filter = new Filter();
             CatalogGroupCache catalogGroupCache = null;
-            if (doesGroupUsesTemplates && !CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            if (doesGroupUsesTemplates && !CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildRelatedObject", groupId);
                 return status;
@@ -7185,7 +7185,7 @@ namespace Core.Catalog
                 {
                     if (doesGroupUsesTemplates)
                     {
-                        if (!CatalogManagement.CatalogManager.CheckMetaExsits(request.m_nGroupID, order.m_sOrderValue.ToLower()))
+                        if (!CatalogManagement.CatalogManager.Instance.CheckMetaExsits(request.m_nGroupID, order.m_sOrderValue.ToLower()))
                         {
                             //return error - meta not erxsits
                             log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
@@ -7303,7 +7303,7 @@ namespace Core.Catalog
                         Type type;
                         if (doesGroupUsesTemplates)
                         {
-                            CatalogManagement.CatalogManager.GetUnifiedSearchKey(groupId, key, out dummyBoolean, out type);
+                            CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, key, out dummyBoolean, out type);
                         }
                         else
                         {
@@ -7505,7 +7505,7 @@ namespace Core.Catalog
             HashSet<string> searchKeys = new HashSet<string>();
             if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
             {
-                searchKeys = CatalogManagement.CatalogManager.GetUnifiedSearchKey(groupId, leaf.field, out isTagOrMeta, out metaType);
+                searchKeys = CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, leaf.field, out isTagOrMeta, out metaType);
             }
             else
             {
@@ -8103,7 +8103,7 @@ namespace Core.Catalog
 
             if (doesGroupUsesTemplates && catalogGroupCache == null)
             {
-                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildInternalChannelSearchObject", groupId);
                     return definitions;
@@ -8306,7 +8306,7 @@ namespace Core.Catalog
                 {
                     if (doesGroupUsesTemplates)
                     {
-                        if (!CatalogManagement.CatalogManager.CheckMetaExsits(request.m_nGroupID, searcherOrderObj.m_sOrderValue.ToLower()))
+                        if (!CatalogManagement.CatalogManager.Instance.CheckMetaExsits(request.m_nGroupID, searcherOrderObj.m_sOrderValue.ToLower()))
                         {
                             //return error - meta not exists
                             log.ErrorFormat("meta not exists for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, searcherOrderObj.m_sOrderValue);
@@ -9204,7 +9204,7 @@ namespace Core.Catalog
                                                     if (isOPC)
                                                     {
                                                         CatalogGroupCache catalogGroupCache;
-                                                        if (CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                                                        if (CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                                                         {
                                                             long seriesStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.IsSeriesAssetStruct).Id;
                                                             episodeStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId > 0 && x.ParentId == seriesStructId).Id;
@@ -9434,7 +9434,7 @@ namespace Core.Catalog
             }
 
             var media = (MediaAsset)assetResponse.Object;
-            if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+            if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
             {
                 if (!catalogGroupCache.AssetStructsMapById.ContainsKey(media.MediaType.m_nTypeID) || !catalogGroupCache.AssetStructsMapById[media.MediaType.m_nTypeID].IsSeriesAssetStruct)
                 {

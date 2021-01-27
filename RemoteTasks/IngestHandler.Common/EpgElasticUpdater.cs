@@ -215,7 +215,7 @@ namespace IngestHandler.Common
         /// <returns></returns>
         private HashSet<string> GetMetasToPad(int groupId, bool isOpc)
         {
-            CatalogManager.TryGetCatalogGroupCacheFromCache(_groupId, out var catalogGroupCache);
+            CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(_groupId, out var catalogGroupCache);
             var groupManager = new GroupManager();
             var group = groupManager.GetGroup(_groupId);
             IndexManager.GetMetasAndTagsForMapping(_groupId, isOpc, out var metas, out var tags, out var metasTopad, _serializer, group, catalogGroupCache, isEpg: true);

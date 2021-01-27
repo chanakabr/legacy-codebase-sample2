@@ -1180,6 +1180,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
               .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds, src.NullableProperties)))
+              .ForMember(dest => dest.VersionId, opt => opt.MapFrom(src => src.VersionId))
               .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
 
             cfg.CreateMap<ApiLogic.Catalog.CategoryItem, KalturaCategoryItem>()
@@ -1194,6 +1195,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds))
+               .ForMember(dest => dest.VersionId, opt => opt.MapFrom(src => src.VersionId))
                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
 
             cfg.CreateMap<UnifiedChannelType, KalturaChannelType>()
@@ -1253,7 +1255,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                 .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
                 .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds))
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.VersionId, opt => opt.MapFrom(src => src.VersionId))
+                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
 
             cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
                 .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));
@@ -1406,6 +1410,53 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.UDID))
                .ForMember(dest => dest.Asset, opt => opt.ResolveUsing(src => ResolveKalturaSlimAsset(src)))
                ;
+
+            #region CategoryVersion
+
+            cfg.CreateMap<KalturaCategoryVersion, CategoryVersion>()
+              .ForMember(dest => dest.BaseVersionId, opt => opt.MapFrom(src => src.BaseVersionId))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+              .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment));
+
+            cfg.CreateMap<CategoryVersion, KalturaCategoryVersion>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+               .ForMember(dest => dest.BaseVersionId, opt => opt.MapFrom(src => src.BaseVersionId))
+               .ForMember(dest => dest.TreeId, opt => opt.MapFrom(src => src.TreeId))
+               .ForMember(dest => dest.CategoryRootId, opt => opt.MapFrom(src => src.CategoryItemRootId))
+               .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment))
+               .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.State))
+               .ForMember(dest => dest.UpdaterId, opt => opt.MapFrom(src => src.UpdaterId))
+               .ForMember(dest => dest.DefaultDate, opt => opt.MapFrom(src => src.DefaultDate))
+               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+               
+            cfg.CreateMap<CategoryVersionState, KalturaCategoryVersionState>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case CategoryVersionState.Default:
+                            return KalturaCategoryVersionState.DEFAULT;
+                        case CategoryVersionState.Draft:
+                            return KalturaCategoryVersionState.DRAFT;
+                        case CategoryVersionState.Released:
+                            return KalturaCategoryVersionState.RELEASED;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown CategoryVersionState value : {type.ToString()}");
+                    }
+                });
+
+           
+            cfg.CreateMap<KalturaCategoryVersionFilter, CategoryVersionFilter>()
+                .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderBy(src.OrderBy)));
+
+            cfg.CreateMap<KalturaCategoryVersionFilterByTree, CategoryVersionFilterByTree>()
+                .IncludeBase<KalturaCategoryVersionFilter, CategoryVersionFilter>()
+                .ForMember(dest => dest.TreeId, opt => opt.MapFrom(src => src.TreeIdEqual))
+                .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.StateEqual));
+
+            #endregion CategoryVersion
         }
 
         private static int? ConvertToNullableInt(bool? value)

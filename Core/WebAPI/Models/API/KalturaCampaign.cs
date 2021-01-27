@@ -137,7 +137,7 @@ namespace WebAPI.Models.API
             }
         }
 
-        internal override void ValidateForAdd()
+        public override void ValidateForAdd()
         {
             ValidateDates(false);
 

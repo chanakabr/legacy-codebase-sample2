@@ -6,7 +6,7 @@ namespace ApiLogic.Catalog
 {
     public class CategoryTree
     {
-        public long Id { get; set; }
+        public long Id { get; set; } 
         public string Name { get; set; }
         public List<LanguageContainer> NamesInOtherLanguages { get; set; }
         public List<CategoryTree> Children { get; set; }
@@ -14,9 +14,10 @@ namespace ApiLogic.Catalog
         public Dictionary<string, string> DynamicData { get; set; }
         public List<Image> Images { get; set; }
         public bool? IsActive { get; set; }
-
         public TimeSlot TimeSlot { get; set; }
         public string Type { get; set; }
+        public long? VersionId { get; set; }
+        public long? VirtualAssetId { get; set; }
 
         public CategoryTree()
         {
@@ -32,6 +33,8 @@ namespace ApiLogic.Catalog
             this.IsActive= categoryItem.IsActive;
             this.TimeSlot= categoryItem.TimeSlot;
             this.Type = categoryItem.Type;
+            this.VersionId = categoryItem.VersionId;
+            this.VirtualAssetId = categoryItem.VirtualAssetId;
         }
     }
 }

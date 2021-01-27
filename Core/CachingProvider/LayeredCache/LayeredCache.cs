@@ -17,7 +17,15 @@ using System.Text.RegularExpressions;
 
 namespace CachingProvider.LayeredCache
 {
-    public class LayeredCache
+    public interface ILayeredCache
+    {
+        bool Get<T>(string key, ref T genericParameter, Func<Dictionary<string, object>, Tuple<T, bool>> fillObjectMethod, Dictionary<string, object> funcParameters,
+                            int groupId, string layeredCacheConfigName, List<string> inValidationKeys = null, bool shouldUseAutoNameTypeHandling = false);
+
+        bool SetInvalidationKey(string key, DateTime? updatedAt = null);
+    }
+
+    public class LayeredCache : ILayeredCache
     {
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

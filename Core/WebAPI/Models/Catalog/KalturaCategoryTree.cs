@@ -1,7 +1,4 @@
-﻿using ApiLogic.Base;
-using ApiLogic.Catalog;
-using Core.Catalog.Handlers;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -104,5 +101,23 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "type")]
         [SchemeProperty(InsertOnly = true)]
         public string Type { get; set; }
+
+        /// <summary>
+        /// Unique identifier for the category version
+        /// </summary>
+        [DataMember(Name = "versionId")]
+        [JsonProperty(PropertyName = "versionId")]
+        [XmlElement(ElementName = "versionId", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long? VersionId { get; set; }
+
+        /// <summary>
+        /// Virtual asset id
+        /// </summary>
+        [DataMember(Name = "virtualAssetId")]
+        [JsonProperty("virtualAssetId")]
+        [XmlElement(ElementName = "virtualAssetId", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long? VirtualAssetId { get; set; }
     }
 }

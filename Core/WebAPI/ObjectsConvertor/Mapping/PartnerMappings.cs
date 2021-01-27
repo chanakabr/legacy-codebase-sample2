@@ -297,10 +297,21 @@ namespace WebAPI.ObjectsConvertor.Mapping
                });
 
             cfg.CreateMap<KalturaCatalogPartnerConfig, CatalogPartnerConfig>()
-               .ForMember(dest => dest.SingleMultilingualMode, opt => opt.MapFrom(src => src.SingleMultilingualMode));
+               .ForMember(dest => dest.SingleMultilingualMode, opt => opt.MapFrom(src => src.SingleMultilingualMode))
+               .ForMember(dest => dest.CategoryManagement, opt => opt.MapFrom(src => src.CategoryManagement));               
 
             cfg.CreateMap<CatalogPartnerConfig, KalturaCatalogPartnerConfig>()
-               .ForMember(dest => dest.SingleMultilingualMode, opt => opt.MapFrom(src => src.SingleMultilingualMode));
+               .ForMember(dest => dest.SingleMultilingualMode, opt => opt.MapFrom(src => src.SingleMultilingualMode))
+               .ForMember(dest => dest.CategoryManagement, opt => opt.MapFrom(src => src.CategoryManagement));
+
+            cfg.CreateMap<KalturaCategoryManagement, CategoryManagement>()
+                .ForMember(dest => dest.DefaultCategoryTree, opt => opt.MapFrom(src => src.DefaultCategoryTreeId))
+                .ForMember(dest => dest.DeviceFamilyToCategoryTree, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DeviceFamilyToCategoryTree, true)))
+                .AfterMap((src, dest) => dest.DeviceFamilyToCategoryTree = src.DeviceFamilyToCategoryTree != null ? dest.DeviceFamilyToCategoryTree : null);
+
+            cfg.CreateMap<CategoryManagement, KalturaCategoryManagement>()
+                .ForMember(dest => dest.DefaultCategoryTreeId, opt => opt.MapFrom(src => src.DefaultCategoryTree))
+                .ForMember(dest => dest.DeviceFamilyToCategoryTree, opt => opt.MapFrom(src => src.DeviceFamilyToCategoryTree != null ? src.DeviceFamilyToCategoryTree.ToDictionary(k => k.Key, v => v.Value) : null));
         }
 
         private static KalturaRollingDevicePolicy ConvertRollingDevicePolicy(

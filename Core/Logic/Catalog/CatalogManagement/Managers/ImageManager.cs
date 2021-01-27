@@ -3,7 +3,6 @@ using ApiObjects.Catalog;
 using ApiObjects.Epg;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
-using Core.GroupManagers;
 using KLogMonitor;
 using Newtonsoft.Json;
 using System;
@@ -11,15 +10,34 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
+using System.Threading;
 using Tvinci.Core.DAL;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public class ImageManager
+    public interface IImageManager
+    {
+        GenericListResponse<Image> GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType, bool? isDefault = null);
+
+        GenericResponse<Image> AddImage(int groupId, Image imageToAdd, long userId);
+
+        Status SetContent(int groupId, long userId, long id, string url);
+
+        Status DeleteImage(int groupId, long id, long userId);
+    }
+
+    public class ImageManager : IImageManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static readonly Lazy<ImageManager> lazy = new Lazy<ImageManager>(() => new ImageManager(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static ImageManager Instance { get { return lazy.Value; } }
+
+        private ImageManager()
+        {
+        }
 
         #region Private Methods
 
@@ -815,7 +833,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static Status DeleteImage(int groupId, long id, long userId)
+        public Status DeleteImage(int groupId, long id, long userId)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -931,7 +949,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericListResponse<Image> GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType, bool? isDefault = null)
+        public GenericListResponse<Image> GetImagesByObject(int groupId, long imageObjectId, eAssetImageType imageObjectType, bool? isDefault = null)
         {
             if (imageObjectType == eAssetImageType.Program)
             {
@@ -943,7 +961,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        public static GenericResponse<Image> AddImage(int groupId, Image imageToAdd, long userId)
+        public GenericResponse<Image> AddImage(int groupId, Image imageToAdd, long userId)
         {
             GenericResponse<Image> result = new GenericResponse<Image>();
             try
@@ -970,7 +988,7 @@ namespace Core.Catalog.CatalogManagement
                 if (imageToAdd.ImageObjectType == eAssetImageType.Channel && imageToAdd.ImageObjectId > 0)
                 {
                     //isAllowedToViewInactiveAssets = true because only operator can add image
-                    GenericResponse<GroupsCacheManager.Channel> channel = ChannelManager.GetChannel(groupId, (int)imageToAdd.ImageObjectId, true);
+                    GenericResponse<GroupsCacheManager.Channel> channel = ChannelManager.Instance.GetChannel(groupId, (int)imageToAdd.ImageObjectId, true);
                     if (channel.Status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Channel not found. channelId = {0}", imageToAdd.ImageObjectId);
@@ -1047,7 +1065,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Status SetContent(int groupId, long userId, long id, string url)
+        public Status SetContent(int groupId, long userId, long id, string url)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try

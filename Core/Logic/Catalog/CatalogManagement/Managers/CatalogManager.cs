@@ -27,7 +27,12 @@ using MetaType = ApiObjects.MetaType;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public class CatalogManager
+    public interface ICatalogManager
+    {
+        bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache);
+    }
+
+    public class CatalogManager : ICatalogManager
     {
         #region Constants and Readonly
 
@@ -43,6 +48,14 @@ namespace Core.Catalog.CatalogManagement
         public const string LINEAR_ASSET_STRUCT_SYSTEM_NAME = "Linear";
 
         #endregion
+
+        private static readonly Lazy<CatalogManager> lazy = new Lazy<CatalogManager>(() => new CatalogManager(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static CatalogManager Instance { get { return lazy.Value; } }
+
+        private CatalogManager()
+        {
+        }
 
         #region Private Methods
 
@@ -904,7 +917,7 @@ namespace Core.Catalog.CatalogManagement
             return true;
         }
 
-        private static bool ValidateHeritage(int groupId, long assetStructId, long metaId, out CatalogGroupCache catalogGroupCache,
+        private bool ValidateHeritage(int groupId, long assetStructId, long metaId, out CatalogGroupCache catalogGroupCache,
             out AssetStruct currentAssetStruct, out AssetStruct parentAssetStruct)
         {
             currentAssetStruct = null;
@@ -1113,7 +1126,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        public static bool HandleParentUpdate(int groupId, long userId, long assetId, List<long> TopicsIds)
+        public bool HandleParentUpdate(int groupId, long userId, long assetId, List<long> TopicsIds)
         {
             CatalogGroupCache catalogGroupCache = null;
             if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -1292,7 +1305,8 @@ namespace Core.Catalog.CatalogManagement
         {
             return Core.GroupManagers.GroupSettingsManager.DoesGroupUsesTemplates(groupId);
         }
-        public static bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache)
+
+        public bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache)
         {
             bool result = false;
             catalogGroupCache = null;
@@ -1315,7 +1329,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericListResponse<AssetStruct> GetAssetStructsByIds(int groupId, List<long> ids, bool? isProtected)
+        public GenericListResponse<AssetStruct> GetAssetStructsByIds(int groupId, List<long> ids, bool? isProtected)
         {
             GenericListResponse<AssetStruct> response = new GenericListResponse<AssetStruct>();
             try
@@ -1373,7 +1387,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericListResponse<AssetStruct> GetAssetStructsByTopicId(int groupId, long topicId, bool? isProtected)
+        public GenericListResponse<AssetStruct> GetAssetStructsByTopicId(int groupId, long topicId, bool? isProtected)
         {
             GenericListResponse<AssetStruct> response = new GenericListResponse<AssetStruct>();
             try
@@ -1411,7 +1425,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<AssetStruct> AddAssetStruct(int groupId, AssetStruct assetStructToadd, long userId, bool isProgramStruct = false)
+        public GenericResponse<AssetStruct> AddAssetStruct(int groupId, AssetStruct assetStructToadd, long userId, bool isProgramStruct = false)
         {
             GenericResponse<AssetStruct> result = new GenericResponse<AssetStruct>();
             try
@@ -1505,7 +1519,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<AssetStruct> UpdateAssetStruct(int groupId, long id, AssetStruct assetStructToUpdate, bool shouldUpdateMetaIds, long userId, bool shouldCheckRegularFlowValidations = true)
+        public GenericResponse<AssetStruct> UpdateAssetStruct(int groupId, long id, AssetStruct assetStructToUpdate, bool shouldUpdateMetaIds, long userId, bool shouldCheckRegularFlowValidations = true)
         {
             GenericResponse<AssetStruct> result = new GenericResponse<AssetStruct>();
             try
@@ -1741,7 +1755,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Status DeleteAssetStruct(int groupId, long id, long userId)
+        public Status DeleteAssetStruct(int groupId, long id, long userId)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -1775,7 +1789,8 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // check AssetStruct is not part of category ExtendedTypes
-                GenericListResponse<ObjectVirtualAssetPartnerConfig> objectVirtualAssetPartnerConfig = PartnerConfigurationManager.GetObjectVirtualAssetPartnerConfiguration(groupId);
+                GenericListResponse<ObjectVirtualAssetPartnerConfig> objectVirtualAssetPartnerConfig = 
+                    VirtualAssetPartnerConfigManager.Instance.GetObjectVirtualAssetPartnerConfiguration(groupId);
                 if(objectVirtualAssetPartnerConfig.IsOkStatusCode() && objectVirtualAssetPartnerConfig.HasObjects())
                 {
                     foreach (ObjectVirtualAssetInfo objectVirtualAssetInfo in objectVirtualAssetPartnerConfig.Objects[0].ObjectVirtualAssets)
@@ -1835,7 +1850,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<AssetStruct> GetAssetStruct(int groupId, long assetStructId)
+        public GenericResponse<AssetStruct> GetAssetStruct(int groupId, long assetStructId)
         {
             GenericResponse<AssetStruct> response = new GenericResponse<AssetStruct>();
 
@@ -1876,7 +1891,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericListResponse<Topic> GetTopicsByIds(int groupId, List<long> ids, MetaType type)
+        public GenericListResponse<Topic> GetTopicsByIds(int groupId, List<long> ids, MetaType type)
         {
             GenericListResponse<Topic> response = new GenericListResponse<Topic>();
             try
@@ -1914,7 +1929,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericListResponse<Topic> GetTopicsByAssetStructId(int groupId, long assetStructId, MetaType type)
+        public GenericListResponse<Topic> GetTopicsByAssetStructId(int groupId, long assetStructId, MetaType type)
         {
             GenericListResponse<Topic> response = new GenericListResponse<Topic>();
             try
@@ -1955,7 +1970,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static GenericResponse<Topic> AddTopic(int groupId, Topic topicToAdd, long userId, bool shouldCheckRegularFlowValidations = true)
+        public GenericResponse<Topic> AddTopic(int groupId, Topic topicToAdd, long userId, bool shouldCheckRegularFlowValidations = true)
         {
             GenericResponse<Topic> result = new GenericResponse<Topic>();
             try
@@ -2019,7 +2034,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<Topic> UpdateTopic(int groupId, long id, Topic topicToUpdate, long userId)
+        public GenericResponse<Topic> UpdateTopic(int groupId, long id, Topic topicToUpdate, long userId)
         {
             GenericResponse<Topic> result = new GenericResponse<Topic>();
             try
@@ -2088,7 +2103,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Status DeleteTopic(int groupId, long id, long userId)
+        public Status DeleteTopic(int groupId, long id, long userId)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -2119,7 +2134,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                var objectVirtualAssetPartnerConfig = PartnerConfigurationManager.GetObjectVirtualAssetPartnerConfiguration(groupId);
+                var objectVirtualAssetPartnerConfig = VirtualAssetPartnerConfigManager.Instance.GetObjectVirtualAssetPartnerConfiguration(groupId);
                 if (objectVirtualAssetPartnerConfig.HasObjects())
                 {
                     if (objectVirtualAssetPartnerConfig.Objects.Any(x => x.ObjectVirtualAssets.Any(y => y.MetaId == id)))
@@ -2183,7 +2198,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static HashSet<string> GetUnifiedSearchKey(int groupId, string originalKey, out bool isTagOrMeta, out Type type)
+        public HashSet<string> GetUnifiedSearchKey(int groupId, string originalKey, out bool isTagOrMeta, out Type type)
         {
             isTagOrMeta = false;
             type = typeof(string);
@@ -2269,7 +2284,7 @@ namespace Core.Catalog.CatalogManagement
             return searchKeys;
         }
 
-        public static bool CheckMetaExsits(int groupId, string metaName)
+        public bool CheckMetaExsits(int groupId, string metaName)
         {
             bool result = false;
             try
@@ -2297,7 +2312,7 @@ namespace Core.Catalog.CatalogManagement
         /// </summary>
         /// <param name="groupId"></param>
         /// <returns></returns>
-        public static List<ApiObjects.SearchObjects.TagValue> GetAllTagValues(int groupId)
+        public List<ApiObjects.SearchObjects.TagValue> GetAllTagValues(int groupId)
         {
             List<ApiObjects.SearchObjects.TagValue> result = new List<ApiObjects.SearchObjects.TagValue>();
 
@@ -2387,7 +2402,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericResponse<ApiObjects.SearchObjects.TagValue> AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag, long userId, bool isFromIngest = false)
+        public GenericResponse<ApiObjects.SearchObjects.TagValue> AddTag(int groupId, ApiObjects.SearchObjects.TagValue tag, long userId, bool isFromIngest = false)
         {
             GenericResponse<ApiObjects.SearchObjects.TagValue> result = new GenericResponse<ApiObjects.SearchObjects.TagValue>();
             try
@@ -2449,7 +2464,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateTag", groupId);
                     return result;
@@ -2604,7 +2619,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteTag", groupId);
                     return tagResponse.Status;
@@ -2694,7 +2709,7 @@ namespace Core.Catalog.CatalogManagement
         {
             GenericListResponse<ApiObjects.SearchObjects.TagValue> result = new GenericListResponse<ApiObjects.SearchObjects.TagValue>();
             CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling SearchTags", groupId);
                 return result;
@@ -2747,7 +2762,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static GenericListResponse<ApiObjects.SearchObjects.TagValue> GetTags(int groupId, List<long> idIn, int pageIndex, int pageSize)
+        public GenericListResponse<ApiObjects.SearchObjects.TagValue> GetTags(int groupId, List<long> idIn, int pageIndex, int pageSize)
         {
             GenericListResponse<ApiObjects.SearchObjects.TagValue> result = new GenericListResponse<ApiObjects.SearchObjects.TagValue>();
 
@@ -2768,7 +2783,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static List<ApiObjects.SearchObjects.TagValue> GetTagValues(int groupId, List<long> idIn, int pageIndex, int pageSize, out int totalItemsCount)
+        public List<ApiObjects.SearchObjects.TagValue> GetTagValues(int groupId, List<long> idIn, int pageIndex, int pageSize, out int totalItemsCount)
         {
             var res = new List<ApiObjects.SearchObjects.TagValue>();
             totalItemsCount = 0;
@@ -2793,7 +2808,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        public static GenericResponse<AssetStructMeta> UpdateAssetStructMeta(long assetStructId, long metaId, AssetStructMeta assetStructMeta, int groupId, long userId)
+        public GenericResponse<AssetStructMeta> UpdateAssetStructMeta(long assetStructId, long metaId, AssetStructMeta assetStructMeta, int groupId, long userId)
         {
             GenericResponse<AssetStructMeta> response = new GenericResponse<AssetStructMeta>();
 
@@ -2913,7 +2928,7 @@ namespace Core.Catalog.CatalogManagement
             return status;
         }
 
-        public static GenericListResponse<AssetStructMeta> GetAssetStructMetaList(int groupId, long? assetStructId, long? metaId)
+        public  GenericListResponse<AssetStructMeta> GetAssetStructMetaList(int groupId, long? assetStructId, long? metaId)
         {
             GenericListResponse<AssetStructMeta> response = new GenericListResponse<AssetStructMeta>();
 
@@ -2962,7 +2977,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static bool HandleHeritage(int groupId, long assetStructId, long metaId, long userId)
+        public bool HandleHeritage(int groupId, long assetStructId, long metaId, long userId)
         {
             bool result = true;
             CatalogGroupCache catalogGroupCache = null;
@@ -3128,7 +3143,7 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<long, List<int>>, bool>(result, res);
         }
 
-        internal static bool IsRegionalizationEnabled(int groupId)
+        internal bool IsRegionalizationEnabled(int groupId)
         {
             var regionalizationEnabled = GroupSettingsManager.IsOpc(groupId)
                 ? TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache) 
@@ -3206,7 +3221,7 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<List<int>, bool>(result, res);
         }
 
-        public static HashSet<long> GetLinearMediaTypeIds(int groupId)
+        public HashSet<long> GetLinearMediaTypeIds(int groupId)
         {
             var linearMediaTypeIds = new HashSet<long>();
 
@@ -3238,7 +3253,7 @@ namespace Core.Catalog.CatalogManagement
 
         internal static void SetHistoryValues(int groupId, UserMediaMark userMediaMark)
         {
-            if (CatalogManager.DoesGroupUsesTemplates(groupId) && CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+            if (CatalogManager.DoesGroupUsesTemplates(groupId) && CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
             {
                 EpgAsset asset = null;
 

@@ -129,7 +129,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        internal static VirtualAssetInfoResponse AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
+        public static VirtualAssetInfoResponse AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
         {
             VirtualAssetInfoResponse virtualAssetInfoResponse = new VirtualAssetInfoResponse()
             {
@@ -146,31 +146,39 @@ namespace Core.Catalog.CatalogManagement
                     return virtualAssetInfoResponse;
                 }
 
-                MediaAsset virtualAsset = new MediaAsset()
+                MediaAsset virtualAsset = null;
+
+                if (!virtualAssetInfo.DuplicateAssetId.HasValue)
                 {
-                    AssetType = eAssetTypes.MEDIA,
-                    IsActive = true,
-                    CoGuid = Guid.NewGuid().ToString(),
-                    Name = virtualAssetInfo.Name,
-                    Description = virtualAssetInfo.Description,
-                    CreateDate = DateTime.UtcNow,
-                    StartDate = virtualAssetInfo.StartDate,
-                    EndDate = virtualAssetInfo.EndDate,
-                    MediaType = new MediaType()
+                    virtualAsset = new MediaAsset()
                     {
-                        m_nTypeID = objectVirtualAssetInfo.AssetStructId
-                    }
-                };
+                        AssetType = eAssetTypes.MEDIA,
+                        IsActive = true,
+                        CoGuid = Guid.NewGuid().ToString(),
+                        Name = virtualAssetInfo.Name,
+                        Description = virtualAssetInfo.Description,
+                        CreateDate = DateTime.UtcNow,
+                        StartDate = virtualAssetInfo.StartDate,
+                        EndDate = virtualAssetInfo.EndDate,
+                        MediaType = new MediaType()
+                        {
+                            m_nTypeID = objectVirtualAssetInfo.AssetStructId
+                        }
+                    };
+                }
+                else
+                {
+                    DuplicateAsset(groupId, virtualAssetInfo.DuplicateAssetId.Value, out virtualAsset);
+                }
 
                 log.Debug($"objectVirtualAssetInfo for groupId {groupId}, type {virtualAssetInfo.Type} AssetStructId {objectVirtualAssetInfo.AssetStructId} meta: {objectVirtualAssetInfo.MetaId}");
-
 
                 if (!string.IsNullOrEmpty(type) && objectVirtualAssetInfo.ExtendedTypes?.Count > 0 && objectVirtualAssetInfo.ExtendedTypes.ContainsKey(type))
                 {
                     virtualAsset.MediaType.m_nTypeID = (int)objectVirtualAssetInfo.ExtendedTypes[type];
                 }
 
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
                 {
                     log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
                     virtualAssetInfoResponse.Status = VirtualAssetInfoStatus.Error;
@@ -181,17 +189,37 @@ namespace Core.Catalog.CatalogManagement
                 {
                     var meta = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
 
-                    virtualAsset.Metas.Add(new Metas()
+                    if (!virtualAssetInfo.DuplicateAssetId.HasValue)
                     {
-                        m_oTagMeta = new TagMeta()
+                        virtualAsset.Metas.Add(new Metas()
                         {
-                            m_sName = meta.SystemName,
-                            m_sType = meta.Type.ToString()
-                        },
-                        m_sValue = virtualAssetInfo.Id.ToString()
-                    });
+                            m_oTagMeta = new TagMeta()
+                            {
+                                m_sName = meta.SystemName,
+                                m_sType = meta.Type.ToString()
+                            },
+                            m_sValue = virtualAssetInfo.Id.ToString()
+                        });
+                    }
+                    else
+                    {
+                        //Replace default meta
+                        var replacementMetaIndex = virtualAsset.Metas.FindIndex(tm => tm.m_oTagMeta.m_sName == meta.SystemName);
+                        if (replacementMetaIndex != -1)
+                        {
+                            var replacementMeta = virtualAsset.Metas[replacementMetaIndex];
+                            replacementMeta.m_sValue = virtualAssetInfo.Id.ToString();
+                            virtualAsset.Metas[replacementMetaIndex] = replacementMeta;
+                        }
+                    }
 
-                    var response = AssetManager.AddAsset(groupId, virtualAsset, virtualAssetInfo.UserId);
+                    var response = AddAsset(groupId, virtualAsset, virtualAssetInfo.UserId);
+
+                    if (response?.Object != null && virtualAssetInfo.DuplicateAssetId.HasValue)
+                    {
+                        DuplicateAssetImages(groupId, virtualAssetInfo.UserId, response.Object.Id, virtualAsset.Images);
+                    }
+
                     if (!response.IsOkStatusCode())
                     {
                         virtualAssetInfoResponse.Status = VirtualAssetInfoStatus.Error;
@@ -214,7 +242,59 @@ namespace Core.Catalog.CatalogManagement
             return virtualAssetInfoResponse;
         }
 
-        internal static VirtualAssetInfoResponse DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        private static void DuplicateAsset(int groupId, long originalAssetId, out MediaAsset newAsset)
+        {
+            newAsset = null;
+            var originalAsset = GetMediaAssetsFromCache(groupId, new List<long> { originalAssetId }, true);
+            if (originalAsset == null || originalAsset.Count == 0)
+            {
+                log.Warn($"Original asset: {originalAssetId} wasn't found for group Id: {groupId}");
+                return;
+            }
+
+            newAsset = (MediaAsset)originalAsset.First().Clone();
+            newAsset.Id = 0;
+            newAsset.CoGuid = Guid.NewGuid().ToString();
+        }
+
+        private static void DuplicateAssetImages(int groupId, long userId, long newAssetId, List<Image> images)
+        {
+            if (images != null && images.Count > 0)
+            {
+                var imageTypeIds = new HashSet<long>();
+
+                foreach (var image in images)
+                {
+                    if (imageTypeIds.Contains(image.ImageTypeId))
+                    {
+                        continue;
+                    }
+
+                    var newImage = new Image()
+                    {
+                        ImageTypeId = image.ImageTypeId,
+                        ImageObjectId = newAssetId,
+                        ImageObjectType = image.ImageObjectType
+                    };
+
+                    var newImageResponse = ImageManager.Instance.AddImage(groupId, newImage, userId);
+                    if (newImageResponse.HasObject())
+                    {
+                        imageTypeIds.Add(image.ImageTypeId);
+
+                        string imageOriginalUrl = $"{image.Url}/width/0/height/0";
+
+                        var status = ImageManager.Instance.SetContent(groupId, userId, newImageResponse.Object.Id, imageOriginalUrl);
+                        if (!status.IsOkStatusCode())
+                        {
+                            log.Error($"Failed to set image for asset id:{newAssetId}, url:{imageOriginalUrl}");
+                        }
+                    }
+                }
+            }
+        }
+
+        public static VirtualAssetInfoResponse DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
             VirtualAssetInfoResponse response = new VirtualAssetInfoResponse() { Status = VirtualAssetInfoStatus.Error };
             try
@@ -249,7 +329,7 @@ namespace Core.Catalog.CatalogManagement
 
         }
 
-        internal static VirtualAssetInfoResponse UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        public static VirtualAssetInfoResponse UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
             VirtualAssetInfoResponse response = new VirtualAssetInfoResponse()
             {
@@ -290,6 +370,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 log.Debug($"Failed update virtualAssetInfo {virtualAsset.ToString()}, groupId {groupId}, status:{assetUpdateResponse.ToStringStatus()}");
                 response.Status = VirtualAssetInfoStatus.Error;
+                response.ResponseStatus = assetUpdateResponse.Status;
                 return response;
             }
 
@@ -411,7 +492,7 @@ namespace Core.Catalog.CatalogManagement
             // new tags
             if (!isForMigration && tables.ContainsKey(TABLE_NAME_NEW_TAGS) && tables[TABLE_NAME_NEW_TAGS]?.Rows.Count > 0)
             {
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling CreateMediaAsset", groupId);
                     return result;
@@ -862,7 +943,7 @@ namespace Core.Catalog.CatalogManagement
                     if (ids != null && groupId.HasValue && isAllowedToViewInactiveAssets.HasValue)
                     {
                         CatalogGroupCache catalogGroupCache;
-                        if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
+                        if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
                         {
                             log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetMediaAssets", groupId);
                         }
@@ -1359,6 +1440,13 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
+                var validateRespose = ValidateEditingAssetOfCategoryVersion(groupId, currentAsset, catalogGroupCache);
+                if (!validateRespose.IsOkStatusCode())
+                {
+                    result.SetStatus(validateRespose);
+                    return result;
+                }
+                
                 // validate asset
                 XmlDocument metasXmlDocToAdd = null, tagsXmlDocToAdd = null, metasXmlDocToUpdate = null, tagsXmlDocToUpdate = null;
                 XmlDocument relatedEntitiesXmlDocToAdd = null, relatedEntitiesXmlDocToUpdate = null;
@@ -1455,7 +1543,7 @@ namespace Core.Catalog.CatalogManagement
                         {
                             if (assetStruct.TopicsMapBySystemName == null || assetStruct.TopicsMapBySystemName.Count == 0)
                             {
-                                if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                                if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                                 {
                                     assetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
                                                                       .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key))
@@ -1573,7 +1661,7 @@ namespace Core.Catalog.CatalogManagement
             bool res = false;
             mediaType = null;
             CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetStructsByIds", groupId);
                 return res;
@@ -1656,7 +1744,7 @@ namespace Core.Catalog.CatalogManagement
             topicIds.AddRange(topicIdToTag.Keys.ToList());
             if (topicIds.Count > 0)
             {
-                GenericListResponse<Topic> groupTopicsResponse = CatalogManager.GetTopicsByIds(groupId, topicIds, MetaType.All);
+                GenericListResponse<Topic> groupTopicsResponse = CatalogManager.Instance.GetTopicsByIds(groupId, topicIds, MetaType.All);
                 if (groupTopicsResponse != null && groupTopicsResponse.Status != null && groupTopicsResponse.Status.Code == (int)eResponseStatus.OK
                     && groupTopicsResponse.Objects != null && groupTopicsResponse.Objects.Count > 0)
                 {
@@ -2309,19 +2397,26 @@ namespace Core.Catalog.CatalogManagement
                 return result;
             }
 
+            CatalogGroupCache catalogGroupCache;
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling DeleteMediaAsset");
+                return result;
+            }
+
+            var validateRespose = ValidateEditingAssetOfCategoryVersion(groupId, currentAsset, catalogGroupCache);
+            if (!validateRespose.IsOkStatusCode())
+            {
+                result.Set(validateRespose);
+                return result;
+            }
+
             if (CatalogDAL.DeleteMediaAsset(groupId, mediaId, userId))
             {
                 result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                 if (!isFromChannel)
                 {
-                    CatalogGroupCache catalogGroupCache;
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                    {
-                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateAsset", groupId);
-                        return result;
-                    }
-
                     AssetStruct assetStruct = null;
                     if (currentAsset.MediaType.m_nTypeID > 0 && catalogGroupCache.AssetStructsMapById.ContainsKey(currentAsset.MediaType.m_nTypeID))
                     {
@@ -2404,7 +2499,7 @@ namespace Core.Catalog.CatalogManagement
                         return;
                     }
 
-                    GenericResponse<GroupsCacheManager.Channel> channelToUpdate = ChannelManager.GetChannelById(groupId, channelId, true, userId);
+                    GenericResponse<GroupsCacheManager.Channel> channelToUpdate = ChannelManager.Instance.GetChannelById(groupId, channelId, true, userId);
 
                     if (!channelToUpdate.HasObject())
                     {
@@ -2419,7 +2514,7 @@ namespace Core.Catalog.CatalogManagement
                     channel.m_sDescription = asset.Description;
                     channel.DescriptionInOtherLanguages = asset.DescriptionsWithLanguages;
 
-                    GenericResponse<GroupsCacheManager.Channel> channelUpdateResponse = ChannelManager.UpdateChannel(groupId, channel.m_nChannelID, channel, userId, false, true);
+                    GenericResponse<GroupsCacheManager.Channel> channelUpdateResponse = ChannelManager.Instance.UpdateChannel(groupId, channel.m_nChannelID, channel, userId, false, true);
 
                     if (!channelUpdateResponse.IsOkStatusCode())
                     {
@@ -2535,7 +2630,7 @@ namespace Core.Catalog.CatalogManagement
                         return;
                     }
 
-                    Status status = ChannelManager.DeleteChannel(groupId, channelId, userId, true);
+                    Status status = ChannelManager.Instance.DeleteChannel(groupId, channelId, userId, true);
                     if (status.Code != (int)eResponseStatus.OK)
                     {
                         log.ErrorFormat("Failed delete  channelId {0}, groupId {1}, assetId {2}", channelId, groupId, asset.Id);
@@ -2646,7 +2741,7 @@ namespace Core.Catalog.CatalogManagement
                 Topic topic = null;
 
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling TryGetRelatedEntitiesList", groupId);
                     return false;
@@ -2869,7 +2964,7 @@ namespace Core.Catalog.CatalogManagement
 
         public static ObjectVirtualAssetInfo GetObjectVirtualAssetInfo(int groupId, ObjectVirtualAssetInfoType objectVirtualAssetInfoType)
         {
-            ObjectVirtualAssetInfo objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType);
+            ObjectVirtualAssetInfo objectVirtualAssetInfo = VirtualAssetPartnerConfigManager.Instance.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType);
 
             if (objectVirtualAssetInfo == null)
             {
@@ -2880,21 +2975,31 @@ namespace Core.Catalog.CatalogManagement
             return objectVirtualAssetInfo;
         }
 
-        private static VirtualAssetInfoResponse GetVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, out bool needToCreateVirtualAsset, out Asset asset)
+        public static VirtualAssetInfoResponse GetVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, out bool needToCreateVirtualAsset, out Asset asset)
         {
             VirtualAssetInfoResponse response = new VirtualAssetInfoResponse() { Status = VirtualAssetInfoStatus.NotRelevant };
             asset = null;
             needToCreateVirtualAsset = false;
 
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
-            if (!doesGroupUsesTemplates)
+            if (virtualAssetInfo.DuplicateAssetId.HasValue)
             {
+                GenericResponse<Asset> duplicatedAssetResponse = GetAsset(groupId, virtualAssetInfo.DuplicateAssetId.Value, eAssetTypes.MEDIA, true);
+                if (!duplicatedAssetResponse.HasObject())
+                {
+                    log.Debug($"GetVirtualAsset. duplicated virtual Asset not found. groupId {groupId}, DuplicateAssetId {virtualAssetInfo.DuplicateAssetId}");
+                    response.Status = VirtualAssetInfoStatus.Error;
+                    return response;
+                }
+
+                response.Status = VirtualAssetInfoStatus.OK;
+                response.AssetId = virtualAssetInfo.DuplicateAssetId.Value;
+                asset = duplicatedAssetResponse.Object;
                 return response;
             }
 
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
             {
-                log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
+                log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling GetVirtualAsset");
                 response.Status = VirtualAssetInfoStatus.Error;
                 return response;
             }
@@ -2927,7 +3032,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (assets == null || assets.Length == 0)
             {
-                log.Debug($"GetVirtualAsset. Asset not found. groupId {groupId}, virtualAssetInfo {virtualAssetInfo.ToString()}");
+                log.Debug($"GetVirtualAsset. Asset not found. groupId {groupId}, virtualAssetInfo {virtualAssetInfo}");
                 needToCreateVirtualAsset = true;
                 response.Status = VirtualAssetInfoStatus.OK;
                 return response;
@@ -2937,14 +3042,55 @@ namespace Core.Catalog.CatalogManagement
 
             if (!assetResponse.HasObject())
             {
-                log.Debug($"GetVirtualAsset. virtual Asset not found. groupId {groupId}, virtualAssetInfo {virtualAssetInfo.ToString()}");
+                log.Debug($"GetVirtualAsset. virtual Asset not found. groupId {groupId}, virtualAssetInfo {virtualAssetInfo}");
                 response.Status = VirtualAssetInfoStatus.Error;
                 return response;
             }
 
             response.Status = VirtualAssetInfoStatus.OK;
+            response.AssetId = assetResponse.Object.Id;
             asset = assetResponse.Object;
             return response;
+        }
+
+        private static Status ValidateEditingAssetOfCategoryVersion(int groupId, MediaAsset currentAsset, CatalogGroupCache catalogGroupCache)
+        {
+            var status = Status.Ok;
+
+            ObjectVirtualAssetInfo objectVirtualAssetInfo = GetObjectVirtualAssetInfo(groupId, ObjectVirtualAssetInfoType.Category);
+            if (objectVirtualAssetInfo != null)
+            {
+                bool isCategoryStruct = currentAsset.MediaType.m_nTypeID == objectVirtualAssetInfo.AssetStructId;
+                if (!isCategoryStruct && objectVirtualAssetInfo.ExtendedTypes != null)
+                {
+                    isCategoryStruct = objectVirtualAssetInfo.ExtendedTypes.Values.Any(x => x == currentAsset.MediaType.m_nTypeID);
+                }
+
+                if (isCategoryStruct)
+                {
+                    var meta = catalogGroupCache.TopicsMapById[objectVirtualAssetInfo.MetaId];
+                    var categoryMeta = currentAsset.Metas.FirstOrDefault(x => x.m_oTagMeta.m_sName == meta.SystemName);
+                    if (categoryMeta != null)
+                    {
+                        if (long.TryParse(categoryMeta.m_sValue, out long categoryItemId))
+                        {
+                            var categoryItemResponse = CategoryCache.Instance.GetCategoryItem(groupId, categoryItemId);
+                            if (categoryItemResponse.HasObject() && categoryItemResponse.Object.VersionId.HasValue)
+                            {
+                                var categoryVersionResponse = CategoryCache.Instance.GetCategoryVersion(groupId, categoryItemResponse.Object.VersionId.Value);
+                                if (categoryVersionResponse.HasObject() && categoryVersionResponse.Object.State != CategoryVersionState.Draft)
+                                {
+                                    status.Set(eResponseStatus.CategoryVersionIsNotDraft,
+                                               $"Cannot edit media asset {currentAsset.Id} with a categoryItem {categoryItemId} in version {categoryVersionResponse.Object.Id} state {categoryVersionResponse.Object.State}");
+                                    return status;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return status;
         }
 
         #endregion
@@ -2959,7 +3105,7 @@ namespace Core.Catalog.CatalogManagement
                 if (id > 0)
                 {
                     CatalogGroupCache catalogGroupCache;
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAsset", groupId);
                         return result;
@@ -3175,7 +3321,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetMediaForElasticSearchIndex", groupId);
                     return result;
@@ -3268,7 +3414,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddAsset", groupId);
                     return result;
@@ -3322,7 +3468,7 @@ namespace Core.Catalog.CatalogManagement
             EpgNotificationManager.Instance().ChannelWasUpdated(
                 KLogger.GetRequestId(),
                 groupId,
-                userId,                
+                userId,
                 epgAsset.LinearAssetId.Value,
                 epgAsset.EpgChannelId.Value,
                 epgAsset.StartDate.Value,
@@ -3336,7 +3482,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateAsset", groupId);
                     return result;
@@ -3549,7 +3695,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling RemoveTopicsFromAsset", groupId);
                     return result;
@@ -3679,7 +3825,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetGroupMediaAssets", groupId);
                     return groupMediaAssetsMap;

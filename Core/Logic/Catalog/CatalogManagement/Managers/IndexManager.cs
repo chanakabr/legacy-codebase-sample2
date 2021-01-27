@@ -291,7 +291,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (CatalogManager.DoesGroupUsesTemplates(groupId))
             {
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpsertMedia", groupId);
                     return false;
@@ -455,7 +455,7 @@ namespace Core.Catalog.CatalogManagement
             if (doesGroupUsesTemplates)
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteMedia", groupId);
                     return false;
@@ -538,7 +538,7 @@ namespace Core.Catalog.CatalogManagement
                 if (channel == null)
                 {
                     // isAllowedToViewInactiveAssets = true because only operator can cause upsert of channel
-                    GenericResponse<Channel> response = ChannelManager.GetChannelById(groupId, channelId, true, userId);
+                    GenericResponse<Channel> response = ChannelManager.Instance.GetChannelById(groupId, channelId, true, userId);
                     if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return result;
@@ -775,7 +775,7 @@ namespace Core.Catalog.CatalogManagement
                 Group group = null;
                 if (doesGroupUsesTemplates)
                 {
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpsertProgram", groupId);
                         return false;
@@ -1032,7 +1032,7 @@ namespace Core.Catalog.CatalogManagement
                 Group group = null;
                 if (doesGroupUsesTemplates)
                 {
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateEpg", groupId);
                         return false;
