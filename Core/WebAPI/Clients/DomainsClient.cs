@@ -1112,10 +1112,6 @@ namespace WebAPI.Clients
         internal KalturaHousehold SubmitAddUserToDomainRequest(int groupId, string userId, string householdMasterUsername)
         {
             KalturaHousehold household = null;
-
-
-
-
             DomainStatusResponse response = null;
 
             try

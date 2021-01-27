@@ -157,18 +157,18 @@ namespace Core.Users
             return result;
         }
         
-        public int Save(int nIsActive, int nStatus = 1, DomainDevice device = null, bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
+        public int Save(int isActive, int status = 1, DomainDevice device = null, bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
         {
             if (device == null)
                 device = new DomainDevice();
 
-            return Save(nIsActive, nStatus, device.DeviceId, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId, device.Manufacturer, device.DynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
+            return Save(isActive, status, device.DeviceId, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId, device.Manufacturer, device.DynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
         }
 
         public int Save(
-            int nIsActive,
-            int nStatus = 1,
-            int? nDeviceID = null,
+            int isActive,
+            int status = 1,
+            int? deviceId = null,
             string macAddress = "",
             string externalId = "",
             string model = "",
@@ -179,13 +179,13 @@ namespace Core.Users
             bool allowNullMacAddress = false,
             bool allowNullDynamicData = false)
         {
-            int retVal = nDeviceID > 0
-                ? nDeviceID.Value
-                : DeviceDal.GetDeviceID(m_deviceUDID, m_groupID, m_deviceBrandID, m_deviceFamilyID, nStatus);
+            int retVal = deviceId > 0
+                ? deviceId.Value
+                : DeviceDal.GetDeviceID(m_deviceUDID, m_groupID, m_deviceBrandID, m_deviceFamilyID, status);
 
             bool deviceFound = retVal > 0;
 
-            log.Debug($"Device for Save: {nameof(nIsActive)}: {nIsActive}, {nameof(nStatus)}: {nStatus}, {nameof(nDeviceID)}: {nDeviceID}, " +
+            log.Debug($"Device for Save: {nameof(isActive)}: {isActive}, {nameof(status)}: {status}, {nameof(deviceId)}: {deviceId}, " +
                       $"{nameof(macAddress)}: {macAddress}, {nameof(externalId)}: {externalId}, {nameof(model)}: {model}, manufacturerId: {manufacturerId}, " +
                       $"{nameof(dynamicData)}: {{{string.Join(", ", dynamicData?.Select(pair => $"\"{pair.Key}\": \"{pair.Value}\"") ?? Enumerable.Empty<string>())}}}, " +
                       $"{nameof(allowNullExternalId)}: {allowNullExternalId}, {nameof(allowNullMacAddress)}: {allowNullMacAddress}, {nameof(allowNullDynamicData)}: {allowNullDynamicData}, " +
@@ -193,11 +193,11 @@ namespace Core.Users
 
             if (!deviceFound) // New Device
             {
-                retVal = DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, nIsActive, nStatus, m_pin, externalId, macAddress, model, manufacturerId, dynamicData);
+                retVal = DeviceDal.InsertNewDevice(m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_deviceName, m_groupID, isActive, status, m_pin, externalId, macAddress, model, manufacturerId, dynamicData);
             }
             else // Update Device
             {
-                bool bUpdateRetVal = DeviceDal.UpdateDevice(retVal, m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_groupID, m_deviceName, nIsActive, nStatus, externalId, macAddress, model, manufacturerId, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
+                bool bUpdateRetVal = DeviceDal.UpdateDevice(retVal, m_deviceUDID, m_deviceBrandID, m_deviceFamilyID, m_groupID, m_deviceName, isActive, status, externalId, macAddress, model, manufacturerId, dynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
 
                 if (!bUpdateRetVal)
                 {
