@@ -14,7 +14,7 @@ namespace WebAPI.Models.General
             foreach (var keyValue in dynamicData)
             { 
                 if (keyValue.Key.Length > maxKeyLength) throw new BadRequestException(ARGUMENT_MAX_LENGTH_CROSSED, "dynamicData.key.length", maxKeyLength);
-                if (keyValue.Value?.value.Length > maxValueLength) throw new BadRequestException(ARGUMENT_MAX_LENGTH_CROSSED, "dynamicData.value.length", maxValueLength);
+                if (keyValue.Value?.value?.Length > maxValueLength) throw new BadRequestException(ARGUMENT_MAX_LENGTH_CROSSED, "dynamicData.value.length", maxValueLength);
             }
         }
     }
