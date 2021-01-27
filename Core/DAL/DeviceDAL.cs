@@ -398,7 +398,7 @@ namespace DAL
             if (!string.IsNullOrEmpty(macAddress)) sp.AddParameter("@MacAddress", macAddress);
             if (!string.IsNullOrEmpty(model)) sp.AddParameter("@Model", model);
             if (manufacturerId.HasValue) sp.AddParameter("@Manufacturer_Id", manufacturerId);
-            if (dynamicData != null) sp.AddParameter("@DynamicData", SerializeDynamicData(dynamicData));
+            if (dynamicData?.Any() == true) sp.AddParameter("@DynamicData", SerializeDynamicData(dynamicData));
 
             return sp.ExecuteReturnValue<int>();
         }

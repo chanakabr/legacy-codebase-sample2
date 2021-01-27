@@ -383,7 +383,7 @@ namespace Core.Users
                 if (dDevice.ManufacturerId.HasValue)
                     device.ManufacturerId = dDevice.ManufacturerId;
 
-                if (dDevice.DynamicData?.Any() == true)
+                if (dDevice.DynamicData != null)
                 {
                     device.DynamicData = dDevice.DynamicData;
                 }
