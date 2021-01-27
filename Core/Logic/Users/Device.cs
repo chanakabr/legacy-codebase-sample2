@@ -211,15 +211,8 @@ namespace Core.Users
 
             if (retVal > 0)
             {
-                ExternalId = externalId;
-                MacAddress = macAddress;
-                DynamicData = dynamicData;
-                Model = model;
-                ManufacturerId = manufacturerId;
+                SetUpdatedValues(externalId, macAddress, model, manufacturerId, manufacturer, dynamicData);
             }
-
-            if (ManufacturerId.HasValue)
-                Manufacturer = manufacturer;
 
             return retVal;
         }
@@ -390,6 +383,35 @@ namespace Core.Users
             };
 
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
+        }
+
+        private void SetUpdatedValues(string externalId, string macAddress, string model, long? manufacturerId, string manufacturer, Dictionary<string, string> dynamicData)
+        {
+            if (externalId != null)
+            {
+                ExternalId = externalId;
+            }
+
+            if (macAddress != null)
+            {
+                MacAddress = macAddress;
+            }
+
+            if (model != null)
+            {
+                Model = model;
+            }
+
+            if (manufacturerId.HasValue)
+            {
+                ManufacturerId = manufacturerId;
+                Manufacturer = manufacturer;
+            }
+
+            if (dynamicData != null)
+            {
+                DynamicData = dynamicData.Any() ? dynamicData : null;
+            }
         }
     }
 
