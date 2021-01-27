@@ -1092,21 +1092,12 @@ namespace WebAPI.Clients
 
         private static DomainDevice CastToDomainDevice(KalturaHouseholdDevice device)
         {
-            // TODO Test
-            return Mapper.Map<DomainDevice>(device);
-            //TODO - Matan, use mapping
-            return new DomainDevice
-            {
-                Udid = device.Udid,
-                Name = device.Name,
-                DeviceBrandId = device.getBrandId(),
-                ExternalId = device.ExternalId,
-                MacAddress = device.MacAddress,
-                Model = device.Model,
-                Manufacturer = device.Manufacturer,
-                ManufacturerId = device.ManufacturerId,
-                DynamicData = Utils.Utils.ConvertSerializeableDictionary(device.DynamicData, true)
-            };
+            var domainDevice = Mapper.Map<DomainDevice>(device);
+            domainDevice.DynamicData = domainDevice.DynamicData?
+                .Where(x => !string.IsNullOrWhiteSpace(x.Value))
+                .ToDictionary(x => x.Key, x => x.Value);
+
+            return domainDevice;
         }
 
         internal KalturaHousehold SubmitAddUserToDomainRequest(int groupId, string userId, string householdMasterUsername)

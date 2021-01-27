@@ -39,6 +39,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.m_deviceFamilyID))
                 .ForMember(dest => dest.LastActivityTime, opt => opt.MapFrom(src => src.LastActivityTime))
                 .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => Utils.Utils.ConvertToSerializableDictionary(src.DynamicData)))
+                .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
                 ;
 
             cfg.CreateMap<Device, KalturaDevice>()
@@ -133,6 +134,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ManufacturerId, opt => opt.MapFrom(src => src.ManufacturerId))
                 .ForMember(dest => dest.LastActivityTime, opt => opt.MapFrom(src => src.LastActivityTime))
                 .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => Utils.Utils.ConvertToSerializableDictionary(src.DynamicData)))
+                .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
             ;
 
             cfg.CreateMap<KalturaHouseholdDevice, DomainDevice>()
@@ -149,6 +151,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Manufacturer, opt => opt.MapFrom(src => src.Manufacturer))
                 .ForMember(dest => dest.ManufacturerId, opt => opt.MapFrom(src => src.ManufacturerId))
                 .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)))
+                .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
                 ;
 
             //CouponWallet, KalturaHouseholdCoupon
