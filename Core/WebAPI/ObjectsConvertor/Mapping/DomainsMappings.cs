@@ -50,7 +50,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_activationDate)))
                 .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertDeviceStatus(src.m_state)))
                 .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertDeviceState(src.m_state)))
-                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID));
+                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID))
+                .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
+                ;
 
             //HomeNetwork
             cfg.CreateMap<HomeNetwork, KalturaHomeNetwork>()
