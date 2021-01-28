@@ -28174,7 +28174,6 @@ namespace WebAPI.Models.Users
                         DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
                     }
                 }
-                
             }
         }
     }
@@ -31930,6 +31929,16 @@ namespace WebAPI.Models.Domains
             MaxLength = 255,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute DynamicDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         private static RuntimeSchemePropertyAttribute ModelSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
             ReadOnly = false,
@@ -32099,6 +32108,21 @@ namespace WebAPI.Models.Domains
                     }
                     MacAddress = (String) Convert.ChangeType(parameters["macAddress"], typeof(String));
                 }
+                if (parameters.ContainsKey("dynamicData__null") && parameters["dynamicData__null"] != null)
+                {
+                    AddNullableProperty("dynamicData");
+                }
+                if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
+                    }
+                    if (parameters["dynamicData"] is JObject)
+                    {
+                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                    }
+                }
                 if (parameters.ContainsKey("model__null") && parameters["model__null"] != null)
                 {
                     AddNullableProperty("model");
@@ -32146,14 +32170,6 @@ namespace WebAPI.Models.Domains
                         LastActivityTimeSchemaProperty.Validate("lastActivityTime", parameters["lastActivityTime"]);
                     }
                     LastActivityTime = (Int64) Convert.ChangeType(parameters["lastActivityTime"], typeof(Int64));
-                }
-
-                if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
-                {
-                    if (parameters["dynamicData"] is JObject)
-                    {
-                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
-                    }
                 }
             }
         }

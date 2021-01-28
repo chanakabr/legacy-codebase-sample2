@@ -3263,6 +3263,8 @@ namespace WebAPI.Reflection
                             return "deviceFamilyId";
                         case "Drm":
                             return "drm";
+                        case "DynamicData":
+                            return "dynamicData";
                         case "ExternalId":
                             return "externalId";
                         case "HouseholdId":
