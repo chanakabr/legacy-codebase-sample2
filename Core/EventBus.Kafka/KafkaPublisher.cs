@@ -36,7 +36,7 @@ namespace EventBus.Kafka
                             SocketTimeoutMs = tcmConfig.SocketTimeoutMs.Value,
                             ClientId = KLogger.GetServerName(),
                             // TODO: talk to eli about partition implementation in golang
-                            Partitioner = Partitioner.Random,
+                            Partitioner = Partitioner.Murmur2Random,
                         };
 
                         // create topic for health check if it doesn't exist
