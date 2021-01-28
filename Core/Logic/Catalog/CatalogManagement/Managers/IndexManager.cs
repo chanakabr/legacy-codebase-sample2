@@ -1170,7 +1170,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        public static void AddMappingsToEpgIndex(int groupId, string indexName, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage,
+        private static void AddMappingsToEpgIndex(int groupId, string indexName, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage,
              bool isRecording, out HashSet<string> metasToPad, Group group = null, CatalogGroupCache catalogGroupCache = null)
         {
             var serializer = new ESSerializerV2();
@@ -1185,6 +1185,7 @@ namespace Core.Catalog.CatalogManagement
 
             foreach (ApiObjects.LanguageObj language in languages)
             {
+                // TODO could use AddLanguageMapping here
                 MappingAnalyzers specificMappingAnalyzers = GetMappingAnalyzers(language, ES_VERSION);
                 string specificType = GetIndexType(isRecording, language);
 
@@ -1204,6 +1205,26 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
             }
+        }
+        
+        public static void AddLanguageMapping(
+            string indexName,
+            LanguageObj language,
+            LanguageObj defaultLanguage,
+            Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
+            List<string> tags,
+            HashSet<string> metasToPad)
+        {
+            var defaultMappingAnalyzers = GetMappingAnalyzers(defaultLanguage, ES_VERSION);
+            var specificMappingAnalyzers = GetMappingAnalyzers(language, ES_VERSION);
+            var mappingName = GetIndexType(false, language);
+
+            var serializer = new ESSerializerV2();
+            var mapping = serializer.CreateEpgMapping(metas, tags, metasToPad, specificMappingAnalyzers,
+                defaultMappingAnalyzers, mappingName, true);
+            
+            var success = esClientApi.InsertMapping(indexName, mappingName, mapping);
+            if (!success) throw new Exception($"Failed to add mapping. index: [{indexName}]. mapping [{mappingName}]");
         }
 
         public static MappingAnalyzers GetMappingAnalyzers(ApiObjects.LanguageObj language, string version)
@@ -1259,7 +1280,7 @@ namespace Core.Catalog.CatalogManagement
             return metasToPad;
         }
 
-        private static void CreateEmptyIndex(string newIndexName, IEnumerable<LanguageObj> languages, bool shouldBuildWithReplicas = true,
+        public static void CreateEmptyIndex(string newIndexName, IEnumerable<LanguageObj> languages, bool shouldBuildWithReplicas = true,
                                                 bool shouldUseNumOfConfiguredShards = true, string refreshInterval = null)
         {
             GetEpgAnalyzers(languages, out var analyzers, out var filters, out var tokenizers);

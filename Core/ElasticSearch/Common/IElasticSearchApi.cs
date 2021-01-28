@@ -25,6 +25,7 @@ namespace ElasticSearch.Common
         bool ForceRefresh(string index);
         List<string> GetAliases(string sIndex);
         string GetAllMappings(string sIndex);
+        IEnumerable<string> GetMappingsNames(string indexName);
         string GetDoc(string sIndex, string sType, string sDocId);
         string GetDoc(string sIndex, string sType, string sDocId, string routing);
         int GetResponseCode(HttpStatusCode theCode);
