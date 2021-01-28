@@ -7826,8 +7826,8 @@ namespace Core.ConditionalAccess
             if (!GroupSettingsManager.IsOpc(groupId))
             {
                 // If group is not OPC, we should check child subgroups for permissions as well.
-                var groupsInfos = SubgroupManager.Instance.GetSubGroups(groupId);
-                return allMediafiles.Where(m => groupsInfos.Any(gi => gi.Id == m.GroupId) || m.GroupId == groupId).ToList();
+                var subGroups = new GroupManager().GetSubGroup(groupId);
+                return allMediafiles.Where(m => subGroups.Any(sg => sg == m.GroupId) || m.GroupId == groupId).ToList();
             }
 
             return allMediafiles.Where(m => m.GroupId == groupId).ToList();
