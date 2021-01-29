@@ -181,7 +181,7 @@ namespace Core.Users
         {
             int retVal = deviceId > 0
                 ? deviceId.Value
-                : DeviceDal.GetDeviceID(m_deviceUDID, m_groupID, m_deviceBrandID, m_deviceFamilyID, status);
+                : DeviceDal.GetDeviceId(m_deviceUDID, m_groupID, m_deviceBrandID, m_deviceFamilyID, status);
 
             bool deviceFound = retVal > 0;
 
