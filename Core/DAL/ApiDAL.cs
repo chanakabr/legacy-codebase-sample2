@@ -814,7 +814,7 @@ namespace DAL
             return retVal;
         }
 
-        public static DataTable Get_AllSubAccounts(long nParendGroupID)
+        public static DataTable Get_AllSubAccounts(int nParendGroupID)
         {
             ODBCWrapper.StoredProcedure spSubAccounts = new ODBCWrapper.StoredProcedure("Get_AllSubAccounts");
             spSubAccounts.SetConnectionKey("MAIN_CONNECTION_STRING");

@@ -7789,11 +7789,14 @@ namespace Core.ConditionalAccess
             List<MediaFile> files = null;
 
             List<MediaFile> allMediafiles = null;
+            // Once we get rid of TVM parent/child groups, groupId should be used in stored procedure for security.
+            // Please, note after that MediaFileCacheKey should be extended with groupId as well.
             string key = LayeredCacheKeys.GetMediaFilesKey(mediaId, assetType.ToString());
             bool cacheResult = LayeredCache.Instance.Get<List<MediaFile>>(key, ref allMediafiles, GetMediaFiles, new Dictionary<string, object>() { { "mediaId", mediaId }, { "groupId", groupId },
                                                                         { "assetType", assetType } }, groupId, LayeredCacheConfigNames.MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME,
                                                                         new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
 
+            // We're using check for IsOPC to apply security concerns, once we get rid of TVM parent/child groups, this logic will be moved to stored procedure.
             allMediafiles = ValidateMediaFilesUponSecurity(allMediafiles, groupId);
             
             // filter
