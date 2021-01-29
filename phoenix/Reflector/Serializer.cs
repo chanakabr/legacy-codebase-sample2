@@ -39,6 +39,8 @@ namespace Reflector
 
     class Serializer : Base
     {
+        private static readonly string[] PropertiesToSkipForRetrievedProperties = {"TotalCount", "objectType"};
+        
         public static string GetJsonSerializerCSFilePath()
         {
             var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
@@ -318,7 +320,7 @@ namespace Reflector
                 }
 
                 // responseProfile 
-                if (propertyName != "TotalCount" && property.DeclaringType.BaseType.Name != "KalturaListResponse" && propertyName != "Metas" && propertyName != "Tags")
+                if (PropertiesToSkipForRetrievedProperties.All(p => p != propertyName) && property.DeclaringType.BaseType.Name != "KalturaListResponse" && propertyName != "Metas" && propertyName != "Tags")
                 {
                     conditions.Add("(retrievedProperties == null || retrievedProperties.Contains(\"" + dataMember.Name + "\"))");
                 }
