@@ -49,7 +49,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                var filter = api.GetObjectVirtualAssetObjectIds(objectToAdd.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { segmentationTypeId });
+                var filter = api.Instance.GetObjectVirtualAssetObjectIds(objectToAdd.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { segmentationTypeId });
                 if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                 {
                     response.SetStatus(filter.Status);
@@ -104,7 +104,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                var filter = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, new AssetSearchDefinition() { UserId = contextData.UserId.Value }, 
+                var filter = api.Instance.GetObjectVirtualAssetObjectIds(contextData.GroupId, new AssetSearchDefinition() { UserId = contextData.UserId.Value }, 
                                             ObjectVirtualAssetInfoType.Segment, new System.Collections.Generic.HashSet<long>() { segmentationTypeId });
 
                 if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
@@ -179,7 +179,7 @@ namespace ApiLogic.Users.Managers
                     {
                         AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition() { UserId = contextData.UserId.Value, Filter = filter.Ksql };
 
-                        var filtered = api.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>( segmentTypeIds.Values.ToList()));
+                        var filtered = api.Instance.GetObjectVirtualAssetObjectIds(contextData.GroupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Segment, new HashSet<long>( segmentTypeIds.Values.ToList()));
                         if (filtered.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                         {
                             response.SetStatus(filtered.Status);

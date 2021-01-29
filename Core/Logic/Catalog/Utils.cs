@@ -1119,7 +1119,7 @@ namespace Core.Catalog
                 {
                     try
                     {
-                        if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        if (!CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                         {
                             log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildSearchGroupBy", groupId);
                             return;

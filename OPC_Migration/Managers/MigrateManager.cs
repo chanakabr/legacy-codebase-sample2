@@ -446,7 +446,7 @@ namespace OPC_Migration
                 {
                     foreach (Topic topicToAdd in pair.Values)
                     {
-                        GenericResponse<Topic> response = CatalogManager.AddTopic(groupId, topicToAdd, Utils.UPDATING_USER_ID, false);
+                        GenericResponse<Topic> response = CatalogManager.Instance.AddTopic(groupId, topicToAdd, Utils.UPDATING_USER_ID, false);
                         if (!response.HasObject() || response.Object.Id == 0)
                         {
                             log.ErrorFormat("Failed adding topic with systemName: {0}", topicToAdd.SystemName);
@@ -600,12 +600,12 @@ namespace OPC_Migration
                         // id = 0 for program or linear
                         if (assetStruct.Id > 0)
                         {
-                            response = CatalogManager.UpdateAssetStruct(groupId, assetStruct.Id, assetStruct, true, Utils.UPDATING_USER_ID, false);
+                            response = CatalogManager.Instance.UpdateAssetStruct(groupId, assetStruct.Id, assetStruct, true, Utils.UPDATING_USER_ID, false);
                         }
                         else
                         {
                             bool isProgramStruct = assetStruct.SystemName == Utils.PROGRAM_ASSET_STRUCT;
-                            response = CatalogManager.AddAssetStruct(groupId, assetStruct, Utils.UPDATING_USER_ID, isProgramStruct);
+                            response = CatalogManager.Instance.AddAssetStruct(groupId, assetStruct, Utils.UPDATING_USER_ID, isProgramStruct);
                         }
 
                         if (response == null || response.Status == null || response.Status.Code != (int)eResponseStatus.OK || response.Object == null || response.Object.Id == 0)
@@ -831,7 +831,7 @@ namespace OPC_Migration
                                 ImageObjectId = assetImages.Key
                             };
 
-                            GenericResponse<Image> response = Core.Catalog.CatalogManagement.ImageManager.AddImage(groupId, imageToAdd, Utils.UPDATING_USER_ID);
+                            GenericResponse<Image> response = Core.Catalog.CatalogManagement.ImageManager.Instance.AddImage(groupId, imageToAdd, Utils.UPDATING_USER_ID);
                             if (!response.HasObject())
                             {
                                 res = false;
@@ -1099,7 +1099,7 @@ namespace OPC_Migration
                             }
                         }
                         
-                        GenericResponse<Channel> response = ChannelManager.UpdateChannel(groupId, channel.m_nChannelID, channel, Utils.UPDATING_USER_ID, true);
+                        GenericResponse<Channel> response = ChannelManager.Instance.UpdateChannel(groupId, channel.m_nChannelID, channel, Utils.UPDATING_USER_ID, true);
                         if (!response.HasObject() || response.Object.m_nChannelID != channel.m_nChannelID)
                         {
                             log.ErrorFormat("Failed to update channel with id: {0}, will retry synchronously", channel.m_nChannelID);
@@ -1112,7 +1112,7 @@ namespace OPC_Migration
                         log.DebugFormat("Retrying update of failed channels");
                         foreach (Channel channel in failedChannels)
                         {
-                            GenericResponse<Channel> response = ChannelManager.UpdateChannel(groupId, channel.m_nChannelID, channel, Utils.UPDATING_USER_ID, true);
+                            GenericResponse<Channel> response = ChannelManager.Instance.UpdateChannel(groupId, channel.m_nChannelID, channel, Utils.UPDATING_USER_ID, true);
                             if (!response.HasObject() || response.Object.m_nChannelID != channel.m_nChannelID)
                             {
                                 log.ErrorFormat("Failed to update channel with id: {0}", channel.m_nChannelID);

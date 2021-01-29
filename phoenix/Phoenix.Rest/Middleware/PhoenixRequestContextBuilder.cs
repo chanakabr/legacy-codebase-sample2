@@ -38,15 +38,12 @@ namespace Phoenix.Rest.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            using var km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START);
-
             KS.ClearOnRequest();
             var phoenixContext = new PhoenixRequestContext();
             context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] = phoenixContext;
             context.Items[RequestContextUtils.REQUEST_TIME] = DateTime.UtcNow;
             phoenixContext.SessionId = KLogger.GetRequestId();
-            phoenixContext.RequestDate = DateTime.UtcNow;
-            phoenixContext.ApiMonitorLog = km;
+            phoenixContext.RequestDate = DateTime.UtcNow;            
             if (phoenixContext == null) { throw new SystemException("Request Context is lost, something went wrong."); }
 
             var request = context.Request;
@@ -59,6 +56,9 @@ namespace Phoenix.Rest.Middleware
             string serviceAction = $"{service}.{action}";
             KLogger.LogContextData[KLogMonitor.Constants.ACTION] = serviceAction;
             System.Web.HttpContext.Current.Items[Constants.ACTION] = serviceAction;
+
+            using var km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START);
+            phoenixContext.ApiMonitorLog = km;
 
             var parsedActionParams = await GetActionParams(context.Request.Method, request, phoenixContext);
             phoenixContext.RequestVersion = GetRequestVersion(parsedActionParams);

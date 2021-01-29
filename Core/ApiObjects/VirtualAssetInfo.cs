@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 
 namespace ApiObjects
 {
@@ -20,6 +21,8 @@ namespace ApiObjects
 
         public bool withExtendedTypes { get; set; }
 
+        public long? DuplicateAssetId { get; set; }
+
         public override string ToString()
         {
             return $"VirtualAssetInfo: Id: {Id}, Type: {Type}, UserId: {UserId}";
@@ -30,6 +33,7 @@ namespace ApiObjects
     {
         public VirtualAssetInfoStatus Status { get; set; }
         public long AssetId { get; set; }
+        public Status ResponseStatus { get; set; }
     }
 
     public enum VirtualAssetInfoStatus

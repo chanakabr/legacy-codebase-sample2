@@ -623,7 +623,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                var result = Api.api.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition(), ObjectVirtualAssetInfoType.Subscription, subIds);
+                var result = Api.api.Instance.GetObjectVirtualAssetObjectIds(groupId, new AssetSearchDefinition(), ObjectVirtualAssetInfoType.Subscription, subIds);
                 if (result.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
                 {
                     entitlementsResponse.status = result.Status;

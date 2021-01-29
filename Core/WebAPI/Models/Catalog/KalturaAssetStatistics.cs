@@ -63,7 +63,7 @@ namespace WebAPI.Models.Catalog
         [OldStandardProperty("buzz_score")]
         public KalturaBuzzScore BuzzAvgScore { get; set; }
 
-        // TODO SHIR - add ForeverViews/totalviews in v2 of coding GEN-1088
+        // TODO LIOR / SUNNY - add ForeverViews/totalviews in v2 of coding GEN-1088
     }
 
     /// <summary>

@@ -19,14 +19,14 @@ namespace Core.Catalog
         {
             if (structureManager == null)
             {
-                var assetStructResponse = CatalogManager.GetAssetStruct(GroupId, TypeId);
+                var assetStructResponse = CatalogManager.Instance.GetAssetStruct(GroupId, TypeId);
                 if (assetStructResponse.HasObject())
                 {
                     structureManager = assetStructResponse.Object;
                     if (structureManager.TopicsMapBySystemName == null || structureManager.TopicsMapBySystemName.Count == 0)
                     {
                         CatalogGroupCache catalogGroupCache;
-                        if (CatalogManager.TryGetCatalogGroupCacheFromCache(GroupId, out catalogGroupCache))
+                        if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(GroupId, out catalogGroupCache))
                         {
                             structureManager.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => structureManager.MetaIds.Contains(x.Key))
                                                               .OrderBy(x => structureManager.MetaIds.IndexOf(x.Key))

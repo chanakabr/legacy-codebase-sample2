@@ -93,7 +93,7 @@ namespace WebAPI.Models.Upload
 
         internal override void Validate(int groupId)
         {
-            var linearMediaTypeIds = CatalogManager.GetLinearMediaTypeIds(groupId);
+            var linearMediaTypeIds = CatalogManager.Instance.GetLinearMediaTypeIds(groupId);
             if (!linearMediaTypeIds.Contains(this.TypeId))
             {
                 throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "bulkUploadAssetData.typeId");

@@ -125,7 +125,7 @@ namespace APILogic.CRUD
 
         public static ApiObjects.Response.Status Delete(int groupId, int channelId, long userId = 700)
         {
-            return Core.Catalog.CatalogManagement.ChannelManager.DeleteChannel(groupId, channelId, userId);
+            return Core.Catalog.CatalogManagement.ChannelManager.Instance.DeleteChannel(groupId, channelId, userId);
         }
 
         public static void UpdateCatalog(int groupID, int channelId, eAction action = eAction.Update)

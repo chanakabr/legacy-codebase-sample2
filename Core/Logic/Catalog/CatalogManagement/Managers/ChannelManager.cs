@@ -1,28 +1,44 @@
 ﻿using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using Core.Api.Managers;
-using Core.Catalog.Handlers;
 using Core.Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Tvinci.Core.DAL;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public class ChannelManager
+    public interface IChannelManager
+    {
+        GenericResponse<Channel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId);
+    }
+
+    public class ChannelManager : IChannelManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int EPG_ASSET_TYPE = 0;
         private const string ACTION_IS_NOT_ALLOWED = "Action is not allowed";
+
+        private static readonly Lazy<ChannelManager> lazy = new Lazy<ChannelManager>(() => new ChannelManager(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static ChannelManager Instance { get { return lazy.Value; } }
+
+        private ChannelManager()
+        {
+        }
+
         #region Private Methods
 
         private static List<Channel> GetChannelListFromDs(DataSet ds)
@@ -415,7 +431,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling ValidateChannelMediaTypes", groupId);
                     result.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -453,7 +469,7 @@ namespace Core.Catalog.CatalogManagement
             GenericListResponse<Channel> response = SearchChannels(groupId, true, string.Empty, null, 0, 500, ChannelOrderBy.Id, OrderDir.ASC, false, 0, ruleId);
             if (response != null && response.HasObjects())
             {
-                channels  = response.Objects.Where(x => x.AssetUserRuleId == ruleId).ToList();
+                channels = response.Objects.Where(x => x.AssetUserRuleId == ruleId).ToList();
             }
             return channels;
         }
@@ -462,15 +478,15 @@ namespace Core.Catalog.CatalogManagement
         {
             AssetStruct assetStruct = GetAssetStructIdByChannelType(groupId, channel.m_nChannelTypeID);
 
-            CreateVirtualChannel(groupId, userId, assetStruct,channel.m_sName, channel.m_nChannelID.ToString(), channel.m_sDescription,
+            CreateVirtualChannel(groupId, userId, assetStruct, channel.m_sName, channel.m_nChannelID.ToString(), channel.m_sDescription,
                 channel.NamesInOtherLanguages, channel.DescriptionInOtherLanguages);
         }
-        
+
         private static AssetStruct GetAssetStructIdByChannelType(int groupId, int channelTypeId)
         {
             AssetStruct assetStruct = null;
             CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetStructIdByChannelType", groupId);
                 return assetStruct;
@@ -480,20 +496,20 @@ namespace Core.Catalog.CatalogManagement
             {
                 if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(AssetManager.MANUAL_ASSET_STRUCT_NAME))
                 {
-                    assetStruct = catalogGroupCache.AssetStructsMapBySystemName[AssetManager.MANUAL_ASSET_STRUCT_NAME];                    
+                    assetStruct = catalogGroupCache.AssetStructsMapBySystemName[AssetManager.MANUAL_ASSET_STRUCT_NAME];
                 }
             }
             else if ((ChannelType)channelTypeId == ChannelType.KSQL)
             {
                 if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(AssetManager.DYNAMIC_ASSET_STRUCT_NAME))
                 {
-                    assetStruct = catalogGroupCache.AssetStructsMapBySystemName[AssetManager.DYNAMIC_ASSET_STRUCT_NAME];                    
+                    assetStruct = catalogGroupCache.AssetStructsMapBySystemName[AssetManager.DYNAMIC_ASSET_STRUCT_NAME];
                 }
             }
 
             if (assetStruct != null && (assetStruct.TopicsMapBySystemName == null || assetStruct.TopicsMapBySystemName.Count == 0))
-            {                
-                if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     assetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
                                                       .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key))
@@ -506,8 +522,8 @@ namespace Core.Catalog.CatalogManagement
 
         private static void UpdateVirtualAsset(int groupId, long userId, Channel channel)
         {
-            bool needToCreateVirtualAsset = false;           
-            Asset virtualAsset = GetVirtualAsset( groupId, userId, channel, out needToCreateVirtualAsset);
+            bool needToCreateVirtualAsset = false;
+            Asset virtualAsset = GetVirtualAsset(groupId, userId, channel, out needToCreateVirtualAsset);
 
             if (needToCreateVirtualAsset)
             {
@@ -515,7 +531,7 @@ namespace Core.Catalog.CatalogManagement
                 return;
             }
 
-            if(virtualAsset == null)
+            if (virtualAsset == null)
             {
                 return;
             }
@@ -539,7 +555,7 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal Methods
 
-        internal static GenericResponse<Channel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
+        public GenericResponse<Channel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
             List<Channel> channels = GetChannels(groupId, new List<int>() { channelId }, isAllowedToViewInactiveAssets);
@@ -564,14 +580,14 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        internal static bool TryRemoveAssetRuleIdFromChannel(int groupId, long ruleId, long userId)
+        internal bool TryRemoveAssetRuleIdFromChannel(int groupId, long ruleId, long userId)
         {
             bool result = false;
 
             GenericListResponse<Channel> response = new GenericListResponse<Channel>();
             List<Channel> channels = SearchChannelByAssetUserId(groupId, ruleId);
-            if( channels != null)
-            { 
+            if (channels != null)
+            {
                 GenericResponse<Channel> channelResponse = null;
                 foreach (var channel in channels)
                 {
@@ -591,7 +607,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        internal static void CreateVirtualChannel(int groupId, long userId, AssetStruct assetStruct, string name, string channelId, 
+        internal static void CreateVirtualChannel(int groupId, long userId, AssetStruct assetStruct, string name, string channelId,
             string description, List<LanguageContainer> namesWithLanguages = null, List<LanguageContainer> descriptionsWithLanguages = null)
         {
             if (assetStruct != null && assetStruct.TopicsMapBySystemName.ContainsKey(AssetManager.CHANNEL_ID_META_SYSTEM_NAME))
@@ -829,7 +845,7 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     if (channelToAdd.m_OrderObject.m_eOrderBy == OrderBy.META && !string.IsNullOrEmpty(channelToAdd.m_OrderObject.m_sOrderValue)
-                        && !CatalogManager.CheckMetaExsits(groupId, channelToAdd.m_OrderObject.m_sOrderValue))
+                        && !CatalogManager.Instance.CheckMetaExsits(groupId, channelToAdd.m_OrderObject.m_sOrderValue))
                     {
                         response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
                         return response;
@@ -877,7 +893,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         channelToAdd.AssetUserRuleId = assetUserRuleId;
                     }
-                }                
+                }
 
                 DataSet ds = CatalogDAL.InsertChannel(
                     groupId, channelToAdd.SystemName, channelToAdd.m_sName, channelToAdd.m_sDescription,
@@ -932,9 +948,9 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }        
+        }
 
-        public static GenericResponse<Channel> UpdateChannel(int groupId, int channelId, Channel channelToUpdate, long userId, bool isForMigration = false, bool isFromAsset = false)
+        public GenericResponse<Channel> UpdateChannel(int groupId, int channelId, Channel channelToUpdate, long userId, bool isForMigration = false, bool isFromAsset = false)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
             Channel currentChannel = null;
@@ -1002,7 +1018,7 @@ namespace Core.Catalog.CatalogManagement
                     // Validate asset types
                     if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.KSQL && channelToUpdate.m_nMediaType != null)
                     {
-                        if (  channelToUpdate.m_nMediaType.Count > 0)
+                        if (channelToUpdate.m_nMediaType.Count > 0)
                         {
                             Status validateAssetTypesResult = ValidateChannelMediaTypes(groupId, channelToUpdate);
                             if (!validateAssetTypesResult.IsOkStatusCode())
@@ -1049,7 +1065,7 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     if (channelToUpdate.m_OrderObject != null && channelToUpdate.m_OrderObject.m_eOrderBy == OrderBy.META && !string.IsNullOrEmpty(channelToUpdate.m_OrderObject.m_sOrderValue)
-                        && !CatalogManager.CheckMetaExsits(groupId, channelToUpdate.m_OrderObject.m_sOrderValue))
+                        && !CatalogManager.Instance.CheckMetaExsits(groupId, channelToUpdate.m_OrderObject.m_sOrderValue))
                     {
                         response.SetStatus(eResponseStatus.ChannelMetaOrderByIsInvalid, eResponseStatus.ChannelMetaOrderByIsInvalid.ToString());
                         return response;
@@ -1172,9 +1188,9 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }        
+        }
 
-        public static GenericResponse<Channel> GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets, bool shouldCheckGroupUsesTemplates = true,
+        public GenericResponse<Channel> GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets, bool shouldCheckGroupUsesTemplates = true,
             long userId = 0)
         {
             GenericResponse<Channel> response = new GenericResponse<Channel>();
@@ -1218,7 +1234,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public static Status DeleteChannel(int groupId, int channelId, long userId, bool isFromAsset = false)
+        public Status DeleteChannel(int groupId, int channelId, long userId, bool isFromAsset = false)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -1239,11 +1255,12 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.DeleteChannel(groupId, channelId, channelResponse.Object.m_nChannelTypeID, userId))
                 {
-                    CatalogDAL.DeleteChannelMetaData(channelId, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.Internal);
-                    
+                    CatalogDAL.DeleteChannelMetaData(channelId, eChannelType.Internal);
+                    RemoveRelatedEntitiesData(groupId, userId, channelId);
+
                     bool deleteResult = false;
                     bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
-                    
+
                     // delete index only for OPC accounts since previously channels index didn't exist
                     if (doesGroupUsesTemplates)
                     {
@@ -1296,7 +1313,7 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // remove channel from categories
-                    var removeStatus = CategoryItemHandler.RemoveChannelFromCategories(groupId, channelId, UnifiedChannelType.Internal, userId);
+                    var removeStatus = CategoryItemHandler.Instance.RemoveChannelFromCategories(groupId, channelId, UnifiedChannelType.Internal, userId);
                     if (removeStatus != null && !removeStatus.IsOkStatusCode())
                     {
                         log.Error($"Failed to remove channel {channelId} from categories fr group {groupId}");
@@ -1313,6 +1330,12 @@ namespace Core.Catalog.CatalogManagement
                 log.Error(string.Format("Failed groupID={0}, channelId={1}", groupId, channelId), ex);
             }
             return response;
+        }
+
+        private static void RemoveRelatedEntitiesData(int groupId, long userId, long channelId)
+        {
+            var affectedAssets = CatalogDAL.GetAssociatedAsset(groupId, (int)userId, channelId);
+            affectedAssets.ForEach(x => AssetManager.InvalidateAsset((eAssetTypes)x.Value, groupId, x.Key));
         }
 
         public static GenericListResponse<Channel> GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize,

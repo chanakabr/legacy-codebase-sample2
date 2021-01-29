@@ -60,7 +60,7 @@ namespace Core.Api.Managers
 
                     if (doesGroupUsesTemplates)
                     {
-                        if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        if (!Catalog.CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                         {
                             log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DoActionRules", groupId);
                             return result;
@@ -686,7 +686,7 @@ namespace Core.Api.Managers
             // validate all tags exists
             var ids = assetLifeCycleTags.Select(s => s.TagIds).SelectMany(s => s).Select(s => (long)s).Distinct().ToList();
 
-            CatalogManager.GetTagValues(groupId, ids, 0, 1000, out int totalItemsCount);
+            CatalogManager.Instance.GetTagValues(groupId, ids, 0, 1000, out int totalItemsCount);
 
             if (totalItemsCount != ids.Count)
             {
@@ -978,7 +978,7 @@ namespace Core.Api.Managers
             if (CatalogManager.DoesGroupUsesTemplates(groupId))
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     return false;
                 }

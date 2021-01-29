@@ -250,7 +250,7 @@ namespace Core.Catalog
 
             if (this.Id > 0)
             {
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
                 {
                     return excelStructure;
                 }

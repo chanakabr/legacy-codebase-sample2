@@ -1215,8 +1215,7 @@ namespace Core.Notification
                 return null;
             }
 
-            var devices = Core.Users.ConcurrencyManager.GetDomainDevices(response.m_user.m_domianID, partnerId);
-
+            var devices = Api.api.Instance.GetDomainDevices(response.m_user.m_domianID, partnerId);
             if (devices == null || !devices.ContainsKey(pushMessage.Udid))
             {
                 log.Error($"{DEVICE_NOT_IN_DOMAIN}, device: {pushMessage.Udid} Domain: {response.m_user.m_domianID}");

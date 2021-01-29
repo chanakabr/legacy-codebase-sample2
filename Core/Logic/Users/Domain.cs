@@ -585,7 +585,7 @@ namespace Core.Users
                     domainCache.RemoveDomain(groupId, domainId);
                     InvalidateDomain();
 
-                    var domainDevices = ConcurrencyManager.GetDomainDevices(domainId, groupId);
+                    var domainDevices = Api.api.Instance.GetDomainDevices(domainId, groupId);
                     if (domainDevices != null && !domainDevices.ContainsKey(udid))
                     {
                         domainDevices.Add(udid, device.m_deviceFamilyID);
@@ -2037,7 +2037,7 @@ namespace Core.Users
             concurrentDeviceFamilyIdCount = 0;
             List<DevicePlayData> streamingDevicePlayData = new List<DevicePlayData>();
             List<DevicePlayData> devicePlayDataList =
-                CatalogDAL.GetDevicePlayDataList(ConcurrencyManager.GetDomainDevices(this.m_nDomainID, this.m_nGroupID),
+                CatalogDAL.GetDevicePlayDataList(Api.api.Instance.GetDomainDevices(this.m_nDomainID, this.m_nGroupID),
                     new List<ePlayType>() {ePlayType.NPVR, ePlayType.MEDIA, ePlayType.EPG},
                     ConcurrencyManager.GetConcurrencyMillisecThreshold(this.m_nGroupID), udid);
 
@@ -2706,7 +2706,7 @@ namespace Core.Users
                 {
                     int concurrencyMillisecThreshold = ConcurrencyManager.GetConcurrencyMillisecThreshold(this.m_nGroupID);
                     List<DevicePlayData> devicePlayDataList =
-                        CatalogDAL.GetDevicePlayDataList(ConcurrencyManager.GetDomainDevices((int) domainId, this.m_nGroupID),
+                        CatalogDAL.GetDevicePlayDataList(Api.api.Instance.GetDomainDevices((int) domainId, this.m_nGroupID),
                             new List<ePlayType>() {ePlayType.NPVR, ePlayType.MEDIA},
                             concurrencyMillisecThreshold, udid);
 

@@ -395,6 +395,18 @@ namespace ElasticSearch.Common
             return sRes;
         }
 
+        public IEnumerable<string> GetMappingsNames(string indexName)
+        {
+            var responseBody = GetAllMappings(indexName);
+            if (responseBody.IsNullOrEmpty()) throw new Exception($"can't get mappings for index:{indexName}");
+            
+            var json = JObject.Parse(responseBody);
+            var mappingObject = json.SelectTokens("*.mappings").FirstOrDefault();
+            if (mappingObject == null) throw new Exception($"can't get mappings for index:{indexName}");
+            
+            return mappingObject.Children<JProperty>().Select(_ => _.Name).ToList();
+        }
+
         public bool InsertMapping(string sIndex, string sMapName, string sMappingObject)
         {
             bool bResult = false;

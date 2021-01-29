@@ -16,7 +16,10 @@ namespace ApiObjects
 
         [JsonProperty()]
         public int Order { get; set; }
-        
+
+        [JsonProperty()]
+        public long? VersionId { get; set; }
+
         #endregion
 
         #region Ctor

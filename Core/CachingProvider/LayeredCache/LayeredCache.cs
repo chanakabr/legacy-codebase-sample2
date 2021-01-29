@@ -17,7 +17,15 @@ using System.Text.RegularExpressions;
 
 namespace CachingProvider.LayeredCache
 {
-    public class LayeredCache
+    public interface ILayeredCache
+    {
+        bool Get<T>(string key, ref T genericParameter, Func<Dictionary<string, object>, Tuple<T, bool>> fillObjectMethod, Dictionary<string, object> funcParameters,
+                            int groupId, string layeredCacheConfigName, List<string> inValidationKeys = null, bool shouldUseAutoNameTypeHandling = false);
+
+        bool SetInvalidationKey(string key, DateTime? updatedAt = null);
+    }
+
+    public class LayeredCache : ILayeredCache
     {
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -31,7 +39,6 @@ namespace CachingProvider.LayeredCache
         public const string IS_READ_ACTION = "IsReadAction";
         public const string CURRENT_REQUEST_LAYERED_CACHE = "CurrentRequestLayeredCache";
         public const string DATABASE_ERROR_DURING_SESSION = "DATABASE_ERROR_DURING_SESSION";
-
         public const string REQUEST_TAGS = "request_tags";
         public const string REQUEST_TAGS_PARTNER_ROLE = "partner_role";
 
@@ -40,6 +47,8 @@ namespace CachingProvider.LayeredCache
             "get", "list", "getContext", "playManifest"
         };
 
+        private readonly bool ShouldProduceInvalidationEventsToKafka;
+        private readonly string InvalidationEventsTopic = ApplicationConfiguration.Current.MicroservicesClientConfiguration.LayeredCacheConfiguration.InvalidationEventsTopic.Value;
         private readonly IEventBusPublisher _InvalidationEventsPublisher;
         private List<Regex> _InvalidationEventsRegexRules;
 
@@ -47,17 +56,31 @@ namespace CachingProvider.LayeredCache
         {
             layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
             jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
-            if (layeredCacheTcmConfig.ShouldProduceInvalidationEventsToKafka)
+            ShouldProduceInvalidationEventsToKafka = GetShouldProduceInvalidationEventsToKafkaValue();
+            if (ShouldProduceInvalidationEventsToKafka)
             {
                 _InvalidationEventsPublisher = KafkaPublisher.GetFromTcmConfiguration();
                 LoadInvalidationEventsRules();
             }
         }
 
+        private bool GetShouldProduceInvalidationEventsToKafkaValue()
+        {
+            bool shouldProduceInvalidationEventsToKafka = ApplicationConfiguration.Current.MicroservicesClientConfiguration.LayeredCacheConfiguration.ShouldProduceInvalidationEventsToKafka.Value;            
+            string envVariableShouldProduceInvalidationEventsToKafka = Environment.GetEnvironmentVariable("SHOULD_PRODUCE_INVALIDATION_EVENTS_TO_KAFKA");
+            bool shouldProduceInvalidationEventsToKafkaOverride;
+            if (!string.IsNullOrEmpty(envVariableShouldProduceInvalidationEventsToKafka) && bool.TryParse(envVariableShouldProduceInvalidationEventsToKafka, out shouldProduceInvalidationEventsToKafkaOverride))
+            {
+                shouldProduceInvalidationEventsToKafka = shouldProduceInvalidationEventsToKafkaOverride;
+            }
+
+            return shouldProduceInvalidationEventsToKafka;
+        }
+
         private void LoadInvalidationEventsRules()
         {
             _InvalidationEventsRegexRules = new List<Regex>();
-            foreach (var regexRule in layeredCacheTcmConfig.InvalidationEventsMatchRules)
+            foreach (var regexRule in ApplicationConfiguration.Current.MicroservicesClientConfiguration.LayeredCacheConfiguration.InvalidationEventsMatchRules.Value)
             {
                 try
                 {
@@ -732,18 +755,6 @@ namespace CachingProvider.LayeredCache
                 if (!string.IsNullOrEmpty(layeredCacheConfigurationString))
                 {
                     layeredCacheTcmConfig = Newtonsoft.Json.JsonConvert.DeserializeObject<LayeredCacheTcmConfig>(layeredCacheConfigurationString, layeredCacheConfigSerializerSettings);
-
-                    string envVariableShouldProduceInvalidationEventsToKafka = Environment.GetEnvironmentVariable("SHOULD_PRODUCE_INVALIDATION_EVENTS_TO_KAFKA");
-
-                    if (!string.IsNullOrEmpty(envVariableShouldProduceInvalidationEventsToKafka))
-                    {
-                        bool shouldProduceInvalidationEventsToKafka;
-
-                        if (bool.TryParse(envVariableShouldProduceInvalidationEventsToKafka, out shouldProduceInvalidationEventsToKafka))
-                        {
-                            layeredCacheTcmConfig.ShouldProduceInvalidationEventsToKafka = shouldProduceInvalidationEventsToKafka;
-                        }
-                    }
                 }
             }
             catch (Exception ex)
@@ -1451,7 +1462,7 @@ namespace CachingProvider.LayeredCache
         private bool TrySetInValidationKey(string key, long valueToUpdate)
         {
             bool res = false;
-            if (layeredCacheTcmConfig.ShouldProduceInvalidationEventsToKafka)
+            if (ShouldProduceInvalidationEventsToKafka)
             {
                 ProduceInvalidationEvent(key);
             }
@@ -1499,7 +1510,7 @@ namespace CachingProvider.LayeredCache
                     }
                 }
                 
-                var invalidationEvent = new CacheInvalidationEvent(key, layeredCacheTcmConfig.InvalidationEventsTopic);
+                var invalidationEvent = new CacheInvalidationEvent(key, InvalidationEventsTopic);
                 if (invalidationEvent != null)
                 {
                     _InvalidationEventsPublisher.Publish(invalidationEvent);

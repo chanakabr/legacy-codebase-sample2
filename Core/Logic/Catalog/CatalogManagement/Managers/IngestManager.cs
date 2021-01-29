@@ -51,7 +51,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             CatalogGroupCache cache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out cache))
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out cache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling HandleMediaIngest", groupId);
                 return ingestResponse;
@@ -367,7 +367,7 @@ namespace Core.Catalog.CatalogManagement
         {
             var tagToInvalidate = tag.GetTagToInvalidate(false, defaultLanguageId);
 
-            var addTagResponse = CatalogManager.AddTag(groupId, tagToInvalidate.TagValue, USER_ID, true);
+            var addTagResponse = CatalogManager.Instance.AddTag(groupId, tagToInvalidate.TagValue, USER_ID, true);
             if (!addTagResponse.HasObject())
             {
                 string errorMsg = string.Format("AddTagTranslations faild. topicName: {0}, topicId: {1}, tagValue: {2}, addTagStatus: {3}.",

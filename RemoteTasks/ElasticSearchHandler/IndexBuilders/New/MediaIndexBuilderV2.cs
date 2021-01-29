@@ -75,7 +75,7 @@ namespace ElasticSearchHandler.IndexBuilders
             bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
             if (doesGroupUsesTemplates)
             {
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildIndex", groupId);
                     return false;

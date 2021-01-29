@@ -315,57 +315,17 @@ namespace DAL
             return string.Empty;            
         }
 
-        public static int GetDeviceID(string sDeviceUDID, int nGroupID, int? nDeviceBrandID = null, int? nDeviceFamilyID = null, int? nStatus = null)
+        public static int GetDeviceId(string deviceUdid, int groupId, int? deviceBrandId = null, int? deviceFamilyId = null, int? status = null)
         {
-            int retVal = 0;
-            ODBCWrapper.DataSetSelectQuery selectQuery = null;
-            try
-            {
-                selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
-                selectQuery += "select id from devices with (nolock) where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_id", "=", sDeviceUDID);
+            var sp = new StoredProcedure("Get_DeviceID");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@DeviceUDID", deviceUdid);
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@DeviceBrandID", deviceBrandId);
+            sp.AddParameter("@DeviceFamilyID", deviceFamilyId);
+            sp.AddParameter("@Status", status);
 
-                if (nDeviceBrandID.HasValue)
-                {
-                    selectQuery += "and ";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_brand_id", "=", nDeviceBrandID);
-                }
-                if (nDeviceFamilyID.HasValue)
-                {
-                    selectQuery += "and ";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("device_family_id", "=", nDeviceFamilyID);
-                }
-                //if (nGroupID.HasValue)
-                //{
-                selectQuery += "and ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
-                //}
-                if (nStatus.HasValue)
-                {
-                    selectQuery += "and ";
-                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
-                }
-
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    int deviceCount = selectQuery.Table("query").DefaultView.Count;
-                    if (deviceCount > 0)
-                    {
-                        retVal = int.Parse(selectQuery.Table("query").DefaultView[0].Row["id"].ToString());
-                    }
-                }
-
-            }
-            finally
-            {
-                if (selectQuery != null)
-                {
-                    selectQuery.Finish();
-                }
-            }
-
-            return retVal;
+            return sp.ExecuteReturnValue<int>();
         }
 
         public static int InsertNewDevice(

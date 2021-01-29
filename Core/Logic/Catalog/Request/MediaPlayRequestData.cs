@@ -1,17 +1,14 @@
-﻿using System.Data;
-using System.Xml.Serialization;
-using System.Runtime.Serialization;
-using TVinciShared;
-using DAL;
-using Tvinci.Core.DAL;
-using System;
-using System.Text;
-using ApiObjects;
-using ApiObjects.MediaMarks;
-using System.Collections.Generic;
-using Core.Users;
+﻿using ApiObjects;
 using ApiObjects.Catalog;
-using Core.ConditionalAccess;
+using ApiObjects.MediaMarks;
+using Core.Users;
+using DAL;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Text;
+using Tvinci.Core.DAL;
+using TVinciShared;
 
 namespace Core.Catalog.Request
 {
@@ -51,13 +48,12 @@ namespace Core.Catalog.Request
             this.IsReportingMode = false;
         }
 
-        public DevicePlayData GetOrCreateDevicePlayData(int mediaId, MediaPlayActions action, int groupId, bool isLinearChannel, ePlayType playType, int domainId,  
-                                                        long recordingId, int platform, int countryId, eExpirationTTL ttl = eExpirationTTL.Short, bool isReportingMode = false)
+        public DevicePlayData GetOrCreateDevicePlayData(int mediaId, MediaPlayActions action, int groupId, bool isLinearChannel, ePlayType playType, int domainId,
+                                                        string recordingId, int platform, int countryId, eExpirationTTL ttl = eExpirationTTL.Short, bool isReportingMode = false)
         {
             DevicePlayData currDevicePlayData = null;
             int userId = StringUtils.ConvertTo<int>(this.m_sSiteGuid);
             int deviceFamilyId = 0;
-            string npvrId = recordingId != 0 ? recordingId.ToString() : string.Empty;
 
             if (userId > 0)
             {
@@ -69,14 +65,14 @@ namespace Core.Catalog.Request
 
                 if (!isReportingMode)
                 {
-                    deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
+                    deviceFamilyId = Api.api.Instance.GetDeviceFamilyIdByUdid(domainId, groupId, this.m_sUDID);
                 }
             }
 
             if (IsReportingMode)
             {
                 currDevicePlayData = new DevicePlayData(this.m_sUDID, mediaId, userId, 0, playType, action, deviceFamilyId, DateTime.UtcNow.ToUtcUnixTimestampSeconds(), this.ProgramId,
-                                                        npvrId, domainId)
+                                                        recordingId, domainId)
                 {
                     PlayCycleKey = Guid.NewGuid().ToString()
                 };
@@ -96,13 +92,13 @@ namespace Core.Catalog.Request
                     uint expirationTTL = ConcurrencyManager.GetDevicePlayDataExpirationTTL(groupId, ttl);
 
                     currDevicePlayData = CatalogDAL.InsertDevicePlayDataToCB(userId, this.m_sUDID, domainId, mediaConcurrencyRuleIds, assetMediaRulesIds, assetEpgRulesIds,
-                        mediaId, this.ProgramId, deviceFamilyId, playType, npvrId, expirationTTL, action);
+                        mediaId, this.ProgramId, deviceFamilyId, playType, recordingId, expirationTTL, action);
                 }
 
                 // update NpvrId
-                if (currDevicePlayData != null && string.IsNullOrEmpty(currDevicePlayData.NpvrId) && recordingId != 0)
+                if (currDevicePlayData != null && string.IsNullOrEmpty(currDevicePlayData.NpvrId) && string.IsNullOrEmpty(recordingId))
                 {
-                    currDevicePlayData.NpvrId = npvrId;
+                    currDevicePlayData.NpvrId = recordingId;
                 }
 
                 // update program assetEpgRules for linearChannel
@@ -119,7 +115,7 @@ namespace Core.Catalog.Request
 
                     // get partner configuration for ttl.
                     uint expirationTTL = ConcurrencyManager.GetDevicePlayDataExpirationTTL(groupId, ttl);
-                    
+
                     // save new devicePlayData
                     CatalogDAL.UpdateOrInsertDevicePlayData(newDevicePlayData, false, expirationTTL);
                     currDevicePlayData = newDevicePlayData;

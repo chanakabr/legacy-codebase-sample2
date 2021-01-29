@@ -48,7 +48,7 @@ namespace WebAPI.Models.Domains
             }
         }
 
-        internal override void ValidateForAdd()
+        public override void ValidateForAdd()
         {
             if (string.IsNullOrEmpty(this.Code))
             {

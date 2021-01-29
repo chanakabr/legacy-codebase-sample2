@@ -1,11 +1,7 @@
-﻿using ApiLogic.Api;
-using ApiLogic.Base;
-using ApiLogic.Catalog;
-using APILogic.Api.Managers;
+﻿using APILogic.Api.Managers;
 using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.Roles;
-using Core.Catalog.Handlers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -13,7 +9,6 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
-using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API

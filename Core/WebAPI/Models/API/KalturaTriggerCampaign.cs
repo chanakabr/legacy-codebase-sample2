@@ -52,7 +52,7 @@ namespace WebAPI.Models.API
         [SchemeProperty(IsNullable = true, RequiresPermission = (int)RequestType.READ)]
         public List<KalturaCondition> TriggerConditions { get; set; }
 
-        internal override void ValidateForAdd()
+        public override void ValidateForAdd()
         {
             base.ValidateForAdd();
 

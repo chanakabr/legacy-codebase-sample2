@@ -128,7 +128,11 @@
         public const string GET_CAMPAIGN_BY_ID = "Get_CampaignsByIdDB";
         public const string GET_DYNAMIC_LIST_BY_ID = "Get_DynamicListByIdDB";
         public const string GET_DYNAMIC_LIST_MAP = "Get_DynamicListMap";
+        public const string BUILD_CATEGORY_VERSION = "BuildCategoryVersion";
+        public const string GET_CATEGORY_VERSION_DEFAULTS = "GetCategoryVersionDefaults";
+        public const string GET_CATEGORY_VERSIONS_OF_TREE = "GetCategoryVersionsOfTree";
         public const string GET_KS_VALIDATION = "Get_KsValidation";
+        public const string GET_OPC_PARTNER_CONFIG = "GetOpcPartnerConfig";
 
         #endregion
 

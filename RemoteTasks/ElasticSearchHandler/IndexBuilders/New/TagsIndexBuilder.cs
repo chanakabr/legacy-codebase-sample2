@@ -57,7 +57,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 try
                 {
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildIndex", groupId);
                         return false;
@@ -151,7 +151,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 #region Populate Index
 
-                var allTagValues = CatalogManager.GetAllTagValues(groupId);
+                var allTagValues = CatalogManager.Instance.GetAllTagValues(groupId);
 
                 if (allTagValues == null)
                 {

@@ -90,8 +90,7 @@ namespace Core.Catalog.Request
 
             if (m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.MEDIA || m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.EPG)
             {
-                int t;
-                if (!int.TryParse(m_oMediaPlayRequestData.m_sAssetID, out t))
+                if (!int.TryParse(m_oMediaPlayRequestData.m_sAssetID, out int t))
                 {
                     response.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.ERROR);
                     response.m_sDescription = "Media id not a number";
@@ -101,16 +100,13 @@ namespace Core.Catalog.Request
             
             long recordingId = 0;
             int fileDuration = 0;
-            int assetId = 0;
+            bool isGroupHaveNPVRImpl = false;
 
-            if (m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.NPVR && long.TryParse(this.m_oMediaPlayRequestData.m_sAssetID, out recordingId))
+            if (m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.NPVR && !string.IsNullOrEmpty(this.m_oMediaPlayRequestData.m_sAssetID))
             {
-                assetId = int.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
-                NPVR.INPVRProvider npvrProvider;
-        
-                bool isGroupHaveNPVRImpl = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider, null);
+                isGroupHaveNPVRImpl = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out NPVR.INPVRProvider npvrProvider, null);
 
-                if (!isGroupHaveNPVRImpl && !CatalogLogic.GetNPVRMarkHitInitialData(assetId, ref fileDuration, this.m_nGroupID, this.domainId))
+                if (!isGroupHaveNPVRImpl && long.TryParse(this.m_oMediaPlayRequestData.m_sAssetID, out recordingId) && !CatalogLogic.GetNPVRMarkHitInitialData(recordingId, ref fileDuration, this.m_nGroupID, this.domainId))
                 {
                     response.m_sStatus = eResponseStatus.RecordingNotFound.ToString();
                     response.m_sDescription = "Recording doesn't exist";
@@ -140,9 +136,15 @@ namespace Core.Catalog.Request
 
                     bool isLinearChannel = IsLinearChannel((int)this.m_oMediaPlayRequestData.m_eAssetType);
 
-                    DevicePlayData devicePlayData = 
-                        m_oMediaPlayRequestData.GetOrCreateDevicePlayData(assetId, MediaPlayActions.HIT, this.m_nGroupID, isLinearChannel, ePlayType.NPVR, 0, 
-                                                                          recordingId, platform, countryId);
+                    int assetId = 0;
+                    if (m_oMediaPlayRequestData.m_eAssetType != eAssetTypes.NPVR || (m_oMediaPlayRequestData.m_eAssetType == eAssetTypes.NPVR && !isGroupHaveNPVRImpl))
+                    {
+                        assetId = int.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
+                    }
+
+                    DevicePlayData devicePlayData =
+                        m_oMediaPlayRequestData.GetOrCreateDevicePlayData(assetId, MediaPlayActions.HIT, this.m_nGroupID, isLinearChannel, ePlayType.NPVR, 0,
+                                                                          recordingId.ToString(), platform, countryId);
 
                     if (devicePlayData == null)
                     {
@@ -223,7 +225,7 @@ namespace Core.Catalog.Request
                 }
 
                 var currDevicePlayData = m_oMediaPlayRequestData.GetOrCreateDevicePlayData(mediaId, action, this.m_nGroupID, isLinearChannel, ePlayType.MEDIA, 
-                                                                                           this.domainId, 0, platform, countryId);
+                                                                                           this.domainId, "0", platform, countryId);
                 if (currDevicePlayData == null)
                 {
                     mediaHitResponse.m_sStatus = CatalogLogic.GetMediaPlayResponse(MediaPlayResponse.ERROR);

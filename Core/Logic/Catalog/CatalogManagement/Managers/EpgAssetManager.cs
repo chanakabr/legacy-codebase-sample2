@@ -379,7 +379,7 @@ namespace Core.Catalog.CatalogManagement
             result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             //update CB
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache))
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteEpgAsset", groupId);
                 return null;
@@ -566,7 +566,7 @@ namespace Core.Catalog.CatalogManagement
                     if (groupId.HasValue && epgIds != null && epgIds.Count > 0)
                     {
                         CatalogGroupCache catalogGroupCache;
-                        if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
+                        if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId.Value, out catalogGroupCache))
                         {
                             log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetEpgAssets", groupId);
                             return null;
@@ -1583,7 +1583,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static void RemoveTopicsFromProgramEpgCBs(int groupId, long epgId, List<string> programMetas, List<string> programTags)
         {
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache))
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling RemoveTopicsFromProgramEpgCBs", groupId);
                 return;

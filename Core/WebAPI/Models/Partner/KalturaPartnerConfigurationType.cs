@@ -18,7 +18,8 @@ namespace WebAPI.Models.Partner
         Playback,
         Payment,
         Catalog,
-        Security
+        Security,
+        Opc
     }
 
     /// <summary>

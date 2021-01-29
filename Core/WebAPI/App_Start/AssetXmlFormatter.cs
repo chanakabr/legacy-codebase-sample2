@@ -689,7 +689,7 @@ namespace WebAPI.App_Start
                             XmlDocument doc = SerializeToXmlDocument(resultFeed);
 
                             // remove root attributes
-                            doc.GetElementsByTagName("feed")[0].Attributes.RemoveAll();
+                            doc.GetElementsByTagName("feed")[0].Attributes?.RemoveAll();
 
                             // remove declaration 
                             var declaration = doc.ChildNodes.OfType<XmlNode>().FirstOrDefault(x => x.NodeType == XmlNodeType.XmlDeclaration);
@@ -731,8 +731,9 @@ namespace WebAPI.App_Start
                     var restResultWrapper = (StatusWrapper)obj;
                     if (restResultWrapper.Result is KalturaAssetListResponse result)
                     {
-                        var doc = SerializeToXmlDocument(resultFeed);
                         resultFeed = ConvertResultToIngestObj(result);
+                        XmlDocument doc = SerializeToXmlDocument(resultFeed);
+
 
                         // remove root attributes
                         doc.GetElementsByTagName("feed")[0].Attributes?.RemoveAll();

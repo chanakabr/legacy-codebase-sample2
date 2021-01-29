@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace ApiObjects.Response
 {
@@ -18,6 +13,12 @@ namespace ApiObjects.Response
             Status = new Status(eResponseStatus.Error);
             Objects = new List<T>();
             TotalItems = 0;
+        }
+
+        public GenericListResponse(Status status, List<T> objs)
+        {
+            Status = status;
+            Objects = objs;
         }
 
         public void SetStatus(eResponseStatus responseStatus, string message = null, List<KeyValuePair> args = null)

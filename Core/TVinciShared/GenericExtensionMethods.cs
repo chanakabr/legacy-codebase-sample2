@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace TVinciShared
 {
@@ -75,6 +73,21 @@ namespace TVinciShared
         public static bool IsNullableType(this Type type)
         {
             return Nullable.GetUnderlyingType(type) != null;
+        }
+
+        public static T Clone<T>(this T source)
+        {
+            // Don't serialize a null object, simply return the default for that object
+            if (Object.ReferenceEquals(source, null))
+            {
+                return default(T);
+            }
+
+            var serializeSettings = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
+            var serializeObject = JsonConvert.SerializeObject(source, serializeSettings);
+            
+            var deserializeSettings = new JsonSerializerSettings { ObjectCreationHandling = ObjectCreationHandling.Replace };
+            return JsonConvert.DeserializeObject<T>(serializeObject, deserializeSettings);
         }
     }
 }

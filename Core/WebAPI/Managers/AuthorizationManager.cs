@@ -24,6 +24,7 @@ using ApiObjects.Response;
 using SessionManager;
 using AuthenticationGrpcClientWrapper;
 using CachingProvider.LayeredCache;
+using CachingProvider;
 
 namespace WebAPI.Managers
 {
@@ -35,8 +36,11 @@ namespace WebAPI.Managers
         private const string APP_TOKEN_PRIVILEGE_APP_TOKEN = "apptoken";
         private const string CB_SECTION_NAME = "tokens";
         private const string REVOKED_SESSION_KEY_FORMAT = "r_session_{0}";
+        private const string KS_VALIDATION_FALLBACK_EXPIRATION_KEY = "ks_validation_fallback_expiration_{0}";
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
+        // sending empty string since it isn't used in hybrid cache anyway
+        private static ICachingService groupKsValidationFallbackCache = HybridCache<object>.GetInstance(CouchbaseManager.eCouchbaseBucket.OTT_APPS, string.Empty);
 
         public static KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
@@ -708,60 +712,86 @@ namespace WebAPI.Managers
                 return ValidateKsSignature(ks);
             }
 
+            if (validateExpiration && ks.Expiration < DateTime.UtcNow)
+            {
+                return false;
+            }
+
             if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.KSStatusCheck.Value)
             {
                 //use cache if not found
                 //call GRPC         
-                var resultData = false;
+                var isKSValid = false;
                 var hashedKS = new Core.Users.SHA384Encrypter().Encrypt(ks.ToString(), "");
                 var key = LayeredCacheKeys.GetKsValidationResultKey(hashedKS);                
                 var invalidationKeys = new List<string>() { LayeredCacheKeys.GetValidateKsInvalidationKey(hashedKS, ks.GroupId) };
 
                 bool isCacheResultRetrived = LayeredCache.Instance.Get<bool>(key,
-                                                        ref resultData,
+                                                        ref isKSValid,
                                                         GetKsValidationResult,
                                                         new Dictionary<string, object>() { { "ks", ks.ToString() }, { "ksPartnerId", (long)ks.GroupId } },
                                                         ks.GroupId,
                                                         LayeredCacheConfigNames.GET_KS_VALIDATION,
                                                         invalidationKeys);
                 //return result if found
-                //this should work with migration
                 if (isCacheResultRetrived)
                 {
-                    bool isKSValid = resultData;
-                    var isKSStatusCheckFallbackEnabled =
-                        ApplicationConfiguration.Current.MicroservicesClientConfiguration
-                        .Authentication.DataOwnershipConfiguration.KSStatusCheckFallbackEnabled.Value;
-
-
-                    //on no fallback just return the result
-                    if (!isKSStatusCheckFallbackEnabled)
-                    {
-                        return isKSValid;
-                    }
-
-                    //if ks result is not valid it means that it found revocation data in the database
+                    // if we found the ks is not valid on authentication MS, no need to continue and we can return false
                     if (!isKSValid)
                     {
                         return false;
                     }
 
-                    //if is valid it might be beacuse didnt find any revocation data
-                    //we need to check with couchbase for now until we will add migration
-                    //so itll call the legacy code
+                    bool isKSStatusCheckFallbackEnabled = DateTime.UtcNow.ToUtcUnixTimestampSeconds() <= GetGroupKsValidationFallbackExpiration(ks.GroupId);
+
+                    //in case the fallback already expired for this account, return the result we got from authentication MS
+                    if (!isKSStatusCheckFallbackEnabled)
+                    {
+                        return isKSValid;
+                    }
+
+                    // since we got until here, it means we need the fall back mechanism so we have the return ValidateKSLegacy(ks); at the end
                 }
             }
 
-            return ValidateKSLegacy(ks, validateExpiration);
+            return ValidateKSLegacy(ks);
         }
 
-        private static bool ValidateKSLegacy(KS ks, bool validateExpiration)
+        private static long GetGroupKsValidationFallbackExpiration(int groupId)
         {
-            if (validateExpiration && ks.Expiration < DateTime.UtcNow)
+            //throw new NotImplementedException("GetGroupKsValidationFallbackExpiration not implemented");
+            long groupKsValidationFallbackExpiration = long.MaxValue;
+            string key = string.Format(KS_VALIDATION_FALLBACK_EXPIRATION_KEY, groupId);
+            ulong version = 0;
+            if (groupKsValidationFallbackCache.GetWithVersion<long>(key, out version, ref groupKsValidationFallbackExpiration))
             {
-                return false;
+                return groupKsValidationFallbackExpiration;
             }
 
+            Group group = GroupsManager.GetGroup(groupId);
+            long expirationPeriodInSeconds = Math.Max(group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds);
+            long refreshTokenExpirationPeriod = 0;
+            // assuming account is using refresh token we need to check which refresh token expiration is longer
+            if (group.IsRefreshTokenEnabled)
+            {
+                refreshTokenExpirationPeriod = Math.Max(group.RefreshTokenExpirationSeconds, group.RefreshExpirationForPinLoginSeconds);
+            }
+
+            // set the largest expiration period per group configuration to be on the safe side
+            expirationPeriodInSeconds = Math.Max(expirationPeriodInSeconds, refreshTokenExpirationPeriod);
+            // create the expiration time in epoch
+            groupKsValidationFallbackExpiration = DateTime.UtcNow.AddSeconds(expirationPeriodInSeconds).ToUtcUnixTimestampSeconds();            
+            // add to CB
+            if (!groupKsValidationFallbackCache.SetWithVersion(key, groupKsValidationFallbackExpiration, 0, 0))
+            {
+                log.ErrorFormat($"Failed adding KS validation fall back expiration document with key {key} for groupId {groupId}");
+            }
+
+            return groupKsValidationFallbackExpiration;
+        }
+
+        private static bool ValidateKSLegacy(KS ks)
+        {
             Group group = GroupsManager.GetGroup(ks.GroupId);
 
             if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
@@ -795,6 +825,7 @@ namespace WebAPI.Managers
                     }
                 }
             }
+
             if (ks.Privileges != null && ks.Privileges.ContainsKey(APP_TOKEN_PRIVILEGE_SESSION_ID))
             {
                 string sessionId = ks.Privileges[APP_TOKEN_PRIVILEGE_SESSION_ID];

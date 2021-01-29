@@ -5,6 +5,7 @@ using System.Reflection;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Response;
+using Force.DeepCloner;
 using IngestHandler.Common;
 using KLogMonitor;
 
@@ -168,9 +169,11 @@ namespace IngestTransformationHandler.Managers
                 if (programToIngest.StartsBefore(currentProgram))
                 {
                     msg += $"changing current program start date from [{currentProgram.StartDate}], to [{programToIngest.EndDate}]";
+                    HandleMidnightCrossChanges(currentProgram, programToIngest);
+                    
                     currentProgram.StartDate = programToIngest.EndDate;
                     _resultsDictionary[programToIngest.ChannelId][programToIngest.EpgExternalId].AddWarning((int) eResponseStatus.EPGProgramOverlapFixed, msg);
-
+                    
                     // we have to add same program to be deleted as in es it might move to a different index so we delete it agians the entire alias
                     _crudOperations.ItemsToDelete.Add(currentProgram);
                     _crudOperations.AffectedItems.Add(currentProgram);
@@ -184,6 +187,23 @@ namespace IngestTransformationHandler.Managers
 
             // always return true, should handle the cutting
             return true;
+        }
+
+        /// <summary>
+        /// Here we handle program that has been pushed to the next day, so we need to delete it on previous day.
+        /// Cause we're mutating original object, copy of object should be put to save original StartDate.
+        /// For example, current program dates 21 Jan 21:00 - 22 Jan 02:00, we cut it to 22 Jan 01:00 - 22 Jan 02:00.
+        /// </summary>
+        /// <param name="currentProgram"></param>
+        /// <param name="programToIngest"></param>
+        private void HandleMidnightCrossChanges(
+            EpgProgramBulkUploadObject currentProgram,
+            EpgProgramBulkUploadObject programToIngest)
+        {
+            if (currentProgram.StartDate.Date < programToIngest.EndDate.Date)
+            {
+                _crudOperations.ItemsToDelete.Add(currentProgram.ShallowClone());
+            }
         }
     }
 }

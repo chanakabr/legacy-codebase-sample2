@@ -153,7 +153,7 @@ namespace ElasticSearchHandler.IndexBuilders
             if (doesGroupUsesTemplates)
             {
                 // TODO: verify that we need or not to invalidate the group cache before we get the group to get the latest
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     throw new Exception($"failed to get catalogGroupCache for groupId: {groupId} when calling BuildIndex");
                 }
@@ -312,7 +312,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 Dictionary<ulong, Dictionary<string, EpgCB>> programs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
                 if (doesGroupUsesTemplates)
                 {
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling PopulateEpgIndex", groupId);
                         return;

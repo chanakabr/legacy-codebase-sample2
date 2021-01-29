@@ -11166,7 +11166,7 @@ namespace Core.ConditionalAccess
             string playCycleKey;
             if (devicePlayDataToInsert.UserId > 0)
             {
-                int deviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(devicePlayDataToInsert.DomainId, this.m_nGroupID, devicePlayDataToInsert.UDID);
+                int deviceFamilyId = Api.api.Instance.GetDeviceFamilyIdByUdid(devicePlayDataToInsert.DomainId, this.m_nGroupID, devicePlayDataToInsert.UDID);
 
                 // get partner configuration for ttl.
                 uint expirationTTL = ConcurrencyManager.GetDevicePlayDataExpirationTTL(this.m_nGroupID, ttl);
@@ -17451,7 +17451,7 @@ namespace Core.ConditionalAccess
 
             if (isPlaybackManifest)
             {
-                return PlaybackManager.GetPlaybackManifest(m_nGroupID, assetId, assetType, fileIds, streamerType, mediaProtocol, context, sourceType);
+                return PlaybackManager.GetPlaybackManifest(m_nGroupID, assetId, assetType, fileIds, streamerType, mediaProtocol, context, sourceType, userId, udid);
             }
             else
             {
