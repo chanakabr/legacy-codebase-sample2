@@ -1093,6 +1093,8 @@ namespace WebAPI.Clients
         private static DomainDevice CastToDomainDevice(KalturaHouseholdDevice device)
         {
             var domainDevice = Mapper.Map<DomainDevice>(device);
+
+            // BEO-8671: as part of business requirements, entries with empty values are not saved
             domainDevice.DynamicData = domainDevice.DynamicData?
                 .Where(x => !string.IsNullOrWhiteSpace(x.Value))
                 .ToDictionary(x => x.Key, x => x.Value);
