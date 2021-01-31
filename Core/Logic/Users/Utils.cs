@@ -133,18 +133,22 @@ namespace Core.Users
             }
         }
 
-        static public void GetBaseImpl(ref KalturaBaseUsers user, Int32 nGroupID, int operatorId = -1, string className = "User")
+        static public void GetBaseImpl(ref KalturaBaseUsers user, Int32 nGroupID, int operatorId = -1, string className = "User", bool checkForSsoAdapter = true)
         {
             try
             {
-                var httpSsoAdaptersResponse = SSOAdaptersManager.GetSSOAdapters(nGroupID);
-                if (httpSsoAdaptersResponse != null && httpSsoAdaptersResponse.SSOAdapters != null && httpSsoAdaptersResponse.SSOAdapters.Any())
+                // adding for https://kaltura.atlassian.net/browse/GEN-1301, remove sso adapter implementation for GetUserData & GetUsersData
+                if (checkForSsoAdapter)
                 {
-                    var httpSSOAdapter = httpSsoAdaptersResponse.SSOAdapters.First();
-                    user = new KalturaHttpSSOUser(nGroupID, httpSSOAdapter);
+                    var httpSsoAdaptersResponse = SSOAdaptersManager.GetSSOAdapters(nGroupID);
+                    if (httpSsoAdaptersResponse != null && httpSsoAdaptersResponse.SSOAdapters != null && httpSsoAdaptersResponse.SSOAdapters.Any())
+                    {
+                        var httpSSOAdapter = httpSsoAdaptersResponse.SSOAdapters.First();
+                        user = new KalturaHttpSSOUser(nGroupID, httpSSOAdapter);
 
-                    // Return here if we found an hhtp based adapter, it will be stronger than any other implementation configured.
-                    return;
+                        // Return here if we found an HTTP based adapter, it will be stronger than any other implementation configured.
+                        return;
+                    }
                 }
 
                 string moduleName = TvinciCache.ModulesImplementation.GetModuleName(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, USERS_CONNECTION, operatorId);
