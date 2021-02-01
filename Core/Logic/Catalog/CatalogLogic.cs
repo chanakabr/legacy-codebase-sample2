@@ -9168,6 +9168,7 @@ namespace Core.Catalog
 
                         searchDefinitions.pageSize = elasticSearchPageSize;
                         searchDefinitions.shouldReturnExtendedSearchResult = searchDefinitions.extraReturnFields?.Count > 0;
+                        searchDefinitions.isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
 
                         if (elasticSearchPageSize > 0)
                         {
@@ -9493,7 +9494,8 @@ namespace Core.Catalog
                     shouldAddIsActiveTerm = true,
                     filterPhrase = filterTree,
                     extraReturnFields = new List<string>() { "metas.episodenumber", "metas.seasonnumber" },
-                    shouldReturnExtendedSearchResult = true
+                    shouldReturnExtendedSearchResult = true,
+                    isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2)
                 };
 
                 ((ApiObjects.SearchObjects.BooleanLeaf)filterTree).shouldLowercase = true;

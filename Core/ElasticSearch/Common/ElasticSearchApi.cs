@@ -1757,6 +1757,11 @@ namespace ElasticSearch.Common
                 get;
                 set;
             }
+            public string epg_couchbase_key
+            {
+                get;
+                set;
+            }
         }
 
         public class ESSearchResponse

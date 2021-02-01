@@ -91,14 +91,10 @@ namespace Core.Catalog.CatalogManagement
 
         #region Internal Methods
 
-        internal static List<EpgAsset> GetEpgAssetsFromCache(List<long> epgIds, int groupId, List<string> languageCodes = null)
+        internal static List<EpgAsset> GetEpgAssetsFromCache(List<long> epgIds, int groupId, List<string> languageCodes = null,
+            Dictionary<string, string> epgIdToDocumentId = null)
         {
             Dictionary<string, EpgAsset> epgAssets = new Dictionary<string, EpgAsset>();
-
-            if (epgIds == null || epgIds.Count == 0)
-            {
-                return epgAssets.Values.ToList();
-            }
 
             try
             {
@@ -113,7 +109,8 @@ namespace Core.Catalog.CatalogManagement
                                                                {
                                                                   { "groupId", groupId },
                                                                   { "epgIds", epgIds },
-                                                                  { "languageCodes", languageCodes }
+                                                                  { "languageCodes", languageCodes },
+                                                                  { "epgIdToDocumentId", epgIdToDocumentId ?? new Dictionary<string, string>() }
                                                                },
                                                                groupId,
                                                                LayeredCacheConfigNames.GET_EPG_ASSETS_CACHE_CONFIG_NAME,
@@ -577,10 +574,16 @@ namespace Core.Catalog.CatalogManagement
                         var groupEpgPicturesSizes = ImageManager.GetGroupEpgPicturesSizes(groupId.Value);
 
                         var isNewEpgIngestEnabled = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId.Value, GroupFeature.EPG_INGEST_V2);
-                        
+
+                        Dictionary<string, string> epgIdToDocumentId = null;
+                        if (isNewEpgIngestEnabled && funcParams.ContainsKey("epgIdToDocumentId"))
+                        {
+                            epgIdToDocumentId = funcParams["epgIdToDocumentId"] as Dictionary<string, string>;
+                        }
+
                         foreach (var epgId in epgIds)
                         {
-                            var docIds = GetEpgCBKeys(groupId.Value, epgId, languages);
+                            var docIds = GetEpgCBKeys(groupId.Value, epgId, languages, false, epgIdToDocumentId);
                             List<EpgCB> epgCbList = EpgDal.GetEpgCBList(docIds, isNewEpgIngestEnabled);
 
                             if (epgCbList != null && epgCbList.Count > 0)
@@ -663,7 +666,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static List<LanguageObj> GetLanguagesObj(List<string> languageCodes, CatalogGroupCache catalogGroupCache)
         {
-            List<LanguageObj> languages = new List<LanguageObj>();
+            var languages = new List<LanguageObj>();
 
             if (languageCodes != null && languageCodes.Count > 0)
             {
@@ -1820,12 +1823,48 @@ namespace Core.Catalog.CatalogManagement
         /// <param name="langCodes"></param>
         /// <param name="isAddAction">Are we trying to get EPG CB key for an EPG that we are adding right now or to an existing one</param>
         /// <returns></returns>
-        public static List<string> GetEpgCBKeys(int groupId, long epgId, IEnumerable<LanguageObj> langCodes, bool isAddAction = false)
+        public static List<string> GetEpgCBKeys(int groupId, long epgId, IEnumerable<LanguageObj> langCodes, bool isAddAction = false,
+            Dictionary<string, string> epgIdToDocumentId = null)
         {
+            //epgIdToDocumentId -> {[100005191, epg_11709_eng_100005191]}
+            if (epgIdToDocumentId?.Count > 0 && epgIdToDocumentId.ContainsKey(epgId.ToString()))
+            {
+                var response = new List<string>();
+                var docId = epgIdToDocumentId[epgId.ToString()];
+                if (EpgDal.IsIngestV2Format(docId))
+                {
+                    var split = docId.Split('_');
+                    foreach (var langCode in langCodes)
+                    {
+                        var temp = split;
+                        temp[2] = langCode.Code;
+                        response.Add(string.Join("_", temp));
+                    }
+                }
+                else
+                {
+                    //Support non-ingest
+                    foreach (var langCode in langCodes)
+                    {
+                        if (langCode.IsDefault)
+                        {
+                            response.Add($"{epgId}");
+                        }
+                        else
+                        {
+                            response.Add($"epg_{epgId}_lang_{langCode.Code.ToLower()}");
+                        }
+                    }
+                }
+
+                if (response.Count > 0)
+                {
+                    return response;
+                }
+            }
 
             var epgBL = new TvinciEpgBL(groupId);
             return epgBL.GetEpgsCBKeys(groupId, new[] { epgId }, langCodes, isAddAction);
-
         }
 
         public static string GetEpgCBKey(int groupId, long epgId, string langCode = null, bool isAddAction = false)

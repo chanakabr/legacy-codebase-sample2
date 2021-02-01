@@ -910,6 +910,20 @@ namespace Tvinci.Core.DAL
             return resultEpgs;
         }
 
+        public static bool IsIngestV2Format(string documentId)
+        {
+            if (documentId.StartsWith("epg_"))
+            {
+                var tokens = documentId.Split('_');
+                if (tokens.Length == 4 && !tokens[2].Equals("lang")) //V2
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static string HandleKeyForRecording(string key)
         {
             if (key.StartsWith("epg_"))

@@ -1370,7 +1370,8 @@ namespace Core.Catalog.CatalogManagement
             throw new NotImplementedException();
         }
 
-        private static List<Asset> GetAssetsFromCache(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets)
+        private static List<Asset> GetAssetsFromCache(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets,
+            Dictionary<string, string> epgIdToDocumentId = null)
         {
             List<Asset> result = null;
             try
@@ -1397,7 +1398,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (epgIds != null && epgIds.Count > 0)
                     {
-                        var epgAssetsFromCache = EpgAssetManager.GetEpgAssetsFromCache(epgIds, groupId, new List<string>() { "*" });
+                        var epgAssetsFromCache = EpgAssetManager.GetEpgAssetsFromCache(epgIds, groupId, new List<string>() { "*" }, epgIdToDocumentId);
                         if (epgAssetsFromCache != null && epgAssetsFromCache.Count > 0)
                         {
                             result.AddRange(epgAssetsFromCache);
@@ -3167,14 +3168,15 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static List<Asset> GetAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets)
+        public static List<Asset> GetAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets, 
+            Dictionary<string, string> epgIdToDocumentId = null)
         {
             List<Asset> result = null;
             try
             {
                 if (assets != null && assets.Count > 0)
                 {
-                    result = GetAssetsFromCache(groupId, assets, isAllowedToViewInactiveAssets);
+                    result = GetAssetsFromCache(groupId, assets, isAllowedToViewInactiveAssets, epgIdToDocumentId);
                     if (result == null || result.Count != assets.Count)
                     {
                         log.ErrorFormat("Failed getting assets from GetAssetsFromCache, for groupId: {0}, assets: {1}", groupId,
@@ -3204,6 +3206,9 @@ namespace Core.Catalog.CatalogManagement
 
                     Dictionary<string, RecordingSearchResult> recordingsMap = new Dictionary<string, RecordingSearchResult>();
 
+                    var epgIdToDocumentId = new Dictionary<string, string>();
+                    var isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
+
                     foreach (var item in assets)
                     {
                         eAssetTypes assetType = item.AssetType;
@@ -3215,6 +3220,14 @@ namespace Core.Catalog.CatalogManagement
                             recordingsMap.Add(item.AssetId, rsr);
                             assetId = rsr.EpgId;
                             assetType = eAssetTypes.EPG;
+                        }
+                        else if (item.AssetType == eAssetTypes.EPG && isEpgV2 && item is EpgSearchResult)
+                        {
+                            var epgSearchResult = item as EpgSearchResult;
+                            if (!string.IsNullOrEmpty(epgSearchResult.DocumentId))
+                            {
+                                epgIdToDocumentId.Add(item.AssetId, epgSearchResult.DocumentId);
+                            }
                         }
 
                         string key = string.Format("{0}_{1}", assetType.ToString(), assetId);
@@ -3228,7 +3241,7 @@ namespace Core.Catalog.CatalogManagement
 
                     int totalAmountOfDistinctAssets = assetsToRetrieve.Count;
 
-                    List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets);
+                    List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets, epgIdToDocumentId);
 
                     if (!isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count == 0))
                     {
