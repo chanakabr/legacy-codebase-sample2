@@ -13,6 +13,8 @@ namespace EventBus.Kafka
 {
     public class EventBusConsumerKafka : IEventBusConsumer, IDisposable
     {
+        protected internal const string TRACE_ID_HEADER_NAME = "traceId";
+
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private bool _Cancelled = false;
@@ -49,6 +51,14 @@ namespace EventBus.Kafka
                 {
                     // Poll for new messages / events. Blocks until a consume result is available or the operation has been cancelled.
                     var consumedMessage = _ConsumerBuild.Consume(cancellationToken);
+
+
+                    byte[] traceIdHeader;
+                    if (consumedMessage.Message.Headers.TryGetLastBytes(TRACE_ID_HEADER_NAME, out traceIdHeader))
+                    {
+                        var traceIdHeaderString = Encoding.Default.GetString(traceIdHeader);
+                        KLogger.SetRequestId(traceIdHeaderString);
+                    }
 
                     var messageValue = consumedMessage.Message.Value;
                     var messageKey = consumedMessage.Message.Key;
