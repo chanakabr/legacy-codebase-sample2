@@ -185,7 +185,7 @@ namespace WebAPI.Models.Domains
     {
         private const int MaxKeyValues = 5; // numbers from BEO-8671
         private const int MaxKeyLength = 128;
-        private const int MaxValueLength = 256;
+        private const int MaxValueLength = 255;
 
         public static void Validate(this KalturaHouseholdDevice device)
         {
