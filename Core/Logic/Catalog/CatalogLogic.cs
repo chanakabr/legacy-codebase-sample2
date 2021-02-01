@@ -6988,8 +6988,17 @@ namespace Core.Catalog
                                 UserBundlesResponse bundelsResponse = ConditionalAccess.Module.GetUserBundles(groupId, domainId, null);
                                 if (bundelsResponse.status.Code == (int)eResponseStatus.OK)
                                 {
-                                    cacheKey.AppendFormat("_entitlements={0}",
-                                        bundelsResponse.channels != null && bundelsResponse.channels.Count > 0 ? string.Join("|", bundelsResponse.channels.OrderBy(c => c)) : "0");
+                                    string entitlementsMd5 = null;
+                                    try
+                                    {
+                                        entitlementsMd5 = EncryptUtils.HashMD5(bundelsResponse.channels != null && bundelsResponse.channels.Count > 0 ? string.Join("|", bundelsResponse.channels.OrderBy(c => c)) : "0");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.Error("Failed to entitlements KSQL for personal ES cache", ex);
+                                        return key;
+                                    }
+                                    cacheKey.Append($"_entitlements={entitlementsMd5}");
                                 }
                             }
                         }
