@@ -25,6 +25,7 @@ using Tvinci.Core.DAL;
 using TVinciShared;
 using SessionManager;
 using ApiLogic.Users.Security;
+using AuthenticationGrpcClientWrapper;
 
 namespace Core.Users
 {
@@ -1283,8 +1284,7 @@ namespace Core.Users
                 }
             }
 
-            bool res = DomainDal.GetDeviceIdAndBrandByPin(sPIN, nGroupID, ref sUDID, ref nBrandID);
-
+            GetDeviceIdAndBrandByPin(nGroupID, sPIN, ref sUDID, ref nBrandID);
 
             // If devices to register was found in devices table, register it to domain
             if (!string.IsNullOrEmpty(sUDID))
@@ -1327,6 +1327,29 @@ namespace Core.Users
             }
 
             return device;
+        }
+
+        private static void GetDeviceIdAndBrandByPin(int groupId, string pin, ref string udid, ref int brandId)
+        {
+            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.
+                Authentication.DataOwnershipConfiguration.DeviceLoginPin.Value)
+            {
+                var authClient = AuthenticationClient.GetClientFromTCM();
+                udid = authClient.GetDeviceLoginPin(groupId, pin);
+
+                if (string.IsNullOrEmpty(udid))
+                {
+                    log.Warn($"Failed getting device by PIN {pin} on partner {groupId}");
+                }
+                else
+                {
+                    brandId = DomainDal.GetDeviceBrandIdByUdid(groupId, udid);
+                }
+            }
+            else
+            {
+                DomainDal.GetDeviceIdAndBrandByPin(pin, groupId, ref udid, ref brandId);
+            }
         }
 
         public DomainResponseStatus ResetDomain(int nFreqencyType = 0)

@@ -29,6 +29,8 @@ namespace ConfigurationManager.Types
         public BaseValue<bool> SSOAdapterProfiles = new BaseValue<bool>("sso_adapter_profiles", false);
         public BaseValue<bool> RefreshToken = new BaseValue<bool>("refresh_token", false);
         public BaseValue<bool> KSStatusCheck = new BaseValue<bool>("ks_status_check", false,description:"when set to true will call ks validation in auth ms");
+        public BaseValue<bool> DeviceLoginPin = new BaseValue<bool>("device_login_pin", false, 
+            description:"when set to true, when on registering device to domain with PIN, data from authentication ms will be used");
     }
 
     public class MicroServicesLayeredCacheConfiguration : BaseConfig<MicroServicesLayeredCacheConfiguration>

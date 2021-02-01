@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Google.Protobuf.Collections;
+using OTT.Service.Authentication;
 
 namespace AuthenticationGrpcClientWrapper
 {
@@ -245,7 +245,7 @@ namespace AuthenticationGrpcClientWrapper
                 _Logger.Error("Error while calling ListSSOAdapterProfiles Auth GRPC service", e);
                 return null;
             }
-        }
+        }   
 
         public bool ValidateKs(string ks, long ksPartnerId)
         {
@@ -265,6 +265,76 @@ namespace AuthenticationGrpcClientWrapper
                 return true;
             }
         }
-       
+
+        public string GenerateDeviceLoginPin(int partnerId, string udid, long brandId)
+        {
+            try
+            {
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "GenerateDeviceLoginPin"))
+                {
+                    mon.Table = $"partnerId:{partnerId}";
+                    var grpcResponse = _Client.GenerateDevicePin(new GenerateDevicePinRequest()
+                    {
+                        PartnerId = partnerId,
+                        BrandId = brandId,
+                        UDID = udid
+                    });
+
+                    return grpcResponse?.Pin_;
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.Error("Error while calling GenerateDeviceLoginPin Auth GRPC service", e);
+                return null;
+            }
+        }
+
+        public LoginResponse DeviceLoginWithPin(int partnerId, string udid, string pin)
+        {
+            try
+            {
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "DeviceLoginWithPin"))
+                {
+                    mon.Table = $"partnerId:{partnerId}";
+                    var grpcResponse = _Client.DeviceLoginWithPin(new DeviceLoginWithPinRequest()
+                    {
+                        PartnerId = partnerId,
+                        UDID = udid,
+                        Pin = pin,
+                    });
+
+                    return grpcResponse;
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.Error("Error while calling DeviceLoginWithPin Auth GRPC service", e);
+                return null;
+            }
+        }
+
+        public string GetDeviceLoginPin(int partnerId, string pin)
+        {
+            try
+            {
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "GetDeviceLoginPin"))
+                {
+                    mon.Table = $"partnerId:{partnerId}";
+                    var grpcResponse = _Client.GetDeviceLoginPin(new GetDeviceLoginPinRequest()
+                    {
+                        PartnerId = partnerId,
+                        Pin = pin,
+                    });
+
+                    return grpcResponse?.UDID;
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.Error("Error while calling GetDeviceLoginPin Auth GRPC service", e);
+                return null;
+            }
+        }
     }
 }

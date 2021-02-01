@@ -2421,13 +2421,13 @@ namespace DAL
                     var ssoAdaptersResponse = ssoAdapters.SSOAdapterProfiles.Select(s => new SSOAdapter
                     {
                         Id = (int)s.Id,
-                        ExternalIdentifier = s.ExternalId,
-                        AdapterUrl = s.AdapterUrl,
+                        ExternalIdentifier = s.ProfileData.ExternalId,
+                        AdapterUrl = s.ProfileData.AdapterUrl,
                         GroupId = groupId,
-                        IsActive = s.IsActive ? 1 : 0,
-                        Name = s.Name,
-                        SharedSecret = s.SharedSecret,
-                        Settings = ConvertSSOConfigDictionaryToListOfSSOParams(s.Id, groupId, s.SSOConfiguration),
+                        IsActive = s.ProfileData.IsActive ? 1 : 0,
+                        Name = s.ProfileData.Name,
+                        SharedSecret = s.ProfileData.SharedSecret,
+                        Settings = ConvertSSOConfigDictionaryToListOfSSOParams(s.Id, groupId, s.ProfileData.SSOConfiguration),
                     });
                     return ssoAdaptersResponse;
                 }
