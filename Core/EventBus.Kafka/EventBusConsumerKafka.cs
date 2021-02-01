@@ -52,14 +52,20 @@ namespace EventBus.Kafka
                     // Poll for new messages / events. Blocks until a consume result is available or the operation has been cancelled.
                     var consumedMessage = _ConsumerBuild.Consume(cancellationToken);
 
-
-                    byte[] traceIdHeader;
-                    if (consumedMessage.Message.Headers.TryGetLastBytes(TRACE_ID_HEADER_NAME, out traceIdHeader))
+                    // try to get trace ID from header
+                    try
                     {
-                        var traceIdHeaderString = Encoding.Default.GetString(traceIdHeader);
-                        KLogger.SetRequestId(traceIdHeaderString);
+                        byte[] traceIdHeader;
+                        if (consumedMessage.Message.Headers.TryGetLastBytes(TRACE_ID_HEADER_NAME, out traceIdHeader))
+                        {
+                            var traceIdHeaderString = Encoding.Default.GetString(traceIdHeader);
+                            KLogger.SetRequestId(traceIdHeaderString);
+                        }
                     }
-
+                    catch (Exception ex)
+                    {
+                        _Logger.Error($"Failed getting request ID from message header. ex={ex}", ex);
+                    }
                     var messageValue = consumedMessage.Message.Value;
                     var messageKey = consumedMessage.Message.Key;
 
