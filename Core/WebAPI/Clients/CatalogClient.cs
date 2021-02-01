@@ -297,7 +297,8 @@ namespace WebAPI.Clients
                         }
                         else
                         {
-                            assetListResponse = GetMediaByIdForOperator(groupId, language, id);
+                            //assetListResponse = GetMediaByIdForOperator(groupId, language, id);
+                            assetListResponse = GetMediaByIds(groupId, siteGuid, domainId, udid, language, 0, 1, new List<int>() { (int)id }, KalturaAssetOrderBy.START_DATE_DESC);
                         }
                     }
                     else
