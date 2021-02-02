@@ -1939,11 +1939,14 @@ namespace Core.Users
             }
 
             Domain domain = DomainInitializer(groupID, domainID, false);
-
             if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainSuspended, "Domain suspended");
-                return response;
+                if (domain.roleId == 0 || (domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0
+                                                          && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, userID.ToString(), PermissionItems.HOUSEHOLDDEVICE_ADD.ToString())))
+                {
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainSuspended, "Domain suspended");
+                    return response;
+                }
             }
 
             var device = new Device(dDevice.Udid, dDevice.DeviceBrandId, m_nGroupID, dDevice.Name, domainID);
