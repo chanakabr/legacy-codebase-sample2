@@ -1096,7 +1096,7 @@ namespace WebAPI.Clients
 
             // BEO-8671: as part of business requirements, entries with empty values are not saved
             domainDevice.DynamicData = domainDevice.DynamicData?
-                .Where(x => !string.IsNullOrWhiteSpace(x.Value))
+                .Where(x => !string.IsNullOrEmpty(x.Value))
                 .ToDictionary(x => x.Key, x => x.Value);
 
             return domainDevice;
