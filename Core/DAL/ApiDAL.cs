@@ -2371,7 +2371,7 @@ namespace DAL
 
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapter");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapter_V2");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@name", ossAdapter.Name);
@@ -2612,7 +2612,7 @@ namespace DAL
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapterSettings");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapterSettings_V2");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ID", ossAdapterId);
@@ -2634,7 +2634,7 @@ namespace DAL
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_OSSAdapterSettings");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_OSSAdapterSettings_V2");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ID", ossAdapterId);
@@ -2656,7 +2656,7 @@ namespace DAL
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_OSSAdapterSettings");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_OSSAdapterSettings_V2");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ID", ossAdapterId);
