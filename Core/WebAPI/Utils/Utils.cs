@@ -277,23 +277,43 @@ namespace WebAPI.Utils
             return res;
         }
 
+        internal static Dictionary<string, string> ConvertSerializeableDictionary(SerializableDictionary<string, KalturaStringValue> dict)
+        {
+            var res = new Dictionary<string, string>();
+
+            if (dict?.Any() == true)
+            {
+                foreach (KeyValuePair<string, KalturaStringValue> pair in dict)
+                {
+                    if (!res.ContainsKey(pair.Key))
+                    {
+                        res.Add(pair.Key, pair.Value.value);
+                    }
+                    else
+                    {
+                        throw new ClientException((int) StatusCode.ArgumentsDuplicate, $"key {pair.Key} already exists in sent dictionary");
+                    }
+                }
+            }
+
+            return res;
+        }
+
         internal static SerializableDictionary<string, KalturaStringValue> ConvertToSerializableDictionary(Dictionary<string, string> dictionary)
         {
             var result = new SerializableDictionary<string, KalturaStringValue>();
 
-            if (dictionary == null || dictionary.Count <= 0) return result;
-            foreach (KeyValuePair<string, string> pair in dictionary)
+            if (dictionary?.Any() == true)
             {
-                if (!string.IsNullOrEmpty(pair.Key))
+                foreach (KeyValuePair<string, string> pair in dictionary)
                 {
                     if (!result.ContainsKey(pair.Key))
                     {
-                        result.Add(pair.Key, new KalturaStringValue { value = pair.Value });
+                        result.Add(pair.Key, new KalturaStringValue {value = pair.Value});
                     }
                     else
                     {
-                        throw new ClientException((int)StatusCode.ArgumentsDuplicate,
-                            $"key {pair.Key} already exists in sent dictionary");
+                        throw new ClientException((int) StatusCode.ArgumentsDuplicate, $"key {pair.Key} already exists in sent dictionary");
                     }
                 }
             }
