@@ -1941,8 +1941,7 @@ namespace Core.Users
             Domain domain = DomainInitializer(groupID, domainID, false);
             if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
             {
-                if (domain.roleId == 0 || (domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0
-                                                          && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, userID.ToString(), PermissionItems.HOUSEHOLDDEVICE_ADD.ToString())))
+                if (domain.roleId == 0 || !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, userID, PermissionItems.HOUSEHOLDDEVICE_ADD.ToString()))
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainSuspended, "Domain suspended");
                     return response;
