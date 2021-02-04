@@ -607,8 +607,8 @@ namespace Core.Users
             bRemove = false;
             int isDevActive = 0;
             int status = 0;
-            int tempDeviceID = 0;
-            int nDbDomainDeviceID = 0;
+            long tempDeviceID = 0;
+            long nDbDomainDeviceID = 0;
 
             //BEO-4478
             if (m_DomainStatus == DomainStatus.DomainSuspended)
@@ -665,7 +665,7 @@ namespace Core.Users
                             bRemove = true;
                             device.m_domainID = nDomainID;
                             device.m_state = DeviceState.Activated;
-                            int deviceID = device.Save(1, 1, domainDevice);
+                            device.Save(1, 1, domainDevice);
                             GetDeviceList();
 
                             return eRetVal;
@@ -689,7 +689,7 @@ namespace Core.Users
             }
 
             int isActive = 0;
-            int nDeviceID = 0;
+            long nDeviceID = 0;
             // Get row id from domains_devices
             int nDomainsDevicesID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);
 
@@ -698,7 +698,7 @@ namespace Core.Users
             {
                 // Get row id from devices table (not udid)
                 device.m_domainID = nDomainID;
-                int deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId, device.Manufacturer, device.DynamicData);
+                var deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId, device.Manufacturer, device.DynamicData);
                 DomainDevice domainDevice = new DomainDevice()
                 {
                     Id = nDbDomainDeviceID,
@@ -765,7 +765,7 @@ namespace Core.Users
                         bRemove = true;
                         eRetVal = DomainResponseStatus.OK;
                         device.m_domainID = nDomainID;
-                        int deviceID = device.Save(1, 1, domainDevice);
+                        device.Save(1, 1, domainDevice);
 
                         // change the device in the container                      
                         DeviceFamiliesMapping[device.m_deviceFamilyID].ChangeDeviceInstanceState(device.m_deviceUDID, DeviceState.Activated);
@@ -782,7 +782,7 @@ namespace Core.Users
             return eRetVal;
         }
 
-        public DomainResponseStatus RemoveDeviceFromDomain(string udid, bool forceRemove = false, int deviceId = 0)
+        public DomainResponseStatus RemoveDeviceFromDomain(string udid, bool forceRemove = false, long deviceId = 0)
         {
             DomainResponseStatus bRes = DomainResponseStatus.UnKnown;
 
@@ -901,7 +901,7 @@ namespace Core.Users
 
             if (drmPolicy != null)
             {
-                List<int> deviceIds = new List<int>();
+                var deviceIds = new List<long>();
 
                 // check that udid exsits in doimain device list
                 DeviceContainer deviceContainer = this.m_deviceFamilies.FirstOrDefault(x => x.DeviceInstances != null && x.DeviceInstances.Find(u => u.m_deviceUDID == sUDID) != null ? true : false);
@@ -915,7 +915,7 @@ namespace Core.Users
                 if (drmPolicy.FamilyLimitation.Contains(deviceContainer.m_deviceFamilyID))
                 {
                     // get domainDrmId by deviceIds list 
-                    deviceIds = deviceContainer.DeviceInstances.Select(d => int.Parse(d.m_id)).ToList<int>();
+                    deviceIds = deviceContainer.DeviceInstances.Select(d => long.Parse(d.m_id)).ToList();
 
                     return ClearDevicesDrmId(deviceIds);
                 }
@@ -924,11 +924,11 @@ namespace Core.Users
                 {
                     case DrmSecurityPolicy.DeviceLevel: // device - clear only device 
                         // get specific device by udid 
-                        deviceIds = (this.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Where(f => f.m_deviceUDID == sUDID).Select(y => int.Parse(y.m_id)).ToList<int>();
+                        deviceIds = (this.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Where(f => f.m_deviceUDID == sUDID).Select(y => long.Parse(y.m_id)).ToList();
                         break;
                     case DrmSecurityPolicy.HouseholdLevel: // hh - cleare all devices 
                         // get all devices for the domain
-                        deviceIds = (this.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Select(y => int.Parse(y.m_id)).ToList<int>();
+                        deviceIds = (this.m_deviceFamilies.SelectMany(x => x.DeviceInstances).ToList<Device>()).Select(y => long.Parse(y.m_id)).ToList();
                         break;
                     default:
                         break;
@@ -941,7 +941,7 @@ namespace Core.Users
             return false;
         }
 
-        private bool ClearDevicesDrmId(List<int> deviceIds)
+        private bool ClearDevicesDrmId(List<long> deviceIds)
         {
             Dictionary<int, string> domainDrmId;
             if (deviceIds != null && deviceIds.Count > 0)
@@ -960,7 +960,7 @@ namespace Core.Users
             return false;
         }
 
-        private bool IsDeviceExistInDomain(Domain domain, string sUDID, ref int nDeviceID, out Device resultDevice)
+        private bool IsDeviceExistInDomain(Domain domain, string sUDID, ref long nDeviceID, out Device resultDevice)
         {
             resultDevice = null;
 
@@ -1046,8 +1046,8 @@ namespace Core.Users
             }
 
             int isActive = 0;
-            int nDeviceID = 0;
-            int nDomainDeviceID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, nGroupID, sUDID, ref isActive, ref nDeviceID); //DoesDeviceExistInDomain(m_nDomainID, sUDID, ref isActive, ref nDeviceID);
+            long nDeviceID = 0;
+            var nDomainDeviceID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, nGroupID, sUDID, ref isActive, ref nDeviceID); //DoesDeviceExistInDomain(m_nDomainID, sUDID, ref isActive, ref nDeviceID);
 
             if (nDomainDeviceID > 0 && domainResponseStatus != DomainResponseStatus.ExceededLimit)
             {
@@ -1223,7 +1223,7 @@ namespace Core.Users
             return response;
         }
 
-        public static List<Domain> GetDeviceDomains(int deviceID, int groupID)
+        public static List<Domain> GetDeviceDomains(long deviceID, int groupID)
         {
             try
             {
@@ -2182,8 +2182,8 @@ namespace Core.Users
 
             int isActive = 0;
             int status = 0;
-            int deviceID = 0;
-            int nDeviceDomainRecordID = 0;
+            long deviceID = 0;
+            long nDeviceDomainRecordID = 0;
 
             // Now let's see which domain the device belongs to
             int nDeviceDomainID = DomainDal.GetDeviceDomainData(nGroupID, sDeviceUdid, ref deviceID, ref isActive, ref status, ref nDeviceDomainRecordID);

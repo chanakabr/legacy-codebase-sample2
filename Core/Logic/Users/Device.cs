@@ -157,7 +157,7 @@ namespace Core.Users
             return result;
         }
         
-        public int Save(int isActive, int status = 1, DomainDevice device = null, bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
+        public long Save(int isActive, int status = 1, DomainDevice device = null, bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
         {
             if (device == null)
                 device = new DomainDevice();
@@ -165,10 +165,10 @@ namespace Core.Users
             return Save(isActive, status, device.DeviceId, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId, device.Manufacturer, device.DynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
         }
 
-        public int Save(
+        public long Save(
             int isActive,
             int status = 1,
-            int? deviceId = null,
+            long? deviceId = null,
             string macAddress = "",
             string externalId = "",
             string model = "",
@@ -179,7 +179,7 @@ namespace Core.Users
             bool allowNullMacAddress = false,
             bool allowNullDynamicData = false)
         {
-            int retVal = deviceId > 0
+            var retVal = deviceId > 0
                 ? deviceId.Value
                 : DeviceDal.GetDeviceId(m_deviceUDID, m_groupID, m_deviceBrandID, m_deviceFamilyID, status);
 
@@ -227,7 +227,7 @@ namespace Core.Users
 
             if (m_state >= DeviceState.Pending)
             {
-                int nDeviceID = Save(-1, 1, device, allowNullExternalId, allowNullMacAddress, allowNullDynamicData); // Returns device ID, 0 otherwise
+                var nDeviceID = Save(-1, 1, device, allowNullExternalId, allowNullMacAddress, allowNullDynamicData); // Returns device ID, 0 otherwise
                 if (nDeviceID != 0)
                 {
                     res = true;

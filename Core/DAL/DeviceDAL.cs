@@ -10,7 +10,7 @@ namespace DAL
 {
     public class DeviceDal : BaseDal
     {
-        public static bool InitDeviceInDb(int nDeviceID, int nDomainID,
+        public static bool InitDeviceInDb(long nDeviceID, int nDomainID,
                                     int nGroupID, ref string sDbDeviceUDID, ref int nDbDeviceBrandID, ref string sDbDeviceName, ref int nDbDeviceFamilyID, ref string sDbPin, ref DateTime dtDbActivationDate, ref string sDbState)
         {
             bool res = false;
@@ -284,13 +284,13 @@ namespace DAL
             return res;
         }
 
-        public static int GetDeviceIdByUDID(string sDeviceUDID, int nGroupID)
+        public static long GetDeviceIdByUDID(string sDeviceUDID, int nGroupID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_IDInDevicesByDeviceUDID");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
             sp.AddParameter("@DeviceUDID", sDeviceUDID);
             sp.AddParameter("@GroupID", nGroupID);
-            return sp.ExecuteReturnValue<int>();
+            return sp.ExecuteReturnValue<long>();
         }
         
         public static string GetDeviceIdByExternalId(int nGroupID, string externalId)
@@ -364,7 +364,7 @@ namespace DAL
         }
 
         public static bool UpdateDevice(
-            int deviceId,
+            long deviceId,
             string deviceUDID,
             int deviceBrandID,
             int deviceFamilyID,

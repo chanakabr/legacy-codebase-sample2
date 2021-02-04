@@ -224,7 +224,7 @@ namespace Core.Users
             UserState retVal = UserState.Unknown;
             int userSessionID = 0;
 
-            int lIDInDevices = string.IsNullOrEmpty(deviceID) ? 0 : DeviceDal.GetDeviceIdByUDID(deviceID, nGroupID);
+            var lIDInDevices = string.IsNullOrEmpty(deviceID) ? 0 : DeviceDal.GetDeviceIdByUDID(deviceID, nGroupID);
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select is_active, id from users_sessions with (nolock)  where ";
@@ -900,7 +900,7 @@ namespace Core.Users
             User u = new User();
             u.Initialize(siteGuid, nGroupID);
             UserState currentState = GetCurrentUserState(siteGuid, nGroupID);
-            int lIDInDevices = DeviceDal.GetDeviceIdByUDID(sDeviceUDID, nGroupID);
+            var lIDInDevices = DeviceDal.GetDeviceIdByUDID(sDeviceUDID, nGroupID);
             int instanceID = 0;
             UserState userStats = DoUserAction(siteGuid, nGroupID, sessionID, sIP, lIDInDevices > 0 ? lIDInDevices + "" : string.Empty, currentState, UserAction.SignOut, false, ref instanceID);
 

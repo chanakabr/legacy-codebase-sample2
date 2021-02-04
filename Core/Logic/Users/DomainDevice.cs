@@ -19,7 +19,7 @@ namespace Core.Users
 
         public int DomainId { get; set; }
 
-        public int DeviceId { get; set; }
+        public long DeviceId { get; set; }
 
         public string Name { get; set; }
 

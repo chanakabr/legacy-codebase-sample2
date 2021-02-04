@@ -550,8 +550,8 @@ namespace Core.Users
             bInit = device.Initialize(sUDID);
             int nDeviceID = int.Parse(device.m_id);
 
-            int nDomainDeviceID = 0;
-            int nTokenDeviceID = DomainDal.GetDeviceIDByDomainActivationToken(m_nGroupID, sToken, ref nDomainDeviceID);
+            long nDomainDeviceID = 0;
+            var nTokenDeviceID = DomainDal.GetDeviceIDByDomainActivationToken(m_nGroupID, sToken, ref nDomainDeviceID);
 
             if (nDeviceID != nTokenDeviceID)
             {
@@ -610,7 +610,7 @@ namespace Core.Users
             try
             {
                 List<Domain> retVal = null;
-                int deviceID = DeviceDal.GetDeviceIdByUDID(sUDID, m_nGroupID);
+                var deviceID = DeviceDal.GetDeviceIdByUDID(sUDID, m_nGroupID);
                 if (deviceID > 0)
                 {
                     retVal = Domain.GetDeviceDomains(deviceID, m_nGroupID);
@@ -1733,7 +1733,7 @@ namespace Core.Users
             try
             {
                 // get device
-                int deviceID = DeviceDal.GetDeviceIdByUDID(udid, m_nGroupID);
+                var deviceID = DeviceDal.GetDeviceIdByUDID(udid, m_nGroupID);
 
                 // device not found - device not registered
                 if (deviceID == 0)
@@ -1789,7 +1789,7 @@ namespace Core.Users
             try
             {
                 // get device
-                int deviceID = DeviceDal.GetDeviceIdByUDID(udid, m_nGroupID);
+                var deviceID = DeviceDal.GetDeviceIdByUDID(udid, m_nGroupID);
 
                 // device not found - device not registered
                 if (deviceID == 0)
@@ -2267,7 +2267,7 @@ namespace Core.Users
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             domainId = 0;
 
-            int deviceId = DeviceDal.GetDeviceIdByUDID(udid, groupId);
+            var deviceId = DeviceDal.GetDeviceIdByUDID(udid, groupId);
             if (deviceId == 0)
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotExists, "Device does not exist");
