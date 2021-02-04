@@ -152,7 +152,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Model, opt => opt.MapFrom(src => src.Model))
                 .ForMember(dest => dest.Manufacturer, opt => opt.MapFrom(src => src.Manufacturer))
                 .ForMember(dest => dest.ManufacturerId, opt => opt.MapFrom(src => src.ManufacturerId))
-                .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => Utils.Utils.ConvertSerializeableDictionary(src.DynamicData)))
+                .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => src.DynamicData?.ToDictionary(x => x.Key, x => x.Value?.value)))
                 .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
                 ;
 
