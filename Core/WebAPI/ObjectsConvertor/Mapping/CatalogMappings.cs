@@ -818,7 +818,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.IsInherited, opt => opt.MapFrom(src => src.IsInherited))
-                .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag));
+                .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag))
+                .ForMember(dest => dest.IsSuppressed, opt => opt.MapFrom(src => src.IsSuppressed))
+                ;
 
             // KalturaAssetStructMeta to AssetStructMeta
             cfg.CreateMap<KalturaAssetStructMeta, AssetStructMeta>()
@@ -830,7 +832,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                .ForMember(dest => dest.IsInherited, opt => opt.MapFrom(src => src.IsInherited))
-               .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag));
+               .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag))
+               .ForMember(dest => dest.IsSuppressed, opt => opt.MapFrom(src => src.IsSuppressed))
+               ;
 
             #endregion
 
@@ -1457,6 +1461,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.StateEqual));
 
             #endregion CategoryVersion
+        }
+
+        internal static string ConvertGroupByType(KalturaGroupByType? groupByType)
+        {
+            return groupByType.Value.ToString();
         }
 
         private static int? ConvertToNullableInt(bool? value)

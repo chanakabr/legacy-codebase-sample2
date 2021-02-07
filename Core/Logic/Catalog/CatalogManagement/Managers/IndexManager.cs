@@ -297,6 +297,8 @@ namespace Core.Catalog.CatalogManagement
                     return false;
                 }
 
+                var topicMapByName = 4;//ToDo - Matan: dictionary of suppressed true and matching topics
+
                 languagesMap = new Dictionary<int, LanguageObj>(catalogGroupCache.LanguageMapById);
 
                 var metas = catalogGroupCache.TopicsMapById.Values.Where(x => x.Type == ApiObjects.MetaType.Number).Select(y => y.SystemName).ToList();
@@ -304,7 +306,6 @@ namespace Core.Catalog.CatalogManagement
                 {
                     metasToPad = new HashSet<string>(metas);
                 }
-
             }
             else
             {
@@ -344,7 +345,8 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 media.PadMetas(metasToPad);
 
-                                string serializedMedia = esSerializer.SerializeMediaObject(media, suffix);
+
+                                string serializedMedia = esSerializer.SerializeMediaObject(media, topicMapByName, suffix);
                                 string type = GetTanslationType(MEDIA, language);
                                 if (!string.IsNullOrEmpty(serializedMedia))
                                 {
@@ -360,6 +362,9 @@ namespace Core.Catalog.CatalogManagement
                                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetId));
                                     }
                                 }
+
+                                //TODO - Matan: include here the new logic
+                                /*Assign calculated media.meta value to index*/
                             }
                         }
                     }

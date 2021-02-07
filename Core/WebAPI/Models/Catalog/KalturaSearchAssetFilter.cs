@@ -31,7 +31,15 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("idIn")]
         [XmlElement(ElementName = "idIn", IsNullable = true)]
         [Deprecated("5.0.1.0")]
-        public string IdIn { get; set; }       
+        public string IdIn { get; set; }
+
+        /// <summary>
+        /// GroupByType, Omit if not specified otherwise
+        /// </summary>
+        [DataMember(Name = "groupByType")]
+        [JsonProperty("groupByType")]
+        [XmlElement(ElementName = "groupByType", IsNullable = true)]
+        public KalturaGroupByType? GroupByType { get; set; }
 
         internal List<int> getTypeIn()
         {
@@ -87,7 +95,7 @@ namespace WebAPI.Models.Catalog
             
             var response = ClientsManager.CatalogClient().SearchAssets(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(), pager.PageSize, this.Ksql,
                 this.OrderBy, this.getTypeIn(), this.getEpgChannelIdIn(), contextData.ManagementData, this.DynamicOrderBy,
-                this.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, this.GroupByOrder);
+                this.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, this.GroupByOrder, false, this.GroupByType);
 
             return response;
         }

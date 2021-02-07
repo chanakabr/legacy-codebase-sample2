@@ -106,9 +106,17 @@ namespace ElasticSearch.Common
                         if (!string.IsNullOrWhiteSpace(sMetaValue))
                         {
 
-                            metaNameValues.Add(string.Format(" \"{0}\": \"{1}\"", 
+                            metaNameValues.Add(string.Format(" \"{0}\": \"{1}\"",
                                 AddSuffix(sMetaName.ToLower(), suffix),
                                 Common.Utils.ReplaceDocumentReservedCharacters(sMetaValue, shouldLowerCase)));
+                        }
+                        //TODO - Matan
+                        //If that meta is with suppreedTag, update object
+                        //CatalogGroupCache.TopicsMapBySystemNameAndByType[Metas.m_oTagMeta.m_sName]
+                        //Only for OPC?
+                        if ()
+                        {
+                            var catalogGroupCache = new CatalogGroupCache();
                         }
                     }
                 }
@@ -146,7 +154,7 @@ namespace ElasticSearch.Common
                     {
                         string sJoinedTagVals = string.Join(",", lTagValues);
                         tagNameValues.Add(string.Format(" \"{0}\": [ {1} ]",
-                            AddSuffix(sTagName.ToLower(), suffix), 
+                            AddSuffix(sTagName.ToLower(), suffix),
                             sJoinedTagVals));
                     }
                 }
@@ -274,13 +282,15 @@ namespace ElasticSearch.Common
 
             #endregion
 
+            //Add IsSuppressed and CalculatedGroupBy
+
             recordBuilder.Append(" }");
 
             return recordBuilder.ToString();
 
         }
 
-        public virtual string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap,  List<string> groupTags, 
+        public virtual string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags,
             HashSet<string> metasToPad,
             MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers)
         {
@@ -501,7 +511,7 @@ namespace ElasticSearch.Common
             if (groupTags.Count > 0)
             {
                 HashSet<string> mappedTags = new HashSet<string>();
-                
+
                 foreach (string tagName in groupTags)
                 {
                     if (!string.IsNullOrEmpty(tagName))
@@ -673,12 +683,12 @@ namespace ElasticSearch.Common
                     break;
                 case ApiObjects.MetaType.Number:
                     esFieldType = eESFieldType.DOUBLE;
-                    sNullValue = "0.0";                    
+                    sNullValue = "0.0";
                     break;
                 case ApiObjects.MetaType.Bool:
                     esFieldType = eESFieldType.INTEGER;
                     sNullValue = "0";
-                    break;                                       
+                    break;
                 case ApiObjects.MetaType.DateTime:
                     esFieldType = eESFieldType.DATE;
                     break;
@@ -689,7 +699,7 @@ namespace ElasticSearch.Common
             }
         }
 
-        public virtual string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> lTags, 
+        public virtual string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> lTags,
             HashSet<string> metasToPad,
             MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers, string mappingName, bool shouldAddRouting)
         {
@@ -1030,7 +1040,7 @@ namespace ElasticSearch.Common
                 // {17}
                 oEpg.DocumentId,
                 // {18}
-                oEpg.IsAutoFill? 1 : 0,
+                oEpg.IsAutoFill ? 1 : 0,
                 // {19}
                 oEpg.EnableCDVR,
                 // {20}

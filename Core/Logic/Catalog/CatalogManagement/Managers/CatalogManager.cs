@@ -765,6 +765,7 @@ namespace Core.Catalog.CatalogManagement
                 UpdateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
                 IsInherited = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_INHERITED") == 1,
                 IsLocationTag = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_LOCATION_TAG") == 1,
+                //Todo - Matan, serialize from DB
             };
             return assetStructMeta;
         }
@@ -2808,6 +2809,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
+        //Todo - Matan: Validation of new IsSuppressedTag
         public GenericResponse<AssetStructMeta> UpdateAssetStructMeta(long assetStructId, long metaId, AssetStructMeta assetStructMeta, int groupId, long userId)
         {
             GenericResponse<AssetStructMeta> response = new GenericResponse<AssetStructMeta>();

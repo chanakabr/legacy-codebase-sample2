@@ -546,7 +546,8 @@ namespace WebAPI.Clients
 
         [Obsolete]
         public KalturaAssetInfoListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
-                                                            string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId, List<KalturaCatalogWith> with, bool excludeWatched)
+                                                            string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId, 
+                                                            List<KalturaCatalogWith> with, bool excludeWatched)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -730,7 +731,8 @@ namespace WebAPI.Clients
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
-            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null, bool ignoreEndDate = false)
+            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, 
+            bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null, bool ignoreEndDate = false, KalturaGroupByType? groupByType = KalturaGroupByType.Omit)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -791,6 +793,8 @@ namespace WebAPI.Clients
                 }
             }
 
+            var _groupByType = CatalogMappings.ConvertGroupByType(groupByType);
+
             // build request
             UnifiedSearchRequest request = new UnifiedSearchRequest()
             {
@@ -822,7 +826,7 @@ namespace WebAPI.Clients
                 request.searchGroupBy = new SearchAggregationGroupBy()
                 {
                     groupBy = groupBy,
-                    distinctGroup = groupBy[0], // mabye will send string.empty - and Backend will fill it if nessecery
+                    distinctGroup = groupBy[0], // maybe will send string.empty - and Backend will fill it if necessary
                     topHitsCount = 1,
                     groupByOrder = aggregationOrder
                 };
