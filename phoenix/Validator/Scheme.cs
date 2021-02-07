@@ -904,7 +904,7 @@ namespace Validator.Managers.Scheme
                 controllerDetails.IsCrudController = true;
                 foreach (var crudActionAttribute in crudActionAttributes)
                 {
-                    if (crudActions.ContainsKey(crudActionAttribute.Key))
+                    if (crudActions.ContainsKey(crudActionAttribute.Key) && !crudActionAttribute.Value.IsInternal)
                     {
                         var crudActionDetails = SchemeManager.GetCrudActionDetails(crudActionAttribute.Value, crudActions[crudActionAttribute.Key]);
                         controllerDetails.Actions.Add(crudActionDetails);
@@ -926,7 +926,7 @@ namespace Validator.Managers.Scheme
                 if (explorerAttr.Count() > 0 && explorerAttr.First().IgnoreApi)
                     continue;
 
-                if (!SchemeManager.ValidateMethod(method, true, assemblyXml))
+                if (!SchemeManager.ValidateMethod(method, true, assemblyXml, false))
                     continue;
 
                 controllerDetails.Actions.Add(GetActionDetails(method));

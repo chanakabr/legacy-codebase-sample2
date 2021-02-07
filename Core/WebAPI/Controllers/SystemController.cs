@@ -134,7 +134,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Action(name: "clearLocalServerCache", isInternal: true)]
+        [Action(name: "clearLocalServerCache")]
         static public bool ClearLocalServerCache(string clearCacheAction = null, string key = null)
         {
             try
@@ -160,7 +160,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Action(name: "incrementLayeredCacheGroupConfigVersion", isInternal: true)]
+        [Action(name: "incrementLayeredCacheGroupConfigVersion")]
         static public bool IncrementLayeredCacheGroupConfigVersion(int groupId = 0)
         {
             try
