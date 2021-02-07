@@ -149,9 +149,8 @@ namespace AdapterControllers
 
             try
             {
-                string inputParameters = string.Format("adapterId = {0}, groupId = {1}, userId = {2}, udid = {3}, deviceFamily = {4}, deviceBrandId = {5}, ip = {6}",
-                adapterId, groupId, userId, deviceFamily, deviceBrandId, udid, ip);
-                log.DebugFormat("Sending request to DRM adapter, GetDeviceLicenseData. {0}", inputParameters);
+                string inputParameters = $"adapterId = {adapterId}, groupId = {groupId}, userId = {userId}, udid = {udid}, deviceFamily = {deviceFamily}, deviceBrandId = {deviceBrandId}, ip = {ip}";
+                log.Debug($"Sending request to DRM adapter, GetDeviceLicenseData. {inputParameters}");
 
                 drmAdapter.DrmAdapterResponse adapterResponse = CallGetDeviceLicenseData(adapterId, groupId, userId, udid, deviceFamily, deviceBrandId, ip, adapter, adapterClient,
                     unixTimestamp, signature);
