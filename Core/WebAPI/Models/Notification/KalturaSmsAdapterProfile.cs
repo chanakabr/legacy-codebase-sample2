@@ -148,7 +148,7 @@ namespace WebAPI.Models.Notification
             return response;
         }
 
-        internal override void ValidateForAdd()
+        public override void ValidateForAdd()
         {
             if (this == null) { throw new ClientException((int)eResponseStatus.NoAdapterToInsert, "No sms adapter to add"); }
             if (string.IsNullOrEmpty(this.AdapterUrl)) { throw new ClientException((int)eResponseStatus.AdapterUrlRequired, "Adapter Url Required"); }

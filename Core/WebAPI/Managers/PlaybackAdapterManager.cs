@@ -62,31 +62,13 @@ namespace WebAPI.Utils
                 }
             }
 
-            if(adapterId == 0)
+            if (adapterId == 0)
             {
-                // Get default adpter configuration 
+                // Get default adapter configuration 
                 var defaultConfig = PartnerConfigurationManager.GetPlaybackConfig(groupId);
                 if (defaultConfig != null && defaultConfig.HasObject() && defaultConfig.Object.DefaultAdapters != null)
                 {
-                    switch (assetType)
-                    {
-                        case KalturaAssetType.media:
-                            adapterId = defaultConfig.Object.DefaultAdapters.MediaAdapterId;
-                            break;
-                        case KalturaAssetType.recording:
-                            adapterId = defaultConfig.Object.DefaultAdapters.RecordingAdapterId;
-                            break;
-                        case KalturaAssetType.epg:
-                            adapterId = defaultConfig.Object.DefaultAdapters.EpgAdapterId;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (adapterId > 0)
-                    {
-                        log.Debug($"default playback adapter configuration found. adapterId: {adapterId} ");
-                    }
+                    adapterId = GetDefaultAdapterConfiguration(groupId, assetType);
                 }
             }
 
@@ -133,6 +115,7 @@ namespace WebAPI.Utils
                 }
             };
 
+            long adapterId = 0;
             KalturaAssetRuleListResponse assetRuleListResponse = ClientsManager.ApiClient().GetAssetRules(groupId, filter);
             if (assetRuleListResponse != null &&
                 assetRuleListResponse.Objects != null &&
@@ -143,24 +126,62 @@ namespace WebAPI.Utils
                 KalturaApplyPlaybackAdapterAction applyPlaybackAdapterAction = assetRuleListResponse.Objects[0].Actions[0] as KalturaApplyPlaybackAdapterAction;
                 if (applyPlaybackAdapterAction != null)
                 {
-                    long adapterId = applyPlaybackAdapterAction.AdapterId;
+                    adapterId = applyPlaybackAdapterAction.AdapterId;
                     if (adapterId <= 0)
                     {
                         log.Error($"Error while getting playback adapter id. no adapter found. groupId: {groupId}");
                         return KalturaPlaybackContextResponse;
                     }
+                }
+            }
 
-                    KalturaPlaybackContext playbackContextResponse = ClientsManager.ApiClient().GetPlaybackAdapterManifest(adapterId, groupId, kalturaPlaybackContext,
-                        assetId, assetType, contextDataParams, userId);
+            if (adapterId == 0)
+            {
+                adapterId = GetDefaultAdapterConfiguration(groupId, assetType);
+            }
 
-                    if (playbackContextResponse != null)
-                    {
-                        return playbackContextResponse;
-                    }
+            if (adapterId > 0)
+            {
+                KalturaPlaybackContext playbackContextResponse = ClientsManager.ApiClient().GetPlaybackAdapterManifest(adapterId, groupId, kalturaPlaybackContext,
+                assetId, assetType, contextDataParams, userId);
+
+                if (playbackContextResponse != null)
+                {
+                    return playbackContextResponse;
                 }
             }
 
             return KalturaPlaybackContextResponse;
+        }
+
+        private static long GetDefaultAdapterConfiguration(int groupId, KalturaAssetType assetType)
+        {
+            long adapterId = 0;
+            var defaultConfig = PartnerConfigurationManager.GetPlaybackConfig(groupId);
+            if (defaultConfig != null && defaultConfig.HasObject() && defaultConfig.Object.DefaultAdapters != null)
+            {
+                switch (assetType)
+                {
+                    case KalturaAssetType.media:
+                        adapterId = defaultConfig.Object.DefaultAdapters.MediaAdapterId;
+                        break;
+                    case KalturaAssetType.recording:
+                        adapterId = defaultConfig.Object.DefaultAdapters.RecordingAdapterId;
+                        break;
+                    case KalturaAssetType.epg:
+                        adapterId = defaultConfig.Object.DefaultAdapters.EpgAdapterId;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (adapterId > 0)
+                {
+                    log.Debug($"default playback adapter configuration found. adapterId: {adapterId} ");
+                }
+            }
+
+            return adapterId;
         }
     }
 }

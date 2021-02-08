@@ -507,9 +507,7 @@ namespace Core.Users
 
         public override void PostSignOut(ref UserResponseObject userResponse, int siteGuid, int groupId, string sessionId, string ip, string deviceUdid, ref List<KeyValuePair> keyValueList) { }
 
-        public override UserResponseObject PreGetUserData(string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP) { return new UserResponseObject(); }
-
-        internal override void MidGetUserData(ref UserResponseObject userResponse, string siteGuid, string userIP)
+        internal override void GetUserData(ref UserResponseObject userResponse, string siteGuid, string userIP)
         {
             try
             {
@@ -535,11 +533,7 @@ namespace Core.Users
             }
         }
 
-        public override void PostGetUserData(ref UserResponseObject userResponse, string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP) { }
-
-        public override List<UserResponseObject> PreGetUsersData(List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP) { return new List<UserResponseObject>(); }
-
-        internal override void MidGetUsersData(ref List<UserResponseObject> userResponses, List<string> siteGuids, ref List<KeyValuePair> keyValueList, string userIP)
+        internal override void GetUsersData(ref List<UserResponseObject> userResponses, List<string> siteGuids, ref List<KeyValuePair> keyValueList, string userIP)
         {
             if (siteGuids != null)
             {
@@ -557,8 +551,6 @@ namespace Core.Users
                 }
             }
         }
-
-        public override void PostGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP) { }
 
         public override ApiObjects.Response.Status PreDeleteUser(int siteGuid)
         {

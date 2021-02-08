@@ -6,6 +6,8 @@ using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Clients;
+using WebAPI.Exceptions;
+using WebAPI.Models.General;
 
 namespace WebAPI.Models.Partner
 {
@@ -22,20 +24,62 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "singleMultilingualMode")]
         [JsonProperty("singleMultilingualMode")]
         [XmlElement(ElementName = "singleMultilingualMode")]
-        public bool? SingleMultilingualMode { get; set; }       
+        public bool? SingleMultilingualMode { get; set; }
+
+        /// <summary>
+        /// Category management
+        /// </summary>
+        [DataMember(Name = "categoryManagement")]
+        [JsonProperty("categoryManagement")]
+        [XmlElement(ElementName = "categoryManagement", IsNullable = true)]
+        public KalturaCategoryManagement CategoryManagement { get; set; }
 
         internal override bool Update(int groupId)
         {
             Func<CatalogPartnerConfig, Status> partnerConfigFunc =
-                (CatalogPartnerConfig catalogPartnerConfig) => PartnerConfigurationManager.UpdateCatalogConfig(groupId, catalogPartnerConfig);
+                (CatalogPartnerConfig catalogPartnerConfig) => CatalogPartnerConfigManager.Instance.UpdateCatalogConfig(groupId, catalogPartnerConfig);
 
             ClientUtils.GetResponseStatusFromWS(partnerConfigFunc, this);
 
             return true;
         }
 
-        internal override void ValidateForUpdate()
+        public override void ValidateForUpdate()
         {
+            if (this.CategoryManagement != null)
+            {
+                this.CategoryManagement.ValidateForUpdate();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Category management
+    /// </summary>
+    public partial class KalturaCategoryManagement : KalturaOTTObject
+    {
+        /// <summary>
+        /// Default CategoryVersion tree id
+        /// </summary>
+        [DataMember(Name = "defaultTreeId")]
+        [JsonProperty("defaultTreeId")]
+        [XmlElement(ElementName = "defaultTreeId")]
+        public long? DefaultCategoryTreeId { get; set; }
+
+        /// <summary>
+        /// Device family to Category TreeId mapping
+        /// </summary>
+        [DataMember(Name = "deviceFamilyToCategoryTree")]
+        [JsonProperty("deviceFamilyToCategoryTree")]
+        [XmlElement(ElementName = "deviceFamilyToCategoryTree", IsNullable = true)]
+        public SerializableDictionary<string, KalturaLongValue> DeviceFamilyToCategoryTree { get; set; }
+
+        internal void ValidateForUpdate()
+        {
+            if (DeviceFamilyToCategoryTree != null && !DefaultCategoryTreeId.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "defaultTreeId");
+            }
         }
     }
 }

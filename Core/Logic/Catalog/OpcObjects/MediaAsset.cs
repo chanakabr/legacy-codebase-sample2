@@ -192,7 +192,7 @@ namespace Core.Catalog
                 if (string.IsNullOrEmpty(this.MediaType.m_sTypeName) && this.MediaType.m_nTypeID > 0)
                 {
                     CatalogGroupCache catalogGroupCache;
-                    if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
                         if (catalogGroupCache.AssetStructsMapById.ContainsKey(this.MediaType.m_nTypeID))
                         {
@@ -280,7 +280,7 @@ namespace Core.Catalog
             this.AssetType = eAssetTypes.MEDIA;
             AssetStruct assetStruct = structureManager as AssetStruct;
             CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
                 return;
             }

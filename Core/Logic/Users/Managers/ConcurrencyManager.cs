@@ -87,9 +87,11 @@ namespace Core.Users
             try
             {
                 // Get all domain media marks
-                List<DevicePlayData> devicePlayDataList = CatalogDAL.GetDevicePlayDataList(GetDomainDevices(devicePlayData.DomainId, groupId),
-                                                                                       new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA },
-                                                                                       GetConcurrencyMillisecThreshold(groupId), devicePlayData.UDID);
+                var domainDevices = Api.api.Instance.GetDomainDevices(devicePlayData.DomainId, groupId);
+                List<DevicePlayData> devicePlayDataList = 
+                    CatalogDAL.GetDevicePlayDataList(domainDevices, 
+                                                     new List<ePlayType>() { ePlayType.NPVR, ePlayType.MEDIA },
+                                                     GetConcurrencyMillisecThreshold(groupId), devicePlayData.UDID);
 
                 if (devicePlayDataList == null || devicePlayDataList.Count == 0)
                 {
@@ -200,7 +202,7 @@ namespace Core.Users
                 }
 
                 List<DevicePlayData> devicePlayDataList =
-                    CatalogDAL.GetDevicePlayDataList(GetDomainDevices(devicePlayData.DomainId, groupId), playTypes, GetConcurrencyMillisecThreshold(groupId), devicePlayData.UDID);
+                    CatalogDAL.GetDevicePlayDataList(Api.api.Instance.GetDomainDevices(devicePlayData.DomainId, groupId), playTypes, GetConcurrencyMillisecThreshold(groupId), devicePlayData.UDID);
 
                 if (devicePlayDataList == null || devicePlayDataList.Count == 0)
                 {
@@ -392,50 +394,6 @@ namespace Core.Users
             return DomainResponseStatus.ConcurrencyLimitation;
         }
 
-        public static Dictionary<string, int> GetDomainDevices(int domainId, int groupId)
-        {
-            Dictionary<string, int> domainDevices = CatalogDAL.GetDomainDevices(domainId);
-
-            if (domainDevices == null)
-            {
-                DomainResponse domainResponse = Core.Domains.Module.GetDomainInfo(groupId, domainId);
-
-                if (domainResponse.Status.Code == (int)eResponseStatus.OK && domainResponse.Domain != null)
-                {
-                    domainDevices = CatalogDAL.GetDomainDevices(domainId);
-
-                    if (domainDevices == null)
-                    {
-                        domainDevices = new Dictionary<string, int>();
-                        foreach (var currDeviceFamily in domainResponse.Domain.m_deviceFamilies)
-                        {
-                            foreach (var currDevice in currDeviceFamily.DeviceInstances)
-                            {
-                                domainDevices.Add(currDevice.m_deviceUDID, currDeviceFamily.m_deviceFamilyID);
-                            }
-                        }
-
-                        CatalogDAL.SaveDomainDevices(domainDevices, domainId);
-                    }
-                }
-            }
-
-            return domainDevices;
-        }
-
-        internal static int GetDeviceFamilyIdByUdid(int domainId, int groupId, string udid)
-        {
-            int deviceFamilyId = 0;
-            Dictionary<string, int> domainDevices = GetDomainDevices(domainId, groupId);
-
-            if (domainDevices != null && domainDevices.ContainsKey(udid))
-            {
-                deviceFamilyId = domainDevices[udid];
-            }
-
-            return deviceFamilyId;
-        }
-
         internal static uint GetDevicePlayDataExpirationTTL(int groupId, eExpirationTTL ttl)
         {
             uint expirationTTL = 0;
@@ -472,7 +430,7 @@ namespace Core.Users
 
             try
             {
-                var domainDevices = GetDomainDevices((int)domainId, groupId);
+                var domainDevices = Api.api.Instance.GetDomainDevices((int)domainId, groupId);
 
                 if (domainDevices == null || domainDevices.Count == 0)
                     return default;

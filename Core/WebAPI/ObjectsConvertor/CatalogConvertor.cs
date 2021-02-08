@@ -1,14 +1,15 @@
-﻿using System;
+﻿using ApiObjects;
+using ApiObjects.Base;
+using ApiObjects.SearchObjects;
+using AutoMapper;
+using Core.Catalog;
+using Core.Catalog.Response;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using AutoMapper;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Models.Catalog;
-using Core.Catalog;
-using ApiObjects.SearchObjects;
-using ApiObjects;
-using Core.Catalog.Response;
-using TVinciShared;
 
 namespace WebAPI.ObjectsConvertor
 {
@@ -380,6 +381,24 @@ namespace WebAPI.ObjectsConvertor
                 case KalturaCategoryItemOrderBy.UPDATE_DATE_ASC:
                     result.m_eOrderBy = OrderBy.CREATE_DATE;
                     result.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC;
+                    break;
+            }
+            return result;
+        }
+        
+        public static OrderByObject ConvertOrderToOrderBy(KalturaCategoryVersionOrderBy order)
+        {
+            var result = new OrderByObject();
+
+            switch (order)
+            {
+                case KalturaCategoryVersionOrderBy.UPDATE_DATE_DESC:
+                    result.Property = OrderProperty.UpdateDate;
+                    result.Direction = ApiObjects.SearchObjects.OrderDir.DESC;
+                    break;
+                case KalturaCategoryVersionOrderBy.NONE:
+                    result.Property = OrderProperty.None;
+                    result.Direction = ApiObjects.SearchObjects.OrderDir.DESC;
                     break;
             }
             return result;

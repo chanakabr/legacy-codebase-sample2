@@ -43,7 +43,7 @@ namespace Core.Api.Managers
             CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates)
             {
-                if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!Catalog.CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetUserRuleList", groupId);
                     return response;
@@ -243,7 +243,7 @@ namespace Core.Api.Managers
                 // need to remove the rule from channel
                 if (needToRemoveFromChannel)
                 {
-                    if (!ChannelManager.TryRemoveAssetRuleIdFromChannel(groupId, assetUserRuleId, userId))
+                    if (!ChannelManager.Instance.TryRemoveAssetRuleIdFromChannel(groupId, assetUserRuleId, userId))
                     {
                         log.ErrorFormat("Failed RemoveAssetRuleIdFromChannel. groupId {0}, assetUserRuleId {1}", groupId, assetUserRuleId);
                     }
@@ -307,7 +307,7 @@ namespace Core.Api.Managers
                     if (assetUserRuleFilterAction != null && assetUserRuleFilterAction.ApplyOnChannel)
                     {
                         // need to remove the rule from channel
-                        if(!ChannelManager.TryRemoveAssetRuleIdFromChannel(groupId, assetUserRule.Id, userId))
+                        if(!ChannelManager.Instance.TryRemoveAssetRuleIdFromChannel(groupId, assetUserRule.Id, userId))
                         {
                             log.ErrorFormat("Failed RemoveAssetRuleIdFromChannel. groupId {0}, assetUserRuleId {1}", groupId, assetUserRule.Id);
                         }
@@ -355,7 +355,7 @@ namespace Core.Api.Managers
             CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates)
             {
-                if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!Catalog.CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddAssetUserRuleToUser", groupId);
                     return response;
@@ -428,7 +428,7 @@ namespace Core.Api.Managers
             CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates)
             {
-                if (!Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!Catalog.CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteAssetUserRuleFromUser", groupId);
                     return response;

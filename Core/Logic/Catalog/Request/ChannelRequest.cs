@@ -84,14 +84,14 @@ namespace Core.Catalog.Request
                         doesGroupUsesTemplates = true;
                         groupId = request.m_nGroupID;
                         CatalogGroupCache catalogGroupCache;
-                        if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                         {
                             log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling ChannelRequest.GetResponse", groupId);
                             return response;
                         }
                         defaultLanguage = catalogGroupCache.DefaultLanguage;
 
-                        var channelResponse = ChannelManager.GetChannelById(groupId, request.m_nChannelID, false, 0);
+                        var channelResponse = ChannelManager.Instance.GetChannelById(groupId, request.m_nChannelID, false, 0);
                         if (!channelResponse.HasObject())
                         {
                             return response;

@@ -22,7 +22,34 @@ using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 
 namespace Tvinci.Core.DAL
 {
-    public class CatalogDAL : BaseDal
+    // work with sql/db only
+    public interface ICategoryRepository
+    {
+        // CategoryItemRepository
+        long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
+             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId);
+        bool UpdateCategoryOrderNum(int groupId, long? userId, long id, long? versionId, List<long> childCategoriesIds, List<long> childCategoriesIdsToRemove = null);
+        bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
+            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot);
+        bool DeleteCategory(int groupId, long? userId, long id);
+        List<long> GetCategoriesIdsByChannelId(int groupId, int channelId, UnifiedChannelType channelType);
+        Dictionary<long, CategoryParentCache> GetCategories(int groupId);
+        Dictionary<string, string> GetCategoryDynamicData(long id);
+        CategoryItemDTO GetCategoryItemDTO(int groupId, long id);
+        bool UpdateCategoryVirtualAssetId(int groupId, long id, long? virtualAssetId, long updateDate, long userId);
+
+        // CategoryVersionRepository
+        CategoryVersion AddCategoryVersion(int groupId, CategoryVersion objectToAdd);
+        List<long> GetCategoryVersionDefaults(int groupId);
+        List<long> GetCategoryVersionsOfTree(int groupId, long treeId);
+        bool UpdateCategoriesVersionId(long versionId, List<long> categoryIds, long updateDate, long userId);
+        bool UpdateCategoryVersion(int groupId, long userId, CategoryVersion categoryVersion);
+        CategoryVersion GetCategoryVersionById(int groupId, long id);
+        bool DeleteCategoryVersion(int groupId, long userId, CategoryVersion categoryVersion);
+        bool UpdateDefaultCategoryVersion(int groupId, long userId, long updateDate, long newDefaultVersionId, long currentDefaultVersionId);
+    }
+
+    public class CatalogDAL : BaseDal, ICategoryRepository
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
@@ -43,6 +70,14 @@ namespace Tvinci.Core.DAL
         private const int RETRY_LIMIT = 5;
 
         private static readonly Random _rand = new Random();
+
+        private static readonly Lazy<CatalogDAL> lazy = new Lazy<CatalogDAL>(() => new CatalogDAL(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static CatalogDAL Instance { get { return lazy.Value; } }
+
+        private CatalogDAL()
+        {
+        }
 
         public static DataSet Get_MediaDetails(int nGroupID, int nMediaID, string sSiteGuid, bool bOnlyActiveMedia, int nLanguage, string sEndDate, bool bUseStartDate, List<int> lSubGroupTree)
         {
@@ -1471,6 +1506,37 @@ namespace Tvinci.Core.DAL
 
         }
 
+        public static List<KeyValuePair<long, int>> GetAssociatedAsset(int groupId, int userId, long entityId)
+        {
+            var affectedAssetIds = new List<KeyValuePair<long, int>>();
+            var sp = new StoredProcedure("Get_AssetByRelatedEntityId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@EntityId", entityId);
+
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                {
+                    foreach (System.Data.DataRow row in dt.Rows)
+                    {
+                        var id = Utils.GetLongSafeVal(row, "id");
+                        var assetId = Utils.GetLongSafeVal(row, "asset_id");
+                        var assetTypeId = Utils.GetIntSafeVal(row, "asset_type");
+                        var jsonRelated = Utils.GetSafeStr(row, "Related_entities_data");
+                        var jsonValue = JsonConvert.DeserializeObject<List<RelatedEntity>>(jsonRelated);
+                        jsonValue = jsonValue.Where(x => x.Id != entityId.ToString()).ToList();
+
+                        if (UpdateAssetRelatedEntities(groupId, userId, id, assetId, JsonConvert.SerializeObject(jsonValue, Formatting.None)))
+                            affectedAssetIds.Add(new KeyValuePair<long, int>(assetId, assetTypeId));
+                    }
+                }
+            }
+            return affectedAssetIds;
+        }
+
         public static bool GetPicEpgURL(int groupID, ref string baseUrl, ref string width, ref string height)
         {
             bool res = false;
@@ -1540,6 +1606,19 @@ namespace Tvinci.Core.DAL
             }
 
             return res;
+        }
+
+        public static bool UpdateAssetRelatedEntities(int groupId, int userId, long id, long assetId, string relatedEntitiesJson)
+        {
+            var sp = new StoredProcedure("UpdateAssetRelatedChannel");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@userId", userId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@assetId", assetId);
+            sp.AddParameter("@relatedEntitiesJson", relatedEntitiesJson);
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
         public static Dictionary<int, List<EpgPicture>> GetGroupTreePicEpgUrl(int parentGroupID)
@@ -2070,7 +2149,11 @@ namespace Tvinci.Core.DAL
             }
             else
             {
-                var relevantMediaMark = mediaMarks.mediaMarks.FirstOrDefault(m => m.AssetId == userMediaMark.AssetID && m.AssetType == userMediaMark.AssetType);
+                var relevantMediaMark = mediaMarks.mediaMarks.FirstOrDefault(m =>
+                                                                        m.AssetType == eAssetTypes.NPVR && !string.IsNullOrEmpty(m.NpvrId) ?
+                                                                        m.NpvrId == userMediaMark.NpvrID :
+                                                                        m.AssetId == userMediaMark.AssetID && m.AssetType == userMediaMark.AssetType); // TODO ask Ira BEO-9356
+
                 if (relevantMediaMark != null)
                 {
                     mediaMarks.mediaMarks.Remove(relevantMediaMark);
@@ -2082,7 +2165,8 @@ namespace Tvinci.Core.DAL
                 AssetId = userMediaMark.AssetID,
                 AssetType = userMediaMark.AssetType,
                 CreatedAt = userMediaMark.CreatedAtEpoch,
-                ExpiredAt = userMediaMark.ExpiredAt
+                ExpiredAt = userMediaMark.ExpiredAt,
+                NpvrId = userMediaMark.NpvrID
             });
 
             // order by create date, only select top [TCM] (let's say 300, it should cater 99% of users)
@@ -2816,7 +2900,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataTable Get_ValidateMediaFiles(int[] mediaFiles, int groupId)
-        {            
+        {
             DataTable dt = null;
             try
             {
@@ -5178,7 +5262,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@opl", opl);
 
             return sp.ExecuteDataSet();
-        }        
+        }
 
         public static DataSet GetMediaFilesByAssetIds(int groupId, List<long> assetIds)
         {
@@ -5245,7 +5329,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetMediaFilesByExternalIdAndAltExternalId(int groupId, string externalId, string altExternalId)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFilesByExternalId"); 
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFilesByExternalId");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
             sp.AddParameter("@externalId", externalId);
@@ -5964,38 +6048,88 @@ namespace Tvinci.Core.DAL
             return res;
         }
 
-        public static DataTable GetCategories(int groupId)
+        public bool UpdateCategoryVirtualAssetId(int groupId, long id, long? virtualAssetId, long updateDate, long userId)
         {
-            try
-            {
-                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@onlyActive", 0 } };
-                return UtilsDal.Execute("Get_CategoriesIds", parameters);
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Error while Get_Categories from DB, groupId = {groupId}", ex);
-            }
+            var sp = new StoredProcedure("UpdateCategoryVirtualAssetId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@virtualAssetId", virtualAssetId);
+            sp.AddParameter("@updateDate", Utils.UtcUnixTimestampSecondsToDateTime(updateDate));
+            sp.AddParameter("@userId", userId);
 
-            return null;
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataSet GetCategoryItem(int groupId, long id)
+        public CategoryItemDTO GetCategoryItemDTO(int groupId, long id)
         {
+            CategoryItemDTO categoryItem = null;
+
             try
             {
                 var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@id", id }, { "@onlyActive", 0 } };
-                return UtilsDal.ExecuteDataSet("Get_Category", parameters);
+                var ds = UtilsDal.ExecuteDataSet("Get_Category", parameters);
+                if (ds?.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    categoryItem = new CategoryItemDTO()
+                    {
+                        Id = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "ID"),
+                        ParentId = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].Rows[0], "PARENT_CATEGORY_ID"),
+                        Name = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "CATEGORY_NAME"),
+                        UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(ds.Tables[0].Rows[0], "UPDATE_DATE"),
+                        IsActive = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "IS_ACTIVE"),
+                        Type = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "TYPE"),
+                        VersionId = ODBCWrapper.Utils.GetNullableLong(ds.Tables[0].Rows[0], "VERSION_ID"),
+                        HasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA"),
+                        StartDate = ODBCWrapper.Utils.ExtractNullableDateTime(ds.Tables[0].Rows[0], "START_DATE"),
+                        EndDate = ODBCWrapper.Utils.ExtractNullableDateTime(ds.Tables[0].Rows[0], "END_DATE"),
+                        VirtualAssetId = Utils.GetNullableLong(ds.Tables[0].Rows[0], "VIRTUAL_ASSET_ID")
+                    };
+
+                    if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
+                    {
+                        categoryItem.UnifiedChannels = new List<UnifiedChannelInfoDTO>();
+
+                        UnifiedChannelInfoDTO unifiedChannelInfo = null;
+                        foreach (DataRow dr in ds.Tables[1].Rows)
+                        {
+                            unifiedChannelInfo = new UnifiedChannelInfoDTO()
+                            {
+                                Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "CHANNEL_ID"),
+                                Type = (UnifiedChannelType)ODBCWrapper.Utils.GetLongSafeVal(dr, "CHANNEL_TYPE"),
+                                StartDate = Utils.ExtractNullableDateTime(dr, "START_DATE"),
+                                EndDate = Utils.ExtractNullableDateTime(dr, "END_DATE")
+                            };
+
+                            categoryItem.UnifiedChannels.Add(unifiedChannelInfo);
+                        }
+                    }
+
+                    if (ds.Tables.Count > 2 && ds.Tables[2].Rows.Count > 0)
+                    {
+                        categoryItem.NamesInOtherLanguages = new List<LanguageContainerDTO>();
+
+                        foreach (DataRow dr in ds.Tables[2].Rows)
+                        {
+                            categoryItem.NamesInOtherLanguages.Add(new LanguageContainerDTO()
+                            {
+                                Value = ODBCWrapper.Utils.GetSafeStr(dr, "NAME"),
+                                LanguageId = ODBCWrapper.Utils.GetIntSafeVal(dr, "LANGUAGE_ID")
+                            });
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
-                log.Error($"Error while GetCategoryItem from DB, groupId = {groupId}", ex);
+                log.Error($"Error while getting GetCategoryItembyDb. group id = {groupId}", ex);
             }
 
-            return null;
+            return categoryItem;
         }
 
-        public static long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type)
+        public long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
+             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId)
         {
             try
             {
@@ -6022,6 +6156,7 @@ namespace Tvinci.Core.DAL
                     sp.AddParameter("@endDate", Utils.UtcUnixTimestampSecondsToDateTime(timeSlot.EndDateInSeconds.Value));
                 }
                 sp.AddParameter("@type", type);
+                sp.AddParameter("versionId", versionId);
 
                 var id = sp.ExecuteReturnValue<long>();
                 if (dynamicData?.Count > 0 && id > 0)
@@ -6038,7 +6173,7 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
+        public bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot)
         {
             try
@@ -6111,7 +6246,7 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static bool DeleteCategory(int groupId, long? userId, long id)
+        public bool DeleteCategory(int groupId, long? userId, long id)
         {
             try
             {
@@ -6134,13 +6269,13 @@ namespace Tvinci.Core.DAL
             }
         }
 
-        public static void SaveCategoryDynamicData(long id, Dictionary<string, string> dynamicData)
+        public void SaveCategoryDynamicData(long id, Dictionary<string, string> dynamicData)
         {
             var key = CBCategoryDynamicData.GetCategoryDynamicDataKey(id);
             UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, new CBCategoryDynamicData { Id = id, DynamicData = dynamicData }, true);
         }
 
-        public static Dictionary<string, string> GetCategoryDynamicData(long id)
+        public Dictionary<string, string> GetCategoryDynamicData(long id)
         {
             var key = CBCategoryDynamicData.GetCategoryDynamicDataKey(id);
             var res = UtilsDal.GetObjectFromCB<CBCategoryDynamicData>(eCouchbaseBucket.OTT_APPS, key, true);
@@ -6148,13 +6283,13 @@ namespace Tvinci.Core.DAL
             return res.DynamicData;
         }
 
-        public static void DeleteCategoryDynamicData(long id)
+        public void DeleteCategoryDynamicData(long id)
         {
             var key = CBCategoryDynamicData.GetCategoryDynamicDataKey(id);
             UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
         }
 
-        public static bool UpdateCategoryOrderNum(int groupId, long? userId, long id, List<long> childCategoriesIds, List<long> childCategoriesIdsToRemove = null)
+        public bool UpdateCategoryOrderNum(int groupId, long? userId, long id, long? versionId, List<long> childCategoriesIds, List<long> childCategoriesIdsToRemove = null)
         {
             try
             {
@@ -6167,6 +6302,7 @@ namespace Tvinci.Core.DAL
                 sp.AddParameter("@childCategoriesIdsToDeleteExist", childCategoriesIdsToRemove == null || childCategoriesIdsToRemove.Count == 0 ? 0 : 1);
                 sp.AddIDListParameter<long>("@childCategoriesIdsToDelete", childCategoriesIdsToRemove, "Id");
                 sp.AddParameter("@updaterId", userId);
+                sp.AddParameter("@versionId", versionId);
 
                 return sp.ExecuteReturnValue<int>() > 0;
             }
@@ -6175,6 +6311,38 @@ namespace Tvinci.Core.DAL
                 log.Error($"Error while UpdateCategoryOrderNum from DB, groupId: {groupId}, Id: {id}", ex);
                 return false;
             }
+        }
+
+        public Dictionary<long, CategoryParentCache> GetCategories(int groupId)
+        {
+            Dictionary<long, CategoryParentCache> categoryItems = new Dictionary<long, CategoryParentCache>();
+
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@onlyActive", 0 } };
+                var dt = UtilsDal.Execute("Get_CategoriesIds", parameters);
+                if (dt?.Rows.Count > 0)
+                {
+                    foreach (DataRow dr in dt.Rows)
+                    {
+                        long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+                        CategoryParentCache categoryParentCache = new CategoryParentCache()
+                        {
+                            ParentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_CATEGORY_ID"),
+                            Order = ODBCWrapper.Utils.GetIntSafeVal(dr, "ORDER_NUM"),
+                            VersionId = Utils.GetNullableLong(dr, "VERSION_ID")
+                        };
+
+                        categoryItems.Add(id, categoryParentCache);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while getting categories. group id = {groupId}", ex);
+            }
+
+            return categoryItems;
         }
 
         public static DataSet GetExternalChannelsByIds(int groupId, List<long> channelIds, bool getAlsoInactive)
@@ -6217,7 +6385,7 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        private static DataTable SetCategoriesChannelsTable(List<UnifiedChannel> channels)
+        private DataTable SetCategoriesChannelsTable(List<UnifiedChannel> channels)
         {
             DataTable ccTable = new DataTable("categoriesChannelsValues");
 
@@ -6265,19 +6433,30 @@ namespace Tvinci.Core.DAL
             return ccTable;
         }
 
-        public static DataTable GetCategoriesIdsByChannelId(int groupId, int channelId, UnifiedChannelType channelType)
+        public List<long> GetCategoriesIdsByChannelId(int groupId, int channelId, UnifiedChannelType channelType)
         {
+            List<long> categoriesIds = new List<long>();
             try
             {
                 var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@channelId", channelId }, { "@channelType", (int)channelType } };
-                return UtilsDal.Execute("Get_CategoriesIdsByChannel", parameters);
+                var dt = UtilsDal.Execute("Get_CategoriesIdsByChannel", parameters);
+                if (dt == null)
+                {
+                    return null;
+                }
+
+                if (dt.Rows.Count > 0)
+                {
+                    categoriesIds = dt.Rows.OfType<DataRow>().Select(dr => dr.Field<long>("CATEGORY_ID")).ToList();
+                }
             }
             catch (Exception ex)
             {
                 log.Error($"Error while GetCategoriesIdsByChannelId from DB, groupId = {groupId}", ex);
+                return null;
             }
 
-            return null;
+            return categoriesIds;
         }
 
         public static MediaTagsTranslations GetMediaTagsTranslations(long mediaId)
@@ -6323,10 +6502,162 @@ namespace Tvinci.Core.DAL
 
             return false;
         }
+
         public static bool DeleteMediaTagsTranslations(long mediaId)
         {
             string key = GetMediaTagsTranslationsKey(mediaId);
             return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
+        }
+
+        public CategoryVersion AddCategoryVersion(int groupId, CategoryVersion categoryVersion)
+        {
+            var sp = new StoredProcedure("InsertCategoryVersion");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@name", categoryVersion.Name);
+            sp.AddParameter("@treeId", categoryVersion.TreeId);
+            sp.AddParameter("@baseVersionId", categoryVersion.BaseVersionId);
+            sp.AddParameter("@categoryRootId", categoryVersion.CategoryItemRootId);
+            sp.AddParameter("@state", (int)categoryVersion.State);
+            sp.AddParameter("@updaterId", categoryVersion.UpdaterId);
+            sp.AddParameter("@comment", categoryVersion.Comment);
+            sp.AddParameter("@createDate", Utils.UtcUnixTimestampSecondsToDateTime(categoryVersion.CreateDate));
+            sp.AddParameter("@updateDate", Utils.UtcUnixTimestampSecondsToDateTime(categoryVersion.UpdateDate));
+
+            var dt = sp.Execute();
+            CategoryVersion result = GetCategoryVersionFromDT(dt);
+            return result;
+        }
+
+        private CategoryVersion GetCategoryVersionFromDT(DataTable dt)
+        {
+            CategoryVersion categoryVersion = null;
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                DataRow dr = dt.Rows[0];
+                categoryVersion = new CategoryVersion()
+                {
+                    Id = Utils.GetLongSafeVal(dr, "ID"),
+                    Name = Utils.GetSafeStr(dr, "NAME"),
+                    Comment = Utils.GetSafeStr(dr, "COMMENT"),
+                    TreeId = Utils.GetLongSafeVal(dr, "TREE_ID"),
+                    BaseVersionId = Utils.GetLongSafeVal(dr, "BASE_VERSION_ID"),
+                    CategoryItemRootId = Utils.GetLongSafeVal(dr, "CATEGORY_ROOT_ID"),
+                    State = (CategoryVersionState)Utils.GetIntSafeVal(dr, "STATE"),
+                    UpdaterId = Utils.GetLongSafeVal(dr, "UPDATER_ID"),
+                    CreateDate = Utils.GetDateAsUnixTimestampSafeVal(dr, "CREATE_DATE").Value,
+                    UpdateDate = Utils.GetDateAsUnixTimestampSafeVal(dr, "UPDATE_DATE").Value,
+                    DefaultDate = Utils.GetDateAsUnixTimestampSafeVal(dr, "DEFAULT_DATE")
+                };
+            }
+
+            return categoryVersion;
+        }
+
+        public CategoryVersion GetCategoryVersionById(int groupId, long id)
+        {
+            var sp = new StoredProcedure("GetCategoryVersionById");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@categoryVersionId", id);
+
+            var dt = sp.Execute();
+            CategoryVersion result = GetCategoryVersionFromDT(dt);
+            return result;
+        }
+
+        public List<long> GetCategoryVersionDefaults(int groupId)
+        {
+            var sp = new StoredProcedure("GetCategoryVersionDefaults");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+
+            var dt = sp.Execute();
+            if (dt == null)
+            {
+                return null;
+            }
+
+            if (dt.Rows.Count > 0)
+            {
+                var versionIds = dt.Rows.OfType<DataRow>().Select(dr => dr.Field<long>("ID")).ToList();
+                return versionIds;
+            }
+
+            return null;
+        }
+
+        public List<long> GetCategoryVersionsOfTree(int groupId, long treeId)
+        {
+            var sp = new StoredProcedure("GetCategoryVersionsOfTree");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("treeId", treeId);
+
+            var dt = sp.Execute();
+            if (dt == null)
+            {
+                return null;
+            }
+
+            if (dt.Rows.Count > 0)
+            {
+                var versionIds = dt.Rows.OfType<DataRow>().Select(dr => dr.Field<long>("ID")).ToList();
+                return versionIds;
+            }
+
+            return null;
+        }
+
+        public bool UpdateCategoriesVersionId(long versionId, List<long> categoryIds, long updateDate, long userId)
+        {
+            var sp = new StoredProcedure("UpdateCategoriesVersionId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@versionId", versionId);
+            sp.AddIDListParameter<long>("@categoryIds", categoryIds, "Id");
+            sp.AddParameter("@updateDate", Utils.UtcUnixTimestampSecondsToDateTime(updateDate));
+            sp.AddParameter("@userId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public bool UpdateCategoryVersion(int groupId, long userId, CategoryVersion categoryVersion)
+        {
+            var sp = new StoredProcedure("UpdateCategoryVersion");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", categoryVersion.Id);
+            sp.AddParameter("@userId", userId);
+            sp.AddParameter("@updateDate", Utils.UtcUnixTimestampSecondsToDateTime(categoryVersion.UpdateDate));
+            sp.AddParameter("@name", categoryVersion.Name);
+            sp.AddParameter("@comment", categoryVersion.Comment);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public bool DeleteCategoryVersion(int groupId, long userId, CategoryVersion categoryVersion)
+        {
+            var sp = new StoredProcedure("DeleteCategoryVersion");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", categoryVersion.Id);
+            sp.AddParameter("@userId", userId);
+            sp.AddParameter("@updateDate", Utils.UtcUnixTimestampSecondsToDateTime(categoryVersion.UpdateDate));
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public bool UpdateDefaultCategoryVersion(int groupId, long userId, long updateDate, long newDefaultVersionId, long currentDefaultVersionId)
+        {
+            var sp = new StoredProcedure("UpdateDefaultCategoryVersion");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@userId", userId);
+            sp.AddParameter("@updateDate", Utils.UtcUnixTimestampSecondsToDateTime(updateDate));
+            sp.AddParameter("@newDefaultVersionId", newDefaultVersionId);
+            sp.AddParameter("@currentDefaultVersionId", currentDefaultVersionId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
     }
 }

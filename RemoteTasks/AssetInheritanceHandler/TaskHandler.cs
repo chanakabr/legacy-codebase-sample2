@@ -35,13 +35,13 @@ namespace AssetInheritanceHandler
                     case InheritanceType.AssetStructMeta:
                         {
                             InheritanceAssetStructMeta inheritanceAssetStructMeta = JsonConvert.DeserializeObject<InheritanceAssetStructMeta>(request.Data);
-                            success = Core.Catalog.CatalogManagement.CatalogManager.HandleHeritage(request.GroupId, inheritanceAssetStructMeta.AssetStructId, inheritanceAssetStructMeta.MetaId, request.UserId);
+                            success = Core.Catalog.CatalogManagement.CatalogManager.Instance.HandleHeritage(request.GroupId, inheritanceAssetStructMeta.AssetStructId, inheritanceAssetStructMeta.MetaId, request.UserId);
                             break;
                         }
                     case InheritanceType.ParentUpdate:
                         {
                             InheritanceParentUpdate inheritanceParentUpdate = JsonConvert.DeserializeObject<InheritanceParentUpdate>(request.Data);
-                            success = Core.Catalog.CatalogManagement.CatalogManager.HandleParentUpdate(request.GroupId, request.UserId, inheritanceParentUpdate.AssetId, inheritanceParentUpdate.TopicsIds);
+                            success = Core.Catalog.CatalogManagement.CatalogManager.Instance.HandleParentUpdate(request.GroupId, request.UserId, inheritanceParentUpdate.AssetId, inheritanceParentUpdate.TopicsIds);
                             break;
                         }
                     default:

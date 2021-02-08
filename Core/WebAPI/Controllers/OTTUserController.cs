@@ -914,6 +914,10 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.UsersClient().GetUserByExternalID(groupId, filter.ExternalIdEqual);
                 }
+                else if (!string.IsNullOrEmpty(filter.EmailEqual))
+                {
+                    response = ClientsManager.UsersClient().GetUsersByEmail(groupId, filter.EmailEqual);
+                }
                 else if (!string.IsNullOrEmpty(filter.IdIn))
                 {
                     List<string> usersToGet = null;

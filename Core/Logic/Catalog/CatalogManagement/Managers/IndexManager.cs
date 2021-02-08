@@ -291,7 +291,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (CatalogManager.DoesGroupUsesTemplates(groupId))
             {
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpsertMedia", groupId);
                     return false;
@@ -455,7 +455,7 @@ namespace Core.Catalog.CatalogManagement
             if (doesGroupUsesTemplates)
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteMedia", groupId);
                     return false;
@@ -538,7 +538,7 @@ namespace Core.Catalog.CatalogManagement
                 if (channel == null)
                 {
                     // isAllowedToViewInactiveAssets = true because only operator can cause upsert of channel
-                    GenericResponse<Channel> response = ChannelManager.GetChannelById(groupId, channelId, true, userId);
+                    GenericResponse<Channel> response = ChannelManager.Instance.GetChannelById(groupId, channelId, true, userId);
                     if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return result;
@@ -775,7 +775,7 @@ namespace Core.Catalog.CatalogManagement
                 Group group = null;
                 if (doesGroupUsesTemplates)
                 {
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpsertProgram", groupId);
                         return false;
@@ -1032,7 +1032,7 @@ namespace Core.Catalog.CatalogManagement
                 Group group = null;
                 if (doesGroupUsesTemplates)
                 {
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateEpg", groupId);
                         return false;
@@ -1170,7 +1170,7 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        public static void AddMappingsToEpgIndex(int groupId, string indexName, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage,
+        private static void AddMappingsToEpgIndex(int groupId, string indexName, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage,
              bool isRecording, out HashSet<string> metasToPad, Group group = null, CatalogGroupCache catalogGroupCache = null)
         {
             var serializer = new ESSerializerV2();
@@ -1185,6 +1185,7 @@ namespace Core.Catalog.CatalogManagement
 
             foreach (ApiObjects.LanguageObj language in languages)
             {
+                // TODO could use AddLanguageMapping here
                 MappingAnalyzers specificMappingAnalyzers = GetMappingAnalyzers(language, ES_VERSION);
                 string specificType = GetIndexType(isRecording, language);
 
@@ -1204,6 +1205,26 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
             }
+        }
+        
+        public static void AddLanguageMapping(
+            string indexName,
+            LanguageObj language,
+            LanguageObj defaultLanguage,
+            Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
+            List<string> tags,
+            HashSet<string> metasToPad)
+        {
+            var defaultMappingAnalyzers = GetMappingAnalyzers(defaultLanguage, ES_VERSION);
+            var specificMappingAnalyzers = GetMappingAnalyzers(language, ES_VERSION);
+            var mappingName = GetIndexType(false, language);
+
+            var serializer = new ESSerializerV2();
+            var mapping = serializer.CreateEpgMapping(metas, tags, metasToPad, specificMappingAnalyzers,
+                defaultMappingAnalyzers, mappingName, true);
+            
+            var success = esClientApi.InsertMapping(indexName, mappingName, mapping);
+            if (!success) throw new Exception($"Failed to add mapping. index: [{indexName}]. mapping [{mappingName}]");
         }
 
         public static MappingAnalyzers GetMappingAnalyzers(ApiObjects.LanguageObj language, string version)
@@ -1259,7 +1280,7 @@ namespace Core.Catalog.CatalogManagement
             return metasToPad;
         }
 
-        private static void CreateEmptyIndex(string newIndexName, IEnumerable<LanguageObj> languages, bool shouldBuildWithReplicas = true,
+        public static void CreateEmptyIndex(string newIndexName, IEnumerable<LanguageObj> languages, bool shouldBuildWithReplicas = true,
                                                 bool shouldUseNumOfConfiguredShards = true, string refreshInterval = null)
         {
             GetEpgAnalyzers(languages, out var analyzers, out var filters, out var tokenizers);

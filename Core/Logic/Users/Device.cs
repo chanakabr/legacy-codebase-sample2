@@ -274,7 +274,7 @@ namespace Core.Users
             bool deviceFound = (nDeviceID.HasValue && nDeviceID.Value > 0);
             if (!deviceFound)
             {
-                retVal = DeviceDal.GetDeviceID(m_deviceUDID, m_groupID, m_deviceBrandID, m_deviceFamilyID, nStatus);
+                retVal = DeviceDal.GetDeviceId(m_deviceUDID, m_groupID, m_deviceBrandID, m_deviceFamilyID, nStatus);
                 deviceFound = retVal > 0;
             }
             else

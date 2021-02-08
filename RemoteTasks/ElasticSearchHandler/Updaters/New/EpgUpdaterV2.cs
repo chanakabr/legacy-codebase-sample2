@@ -143,7 +143,7 @@ namespace ElasticSearchHandler.Updaters
                 Group group = null;
                 if (doesGroupUsesTemplates)
                 {
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateEpg", groupId);
                         return false;
@@ -405,7 +405,7 @@ namespace ElasticSearchHandler.Updaters
                 Group group = null;
                 if (doesGroupUsesTemplates)
                 {
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                    if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateEpg", groupId);
                         return false;

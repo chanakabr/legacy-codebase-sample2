@@ -141,7 +141,7 @@ namespace Core.Catalog.CatalogManagement
                 // get the images we need to update
                 if (assetId > 0 && isUpdateRequest)
                 {
-                    GenericListResponse<Image> assetImagesResponse = ImageManager.GetImagesByObject(groupId, assetId, imageObjectType);
+                    GenericListResponse<Image> assetImagesResponse = ImageManager.Instance.GetImagesByObject(groupId, assetId, imageObjectType);
                     Dictionary<long, long> imageTypeIdsToIdsMapToUpdate = new Dictionary<long, long>();
                     if (assetImagesResponse != null && assetImagesResponse.HasObjects())
                     {
@@ -170,7 +170,7 @@ namespace Core.Catalog.CatalogManagement
                     foreach (var imageToAdd in imagesToAdd)
                     {
                         imageToAdd.ImageObjectId = assetId;
-                        GenericResponse<Image> addImageResponse = ImageManager.AddImage(groupId, imageToAdd, userId);
+                        GenericResponse<Image> addImageResponse = ImageManager.Instance.AddImage(groupId, imageToAdd, userId);
                         if (addImageResponse == null || !addImageResponse.HasObject() || addImageResponse.Object.Id == 0)
                         {
                             log.ErrorFormat("Failed adding image with imageTypeId {0} for assetId {1}, groupId: {2}", imageToAdd.ImageTypeId, assetId, groupId);
@@ -192,7 +192,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (Image imageToUpdate in imagesToUpdate)
                     {
-                        Status setContentResponse = ImageManager.SetContent(groupId, userId, imageToUpdate.Id, imageToUpdate.Url);
+                        Status setContentResponse = ImageManager.Instance.SetContent(groupId, userId, imageToUpdate.Id, imageToUpdate.Url);
                         if (setContentResponse == null || !setContentResponse.IsOkStatusCode())
                         {
                             log.ErrorFormat("Failed setContent for image with Id {0}, ImageTypeId {1} for assetId {2} and groupId: {3}",

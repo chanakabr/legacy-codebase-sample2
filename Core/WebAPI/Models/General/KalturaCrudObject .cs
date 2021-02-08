@@ -15,7 +15,7 @@ namespace WebAPI.Models.General
     {
         //TODO SHIR - SET ALL AS VIRTUAL
         internal abstract ICrudHandler<ICrudHandeledObject, IdentifierT> Handler { get; }
-        internal virtual void ValidateForAdd() { }
+        public virtual void ValidateForAdd() { }
         internal virtual void ValidateForUpdate() { }
         internal abstract void SetId(IdentifierT id);
         internal virtual GenericResponse<ICrudHandeledObject> Add(ContextData contextData) { throw new NotImplementedException(); }

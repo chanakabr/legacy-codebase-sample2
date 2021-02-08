@@ -637,7 +637,7 @@ namespace Core.Notification
             {
                 if (cache == null)
                 {
-                    if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out cache))
+                    if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out cache))
                     {
                         log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling GetEpisodeAssociationTag");
                         return associationTag;
@@ -735,7 +735,7 @@ namespace Core.Notification
                     return response;
                 }
 
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(contextData.GroupId, out CatalogGroupCache cache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(contextData.GroupId, out CatalogGroupCache cache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling FollowManager.Add", contextData.GroupId);
                     return response;

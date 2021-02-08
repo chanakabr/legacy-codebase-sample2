@@ -207,7 +207,6 @@ pipeline {
             cleanWs()
         }
     }
-
 }
 
 def buildMsProject(projectFilePath, outputPath, component){

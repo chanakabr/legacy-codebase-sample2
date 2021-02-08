@@ -963,7 +963,7 @@ namespace GroupsCacheManager
 
         private static void SetCatalogConfiguration(ref Group newGroup)
         {
-            var cpc = DAL.ApiDAL.GetCatalogPartnerConfig(newGroup.m_nParentGroupID);
+            var cpc = DAL.ApiDAL.Instance.GetCatalogPartnerConfig(newGroup.m_nParentGroupID);
             if(cpc != null)
             {
                 newGroup.isTagsSingleTranslation = cpc.SingleMultilingualMode.HasValue ? cpc.SingleMultilingualMode.Value : false;

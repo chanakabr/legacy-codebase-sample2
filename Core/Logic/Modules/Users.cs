@@ -23,6 +23,7 @@ namespace Core.Users
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static int nMaxFailCount = 3;
         private static int nLockMinutes = 3;
+        private const string USER_CLASS_NAME = "User";
 
         private static void AddItemToContext(string key, string value)
         {
@@ -595,7 +596,7 @@ namespace Core.Users
                 KalturaBaseUsers kUser = null;
 
                 // get group ID + user type
-                Utils.GetBaseImpl(ref kUser, nGroupID);
+                Utils.GetBaseImpl(ref kUser, nGroupID, -1, USER_CLASS_NAME, false);
                 if (kUser != null)
                 {
                     return FlowManager.GetUserData(kUser, sSiteGUID, new List<KeyValuePair>(), sUserIp);
@@ -640,7 +641,7 @@ namespace Core.Users
                 KalturaBaseUsers kUser = null;
 
                 // get group ID + user type
-                Utils.GetBaseImpl(ref kUser, nGroupID);
+                Utils.GetBaseImpl(ref kUser, nGroupID, -1, USER_CLASS_NAME, false);
                 if (kUser != null)
                 {
                     userResponseList = FlowManager.GetUsersData(kUser, sSiteGUIDs.ToList(), new List<KeyValuePair>(), userIp);
@@ -1838,6 +1839,19 @@ namespace Core.Users
             if (t != null)
             {
                 response = t.GetUserByExternalID(externalId, operatorID);
+            }
+            return response;
+        }
+
+        public static GenericListResponse<UserResponseObject> GetUsersByEmail(int nGroupID, string email, int operatorID)
+        {
+            var response = new GenericListResponse<UserResponseObject>();
+
+            BaseUsers t = null;
+            Utils.GetBaseImpl(ref t, nGroupID);
+            if (t != null)
+            {
+                response = t.GetUsersByEmail(email, operatorID);
             }
             return response;
         }

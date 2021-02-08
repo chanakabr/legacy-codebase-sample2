@@ -158,7 +158,7 @@ namespace WebAPI.Utils
             {
                 Core.Catalog.CatalogGroupCache groupCache;
 
-                if (Core.Catalog.CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId.Value, out groupCache))
+                if (Core.Catalog.CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId.Value, out groupCache))
                 {
                     return Mapper.Map<List<Language>>(groupCache.LanguageMapById.Values.ToList());
                 }

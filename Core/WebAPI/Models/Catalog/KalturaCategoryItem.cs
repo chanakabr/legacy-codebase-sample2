@@ -2,7 +2,7 @@
 using ApiLogic.Catalog;
 using ApiObjects.Base;
 using ApiObjects.Response;
-using Core.Catalog.Handlers;
+using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -118,6 +118,15 @@ namespace WebAPI.Models.Catalog
         public string Type { get; set; }
 
         /// <summary>
+        /// Unique identifier for the category version
+        /// </summary>
+        [DataMember(Name = "versionId")]
+        [JsonProperty(PropertyName = "versionId")]
+        [XmlElement(ElementName = "versionId")]
+        [SchemeProperty(ReadOnly = true)]
+        public long? VersionId { get; set; }
+
+        /// <summary>
         /// Virtual asset id
         /// </summary>
         [DataMember(Name = "virtualAssetId")]
@@ -139,7 +148,7 @@ namespace WebAPI.Models.Catalog
             this.Id = id;
         }
 
-        internal override void ValidateForAdd()
+        public override void ValidateForAdd()
         {
             if (this.Name == null)
             {

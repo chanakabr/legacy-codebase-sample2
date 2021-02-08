@@ -53,7 +53,7 @@ namespace Core.Catalog
                 Group group = null;
                 CatalogGroupCache catalogGroupCache = null;
                 bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(parentGroupID);
-                if (doesGroupUsesTemplates && !CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(parentGroupID, out catalogGroupCache))
+                if (doesGroupUsesTemplates && !CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(parentGroupID, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetDefinitions", parentGroupID);
                     return definitions;
@@ -208,7 +208,7 @@ namespace Core.Catalog
 
                     if (doesGroupUsesTemplates)
                     {
-                        if (!CatalogManagement.CatalogManager.CheckMetaExsits(request.m_nGroupID, order.m_sOrderValue.ToLower()))
+                        if (!CatalogManagement.CatalogManager.Instance.CheckMetaExsits(request.m_nGroupID, order.m_sOrderValue.ToLower()))
                         {
                             //return error - meta not erxsits
                             log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
@@ -217,7 +217,7 @@ namespace Core.Catalog
                         else
                         {
                             isMetaValid = true;
-                            CatalogManagement.CatalogManager.GetUnifiedSearchKey(request.m_nGroupID, order.m_sOrderValue.ToLower(), out isTagOrMeta, out type);
+                            CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(request.m_nGroupID, order.m_sOrderValue.ToLower(), out isTagOrMeta, out type);
                         }
                     }
                     else
@@ -391,6 +391,8 @@ namespace Core.Catalog
 
                     definitions.shouldReturnExtendedSearchResult = true;
                 }
+
+                definitions.isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(request.m_nGroupID, GroupFeature.EPG_INGEST_V2);
 
                 #endregion
 
@@ -616,7 +618,7 @@ namespace Core.Catalog
             List<int> linearChannelMediaTypes = new List<int>();
             if (doesGroupUsesTemplates)
             {
-                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(parentGroupID, out catalogGroupCache))
+                if (!CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(parentGroupID, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildEntitlementSearchDefinitions", parentGroupID);
                     return;

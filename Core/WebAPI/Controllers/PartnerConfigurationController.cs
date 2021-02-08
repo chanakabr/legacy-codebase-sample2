@@ -58,6 +58,10 @@ namespace WebAPI.Controllers
                 {
                     response = ClientsManager.ApiClient().GetSecurityConfiguration(groupId);
                 }
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.Opc)
+                {
+                    response = ClientsManager.ApiClient().GetOpcPartnerConfiguration(groupId);
+                }
                 else
                 {
                     throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "filter.partnerConfigurationTypeEqual", filter.PartnerConfigurationTypeEqual);

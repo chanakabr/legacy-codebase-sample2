@@ -1299,6 +1299,8 @@ namespace WebAPI.Reflection
                 case "KalturaCatalogPartnerConfig":
                     switch(property.Name)
                     {
+                        case "CategoryManagement":
+                            return "categoryManagement";
                         case "SingleMultilingualMode":
                             return "singleMultilingualMode";
                     }
@@ -1329,6 +1331,8 @@ namespace WebAPI.Reflection
                             return "unifiedChannels";
                         case "UpdateDate":
                             return "updateDate";
+                        case "VersionId":
+                            return "versionId";
                         case "VirtualAssetId":
                             return "virtualAssetId";
                     }
@@ -1362,6 +1366,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCategoryManagement":
+                    switch(property.Name)
+                    {
+                        case "DefaultCategoryTreeId":
+                            return "defaultTreeId";
+                        case "DeviceFamilyToCategoryTree":
+                            return "deviceFamilyToCategoryTree";
+                    }
+                    break;
+                    
                 case "KalturaCategoryTree":
                     switch(property.Name)
                     {
@@ -1385,6 +1399,48 @@ namespace WebAPI.Reflection
                             return "type";
                         case "UnifiedChannels":
                             return "unifiedChannels";
+                        case "VersionId":
+                            return "versionId";
+                        case "VirtualAssetId":
+                            return "virtualAssetId";
+                    }
+                    break;
+                    
+                case "KalturaCategoryVersion":
+                    switch(property.Name)
+                    {
+                        case "BaseVersionId":
+                            return "baseVersionId";
+                        case "CategoryRootId":
+                            return "categoryRootId";
+                        case "Comment":
+                            return "comment";
+                        case "CreateDate":
+                            return "createDate";
+                        case "DefaultDate":
+                            return "defaultDate";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "State":
+                            return "state";
+                        case "TreeId":
+                            return "treeId";
+                        case "UpdateDate":
+                            return "updateDate";
+                        case "UpdaterId":
+                            return "updaterId";
+                    }
+                    break;
+                    
+                case "KalturaCategoryVersionFilterByTree":
+                    switch(property.Name)
+                    {
+                        case "StateEqual":
+                            return "stateEqual";
+                        case "TreeIdEqual":
+                            return "treeIdEqual";
                     }
                     break;
                     
@@ -4510,6 +4566,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaOpcPartnerConfiguration":
+                    switch(property.Name)
+                    {
+                        case "ResetPassword":
+                            return "resetPassword";
+                    }
+                    break;
+                    
                 case "KalturaOrCondition":
                     switch(property.Name)
                     {
@@ -4649,6 +4713,8 @@ namespace WebAPI.Reflection
                 case "KalturaOTTUserFilter":
                     switch(property.Name)
                     {
+                        case "EmailEqual":
+                            return "emailEqual";
                         case "ExternalIdEqual":
                             return "externalIdEqual";
                         case "IdIn":
@@ -6021,6 +6087,28 @@ namespace WebAPI.Reflection
                             return "skipCondition";
                         case "UserID":
                             return "userId";
+                    }
+                    break;
+                    
+                case "KalturaResetPasswordPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "TemplateListLabel":
+                            return "templateListLabel";
+                        case "Templates":
+                            return "templates";
+                    }
+                    break;
+                    
+                case "KalturaResetPasswordPartnerConfigTemplate":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "IsDefault":
+                            return "isDefault";
+                        case "Label":
+                            return "label";
                     }
                     break;
                     
@@ -8150,6 +8238,42 @@ namespace WebAPI.Reflection
                         case "get":
                             RolesManager.ValidateActionPermitted("categoryTree", "get", false);
                             return CategoryTreeController.Get((long) methodParams[0], (bool) methodParams[1]);
+                            
+                        case "getbyversion":
+                            RolesManager.ValidateActionPermitted("categoryTree", "getByVersion", false);
+                            return CategoryTreeController.GetByVersion((Nullable<long>) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "categoryversion":
+                    switch(action)
+                    {
+                        case "createtree":
+                            RolesManager.ValidateActionPermitted("categoryVersion", "createTree", false);
+                            return CategoryVersionController.CreateTree((long) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            
+                        case "setdefault":
+                            RolesManager.ValidateActionPermitted("categoryVersion", "setDefault", false);
+                            CategoryVersionController.SetDefault((long) methodParams[0], (bool) methodParams[1]);
+                            return null;
+                            
+                        case "add":
+                            RolesManager.ValidateActionPermitted("categoryversion", "add");
+                            return CategoryVersionController.Add((KalturaCategoryVersion) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("categoryversion", "update");
+                            return CategoryVersionController.Update((long) methodParams[0], (KalturaCategoryVersion) methodParams[1]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("categoryversion", "delete");
+                            CategoryVersionController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("categoryversion", "list");
+                            return CategoryVersionController.List((KalturaCategoryVersionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                     }
                     break;
@@ -13467,6 +13591,92 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = false,
                                 Type = typeof(bool),
+                            });
+                            return ret;
+                            
+                        case "getbyversion":
+                            ret.Add("versionId", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int64),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "categoryversion":
+                    switch(action)
+                    {
+                        case "createtree":
+                            ret.Add("categoryItemId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("name", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("comment", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "setdefault":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("force", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = false,
+                                Type = typeof(bool),
+                            });
+                            return ret;
+                            
+                        case "add":
+                            ret.Add("objectToAdd", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryVersion),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("objectToUpdate", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryVersion),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaCategoryVersionFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
                             });
                             return ret;
                             

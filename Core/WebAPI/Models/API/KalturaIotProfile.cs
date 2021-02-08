@@ -65,7 +65,7 @@ namespace WebAPI.Models.API
             return IotProfileManager.Instance.Get(contextData, contextData.GroupId);
         }
 
-        internal override void ValidateForAdd()
+        public override void ValidateForAdd()
         {
         }
 

@@ -62,7 +62,7 @@ namespace WebAPI.Models.Users
             Id = id;
         }
 
-        internal override void ValidateForAdd()
+        public override void ValidateForAdd()
         {
         }
 

@@ -17,9 +17,7 @@ namespace ElasticSearch.Common
         public static readonly string ES_STATS_TYPE = "stats";
         public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
         public static readonly string ES_DATEONLY_FORMAT = "yyyyMMdd";
-        public static readonly string ES_PERCOLATOR_TYPE = ".percolator";
-       
-
+        public static readonly string ES_PERCOLATOR_TYPE = ".percolator";       
 
         public static string GetTcmValue(string sKey)
         {
@@ -432,6 +430,11 @@ namespace ElasticSearch.Common
                 epg_identifier = epgIdentifier,
                 score = score
             };
+
+            if (assetType == ApiObjects.eAssetTypes.EPG)
+            {
+                newDocument.epg_couchbase_key = ExtractValueFromToken<string>(item, AddPrefixToFieldName("document_id", fieldNamePrefix));
+            }
 
             if (extraReturnFields != null)
             {

@@ -2,7 +2,7 @@
 using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
-using Core.Users;
+using Core.Api;
 using System;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
 
         private static void ValidateRequest(ContextData contextData)
         {
-            var devices = ConcurrencyManager.GetDomainDevices((int)contextData.DomainId, contextData.GroupId);
+            var devices = api.Instance.GetDomainDevices((int)contextData.DomainId, contextData.GroupId);
 
             if (devices == null || !devices.ContainsKey(contextData.Udid))
             {

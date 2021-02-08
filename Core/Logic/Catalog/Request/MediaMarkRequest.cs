@@ -6,17 +6,13 @@ using ApiObjects.Statistics;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Catalog.Response;
-using Core.Users;
 using EpgBL;
-using GroupsCacheManager;
 using KLogMonitor;
-using KlogMonitorHelper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
@@ -25,7 +21,7 @@ namespace Core.Catalog.Request
     [DataContract]
     public class MediaMarkRequest : BaseRequest, IRequestImp
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());         
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         [DataMember]
         public MediaPlayRequestData m_oMediaPlayRequestData;
@@ -76,7 +72,7 @@ namespace Core.Catalog.Request
                             return response;
                         }
                     }
-                    
+
                     if (assetType == eAssetTypes.MEDIA) // Media MArk
                     {
                         response = ProcessMediaMarkRequest();
@@ -111,7 +107,7 @@ namespace Core.Catalog.Request
                 return response;
             }
         }
-        
+
         private MediaMarkResponse ProcessMediaMarkRequest()
         {
             MediaMarkResponse response = new MediaMarkResponse();
@@ -180,9 +176,9 @@ namespace Core.Catalog.Request
                 {
                     bool isError = false;
                     bool isConcurrent = false;
-                    devicePlayData = HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull, 
-                                                             ref nExitFull, ref nSendToFriend, ref nLoad, ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh, 
-                                                             ref fileDuration, ref nMediaTypeID, this.m_oMediaPlayRequestData.ProgramId, 
+                    devicePlayData = HandleMediaPlayAction(mediaMarkAction, nCountryID, nPlatform, ref nActionID, ref nPlay, ref nStop, ref nPause, ref nFinish, ref nFull,
+                                                             ref nExitFull, ref nSendToFriend, ref nLoad, ref nFirstPlay, ref isConcurrent, ref isError, ref nSwhoosh,
+                                                             ref fileDuration, ref nMediaTypeID, this.m_oMediaPlayRequestData.ProgramId,
                                                              this.m_oMediaPlayRequestData.IsReportingMode);
 
                     if (devicePlayData == null)
@@ -261,7 +257,7 @@ namespace Core.Catalog.Request
                     }
 
                     if (IsFirstPlay(nActionID))
-                    {                        
+                    {
                         WriteFirstPlay(mediaId, m_oMediaPlayRequestData.m_nMediaFileID, m_nGroupID, nMediaTypeID, nPlayTime,
                                         m_oMediaPlayRequestData.m_sSiteGuid, m_oMediaPlayRequestData.m_sUDID, nPlatform, nCountryID);
                     }
@@ -283,6 +279,7 @@ namespace Core.Catalog.Request
 
             long recordingId = 0;
             long linearChannelMediaId = 0;
+            bool isGroupHaveNPVRImpl = false;
 
             if (assetType == eAssetTypes.EPG)
             {
@@ -306,13 +303,11 @@ namespace Core.Catalog.Request
                     return mediaMarkResponse;
                 }
             }
-            else if (assetType == eAssetTypes.NPVR && long.TryParse(this.m_oMediaPlayRequestData.m_sAssetID, out recordingId))
+            else if (assetType == eAssetTypes.NPVR && !string.IsNullOrEmpty(this.m_oMediaPlayRequestData.m_sAssetID))
             {
-                NPVR.INPVRProvider npvrProvider;
-                
-                bool isGroupHaveNPVRImpl = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out npvrProvider, null);
-                
-                if (!isGroupHaveNPVRImpl && !CatalogLogic.GetNPVRMarkHitInitialData(long.Parse(this.m_oMediaPlayRequestData.m_sAssetID), ref fileDuration, this.m_nGroupID, this.domainId))
+                isGroupHaveNPVRImpl = NPVR.NPVRProviderFactory.Instance().IsGroupHaveNPVRImpl(this.m_nGroupID, out NPVR.INPVRProvider npvrProvider, null);
+
+                if (!isGroupHaveNPVRImpl && long.TryParse(this.m_oMediaPlayRequestData.m_sAssetID, out recordingId) && !CatalogLogic.GetNPVRMarkHitInitialData(recordingId, ref fileDuration, this.m_nGroupID, this.domainId))
                 {
                     mediaMarkResponse.status.Set((int)eResponseStatus.RecordingNotFound, "Recording doesn't exist");
                     return mediaMarkResponse;
@@ -340,7 +335,7 @@ namespace Core.Catalog.Request
             bool isConcurrent = false;
 
             HandleNpvrEpgPlayAction(mediaMarkAction, ref isConcurrent, ref isError, fileDuration, assetType, this.m_oMediaPlayRequestData.ProgramId,
-                                    this.m_oMediaPlayRequestData.IsReportingMode, recordingId, linearChannelMediaId);
+                                    this.m_oMediaPlayRequestData.IsReportingMode, linearChannelMediaId, isGroupHaveNPVRImpl);
             if (isConcurrent)
             {
                 mediaMarkResponse.status.Set((int)eResponseStatus.ConcurrencyLimitation, "Concurrent play limitation");
@@ -374,7 +369,7 @@ namespace Core.Catalog.Request
             eExpirationTTL ttl = this.GetDevicePlayDataTTL(mediaPlayAction);
 
             var currDevicePlayData = m_oMediaPlayRequestData.GetOrCreateDevicePlayData(mediaId, mediaPlayAction, this.m_nGroupID, isLinearChannel, ePlayType.MEDIA,
-                                                                                       this.domainId, 0, platform, countryId, ttl, isReportingMode);
+                                                                                       this.domainId, "0", platform, countryId, ttl, isReportingMode);
 
             if (currDevicePlayData == null)
             {
@@ -532,11 +527,15 @@ namespace Core.Catalog.Request
         /// <param name="recordingId"></param>
         /// <param name="linearChannelMediaId"></param>
         private void HandleNpvrEpgPlayAction(MediaPlayActions mediaPlayAction, ref bool isConcurrent, ref bool isError, int fileDuration, eAssetTypes assetType,
-                                             long programId, bool isReportingMode, long recordingId, long linearChannelMediaId)
+                                             long programId, bool isReportingMode, long linearChannelMediaId, bool isGroupHaveNPVRImpl)
         {
-            int assetId = int.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
-            int mediaTypeId = (int)assetType;
-            bool isLinearChannel = this.IsLinearChannel(mediaTypeId);
+            int assetId = 0;
+            string npvrId = assetType == eAssetTypes.NPVR ? this.m_oMediaPlayRequestData.m_sAssetID : string.Empty;
+
+            if (assetType != eAssetTypes.NPVR || (assetType == eAssetTypes.NPVR && !isGroupHaveNPVRImpl))
+            {
+                assetId = int.Parse(this.m_oMediaPlayRequestData.m_sAssetID);
+            }
 
             ePlayType playType = assetType == eAssetTypes.EPG ? ePlayType.EPG : ePlayType.NPVR;
             eExpirationTTL ttl = this.GetDevicePlayDataTTL(mediaPlayAction);
@@ -552,8 +551,9 @@ namespace Core.Catalog.Request
             }
 
             DevicePlayData devicePlayData =
-                this.m_oMediaPlayRequestData.GetOrCreateDevicePlayData(assetId, mediaPlayAction, this.m_nGroupID, isLinearChannel,
-                                                                       playType, this.domainId, recordingId, platform, countryId, ttl, isReportingMode);
+                this.m_oMediaPlayRequestData.GetOrCreateDevicePlayData(assetId, mediaPlayAction, this.m_nGroupID, false,
+                                                                       playType, this.domainId, npvrId, platform, countryId, ttl, isReportingMode);
+
 
             if (devicePlayData == null)
             {
@@ -578,7 +578,7 @@ namespace Core.Catalog.Request
                         else
                         {
                             CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, this.m_oMediaPlayRequestData.m_nLoc, fileDuration, mediaPlayAction,
-                                                        ttl, this.m_oMediaPlayRequestData.IsReportingMode, mediaTypeId, true, isLinearChannel);
+                                                        ttl, this.m_oMediaPlayRequestData.IsReportingMode, (int)assetType, false, false);
                         }
                         break;
                     }
@@ -593,7 +593,7 @@ namespace Core.Catalog.Request
                         else
                         {
                             CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, this.m_oMediaPlayRequestData.m_nLoc, fileDuration, mediaPlayAction,
-                                                        ttl, this.m_oMediaPlayRequestData.IsReportingMode, mediaTypeId, false, isLinearChannel);
+                                                        ttl, this.m_oMediaPlayRequestData.IsReportingMode, (int)assetType, false, false);
                         }
 
                         break;
@@ -603,13 +603,13 @@ namespace Core.Catalog.Request
                 case MediaPlayActions.SWOOSH:
                     {
                         CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, this.m_oMediaPlayRequestData.m_nLoc, fileDuration, mediaPlayAction,
-                                                    ttl, this.m_oMediaPlayRequestData.IsReportingMode, mediaTypeId, false, isLinearChannel);
+                                                    ttl, this.m_oMediaPlayRequestData.IsReportingMode, (int)assetType, false, false);
                         break;
                     }
                 case MediaPlayActions.FINISH:
                     {
                         CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, 0, fileDuration, mediaPlayAction,
-                                                    ttl, this.m_oMediaPlayRequestData.IsReportingMode, mediaTypeId, false, isLinearChannel);
+                                                    ttl, this.m_oMediaPlayRequestData.IsReportingMode, (int)assetType, false, false);
                         break;
                     }
 
@@ -661,7 +661,7 @@ namespace Core.Catalog.Request
                 {
                     log.Error("Error - " + String.Concat("Failed to write firstplay into stats index. Req: ", ToString()));
                 }
-                
+
                 int userId = 0;
                 if (int.TryParse(siteGuid, out userId) && userId > 0)
                 {
@@ -678,7 +678,7 @@ namespace Core.Catalog.Request
                     mediaFileID, groupID, mediaTypeID, playTime, siteGuid, udid, platform, countryID, ex);
             }
         }
-        
+
         private eExpirationTTL GetDevicePlayDataTTL(MediaPlayActions mediaPlayAction)
         {
             eExpirationTTL ttl;
@@ -717,7 +717,7 @@ namespace Core.Catalog.Request
             var unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(roundedDate).ToString();
             string key = $"firstPlayCount_{unixTimestamp}_{firstPlayData.MediaID}";
             string field = "count";
-            
+
             var result = RedisManager.RedisClientManager.Instance.IncrementHashSetField<MediaView>(key, field, firstPlayData, 0, 1);
             return result;
         }

@@ -401,7 +401,7 @@ namespace Core.Catalog
                 {
                     return CatalogManagement.AssetManager.GetMediaObj(groupId, nMedia);
                 }
-                
+
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(groupId);
                 MediaObj oMediaObj = new MediaObj();
@@ -413,7 +413,7 @@ namespace Core.Catalog
                 List<LanguageObj> languages = new List<LanguageObj>();
                 LanguageObj language = null;
 
-                if (group.isGeoAvailabilityWindowingEnabled && !managementData)
+                if (group.isGeoAvailabilityWindowingEnabled || managementData)
                     sEndDate = "GEO";
                 else
                     sEndDate = ProtocolsFuncs.GetFinalEndDateField(true, managementData);
@@ -625,7 +625,7 @@ namespace Core.Catalog
                     tagTypeNameAndValues = new Dictionary<string, List<KeyValuePair<int, string>>>();
                     dicTagIdLanguageContainers = new Dictionary<string, List<KeyValuePair<int, List<LanguageContainer>>>>();
                     MediaTagsTranslations mediaTagsTranslations = null;
-                    
+
                     if (group.isTagsSingleTranslation)
                     {
                         //GET asset tags translations
@@ -659,12 +659,12 @@ namespace Core.Catalog
 
                             if (group.isTagsSingleTranslation && mediaTagsTranslations != null && mediaTagsTranslations.Translations?.Count > 0)
                             {
-                                    var tagsTranslations = mediaTagsTranslations.Translations.Where(x => x.TagId == tagId).ToList();
-                                    if (tagsTranslations?.Count > 0)
-                                    {
-                                        //get translate values for tag_id + add to tagLangContainerList
-                                        tagLangContainerList.AddRange(GetTagsLanguageContainer(tagsTranslations, group.GetLangauges()));
-                                    }
+                                var tagsTranslations = mediaTagsTranslations.Translations.Where(x => x.TagId == tagId).ToList();
+                                if (tagsTranslations?.Count > 0)
+                                {
+                                    //get translate values for tag_id + add to tagLangContainerList
+                                    tagLangContainerList.AddRange(GetTagsLanguageContainer(tagsTranslations, group.GetLangauges()));
+                                }
                             }
                             else if (tagLangs != null && tagLangs.Rows.Count > 0)
                             {
@@ -1607,7 +1607,7 @@ namespace Core.Catalog
             Type type;
             if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
             {
-                return CatalogManagement.CatalogManager.GetUnifiedSearchKey(groupId, originalKey, out isTagOrMeta, out type);
+                return CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, originalKey, out isTagOrMeta, out type);
             }
             else
             {
@@ -1823,7 +1823,7 @@ namespace Core.Catalog
             if (CatalogManager.DoesGroupUsesTemplates(groupId))
             {
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetParentMediaTypesAssociations", groupId);
                     return;
@@ -1958,7 +1958,7 @@ namespace Core.Catalog
                 {
                     if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
                     {
-                        if (!CatalogManagement.CatalogManager.CheckMetaExsits(request.m_nGroupID, searchObj.m_oOrder.m_sOrderValue.ToLower()))
+                        if (!CatalogManagement.CatalogManager.Instance.CheckMetaExsits(request.m_nGroupID, searchObj.m_oOrder.m_sOrderValue.ToLower()))
                         {
                             //return error - meta not erxsits
                             log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, searchObj.m_oOrder.m_sOrderValue);
@@ -2062,7 +2062,7 @@ namespace Core.Catalog
             if (isOPC)
             {
                 CatalogGroupCache catalogGroupCache;
-                if (CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
+                if (CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
                 {
                     isRegionalizationEnabled = catalogGroupCache.IsRegionalizationEnabled;
                     defaultRegion = catalogGroupCache.DefaultRegion;
@@ -2074,7 +2074,7 @@ namespace Core.Catalog
             {
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(groupId);
-                
+
                 if (group != null && group.isRegionalizationEnabled)
                 {
                     isRegionalizationEnabled = true;
@@ -2136,7 +2136,7 @@ namespace Core.Catalog
             {
                 if (CatalogManager.DoesGroupUsesTemplates(groupId))
                 {
-                    if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
+                    if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
                     {
                         isRegionalizationEnabled = true;
                         defaultRegion = catalogGroupCache.DefaultRegion;
@@ -2152,7 +2152,7 @@ namespace Core.Catalog
                     }
                 }
             }
-            
+
             if (isRegionalizationEnabled)
             {
                 var domainRes = Domains.Module.GetDomainInfo(groupId, domainId);
@@ -2169,7 +2169,7 @@ namespace Core.Catalog
                     }
                 }
             }
-            
+
             return regionId;
         }
 
@@ -2751,7 +2751,7 @@ namespace Core.Catalog
             {
                 if (!isReportingMode && devicePlayData.DeviceFamilyId == 0)
                 {
-                    devicePlayData.DeviceFamilyId = ConcurrencyManager.GetDeviceFamilyIdByUdid(devicePlayData.DomainId, groupId, devicePlayData.UDID);
+                    devicePlayData.DeviceFamilyId = Api.api.Instance.GetDeviceFamilyIdByUdid(devicePlayData.DomainId, groupId, devicePlayData.UDID);
                 }
 
                 ePlayType playType = devicePlayData.GetPlayType();
@@ -4237,7 +4237,7 @@ namespace Core.Catalog
                             }
                         }
 
-                        
+
 
                         break;
                     }
@@ -5178,7 +5178,7 @@ namespace Core.Catalog
                     Missing = 1
                 });
             }
-            
+
             filteredQuery.Aggregations.Add(aggregation);
 
             #endregion
@@ -6565,14 +6565,14 @@ namespace Core.Catalog
                 long userId = 0;
                 long.TryParse(request.m_sSiteGuid, out userId);
 
-                GenericResponse<GroupsCacheManager.Channel> response = ChannelManager.GetChannelById(request.m_nGroupID, channelId, request.isAllowedToViewInactiveAssets, userId);
+                GenericResponse<GroupsCacheManager.Channel> response = ChannelManager.Instance.GetChannelById(request.m_nGroupID, channelId, request.isAllowedToViewInactiveAssets, userId);
                 if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                 {
                     return response.Status;
                 }
 
                 channel = response.Object;
-                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(request.m_nGroupID, out catalogGroupCache))
+                if (!CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(request.m_nGroupID, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetInternalChannelAssets", request.m_nGroupID);
                     return new ApiObjects.Response.Status((int)eResponseStatus.Error, "failed to get catalogGroupCache");
@@ -6636,7 +6636,7 @@ namespace Core.Catalog
                 var parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
                 parentGroupId = parentGroupId == 0 ? groupId : parentGroupId;
                 var aggregation = searcher.UnifiedSearchForGroupBy(unifiedSearchDefinitions, parentGroupId);
-                
+
                 return new UnifiedSearchResponse
                 {
                     aggregationResults = new List<AggregationsResult> { aggregation },
@@ -6660,7 +6660,7 @@ namespace Core.Catalog
             // Perform initial search of channel
             int notUsed = 0;
             int totalItems = 0;
-            List<AggregationsResult> aggregationsResult;            
+            List<AggregationsResult> aggregationsResult;
             var searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref notUsed, out aggregationsResult);
 
             if (searchResults == null) return new UnifiedSearchResponse { status = Status.ErrorMessage("Failed performing channel search") };
@@ -6716,7 +6716,7 @@ namespace Core.Catalog
                 {
                     Dictionary<int, int> IdsToManualOrder = new Dictionary<int, int>();
                     int index = 0;
-                    foreach(int aid in assetIDs)
+                    foreach (int aid in assetIDs)
                     {
                         IdsToManualOrder.Add(aid, index);
                         index++;
@@ -6988,8 +6988,17 @@ namespace Core.Catalog
                                 UserBundlesResponse bundelsResponse = ConditionalAccess.Module.GetUserBundles(groupId, domainId, null);
                                 if (bundelsResponse.status.Code == (int)eResponseStatus.OK)
                                 {
-                                    cacheKey.AppendFormat("_entitlements={0}",
-                                        bundelsResponse.channels != null && bundelsResponse.channels.Count > 0 ? string.Join("|", bundelsResponse.channels.OrderBy(c => c)) : "0");
+                                    string entitlementsMd5 = null;
+                                    try
+                                    {
+                                        entitlementsMd5 = EncryptUtils.HashMD5(bundelsResponse.channels != null && bundelsResponse.channels.Count > 0 ? string.Join("|", bundelsResponse.channels.OrderBy(c => c)) : "0");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.Error("Failed to entitlements KSQL for personal ES cache", ex);
+                                        return key;
+                                    }
+                                    cacheKey.Append($"_entitlements={entitlementsMd5}");
                                 }
                             }
                         }
@@ -7118,7 +7127,7 @@ namespace Core.Catalog
 
             Filter filter = new Filter();
             CatalogGroupCache catalogGroupCache = null;
-            if (doesGroupUsesTemplates && !CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            if (doesGroupUsesTemplates && !CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildRelatedObject", groupId);
                 return status;
@@ -7185,7 +7194,7 @@ namespace Core.Catalog
                 {
                     if (doesGroupUsesTemplates)
                     {
-                        if (!CatalogManagement.CatalogManager.CheckMetaExsits(request.m_nGroupID, order.m_sOrderValue.ToLower()))
+                        if (!CatalogManagement.CatalogManager.Instance.CheckMetaExsits(request.m_nGroupID, order.m_sOrderValue.ToLower()))
                         {
                             //return error - meta not erxsits
                             log.ErrorFormat("meta not exsits for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, order.m_sOrderValue);
@@ -7303,7 +7312,7 @@ namespace Core.Catalog
                         Type type;
                         if (doesGroupUsesTemplates)
                         {
-                            CatalogManagement.CatalogManager.GetUnifiedSearchKey(groupId, key, out dummyBoolean, out type);
+                            CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, key, out dummyBoolean, out type);
                         }
                         else
                         {
@@ -7505,7 +7514,7 @@ namespace Core.Catalog
             HashSet<string> searchKeys = new HashSet<string>();
             if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
             {
-                searchKeys = CatalogManagement.CatalogManager.GetUnifiedSearchKey(groupId, leaf.field, out isTagOrMeta, out metaType);
+                searchKeys = CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, leaf.field, out isTagOrMeta, out metaType);
             }
             else
             {
@@ -8103,7 +8112,7 @@ namespace Core.Catalog
 
             if (doesGroupUsesTemplates && catalogGroupCache == null)
             {
-                if (!CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildInternalChannelSearchObject", groupId);
                     return definitions;
@@ -8188,7 +8197,7 @@ namespace Core.Catalog
                 // change default channel order to ID when we have groupBy + orderBy is not supported
                 // because we don't support all orderBy's with groupBy
                 var defaultChannelOrder = channel.m_OrderObject;
-                if (request.searchGroupBy?.groupBy?.Count == 1 
+                if (request.searchGroupBy?.groupBy?.Count == 1
                     && defaultChannelOrder != null
                     && !ElasticsearchWrapper.GroupBySearchIsSupportedForOrder(defaultChannelOrder.m_eOrderBy))
                 {
@@ -8306,7 +8315,7 @@ namespace Core.Catalog
                 {
                     if (doesGroupUsesTemplates)
                     {
-                        if (!CatalogManagement.CatalogManager.CheckMetaExsits(request.m_nGroupID, searcherOrderObj.m_sOrderValue.ToLower()))
+                        if (!CatalogManagement.CatalogManager.Instance.CheckMetaExsits(request.m_nGroupID, searcherOrderObj.m_sOrderValue.ToLower()))
                         {
                             //return error - meta not exists
                             log.ErrorFormat("meta not exists for group -  unified search definitions. groupId = {0}, meta name = {1}", request.m_nGroupID, searcherOrderObj.m_sOrderValue);
@@ -9168,6 +9177,7 @@ namespace Core.Catalog
 
                         searchDefinitions.pageSize = elasticSearchPageSize;
                         searchDefinitions.shouldReturnExtendedSearchResult = searchDefinitions.extraReturnFields?.Count > 0;
+                        searchDefinitions.isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
 
                         if (elasticSearchPageSize > 0)
                         {
@@ -9204,7 +9214,7 @@ namespace Core.Catalog
                                                     if (isOPC)
                                                     {
                                                         CatalogGroupCache catalogGroupCache;
-                                                        if (CatalogManagement.CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                                                        if (CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                                                         {
                                                             long seriesStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.IsSeriesAssetStruct).Id;
                                                             episodeStructId = catalogGroupCache.AssetStructsMapById.Values.FirstOrDefault(x => x.ParentId > 0 && x.ParentId == seriesStructId).Id;
@@ -9340,7 +9350,7 @@ namespace Core.Catalog
                 if (allUserAssetMarks == null || allUserAssetMarks.mediaMarks == null || allUserAssetMarks.mediaMarks.Count == 0)
                 {
                     return unFilteredresult;
-                }            
+                }
 
                 // build date filter
                 long minFilterdate = numOfDays > 0 ? DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddDays(-numOfDays)) : 0;
@@ -9362,7 +9372,8 @@ namespace Core.Catalog
                 int userId = 0;
                 int.TryParse(siteGuid, out userId);
 
-                unFilteredresult = mediaMarkLogs.Select(mediaMarkLog => {
+                unFilteredresult = mediaMarkLogs.Select(mediaMarkLog =>
+                {
                     int recordingId = 0;
                     int.TryParse(mediaMarkLog.LastMark.NpvrID, out recordingId);
 
@@ -9433,7 +9444,7 @@ namespace Core.Catalog
             }
 
             var media = (MediaAsset)assetResponse.Object;
-            if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+            if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
             {
                 if (!catalogGroupCache.AssetStructsMapById.ContainsKey(media.MediaType.m_nTypeID) || !catalogGroupCache.AssetStructsMapById[media.MediaType.m_nTypeID].IsSeriesAssetStruct)
                 {
@@ -9492,7 +9503,8 @@ namespace Core.Catalog
                     shouldAddIsActiveTerm = true,
                     filterPhrase = filterTree,
                     extraReturnFields = new List<string>() { "metas.episodenumber", "metas.seasonnumber" },
-                    shouldReturnExtendedSearchResult = true
+                    shouldReturnExtendedSearchResult = true,
+                    isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2)
                 };
 
                 ((ApiObjects.SearchObjects.BooleanLeaf)filterTree).shouldLowercase = true;
@@ -9506,12 +9518,12 @@ namespace Core.Catalog
                     HashSet<string> episodes = new HashSet<string>(searchResults.Select(x => x.AssetId).ToList());
 
                     var latest = usersWatchHistory.Where(x => episodes.Contains(x.AssetId)).OrderByDescending(i => i.LastWatch).FirstOrDefault();
-                    
+
                     response.SetStatus(eResponseStatus.OK);
                     response.Object = ConvertToUserWatchHistory(latest);
-                    
+
                     if (!latest.IsFinishedWatching)
-                    {    
+                    {
                         return response;
                     }
 
@@ -9927,7 +9939,7 @@ namespace Core.Catalog
                         if (language != null)
                             langContainers.Add(new LanguageContainer() { m_sLanguageCode3 = language.Code, m_sValue = value });
                     }
-                }                
+                }
             }
             return langContainers;
         }

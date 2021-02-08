@@ -305,6 +305,14 @@ namespace ApiObjects.Response
         CannotDeleteAssetStruct = 4100,
         CategoryTypeNotExist = 4101,
         ExtendedTypeValueCannotBeChanged = 4102,
+        CategoryVersionDoesNotExist = 4103,
+        CategoryVersionIsNotDraft = 4104,
+        CategoryIsAlreadyAssociatedToVersion = 4105,
+        CategoryIsNotRoot = 4106,
+        CategoryTreeDoesNotExist = 4107,
+        CategoryItemIsRoot = 4108,
+        CategoryVersionIsOlderThanDefault = 4109,
+        CategoryIsAlreadyAssociatedToVersionTree = 4110,
 
         #endregion
 

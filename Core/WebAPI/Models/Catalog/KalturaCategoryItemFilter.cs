@@ -1,11 +1,9 @@
-﻿using ApiLogic.Base;
-using ApiLogic.Catalog;
+﻿using ApiLogic.Catalog;
 using ApiObjects.Base;
 using ApiObjects.Response;
-using Core.Catalog.Handlers;
+using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
@@ -19,8 +17,8 @@ namespace WebAPI.Models.Catalog
     {
         public override GenericListResponse<CategoryItem> List(ContextData contextData, CorePager pager)
         {
-            var coreFilter = AutoMapper.Mapper.Map<CategoryItemFilter>(this);
-            return CategoryItemHandler.Instance.List(contextData, coreFilter, pager);
+            var filter = new KalturaCategoryItemSearchFilter();
+            return filter.List(contextData, pager);
         }
 
         public override KalturaCategoryItemOrderBy GetDefaultOrderByValue()

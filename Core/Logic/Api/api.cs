@@ -23,7 +23,6 @@ using Core.Api.Managers;
 using Core.Api.Modules;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
-using Core.Catalog.Handlers;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.Notification;
@@ -41,6 +40,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
@@ -50,7 +50,28 @@ using TVinciShared;
 
 namespace Core.Api
 {
-    public class api
+    public interface IVirtualAssetManager
+    {
+        VirtualAssetInfoResponse AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null);
+
+        VirtualAssetInfoResponse UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo);
+
+        VirtualAssetInfoResponse DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo);
+
+        ObjectVirtualAssetFilter GetObjectVirtualAssetObjectIds(int groupId, AssetSearchDefinition assetSearchDefinition,
+            ObjectVirtualAssetInfoType objectVirtualAssetInfoType, HashSet<long> objectIds = null, int pageIndex = 0, int pageSize = 0, OrderObj order = null);
+
+        VirtualAssetInfoResponse GetVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo);
+    }
+
+    public interface IDeviceFamilyManager
+    {
+        DeviceFamilyResponse GetDeviceFamilyList();
+        int GetDeviceFamilyIdByUdid(int domainId, int groupId, string udid);
+        Dictionary<string, int> GetDomainDevices(int domainId, int groupId);
+    }
+
+    public class api : IVirtualAssetManager, IDeviceFamilyManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -123,7 +144,13 @@ namespace Core.Api
 
         #endregion
 
-        protected api() { }
+        private static readonly Lazy<api> lazy = new Lazy<api>(() => new api(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static api Instance { get { return lazy.Value; } }
+
+        protected api()
+        {
+        }
 
         protected api(Int32 nGroupID)
         {
@@ -5704,7 +5731,7 @@ namespace Core.Api
                 }
 
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddParentalRule", groupId);
                 }
@@ -5770,7 +5797,7 @@ namespace Core.Api
                 }
 
                 CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateParentalRule", groupId);
                 }
@@ -7718,7 +7745,7 @@ namespace Core.Api
                 QueueUtils.UpdateCache(groupId, CouchbaseManager.eCouchbaseBucket.CACHE.ToString(), keys);
 
                 // remove channel from categories
-                var removeStatus = CategoryItemHandler.RemoveChannelFromCategories(groupId, externalChannelId, UnifiedChannelType.External, userId);
+                var removeStatus = CategoryItemHandler.Instance.RemoveChannelFromCategories(groupId, externalChannelId, UnifiedChannelType.External, userId);
                 if (removeStatus != null && !removeStatus.IsOkStatusCode())
                 {
                     log.Error($"Failed to remove externalChannelId {externalChannelId} from categories fr group {groupId}");
@@ -9615,7 +9642,52 @@ namespace Core.Api
             return unifiedSearchResponse;
         }
 
-        public static DeviceFamilyResponse GetDeviceFamilyList()
+        public Dictionary<string, int> GetDomainDevices(int domainId, int groupId)
+        {
+            Dictionary<string, int> domainDevices = CatalogDAL.GetDomainDevices(domainId);
+
+            if (domainDevices == null)
+            {
+                var domainResponse = Core.Domains.Module.GetDomainInfo(groupId, domainId);
+
+                if (domainResponse.Status.Code == (int)eResponseStatus.OK && domainResponse.Domain != null)
+                {
+                    domainDevices = CatalogDAL.GetDomainDevices(domainId);
+
+                    if (domainDevices == null)
+                    {
+                        domainDevices = new Dictionary<string, int>();
+                        foreach (var currDeviceFamily in domainResponse.Domain.m_deviceFamilies)
+                        {
+                            foreach (var currDevice in currDeviceFamily.DeviceInstances)
+                            {
+                                domainDevices.Add(currDevice.m_deviceUDID, currDeviceFamily.m_deviceFamilyID);
+                            }
+                        }
+
+                        CatalogDAL.SaveDomainDevices(domainDevices, domainId);
+                    }
+                }
+            }
+
+            return domainDevices;
+        }
+
+        public int GetDeviceFamilyIdByUdid(int domainId, int groupId, string udid)
+        {
+
+            int deviceFamilyId = 0;
+            Dictionary<string, int> domainDevices = GetDomainDevices(domainId, groupId);
+
+            if (domainDevices != null && domainDevices.ContainsKey(udid))
+            {
+                deviceFamilyId = domainDevices[udid];
+            }
+
+            return deviceFamilyId;
+        }
+
+        public DeviceFamilyResponse GetDeviceFamilyList()
         {
             DeviceFamilyResponse result = new DeviceFamilyResponse();
 
@@ -11052,7 +11124,7 @@ namespace Core.Api
             CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates)
             {
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling IsMediaBlockedForCountryGeoAvailability", groupId);
                     return isGeoAvailability;
@@ -11191,7 +11263,7 @@ namespace Core.Api
                 if (deviceConcurrencyPriorityToUpdate.DeviceFamilyIds?.Count > 0)
                 {
                     // validate deviceFamilyIds
-                    var deviceFamilyList = GetDeviceFamilyList();
+                    var deviceFamilyList = api.Instance.GetDeviceFamilyList();
                     if (deviceFamilyList == null ||
                         deviceFamilyList.Status.Code != (int)eResponseStatus.OK ||
                         deviceFamilyList.DeviceFamilies.Count == 0)
@@ -11767,7 +11839,7 @@ namespace Core.Api
         {
             CatalogGroupCache catalogGroupCache;
             AssetStruct assetStruct = null;
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetExternalChannelAssetStruct", groupId);
                 return assetStruct;
@@ -11780,7 +11852,7 @@ namespace Core.Api
 
             if (assetStruct != null && (assetStruct.TopicsMapBySystemName == null || assetStruct.TopicsMapBySystemName.Count == 0))
             {
-                if (CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
                     assetStruct.TopicsMapBySystemName = catalogGroupCache.TopicsMapById.Where(x => assetStruct.MetaIds.Contains(x.Key))
                                                       .OrderBy(x => assetStruct.MetaIds.IndexOf(x.Key))
@@ -11978,26 +12050,37 @@ namespace Core.Api
             return response;
         }
 
-        internal static VirtualAssetInfoResponse AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
+        public VirtualAssetInfoResponse GetVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        {
+            var virtualAssetInfoResponse = AssetManager.GetVirtualAsset(groupId, virtualAssetInfo, out bool needToCreateVirtualAsset, out Asset asset);
+            if (needToCreateVirtualAsset)
+            {
+                virtualAssetInfoResponse.Status = VirtualAssetInfoStatus.Error;
+            }
+
+            return virtualAssetInfoResponse;
+        }
+
+        public VirtualAssetInfoResponse AddVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo, string type = null)
         {
             return AssetManager.AddVirtualAsset(groupId, virtualAssetInfo, type);
         }
 
-        internal static VirtualAssetInfoResponse DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
-        {
-            return AssetManager.DeleteVirtualAsset(groupId, virtualAssetInfo);
-        }
-
-        internal static VirtualAssetInfoResponse UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        public VirtualAssetInfoResponse UpdateVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
         {
             return AssetManager.UpdateVirtualAsset(groupId, virtualAssetInfo);
         }
 
-        internal static ObjectVirtualAssetFilter GetObjectVirtualAssetObjectIds(int groupId, AssetSearchDefinition assetSearchDefinition,
+        public VirtualAssetInfoResponse DeleteVirtualAsset(int groupId, VirtualAssetInfo virtualAssetInfo)
+        {
+            return AssetManager.DeleteVirtualAsset(groupId, virtualAssetInfo);
+        }
+
+        public ObjectVirtualAssetFilter GetObjectVirtualAssetObjectIds(int groupId, AssetSearchDefinition assetSearchDefinition,
             ObjectVirtualAssetInfoType objectVirtualAssetInfoType, HashSet<long> objectIds = null, int pageIndex = 0, int pageSize = 0, OrderObj order = null)
         {
             var objectVirtualAssetFilter = new ObjectVirtualAssetFilter();
-            var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType);
+            var objectVirtualAssetInfo = VirtualAssetPartnerConfigManager.Instance.GetObjectVirtualAssetInfo(groupId, objectVirtualAssetInfoType);
 
             if (objectVirtualAssetInfo == null)
             {
@@ -12046,7 +12129,7 @@ namespace Core.Api
                 return objectVirtualAssetFilter;
             }
 
-            if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
             {
                 log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
                 return objectVirtualAssetFilter;
@@ -12143,11 +12226,11 @@ namespace Core.Api
                 userId = originalUserId.ToString();
             }
 
-            var objectVirtualAssetInfo = PartnerConfigurationManager.GetObjectVirtualAssetInfo(groupId, virtualAssetInfoType);
+            var objectVirtualAssetInfo = VirtualAssetPartnerConfigManager.Instance.GetObjectVirtualAssetInfo(groupId, virtualAssetInfoType);
 
             if (objectVirtualAssetInfo != null)
             {
-                if (!CatalogManager.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
                 {
                     log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling AddVirtualAsset");
                     return Status.Ok;

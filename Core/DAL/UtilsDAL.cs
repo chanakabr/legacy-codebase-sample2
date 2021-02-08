@@ -441,6 +441,11 @@ namespace DAL
             return string.Format("recurring_renew_details_{0}", purchaseId);
         }
 
+        public static string GetPartnerResetPasswordKey(int groupId)
+        {
+            return $"Partner_{groupId}_Reset_Password_Key";
+        }
+
         #endregion
 
         private static void HandleException(Exception ex)

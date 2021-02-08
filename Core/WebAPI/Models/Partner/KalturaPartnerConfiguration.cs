@@ -13,7 +13,7 @@ namespace WebAPI.Models.Partner
     {
         protected abstract KalturaPartnerConfigurationType ConfigurationType { get; }
         internal abstract bool Update(int groupId);
-        internal virtual void ValidateForUpdate() { }
+        public virtual void ValidateForUpdate() { }
     }
 
     public partial class KalturaPartnerConfigurationListResponse : KalturaListResponse

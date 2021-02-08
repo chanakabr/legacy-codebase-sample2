@@ -195,7 +195,7 @@ namespace Core.Users
                 }
             }
 
-            var response =  User.SignIn(sUN, sPass, 3, 3, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
+            var response = User.SignIn(sUN, sPass, 3, 3, nGroupID, sessionID, sIP, deviceID, bPreventDoubleLogins);
             if (response != null && response.m_user != null)
             {
                 response.m_user.IsActivationGracePeriod = isGracePeriod;
@@ -370,7 +370,7 @@ namespace Core.Users
                 u.shouldRemoveFromCache = true;
                 u.shouldSetUserActive = true;
                 u.GroupId = m_nGroupID;
-                
+
                 if (u.Update())
                 {
                     try
@@ -507,7 +507,7 @@ namespace Core.Users
             {
                 oBasicData.m_sUserName = string.Format(oBasicData.m_sUserName + "_{0}", User.GetNextGUID());
             }
-            
+
             if (GetUserIDByUserName(oBasicData.m_sUserName) > 0)
             {
                 userResponse.Initialize(ResponseStatus.UserExists, newUser);
@@ -519,13 +519,13 @@ namespace Core.Users
                 userResponse.Initialize(ResponseStatus.ExternalIdAlreadyExists, newUser);
                 return userResponse;
             }
-            
+
             if (!oBasicData.SetPassword(sPassword, m_nGroupID))
             {
                 userResponse.Initialize(ResponseStatus.WrongPasswordOrUserName, newUser);
                 return userResponse;
             }
-            
+
             newUser.InitializeBasicAndDynamicData(oBasicData, sDynamicData);
             var userId = newUser.SaveForInsert(m_nGroupID, !IsActivationNeeded(newUser.m_oBasicData));
 
@@ -554,7 +554,7 @@ namespace Core.Users
                         }
                     }
                 }
-                
+
                 // add notifications event 
                 Utils.AddInitiateNotificationActionToQueue(m_nGroupID, eUserMessageAction.Signup, userId, string.Empty);
             }
@@ -643,7 +643,7 @@ namespace Core.Users
 
             return m_mailImpl.SendMail(user);
         }
-        
+
         public override bool ResendActivationMail(string username)
         {
             Int32 userID = GetUserIDByUserName(username);
@@ -738,7 +738,34 @@ namespace Core.Users
             return retVal;
 
         }
-        
+
+        public override List<UserResponseObject> GetUsersByEmailAddress(string email, int operatorID)
+        {
+            var response = new List<UserResponseObject>();
+            ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+            selectQuery.SetConnectionKey("USERS_CONNECTION_STRING");
+            selectQuery += " select id from users with (nolock) where is_active = 1 and status = 1 and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("EMAIL_ADD", "=", email);
+            selectQuery += " and ";
+            selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", m_nGroupID);
+            if (selectQuery.Execute("query", true) != null)
+            {
+                var result = selectQuery.Table("query").DefaultView;
+                if (result.Count > 0)
+                {
+                    var _sIds = new List<string>();
+                    foreach (DataRowView item in result)
+                    {
+                        _sIds.Add(item.Row["id"].ToString());
+                    }
+                    response.AddRange(GetUsersData(_sIds.ToArray()));
+                }
+            }
+            selectQuery.Finish();
+            selectQuery = null;
+            return response;
+        }
+
         public override UserResponseObject GetUserData(string sSiteGUID, bool shouldSaveInCache = true)
         {
             try
@@ -776,7 +803,7 @@ namespace Core.Users
             if (sSiteGUIDs != null)
             {
                 List<UserResponseObject> resp = new List<UserResponseObject>(sSiteGUIDs.Length);
-                
+
                 for (int i = 0; i < sSiteGUIDs.Length; i++)
                 {
                     try
@@ -1037,7 +1064,7 @@ namespace Core.Users
                     d.Initialize(sDynamicDataXML);
                     u.Update(b, d, m_nGroupID);
 
-                    resp.Initialize(ResponseStatus.OK, u);                  
+                    resp.Initialize(ResponseStatus.OK, u);
                 }
                 else
                 {
@@ -1059,13 +1086,13 @@ namespace Core.Users
             {
                 Int32 nUserID = int.Parse(sSiteGUID);
                 User u = new User(m_nGroupID, nUserID);
-                
+
                 if (string.IsNullOrEmpty(u.m_oBasicData.m_sUserName))
                 {
                     resp.Initialize(ResponseStatus.UserDoesNotExist, null);
                     return resp;
                 }
-           
+
                 int userID = GetUserIDByUserName(oBasicData.m_sUserName);
                 if (userID > 0 && userID != nUserID)
                 {
@@ -1092,7 +1119,7 @@ namespace Core.Users
                 int saveID = u.Update(oBasicData, sDynamicData, m_nGroupID);
                 // failed updating basicData or dynmaicData
                 if (saveID == -1)
-                {                    
+                {
                     resp.Initialize(ResponseStatus.WrongPasswordOrUserName, null);
                     return resp;
                 }
@@ -1121,7 +1148,7 @@ namespace Core.Users
                 response.Object.m_user = null;
                 return response;
             }
-            
+
             if (!userResponseObject.m_user.m_oBasicData.SetPassword(sPass, nGroupID))
             {
                 response.Object.m_RespStatus = ResponseStatus.WrongPasswordOrUserName;
@@ -1162,7 +1189,7 @@ namespace Core.Users
                 response.Set(eResponseStatus.Error, "Failed to set user password");
                 return response;
             }
-            
+
             var validationResponse = PasswordPolicyManager.Instance.ValidatePasswordAndUpdateHistory(password, user.m_oBasicData.m_sSalt, m_nGroupID, userId, user.m_oBasicData.RoleIds);
             if (!validationResponse.IsOkStatusCode())
             {
@@ -1247,7 +1274,7 @@ namespace Core.Users
                 response.SetStatus(validationResponse);
                 response.Object.m_RespStatus = ResponseStatus.PasswordPolicyViolation;
                 return response;
-            }            
+            }
 
             user.SaveForUpdate(m_nGroupID, false, true, true);
             response.Object.m_user = user;
@@ -1336,7 +1363,7 @@ namespace Core.Users
                     {
                         List<GroupRule> groupRulesList = GetUserGroupsRules(m_nGroupID, sSiteGuid);
                         GroupRule groupRule = groupRulesList.Find(
-                                                        delegate(GroupRule rule)
+                                                        delegate (GroupRule rule)
                                                         {
                                                             return rule.RuleID == nUserRuleID;
                                                         }
@@ -1457,7 +1484,7 @@ namespace Core.Users
                 m_sFirstName = firstName,
                 m_eMailType = eMailTemplateType.ForgotPassword
             };
-            
+
             return retVal;
         }
 
@@ -1982,7 +2009,7 @@ namespace Core.Users
                     response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "Users not found");
                     return response;
                 }
-                
+
                 // check if user not activated
                 int userIdentifierToChange = 0;
                 int.TryParse(userIdToChange, out userIdentifierToChange);
@@ -2097,6 +2124,36 @@ namespace Core.Users
                 log.Error("Exception - " + sb.ToString(), ex);
 
                 response.Object = new UserResponseObject();
+                response.SetStatus(eResponseStatus.Error);
+            }
+            return response;
+        }
+
+        public override GenericListResponse<UserResponseObject> GetUsersByEmail(string email, int operatorID)
+        {
+            var response = new GenericListResponse<UserResponseObject>();
+            try
+            {
+                response.Objects = GetUsersByEmailAddress(email, operatorID);
+                if (response == null || response.Objects.Count == 0)
+                {
+                    response.SetStatus(eResponseStatus.UserDoesNotExist);
+                }
+                else
+                {
+                    response.SetStatus(eResponseStatus.OK);
+                }
+            }
+            catch (Exception ex)
+            {
+                StringBuilder sb = new StringBuilder("Exception at GetUsersByEmail. ");
+                sb.Append(String.Concat("email: ", email));
+                sb.Append(String.Concat(" this is: ", this.GetType().Name));
+                sb.Append(String.Concat(" Msg: ", ex.Message));
+                sb.Append(String.Concat(" Stack trace: ", ex.StackTrace));
+                log.Error("Exception - " + sb.ToString(), ex);
+
+                response.Objects = new List<UserResponseObject>();
                 response.SetStatus(eResponseStatus.Error);
             }
             return response;
