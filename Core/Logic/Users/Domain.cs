@@ -1,4 +1,6 @@
-﻿using ApiLogic.Notification;
+﻿using ApiLogic.Api.Managers;
+using ApiLogic.Users.Security;
+using ApiLogic.Users.Services;
 using ApiObjects;
 using ApiObjects.DRM;
 using ApiObjects.MediaMarks;
@@ -6,7 +8,6 @@ using ApiObjects.Response;
 using ApiObjects.Segmentation;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
-using Core.Notification;
 using Core.Users.Cache;
 using DAL;
 using KLogMonitor;
@@ -16,15 +17,10 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Xml.Serialization;
-using ApiLogic.Api.Managers;
-using ApiLogic.Users.Services;
 using Tvinci.Core.DAL;
 using TVinciShared;
-using SessionManager;
-using ApiLogic.Users.Security;
 
 namespace Core.Users
 {
@@ -1839,7 +1835,8 @@ namespace Core.Users
             this.m_sCoGuid = ODBCWrapper.Utils.GetSafeStr(dr, "COGUID");
             this.m_nRegion = ODBCWrapper.Utils.GetIntSafeVal(dr, "REGION_ID");
             this.m_DomainRestriction = (DomainRestriction) ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");
-            this.roleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ROLE_ID");
+            int? roleId = ODBCWrapper.Utils.GetNullableInt(dr, "ROLE_ID");
+            this.roleId = roleId.HasValue && roleId.Value == 0 ? null : roleId;
             this.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
             this.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
             var nGroupConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_CONCURRENT_MAX_LIMIT");
