@@ -388,9 +388,7 @@ namespace Core.Catalog.CatalogManagement
 
             foreach (EpgCB epgCB in epgCbList)
             {
-                // the documents with main language are saved without a language code so we will send null to get key
-                var lang = epgCB.Language.Equals(catalogGroupCache.DefaultLanguage.Code) ? null : epgCB.Language;
-                var docId = GetEpgCBKey(groupId, epgId, lang);
+                var docId = GetEpgCBKey(groupId, epgId, epgCB.Language, catalogGroupCache.DefaultLanguage.Code);
                 if (!EpgDal.DeleteEpgCB(docId, epgCB))
                 {
                     log.ErrorFormat("Failed to DeleteEpgCB for epgId: {0}", epgId);
@@ -461,27 +459,32 @@ namespace Core.Catalog.CatalogManagement
                     var programTagIds = tagTopics.Select(x => mappingFields[FieldTypes.Tag][x.SystemName.ToLower()]).ToList();
                     var tagsToRemoveByName = tagTopics.Select(x => x.SystemName.ToLower()).ToList();
 
-                    if (EpgDal.RemoveMetasAndTagsFromProgram(groupId, epgAsset.Id, programMetaIds, programTagIds, userId))
+                    var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+                    if (!isIngestV2)
                     {
-                        result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-                        // update Epg metas and tags 
-                        RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
-
-                        // invalidate asset
-                        AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
-
-                        // UpdateIndex
-                        bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAsset.Id }, false);
-                        if (!indexingResult)
+                        var metasAndTagsRemoved = EpgDal.RemoveMetasAndTagsFromProgram(groupId, epgAsset.Id, programMetaIds, programTagIds, userId);
+                        if (!metasAndTagsRemoved)
                         {
-                            log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromProgram", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
+                            log.ErrorFormat("Failed to remove topics from program with id: {0}, type: {1}, groupId: {2}", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
+
+                            return result;
                         }
                     }
-                    else
+
+                    // update Epg metas and tags 
+                    RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
+
+                    // invalidate asset
+                    AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
+
+                    // UpdateIndex
+                    bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAsset.Id }, false);
+                    if (!indexingResult)
                     {
-                        log.ErrorFormat("Failed to remove topics from program with id: {0}, type: {1}, groupId: {2}", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
+                        log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromProgram", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
                     }
+
+                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
             catch (Exception ex)
@@ -648,10 +651,7 @@ namespace Core.Catalog.CatalogManagement
                     epgCB.Tags = epgTags[currLang.Key];
                 }
 
-                // the documents with main language are saved without a language code so we will send null to get key
-                var lang = currLang.Key.Equals(defaultLanguageCode) ? null : currLang.Key;
-                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, lang, isAddAction);
-
+                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, epgCB.Language, defaultLanguageCode, isAddAction);
                 if (!EpgDal.SaveEpgCB(docId, epgCB))
                 {
                     log.ErrorFormat("Failed to SaveEpgCbToCB for epgId: {0}, languageCode: {1} in EpgAssetManager", epgCB.EpgID, currLang.Key);
@@ -1593,11 +1593,11 @@ namespace Core.Catalog.CatalogManagement
 
             foreach (EpgCB epgCB in epgCbList)
             {
-                RemoveTopicsFromProgramEpgCB(epgCB, programMetas, programTags);
+                RemoveTopicsFromProgramEpgCB(epgCB, programMetas, programTags, catalogGroupCache.DefaultLanguage.Code);
             }
         }
 
-        private static void RemoveTopicsFromProgramEpgCB(EpgCB epgCB, List<string> programMetas, List<string> programTags)
+        private static void RemoveTopicsFromProgramEpgCB(EpgCB epgCB, List<string> programMetas, List<string> programTags, string defaultLanguageCode)
         {
             try
             {
@@ -1625,7 +1625,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID);
+                var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, epgCB.Language, defaultLanguageCode);
                 if (!EpgDal.SaveEpgCB(docId, epgCB))
                 {
                     log.ErrorFormat("RemoveTopicsFromProgramEpgCB - Failed to SaveEpgCB for epgId: {0}.", epgCB.EpgID);
@@ -1862,10 +1862,19 @@ namespace Core.Catalog.CatalogManagement
             return epgBL.GetEpgsCBKeys(groupId, new[] { epgId }, langCodes, isAddAction);
         }
 
-        public static string GetEpgCBKey(int groupId, long epgId, string langCode = null, bool isAddAction = false)
+        public static string GetEpgCBKey(int groupId, long epgId)
         {
-            var langs = string.IsNullOrEmpty(langCode) ? null : new[] { new LanguageObj() { Code = langCode } };
+            var keys = GetEpgCBKeys(groupId, epgId, null, false);
+
+            return keys.FirstOrDefault();
+        }
+
+        private static string GetEpgCBKey(int groupId, long epgId, string langCode, string defaultLangCode, bool isAddAction = false)
+        {
+            // The documents with the main language are saved without a language code so we will send null to get key
+            var langs = defaultLangCode.Equals(langCode) ? null : new[] { new LanguageObj() { Code = langCode } };
             var keys = GetEpgCBKeys(groupId, epgId, langs, isAddAction);
+
             return keys.FirstOrDefault();
         }
 
