@@ -283,11 +283,11 @@ namespace Core.Catalog.CatalogManagement
                 log.WarnFormat("Received media request of invalid media id {0} when calling UpsertMedia", assetId);
                 return result;
             }
-
             Dictionary<int, LanguageObj> languagesMap = null;
             CatalogGroupCache catalogGroupCache = null;
             Group group = null;
             HashSet<string> metasToPad = null;
+            Dictionary<string, Topic> topicMapByName = null;
 
             if (CatalogManager.DoesGroupUsesTemplates(groupId))
             {
@@ -296,8 +296,6 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpsertMedia", groupId);
                     return false;
                 }
-
-                var topicMapByName = 4;//ToDo - Matan: dictionary of suppressed true and matching topics
 
                 languagesMap = new Dictionary<int, LanguageObj>(catalogGroupCache.LanguageMapById);
 
@@ -329,6 +327,7 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<int, Dictionary<int, Media>> mediaDictionary = GetGroupMedias(groupId, assetId);
                 if (mediaDictionary != null && mediaDictionary.Count > 0 && mediaDictionary.ContainsKey((int)assetId))
                 {
+                    topicMapByName = GetSuppressedTopics(catalogGroupCache, mediaDictionary[(int)assetId].Values.First().m_nMediaTypeID);
                     foreach (int languageId in mediaDictionary[(int)assetId].Keys)
                     {
                         LanguageObj language = languagesMap.ContainsKey(languageId) ? languagesMap[languageId] : null;
@@ -344,7 +343,6 @@ namespace Core.Catalog.CatalogManagement
                             if (media != null)
                             {
                                 media.PadMetas(metasToPad);
-
 
                                 string serializedMedia = esSerializer.SerializeMediaObject(media, topicMapByName, suffix);
                                 string type = GetTanslationType(MEDIA, language);
@@ -362,9 +360,6 @@ namespace Core.Catalog.CatalogManagement
                                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetId));
                                     }
                                 }
-
-                                //TODO - Matan: include here the new logic
-                                /*Assign calculated media.meta value to index*/
                             }
                         }
                     }
@@ -401,6 +396,29 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
             }
+        }
+
+        public static Dictionary<string, Topic> GetSuppressedTopics(CatalogGroupCache catalogGroupCache, int assetStructId)
+        {
+            var result = new Dictionary<string, Topic>();
+            if (catalogGroupCache != null)
+            {
+                var assetStruct = catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId) ? catalogGroupCache.AssetStructsMapById[assetStructId] : null;
+                if (assetStruct != null)
+                {
+                    var dictVal = assetStruct.AssetStructMetas.Where(m => m.Value.SuppressedOrder.HasValue)?.ToDictionary(x => x.Key, y => y.Value);
+                    if (dictVal != null)
+                    {
+                        foreach (var value in dictVal)
+                        {
+                            var topic = catalogGroupCache.TopicsMapById[value.Key];
+                            topic.SuppressedValue = value.Value.SuppressedOrder.Value;
+                            result.Add(topic.Name, topic);
+                        }
+                    }
+                }
+            }
+            return result;
         }
 
         public static void PadEPGMetas(HashSet<string> metasToPad, EpgCB epg)
@@ -1211,7 +1229,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
         }
-        
+
         public static void AddLanguageMapping(
             string indexName,
             LanguageObj language,
@@ -1227,7 +1245,7 @@ namespace Core.Catalog.CatalogManagement
             var serializer = new ESSerializerV2();
             var mapping = serializer.CreateEpgMapping(metas, tags, metasToPad, specificMappingAnalyzers,
                 defaultMappingAnalyzers, mappingName, true);
-            
+
             var success = esClientApi.InsertMapping(indexName, mappingName, mapping);
             if (!success) throw new Exception($"Failed to add mapping. index: [{indexName}]. mapping [{mappingName}]");
         }

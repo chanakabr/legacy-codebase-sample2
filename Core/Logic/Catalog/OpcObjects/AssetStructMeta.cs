@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Core.Catalog
 {
@@ -13,7 +15,8 @@ namespace Core.Catalog
         public long UpdateDate { get; set; }        
         public bool? IsInherited { get; set; }
         public bool? IsLocationTag { get; set; }
-        public bool? IsSuppressedTag { get; set; }//optional: make with value by priority 
+        //public List<KeyValuePair<string, int>> IsSuppressedTag { get; set; }//optional: make with value by priority List<"value name", "order">
+        public int? SuppressedOrder { get; set; }
 
         public AssetStructMeta()
         {
@@ -25,7 +28,6 @@ namespace Core.Catalog
             this.CreateDate = 0;
             this.UpdateDate = 0;
             this.IsLocationTag = false;
-            this.IsSuppressedTag = false;
         }
         
         public override string ToString()
@@ -39,7 +41,7 @@ namespace Core.Catalog
             sb.AppendFormat("UpdateDate: {0} ", UpdateDate);            
             sb.AppendFormat("IsInherited: {0} ", IsInherited);
             sb.AppendFormat("IsLocationTag: {0} ", IsLocationTag);
-            sb.AppendFormat("IsSuppressedTag: {0} ", IsSuppressedTag);
+            //sb.AppendFormat("IsSuppressedTag: {0} ", IsSuppressedTag?.;
             return sb.ToString();
         }
     }   

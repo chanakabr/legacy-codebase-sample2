@@ -286,7 +286,7 @@ namespace ElasticSearchHandler.IndexBuilders
                                 media.PadMetas(MetasToPad);
 
                                 // Serialize media and create a bulk request for it
-                                string serializedMedia = serializer.SerializeMediaObject(media, suffix);
+                                string serializedMedia = serializer.SerializeMediaObject(media, null, suffix);
                                 string documentType = ElasticSearchTaskUtils.GetTanslationType(MEDIA, language);
 
                                 // If we exceeded the size of a single bulk reuquest then create another list

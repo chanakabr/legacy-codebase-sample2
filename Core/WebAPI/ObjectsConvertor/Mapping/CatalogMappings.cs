@@ -819,7 +819,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.IsInherited, opt => opt.MapFrom(src => src.IsInherited))
                 .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag))
-                .ForMember(dest => dest.IsSuppressed, opt => opt.MapFrom(src => src.IsSuppressed))
+                //.ForMember(dest => dest.IsSuppressed, opt => opt.MapFrom(src => src.IsSuppressed))
                 ;
 
             // KalturaAssetStructMeta to AssetStructMeta
@@ -833,7 +833,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                .ForMember(dest => dest.IsInherited, opt => opt.MapFrom(src => src.IsInherited))
                .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag))
-               .ForMember(dest => dest.IsSuppressed, opt => opt.MapFrom(src => src.IsSuppressed))
+               //.ForMember(dest => dest.IsSuppressed, opt => opt.MapFrom(src => src.IsSuppressed))
                ;
 
             #endregion

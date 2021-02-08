@@ -14,6 +14,7 @@ namespace ElasticSearch.Common
         protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
         protected static readonly string META_BOOL_SUFFIX = "_BOOL";
         protected static readonly string META_DATE_PREFIX = "date";
+        protected static readonly string META_SUPPRESSED = "suppressed";
 
         protected bool shouldLowerCase = true;
 
@@ -21,7 +22,7 @@ namespace ElasticSearch.Common
         {
         }
 
-        public virtual string SerializeMediaObject(Media media, string suffix = null)
+        public virtual string SerializeMediaObject(Media media, Dictionary<string, Topic> topicMapByName, string suffix = null)
         {
             StringBuilder recordBuilder = new StringBuilder();
             recordBuilder.Append("{ ");
@@ -109,14 +110,15 @@ namespace ElasticSearch.Common
                             metaNameValues.Add(string.Format(" \"{0}\": \"{1}\"",
                                 AddSuffix(sMetaName.ToLower(), suffix),
                                 Common.Utils.ReplaceDocumentReservedCharacters(sMetaValue, shouldLowerCase)));
-                        }
-                        //TODO - Matan
-                        //If that meta is with suppreedTag, update object
-                        //CatalogGroupCache.TopicsMapBySystemNameAndByType[Metas.m_oTagMeta.m_sName]
-                        //Only for OPC?
-                        if ()
-                        {
-                            var catalogGroupCache = new CatalogGroupCache();
+
+                            //TODO - Matan
+                            if (topicMapByName?.Count > 0 && topicMapByName.ContainsKey(sMetaName))
+                            {
+                                var topic = topicMapByName[sMetaName];
+                                metaNameValues.Add(string.Format(" \"{0}\": \"{1}\"",
+                                    META_SUPPRESSED,
+                                    topic.SuppressedValue.Value));//TODO - Matan: Should be int or the actual value
+                            }
                         }
                     }
                 }
@@ -280,6 +282,15 @@ namespace ElasticSearch.Common
                 recordBuilder.AppendFormat(", \"inheritance_policy\": {0}", media.inheritancePolicy.Value);
             }
 
+            #endregion
+
+            #region suppressedTag
+            // TODO - Matan: Add this field only if suppressed tag is allowed
+            //if (topicMapByName != null)
+            //{
+            //    var t = topicMapByName.Where(x=>x.Value.GetFeaturesForDB)
+            //    recordBuilder.AppendFormat(", \"inheritance_policy\": {0}", media.inheritancePolicy.Value);
+            //}
             #endregion
 
             //Add IsSuppressed and CalculatedGroupBy

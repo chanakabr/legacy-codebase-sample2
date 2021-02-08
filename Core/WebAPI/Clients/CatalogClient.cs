@@ -732,7 +732,8 @@ namespace WebAPI.Clients
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
             List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, 
-            bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null, bool ignoreEndDate = false, KalturaGroupByType? groupByType = KalturaGroupByType.Omit)
+            bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null, bool ignoreEndDate = false, 
+            KalturaGroupByType groupByType = KalturaGroupByType.Omit)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -830,6 +831,10 @@ namespace WebAPI.Clients
                     topHitsCount = 1,
                     groupByOrder = aggregationOrder
                 };
+            }
+            if (groupByType == KalturaGroupByType.Include)
+            {
+                //TODO - Matan : Add term
             }
 
             // fire unified search request

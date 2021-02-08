@@ -21,6 +21,7 @@ namespace ApiObjects
         public long? ParentId { get; set; }
         public long CreateDate { get; set; }
         public long UpdateDate { get; set; }
+        public int? SuppressedValue { get; set; }
 
         public Topic()
         {
@@ -47,15 +48,7 @@ namespace ApiObjects
             this.SystemName = systemName;
             this.Type = type;
             this.Features = features != null ? new HashSet<string>(features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            if (this.Features.Contains(SEARCH_RELATED))
-            {
-                this.SearchRelated = true;
-            }
-            else
-            {
-                this.SearchRelated = false;
-            }
-
+            this.SearchRelated = this.Features.Contains(SEARCH_RELATED);
             this.IsPredefined = isPredefined;
             this.HelpText = helpText;
             this.ParentId = parentId;
