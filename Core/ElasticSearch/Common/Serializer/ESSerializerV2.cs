@@ -612,6 +612,8 @@ namespace ElasticSearch.Common
             {
                 HashSet<string> mappedMetas = new HashSet<string>();
 
+                metasMap.Add(META_SUPPRESSED, new KeyValuePair<eESFieldType, string>(eESFieldType.STRING, string.Empty));//new meta for suppressed value
+
                 foreach (KeyValuePair<string, KeyValuePair<eESFieldType, string>> meta in metasMap)
                 {
                     string sMetaName = meta.Key;

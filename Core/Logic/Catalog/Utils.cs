@@ -560,7 +560,7 @@ namespace Core.Catalog
         }
 
         public static void BuildMediaFromDataSet(ref Dictionary<int, Dictionary<int, Media>> mediaTranslations,
-            ref Dictionary<int, Media> medias, Group group, DataSet dataSet, int mediaId)
+            ref Dictionary<int, Media> medias, Group group, DataSet dataSet, int mediaId, CatalogGroupCache catalogGroupCache)
         {
             if (dataSet != null && dataSet.Tables.Count > 0)
             {
@@ -657,6 +657,30 @@ namespace Core.Catalog
                                         else
                                         {
                                             log.WarnFormat("Duplicate meta found. group Id = {0}, name = {1}, media_id = {2}", media.m_nGroupID, sMetaName, media.m_nMediaID);
+                                        }
+                                    }
+                                }
+                                //TODO MATAN - Add calculated suppressed value
+                                if (catalogGroupCache != null)
+                                {
+                                    var assetStruct = catalogGroupCache.AssetStructsMapById.ContainsKey(media.m_nMediaTypeID) ?
+                                        catalogGroupCache.AssetStructsMapById[media.m_nMediaTypeID] : null;
+                                    if (assetStruct != null)
+                                    {
+                                        var suppressedOrderMap = assetStruct.AssetStructMetas.Where(m => m.Value.SuppressedOrder.HasValue)?
+                                            .OrderBy(m => m.Value.SuppressedOrder).ToDictionary(x => x.Key, y => y.Value);
+                                        if (suppressedOrderMap != null)
+                                        {
+                                            //find default meta to suppressed by
+                                            foreach (var suppressedOrderPair in suppressedOrderMap)
+                                            {
+                                                var topic = catalogGroupCache.TopicsMapById[suppressedOrderPair.Key];
+                                                if (media.m_dMeatsValues.ContainsKey(topic.SystemName))
+                                                {
+                                                    media.m_dMeatsValues.Add("suppressed", media.m_dMeatsValues[topic.SystemName]);
+                                                    break;
+                                                }
+                                            }
                                         }
                                     }
                                 }

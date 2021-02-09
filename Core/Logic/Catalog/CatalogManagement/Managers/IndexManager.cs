@@ -223,7 +223,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Dictionary<int, Dictionary<int, Media>> GetGroupMedias(int groupId, long mediaId)
+        public static Dictionary<int, Dictionary<int, Media>> GetGroupMedias(int groupId, long mediaId, CatalogGroupCache catalogGroupCache)
         {
             //dictionary contains medias such that first key is media_id, which returns a dictionary with a key language_id and value Media object.
             //E.g. mediaTranslations[123][2] --> will return media 123 of the hebrew language
@@ -234,7 +234,6 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-
                 if (CatalogManager.DoesGroupUsesTemplates(groupId))
                 {
                     return AssetManager.GetMediaForElasticSearchIndex(groupId, mediaId);
@@ -242,6 +241,7 @@ namespace Core.Catalog.CatalogManagement
 
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(groupId);
+
                 if (group == null)
                 {
                     log.Error("Error - Could not load group from cache in GetGroupMedias");
@@ -261,7 +261,7 @@ namespace Core.Catalog.CatalogManagement
                 storedProcedure.AddParameter("@MediaID", mediaId);
 
                 DataSet dataSet = storedProcedure.ExecuteDataSet();
-                Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet, (int)mediaId);
+                Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet, (int)mediaId, catalogGroupCache);
 
                 // get media update dates
                 DataTable updateDates = CatalogDAL.Get_MediaUpdateDate(new List<int>() { (int)mediaId });
@@ -287,7 +287,6 @@ namespace Core.Catalog.CatalogManagement
             CatalogGroupCache catalogGroupCache = null;
             Group group = null;
             HashSet<string> metasToPad = null;
-            Dictionary<string, Topic> topicMapByName = null;
 
             if (CatalogManager.DoesGroupUsesTemplates(groupId))
             {
@@ -324,10 +323,9 @@ namespace Core.Catalog.CatalogManagement
                 ESSerializerV2 esSerializer = new ESSerializerV2();
 
                 //Create Media Object
-                Dictionary<int, Dictionary<int, Media>> mediaDictionary = GetGroupMedias(groupId, assetId);
+                Dictionary<int, Dictionary<int, Media>> mediaDictionary = GetGroupMedias(groupId, assetId, catalogGroupCache);
                 if (mediaDictionary != null && mediaDictionary.Count > 0 && mediaDictionary.ContainsKey((int)assetId))
                 {
-                    topicMapByName = GetSuppressedTopics(catalogGroupCache, mediaDictionary[(int)assetId].Values.First().m_nMediaTypeID);
                     foreach (int languageId in mediaDictionary[(int)assetId].Keys)
                     {
                         LanguageObj language = languagesMap.ContainsKey(languageId) ? languagesMap[languageId] : null;
@@ -344,7 +342,7 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 media.PadMetas(metasToPad);
 
-                                string serializedMedia = esSerializer.SerializeMediaObject(media, topicMapByName, suffix);
+                                string serializedMedia = esSerializer.SerializeMediaObject(media, suffix);
                                 string type = GetTanslationType(MEDIA, language);
                                 if (!string.IsNullOrEmpty(serializedMedia))
                                 {
@@ -397,30 +395,6 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
         }
-
-        public static Dictionary<string, Topic> GetSuppressedTopics(CatalogGroupCache catalogGroupCache, int assetStructId)
-        {
-            var result = new Dictionary<string, Topic>();
-            if (catalogGroupCache != null)
-            {
-                var assetStruct = catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId) ? catalogGroupCache.AssetStructsMapById[assetStructId] : null;
-                if (assetStruct != null)
-                {
-                    var dictVal = assetStruct.AssetStructMetas.Where(m => m.Value.SuppressedOrder.HasValue)?.ToDictionary(x => x.Key, y => y.Value);
-                    if (dictVal != null)
-                    {
-                        foreach (var value in dictVal)
-                        {
-                            var topic = catalogGroupCache.TopicsMapById[value.Key];
-                            topic.SuppressedValue = value.Value.SuppressedOrder.Value;
-                            result.Add(topic.Name, topic);
-                        }
-                    }
-                }
-            }
-            return result;
-        }
-
         public static void PadEPGMetas(HashSet<string> metasToPad, EpgCB epg)
         {
             if (metasToPad != null && metasToPad.Count > 0 && epg.Metas != null)
