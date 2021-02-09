@@ -76,7 +76,7 @@ namespace ApiLogic.Notification.Managers
             return response;
         }
 
-        public Status Send(int groupId, int userId, string adapterUrl, string message, string phoneNumber, List<ApiObjects.KeyValuePair> keyValuePair)
+        public Status Send(int groupId, int userId, SmsAdapter adapter, string message, string phoneNumber, List<ApiObjects.KeyValuePair> keyValuePair)
         {
             var status = new Status(eResponseStatus.Error);
 
@@ -94,7 +94,18 @@ namespace ApiLogic.Notification.Managers
                     phoneNumber = _phoneNumber.Object;
                 }
 
-                var result = SendViaAdapter(groupId, userId, adapterUrl, message, phoneNumber, keyValuePair);
+                log.Debug($"Sending SMS message via adapter Id:{adapter.Id}, url:{adapter.AdapterUrl}, group: {groupId}, message: {message} to phone number: {phoneNumber}");
+
+                var sendSmsRequestModel = new SendSmsRequestModel()
+                {
+                    Message = message,
+                    PhoneNumber = phoneNumber,
+                    UserId = userId,
+                    AdapterData = keyValuePair?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray()
+                };
+
+                _AdapterClient = SMSAdapterManager.GetSMSAdapterServiceClient(adapter.AdapterUrl);
+                var result = _AdapterClient.SendAsync(adapter.Id.Value, groupId, sendSmsRequestModel).ExecuteAndWait();
                 status.Set(result ? eResponseStatus.OK : eResponseStatus.Error, "Failed sending sms");
             }
             catch (Exception ex)
@@ -106,34 +117,16 @@ namespace ApiLogic.Notification.Managers
             return status;
         }
 
-        private bool SendViaAdapter(int groupId, int userId, string adapterUrl, string message, string phoneNumber,
-            List<ApiObjects.KeyValuePair> keyValuePair)
+        public SmsAdapter GetDefaultAdapter(int groupId)
         {
-            log.Debug($"Sending SMS message via adapter: {adapterUrl}, group: {groupId}, message: {message} to phone number: {phoneNumber}");
-
-            var sendSmsRequestModel = new SendSmsRequestModel()
+            var adapters = GetSmsAdapters(groupId).SmsAdapters;
+            if (adapters != null)
             {
-                Message = message,
-                PhoneNumber = phoneNumber,
-                UserId = userId,
-                AdapterData = keyValuePair?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray()
-            };
-
-            _AdapterClient = SMSAdapterManager.GetSMSAdapterServiceClient(adapterUrl);
-            var response = _AdapterClient.SendAsync(0, groupId, sendSmsRequestModel).ExecuteAndWait();
-
-            return response;
-        }
-
-        public bool HasAdapter(int groupId, out string adapterUrl)
-        {
-            adapterUrl = string.Empty;
-            var adapters = GetSmsAdapters(groupId)?.SmsAdapters;
-            if (adapters != null && adapters.Count() > 0 && !string.IsNullOrEmpty(adapters.First().AdapterUrl))
-            {
-                adapterUrl = adapters.First().AdapterUrl;
+                var defaultAdapter = adapters.FirstOrDefault(x => !string.IsNullOrEmpty(x.AdapterUrl));
+                return defaultAdapter;
             }
-            return !string.IsNullOrEmpty(adapterUrl);
+
+            return null;
         }
 
         public SmsAdaptersResponse GetSmsAdapters(int groupId)
