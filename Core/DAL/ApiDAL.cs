@@ -6429,5 +6429,43 @@ namespace DAL
         }
 
         #endregion
+
+        public static bool UpsertPermissionPermissionItems(int groupId, long userId, long permissionId, List<long> permissionItemIds, string name, string friendlyName)
+        {
+            bool result = false;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Upsert_PermissionPermissionItem");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@userId", userId);
+                sp.AddParameter("@permissionId", permissionId);
+                sp.AddIDListParameter("@permissionItemIds", permissionItemIds, "id");
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@friendlyName", friendlyName);
+                result = sp.ExecuteReturnValue<int>() > -1;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while UpsertPermissionPermissionItems, groupId: {groupId}, perimssionId: {permissionId}, permissionItemIds: {permissionItemIds}", ex);
+            }
+
+            return result;
+        }
+
+        public static int InsertPermission(string name, int type, string friendlyName, string dependsOnPermissionNames, int groupId, List<long> permissionItemIds, long userId)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_PermissionWithPermissionItems");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@name", name);
+            sp.AddParameter("@type", type);
+            sp.AddParameter("@friendlyName", friendlyName);
+            sp.AddParameter("@dependsOnPermissionNames", dependsOnPermissionNames);
+            sp.AddIDListParameter("@permissionItemIds", permissionItemIds, "id");
+            sp.AddParameter("@userId", userId);
+
+            return sp.ExecuteReturnValue<int>();
+        }
     }
 }

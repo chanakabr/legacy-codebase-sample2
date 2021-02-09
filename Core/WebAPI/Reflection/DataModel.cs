@@ -4966,6 +4966,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPermissionByIdInFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaPermissionFilter":
                     switch(property.Name)
                     {
@@ -10316,12 +10324,16 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("permission", "list", false);
-                            return PermissionController.List((KalturaPermissionFilter) methodParams[0]);
+                            return PermissionController.List((KalturaBasePermissionFilter) methodParams[0]);
                             
                         case "removepermissionitem":
                             RolesManager.ValidateActionPermitted("permission", "removePermissionItem", false);
                             PermissionController.RemovePermissionItem((long) methodParams[0], (long) methodParams[1]);
                             return null;
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("permission", "update", false);
+                            return PermissionController.Update((long) methodParams[0], (KalturaPermission) methodParams[1]);
                             
                     }
                     break;
@@ -17878,7 +17890,7 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaPermissionFilter),
+                                Type = typeof(KalturaBasePermissionFilter),
                             });
                             return ret;
                             
@@ -17890,6 +17902,24 @@ namespace WebAPI.Reflection
                             ret.Add("permissionItemId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "permission", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("permission", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPermission),
                             });
                             return ret;
                             

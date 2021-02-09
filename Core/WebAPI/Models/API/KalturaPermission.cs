@@ -56,16 +56,37 @@ namespace WebAPI.Models.API
         [DataMember(Name = "type")]
         [JsonProperty("type")]
         [XmlElement(ElementName = "type")]
+        [SchemeProperty(InsertOnly = true)]
         public KalturaPermissionType Type { get; set; }
 
         /// <summary>
-        /// Comma separated assosiated permission items IDs
+        /// Comma separated associated permission items IDs
         /// </summary>
         [DataMember(Name = "permissionItemsIds")]
         [JsonProperty("permissionItemsIds")]
         [XmlElement(ElementName = "permissionItemsIds")]
-        [SchemeProperty(ReadOnly = true)]
         public string PermissionItemsIds { get; set; }
+
+        internal void ValidateForUpdate()
+        {
+            if (!string.IsNullOrEmpty(PermissionItemsIds))
+            {
+                var items = GetItemsIn<List<long>, long>(this.PermissionItemsIds, "permissionItemsIds", true);
+            }
+        }
+
+        internal void ValidateForInsert()
+        {
+            if (!string.IsNullOrEmpty(PermissionItemsIds))
+            {
+                var items = GetItemsIn<List<long>, long>(this.PermissionItemsIds, "permissionItemsIds", true);
+            }
+        }
+
+        internal object GetPermissionItemsIds()
+        {
+            return this.GetItemsIn<List<int>, int>(PermissionItemsIds, "KalturaPermission.permissionItemsIds");
+        }
     }
 
     public enum KalturaPermissionType

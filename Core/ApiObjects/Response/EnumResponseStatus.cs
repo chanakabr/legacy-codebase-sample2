@@ -386,6 +386,7 @@ namespace ApiObjects.Response
         DuplicateRegionChannel = 5076,
         ParentAlreadyContainsChannel = 5077,
         InputFormatIsInvalid = 5078,
+        CanModifyOnlyNormalPermission = 5070,
 
         #endregion
 

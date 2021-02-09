@@ -285,6 +285,9 @@ namespace WebAPI.Reflection
                 case "KalturaBaseOTTUser":
                     return new KalturaBaseOTTUser(parameters);
                     
+                case "KalturaBasePermissionFilter":
+                    return new KalturaBasePermissionFilter(parameters);
+                    
                 case "KalturaBaseRegionFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -1436,6 +1439,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPermission":
                     return new KalturaPermission(parameters);
+                    
+                case "KalturaPermissionByIdInFilter":
+                    return new KalturaPermissionByIdInFilter(parameters);
                     
                 case "KalturaPermissionFilter":
                     return new KalturaPermissionFilter(parameters);
@@ -17902,6 +17908,12 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaBasePermissionFilter
+    {
+        public KalturaBasePermissionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaBaseRegionFilter
     {
         public KalturaBaseRegionFilter(Dictionary<string, object> parameters = null) : base(parameters)
@@ -21123,10 +21135,10 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute PermissionItemsIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermission")
+        private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermission")
         {
-            ReadOnly = true,
-            InsertOnly = false,
+            ReadOnly = false,
+            InsertOnly = true,
             WriteOnly = false,
             RequiresPermission = 0,
             IsNullable = false,
@@ -21165,6 +21177,10 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        TypeSchemaProperty.Validate("type", parameters["type"]);
+                    }
                     if(string.IsNullOrEmpty(parameters["type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
@@ -21179,11 +21195,20 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("permissionItemsIds") && parameters["permissionItemsIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PermissionItemsIdsSchemaProperty.Validate("permissionItemsIds", parameters["permissionItemsIds"]);
-                    }
                     PermissionItemsIds = (String) Convert.ChangeType(parameters["permissionItemsIds"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaPermissionByIdInFilter
+    {
+        public KalturaPermissionByIdInFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
         }

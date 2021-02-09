@@ -10,7 +10,6 @@ using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using Core.Api.Managers;
 using Core.Api.Modules;
-using Core.Catalog.CatalogManagement;
 using Core.Catalog.Response;
 using Core.Pricing;
 using KLogMonitor;
@@ -2133,7 +2132,7 @@ namespace Core.Api
                 SegmentationType segmentationType = new SegmentationType();
                 result = segmentationType.ValidateForDelete(groupId, id);
 
-                if(!result.IsOkStatusCode())
+                if (!result.IsOkStatusCode())
                 {
                     return result;
                 }
@@ -2151,7 +2150,7 @@ namespace Core.Api
                     {
                         result.Set(eResponseStatus.ObjectNotExist, eResponseStatus.ObjectNotExist.ToString());
                         return result;
-                    }                    
+                    }
                 }
 
                 var segmentationTypeList = SegmentationType.List(groupId, new List<long>() { id }, 0, 0, out int totalcount);
@@ -2163,7 +2162,7 @@ namespace Core.Api
 
                 segmentationType = segmentationTypeList[0];
 
-                if(!DBOnly)
+                if (!DBOnly)
                 {
                     // Due to atomic action delete virtual asset before SegmentationType delete
                     // Delete the virtual asset
@@ -2550,12 +2549,12 @@ namespace Core.Api
             return result;
         }
 
-        public static GenericResponse<Permission> AddPermission(int groupId, Permission permission)
+        public static GenericResponse<Permission> AddPermission(int groupId, Permission permission, long userId)
         {
             GenericResponse<Permission> result = new GenericResponse<Permission>();
             try
             {
-                result = api.AddPermission(groupId, permission);
+                result = api.AddPermission(groupId, permission, userId);
             }
             catch (Exception ex)
             {
@@ -2695,7 +2694,26 @@ namespace Core.Api
 
         public static GenericListResponse<ExternalChannel> ListExternalChannels(int groupId, long userId, List<long> list)
         {
-            return api.ListExternalChannels(groupId, userId, list);           
+            return api.ListExternalChannels(groupId, userId, list);
+        }
+
+        public static GenericListResponse<Permission> GetGroupPermissionsByIds(int groupId, List<long> permissionIds)
+        {
+            return api.GetGroupPermissionsByIds(groupId, permissionIds);
+        }
+
+        public static GenericResponse<Permission> UpdatePermission(int groupId, long userId, long id, Permission permission)
+        {
+            GenericResponse<Permission> result = new GenericResponse<Permission>();
+            try
+            {
+                result = api.UpdatePermission(groupId, userId, id, permission);
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception in UpdatePermission", ex);
+            }
+            return result;
         }
     }
 }
