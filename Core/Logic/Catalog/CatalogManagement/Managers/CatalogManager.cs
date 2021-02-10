@@ -765,7 +765,7 @@ namespace Core.Catalog.CatalogManagement
                 UpdateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
                 IsInherited = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_INHERITED") == 1,
                 IsLocationTag = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_LOCATION_TAG") == 1,
-                //Todo - Matan, serialize from DB
+                SuppressedOrder = ODBCWrapper.Utils.GetIntSafeVal(dr, "SUPPRESSED_ORDER")
             };
             return assetStructMeta;
         }
@@ -2866,7 +2866,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataTable dt = CatalogDAL.UpdateAssetStructMeta(assetStructId, metaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue, 
-                                                                groupId, userId, assetStructMeta.IsInherited, assetStructMeta.IsLocationTag);
+                                                                groupId, userId, assetStructMeta.IsInherited, assetStructMeta.IsLocationTag, assetStructMeta.SuppressedOrder);
 
                 List<AssetStructMeta> assetStructMetaList = CreateAssetStructMetaListFromDT(dt);
 
@@ -2930,7 +2930,7 @@ namespace Core.Catalog.CatalogManagement
             return status;
         }
 
-        public  GenericListResponse<AssetStructMeta> GetAssetStructMetaList(int groupId, long? assetStructId, long? metaId)
+        public GenericListResponse<AssetStructMeta> GetAssetStructMetaList(int groupId, long? assetStructId, long? metaId)
         {
             GenericListResponse<AssetStructMeta> response = new GenericListResponse<AssetStructMeta>();
 

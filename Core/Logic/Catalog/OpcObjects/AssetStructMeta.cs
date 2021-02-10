@@ -12,10 +12,9 @@ namespace Core.Catalog
         public bool? ProtectFromIngest { get; set; }
         public string DefaultIngestValue { get; set; }
         public long CreateDate { get; set; }
-        public long UpdateDate { get; set; }        
+        public long UpdateDate { get; set; }
         public bool? IsInherited { get; set; }
         public bool? IsLocationTag { get; set; }
-        //public List<KeyValuePair<string, int>> IsSuppressedTag { get; set; }//optional: make with value by priority List<"value name", "order">
         public int? SuppressedOrder { get; set; }
 
         public AssetStructMeta()
@@ -29,7 +28,7 @@ namespace Core.Catalog
             this.UpdateDate = 0;
             this.IsLocationTag = false;
         }
-        
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder(string.Format("AssetStructId: {0}, ", AssetStructId));
@@ -38,11 +37,11 @@ namespace Core.Catalog
             sb.AppendFormat("ProtectFromIngest: {0}, ", ProtectFromIngest);
             sb.AppendFormat("DefaultIngestValue: {0}, ", DefaultIngestValue);
             sb.AppendFormat("CreateDate: {0} ", CreateDate);
-            sb.AppendFormat("UpdateDate: {0} ", UpdateDate);            
+            sb.AppendFormat("UpdateDate: {0} ", UpdateDate);
             sb.AppendFormat("IsInherited: {0} ", IsInherited);
             sb.AppendFormat("IsLocationTag: {0} ", IsLocationTag);
-            //sb.AppendFormat("IsSuppressedTag: {0} ", IsSuppressedTag?.;
+            sb.AppendFormat("SuppressedOrder: {0} ", SuppressedOrder ?? -1);
             return sb.ToString();
         }
-    }   
+    }
 }

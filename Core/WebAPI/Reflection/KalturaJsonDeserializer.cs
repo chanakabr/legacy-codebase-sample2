@@ -12697,6 +12697,10 @@ namespace WebAPI.Models.Catalog
                 {
                     IsLocationTag = (Boolean) Convert.ChangeType(parameters["isLocationTag"], typeof(Boolean));
                 }
+                if (parameters.ContainsKey("suppressedOrder") && parameters["suppressedOrder"] != null)
+                {
+                    SuppressedOrder = (Int32) Convert.ChangeType(parameters["suppressedOrder"], typeof(Int32));
+                }
             }
         }
     }
@@ -17095,6 +17099,20 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("groupByTypeEqual") && parameters["groupByTypeEqual"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["groupByTypeEqual"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupByTypeEqual");
+                    }
+
+                    GroupByTypeEqual = (KalturaGroupByType) Enum.Parse(typeof(KalturaGroupByType), parameters["groupByTypeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaGroupByType), GroupByTypeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", GroupByTypeEqual, typeof(KalturaGroupByType)));
+                    }
                 }
             }
         }

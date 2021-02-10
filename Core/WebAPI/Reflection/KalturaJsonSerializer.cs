@@ -14915,6 +14915,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("protectFromIngest", "\"protectFromIngest\": " + ProtectFromIngest.ToString().ToLower());
             }
+            if(SuppressedOrder.HasValue && (retrievedProperties == null || retrievedProperties.Contains("suppressedOrder")))
+            {
+                ret.Add("suppressedOrder", "\"suppressedOrder\": " + SuppressedOrder);
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
                 ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
@@ -14964,6 +14968,10 @@ namespace WebAPI.Models.Catalog
             if(ProtectFromIngest.HasValue && (retrievedProperties == null || retrievedProperties.Contains("protectFromIngest")))
             {
                 ret.Add("protectFromIngest", "<protectFromIngest>" + ProtectFromIngest.ToString().ToLower() + "</protectFromIngest>");
+            }
+            if(SuppressedOrder.HasValue && (retrievedProperties == null || retrievedProperties.Contains("suppressedOrder")))
+            {
+                ret.Add("suppressedOrder", "<suppressedOrder>" + SuppressedOrder + "</suppressedOrder>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
@@ -19831,6 +19839,10 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(GroupByTypeEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("groupByTypeEqual")))
+            {
+                ret.Add("groupByTypeEqual", "\"groupByTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaGroupByType), GroupByTypeEqual) + "\"");
+            }
             if(!DeprecatedAttribute.IsDeprecated("5.0.1.0", currentVersion) && IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
             {
                 ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
@@ -19853,6 +19865,10 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(GroupByTypeEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("groupByTypeEqual")))
+            {
+                ret.Add("groupByTypeEqual", "<groupByTypeEqual>" + "" + Enum.GetName(typeof(KalturaGroupByType), GroupByTypeEqual) + "" + "</groupByTypeEqual>");
+            }
             if(!DeprecatedAttribute.IsDeprecated("5.0.1.0", currentVersion) && IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
             {
                 ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");

@@ -769,6 +769,8 @@ namespace WebAPI.Reflection
                             return "metaId";
                         case "ProtectFromIngest":
                             return "protectFromIngest";
+                        case "SuppressedOrder":
+                            return "suppressedOrder";
                         case "UpdateDate":
                             return "updateDate";
                     }
@@ -6171,6 +6173,8 @@ namespace WebAPI.Reflection
                 case "KalturaSearchAssetFilter":
                     switch(property.Name)
                     {
+                        case "GroupByTypeEqual":
+                            return "groupByTypeEqual";
                         case "IdIn":
                             return "idIn";
                         case "TypeIn":

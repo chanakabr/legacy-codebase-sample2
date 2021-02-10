@@ -5692,7 +5692,7 @@ namespace Tvinci.Core.DAL
         }
 
         public static DataTable UpdateAssetStructMeta(long assetStructId, long metaId, string ingestReferencePath, bool? protectFromIngest, string defaultIngestValue, int groupId, long userId,
-                                                      bool? isInherited, bool? isLocationTag)
+                                                      bool? isInherited, bool? isLocationTag, int? suppressedOrder)
         {
             StoredProcedure sp = new StoredProcedure("UpdateAssetStructMeta");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5705,6 +5705,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@UserId", userId);
             sp.AddParameter("@IsInherited", isInherited);
             sp.AddParameter("@isLocationTag", isLocationTag);
+            sp.AddParameter("@suppressedOrder", suppressedOrder);
 
             return sp.Execute();
         }

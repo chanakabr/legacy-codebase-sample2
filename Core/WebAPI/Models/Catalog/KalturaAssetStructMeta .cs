@@ -88,5 +88,13 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "isLocationTag")]
         [XmlElement(ElementName = "isLocationTag", IsNullable = true)]
         public bool? IsLocationTag { get; set; }
+
+        /// <summary>
+        /// suppressed Order, ascending
+        /// </summary>
+        [DataMember(Name = "suppressedOrder")]
+        [JsonProperty(PropertyName = "suppressedOrder")]
+        [XmlElement(ElementName = "suppressedOrder", IsNullable = true)]
+        public int? SuppressedOrder { get; set; }
     }
 }

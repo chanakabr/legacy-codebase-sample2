@@ -36,10 +36,10 @@ namespace WebAPI.Models.Catalog
         /// <summary>
         /// GroupByType, Omit if not specified otherwise
         /// </summary>
-        [DataMember(Name = "groupByType")]
-        [JsonProperty("groupByType")]
-        [XmlElement(ElementName = "groupByType", IsNullable = true)]
-        public KalturaGroupByType? GroupByType { get; set; }
+        [DataMember(Name = "groupByTypeEqual")]
+        [JsonProperty("groupByTypeEqual")]
+        [XmlElement(ElementName = "groupByTypeEqual", IsNullable = true)]
+        public KalturaGroupByType? GroupByTypeEqual { get; set; }
 
         internal List<int> getTypeIn()
         {
@@ -92,10 +92,10 @@ namespace WebAPI.Models.Catalog
             var userId = contextData.UserId.ToString();
             int domainId = (int)(contextData.DomainId ?? 0);
             bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
-            
+
             var response = ClientsManager.CatalogClient().SearchAssets(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(), pager.PageSize, this.Ksql,
                 this.OrderBy, this.getTypeIn(), this.getEpgChannelIdIn(), contextData.ManagementData, this.DynamicOrderBy,
-                this.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, this.GroupByOrder, false, this.GroupByType??KalturaGroupByType.Omit);
+                this.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, this.GroupByOrder, false, this.GroupByTypeEqual ?? KalturaGroupByType.Omit);
 
             return response;
         }
