@@ -6208,7 +6208,7 @@ namespace DAL
             if (partnerConfigToUpdate != null)
             {
                 string key = GetObjectVirtualAssetPartnerConfigKey(groupId);
-                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, partnerConfigToUpdate, false, BULK_UPLOAD_CB_TTL);
+                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, partnerConfigToUpdate);
             }
 
             return false;
