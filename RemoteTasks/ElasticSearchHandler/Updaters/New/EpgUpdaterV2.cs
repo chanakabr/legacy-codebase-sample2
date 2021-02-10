@@ -24,7 +24,7 @@ namespace ElasticSearchHandler.Updaters
 
         public static readonly string EPG = "epg";
         public static readonly int DAYS = 30;
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
+        private static readonly double EXPIRY_DATE = ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0 ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
 
         #region Data Members
 
@@ -380,7 +380,15 @@ namespace ElasticSearchHandler.Updaters
 
         protected virtual double GetTTLMinutes(EpgCB epg)
         {
-            return Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes);
+            var expiryDate = epg.EndDate.AddDays(EXPIRY_DATE);
+            if (epg.SearchEndDate > expiryDate)
+            {
+                expiryDate = epg.SearchEndDate;
+            }
+
+            var ttlMinutes = Math.Ceiling((expiryDate - DateTime.UtcNow).TotalMinutes);
+
+            return ttlMinutes;
         }
 
         protected virtual ulong GetDocumentId(int epgId)
