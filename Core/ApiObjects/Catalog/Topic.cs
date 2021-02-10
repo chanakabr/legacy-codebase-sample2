@@ -21,7 +21,6 @@ namespace ApiObjects
         public long? ParentId { get; set; }
         public long CreateDate { get; set; }
         public long UpdateDate { get; set; }
-        public int? SuppressedValue { get; set; }
 
         public Topic()
         {

@@ -660,30 +660,8 @@ namespace Core.Catalog
                                         }
                                     }
                                 }
-                                //TODO MATAN - Add calculated suppressed value
-                                if (catalogGroupCache != null)
-                                {
-                                    var assetStruct = catalogGroupCache.AssetStructsMapById.ContainsKey(media.m_nMediaTypeID) ?
-                                        catalogGroupCache.AssetStructsMapById[media.m_nMediaTypeID] : null;
-                                    if (assetStruct != null)
-                                    {
-                                        var suppressedOrderMap = assetStruct.AssetStructMetas.Where(m => m.Value.SuppressedOrder.HasValue)?
-                                            .OrderBy(m => m.Value.SuppressedOrder).ToDictionary(x => x.Key, y => y.Value);
-                                        if (suppressedOrderMap != null)
-                                        {
-                                            //find default meta to suppressed by
-                                            foreach (var suppressedOrderPair in suppressedOrderMap)
-                                            {
-                                                var topic = catalogGroupCache.TopicsMapById[suppressedOrderPair.Key];
-                                                if (media.m_dMeatsValues.ContainsKey(topic.SystemName))
-                                                {
-                                                    media.m_dMeatsValues.Add("suppressed", media.m_dMeatsValues[topic.SystemName]);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+
+                                ExtractSuppressedValue(catalogGroupCache, media);
                             }
 
                             #endregion
@@ -956,6 +934,34 @@ namespace Core.Catalog
                     }
 
                     #endregion
+                }
+            }
+        }
+
+        private static void ExtractSuppressedValue(CatalogGroupCache catalogGroupCache, Media media)
+        {
+            if (catalogGroupCache != null)
+            {
+                var assetStruct = catalogGroupCache.AssetStructsMapById.ContainsKey(media.m_nMediaTypeID) ?
+                    catalogGroupCache.AssetStructsMapById[media.m_nMediaTypeID] : null;
+                if (assetStruct != null)
+                {
+                    var suppressedOrderMap = assetStruct.AssetStructMetas.Where(m => m.Value.SuppressedOrder.HasValue)?
+                        .OrderBy(m => m.Value.SuppressedOrder).ToDictionary(x => x.Key, y => y.Value);
+                    if (suppressedOrderMap != null)
+                    {
+                        //find default meta to suppressed by
+                        foreach (var suppressedOrderPair in suppressedOrderMap)
+                        {
+                            var topic = catalogGroupCache.TopicsMapById[suppressedOrderPair.Key];
+                            if (media.m_dMeatsValues.ContainsKey(topic.SystemName))
+                            {
+                                //calculated suppressed value
+                                media.m_dMeatsValues.Add("suppressed", media.m_dMeatsValues[topic.SystemName]);
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }

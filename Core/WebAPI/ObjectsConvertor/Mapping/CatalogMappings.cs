@@ -1434,7 +1434,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.DefaultDate, opt => opt.MapFrom(src => src.DefaultDate))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
-               
+
             cfg.CreateMap<CategoryVersionState, KalturaCategoryVersionState>()
                 .ConvertUsing(type =>
                 {
@@ -1451,7 +1451,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
-           
+
             cfg.CreateMap<KalturaCategoryVersionFilter, CategoryVersionFilter>()
                 .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderBy(src.OrderBy)));
 
@@ -1463,9 +1463,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion CategoryVersion
         }
 
-        internal static string ConvertGroupByType(KalturaGroupByType? groupByType)
+        internal static GroupByType? ConvertGroupByType(KalturaGroupByType? groupByType)
         {
-            return groupByType.Value.ToString();
+            if (groupByType.HasValue && Enum.IsDefined(typeof(GroupByType), (int)groupByType.Value))
+            {
+                return (GroupByType)(int)groupByType.Value;
+            }
+            return null;
         }
 
         private static int? ConvertToNullableInt(bool? value)
@@ -2254,7 +2258,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 case OrderBy.LIKE_COUNTER:
                     {
-                        result.orderBy = KalturaChannelOrderBy.LIKES_DESC;   
+                        result.orderBy = KalturaChannelOrderBy.LIKES_DESC;
                         break;
                     }
                 case OrderBy.RECOMMENDATION:
@@ -2516,8 +2520,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             if (devicePlayData == null || devicePlayData.AssetId == 0)
                 return null;
 
-            var sa = new KalturaSlimAsset{Id = devicePlayData.AssetId.ToString()};
-            
+            var sa = new KalturaSlimAsset { Id = devicePlayData.AssetId.ToString() };
+
             if (Enum.TryParse<KalturaAssetType>(devicePlayData.playType, out KalturaAssetType _type))
                 sa.Type = _type;
 

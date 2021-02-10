@@ -504,4 +504,10 @@ namespace ApiObjects.SearchObjects
         Value_Asc,
         Value_Desc
     }
+
+    public enum GroupByType
+    {
+        Omit = 1,
+        Include = 2
+    }
 }

@@ -95,6 +95,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "suppressedOrder")]
         [JsonProperty(PropertyName = "suppressedOrder")]
         [XmlElement(ElementName = "suppressedOrder", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
         public int? SuppressedOrder { get; set; }
     }
 }

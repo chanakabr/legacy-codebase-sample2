@@ -12631,6 +12631,17 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute SuppressedOrderSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+        };
         public KalturaAssetStructMeta(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -12699,6 +12710,10 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("suppressedOrder") && parameters["suppressedOrder"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        SuppressedOrderSchemaProperty.Validate("suppressedOrder", parameters["suppressedOrder"]);
+                    }
                     SuppressedOrder = (Int32) Convert.ChangeType(parameters["suppressedOrder"], typeof(Int32));
                 }
             }

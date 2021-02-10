@@ -40,6 +40,7 @@ namespace WebAPI.Clients
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
         private const string OPC_MERGE_VERSION = "5.0.0.0";
+        private const string GROUP_BY_INCLUDE_PREFIX = "without_";
         private readonly Version opcMergeVersion = new Version(OPC_MERGE_VERSION);
 
         public string Signature { get; set; }
@@ -446,7 +447,7 @@ namespace WebAPI.Clients
                     // TODO this is duplciate. we have the same logic in 'else' inside CatalogUtils.GetAssets
 
                     List<BaseObject> assetsBaseDataList = new List<BaseObject>();
-                    
+
                     foreach (Catalog.Response.AggregationResult aggregationResult in searchResponse.aggregationResults[0].results)
                     {
                         if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
@@ -546,7 +547,7 @@ namespace WebAPI.Clients
 
         [Obsolete]
         public KalturaAssetInfoListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
-                                                            string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId, 
+                                                            string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId,
                                                             List<KalturaCatalogWith> with, bool excludeWatched)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
@@ -731,8 +732,8 @@ namespace WebAPI.Clients
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
-            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, 
-            bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null, bool ignoreEndDate = false, 
+            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null,
+            bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null, bool ignoreEndDate = false,
             KalturaGroupByType groupByType = KalturaGroupByType.Omit)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
@@ -824,6 +825,14 @@ namespace WebAPI.Clients
 
             if (groupBy != null && groupBy.Count > 0)
             {
+                if (_groupByType != null && _groupByType == GroupByType.Include)
+                {
+                    //TODO - Matan: Apply this param\logic
+                    //Option A - Add missed hits to separate buckets and return top hits
+                    //Option B - Allow elastic to return missing values in bucket
+                    //https://www.elastic.co/guide/en/elasticsearch/reference/2.3/search-aggregations-bucket-terms-aggregation.html
+                    groupBy.Add($"{GROUP_BY_INCLUDE_PREFIX}{groupBy.First()}");//allow to create buckets if doesn't contains value
+                }
                 request.searchGroupBy = new SearchAggregationGroupBy()
                 {
                     groupBy = groupBy,
@@ -831,10 +840,6 @@ namespace WebAPI.Clients
                     topHitsCount = 1,
                     groupByOrder = aggregationOrder
                 };
-            }
-            if (groupByType == KalturaGroupByType.Include)
-            {
-                //TODO - Matan : Add term
             }
 
             // fire unified search request
@@ -4057,7 +4062,7 @@ namespace WebAPI.Clients
             return response;
         }
 
-        internal KalturaBulkUpload AddBulkUpload(int groupId, long userId,  string objectTypeName, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData, KalturaOTTFile fileData)
+        internal KalturaBulkUpload AddBulkUpload(int groupId, long userId, string objectTypeName, KalturaBulkUploadJobData jobData, KalturaBulkUploadObjectData objectData, KalturaOTTFile fileData)
         {
             var bulkUploadJobData = Mapper.Map<BulkUploadJobData>(jobData);
             var bulkUploadObjectData = Mapper.Map<BulkUploadObjectData>(objectData);

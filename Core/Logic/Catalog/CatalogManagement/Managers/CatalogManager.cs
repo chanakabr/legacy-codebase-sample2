@@ -2809,7 +2809,6 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        //Todo - Matan: Validation of new IsSuppressedTag
         public GenericResponse<AssetStructMeta> UpdateAssetStructMeta(long assetStructId, long metaId, AssetStructMeta assetStructMeta, int groupId, long userId)
         {
             GenericResponse<AssetStructMeta> response = new GenericResponse<AssetStructMeta>();
