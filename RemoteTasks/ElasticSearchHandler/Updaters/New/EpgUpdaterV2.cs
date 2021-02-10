@@ -378,9 +378,6 @@ namespace ElasticSearchHandler.Updaters
             return true;
         }
 
-        {
-        }
-
         protected virtual ulong GetDocumentId(int epgId)
         {
             return (ulong)epgId;
