@@ -734,7 +734,7 @@ namespace WebAPI.Clients
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
             List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null,
             bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null, bool ignoreEndDate = false,
-            KalturaGroupByType groupByType = KalturaGroupByType.Omit)
+            KalturaGroupingOption groupByType = KalturaGroupingOption.Omit)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -795,8 +795,6 @@ namespace WebAPI.Clients
                 }
             }
 
-            var _groupByType = CatalogMappings.ConvertGroupByType(groupByType);
-
             // build request
             UnifiedSearchRequest request = new UnifiedSearchRequest()
             {
@@ -820,19 +818,12 @@ namespace WebAPI.Clients
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
                 isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
-                shouldIgnoreEndDate = ignoreEndDate
-            };
+                shouldIgnoreEndDate = ignoreEndDate,
+                isGroupingOptionInclude = CatalogMappings.ConvertEnumsById<KalturaGroupingOption, GroupingOption>(groupByType) == GroupingOption.Include
+        };
 
             if (groupBy != null && groupBy.Count > 0)
             {
-                if (_groupByType != null && _groupByType == GroupByType.Include)
-                {
-                    //TODO - Matan: Apply this param\logic
-                    //Option A - Add missed hits to separate buckets and return top hits
-                    //Option B - Allow elastic to return missing values in bucket
-                    //https://www.elastic.co/guide/en/elasticsearch/reference/2.3/search-aggregations-bucket-terms-aggregation.html
-                    groupBy.Add($"{GROUP_BY_INCLUDE_PREFIX}{groupBy.First()}");//allow to create buckets if doesn't contains value
-                }
                 request.searchGroupBy = new SearchAggregationGroupBy()
                 {
                     groupBy = groupBy,

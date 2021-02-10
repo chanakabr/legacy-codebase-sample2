@@ -6173,7 +6173,7 @@ namespace WebAPI.Reflection
                 case "KalturaSearchAssetFilter":
                     switch(property.Name)
                     {
-                        case "GroupByTypeEqual":
+                        case "GroupingOptionEqual":
                             return "groupByTypeEqual";
                         case "IdIn":
                             return "idIn";

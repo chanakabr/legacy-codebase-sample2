@@ -1318,7 +1318,8 @@ namespace Core.Catalog
             }
 
             // WARNING has side effect - updates queryParser.Aggregations
-            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID, unifiedSearchDefinitions.shouldAddIsActiveTerm);
+            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID, 
+                unifiedSearchDefinitions.shouldAddIsActiveTerm, unifiedSearchDefinitions.isGroupingOptionInclude);
 
             if (!string.IsNullOrEmpty(requestBody))
             {

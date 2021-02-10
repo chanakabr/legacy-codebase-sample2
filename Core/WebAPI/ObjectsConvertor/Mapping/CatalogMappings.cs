@@ -1463,11 +1463,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion CategoryVersion
         }
 
-        internal static GroupByType? ConvertGroupByType(KalturaGroupByType? groupByType)
+        internal static U? ConvertEnumsById<T, U>(T? value)
+            where T : struct, IConvertible
+            where U : struct, IConvertible
         {
-            if (groupByType.HasValue && Enum.IsDefined(typeof(GroupByType), (int)groupByType.Value))
+            if (value.HasValue)
             {
-                return (GroupByType)(int)groupByType.Value;
+                var intValue = (int)(object)value;
+                if (Enum.IsDefined(typeof(U), intValue))
+                {
+                    return (U)(object)intValue;
+                }
             }
             return null;
         }

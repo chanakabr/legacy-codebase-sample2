@@ -39,7 +39,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "groupByTypeEqual")]
         [JsonProperty("groupByTypeEqual")]
         [XmlElement(ElementName = "groupByTypeEqual", IsNullable = true)]
-        public KalturaGroupByType? GroupByTypeEqual { get; set; }
+        public KalturaGroupingOption? GroupingOptionEqual { get; set; }
 
         internal List<int> getTypeIn()
         {
@@ -95,7 +95,7 @@ namespace WebAPI.Models.Catalog
 
             var response = ClientsManager.CatalogClient().SearchAssets(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(), pager.PageSize, this.Ksql,
                 this.OrderBy, this.getTypeIn(), this.getEpgChannelIdIn(), contextData.ManagementData, this.DynamicOrderBy,
-                this.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, this.GroupByOrder, false, this.GroupByTypeEqual ?? KalturaGroupByType.Omit);
+                this.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, this.GroupByOrder, false, this.GroupingOptionEqual ?? KalturaGroupingOption.Omit);
 
             return response;
         }

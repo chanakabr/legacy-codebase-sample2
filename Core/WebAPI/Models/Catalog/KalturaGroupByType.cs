@@ -1,6 +1,6 @@
 ﻿namespace WebAPI.Models.Catalog
 {
-    public enum KalturaGroupByType
+    public enum KalturaGroupingOption
     {
         Omit = 1,
         Include = 2

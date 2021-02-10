@@ -323,6 +323,11 @@ namespace Core.Catalog
                     }
                 }
 
+                if (request.isGroupingOptionInclude)
+                {
+                    definitions.isGroupingOptionInclude = true;
+                }
+
                 #endregion
 
                 #region Get Recordings

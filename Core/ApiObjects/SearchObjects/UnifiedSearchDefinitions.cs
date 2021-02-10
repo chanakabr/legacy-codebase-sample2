@@ -434,6 +434,10 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public HashSet<long> ObjectVirtualAssetIds;
+
+        [JsonProperty()]
+        [DataMember]
+        public bool isGroupingOptionInclude;
         #endregion
 
         #region Ctor
@@ -505,7 +509,7 @@ namespace ApiObjects.SearchObjects
         Value_Desc
     }
 
-    public enum GroupByType
+    public enum GroupingOption
     {
         Omit = 1,
         Include = 2

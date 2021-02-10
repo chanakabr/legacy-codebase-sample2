@@ -98,6 +98,9 @@ namespace Core.Catalog.Request
         [DataMember]
         public bool isAllowedToViewInactiveAssets;
 
+        [DataMember]
+        public bool isGroupingOptionInclude;
+
         #endregion
 
         #region Ctor
@@ -138,6 +141,7 @@ namespace Core.Catalog.Request
             this.shouldIgnoreDeviceRuleID = false;
             this.exactGroupId = 0;
             this.isAllowedToViewInactiveAssets = false;
+            this.isGroupingOptionInclude = false;
         }
 
         #endregion

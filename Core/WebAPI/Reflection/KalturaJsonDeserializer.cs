@@ -17122,11 +17122,11 @@ namespace WebAPI.Models.Catalog
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupByTypeEqual");
                     }
 
-                    GroupByTypeEqual = (KalturaGroupByType) Enum.Parse(typeof(KalturaGroupByType), parameters["groupByTypeEqual"].ToString(), true);
+                    GroupingOptionEqual = (KalturaGroupingOption) Enum.Parse(typeof(KalturaGroupingOption), parameters["groupByTypeEqual"].ToString(), true);
 
-                    if (!Enum.IsDefined(typeof(KalturaGroupByType), GroupByTypeEqual))
+                    if (!Enum.IsDefined(typeof(KalturaGroupingOption), GroupingOptionEqual))
                     {
-                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", GroupByTypeEqual, typeof(KalturaGroupByType)));
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", GroupingOptionEqual, typeof(KalturaGroupingOption)));
                     }
                 }
             }

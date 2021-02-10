@@ -19839,9 +19839,9 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(GroupByTypeEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("groupByTypeEqual")))
+            if(GroupingOptionEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("groupByTypeEqual")))
             {
-                ret.Add("groupByTypeEqual", "\"groupByTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaGroupByType), GroupByTypeEqual) + "\"");
+                ret.Add("groupByTypeEqual", "\"groupByTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaGroupingOption), GroupingOptionEqual) + "\"");
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.1.0", currentVersion) && IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
             {
@@ -19865,9 +19865,9 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(GroupByTypeEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("groupByTypeEqual")))
+            if(GroupingOptionEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("groupByTypeEqual")))
             {
-                ret.Add("groupByTypeEqual", "<groupByTypeEqual>" + "" + Enum.GetName(typeof(KalturaGroupByType), GroupByTypeEqual) + "" + "</groupByTypeEqual>");
+                ret.Add("groupByTypeEqual", "<groupByTypeEqual>" + "" + Enum.GetName(typeof(KalturaGroupingOption), GroupingOptionEqual) + "" + "</groupByTypeEqual>");
             }
             if(!DeprecatedAttribute.IsDeprecated("5.0.1.0", currentVersion) && IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
             {
