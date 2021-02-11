@@ -1861,8 +1861,9 @@ namespace Core.Users
             this.m_minUserPeriodId = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_freq_period_id");
             this.m_sCoGuid = ODBCWrapper.Utils.GetSafeStr(dr, "COGUID");
             this.m_nRegion = ODBCWrapper.Utils.GetIntSafeVal(dr, "REGION_ID");
-            this.m_DomainRestriction = (DomainRestriction) ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");
-            this.roleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ROLE_ID");
+            this.m_DomainRestriction = (DomainRestriction) ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");            
+			int? roleId = ODBCWrapper.Utils.GetNullableInt(dr, "ROLE_ID");
+            this.roleId = roleId.HasValue && roleId.Value == 0 ? null : roleId;			
             this.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
             this.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
             var nGroupConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_CONCURRENT_MAX_LIMIT");
