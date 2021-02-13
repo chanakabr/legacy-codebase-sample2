@@ -1310,22 +1310,6 @@ namespace WebAPI.Clients
             var request = AutoMapper.Mapper.Map<AssetFilePpv>(kAssetFilePpv);
             Func<GenericResponse<AssetFilePpv>> updateAssetFilePpvFunc = () => Core.Pricing.PriceManager.UpdateAssetFilePPV(groupId, request);
             return ClientUtils.GetResponseFromWS<KalturaAssetFilePpv, AssetFilePpv>(updateAssetFilePpvFunc);
-        }
-
-        internal KalturaCouponListResponse GetCoupons(int groupId, List<string> couponCodes, long householdId)
-        {
-            KalturaCouponListResponse result = new KalturaCouponListResponse();
-
-            Func<GenericListResponse<CouponData>> getGetCouponsFunc = () =>
-               Core.Pricing.Module.GetCoupons(groupId, couponCodes, householdId);
-
-            KalturaGenericListResponse<KalturaCoupon> response =
-                ClientUtils.GetResponseListFromWS<KalturaCoupon, CouponData>(getGetCouponsFunc);
-
-            result.Objects = response.Objects;
-            result.TotalCount = response.TotalCount;
-
-            return result;
-        }
+        }       
     }
 }

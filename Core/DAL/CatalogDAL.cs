@@ -5864,6 +5864,7 @@ namespace Tvinci.Core.DAL
             return isUpdateSuccess;
         }
 
+        // TODO remove - used in one method, which should be removed
         public static bool UpdateOrAddBulkUploadAffectedObjectsToCB(long bulkUploadId, IEnumerable<IAffectedObject> affectedObjects, uint ttl)
         {
             var bulkUploadKey = GetBulkUploadKey(bulkUploadId);
