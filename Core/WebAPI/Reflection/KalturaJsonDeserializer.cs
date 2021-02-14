@@ -12937,6 +12937,20 @@ namespace WebAPI.Models.Catalog
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", GroupByOrder, typeof(KalturaGroupByOrder)));
                     }
                 }
+                if (parameters.ContainsKey("groupingOptionEqual") && parameters["groupingOptionEqual"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["groupingOptionEqual"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupingOptionEqual");
+                    }
+
+                    GroupingOptionEqual = (KalturaGroupingOption) Enum.Parse(typeof(KalturaGroupingOption), parameters["groupingOptionEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaGroupingOption), GroupingOptionEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", GroupingOptionEqual, typeof(KalturaGroupingOption)));
+                    }
+                }
             }
         }
     }
@@ -17114,20 +17128,6 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
                 {
                     IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
-                }
-                if (parameters.ContainsKey("groupByTypeEqual") && parameters["groupByTypeEqual"] != null)
-                {
-                    if(string.IsNullOrEmpty(parameters["groupByTypeEqual"].ToString()))
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupByTypeEqual");
-                    }
-
-                    GroupingOptionEqual = (KalturaGroupingOption) Enum.Parse(typeof(KalturaGroupingOption), parameters["groupByTypeEqual"].ToString(), true);
-
-                    if (!Enum.IsDefined(typeof(KalturaGroupingOption), GroupingOptionEqual))
-                    {
-                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", GroupingOptionEqual, typeof(KalturaGroupingOption)));
-                    }
                 }
             }
         }

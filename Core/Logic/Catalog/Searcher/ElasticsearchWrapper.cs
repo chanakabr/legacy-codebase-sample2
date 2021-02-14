@@ -1508,7 +1508,7 @@ namespace Core.Catalog
             {
                 queryBuilder.SubscriptionsQuery = BuildMultipleSearchQuery(search.entitlementSearchDefinitions.subscriptionSearchObjects, parentGroupId, true);
             }            
-            var requestBody = queryBuilder.BuildSearchQueryString(search.shouldIgnoreDeviceRuleID, search.shouldAddIsActiveTerm); // WARNING has side effect - updates queryBuilder.Aggregations, used later
+            var requestBody = queryBuilder.BuildSearchQueryString(search.shouldIgnoreDeviceRuleID, search.shouldAddIsActiveTerm, search.isGroupingOptionInclude); // WARNING has side effect - updates queryBuilder.Aggregations, used later
             var url = GetUrl(search, parentGroupId);
 
             // send request
@@ -2778,7 +2778,7 @@ namespace Core.Catalog
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 
-            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddIsActiveTerm);
+            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddIsActiveTerm, definitions.isGroupingOptionInclude);
 
             if (!string.IsNullOrEmpty(requestBody))
             {

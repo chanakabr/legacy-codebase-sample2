@@ -879,6 +879,8 @@ namespace WebAPI.Reflection
                             return "groupBy";
                         case "GroupByOrder":
                             return "groupOrderBy";
+                        case "GroupingOptionEqual":
+                            return "groupingOptionEqual";
                         case "Ksql":
                             return "kSql";
                     }
@@ -6173,8 +6175,6 @@ namespace WebAPI.Reflection
                 case "KalturaSearchAssetFilter":
                     switch(property.Name)
                     {
-                        case "GroupingOptionEqual":
-                            return "groupByTypeEqual";
                         case "IdIn":
                             return "idIn";
                         case "TypeIn":

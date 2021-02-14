@@ -33,14 +33,6 @@ namespace WebAPI.Models.Catalog
         [Deprecated("5.0.1.0")]
         public string IdIn { get; set; }
 
-        /// <summary>
-        /// GroupByType, Omit if not specified otherwise
-        /// </summary>
-        [DataMember(Name = "groupByTypeEqual")]
-        [JsonProperty("groupByTypeEqual")]
-        [XmlElement(ElementName = "groupByTypeEqual", IsNullable = true)]
-        public KalturaGroupingOption? GroupingOptionEqual { get; set; }
-
         internal List<int> getTypeIn()
         {
             if (string.IsNullOrEmpty(TypeIn))

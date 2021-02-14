@@ -8589,6 +8589,11 @@ namespace Core.Catalog
 
             Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
 
+            if (request.searchGroupBy != null && request.searchGroupBy.isGroupingOptionInclude)
+            {
+                definitions.isGroupingOptionInclude = true;
+            }
+
             #endregion
 
 

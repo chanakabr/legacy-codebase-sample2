@@ -64,6 +64,18 @@ namespace WebAPI.Models.Catalog
             set;
         }
 
+        /// <summary>
+        /// Grouping Option, Omit if not specified otherwise
+        /// </summary>
+        [DataMember(Name = "groupingOptionEqual")]
+        [JsonProperty("groupingOptionEqual")]
+        [XmlElement(ElementName = "groupingOptionEqual", IsNullable = true)]
+        public KalturaGroupingOption? GroupingOptionEqual
+        {
+            get; 
+            set;
+        }
+
 
         internal List<string> getGroupByValue()
         {

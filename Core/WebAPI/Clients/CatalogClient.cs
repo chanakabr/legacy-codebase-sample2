@@ -2659,7 +2659,8 @@ namespace WebAPI.Clients
 
         internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
                                                             KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
-                                                            KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, List<string> groupByValues = null)
+                                                            KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, List<string> groupByValues = null, 
+                                                            bool allowIncludedGroupBy = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2710,7 +2711,8 @@ namespace WebAPI.Clients
                 {
                     groupBy = groupByValues,
                     distinctGroup = groupByValues[0], // mabye will send string.empty - and Backend will fill it if nessecery
-                    topHitsCount = 1
+                    topHitsCount = 1,
+                    isGroupingOptionInclude = allowIncludedGroupBy
                 };
             }
 

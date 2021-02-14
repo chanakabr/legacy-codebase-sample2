@@ -46,7 +46,8 @@ namespace WebAPI.Models.Catalog
     /// </summary>
     public enum KalturaGroupByField
     {
-        media_type_id
+        media_type_id,
+        suppressed
     }
 
     /// <summary>
