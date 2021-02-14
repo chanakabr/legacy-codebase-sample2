@@ -612,7 +612,10 @@ namespace ElasticSearch.Common
             {
                 HashSet<string> mappedMetas = new HashSet<string>();
 
-                metasMap.Add(META_SUPPRESSED, new KeyValuePair<eESFieldType, string>(eESFieldType.STRING, string.Empty));//new meta for suppressed value
+                if (!metasMap.ContainsKey(META_SUPPRESSED))
+                {
+                    metasMap.Add(META_SUPPRESSED, new KeyValuePair<eESFieldType, string>(eESFieldType.STRING, string.Empty));//new meta for suppressed value
+                }
 
                 foreach (KeyValuePair<string, KeyValuePair<eESFieldType, string>> meta in metasMap)
                 {
@@ -775,7 +778,7 @@ namespace ElasticSearch.Common
             return mappingObj.ToString();
         }
 
-        public override string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags, 
+        public override string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags,
             HashSet<string> metasToPad,
             MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers, string mappingName, bool shouldAddRouting)
         {

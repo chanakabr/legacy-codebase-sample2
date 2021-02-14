@@ -765,7 +765,7 @@ namespace Core.Catalog.CatalogManagement
                 UpdateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
                 IsInherited = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_INHERITED") == 1,
                 IsLocationTag = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_LOCATION_TAG") == 1,
-                SuppressedOrder = ODBCWrapper.Utils.GetIntSafeVal(dr, "SUPPRESSED_ORDER")
+                SuppressedOrder = ODBCWrapper.Utils.GetNullableInt(dr, "SUPPRESSED_ORDER")
             };
             return assetStructMeta;
         }
