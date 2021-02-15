@@ -49,17 +49,17 @@ namespace Core.Catalog.CatalogManagement
         public const string EPG_INDEX_TYPE = "epg";
         public const string RECORDING_IDEX_TYPE = "recording";
         public const string LOWERCASE_ANALYZER =
-            "\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\"],\"char_filter\": [\"html_strip\"]}";
+            "\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\",\"asciifolding\"],\"char_filter\": [\"html_strip\"]}";
 
         public const string PHRASE_STARTS_WITH_FILTER =
             "\"edgengram_filter\": {\"type\":\"edgeNGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}";
 
         public const string PHRASE_STARTS_WITH_ANALYZER =
-            "\"phrase_starts_with_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\",\"edgengram_filter\", \"icu_folding\",\"icu_normalizer\"]," +
+            "\"phrase_starts_with_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\",\"edgengram_filter\", \"icu_folding\",\"icu_normalizer\",\"asciifolding\"]," +
             "\"char_filter\":[\"html_strip\"]}";
 
         public const string PHRASE_STARTS_WITH_SEARCH_ANALYZER =
-            "\"phrase_starts_with_search_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\", \"icu_folding\",\"icu_normalizer\"]," +
+            "\"phrase_starts_with_search_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\", \"icu_folding\",\"icu_normalizer\",\"asciifolding\"]," +
             "\"char_filter\":[\"html_strip\"]}";
 
         public const string EPG_GREEN_SUFFIX = "green";
