@@ -165,7 +165,8 @@ namespace Core.Catalog
         {
             "media_type_id",
             "name",
-            "crid"
+            "crid",
+            "suppressed"
         };
 
         private static readonly HashSet<string> predefinedAssetTypes = new HashSet<string>()
