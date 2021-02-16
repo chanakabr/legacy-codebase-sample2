@@ -297,8 +297,7 @@ namespace WebAPI.Clients
                         }
                         else
                         {
-
-                            assetListResponse = GetMediaByIds(groupId, siteGuid, domainId, udid, language, 0, 1, new List<int>() { (int)id }, KalturaAssetOrderBy.START_DATE_DESC);
+                            assetListResponse = GetMediaByIdForOperator(groupId, language, id);
                         }
                     }
                     else
@@ -1734,6 +1733,41 @@ namespace WebAPI.Clients
             {
                 result.Objects = CatalogUtils.GetMediaByIds(mediaIdsResponse.m_nMediaIds, request);
                 result.TotalCount = mediaIdsResponse.m_nTotalItems;
+            }
+
+            return result;
+        }
+
+        public KalturaAssetListResponse GetMediaByIdForOperator(int groupId, string language, long assetId)
+        {
+            log.Debug($"BEO-9511 GetMediaByIdForOperator");
+
+            KalturaAssetListResponse result = new KalturaAssetListResponse();
+
+            BaseObject asset = new BaseObject()
+            {
+                AssetId = assetId.ToString(),
+                AssetType = eAssetTypes.MEDIA
+            };
+
+            MediasProtocolRequest request = new MediasProtocolRequest()
+            {
+                m_oFilter = new Filter()
+                {
+                    m_bUseStartDate = false,
+                    m_bOnlyActiveMedia = false,
+                    m_bUseFinalDate = false,
+                    m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
+                },
+                m_nGroupID = groupId
+            };
+
+            var response = CatalogUtils.GetAssets(new List<BaseObject>() { asset }, request);
+
+            if (response?.Count > 0)
+            {
+                result.Objects = response;
+                result.TotalCount = result.Objects.Count;
             }
 
             return result;

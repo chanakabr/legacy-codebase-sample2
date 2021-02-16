@@ -47,10 +47,10 @@ namespace ElasticSearch.Searcher
                                     {
                                         var key = bucket["key"];
                                         var count = bucket["doc_count"];
-                                        var subSum = subAggregationName ?? bucket[subAggregationName];
-                                        if (subSum != null)
+                                                                                
+                                        if (!string.IsNullOrEmpty(subAggregationName) && bucket[subAggregationName] != null)
                                         {
-                                            currentDictionary[key.Value<T>()] = subSum["value"].Value<int>();
+                                            currentDictionary[key.Value<T>()] = bucket[subAggregationName]["value"].Value<int>();
                                         }
                                         else
                                         {

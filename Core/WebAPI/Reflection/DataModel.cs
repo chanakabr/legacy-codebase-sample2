@@ -8569,10 +8569,6 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("coupon", "get", false);
                             return CouponController.Get((string) methodParams[0]);
                             
-                        case "list":
-                            RolesManager.ValidateActionPermitted("coupon", "list", false);
-                            return CouponController.List((KalturaCouponFilter) methodParams[0]);
-                            
                     }
                     break;
                     
@@ -14207,14 +14203,6 @@ namespace WebAPI.Reflection
                             ret.Add("code", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),
-                            });
-                            return ret;
-                            
-                        case "list":
-                            ret.Add("filter", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaCouponFilter),
                             });
                             return ret;
                             

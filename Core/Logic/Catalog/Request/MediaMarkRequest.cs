@@ -578,7 +578,7 @@ namespace Core.Catalog.Request
                         else
                         {
                             CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, this.m_oMediaPlayRequestData.m_nLoc, fileDuration, mediaPlayAction,
-                                                        ttl, this.m_oMediaPlayRequestData.IsReportingMode, (int)assetType, false, false);
+                                                        ttl, this.m_oMediaPlayRequestData.IsReportingMode, (int)assetType, true, false);
                         }
                         break;
                     }

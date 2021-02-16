@@ -119,7 +119,7 @@ namespace Core.Billing
             try
             {
                 //call Adapter Transact
-                adapterResponse = _PGWAdapterClient.TransactAsync(this.paymentGatewayId,
+                adapterResponse = _PGWAdapterClient.Transact(this.paymentGatewayId,
                         request.siteGuid, request.chargeId,
                         request.price, request.currency, request.productId.ToString(),
                         ConvertTransactionType(request.productType),
@@ -128,8 +128,7 @@ namespace Core.Billing
                         request.adapterData,
                         unixTimestamp,
                         Convert.ToBase64String(
-                        EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
-                    ).ExecuteAndWait();
+                        EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                 LogAdapterResponse(adapterResponse, "Transact");
 
@@ -148,7 +147,7 @@ namespace Core.Billing
                     configurationSynchronizer.DoAction(key, parameters);
 
                     //call Adapter Transact - after it is configured
-                    adapterResponse = _PGWAdapterClient.TransactAsync(this.paymentGatewayId,
+                    adapterResponse = _PGWAdapterClient.Transact(this.paymentGatewayId,
                             request.siteGuid, request.chargeId,
                             request.price, request.currency, request.productId.ToString(),
                             ConvertTransactionType(request.productType),
@@ -157,8 +156,7 @@ namespace Core.Billing
                             request.adapterData,
                             unixTimestamp,
                             Convert.ToBase64String(
-                            EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature)))
-                        ).ExecuteAndWait();
+                            EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))));
 
                     LogAdapterResponse(adapterResponse, "Transact After NoConfigurationFound");
                 }
@@ -205,10 +203,10 @@ namespace Core.Billing
             {
                 //call Adapter Transact
                 var adapterData = request.AdapterData?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray();
-                adapterResponse = _PGWAdapterClient.ProcessRenewalAsync(this.paymentGatewayId, request.siteGuid, request.productId.ToString(), request.productCode, request.ExternalTransactionId,
+                adapterResponse = _PGWAdapterClient.ProcessRenewal(this.paymentGatewayId, request.siteGuid, request.productId.ToString(), request.productCode, request.ExternalTransactionId,
                                                                request.GracePeriodMinutes, request.price, request.currency, request.chargeId, request.paymentMethodExternalId, unixTimestamp,
                                                                Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))),
-                                                            adapterData).ExecuteAndWait();
+                                                            adapterData);
 
                 // log response
                 LogAdapterResponse(adapterResponse, "Renewal");
@@ -228,10 +226,9 @@ namespace Core.Billing
                     configurationSynchronizer.DoAction(key, parameters);
 
                     //call Adapter Transact - after it is configured
-                    adapterResponse = _PGWAdapterClient.ProcessRenewalAsync(this.paymentGatewayId, request.siteGuid, request.productId.ToString(), request.productCode, request.ExternalTransactionId,
+                    adapterResponse = _PGWAdapterClient.ProcessRenewal(this.paymentGatewayId, request.siteGuid, request.productId.ToString(), request.productCode, request.ExternalTransactionId,
                                                                 request.GracePeriodMinutes, request.price, request.currency, request.chargeId, request.paymentMethodExternalId, unixTimestamp,
-                                                                Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))), adapterData
-                                                           ).ExecuteAndWait();
+                                                                Convert.ToBase64String(TVinciShared.EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, TVinciShared.EncryptUtils.HashSHA1(signature))), adapterData);
 
                     // log response
                     LogAdapterResponse(adapterResponse, "Renewal");
@@ -831,10 +828,9 @@ namespace Core.Billing
             {
                 var adapterData = request.AdapterData?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray();
                 //call Adapter Transact
-                adapterResponse = _PGWAdapterClient.UnifiedProcessRenewalAsync(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId, request.currency,
+                adapterResponse = _PGWAdapterClient.UnifiedProcessRenewal(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId, request.currency,
                                                                                request.totalPrice, renewSubscription.ToArray(), unixTimestamp, Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret,
-                                                                               EncryptUtils.HashSHA1(signature))), adapterData)
-                                                   .ExecuteAndWait();
+                                                                               EncryptUtils.HashSHA1(signature))), adapterData);
 
                 // log response
                 LogAdapterResponse(adapterResponse, "Renewal");
@@ -853,10 +849,9 @@ namespace Core.Billing
                     configurationSynchronizer.DoAction(key, parameters);
 
                     //call Adapter Transact - after it is configured
-                    adapterResponse = _PGWAdapterClient.UnifiedProcessRenewalAsync(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId,
+                    adapterResponse = _PGWAdapterClient.UnifiedProcessRenewal(this.paymentGatewayId, request.householdId, request.chargeId, request.paymentMethodExternalId,
                         request.currency, request.totalPrice, renewSubscription.ToArray(), unixTimestamp,
-                        Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature))), adapterData
-                        ).ExecuteAndWait();
+                        Convert.ToBase64String(EncryptUtils.AesEncrypt(request.paymentGateway.SharedSecret, EncryptUtils.HashSHA1(signature))), adapterData);
 
                     // log response
                     LogAdapterResponse(adapterResponse, "Renewal");

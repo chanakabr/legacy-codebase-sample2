@@ -8481,7 +8481,7 @@ namespace WebAPI.Models.General
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(objectType != null && (retrievedProperties == null || retrievedProperties.Contains("objectType")))
+            if(objectType != null)
             {
                 ret.Add("objectType", "\"objectType\": " + "\"" + EscapeJson(objectType) + "\"");
             }
@@ -8504,7 +8504,7 @@ namespace WebAPI.Models.General
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
-            if(objectType != null && (retrievedProperties == null || retrievedProperties.Contains("objectType")))
+            if(objectType != null)
             {
                 ret.Add("objectType", "<objectType>" + EscapeXml(objectType) + "</objectType>");
             }
@@ -12796,7 +12796,7 @@ namespace WebAPI.App_Start
             {
                 ret.Add("message", "\"message\": " + "\"" + EscapeJson(message) + "\"");
             }
-            if(objectType != null && (retrievedProperties == null || retrievedProperties.Contains("objectType")))
+            if(objectType != null)
             {
                 ret.Add("objectType", "\"objectType\": " + "\"" + EscapeJson(objectType) + "\"");
             }
@@ -12827,7 +12827,7 @@ namespace WebAPI.App_Start
             {
                 ret.Add("message", "<message>" + EscapeXml(message) + "</message>");
             }
-            if(objectType != null && (retrievedProperties == null || retrievedProperties.Contains("objectType")))
+            if(objectType != null)
             {
                 ret.Add("objectType", "<objectType>" + EscapeXml(objectType) + "</objectType>");
             }

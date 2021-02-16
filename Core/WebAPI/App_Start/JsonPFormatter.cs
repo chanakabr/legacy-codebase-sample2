@@ -25,15 +25,13 @@ namespace WebAPI.Utils
         {
             using (TextWriter streamWriter = new StreamWriter(writeStream))
             {
-                string json = jsonManager.Serialize(value);
-
                 string callback = HttpContext.Current.Request.GetQueryString()["callback"];
                 if (string.IsNullOrEmpty(callback))
                 {
                     callback = "callback";
                 }
 
-                string response = string.Format("{0}({1})", callback, json);
+                string response = string.Format("{0}({1})", callback, value);
                 streamWriter.Write(response);
                 
                 return Task.FromResult(writeStream);
