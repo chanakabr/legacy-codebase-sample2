@@ -950,7 +950,7 @@ namespace Core.Catalog
                         .OrderBy(m => m.Value.SuppressedOrder).ToDictionary(x => x.Key, y => y.Value);
                     if (suppressedOrderMap != null)
                     {
-                        //find default meta to suppressed by
+                        //find default meta to suppress by
                         foreach (var suppressedOrderPair in suppressedOrderMap)
                         {
                             var topic = catalogGroupCache.TopicsMapById[suppressedOrderPair.Key];

@@ -40,7 +40,6 @@ namespace WebAPI.Clients
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
         private const string OPC_MERGE_VERSION = "5.0.0.0";
-        private const string GROUP_BY_INCLUDE_PREFIX = "without_";
         private readonly Version opcMergeVersion = new Version(OPC_MERGE_VERSION);
 
         public string Signature { get; set; }
