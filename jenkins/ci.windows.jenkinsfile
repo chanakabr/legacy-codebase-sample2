@@ -230,3 +230,34 @@ def report(){
     def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
     echo "${reportout}"
 }
+
+
+
+node('Windows'){
+    withEnv(['MSBUILD = tool name: default, type:hudson.plugins.msbuild.MsBuildInstallation',
+             "component=${env.JOB_NAME}"]){
+                 properties([
+                    buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
+                    disableConcurrentBuilds(), 
+                    parameters([booleanParam(defaultValue: true, description: 'Should trigger Release Candidate?', name: 'TRIGGER_RC')]), 
+                ])
+                stage('Clean') {
+                    sh label: 'clean bin and obj folders', script: 'find . -iname \'bin\' -o -iname \'obj\' | xargs rm -rf'
+                    sh label: 'clean published folder', script: 'rm -rf ./published'
+                
+                }
+                stage('Checkout'){
+                    git branch: "${BRANCH_NAME}", credentialsId: 'github-ott-ci-cd', url: 'https://github.com/kaltura/ott-backend'
+                    committerEmail = sh (returnStdout: true, script: 'git --no-pager show -s --format=\'%ae\'').trim()
+                    currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}"
+                }
+                stage("Version Patch"){
+                    dir('Core') {  }
+
+
+                }
+    }
+}
+
+
+
