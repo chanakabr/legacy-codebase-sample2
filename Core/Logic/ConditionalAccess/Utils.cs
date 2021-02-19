@@ -37,6 +37,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using Core.GroupManagers;
 using TVinciShared;
 using Tvinic.GoogleAPI;
 
@@ -7788,11 +7789,16 @@ namespace Core.ConditionalAccess
             List<MediaFile> files = null;
 
             List<MediaFile> allMediafiles = null;
+            // Once we get rid of TVM parent/child groups, groupId should be used in stored procedure for security.
+            // Please, note after that MediaFileCacheKey should be extended with groupId as well.
             string key = LayeredCacheKeys.GetMediaFilesKey(mediaId, assetType.ToString());
             bool cacheResult = LayeredCache.Instance.Get<List<MediaFile>>(key, ref allMediafiles, GetMediaFiles, new Dictionary<string, object>() { { "mediaId", mediaId }, { "groupId", groupId },
                                                                         { "assetType", assetType } }, groupId, LayeredCacheConfigNames.MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME,
                                                                         new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
 
+            // We're using check for IsOPC to apply security concerns, once we get rid of TVM parent/child groups, this logic will be moved to stored procedure.
+            allMediafiles = ValidateMediaFilesUponSecurity(allMediafiles, groupId);
+            
             // filter
             if (allMediafiles != null && allMediafiles.Count > 0)
             {
@@ -7816,6 +7822,18 @@ namespace Core.ConditionalAccess
             }
 
             return files;
+        }
+
+        private static List<MediaFile> ValidateMediaFilesUponSecurity(List<MediaFile> allMediafiles, int groupId)
+        {
+            if (!GroupSettingsManager.IsOpc(groupId))
+            {
+                // If group is not OPC, we should check child subgroups for permissions as well.
+                var subGroups = new GroupManager().GetSubGroup(groupId);
+                return allMediafiles.Where(m => subGroups.Any(sg => sg == m.GroupId) || m.GroupId == groupId).ToList();
+            }
+
+            return allMediafiles.Where(m => m.GroupId == groupId).ToList();
         }
 
         internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain, string udid,

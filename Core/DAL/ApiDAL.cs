@@ -839,13 +839,8 @@ namespace DAL
             ODBCWrapper.StoredProcedure spSubAccounts = new ODBCWrapper.StoredProcedure("Get_AllSubAccounts");
             spSubAccounts.SetConnectionKey("MAIN_CONNECTION_STRING");
             spSubAccounts.AddParameter("@ParentGroupID", nParendGroupID);
-
-            DataSet ds = spSubAccounts.ExecuteDataSet();
-
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
-
+            var ds = spSubAccounts.ExecuteDataSet();
+            return ds?.Tables[0];
         }
 
         public static DataTable GetGroupRulesTagsValues(List<int> nGroupRuleIDs)
@@ -4256,7 +4251,8 @@ namespace DAL
                         Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                         DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
                         MediaId = mediaId,
-                        Opl = ODBCWrapper.Utils.GetSafeStr(dr, "OPL")
+                        Opl = ODBCWrapper.Utils.GetSafeStr(dr, "OPL"),
+                        GroupId = ODBCWrapper.Utils.GetLongSafeVal(dr, "GROUP_ID")
                     };
 
                     if (ODBCWrapper.Utils.GetNullableInt(dr, "streamer_type").HasValue)
