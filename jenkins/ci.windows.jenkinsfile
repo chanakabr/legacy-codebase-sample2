@@ -1,5 +1,5 @@
 node('Windows'){
-    def MSBUILD = tool name: default, type:'hudson.plugins.msbuild.MsBuildInstallation'
+    def MSBUILD = tool name: 'default', type:'hudson.plugins.msbuild.MsBuildInstallation'
 
     try{
     withEnv([MSBUILD, "component=${env.JOB_NAME}"]){
