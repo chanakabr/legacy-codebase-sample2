@@ -1,8 +1,7 @@
 node('Windows'){
-    def MSBUILD = tool name: 'default', type:'hudson.plugins.msbuild.MsBuildInstallation'
-
+    def msbuild = tool name: 'default', type:'hudson.plugins.msbuild.MsBuildInstallation'
     try{
-    withEnv([MSBUILD, "component=${env.JOB_NAME}"]){
+    withEnv(['MSBUILD=msbuild', "component=${env.JOB_NAME}"]){
                  properties([
                     buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
                     disableConcurrentBuilds(), 
@@ -52,8 +51,8 @@ node('Windows'){
                     }
                 }
                 stage("Zip and Publish"){
-                    withEnv([RELEASE_FULL_VERSION = sh(label:"Extract Full Verion Tag", script: 'Core/get-version-tag.sh', , returnStdout: true).trim(),
-                             RELEASE_MAIN_VERSION = sh(label:"Extract Main Version Tag", script: "echo $version | sed -e 's/\\.[0-9]*\$//g'", , returnStdout: true).trim()]){
+                    withEnv(['RELEASE_FULL_VERSION = sh(label:"Extract Full Verion Tag", script: \'Core/get-version-tag.sh\', , returnStdout: true).trim()',
+                             'RELEASE_MAIN_VERSION = sh(label:"Extract Main Version Tag", script: "echo $version | sed -e \'s/\\.[0-9]*\$//g\'", , returnStdout: true).trim()']){
                     dir("published/kaltura_ott_api/phoenix/"){
                         sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
                         bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix.zip *")
