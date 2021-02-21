@@ -1,239 +1,5 @@
-pipeline {
-    agent {
-        label 'Windows'
-    }
-    options {
-        buildDiscarder(logRotator(numToKeepStr:'50'))
-        skipDefaultCheckout true
-        disableConcurrentBuilds()
-        quietPeriod(50)
-    }
-    environment {
-        MSBUILD = tool name: 'default', type: 'hudson.plugins.msbuild.MsBuildInstallation'
-        component = "${env.JOB_NAME}"
-    }
-    parameters {
-        booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
-    }
-    stages {
-        stage("Clean"){
-            steps{
-                sh(label:"clean bin and obj folders", script:"find . -iname 'bin' -o -iname 'obj' | xargs rm -rf")
-                sh(label:"clean published folder", script:"rm -rf ./published")
-            }
-        }
-        stage("Checkout"){
-            steps{
-                //cleanWs()
-                git(url: 'https://github.com/kaltura/ott-backend', branch: "${BRANCH_NAME}", credentialsId: "github-ott-ci-cd")
-                script {
-                    committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim() 
-                    currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}" }
-
-                // script{
-                //     withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
-                //         def getDefaultBranchCmd = "curl --silent -i ott-ci-cd:${TOKEN} https://api.github.com/repos/kaltura/clients-generator | grep 'default_branch' | cut -f4 -d'\"'"
-                //         def defaultGeneratorBranch = sh(label:"Get Default Branch From Github", script: getDefaultBranchCmd, , returnStdout: true).trim()
-                //         echo("Identified default clients-generator branch as: [${defaultGeneratorBranch}]")
-                //         dir('clients-generator'){ git(url: 'https://github.com/kaltura/clients-generator.git', branch:"${defaultGeneratorBranch}", credentialsId: "github-ott-ci-cd") }
-                //     }
-                // }
-            }
-        }
-        stage("Version Patch"){
-            steps{
-                    dir("Core"){ bat "sh DllVersioning.Core.sh ." }
-                    dir("phoenix"){ bat "sh ../Core/DllVersioning.Core.sh ." }
-                    dir("RemoteTasks") { bat "sh ../Core/DllVersioning.Core.sh ."}
-                    dir("tvpapi") { bat "sh ../Core/DllVersioning.Core.sh ."}
-                    dir("WS_Ingest") { bat "sh ../Core/DllVersioning.Core.sh ."}
-                    dir("tvmapps") { bat "sh ../Core/DllVersioning.Core.sh ."}
-            }        
-        }
-        stage("Nuget Restore"){
-            steps{
-                    dir("Core"){ bat ("nuget restore") }
-                    dir("phoenix"){ bat ("nuget restore") }
-                    dir("tvpapi"){ bat ("nuget restore") }
-                    dir("WS_Ingest"){ bat ("nuget restore") }
-                    dir("RemoteTasks"){ bat ("nuget restore") }
-                    dir("tvmapps"){ bat ("nuget restore") }
-            }        
-        }
-        
-        stage("Build"){
-            steps{
-                    dir("phoenix"){
-                        buildMsProject("Phoenix.Legacy/Phoenix.Legacy.csproj","published/kaltura_ott_api/phoenix/", "phoenix-win")
-                    }
-                    dir("RemoteTasks"){
-                        buildMsProject("RemoteTasksService/RemoteTasksService.csproj","published/kaltura_ott_api/remotetasks/", "remotetasks-win")
-                    }
-                    dir("tvpapi"){
-                        buildMsProject("TVPApi.Legacy/TVPApi.Legacy.csproj","published/kaltura_ott_api/tvpapi/", "tvpapi-win")
-                    }
-                    dir("WS_Ingest"){
-                        buildMsProject("Ingest/Ingest.csproj","published/kaltura_ott_api/wsingest/", "wsingest-win")
-                    }
-                    dir("tvmapps"){
-                        buildMsProject("\"Web Sites/TVM/TVM.csproj\"","published/kaltura_ott_api/tvmapps/", "tvm-win")
-                    }
-            }        
-        }
-        stage("Generate KalturaClient.xml"){
-            steps { 
-                dir("phoenix/Generator"){
-                    bat (label:"Build Generator", script:"\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
-                    dir("bin/Release/netcoreapp3.1"){
-                        bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
-                        bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\phoenix\\clientlibs\\")
-                        sh (label:"upload to s3", script:"aws s3 cp KalturaClient.xml s3://clientlibs/${BRANCH_NAME}/kalturaxml/")
-                    }
-                }
-            }
-        }
-        // stage("Generate Kaltura Clients"){
-            
-        //     steps { 
-        //         dir("clients-generator"){
-        //             bat ("php exec.php --dont-gzip -x${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\KalturaClient.xml "
-        //                 +"-tott java,node,ngx,php5Zend,csharp,python,ajax,android,typescript,swift,php5,php53 " 
-        //                 +"${WORKSPACE}\\published\\kaltura_ott_api\\clientlibs\\"
-        //             )
-
-        //             // AFAIK WE dont use test-me anymore we use phoenix docs
-        //             // bat ("php exec.php --dont-gzip -x${WORKSPACE}\\published\\kaltura_ott_api\\testme\\KalturaClient.xml "
-        //             //     +"-tott ottTestme,testmeDoc"
-        //             //     +"${WORKSPACE}\\published\\kaltura_ott_api\\testme\\"
-        //             // )
-        //         }
-        //     }
-        // }
-        // stage("Publish Kaltura Clients"){
-        //     // Generate only when release branch
-        //     when {expression { return BRANCH_NAME =~ /\d+_\d+_\d+$/ }}
-        //     steps{
-        //         dir("clients-generator"){
-        //             withCredentials([string(credentialsId: 'github-ott-ci-cd-token', variable: 'TOKEN')]) {
-        //                 nodejs(nodeJSInstallationName: 'default') {
-        //                     sh (
-        //                         label: "Configure git user and run node script to push client lib updates", 
-        //                         script: """
-        //                             git config --global user.email "ott.rnd.core@kaltura.com"
-        //                             git config --global user.name "Backend CI"
-        //                             npm install
-        //                             node copyAndPush '${WORKSPACE}/published/kaltura_ott_api/clientlibs' '${BRANCH_NAME}' '${TOKEN}' 'git'
-        //                         """
-        //                     )
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-        stage("Zip and Publish"){
-            environment {
-                    RELEASE_FULL_VERSION = sh(label:"Extract Full Verion Tag", script: 'Core/get-version-tag.sh', , returnStdout: true).trim()
-                    RELEASE_MAIN_VERSION = sh(label:"Extract Main Version Tag", script: "echo $version | sed -e 's/\\.[0-9]*\$//g'", , returnStdout: true).trim();
-            }
-            steps{
-                dir("published/kaltura_ott_api/phoenix/"){
-                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
-                    bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix.zip *")
-                    sh (label:"upload to s3", script:"aws s3 cp phoenix.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix.zip")
-                }
-                dir("published/kaltura_ott_api/remotetasks/"){
-                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
-                    bat (label:"Zip Artifacts", script:"7z.exe a -r remote-tasks.zip *")
-                    sh (label:"upload to s3", script:"aws s3 cp remote-tasks.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/remote-tasks.zip")
-                }
-                dir("published/kaltura_ott_api/tvpapi/"){
-                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
-                    bat (label:"Zip Artifacts", script:"7z.exe a -r tvpapi.zip *")
-                    sh (label:"upload to s3", script:"aws s3 cp tvpapi.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvpapi.zip")
-                }
-                dir("published/kaltura_ott_api/wsingest/"){
-                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
-                    bat (label:"Zip Artifacts", script:"7z.exe a -r ws-ingest.zip *")
-                    sh (label:"upload to s3", script:"aws s3 cp ws-ingest.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/ws-ingest.zip")
-                }
-                dir("published/kaltura_ott_api/tvmapps/"){
-                    sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
-                    bat (label:"Zip Artifacts", script:"7z.exe a -r tvm.zip *")
-                    sh (label:"upload to s3", script:"aws s3 cp tvm.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvm.zip")
-                }
-            }        
-        }
-        stage("Trigger Release Candidate"){
-            steps{
-                script {
-                    SHORT_JOB_NAME = sh (script: "echo ${JOB_NAME} | cut -f1 -d'/'", returnStdout: true).trim()  
-                }
-                build (
-                    job: "OTT-BE-Create-Release-Candidate", 
-                    wait: false,
-                    parameters: [
-                        [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
-                        [$class: 'StringParameterValue', name: 'callingjob', value: "${SHORT_JOB_NAME}"],
-                    ]
-                )
-                script {
-                    component = "${env.JOB_NAME}"
-
-                }
-            }
-        }
-        stage("Trigger Sonar Scan"){
-            when {
-                expression {
-                    BRANCH_NAME == "master"
-                }
-            }
-            steps{
-                build (
-                    job: "OTT-BE-Sonar-Scan", 
-                    wait: false,
-                    parameters: [
-                        [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"],
-                        [$class: 'StringParameterValue', name: 'PROJECT', value: "ott-backend-netframework"],
-                    ]
-                )
-            }
-        }
-    }
-    post {
-        always {
-            report()
-            sleep 10
-            cleanWs()
-        }
-    }
-    
-}
-
-def buildMsProject(projectFilePath, outputPath, component){
-    bat (label:"Buil ${projectFilePath}" , script:"\"${MSBUILD}\" ${projectFilePath} -m:4 -nr:False -t:Restore,Build,WebPublish"
-            + " -p:Configuration=Release"
-            + " -p:DeployOnBuild=True"
-            + " -p:WebPublishMethod=FileSystem"
-            + " -p:DeleteExistingFiles=True"
-            + " -p:publishUrl=\"${WORKSPACE}/${outputPath}"
-    )
-    // report("${component}")
-                
-}
-
-
-def report(){
-    configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-    def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
-    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim();
-    def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
-    echo "${reportout}"
-}
-
-
-
 node('Windows'){
+    try{
     withEnv(['MSBUILD = tool name: default, type:hudson.plugins.msbuild.MsBuildInstallation',
              "component=${env.JOB_NAME}"]){
                  properties([
@@ -252,11 +18,118 @@ node('Windows'){
                     currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}"
                 }
                 stage("Version Patch"){
-                    dir('Core') {  }
-
+                    dir('Core') { bat 'sh DllVersioning.Core.sh .' }
+                    dir('phoenix') { bat 'sh ../Core/DllVersioning.Core.sh .' }
+                    dir('RemoteTasks') { bat 'sh ../Core/DllVersioning.Core.sh .' }
+                    dir('tvpapi') { bat 'sh ../Core/DllVersioning.Core.sh .' }
+                    dir("WS_Ingest") { bat "sh ../Core/DllVersioning.Core.sh ."}
+                    dir("tvmapps") { bat "sh ../Core/DllVersioning.Core.sh ."}
+                }
+                stage("Nuget Restore"){
+                    dir("Core"){ bat ("nuget restore") }
+                    dir("phoenix"){ bat ("nuget restore") }
+                    dir("tvpapi"){ bat ("nuget restore") }
+                    dir("WS_Ingest"){ bat ("nuget restore") }
+                    dir("RemoteTasks"){ bat ("nuget restore") }
+                    dir("tvmapps"){ bat ("nuget restore") }
+                }
+                stage("Build"){
+                    dir("phoenix"){ buildMsProject("Phoenix.Legacy/Phoenix.Legacy.csproj","published/kaltura_ott_api/phoenix/", "phoenix-win") }
+                    dir("RemoteTasks"){ buildMsProject("RemoteTasksService/RemoteTasksService.csproj","published/kaltura_ott_api/remotetasks/", "remotetasks-win") }
+                    dir("tvpapi"){ buildMsProject("TVPApi.Legacy/TVPApi.Legacy.csproj","published/kaltura_ott_api/tvpapi/", "tvpapi-win") }
+                    dir("WS_Ingest"){ buildMsProject("Ingest/Ingest.csproj","published/kaltura_ott_api/wsingest/", "wsingest-win") }
+                    dir("tvmapps"){ buildMsProject("\"Web Sites/TVM/TVM.csproj\"","published/kaltura_ott_api/tvmapps/", "tvm-win") }
+                }
+                stage("Generate KalturaClient.xml"){
+                    dir("phoenix/Generator"){
+                        bat (label: 'Build Generator', script: "\"${MSBUILD}\" -p:Configuration=Release -m:4 -nr:False -t:Restore,Build")
+                        dir("bin/Release/netcoreapp3.1"){
+                            bat (label:"Generate KalturaClient.xml", script:"dotnet Generator.dll")
+                            bat (label:"Copy KalturaClient.xml to clientlib folder", script:"xcopy KalturaClient.xml ${WORKSPACE}\\published\\kaltura_ott_api\\phoenix\\clientlibs\\")
+                            sh (label:"upload to s3", script:"aws s3 cp KalturaClient.xml s3://clientlibs/${BRANCH_NAME}/kalturaxml/")
+                        } 
+                    }
+                }
+                stage("Zip and Publish"){
+                    withEnv([RELEASE_FULL_VERSION = sh(label:"Extract Full Verion Tag", script: 'Core/get-version-tag.sh', , returnStdout: true).trim(),
+                             RELEASE_MAIN_VERSION = sh(label:"Extract Main Version Tag", script: "echo $version | sed -e 's/\\.[0-9]*\$//g'", , returnStdout: true).trim()]){
+                    dir("published/kaltura_ott_api/phoenix/"){
+                        sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                        bat (label:"Zip Artifacts", script:"7z.exe a -r phoenix.zip *")
+                        sh (label:"upload to s3", script:"aws s3 cp phoenix.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/phoenix.zip")
+                        }
+                    dir("published/kaltura_ott_api/remotetasks/"){
+                        sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                        bat (label:"Zip Artifacts", script:"7z.exe a -r remote-tasks.zip *")
+                        sh (label:"upload to s3", script:"aws s3 cp remote-tasks.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/remote-tasks.zip")
+                        }
+                    dir("published/kaltura_ott_api/tvpapi/"){
+                        sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                        bat (label:"Zip Artifacts", script:"7z.exe a -r tvpapi.zip *")
+                        sh (label:"upload to s3", script:"aws s3 cp tvpapi.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvpapi.zip")
+                        }
+                    dir("published/kaltura_ott_api/wsingest/"){
+                        sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                        bat (label:"Zip Artifacts", script:"7z.exe a -r ws-ingest.zip *")
+                        sh (label:"upload to s3", script:"aws s3 cp ws-ingest.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/ws-ingest.zip")
+                        }
+                    dir("published/kaltura_ott_api/tvmapps/"){
+                        sh (script: "echo 'buildnum ${BUILD_NUMBER}' > version.txt") 
+                        bat (label:"Zip Artifacts", script:"7z.exe a -r tvm.zip *")
+                        sh (label:"upload to s3", script:"aws s3 cp tvm.zip s3://${S3_BUILD_BUCKET_NAME}/mediahub/${BRANCH_NAME}/build/tvm.zip")
+                        }   
+                    }
+                }
+                stage("Trigger Release Candidate"){
+                    SHORT_JOB_NAME = sh (script: "echo ${JOB_NAME} | cut -f1 -d'/'", returnStdout: true).trim()
+                    build (
+                        wait: false, 
+                        job: 'OTT-BE-Create-Release-Candidate', 
+                        parameters: [
+                            string(name: 'BRANCH_NAME', value: "${BRANCH_NAME}"), 
+                            string(name: 'callingjob', value: "${SHORT_JOB_NAME}")
+                        ]
+                    )
+                    component = "${env.JOB_NAME}"
+                }
+                stage("Trigger Sonar Scan"){
+                    if (BRANCH_NAME == "master") {
+                        build (
+                            wait: false, 
+                            job: 'OTT-BE-Sonar-Scan', 
+                            parameters: [
+                                string(name: 'BRANCH_NAME', value: "${BRANCH_NAME}"), 
+                                string(name: 'PROJECT', value: 'ott-backend-netframework')
+                                ]
+                    }
 
                 }
+        }
+    } catch (e){
+        throw e
+    } finally{
+        report()
+        sleep 10
     }
+}
+
+def buildMsProject(projectFilePath, outputPath, component){
+    bat (label:"Buil ${projectFilePath}" , script:"\"${MSBUILD}\" ${projectFilePath} -m:4 -nr:False -t:Restore,Build,WebPublish"
+            + " -p:Configuration=Release"
+            + " -p:DeployOnBuild=True"
+            + " -p:WebPublishMethod=FileSystem"
+            + " -p:DeleteExistingFiles=True"
+            + " -p:publishUrl=\"${WORKSPACE}/${outputPath}"
+    )               
+}
+
+
+def report(){
+    configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
+    def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
+    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim()
+    def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
+    echo "${reportout}"
 }
 
 
