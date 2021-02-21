@@ -15,7 +15,7 @@ namespace Core.Catalog
         public long UpdateDate { get; set; }
         public bool? IsInherited { get; set; }
         public bool? IsLocationTag { get; set; }
-        public int? SuppressedOrder { get; set; }
+        public int? SuppressedOrder { get; set; } 
 
         public AssetStructMeta()
         {
