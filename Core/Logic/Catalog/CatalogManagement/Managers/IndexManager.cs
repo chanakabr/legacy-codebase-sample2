@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using ElasticSearch.Utilities;
 using Tvinci.Core.DAL;
 
 namespace Core.Catalog.CatalogManagement
@@ -34,7 +35,6 @@ namespace Core.Catalog.CatalogManagement
         public static readonly int DAYS = 7;
         private const string PERCOLATOR = ".percolator";
 
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
         // Basic TCM configurations for indexing - number of shards/replicas, max results
         private static readonly int NUM_OF_SHARDS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
         private static readonly int NUM_OF_REPLICAS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
@@ -42,6 +42,7 @@ namespace Core.Catalog.CatalogManagement
         private static readonly int sizeOfBulkDefaultValue = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
         private static int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
         private static readonly ElasticSearchApi esClientApi = null;
+        private static readonly ITtlService _ttlService = new TtlService();
 
         protected const string ES_VERSION = "2";
 
@@ -920,7 +921,7 @@ namespace Core.Catalog.CatalogManagement
                                     }
 
                                     string serializedEpg = esSerializer.SerializeEpgObject(epg, suffix);
-                                    string ttl = string.Format("{0}m", Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes));
+                                    var totalMinutes = _ttlService.GetEpgTtlMinutes(epg);
 
                                     bulkRequests.Add(new ESBulkRequestObj<ulong>()
                                     {
@@ -930,7 +931,7 @@ namespace Core.Catalog.CatalogManagement
                                         Operation = eOperation.index,
                                         document = serializedEpg,
                                         routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
-                                        ttl = ttl
+                                        ttl = $"{totalMinutes}m"
                                     });
 
                                     if (bulkRequests.Count > sizeOfBulk)

@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ElasticSearch.Utilities;
 
 namespace IngestHandler.Common
 {
@@ -30,6 +31,7 @@ namespace IngestHandler.Common
         private readonly LanguageObj _defaultLanguage;
         private readonly int bulkSize = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
         private readonly int sizeOfBulkDefaultValue = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
+        private readonly ITtlService _ttlService = new TtlService();
 
         public EpgElasticUpdater(int groupId, long bulkUploadId, DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages)
         {
@@ -80,12 +82,10 @@ namespace IngestHandler.Common
                         string serializedEpg = HanlderSerializedEpg(isOpc, program, suffix);
                         var epgType = GetTanslationType(IndexManager.EPG_INDEX_TYPE, language);
 
-                        var totalMinutes = GetTTLMinutes(program);
+                        var totalMinutes = _ttlService.GetEpgTtlMinutes(program);
                         // TODO: what should we do if someone trys to ingest something to the past ... :\
                         totalMinutes = totalMinutes < 0 ? 10 : totalMinutes;
-
-                        var ttl = string.Format("{0}m", totalMinutes);
-
+                        
                         var bulkRequest = new ESBulkRequestObj<string>()
                         {
                             docID = program.EpgID.ToString(),
@@ -94,7 +94,7 @@ namespace IngestHandler.Common
                             Operation = eOperation.index,
                             routing = _dateOfProgramsToIngest.Date.ToString("yyyyMMdd") /*program.StartDate.ToUniversalTime().ToString("yyyyMMdd")*/,
                             type = epgType,
-                            ttl = ttl
+                            ttl = $"{totalMinutes}m"
                         };
 
                         bulkRequests.Add(bulkRequest);
@@ -232,11 +232,6 @@ namespace IngestHandler.Common
             {
                 return string.Concat(type, "_", language.Code);
             }
-        }
-
-        private double GetTTLMinutes(EpgCB epg)
-        {
-            return Math.Ceiling((epg.EndDate.AddDays(BulkUploadMethods.EXPIRY_DATE_DELTA) - DateTime.UtcNow).TotalMinutes);
         }
 
         public static string GetElasticsearchQueryForEpgIDs(IEnumerable<ulong> programIds, IEnumerable<string> externalIds, List<int> channelIds)
