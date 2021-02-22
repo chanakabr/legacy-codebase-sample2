@@ -1,6 +1,7 @@
 node('Windows'){
+    def msbuild = tool name: 'default', type:'hudson.plugins.msbuild.MsBuildInstallation'
     try{
-    withEnv(['MSBUILD = tool name: \'default\', type:\'hudson.plugins.msbuild.MsBuildInstallation\'', "component=${env.JOB_NAME}"]){
+    withEnv(['MSBUILD=msbuild', "component=${env.JOB_NAME}"]){
                  properties([
                     buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
                     disableConcurrentBuilds(), 
@@ -102,7 +103,6 @@ node('Windows'){
                                 ]
                         )
                     }
-
                 }
         }
     } catch (e){
@@ -131,6 +131,3 @@ def report(){
     def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
     echo "${reportout}"
 }
-
-
-
