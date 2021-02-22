@@ -1,7 +1,6 @@
 node('Windows'){
-    def msbuild = tool name: 'default', type:'hudson.plugins.msbuild.MsBuildInstallation'
     try{
-    withEnv(['MSBUILD=msbuild', "component=${env.JOB_NAME}"]){
+    withEnv(['MSBUILD = tool name: \'default\', type:\'hudson.plugins.msbuild.MsBuildInstallation\'', "component=${env.JOB_NAME}"]){
                  properties([
                     buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '', numToKeepStr: '50')),
                     disableConcurrentBuilds(), 
