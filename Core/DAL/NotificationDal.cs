@@ -2996,7 +2996,7 @@ namespace DAL
         private static IList<SmsAdapterParam> MergeSmsAdapaterSettings(int groupId, long adapaterId, int updaterId, IList<SmsAdapterParam> settings)
         {
             var settingsTbl = settings.Select(s => new KeyValuePair<string, string>(s.Key, s.Value)).ToList();
-            var mergeAdapterSettingsSp = new ODBCWrapper.StoredProcedure("Merge_SmsAdapterSettings");
+            var mergeAdapterSettingsSp = new ODBCWrapper.StoredProcedure("Merge_SmsAdapterSettings_V2");
             mergeAdapterSettingsSp.SetConnectionKey("MESSAGE_BOX_CONNECTION_STRING");
             mergeAdapterSettingsSp.AddParameter("@groupId", groupId);
             mergeAdapterSettingsSp.AddParameter("@adapterId", adapaterId);
