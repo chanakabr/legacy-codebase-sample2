@@ -16,8 +16,10 @@ pipeline {
         STAGE = "build"
         PIPECLI_VERSION="1.0.7"
         PIPECLI="docker run 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION} python pipecli.py"
-        sh "\$(aws ecr get-login --no-include-email --region ${AWS_REGION})"
-        sh "docker pull 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION}"
+        script{
+            sh "\$(aws ecr get-login --no-include-email --region ${AWS_REGION})"
+            sh "docker pull 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION}"
+        }
     }
     // parameters {
     //     booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
