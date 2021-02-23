@@ -149,9 +149,13 @@ namespace WebAPI.Controllers
 
             try
             {
+                var withList = filter.with != null ?
+                    filter.with.Select(x => x.type).ToList() :
+                    new List<KalturaCatalogWith>();
+
                 // call client
                 response = ClientsManager.CatalogClient().WatchHistory(groupId, userId.ToString(), udid,
-                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.getAssetIdIn(), filter.with.Select(x => x.type).ToList());
+                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.getAssetIdIn(), withList);
             }
             catch (ClientException ex)
             {
