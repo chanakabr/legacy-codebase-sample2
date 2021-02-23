@@ -4828,7 +4828,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetMediaAssets(int groupId, List<long> ids, long defaultLanguageId, bool getAlsoInactive)
         {
-            StoredProcedure sp = new StoredProcedure("GetMediaAssetsByIds");
+            StoredProcedure sp = new StoredProcedure("GetMediaAssetsByIds_V2");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter<long>("@Ids", ids, "Id");

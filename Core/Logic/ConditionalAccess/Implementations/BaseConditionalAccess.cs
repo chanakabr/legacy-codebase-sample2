@@ -15900,7 +15900,7 @@ namespace Core.ConditionalAccess
                         epgId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_id");
 
                         if (epgId > 0 && !string.IsNullOrEmpty(userId) && domainSeriesRecordingId > 0
-                           && GetProgramFromRecordingCB(epgId, out EPGChannelProgrammeObject program, epgBLTvinci))
+                           && Utils.GetProgramFromRecordingCB(m_nGroupID, epgId, out EPGChannelProgrammeObject program, epgBLTvinci))
                         {
                             //if cannot record 
                             if (!VerifyCanRecord(epgId, recordingType, program))
@@ -15946,34 +15946,6 @@ namespace Core.ConditionalAccess
             catch (Exception ex)
             {
                 log.Error(string.Format("Error in 'CompleteHouseholdSeriesRecordings' for domainId = {0}", domainId), ex);
-            }
-
-            return response;
-        }
-
-        private bool GetProgramFromRecordingCB(long epgId, out EPGChannelProgrammeObject program, TvinciEpgBL epgBLTvinci)
-        {
-            bool response = false;
-            program = null;
-
-            if (epgBLTvinci == null)
-            {
-                epgBLTvinci = new TvinciEpgBL(m_nGroupID);
-            }
-
-            List<string> epgIds = new List<string>() { epgId.ToString() };
-            List<EpgCB> epgs = epgBLTvinci.GetEpgs(epgIds, true);
-
-            if (epgs?.Count > 0)
-            {
-                var programs = TvinciEpgBL.ConvertEpgCBtoEpgProgramm(epgs);
-                Catalog.CatalogLogic.GetLinearChannelSettings(m_nGroupID, programs);
-                program = programs[0];
-                response = true;
-            }
-            else
-            {
-                log.Debug($"GetProgramFromRecordingCB - failed to get program {epgId}");
             }
 
             return response;

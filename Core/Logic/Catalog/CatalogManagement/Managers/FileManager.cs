@@ -249,7 +249,8 @@ namespace Core.Catalog.CatalogManagement
                 Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                 IsActive = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 1,
                 CatalogEndDate = catalogEndDate.HasValue ? catalogEndDate : new DateTime(2099, 1, 1),
-                Opl = ODBCWrapper.Utils.GetSafeStr(dr, "opl")
+                Opl = ODBCWrapper.Utils.GetSafeStr(dr, "opl"),
+                UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE")
             };
 
             if (shouldAddBaseUrl)

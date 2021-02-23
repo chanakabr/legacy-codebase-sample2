@@ -126,6 +126,8 @@ namespace Core.Catalog
         [JsonProperty("Opl")]
         public string Opl { get; set; }
 
+        public DateTime? UpdateDate { get; set; }
+
         #endregion
 
         #region Ctor's
