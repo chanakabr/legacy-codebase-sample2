@@ -7,7 +7,9 @@ using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Catalog.Response;
 using EpgBL;
+using EventBus.Abstraction;
 using KLogMonitor;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -643,7 +645,7 @@ namespace Core.Catalog.Request
             }
         }
 
-        private void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime,
+        public void WriteFirstPlay(int mediaID, int mediaFileID, int groupID, int mediaTypeID, int playTime,
             string siteGuid, string udid, int platform, int countryID)
         {
             try
@@ -652,10 +654,7 @@ namespace Core.Catalog.Request
 
                 if (ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseFirstPlayRateManager.Value)
                 {
-                    if (!IncrementFirstPlayInRedis(parentGroupID, mediaID, mediaTypeID))
-                    {
-                        log.Error($"Failed to write firstplay into redis. Req: {ToString()}.");
-                    }
+                    PublishKafkaFirstPlayMessage(parentGroupID, mediaID, mediaTypeID);
                 }
                 else if (!ElasticSearch.Utilities.ESStatisticsUtilities.InsertMediaView(parentGroupID, mediaID, mediaTypeID, CatalogLogic.STAT_ACTION_FIRST_PLAY, playTime, true))
                 {
@@ -700,26 +699,65 @@ namespace Core.Catalog.Request
             return actionId == 4;
         }
 
-        private bool IncrementFirstPlayInRedis(int groupId, int mediaId, int mediaTypeId)
+        private bool PublishKafkaFirstPlayMessage(long partnerId, long mediaId, long mediaTypeId)
         {
-            TimeSpan tsHour = new TimeSpan(1, 0, 0);
-            var roundedDate = DateTime.UtcNow.Floor(tsHour);
-
-            var firstPlayData = new MediaView()
+            bool result = false;
+              
+            try
             {
-                GroupID = groupId,
-                MediaID = mediaId,
-                MediaType = mediaTypeId.ToString(),
-                Date = roundedDate,
-                Count = 1
-            };
+                var kafkaPublisher = EventBus.Kafka.KafkaPublisher.GetFromTcmConfiguration();
+                kafkaPublisher.Publish(new FirstPlayEvent(partnerId, mediaId, mediaTypeId, DateUtils.GetUtcUnixTimestampNow()));
 
-            var unixTimestamp = DateUtils.DateTimeToUtcUnixTimestampSeconds(roundedDate).ToString();
-            string key = $"firstPlayCount_{unixTimestamp}_{firstPlayData.MediaID}";
-            string field = "count";
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"error when publishing kafka first play message. partner = {partnerId} media = {mediaId}", ex);
+            }
 
-            var result = RedisManager.RedisClientManager.Instance.IncrementHashSetField<MediaView>(key, field, firstPlayData, 0, 1);
             return result;
+        }
+
+        [Serializable]
+        [JsonObject()]
+
+        private class FirstPlayEvent : ServiceEvent 
+        {
+            public override string EventNameOverride 
+            {
+                get
+                {
+                    return "FIRST_PLAY";
+                }
+            }
+
+            [JsonProperty()]
+            public long PartnerId { get; set; }
+
+            [JsonProperty()]
+            public long MediaId { get; set; }
+
+            [JsonProperty()]
+            public long MediaTypeId { get; set; }
+
+            [JsonProperty()]
+            public long ActionDate { get; set; }
+
+            public override string EventKey
+            {
+                get
+                {
+                    return $"{PartnerId}_{MediaId}";
+                }
+            }
+
+            public FirstPlayEvent(long partnerId, long mediaId, long mediaTypeId, long actionDate) : base()
+            {
+                this.PartnerId = partnerId;
+                this.MediaId = mediaId;
+                this.MediaTypeId = mediaTypeId;
+                this.ActionDate = actionDate;
+            }
         }
     }
 }
