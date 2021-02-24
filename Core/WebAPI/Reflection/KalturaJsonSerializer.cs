@@ -22,6 +22,7 @@ using WebAPI.Models.Segmentation;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
+using WebAPI.Models.CanaryDeployment;
 using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
 using WebAPI.Models.Billing;
@@ -38498,6 +38499,274 @@ namespace WebAPI.Models.Upload
             if(UpdateDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
                 ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
+            }
+            return ret;
+        }
+    }
+}
+
+namespace WebAPI.Models.CanaryDeployment
+{
+    public partial class KalturaCanaryDeploymentAuthenticationMsOwnerShip
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("deviceLoginHistory")))
+            {
+                ret.Add("deviceLoginHistory", "\"deviceLoginHistory\": " + DeviceLoginHistory.ToString().ToLower());
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("deviceLoginPin")))
+            {
+                ret.Add("deviceLoginPin", "\"deviceLoginPin\": " + DeviceLoginPin.ToString().ToLower());
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("refreshToken")))
+            {
+                ret.Add("refreshToken", "\"refreshToken\": " + RefreshToken.ToString().ToLower());
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("sSOAdapterProfiles")))
+            {
+                ret.Add("sSOAdapterProfiles", "\"sSOAdapterProfiles\": " + SSOAdapterProfiles.ToString().ToLower());
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("userLoginHistory")))
+            {
+                ret.Add("userLoginHistory", "\"userLoginHistory\": " + UserLoginHistory.ToString().ToLower());
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("deviceLoginHistory")))
+            {
+                ret.Add("deviceLoginHistory", "<deviceLoginHistory>" + DeviceLoginHistory.ToString().ToLower() + "</deviceLoginHistory>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("deviceLoginPin")))
+            {
+                ret.Add("deviceLoginPin", "<deviceLoginPin>" + DeviceLoginPin.ToString().ToLower() + "</deviceLoginPin>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("refreshToken")))
+            {
+                ret.Add("refreshToken", "<refreshToken>" + RefreshToken.ToString().ToLower() + "</refreshToken>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("sSOAdapterProfiles")))
+            {
+                ret.Add("sSOAdapterProfiles", "<sSOAdapterProfiles>" + SSOAdapterProfiles.ToString().ToLower() + "</sSOAdapterProfiles>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("userLoginHistory")))
+            {
+                ret.Add("userLoginHistory", "<userLoginHistory>" + UserLoginHistory.ToString().ToLower() + "</userLoginHistory>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCanaryDeploymentConfiguration
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(DataOwnerShip != null && (retrievedProperties == null || retrievedProperties.Contains("dataOwnerShip")))
+            {
+                propertyValue = DataOwnerShip.ToJson(currentVersion, omitObsolete);
+                ret.Add("dataOwnerShip", "\"dataOwnerShip\": " + propertyValue);
+            }
+            if(MigrationEvents != null && (retrievedProperties == null || retrievedProperties.Contains("migrationEvents")))
+            {
+                propertyValue = MigrationEvents.ToJson(currentVersion, omitObsolete);
+                ret.Add("migrationEvents", "\"migrationEvents\": " + propertyValue);
+            }
+            if(RoutingConfiguration != null && (retrievedProperties == null || retrievedProperties.Contains("routingConfiguration")))
+            {
+                propertyValue = "{" + String.Join(", ", RoutingConfiguration.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("routingConfiguration", "\"routingConfiguration\": " + propertyValue);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("shouldProduceInvalidationEventsToKafka")))
+            {
+                ret.Add("shouldProduceInvalidationEventsToKafka", "\"shouldProduceInvalidationEventsToKafka\": " + ShouldProduceInvalidationEventsToKafka.ToString().ToLower());
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(DataOwnerShip != null && (retrievedProperties == null || retrievedProperties.Contains("dataOwnerShip")))
+            {
+                propertyValue = DataOwnerShip.ToXml(currentVersion, omitObsolete);
+                ret.Add("dataOwnerShip", "<dataOwnerShip>" + propertyValue + "</dataOwnerShip>");
+            }
+            if(MigrationEvents != null && (retrievedProperties == null || retrievedProperties.Contains("migrationEvents")))
+            {
+                propertyValue = MigrationEvents.ToXml(currentVersion, omitObsolete);
+                ret.Add("migrationEvents", "<migrationEvents>" + propertyValue + "</migrationEvents>");
+            }
+            if(RoutingConfiguration != null && (retrievedProperties == null || retrievedProperties.Contains("routingConfiguration")))
+            {
+                propertyValue = RoutingConfiguration.Count > 0 ? "<item>" + String.Join("</item><item>", RoutingConfiguration.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("routingConfiguration", "<routingConfiguration>" + propertyValue + "</routingConfiguration>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("shouldProduceInvalidationEventsToKafka")))
+            {
+                ret.Add("shouldProduceInvalidationEventsToKafka", "<shouldProduceInvalidationEventsToKafka>" + ShouldProduceInvalidationEventsToKafka.ToString().ToLower() + "</shouldProduceInvalidationEventsToKafka>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCanaryDeploymentDataOwnerShip
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(AuthenticationMsOwnerShip != null && (retrievedProperties == null || retrievedProperties.Contains("authenticationMsOwnerShip")))
+            {
+                propertyValue = AuthenticationMsOwnerShip.ToJson(currentVersion, omitObsolete);
+                ret.Add("authenticationMsOwnerShip", "\"authenticationMsOwnerShip\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(AuthenticationMsOwnerShip != null && (retrievedProperties == null || retrievedProperties.Contains("authenticationMsOwnerShip")))
+            {
+                propertyValue = AuthenticationMsOwnerShip.ToXml(currentVersion, omitObsolete);
+                ret.Add("authenticationMsOwnerShip", "<authenticationMsOwnerShip>" + propertyValue + "</authenticationMsOwnerShip>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCanaryDeploymentMigrationEvents
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("appToken")))
+            {
+                ret.Add("appToken", "\"appToken\": " + AppToken.ToString().ToLower());
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("deviceLoginHistory")))
+            {
+                ret.Add("deviceLoginHistory", "\"deviceLoginHistory\": " + DeviceLoginHistory.ToString().ToLower());
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("devicePinCode")))
+            {
+                ret.Add("devicePinCode", "\"devicePinCode\": " + DevicePinCode.ToString().ToLower());
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("refreshToken")))
+            {
+                ret.Add("refreshToken", "\"refreshToken\": " + RefreshToken.ToString().ToLower());
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("sessionRevocation")))
+            {
+                ret.Add("sessionRevocation", "\"sessionRevocation\": " + SessionRevocation.ToString().ToLower());
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("userLoginHistory")))
+            {
+                ret.Add("userLoginHistory", "\"userLoginHistory\": " + UserLoginHistory.ToString().ToLower());
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("userPinCode")))
+            {
+                ret.Add("userPinCode", "\"userPinCode\": " + UserPinCode.ToString().ToLower());
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("appToken")))
+            {
+                ret.Add("appToken", "<appToken>" + AppToken.ToString().ToLower() + "</appToken>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("deviceLoginHistory")))
+            {
+                ret.Add("deviceLoginHistory", "<deviceLoginHistory>" + DeviceLoginHistory.ToString().ToLower() + "</deviceLoginHistory>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("devicePinCode")))
+            {
+                ret.Add("devicePinCode", "<devicePinCode>" + DevicePinCode.ToString().ToLower() + "</devicePinCode>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("refreshToken")))
+            {
+                ret.Add("refreshToken", "<refreshToken>" + RefreshToken.ToString().ToLower() + "</refreshToken>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("sessionRevocation")))
+            {
+                ret.Add("sessionRevocation", "<sessionRevocation>" + SessionRevocation.ToString().ToLower() + "</sessionRevocation>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("userLoginHistory")))
+            {
+                ret.Add("userLoginHistory", "<userLoginHistory>" + UserLoginHistory.ToString().ToLower() + "</userLoginHistory>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("userPinCode")))
+            {
+                ret.Add("userPinCode", "<userPinCode>" + UserPinCode.ToString().ToLower() + "</userPinCode>");
             }
             return ret;
         }

@@ -21,6 +21,8 @@
     <ProjectReference Include="..\..\Core\ConfigurationManager\ConfigurationManager.csproj" />
     <ProjectReference Include="..\..\Core\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
+    <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\CanaryDeploymentManager\CanaryDeploymentManager.csproj" />
   </ItemGroup>
 
 </Project>

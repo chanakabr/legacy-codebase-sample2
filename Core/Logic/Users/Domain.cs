@@ -19,10 +19,12 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
+using ApiLogic.CanaryDeployment;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using SessionManager;
 using ApiLogic.Users.Security;
+using ApiObjects.CanaryDeployment;
 using AuthenticationGrpcClientWrapper;
 
 namespace Core.Users
@@ -1329,8 +1331,7 @@ namespace Core.Users
 
         private static void GetDeviceIdAndBrandByPin(int groupId, string pin, ref string udid, ref int brandId)
         {
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.
-                Authentication.DataOwnershipConfiguration.DeviceLoginPin.Value)
+            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginPin))
             {
                 var authClient = AuthenticationClient.GetClientFromTCM();
                 udid = authClient.GetDeviceLoginPin(groupId, pin);
@@ -2043,7 +2044,7 @@ namespace Core.Users
             if (tryRemoveHouseholdDevice != DomainResponseStatus.OK) return tryRemoveHouseholdDevice;
             foreach (var usersId in m_UsersIDs)
             {
-                SessionManager.SessionManager.UpdateUsersSessionsRevocationTime(string.Empty, 0, 0, usersId.ToString(), udid, DateUtils.GetUtcUnixTimestampNow(), 0);
+                SessionManager.SessionManager.UpdateUsersSessionsRevocationTime(m_nGroupID, string.Empty, 0, 0, usersId.ToString(), udid, DateUtils.GetUtcUnixTimestampNow(), 0);
             }
 
             return tryRemoveHouseholdDevice;

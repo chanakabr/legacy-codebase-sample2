@@ -591,7 +591,23 @@ namespace ApiObjects.Response
         ItemAlreadyExist = 12005,
         Registered = 12006,
         VersionNotFound = 12007,
-        AlreadyExist = 12008
+        AlreadyExist = 12008,
+
+        #endregion
+
+        #region CanaryDeploymentConfiguration 13000-13499
+
+        FailedToDeleteGroupCanaryDeploymentConfiguration = 13000,
+        FailedToSetAllGroupCanaryDeploymentMigrationEventsStatus = 13001,
+        FailedToEnableCanaryDeploymentMigrationEvent = 13002,
+        FailedToDisableCanaryDeploymentMigrationEvent = 13003,
+        FailedToSetRouteAppTokenController = 13004,
+        FailedToSetRouteUserLoginPinController = 13005,
+        GroupCanaryDeploymentConfigurationNotSetYet = 13006,
+        FailedToSetRouteSessionController = 13007,
+        FailedToSetRouteHouseHoldDevicePinActions = 13008,
+        FailedToSetRouteRefreshToken = 13009,
+        FailedToSetAllRoutingActions = 13010
 
         #endregion
     }

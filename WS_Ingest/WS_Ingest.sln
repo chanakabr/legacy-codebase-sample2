@@ -117,6 +117,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthCheck", "..\Core\Heal
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedisManager", "..\Core\RedisManager\RedisManager.csproj", "{E874F57E-93EB-4FE8-9736-1BD265A98D83}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CanaryDeploymentManager", "..\Core\CanaryDeploymentManager\CanaryDeploymentManager.csproj", "{728524A9-7EBE-4AF0-9622-12E52AAA9481}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -517,6 +519,14 @@ Global
 		{E874F57E-93EB-4FE8-9736-1BD265A98D83}.Local|Any CPU.Build.0 = Release|Any CPU
 		{E874F57E-93EB-4FE8-9736-1BD265A98D83}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E874F57E-93EB-4FE8-9736-1BD265A98D83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{728524A9-7EBE-4AF0-9622-12E52AAA9481}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{728524A9-7EBE-4AF0-9622-12E52AAA9481}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{728524A9-7EBE-4AF0-9622-12E52AAA9481}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{728524A9-7EBE-4AF0-9622-12E52AAA9481}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{728524A9-7EBE-4AF0-9622-12E52AAA9481}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{728524A9-7EBE-4AF0-9622-12E52AAA9481}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{728524A9-7EBE-4AF0-9622-12E52AAA9481}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{728524A9-7EBE-4AF0-9622-12E52AAA9481}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -568,6 +578,7 @@ Global
 		{5BB57D83-5289-49D8-A2C7-2B6D635A5D29} = {AB5CBEF6-EC94-4352-8419-F6D401AEEA9A}
 		{E7F9AC38-315A-4A19-B810-6D26C2D17211} = {AB5CBEF6-EC94-4352-8419-F6D401AEEA9A}
 		{E874F57E-93EB-4FE8-9736-1BD265A98D83} = {AB5CBEF6-EC94-4352-8419-F6D401AEEA9A}
+		{728524A9-7EBE-4AF0-9622-12E52AAA9481} = {AB5CBEF6-EC94-4352-8419-F6D401AEEA9A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AEAD6934-E9AC-43F3-A1C5-2A0E43A479C6}

@@ -790,6 +790,11 @@ namespace CachingProvider.LayeredCache
             return $"ks_validation_result{ks}";
         }
 
+        public static string GetCanaryDeploymentConfigurationKey(int partnerId)
+        {
+            return string.Format($"{partnerId}_CanaryDeploymentConfiguration");
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1447,6 +1452,11 @@ namespace CachingProvider.LayeredCache
         public static string GetCategoryVersionsOfTreeInvalidationKey(int groupId, long treeId)
         {
             return $"invalidationKey_{GetCategoryVersionsOfTreeKey(groupId, treeId)}";
+        }
+
+        public static string GetCanaryDeploymentConfigurationInvalidationKey(int partnerId)
+        {
+            return string.Format($"{partnerId}_InvalidateCanaryDeploymentConfiguration");
         }
 
         #endregion

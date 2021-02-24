@@ -1,7 +1,11 @@
 ﻿using ApiObjects.Response;
 using System;
 using System.Collections.Generic;
+using ApiLogic.CanaryDeployment;
+using ApiObjects.CanaryDeployment;
+using ApiObjects.DataMigrationEvents;
 using Core.Users.Cache;
+using EventBus.Kafka;
 
 namespace Core.Users
 {
@@ -20,7 +24,24 @@ namespace Core.Users
         {
             Device device = new Device(sDeviceUDID, nBrandID, nGroupID);
             device.Initialize(sDeviceUDID);
-            return device.GetPINForDevice();
+            var pinCode = device.GetPINForDevice();
+            SendCanaryMigrationEvent(nGroupID, sDeviceUDID, pinCode);
+            return pinCode;
+        }
+
+        private static void SendCanaryMigrationEvent(int nGroupID, string sDeviceUDID, string pinCode)
+        {
+            if (CanaryDeploymentManager.Instance.IsEnabledMigrationEvent(nGroupID, CanaryDeploymentMigrationEvent.DevicePinCode))
+            {
+                var migrationEvent = new ApiObjects.DataMigrationEvents.DeviceLoginPin()
+                {
+                    Operation = eMigrationOperation.Create,
+                    PartnerId = nGroupID,
+                    Udid = sDeviceUDID,
+                    Pin = pinCode,
+                };
+                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+            }
         }
 
         [Obsolete]

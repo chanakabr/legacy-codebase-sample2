@@ -39,6 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CanaryDeploymentManager\CanaryDeploymentManager.csproj" />
     <ProjectReference Include="..\CDNTokenizers\CDNTokenizers.csproj" />
     <ProjectReference Include="..\AdapterControllers\AdapterControllers.csproj" />
     <ProjectReference Include="..\AkamaiTokenGenerator\AkamaiTokenGenerator.csproj" />
