@@ -13,7 +13,7 @@ namespace ApiObjects.CanaryDeployment
         public static readonly List<string> UserLoginPinControllerRouting = new List<string>() { "ottuser/action/loginWithPin", "userLoginPin/action/add", "userLoginPin/action/delete", "userLoginPin/action/deleteAll", "userLoginPin/action/update" };
         public static readonly List<string> SsoAdapterProfileControllerRouting = new List<string>() { "ssoAdapterProfile/action/add", "ssoAdapterProfile/action/delete", "ssoAdapterProfile/action/generateSharedSecret", "ssoAdapterProfile/action/update", "ssoAdapterProfile/action/list" };
         public static readonly List<string> SessionControllerRouting = new List<string>() { "session/action/get", "session/action/revoke", "session/action/switchUser" };
-        public static readonly List<string> HouseHoldDevicePinActionsRouting = new List<string>() { "appToken/action/add", "appToken/action/delete", "appToken/action/get", "appToken/action/startSession" };
+        public static readonly List<string> HouseHoldDevicePinActionsRouting = new List<string>() { "householdDevice/action/generatePin", "householdDevice/action/loginWithPin" };
         public static readonly List<string> RefreshTokenRouting = new List<string>() { "ottuser/action/refreshToken" };
         public static readonly List<string> LoginRouting = new List<string>() { "ottuser/action/login" };
         public static readonly List<string> LogoutRouting = new List<string>() { "ottuser/action/logout" };
