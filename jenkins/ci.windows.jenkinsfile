@@ -140,8 +140,9 @@ def report(){
         sh "\$(aws ecr get-login --no-include-email --region ${AWS_REGION})"
         sh "docker pull 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION}"
         def report = sh (script: "${PIPECLI} report job -b ${BRANCH_NAME} -s ${STAGE} --buildnum ${env.BUILD_NUMBER} --job ${env.JOB_NAME} --type build --buildstatus ${currentBuild.currentResult} --gitcommit ${GIT_COMMIT} --ecr NA --commiter ${committerEmail}", returnStdout: true)
+        echo "${report}"
     }
-    echo "${report}"
+    
 }
 
 
