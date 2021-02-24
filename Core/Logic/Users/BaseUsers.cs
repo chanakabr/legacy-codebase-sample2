@@ -1528,7 +1528,7 @@ namespace Core.Users
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("AddRoleToUser failed, ex = {0}, userId = {1}, roleId = {2} ", ex.Message, userId), ex);
+                log.Error($"AddRoleToUser failed, ex = {ex.Message}, userId = {userId}, roleId = {roleId} ", ex);
             }
             return response;
         }

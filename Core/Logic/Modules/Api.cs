@@ -1752,7 +1752,7 @@ namespace Core.Api
             catch (Exception ex)
             {
                 result = false;
-                log.Error(string.Format("Error in DoActionRules. ruleIds = {0}, ex = {1}", ruleIds != null && ruleIds.Count > 0 ? string.Join(",", ruleIds) : string.Empty), ex);
+                log.Error($"Error in DoActionRules. ruleIds = {((ruleIds != null && ruleIds.Count > 0) ? string.Join(",", ruleIds) : string.Empty)}", ex);
             }
 
             return result;

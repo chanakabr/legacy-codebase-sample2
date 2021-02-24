@@ -542,7 +542,7 @@ namespace Core.Api.Managers
                 }
                 catch (Exception ex)
                 {
-                    log.Error(string.Format("Error in GetMediaAssetUserRulesToUser: group={0}, user={1}, media={2}", groupId, userId), ex);
+                    log.Error($"Error in GetMediaAssetUserRulesToUser: group={groupId}, user={userId}, media={mediaId}", ex);
                 }
             }
 

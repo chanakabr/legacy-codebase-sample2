@@ -948,7 +948,7 @@ namespace Core.ConditionalAccess
             }
             else
             {
-                log.Error("Error - " + string.Format("Either WS_Domains response or device object is null or device status is not OK or device does not belong to domain. UDID: {0) , D ID: {1}", udid, domainID));
+                log.Error($"Error - Either WS_Domains response or device object is null or device status is not OK or device does not belong to domain. UDID: {udid} , D ID: {domainID}");
                 streamType = string.Empty;
                 profile = string.Empty;
                 res = false;

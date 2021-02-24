@@ -7672,7 +7672,7 @@ namespace Core.ConditionalAccess
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Error in GetFileIdsToEpgIdsMap: groupID = {0}, epgChannelId: {1]", groupId, epgChannelId), ex);
+                log.Error($"Error in GetFileIdsToEpgIdsMap: groupID = {groupId}, epgChannelId: {epgChannelId}", ex);
             }
 
             return channelFileIds;

@@ -626,7 +626,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                log.Error("DeleteServices - " + string.Format("failed to DeleteServices to IChach with nGroupID={0}, ex={2}", nGroupID, ex.Message), ex);
+                log.Error($"DeleteServices - failed to DeleteServices to IChach with nGroupID={nGroupID}, ex={ex.Message}", ex);
                 return false;
             }
         }
@@ -659,7 +659,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                log.Error("UpdateServices - " + string.Format("failed to UpdateServices to IChach with nGroupID={0}, ex={2}", nGroupID, ex.Message), ex);
+                log.Error($"UpdateServices - failed to UpdateServices to IChach with nGroupID={nGroupID}, ex={ex.Message}", ex);
                 return false;
             }
         }
@@ -694,7 +694,7 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                log.Error("UpdateRegionalizationData - " + string.Format("failed to UpdateRegionalizationData to IChach with nGroupID={0}, ex={2}", groupID, ex.Message), ex);
+                log.Error($"UpdateRegionalizationData - failed to UpdateRegionalizationData to IChach with nGroupID={groupID}, ex={ex.Message}", ex);
                 return false;
             }
         }
