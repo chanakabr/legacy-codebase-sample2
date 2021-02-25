@@ -839,13 +839,8 @@ namespace DAL
             ODBCWrapper.StoredProcedure spSubAccounts = new ODBCWrapper.StoredProcedure("Get_AllSubAccounts");
             spSubAccounts.SetConnectionKey("MAIN_CONNECTION_STRING");
             spSubAccounts.AddParameter("@ParentGroupID", nParendGroupID);
-
-            DataSet ds = spSubAccounts.ExecuteDataSet();
-
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
-
+            var ds = spSubAccounts.ExecuteDataSet();
+            return ds?.Tables[0];
         }
 
         public static DataTable GetGroupRulesTagsValues(List<int> nGroupRuleIDs)
@@ -2371,7 +2366,7 @@ namespace DAL
 
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapter");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapter_V2");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@name", ossAdapter.Name);
@@ -2612,7 +2607,7 @@ namespace DAL
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapterSettings");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_OSSAdapterSettings_V2");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ID", ossAdapterId);
@@ -2634,7 +2629,7 @@ namespace DAL
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_OSSAdapterSettings");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_OSSAdapterSettings_V2");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ID", ossAdapterId);
@@ -2656,7 +2651,7 @@ namespace DAL
         {
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_OSSAdapterSettings");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Delete_OSSAdapterSettings_V2");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@ID", ossAdapterId);
@@ -4256,7 +4251,8 @@ namespace DAL
                         Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
                         DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
                         MediaId = mediaId,
-                        Opl = ODBCWrapper.Utils.GetSafeStr(dr, "OPL")
+                        Opl = ODBCWrapper.Utils.GetSafeStr(dr, "OPL"),
+                        GroupId = ODBCWrapper.Utils.GetLongSafeVal(dr, "GROUP_ID")
                     };
 
                     if (ODBCWrapper.Utils.GetNullableInt(dr, "streamer_type").HasValue)
@@ -6208,7 +6204,7 @@ namespace DAL
             if (partnerConfigToUpdate != null)
             {
                 string key = GetObjectVirtualAssetPartnerConfigKey(groupId);
-                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, partnerConfigToUpdate, false, BULK_UPLOAD_CB_TTL);
+                return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, partnerConfigToUpdate);
             }
 
             return false;
@@ -6429,5 +6425,43 @@ namespace DAL
         }
 
         #endregion
+
+        public static bool UpsertPermissionPermissionItems(int groupId, long userId, long permissionId, List<long> permissionItemIds, string name, string friendlyName)
+        {
+            bool result = false;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Upsert_PermissionPermissionItem");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@userId", userId);
+                sp.AddParameter("@permissionId", permissionId);
+                sp.AddIDListParameter("@permissionItemIds", permissionItemIds, "id");
+                sp.AddParameter("@name", name);
+                sp.AddParameter("@friendlyName", friendlyName);
+                result = sp.ExecuteReturnValue<int>() > -1;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while UpsertPermissionPermissionItems, groupId: {groupId}, perimssionId: {permissionId}, permissionItemIds: {permissionItemIds}", ex);
+            }
+
+            return result;
+        }
+
+        public static int InsertPermission(string name, int type, string friendlyName, string dependsOnPermissionNames, int groupId, List<long> permissionItemIds, long userId)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_PermissionWithPermissionItems");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@name", name);
+            sp.AddParameter("@type", type);
+            sp.AddParameter("@friendlyName", friendlyName);
+            sp.AddParameter("@dependsOnPermissionNames", dependsOnPermissionNames);
+            sp.AddIDListParameter("@permissionItemIds", permissionItemIds, "id");
+            sp.AddParameter("@userId", userId);
+
+            return sp.ExecuteReturnValue<int>();
+        }
     }
 }

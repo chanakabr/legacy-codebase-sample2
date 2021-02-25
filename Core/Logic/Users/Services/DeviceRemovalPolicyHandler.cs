@@ -13,6 +13,10 @@ using MoreLinq;
 using Grpc;
 using KLogMonitor;
 using System.Reflection;
+using ApiLogic.CanaryDeployment;
+using ApiObjects.CanaryDeployment;
+using ApiObjects.DataMigrationEvents;
+using EventBus.Kafka;
 
 namespace ApiLogic.Users.Services
 {
@@ -67,7 +71,7 @@ namespace ApiLogic.Users.Services
                 case RollingDevicePolicy.ACTIVE_DEVICE_ASCENDING:
                     // map device usage to usage date
 
-                    if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.DeviceLoginHistory.Value)
+                    if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginHistory))
                     {
                         var authClient = AuthenticationClient.GetClientFromTCM();
                         var deviceLoginRecords = authClient.ListDevicesLoginHistory(groupId, deviceUuidUsageKeyToDevice.Keys);
@@ -128,7 +132,7 @@ namespace ApiLogic.Users.Services
 
         public long? GetUdidLastActivity(int groupId, string UDID, int userId)
         {
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.DeviceLoginHistory.Value)
+            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginHistory))
             {
                 var authClient = AuthenticationClient.GetClientFromTCM();
                 var loginHistoryList = authClient.ListDevicesLoginHistory(groupId, new List<string>() { UDID });
@@ -162,24 +166,39 @@ namespace ApiLogic.Users.Services
                 return;
             }
 
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.DeviceLoginHistory.Value)
+            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginHistory))
             {
                 var authClient = AuthenticationClient.GetClientFromTCM();
                 authClient.RecordDeviceSuccessfulLogin(groupId, UDID);
             }
             else
             {
+                var now = DateUtils.GetUtcUnixTimestampNow();
                 UtilsDal.SaveObjectInCB<long>(GetCouchbaseBucket(),
                     GetDomainDeviceUsageDateKey(UDID),
-                    DateUtils.GetUtcUnixTimestampNow(),
+                    now,
                     true,
                     ApplicationConfiguration.Current.UdidUsageConfiguration.TTL.Value);
+
+                if (CanaryDeploymentManager.Instance.IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.DeviceLoginHistory))
+                {
+                    var migrationEvent = new ApiObjects.DataMigrationEvents.DeviceLoginHistory
+                    {
+                        Operation = eMigrationOperation.Update,
+                        GroupId = groupId,
+                        Udid = UDID,
+                        LastLoginDate = now,
+                    };
+                    
+                    KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+
+                }
             }
         }
 
         public void DeleteDomainDeviceUsageDate(string UDID, int groupId)
         {
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.DeviceLoginHistory.Value)
+            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginHistory))
             {
                 AuthenticationClient.GetClientFromTCM().DeleteDomainDeviceUsageDate(groupId, UDID);
             }

@@ -10,41 +10,80 @@ using Newtonsoft.Json.Serialization;
 
 namespace RedisManager
 {
+    public enum RedisClientType
+    {
+        Persistent = 0,
+        Cache = 1
+    }
+
     public class RedisClientManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static RedisClientManager instance = null;
+        private static RedisClientManager cacheInstance = null;
+        private static RedisClientManager persistentInstance = null;
         private static object locker = new object();
         private readonly IConnectionMultiplexer connection;
         private readonly IDatabase database;
 
-        private RedisClientManager()
+        private RedisClientManager(RedisClientType redisClientType)
         {
+            string address = string.Empty;
+            EndPointCollection epc = new EndPointCollection();
+            // persistent redis address
+            if (redisClientType == RedisClientType.Persistent)
+            {
+                address = ApplicationConfiguration.Current.RedisClientConfiguration.PersistentAddress.Value;
+            }
+            // persistent redis address
+            else
+            {
+                address = ApplicationConfiguration.Current.RedisClientConfiguration.CacheAddress.Value;
+            }
+
             ConfigurationOptions configOptions = new ConfigurationOptions()
             {
-                EndPoints = { { ApplicationConfiguration.Current.RedisClientConfiguration.HostName.Value, ApplicationConfiguration.Current.RedisClientConfiguration.Port.Value } }
+                EndPoints = { { address } }
             };
 
             connection = ConnectionMultiplexer.Connect(configOptions);
             database = connection.GetDatabase();
         }
 
-        public static RedisClientManager Instance
+        public static RedisClientManager CacheInstance
         {
             get
             {
-                if (instance == null)
+                if (cacheInstance == null)
                 {
                     lock (locker)
                     {
-                        if (instance == null)
+                        if (cacheInstance == null)
                         {
-                            instance = new RedisClientManager();
+                            cacheInstance = new RedisClientManager(RedisClientType.Cache);
                         }
                     }
                 }
 
-                return instance;
+                return cacheInstance;
+            }
+        }
+
+        public static RedisClientManager PersistenceInstance
+        {
+            get
+            {
+                if (persistentInstance == null)
+                {
+                    lock (locker)
+                    {
+                        if (persistentInstance == null)
+                        {
+                            persistentInstance = new RedisClientManager(RedisClientType.Persistent);
+                        }
+                    }
+                }
+
+                return persistentInstance;
             }
         }
 
@@ -243,7 +282,7 @@ namespace RedisManager
             bool result = false;
             try
             {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_REDIS, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = $"key {key}, value {value}, ttlInSeconds {ttlInSeconds}" })
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_REDIS, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = $"key {key}, value {value}, ttlInSeconds {ttlInSeconds}" })
                 {
                     TimeSpan? expiry = null;
                     if (ttlInSeconds > 0)
@@ -287,7 +326,7 @@ namespace RedisManager
             bool result = false;
             try
             {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_REDIS, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = $"key {key}" })
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_REDIS, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.DELETE, Database = $"key {key}" })
                 {
                     result = database.KeyDelete(key);
                 }

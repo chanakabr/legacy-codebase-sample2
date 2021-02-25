@@ -10,6 +10,7 @@
         Pricing,
         Social,
         Users,
-        Catalog
+        Catalog,
+        CanaryDeployment
     }
 }

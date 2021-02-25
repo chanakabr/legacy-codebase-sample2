@@ -13,6 +13,8 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using ApiLogic.CanaryDeployment;
+using ApiObjects.CanaryDeployment;
 using Tvinci.Core.DAL;
 
 namespace DAL
@@ -568,7 +570,7 @@ namespace DAL
             ODBCWrapper.DirectQuery directQuery = null;
             try
             {
-                if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.UserLoginHistory.Value)
+                if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationUserLoginHistory))
                 {
                     var authClient = AuthenticationClient.GetClientFromTCM();
                     var isSuccessfulLogin = nAdd == 0;
@@ -801,7 +803,7 @@ namespace DAL
             // in case we are connected to the authentication microservice
             // we need to overwrite the fail count, last fail date and last hit date.
             // we cannot remove te call to the origianl SPR because the password update date and userId are not owned by the authentication MS
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.UserLoginHistory.Value)
+            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationUserLoginHistory))
             {
                 var authClient = AuthenticationClient.GetClientFromTCM();
                 var failHistory = authClient.GetUserLoginHistory(groupId, userId);
@@ -1555,7 +1557,7 @@ namespace DAL
 
                 if (resetFailCount)
                 {
-                    if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.UserLoginHistory.Value)
+                    if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationUserLoginHistory))
                     {
                         var authClient = AuthenticationClient.GetClientFromTCM();
                         _ = authClient.ResetUserFailedLoginCount(groupId, nUserID);
@@ -2412,22 +2414,22 @@ namespace DAL
 
         public static IEnumerable<SSOAdapter> GetSSOAdapters(int groupId)
         {
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSSOAdapterProfiles))
             {
                 var authClient = AuthenticationClient.GetClientFromTCM();
                 var ssoAdapters = authClient.ListSSOAdapterProfiles(groupId);
-                if (ssoAdapters != null)
+                if (ssoAdapters?.SSOAdapterProfiles != null)
                 {
                     var ssoAdaptersResponse = ssoAdapters.SSOAdapterProfiles.Select(s => new SSOAdapter
                     {
                         Id = (int)s.Id,
-                        ExternalIdentifier = s.ExternalId,
-                        AdapterUrl = s.AdapterUrl,
+                        ExternalIdentifier = s.ProfileData.ExternalId,
+                        AdapterUrl = s.ProfileData.AdapterUrl,
                         GroupId = groupId,
-                        IsActive = s.IsActive ? 1 : 0,
-                        Name = s.Name,
-                        SharedSecret = s.SharedSecret,
-                        Settings = ConvertSSOConfigDictionaryToListOfSSOParams(s.Id, groupId, s.SSOConfiguration),
+                        IsActive = s.ProfileData.IsActive ? 1 : 0,
+                        Name = s.ProfileData.Name,
+                        SharedSecret = s.ProfileData.SharedSecret,
+                        Settings = ConvertSSOConfigDictionaryToListOfSSOParams(s.Id, groupId, s.ProfileData.SSOConfiguration),
                     });
                     return ssoAdaptersResponse;
                 }
@@ -2472,7 +2474,7 @@ namespace DAL
 
         public static SSOAdapter AddSSOAdapters(SSOAdapter adapterDetails, int updaterId)
         {
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(adapterDetails.GroupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSSOAdapterProfiles))
             {
                 log.Error(SSO_ADAPTER_WONERSHIP_ERR_MSG);
                 throw new Exception(SSO_ADAPTER_WONERSHIP_ERR_MSG);
@@ -2499,7 +2501,7 @@ namespace DAL
 
         public static SSOAdapter UpdateSSOAdapter(SSOAdapter adapterDetails, int updaterId)
         {
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(adapterDetails.GroupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSSOAdapterProfiles))
             {
                 var msg = "This code should not be called, ownership flag of SSOAdapters has been transfered to Authentication Service, Check TCM [MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles]";
                 log.Error(msg);
@@ -2542,9 +2544,9 @@ namespace DAL
             return ssoParams;
         }
 
-        public static bool DeleteSSOAdapter(int ssoAdapterId, int updaterId)
+        public static bool DeleteSSOAdapter(int groupId, int ssoAdapterId, int updaterId)
         {
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSSOAdapterProfiles))
             {
                 log.Error(SSO_ADAPTER_WONERSHIP_ERR_MSG);
                 throw new Exception(SSO_ADAPTER_WONERSHIP_ERR_MSG);
@@ -2559,9 +2561,9 @@ namespace DAL
             return updatedRows > 0;
         }
 
-        public static SSOAdapter SetSharedSecret(int ssoAdapterId, string sharedSecret, int updaterId)
+        public static SSOAdapter SetSharedSecret(int groupId, int ssoAdapterId, string sharedSecret, int updaterId)
         {
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSSOAdapterProfiles))
             {
                 log.Error(SSO_ADAPTER_WONERSHIP_ERR_MSG);
                 throw new Exception(SSO_ADAPTER_WONERSHIP_ERR_MSG);
@@ -2578,10 +2580,10 @@ namespace DAL
             return updatedAdapater;
         }
 
-        public static SSOAdapter GetSSOAdapterByExternalId(string ssoAdapterExternalId)
+        public static SSOAdapter GetSSOAdapterByExternalId(int groupId, string ssoAdapterExternalId)
         {
             // this method is called suring Add\update adapater to verify unique external id
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles.Value)
+            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSSOAdapterProfiles))
             {
                 log.Error(SSO_ADAPTER_WONERSHIP_ERR_MSG);
                 throw new Exception(SSO_ADAPTER_WONERSHIP_ERR_MSG);

@@ -90,15 +90,8 @@ namespace Core.Users
         internal abstract int MidSaveNewUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive);
         public abstract void PostSaveUser(ref UserResponseObject userResponse, ref UserBasicData basicData, User user, Int32 nGroupID, bool IsSetUserActive, int userId, ref List<KeyValuePair> keyValueList);
 
-        // get user data
-        public abstract UserResponseObject PreGetUserData(string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP);
-        internal abstract void MidGetUserData(ref UserResponseObject userResponse, string sSiteGUID, string userIP);
-        public abstract void PostGetUserData(ref UserResponseObject userResponse, string sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP);
-
-        // get users data
-        public abstract List<UserResponseObject> PreGetUsersData(List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP);
-        internal abstract void MidGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP);
-        public abstract void PostGetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP);
+        internal abstract void GetUserData(ref UserResponseObject userResponse, string sSiteGUID, string userIP);
+        internal abstract void GetUsersData(ref List<UserResponseObject> userResponse, List<string> sSiteGUID, ref List<KeyValuePair> keyValueList, string userIP);
 
         // delete user
         public abstract ApiObjects.Response.Status PreDeleteUser(int siteGuid);

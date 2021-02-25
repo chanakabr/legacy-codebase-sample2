@@ -431,7 +431,7 @@ namespace Core.Catalog.CatalogManagement
             DateTime? startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "START_DATE");
             DateTime? endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "END_DATE");
             DateTime? catalogStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "CATALOG_START_DATE");
-            DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "UPDATE_DATE");
+            DateTime? maxUpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "UPDATE_DATE");
             string fallbackEpgIdentifier = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "EPG_IDENTIFIER");
 
             int inheritancePolicy = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "INHERITANCE_POLICY");
@@ -455,7 +455,7 @@ namespace Core.Catalog.CatalogManagement
                 tagsTable = tables[TABLE_NAME_TAGS];
             }
 
-            if (!TryGetMetasAndTags(groupId, id, defaultLanguage.ID, groupLanguages, metasTable, tagsTable, ref metas, ref tags))
+            if (!TryGetMetasAndTags(groupId, id, defaultLanguage.ID, groupLanguages, metasTable, tagsTable, ref metas, ref tags, ref maxUpdateDate))
             {
                 log.WarnFormat("CreateMediaAssetFromDataSet - failed to get media metas and tags for Id: {0}", id);
                 return null;
@@ -468,6 +468,13 @@ namespace Core.Catalog.CatalogManagement
                 files = FileManager.CreateAssetFileListResponseFromDataTable(groupId, tables[TABLE_NAME_FILES]);
                 // get only active files
                 files = files.Where(x => x.IsActive.HasValue && x.IsActive.Value).ToList();
+
+                var maxFilesUpdateDate = files.Max(x => x.UpdateDate);
+
+                if (maxFilesUpdateDate.HasValue && (!maxUpdateDate.HasValue || maxFilesUpdateDate.Value > maxUpdateDate.Value))
+                {
+                    maxUpdateDate = maxFilesUpdateDate;
+                }
             }
 
             // Images table
@@ -526,6 +533,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
             }
+
             // update dates
             if (tables.ContainsKey(TABLE_NAME_UPDATE_DATE) && tables[TABLE_NAME_UPDATE_DATE]?.Rows.Count > 0)
             {
@@ -533,7 +541,7 @@ namespace Core.Catalog.CatalogManagement
                 // overide existing update with the max update date from all possible tables (from GetAssetUpdateDate stored procedure)
                 if (assetUpdateDate.HasValue)
                 {
-                    updateDate = assetUpdateDate;
+                    maxUpdateDate = assetUpdateDate;
                 }
             }
 
@@ -564,7 +572,7 @@ namespace Core.Catalog.CatalogManagement
             int? geoBlockRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "GEO_BLOCK_RULE_ID", -1);
             string userTypes = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "user_types");
 
-            result = new MediaAsset(id, eAssetTypes.MEDIA, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, updateDate, startDate, endDate, metas, tags, images, coGuid,
+            result = new MediaAsset(id, eAssetTypes.MEDIA, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, maxUpdateDate, startDate, endDate, metas, tags, images, coGuid,
                                     isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes,
                                     assetInheritancePolicy, fallbackEpgIdentifier);
 
@@ -584,7 +592,7 @@ namespace Core.Catalog.CatalogManagement
             List<MediaAsset> result = null;
             try
             {
-                if (ds == null || ds.Tables == null || ds.Tables.Count < 7)
+                if (ds == null || ds.Tables == null || ds.Tables.Count < 6)
                 {
                     log.WarnFormat("CreateMediaAssets didn't receive dataset with 7 or more tables");
                     return result;
@@ -603,9 +611,9 @@ namespace Core.Catalog.CatalogManagement
                 var tagsTable = GetDataRows(ds, 2);
                 var filesTable = GetDataRows(ds, 3);
                 var imagesTable = GetDataRows(ds, 4);
-                var assetUpdateDateTable = GetDataRows(ds, 5);
-                var linearMediasTable = GetDataRows(ds, 6);
-                var relatedEntitiesTable = GetDataRows(ds, 7);
+                // assetUpdateDateTable = GetDataRows(ds, 5);
+                var linearMediasTable = GetDataRows(ds, 5);
+                var relatedEntitiesTable = GetDataRows(ds, 6);
 
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
                 {
@@ -620,7 +628,7 @@ namespace Core.Catalog.CatalogManagement
                         tables.Add(TABLE_NAME_TAGS, GetTableByAssetDataRows(tagsTable, "ASSET_ID", id, ds, 2));
                         tables.Add(TABLE_NAME_FILES, GetTableByAssetDataRows(filesTable, "MEDIA_ID", id, ds, 3));
                         tables.Add(TABLE_NAME_IMAGES, GetTableByAssetDataRows(imagesTable, "ASSET_ID", id, ds, 4));
-                        tables.Add(TABLE_NAME_UPDATE_DATE, GetTableByAssetDataRows(assetUpdateDateTable, "ID", id, ds, 5));
+                        //tables.Add(TABLE_NAME_UPDATE_DATE, GetTableByAssetDataRows(assetUpdateDateTable, "ID", id, ds, 5));
                         tables.Add(TABLE_NAME_LINEAR, GetTableByAssetDataRows(linearMediasTable, "MEDIA_ID", id, ds, 6));
                         tables.Add(TABLE_NAME_RELATED_ENTITIES, GetTableByAssetDataRows(relatedEntitiesTable, "ASSET_ID", id, ds, 7));
 
@@ -1370,7 +1378,8 @@ namespace Core.Catalog.CatalogManagement
             throw new NotImplementedException();
         }
 
-        private static List<Asset> GetAssetsFromCache(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets)
+        private static List<Asset> GetAssetsFromCache(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets,
+            Dictionary<string, string> epgIdToDocumentId = null)
         {
             List<Asset> result = null;
             try
@@ -1397,7 +1406,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (epgIds != null && epgIds.Count > 0)
                     {
-                        var epgAssetsFromCache = EpgAssetManager.GetEpgAssetsFromCache(epgIds, groupId, new List<string>() { "*" });
+                        var epgAssetsFromCache = EpgAssetManager.GetEpgAssetsFromCache(epgIds, groupId, new List<string>() { "*" }, epgIdToDocumentId);
                         if (epgAssetsFromCache != null && epgAssetsFromCache.Count > 0)
                         {
                             result.AddRange(epgAssetsFromCache);
@@ -1678,7 +1687,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static bool TryGetMetasAndTags(int groupId, long mediaId, int defaultLanguageId, List<LanguageObj> groupLanguages, DataTable metasTable, DataTable tagsTable,
-                                                ref List<Metas> metas, ref List<Tags> tags)
+                                                ref List<Metas> metas, ref List<Tags> tags, ref DateTime? maxUpdateDate)
         {
             bool res = false;
             Dictionary<long, List<LanguageContainer>> topicIdToMeta = new Dictionary<long, List<LanguageContainer>>();
@@ -1694,6 +1703,12 @@ namespace Core.Catalog.CatalogManagement
                 long topicId = ODBCWrapper.Utils.GetLongSafeVal(dr, "topic_id");
                 long languageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "language_id");
                 string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
+                DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+
+                if (updateDate.HasValue && (!maxUpdateDate.HasValue || updateDate.Value > maxUpdateDate.Value))
+                {
+                    maxUpdateDate = updateDate;
+                }
 
                 if (languagesDictionary.ContainsKey(languageId))
                 {
@@ -1718,6 +1733,13 @@ namespace Core.Catalog.CatalogManagement
                 long tagId = ODBCWrapper.Utils.GetLongSafeVal(dr, "tag_id");
                 long languageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "language_id");
                 string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
+                DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+
+                if (updateDate.HasValue && (!maxUpdateDate.HasValue || updateDate.Value > maxUpdateDate.Value))
+                {
+                    maxUpdateDate = updateDate;
+                }
+
 
                 if (languagesDictionary.ContainsKey(languageId))
                 {
@@ -2181,6 +2203,13 @@ namespace Core.Catalog.CatalogManagement
             if (!epgChannelId.HasValue)
             {
                 epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+            }
+
+            DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+
+            if (updateDate.HasValue && (!mediaAsset.UpdateDate.HasValue || updateDate.Value > mediaAsset.UpdateDate.Value))
+            {
+                mediaAsset.UpdateDate = updateDate;
             }
 
             result = new LiveAsset(epgChannelId.Value, enableCdvr, enableCatchUp, enableStartOver, enableTrickPlay, enableRecordingPlaybackNonEntitledChannel,
@@ -3167,14 +3196,15 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static List<Asset> GetAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets)
+        public static List<Asset> GetAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets, 
+            Dictionary<string, string> epgIdToDocumentId = null)
         {
             List<Asset> result = null;
             try
             {
                 if (assets != null && assets.Count > 0)
                 {
-                    result = GetAssetsFromCache(groupId, assets, isAllowedToViewInactiveAssets);
+                    result = GetAssetsFromCache(groupId, assets, isAllowedToViewInactiveAssets, epgIdToDocumentId);
                     if (result == null || result.Count != assets.Count)
                     {
                         log.ErrorFormat("Failed getting assets from GetAssetsFromCache, for groupId: {0}, assets: {1}", groupId,
@@ -3204,6 +3234,9 @@ namespace Core.Catalog.CatalogManagement
 
                     Dictionary<string, RecordingSearchResult> recordingsMap = new Dictionary<string, RecordingSearchResult>();
 
+                    var epgIdToDocumentId = new Dictionary<string, string>();
+                    var isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
+
                     foreach (var item in assets)
                     {
                         eAssetTypes assetType = item.AssetType;
@@ -3215,6 +3248,14 @@ namespace Core.Catalog.CatalogManagement
                             recordingsMap.Add(item.AssetId, rsr);
                             assetId = rsr.EpgId;
                             assetType = eAssetTypes.EPG;
+                        }
+                        else if (item.AssetType == eAssetTypes.EPG && isEpgV2 && item is EpgSearchResult)
+                        {
+                            var epgSearchResult = item as EpgSearchResult;
+                            if (!string.IsNullOrEmpty(epgSearchResult.DocumentId))
+                            {
+                                epgIdToDocumentId.Add(item.AssetId, epgSearchResult.DocumentId);
+                            }
                         }
 
                         string key = string.Format("{0}_{1}", assetType.ToString(), assetId);
@@ -3228,7 +3269,7 @@ namespace Core.Catalog.CatalogManagement
 
                     int totalAmountOfDistinctAssets = assetsToRetrieve.Count;
 
-                    List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets);
+                    List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets, epgIdToDocumentId);
 
                     if (!isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count == 0))
                     {

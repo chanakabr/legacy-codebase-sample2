@@ -57,4 +57,12 @@ namespace Core.Catalog.Response
         public RecommendationSearchResult() : base() { }
     }
 
+    [DataContract]
+    public class EpgSearchResult : UnifiedSearchResult
+    {
+        [DataMember]
+        public string DocumentId { get; set; }
+
+        public EpgSearchResult() : base() { }
+    }
 }

@@ -63,6 +63,10 @@ namespace ApiObjects.SearchObjects
 
         [JsonProperty()]
         [DataMember]
+        public bool isEpgV2 = false;
+
+        [JsonProperty()]
+        [DataMember]
         public string permittedWatchRules
         {
             get;

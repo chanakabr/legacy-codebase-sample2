@@ -14,7 +14,7 @@
   </PropertyGroup>
     
   <ItemGroup>
-    <PackageReference Include="ott.client.authentication.grpc" Version="0.2.348" />
+    <PackageReference Include="ott.client.authentication.grpc" Version="0.2.481-pr-56" />
   </ItemGroup>
 
   <ItemGroup>

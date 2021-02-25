@@ -392,6 +392,8 @@ namespace Core.Catalog
                     definitions.shouldReturnExtendedSearchResult = true;
                 }
 
+                definitions.isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(request.m_nGroupID, GroupFeature.EPG_INGEST_V2);
+
                 #endregion
 
                 #region Group By

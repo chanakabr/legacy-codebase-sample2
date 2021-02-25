@@ -133,53 +133,20 @@ namespace Core.Users
             }
         }
 
-        static public void GetBaseImpl(ref KalturaBaseUsers user, Int32 nGroupID, int operatorId = -1, string className = "User")
+        static public void GetBaseImpl(ref KalturaBaseUsers user, Int32 nGroupID, int operatorId = -1, string className = "User", bool checkForSsoAdapter = true)
         {
             try
             {
-                var httpSsoAdaptersResponse = SSOAdaptersManager.GetSSOAdapters(nGroupID);
-                if (httpSsoAdaptersResponse != null && httpSsoAdaptersResponse.SSOAdapters != null && httpSsoAdaptersResponse.SSOAdapters.Any())
+                user = new KalturaUsers(nGroupID);
+
+                // adding for https://kaltura.atlassian.net/browse/GEN-1301, remove sso adapter implementation for GetUserData & GetUsersData
+                if (checkForSsoAdapter)
                 {
-                    var httpSSOAdapter = httpSsoAdaptersResponse.SSOAdapters.First();
-                    user = new KalturaHttpSSOUser(nGroupID, httpSSOAdapter);
-
-                    // Return here if we found an hhtp based adapter, it will be stronger than any other implementation configured.
-                    return;
-                }
-
-                string moduleName = TvinciCache.ModulesImplementation.GetModuleName(eWSModules.USERS, nGroupID, (int)ImplementationsModules.Users, USERS_CONNECTION, operatorId);
-
-                if (String.IsNullOrEmpty(moduleName) || IsGroupIDContainedInConfig(nGroupID))
-                {
-                    user = new KalturaUsers(nGroupID);
-                }
-                else
-                {
-                    string usersAssemblyLocation = ApplicationConfiguration.Current.UsersAssemblyLocation.Value;
-
-                    try
+                    var httpSsoAdaptersResponse = SSOAdaptersManager.GetSSOAdapters(nGroupID);
+                    if (httpSsoAdaptersResponse != null && httpSsoAdaptersResponse.SSOAdapters != null && httpSsoAdaptersResponse.SSOAdapters.Any())
                     {
-                        // load user assembly
-                        Assembly userAssembly = Assembly.LoadFrom(string.Format(@"{0}{1}.dll", usersAssemblyLocation.EndsWith("\\") ? usersAssemblyLocation : usersAssemblyLocation + "\\", moduleName));
-
-                        // get user class 
-                        Type userType = userAssembly.GetType(string.Format("{0}.{1}", moduleName, className));
-
-                        if (operatorId == -1)
-                        {
-                            // regular user - constructor receives a single parameter
-                            user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID);
-                        }
-                        else
-                        {
-                            // SSO user - constructor receives 2 parameters
-                            user = (KalturaUsers)Activator.CreateInstance(userType, nGroupID, operatorId);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error(string.Format("Error GetBaseImpl: groupId:{0}, moduleName:{1}, usersAssemblyLocation:{2}",
-                            nGroupID, moduleName, usersAssemblyLocation), ex);
+                        var httpSSOAdapter = httpSsoAdaptersResponse.SSOAdapters.First();
+                        user = new KalturaHttpSSOUser(nGroupID, httpSSOAdapter);
                     }
                 }
             }

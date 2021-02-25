@@ -35,6 +35,7 @@ namespace WebAPI.Filters
             NotificationMapping.RegisterMappings(cfg);
             DMSMapping.RegisterMappings(cfg);
             SegmentationMapings.RegisterMappings(cfg);
+            CanaryDeploymentMapping.RegisterMappings(cfg);
 
             Mapper.Initialize(cfg);
 

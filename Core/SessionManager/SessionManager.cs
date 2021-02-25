@@ -5,6 +5,10 @@ using System.Text;
 using ConfigurationManager;
 using KLogMonitor;
 using System.Linq;
+using ApiLogic.CanaryDeployment;
+using ApiObjects.CanaryDeployment;
+using ApiObjects.DataMigrationEvents;
+using EventBus.Kafka;
 
 namespace SessionManager
 {
@@ -21,7 +25,7 @@ namespace SessionManager
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
         
-        public static bool UpdateUsersSessionsRevocationTime(string groupUserSessionsKeyFormat,
+        public static bool UpdateUsersSessionsRevocationTime(int groupId, string groupUserSessionsKeyFormat,
             int groupAppTokenSessionMaxDurationSeconds,
             long groupKSExpirationSeconds,
             string userId, 
@@ -81,13 +85,33 @@ namespace SessionManager
                 }
 
                 // store
-                if (!cbManager.SetWithVersionWithRetry<UserSessions>(userSessionsCbKey, usersSessions, version, 3, 100, (uint)(usersSessions.expiration - Utils.GetUtcUnixTimestampNow()), true))
+                if (!cbManager.SetWithVersionWithRetry<UserSessions>(userSessionsCbKey, usersSessions, version, 3, 100, (uint)(usersSessions.expiration - now), true))
                 {
                     log.ErrorFormat("LogOut: failed to set UserSessions in CB, key = {0}", userSessionsCbKey);
                     return false;
                 }
+                
+                // what should we do with the exporter sunny is created that is using same code ????
+                SendUserAndDeviceSessionRevocationCanaryMigrationEvent(groupId, userId, udid, revocationTime, usersSessions);
             }
             return true;
+        }
+
+        private static void SendUserAndDeviceSessionRevocationCanaryMigrationEvent(int groupId, string userId, string udid, long revocationTime, UserSessions usersSessions)
+        {
+            if (CanaryDeploymentManager.Instance.IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.SessionRevocation))
+            {
+                var migrationEvent = new RevokeUserAndDeviceSession
+                {
+                    Operation = eMigrationOperation.Create,
+                    GroupId = groupId,
+                    Udid = udid,
+                    UserId = long.Parse(userId),
+                    KsExpiry = usersSessions.expiration,
+                    UserDeviceSessionCreationDate = revocationTime,
+                };
+                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+            }
         }
 
         public static string GetUserSessionsKeyFormat(string userSessionsKeyFormat)

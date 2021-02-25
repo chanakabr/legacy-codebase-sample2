@@ -1680,6 +1680,17 @@ namespace Core.Catalog
                         };
                     }
                 }
+                else if (assetType == eAssetTypes.EPG && definitions.isEpgV2)
+                {
+                    result = new EpgSearchResult()
+                    {
+                        AssetId = assetId,
+                        m_dUpdateDate = doc.update_date,
+                        AssetType = assetType,
+                        Score = doc.score,
+                        DocumentId = doc.epg_couchbase_key
+                    };
+                }
                 else
                 {
                     result = new UnifiedSearchResult()

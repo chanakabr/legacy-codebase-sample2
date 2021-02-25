@@ -1222,7 +1222,7 @@ namespace ElasticSearch.Common
 
             if (nStatus != 200)
             {
-                log.Error("Error - " + string.Format("Search query failed. url={0};query={1}; Explanation={2}", sUrl, sb.ToString()));
+                log.Error($"Error - Search query failed. url={sUrl};query={sb.ToString()}; Explanation={sRes}");
                 sRes = string.Empty;
             }
 
@@ -1753,6 +1753,11 @@ namespace ElasticSearch.Common
                 set;
             }
             public Dictionary<string, string> extraReturnFields
+            {
+                get;
+                set;
+            }
+            public string epg_couchbase_key
             {
                 get;
                 set;

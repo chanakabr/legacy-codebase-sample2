@@ -42,8 +42,11 @@ namespace HealthCheck
                     case HealthCheckType.RabbitMQ:
                         healthCheckBuilder = healthCheckBuilder.AddCheck<RabbitHealthCheck>("rabbitmq");
                         break;
-                    case HealthCheckType.Redis:
-                        healthCheckBuilder = healthCheckBuilder.AddCheck<RedisHealthCheck>("redis");
+                    case HealthCheckType.CacheRedis:
+                        healthCheckBuilder = healthCheckBuilder.AddCheck<CacheRedisHealthCheck>("cacheRedis");
+                        break;
+                    case HealthCheckType.PersistentRedis:
+                        healthCheckBuilder = healthCheckBuilder.AddCheck<PersistentRedisHealthCheck>("persistentRedis");
                         break;
                     case HealthCheckType.Kafka:
                         healthCheckBuilder = healthCheckBuilder.AddCheck<KafkaHealthCheck>("kafka");

@@ -200,6 +200,16 @@ namespace ElasticSearch.Searcher
                 this.ReturnFields.Add("\"recording_id\"");
             }
 
+            var doc_id_field = "\"document_id\"";
+
+            if (this.SearchDefinitions.isEpgV2)
+            {
+                if (!this.ReturnFields.Contains(doc_id_field))
+                {
+                    this.ReturnFields.Add(doc_id_field);
+                }
+            }
+
             // Also return the language specific name field
             if (this.SearchDefinitions.langauge != null &&
                 !this.SearchDefinitions.langauge.IsDefault)

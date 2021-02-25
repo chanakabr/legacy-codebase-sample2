@@ -13759,14 +13759,15 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public Recording Record(string userID, long epgID, RecordingType recordingType, long domainSeriesRecordingId = 0, bool shouldCheckQuota = false)
+        public Recording Record(string userID, long epgID, RecordingType recordingType, long domainSeriesRecordingId = 0, bool shouldCheckQuota = false,
+            EPGChannelProgrammeObject epg = null)
         {
             Recording recording = new Recording() { EpgId = epgID };
             try
             {
                 long domainID = 0;
                 bool quotaOverage = false;
-                recording = QueryRecords(userID, epgID, ref domainID, recordingType, true, shouldCheckQuota);
+                recording = QueryRecords(userID, epgID, ref domainID, recordingType, true, shouldCheckQuota, epg);
 
                 if (recording == null || recording.Status == null || recording.Status.Code != (int)eResponseStatus.OK)
                 {
@@ -15872,6 +15873,7 @@ namespace Core.ConditionalAccess
                 long epgChannelId = 0;
 
                 Dictionary<long, List<string>> recordedCridsPerChannel = new Dictionary<long, List<string>>();
+                TvinciEpgBL epgBLTvinci = new TvinciEpgBL(m_nGroupID);
 
                 // calculate which recording should be recorded for the household based on quota 
                 foreach (var potentialRecording in relevantRecordingsForRecord)
@@ -15897,20 +15899,20 @@ namespace Core.ConditionalAccess
                         userId = Utils.GetFollowingUserIdForSerie(m_nGroupID, series, potentialRecording, out recordingType, out domainSeriesRecordingId);
                         epgId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_id");
 
-                        if (epgId > 0 && !string.IsNullOrEmpty(userId) && domainSeriesRecordingId > 0)
+                        if (epgId > 0 && !string.IsNullOrEmpty(userId) && domainSeriesRecordingId > 0
+                           && Utils.GetProgramFromRecordingCB(m_nGroupID, epgId, out EPGChannelProgrammeObject program, epgBLTvinci))
                         {
                             //if cannot record 
-                            if (!VerifyCanRecord(epgId, recordingType))
+                            if (!VerifyCanRecord(epgId, recordingType, program))
                             {
                                 log.DebugFormat($"Cannot record EPG {epgId} due to type {recordingType}");
                                 continue;
                             }
 
-                            var recording = Record(userId, epgId, recordingType, domainSeriesRecordingId, true);
+                            var recording = Record(userId, epgId, recordingType, domainSeriesRecordingId, true, program);
 
                             var canRecord = recording != null && recording.Status != null &&
                                             recording.Status.Code == (int)eResponseStatus.OK && recording.Id > 0;
-
 
                             if (canRecord)
                             {

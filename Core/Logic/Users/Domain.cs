@@ -1,4 +1,6 @@
-﻿using ApiLogic.Notification;
+﻿using ApiLogic.Api.Managers;
+using ApiLogic.Users.Security;
+using ApiLogic.Users.Services;
 using ApiObjects;
 using ApiObjects.DRM;
 using ApiObjects.MediaMarks;
@@ -6,7 +8,6 @@ using ApiObjects.Response;
 using ApiObjects.Segmentation;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
-using Core.Notification;
 using Core.Users.Cache;
 using DAL;
 using KLogMonitor;
@@ -16,15 +17,15 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Xml.Serialization;
-using ApiLogic.Api.Managers;
-using ApiLogic.Users.Services;
+using ApiLogic.CanaryDeployment;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using SessionManager;
 using ApiLogic.Users.Security;
+using ApiObjects.CanaryDeployment;
+using AuthenticationGrpcClientWrapper;
 
 namespace Core.Users
 {
@@ -1284,8 +1285,7 @@ namespace Core.Users
                 }
             }
 
-            bool res = DomainDal.GetDeviceIdAndBrandByPin(sPIN, nGroupID, ref sUDID, ref nBrandID);
-
+            GetDeviceIdAndBrandByPin(nGroupID, sPIN, ref sUDID, ref nBrandID);
 
             // If devices to register was found in devices table, register it to domain
             if (!string.IsNullOrEmpty(sUDID))
@@ -1328,6 +1328,28 @@ namespace Core.Users
             }
 
             return device;
+        }
+
+        private static void GetDeviceIdAndBrandByPin(int groupId, string pin, ref string udid, ref int brandId)
+        {
+            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginPin))
+            {
+                var authClient = AuthenticationClient.GetClientFromTCM();
+                udid = authClient.GetDeviceLoginPin(groupId, pin);
+
+                if (string.IsNullOrEmpty(udid))
+                {
+                    log.Warn($"Failed getting device by PIN {pin} on partner {groupId}");
+                }
+                else
+                {
+                    brandId = DomainDal.GetDeviceBrandIdByUdid(groupId, udid);
+                }
+            }
+            else
+            {
+                DomainDal.GetDeviceIdAndBrandByPin(pin, groupId, ref udid, ref brandId);
+            }
         }
 
         public DomainResponseStatus ResetDomain(int nFreqencyType = 0)
@@ -1839,8 +1861,9 @@ namespace Core.Users
             this.m_minUserPeriodId = ODBCWrapper.Utils.GetIntSafeVal(dr, "user_freq_period_id");
             this.m_sCoGuid = ODBCWrapper.Utils.GetSafeStr(dr, "COGUID");
             this.m_nRegion = ODBCWrapper.Utils.GetIntSafeVal(dr, "REGION_ID");
-            this.m_DomainRestriction = (DomainRestriction) ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");
-            this.roleId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ROLE_ID");
+            this.m_DomainRestriction = (DomainRestriction) ODBCWrapper.Utils.GetIntSafeVal(dr, "RESTRICTION");            
+			int? roleId = ODBCWrapper.Utils.GetNullableInt(dr, "ROLE_ID");
+            this.roleId = roleId.HasValue && roleId.Value == 0 ? null : roleId;			
             this.CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
             this.UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
             var nGroupConcurrentLimit = ODBCWrapper.Utils.GetIntSafeVal(dr, "GROUP_CONCURRENT_MAX_LIMIT");
@@ -2025,7 +2048,7 @@ namespace Core.Users
             if (tryRemoveHouseholdDevice != DomainResponseStatus.OK) return tryRemoveHouseholdDevice;
             foreach (var usersId in m_UsersIDs)
             {
-                SessionManager.SessionManager.UpdateUsersSessionsRevocationTime(string.Empty, 0, 0, usersId.ToString(), udid, DateUtils.GetUtcUnixTimestampNow(), 0);
+                SessionManager.SessionManager.UpdateUsersSessionsRevocationTime(m_nGroupID, string.Empty, 0, 0, usersId.ToString(), udid, DateUtils.GetUtcUnixTimestampNow(), 0);
             }
 
             return tryRemoveHouseholdDevice;

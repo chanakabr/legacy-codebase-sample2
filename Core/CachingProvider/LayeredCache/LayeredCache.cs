@@ -1071,7 +1071,7 @@ namespace CachingProvider.LayeredCache
                         {
                             IDictionary<string, long> resultMap = null;                            
                             bool getSuccess = cache.GetValues<long>(keysToGet.ToList(), ref resultMap, null, true);
-                            if (getSuccess && resultMap?.Count > 0)
+                            if (getSuccess && resultMap != null)
                             {
                                 bool shouldSearchKeyInResult = cacheConfig.Type == LayeredCacheType.CbCache || cacheConfig.Type == LayeredCacheType.CbMemCache || cacheConfig.Type == LayeredCacheType.Redis;
                                 foreach (string keyToGet in keys)

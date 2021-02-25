@@ -189,19 +189,13 @@ namespace Core.Users
 
             try
             {
-                // pre
-                userResponse = user.PreGetUserData(siteGuid, ref keyValueList, userIP);
-
-                // mid
-                user.MidGetUserData(ref userResponse, siteGuid, userIP);
-
-                // post
-                user.PostGetUserData(ref userResponse, siteGuid, ref keyValueList, userIP);
+                user.GetUserData(ref userResponse, siteGuid, userIP);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+
             return userResponse;
         }
 
@@ -211,19 +205,14 @@ namespace Core.Users
 
             try
             {
-                // pre
-                userResponses = user.PreGetUsersData(siteGuids, ref keyValueList, userIP);
-
                 // mid
-                user.MidGetUsersData(ref userResponses, siteGuids, ref keyValueList, userIP);
-
-                // post
-                user.PostGetUsersData(ref userResponses, siteGuids, ref keyValueList, userIP);
+                user.GetUsersData(ref userResponses, siteGuids, ref keyValueList, userIP);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+
             return userResponses;
         }
 

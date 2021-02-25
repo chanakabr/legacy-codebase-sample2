@@ -46,9 +46,12 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Action("list")]
         [ApiAuthorize]
-        public static KalturaPermissionListResponse List(KalturaPermissionFilter filter = null)
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        public static KalturaPermissionListResponse List(KalturaBasePermissionFilter filter = null)
         {
             KalturaPermissionListResponse response = null;
+            var contextData = KS.GetContextData();
+
             if (filter == null)
             {
                 filter = new KalturaPermissionFilter();
@@ -59,14 +62,9 @@ namespace WebAPI.Controllers
                 int groupId = KS.GetFromRequest().GroupId;
                 long userId = Utils.Utils.GetUserIdFromKs();
 
-                filter.Validate();
+                filter.Validate(contextData);
 
-                if ((!filter.CurrentUserPermissionsContains.HasValue || !filter.CurrentUserPermissionsContains.Value || filter.RoleIDIn.HasValue))
-                {
-                    userId = 0;
-                }
-
-                response = ClientsManager.ApiClient().GetPermissions(groupId, userId, filter.RoleIDIn);
+                response = filter.GetPermissions(contextData);
             }
             catch (ClientException ex)
             {
@@ -89,9 +87,12 @@ namespace WebAPI.Controllers
         [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.PermissionNameAlreadyInUse)]
+        [Throws(eResponseStatus.CanModifyOnlyNormalPermission)]
         static public KalturaPermission Add(KalturaPermission permission)
         {
             int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
 
             try
             {
@@ -100,13 +101,15 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaPermission.name");
                 }
 
-                if(permission.Type == KalturaPermissionType.SPECIAL_FEATURE && !string.IsNullOrEmpty(permission.DependsOnPermissionNames))
+                if (permission.Type == KalturaPermissionType.SPECIAL_FEATURE && !string.IsNullOrEmpty(permission.DependsOnPermissionNames))
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaPermission.type, KalturaPermission.dependsOnPermissionNames");
                 }
 
+                permission.ValidateForInsert();
+
                 // call client
-                return ClientsManager.ApiClient().AddPermission(groupId, permission);
+                return ClientsManager.ApiClient().AddPermission(groupId, permission, userId);
             }
             catch (ClientException ex)
             {
@@ -191,6 +194,36 @@ namespace WebAPI.Controllers
             {
                 ErrorUtils.HandleClientException(ex);
             }
+        }
+
+        /// <summary>
+        /// Update an existing permission.
+        /// </summary>
+        /// <param name="id">Permission  Identifier</param>
+        /// <param name="permission">Permission object</param>
+        /// <returns></returns>
+        [Action("update")]
+        [ApiAuthorize]
+        [SchemeArgument("id", MinLong = 1)]
+        [Throws(eResponseStatus.PermissionNotFound)]
+        [Throws(eResponseStatus.CanModifyOnlyNormalPermission)]
+        static public KalturaPermission Update(long id, KalturaPermission permission)
+        {
+            KalturaPermission response = null;
+            int groupId = KS.GetFromRequest().GroupId;
+            long userId = Utils.Utils.GetUserIdFromKs();
+
+            try
+            {
+                permission.ValidateForUpdate();
+                response = ClientsManager.ApiClient().UpdatePermission(groupId, id, permission, userId);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
         }
     }
 }

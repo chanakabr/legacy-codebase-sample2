@@ -212,7 +212,7 @@ namespace Core.Notification
             catch (Exception ex)
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-                log.Error(string.Format("Failed groupID={0}"), ex);
+                log.Error($"Failed groupID={groupId}", ex);
             }
             return response;
         }

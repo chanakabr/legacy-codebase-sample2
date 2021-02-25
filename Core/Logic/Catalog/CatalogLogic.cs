@@ -6988,8 +6988,17 @@ namespace Core.Catalog
                                 UserBundlesResponse bundelsResponse = ConditionalAccess.Module.GetUserBundles(groupId, domainId, null);
                                 if (bundelsResponse.status.Code == (int)eResponseStatus.OK)
                                 {
-                                    cacheKey.AppendFormat("_entitlements={0}",
-                                        bundelsResponse.channels != null && bundelsResponse.channels.Count > 0 ? string.Join("|", bundelsResponse.channels.OrderBy(c => c)) : "0");
+                                    string entitlementsMd5 = null;
+                                    try
+                                    {
+                                        entitlementsMd5 = EncryptUtils.HashMD5(bundelsResponse.channels != null && bundelsResponse.channels.Count > 0 ? string.Join("|", bundelsResponse.channels.OrderBy(c => c)) : "0");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        log.Error("Failed to entitlements KSQL for personal ES cache", ex);
+                                        return key;
+                                    }
+                                    cacheKey.Append($"_entitlements={entitlementsMd5}");
                                 }
                             }
                         }
@@ -9168,6 +9177,7 @@ namespace Core.Catalog
 
                         searchDefinitions.pageSize = elasticSearchPageSize;
                         searchDefinitions.shouldReturnExtendedSearchResult = searchDefinitions.extraReturnFields?.Count > 0;
+                        searchDefinitions.isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
 
                         if (elasticSearchPageSize > 0)
                         {
@@ -9493,7 +9503,8 @@ namespace Core.Catalog
                     shouldAddIsActiveTerm = true,
                     filterPhrase = filterTree,
                     extraReturnFields = new List<string>() { "metas.episodenumber", "metas.seasonnumber" },
-                    shouldReturnExtendedSearchResult = true
+                    shouldReturnExtendedSearchResult = true,
+                    isEpgV2 = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2)
                 };
 
                 ((ApiObjects.SearchObjects.BooleanLeaf)filterTree).shouldLowercase = true;

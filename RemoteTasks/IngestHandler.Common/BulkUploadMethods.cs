@@ -11,6 +11,7 @@ using System.Linq;
 using ConfigurationManager;
 using ApiObjects;
 using ApiObjects.Catalog;
+using Core.Catalog.Cache;
 using Core.GroupManagers;
 using Tvinci.Core.DAL;
 using ESUtils = ElasticSearch.Common.Utils;
@@ -136,7 +137,7 @@ namespace IngestHandler.Common
                 defaultSearchDaysDelta = defaultSearchDaysDelta == 0 ? DEFAULT_CATCHUP_DAYS : defaultSearchDaysDelta;
 
                 var epgChannelIds = lEpg.Distinct().Select(item => item.ChannelID.ToString()).ToList();
-                var linearChannelSettings = GetLinearChannelSettings(groupID, epgChannelIds);
+                var linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupID, epgChannelIds).Values;
 
                 Parallel.ForEach(lEpg, currentElement =>
                 {

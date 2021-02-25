@@ -1113,7 +1113,7 @@ namespace EpgBL
 
         #region Private
 
-        private static EPGChannelProgrammeObject ConvertEpgCBtoEpgProgramm(EpgCB epg)
+        public static EPGChannelProgrammeObject ConvertEpgCBtoEpgProgramm(EpgCB epg)
         {
             EPGChannelProgrammeObject oProg = new EPGChannelProgrammeObject();
             EPGDictionary dicEpgl;
@@ -1162,7 +1162,7 @@ namespace EpgBL
             return oProg;
         }
 
-        private static List<EPGChannelProgrammeObject> ConvertEpgCBtoEpgProgramm(IEnumerable<EpgCB> epgList)
+        public static List<EPGChannelProgrammeObject> ConvertEpgCBtoEpgProgramm(IEnumerable<EpgCB> epgList)
         {
             List<EPGChannelProgrammeObject> lProg = new List<EPGChannelProgrammeObject>();
             foreach (EpgCB epg in epgList)

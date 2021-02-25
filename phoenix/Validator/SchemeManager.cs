@@ -546,7 +546,7 @@ namespace Validator.Managers.Scheme
             return valid;
         }
 
-        internal static bool ValidateMethod(MethodInfo method, bool strict, XmlDocument assemblyXml)
+        internal static bool ValidateMethod(MethodInfo method, bool strict, XmlDocument assemblyXml, bool doNotValidateIsInternal = true)
         {
             bool valid = true;
 
@@ -555,6 +555,11 @@ namespace Validator.Managers.Scheme
                 return !strict;
 
             ActionAttribute actionAttribute = method.GetCustomAttribute<ActionAttribute>(false);
+            if (!doNotValidateIsInternal && actionAttribute.IsInternal)
+            {
+                return false;
+            }
+
             Type controller = method.ReflectedType;
             string serviceId = SchemeManager.getServiceId(controller);
 

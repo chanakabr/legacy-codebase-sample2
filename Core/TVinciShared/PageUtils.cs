@@ -928,10 +928,6 @@ namespace TVinciShared
             return DoesWatchPermissionTypeIncludesGroup(nWatchPermissionID, nGroup, string.Empty);
         }
 
-        static protected void GetPermittedWatchRulesID(Int32 nCurrentGroupID, Int32 nOwnerGroupID, ref string sIDs)
-        {
-            GetPermittedWatchRulesID(nCurrentGroupID, nOwnerGroupID, ref sIDs);
-        }
         static protected void GetPermittedWatchRulesID(Int32 nCurrentGroupID, Int32 nOwnerGroupID, ref string sIDs, string sConnectionKey)
         {
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
