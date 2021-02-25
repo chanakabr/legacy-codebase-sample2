@@ -322,12 +322,8 @@ namespace Core.Catalog
                         definitions.specificAssets[specificAsset.Key].Add(specificAsset.Value.ToString());
                     }
                 }
-
-                if (request.isGroupingOptionInclude)
-                {
-                    definitions.isGroupingOptionInclude = true;
-                }
-
+                
+                definitions.isGroupingOptionInclude = request.isGroupingOptionInclude;
                 #endregion
 
                 #region Get Recordings
