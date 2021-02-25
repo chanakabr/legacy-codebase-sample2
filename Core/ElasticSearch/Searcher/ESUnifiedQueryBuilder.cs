@@ -173,7 +173,7 @@ namespace ElasticSearch.Searcher
         /// Builds the request body for Elasticsearch search action
         /// </summary>
         /// <returns></returns>
-        public virtual string BuildSearchQueryString(bool bIgnoreDeviceRuleID = false, bool bAddActive = true, bool isIncluded = false)
+        public virtual string BuildSearchQueryString(bool bIgnoreDeviceRuleID = false, bool bAddActive = true, bool addMissingToGroupByAgg = false)
         {
             this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
             this.ReturnFields.AddRange(this.SearchDefinitions.extraReturnFields.Distinct().Select(field => string.Format("\"{0}\"", field)));
@@ -369,9 +369,8 @@ namespace ElasticSearch.Searcher
                             Order = aggregationsOrder,
                             OrderDirection = aggregationsOrderDirection
                         };
-                        if (isIncluded)
+                        if (addMissingToGroupByAgg)
                         {
-                            //TODO - Matan: Missing = () ?? value. only missing value implementation?
                             currentAggregation.Missing = 1;
                         }
 
