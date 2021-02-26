@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
 
             var groupId = KS.GetFromRequest().GroupId;
             var userId = KS.GetFromRequest().UserId;
-            var isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId, true);
+            var isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, KS.GetFromRequest().OriginalUserId, true);
 
             try
             {
