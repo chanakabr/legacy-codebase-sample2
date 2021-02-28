@@ -21148,16 +21148,6 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermission")
-        {
-            ReadOnly = false,
-            InsertOnly = true,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         public KalturaPermission(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -21190,10 +21180,6 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
                     if(string.IsNullOrEmpty(parameters["type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");

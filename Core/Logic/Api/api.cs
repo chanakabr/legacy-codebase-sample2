@@ -11933,6 +11933,12 @@ namespace Core.Api
 
             try
             {
+                if( permission.Type == ePermissionType.Group)
+                {
+                    response.SetStatus(eResponseStatus.CannotAddPermissionTypeGroup , "Permission type GROUP cannot be added");
+                    return response;
+                }
+
                 // Validate permission Name (Must be unique per group)
                 if (ApiDAL.GetPermissions(groupId, new List<string>() { permission.Name })?.Count > 0)
                 {

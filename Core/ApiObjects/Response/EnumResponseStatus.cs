@@ -387,6 +387,7 @@ namespace ApiObjects.Response
         ParentAlreadyContainsChannel = 5077,
         InputFormatIsInvalid = 5078,
         CanModifyOnlyNormalPermission = 5079,
+        CannotAddPermissionTypeGroup = 5080,
 
         #endregion
 

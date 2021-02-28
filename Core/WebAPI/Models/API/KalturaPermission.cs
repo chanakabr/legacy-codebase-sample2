@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Response;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -51,12 +53,11 @@ namespace WebAPI.Models.API
         public string DependsOnPermissionNames { get; set; }
 
         /// <summary>
-        /// Comma separated permissions names from type SPECIAL_FEATURE
+        /// Permission type
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
-        [XmlElement(ElementName = "type")]
-        [SchemeProperty(InsertOnly = true)]
+        [XmlElement(ElementName = "type")]        
         public KalturaPermissionType Type { get; set; }
 
         /// <summary>
@@ -69,6 +70,11 @@ namespace WebAPI.Models.API
 
         internal void ValidateForUpdate()
         {
+            if (this.Type == KalturaPermissionType.GROUP)
+            {
+
+            }
+
             if (!string.IsNullOrEmpty(PermissionItemsIds))
             {
                 var items = GetItemsIn<List<long>, long>(this.PermissionItemsIds, "permissionItemsIds", true);
@@ -76,7 +82,7 @@ namespace WebAPI.Models.API
         }
 
         internal void ValidateForInsert()
-        {
+        {          
             if (!string.IsNullOrEmpty(PermissionItemsIds))
             {
                 var items = GetItemsIn<List<long>, long>(this.PermissionItemsIds, "permissionItemsIds", true);

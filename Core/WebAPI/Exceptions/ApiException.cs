@@ -328,6 +328,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PERMISSION_PERMISSION_ITEM_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.PermissionPermissionItemAlreadyExists, "Permission item is already associated with permission", "Permission item is already associated with permission");
         public static ClientExceptionType ROLE_READ_ONLY = new ClientExceptionType(eResponseStatus.RoleReadOnly, "Role is readonly and cannot be updated", "Role is readonly and cannot be updated");
         public static ClientExceptionType CAN_MODIFY_ONLY_NORMAL_PERMISSION = new ClientExceptionType(eResponseStatus.CanModifyOnlyNormalPermission, "Only permission type NORMAL can be modified", "Only permission type NORMAL can be modified");
+        public static ClientExceptionType CANNOT_ADD_PERMISSION_TYPE_GROUP = new ClientExceptionType(eResponseStatus.CannotAddPermissionTypeGroup, "Permission type GROUP cannot be added", "Permission type GROUP cannot be added");
 
         #endregion
 
