@@ -13,7 +13,9 @@ namespace ConfigurationManager.Types
 
 
         public BaseValue<string> PersistentAddress = new BaseValue<string>(TcmObjectKeys.RedisPersistentAddress, "redis.service.consul:6379", false, "redis persistent hostname, default value is redis.service.consul:6379");
-        public BaseValue<string> CacheAddress = new BaseValue<string>(TcmObjectKeys.RedisCacheAddress, "redis.service.consul:6379", false, "redis cache hostname, default value is redis.service.consul:6379");        
+        public BaseValue<int> PersistentDatabase = new BaseValue<int>(TcmObjectKeys.RedisPersistentDatabase, 0, false, "redis persistent database, default value is 0");
+        public BaseValue<string> CacheAddress = new BaseValue<string>(TcmObjectKeys.RedisCacheAddress, "redis.service.consul:6379", false, "redis cache hostname, default value is redis.service.consul:6379");
+        public BaseValue<int> CacheDatabase = new BaseValue<int>(TcmObjectKeys.RedisCacheDatabase, 0, false, "redis cache database, default value is 0");
     }
 
 }
