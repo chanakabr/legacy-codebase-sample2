@@ -123,7 +123,7 @@ namespace Core.Users
             int failedLoginCount = 0;
             DateTime lastLoginDate = DateTime.UtcNow;
 
-            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(nGroupID, CanaryDeploymentDataOwnershipEnum.AuthenticationUserLoginHistory))
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(nGroupID, CanaryDeploymentDataOwnershipEnum.AuthenticationUserLoginHistory))
             {
                 var authClient = AuthenticationClient.GetClientFromTCM();
                 var failHistory = authClient.GetUserLoginHistory(nGroupID, nUserID);

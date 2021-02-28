@@ -1083,7 +1083,7 @@ namespace Core.Users
 
         private static void SendCanaryMigrationEvent(eMigrationOperation op, int groupID, string secret, int? pinUsages, string pinCode, string userId, DateTime? expiredDate)
         {
-            if (CanaryDeploymentManager.Instance.IsEnabledMigrationEvent(groupID, CanaryDeploymentMigrationEvent.UserPinCode))
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(groupID, CanaryDeploymentMigrationEvent.UserPinCode))
             {
                 var migrationEvent = new ApiObjects.DataMigrationEvents.UserLoginPin()
                 {
@@ -1556,7 +1556,7 @@ namespace Core.Users
             }
             catch (Exception ex)
             {
-                log.Error($"AddRoleToUser failed, ex = {ex.Message}, userId = {userId}, roleId = {roleId} ", ex);
+                log.Error(string.Format("AddRoleToUser failed, ex = {0}, userId = {1}, roleId = {2} ", ex.Message, userId), ex);
             }
             return response;
         }

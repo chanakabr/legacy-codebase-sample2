@@ -24,7 +24,7 @@ namespace SessionManager
         private const string REVOKED_SESSION_KEY_FORMAT = "r_session_{0}";
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
-        
+
         public static bool UpdateUsersSessionsRevocationTime(int groupId, string groupUserSessionsKeyFormat,
             int groupAppTokenSessionMaxDurationSeconds,
             long groupKSExpirationSeconds,
@@ -99,7 +99,7 @@ namespace SessionManager
 
         private static void SendUserAndDeviceSessionRevocationCanaryMigrationEvent(int groupId, string userId, string udid, long revocationTime, UserSessions usersSessions)
         {
-            if (CanaryDeploymentManager.Instance.IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.SessionRevocation))
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.SessionRevocation))
             {
                 var migrationEvent = new RevokeUserAndDeviceSession
                 {

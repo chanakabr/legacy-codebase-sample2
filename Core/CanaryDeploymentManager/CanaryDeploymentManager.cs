@@ -33,14 +33,14 @@ namespace ApiLogic.CanaryDeployment
                                                                                                                                         new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS)),
                                                                                                                                         LazyThreadSafetyMode.PublicationOnly);
 
-        public static CanaryDeploymentManager Instance { get { return lazy.Value; } }
+        internal static CanaryDeploymentManager Instance { get { return lazy.Value; } }
 
         private readonly ILayeredCache _layeredCache;
         private readonly RedisClientManager _redisCM;
         private readonly CouchbaseManager.CouchbaseManager _cbManager;
 
 
-        public CanaryDeploymentManager(ILayeredCache layeredCache, RedisClientManager redisCM, CouchbaseManager.CouchbaseManager cbManager)
+        private CanaryDeploymentManager(ILayeredCache layeredCache, RedisClientManager redisCM, CouchbaseManager.CouchbaseManager cbManager)
         {
             _layeredCache = layeredCache;
             _redisCM = redisCM;

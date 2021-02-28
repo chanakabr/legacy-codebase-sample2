@@ -608,7 +608,8 @@ namespace ApiObjects.Response
         FailedToSetRouteSessionController = 13007,
         FailedToSetRouteHouseHoldDevicePinActions = 13008,
         FailedToSetRouteRefreshToken = 13009,
-        FailedToSetAllRoutingActions = 13010
+        FailedToSetAllRoutingActions = 13010,
+        CanaryDeploymentConfigurationIsDisabledOnTheEnvironment = 13011
 
         #endregion
     }

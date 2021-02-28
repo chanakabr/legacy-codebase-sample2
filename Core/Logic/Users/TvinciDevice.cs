@@ -10,7 +10,8 @@ using EventBus.Kafka;
 namespace Core.Users
 {
     class TvinciDevice : BaseDevice
-    {
+    {      
+
         protected TvinciDevice()
         {
         }
@@ -18,6 +19,7 @@ namespace Core.Users
         public TvinciDevice(int groupID)
             : base(groupID)
         {
+
         }
 
         public override string GetPINForDevice(int nGroupID, string sDeviceUDID, int nBrandID)
@@ -31,7 +33,7 @@ namespace Core.Users
 
         private static void SendCanaryMigrationEvent(int nGroupID, string sDeviceUDID, string pinCode)
         {
-            if (CanaryDeploymentManager.Instance.IsEnabledMigrationEvent(nGroupID, CanaryDeploymentMigrationEvent.DevicePinCode))
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(nGroupID, CanaryDeploymentMigrationEvent.DevicePinCode))
             {
                 var migrationEvent = new ApiObjects.DataMigrationEvents.DeviceLoginPin()
                 {
