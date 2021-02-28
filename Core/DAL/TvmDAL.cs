@@ -1,24 +1,23 @@
-﻿using System;
+﻿using KLogMonitor;
+using ODBCWrapper;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using ODBCWrapper;
-using KLogMonitor;
 
 namespace DAL
 {
     public class TvmDAL
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-               
+
         public static int GetSubscriptionsNotifierImpl(int nGroupID, int nModuleID)
         {
             int nImplID = 0;
 
             try
-            {                                              
+            {
                 ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_SubNotifierImplementation");
                 sp.SetConnectionKey("MAIN_CONNECTION_STRING");
                 sp.AddParameter("@GroupID", nGroupID);
@@ -56,7 +55,7 @@ namespace DAL
                 ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
                 selectQuery.SetConnectionKey("PRICING_CONNECTION");
 
-                selectQuery += "SELECT S.ID, S.COGUID, SN.DESCRIPTION AS 'TITLE', SD.DESCRIPTION, S.IS_ACTIVE, COALESCE(PC.PRICE, 0) AS 'PRICE', LC.CODE3, S.START_DATE, S.END_DATE " + 
+                selectQuery += "SELECT S.ID, S.COGUID, SN.DESCRIPTION AS 'TITLE', SD.DESCRIPTION, S.IS_ACTIVE, COALESCE(PC.PRICE, 0) AS 'PRICE', LC.CODE3, S.START_DATE, S.END_DATE " +
                                 "FROM SUBSCRIPTIONS S WITH (NOLOCK) " +
                                 "LEFT JOIN SUBSCRIPTION_NAMES SN WITH (NOLOCK) ON S.ID = SN.SUBSCRIPTION_ID " +
                                 "LEFT JOIN SUBSCRIPTION_DESCRIPTIONS SD WITH (NOLOCK) ON S.ID = SD.SUBSCRIPTION_ID " +
@@ -72,11 +71,11 @@ namespace DAL
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        prodDict["InternalProductID"]   = selectQuery.Table("query").DefaultView[0].Row["ID"].ToString();
-                        prodDict["ExternalProductID"]   = selectQuery.Table("query").DefaultView[0].Row["COGUID"].ToString();
-                        prodDict["Title"]               = selectQuery.Table("query").DefaultView[0].Row["TITLE"].ToString();
-                        prodDict["Description"]         = selectQuery.Table("query").DefaultView[0].Row["DESCRIPTION"].ToString();
-                        prodDict["Status"]              = selectQuery.Table("query").DefaultView[0].Row["IS_ACTIVE"].ToString();
+                        prodDict["InternalProductID"] = selectQuery.Table("query").DefaultView[0].Row["ID"].ToString();
+                        prodDict["ExternalProductID"] = selectQuery.Table("query").DefaultView[0].Row["COGUID"].ToString();
+                        prodDict["Title"] = selectQuery.Table("query").DefaultView[0].Row["TITLE"].ToString();
+                        prodDict["Description"] = selectQuery.Table("query").DefaultView[0].Row["DESCRIPTION"].ToString();
+                        prodDict["Status"] = selectQuery.Table("query").DefaultView[0].Row["IS_ACTIVE"].ToString();
 
                         prodDict["PriceB2C"] = "0.0";
                         if (selectQuery.Table("query").DefaultView[0].Row["PRICE"] != null)
@@ -102,7 +101,7 @@ namespace DAL
                 }
 
                 selectQuery.Finish();
-                selectQuery = null;                
+                selectQuery = null;
             }
             catch (Exception)
             {
@@ -135,10 +134,10 @@ namespace DAL
                     if (nCount > 0)
                     {
                         for (int i = 0; i < nCount; i++)
-			            {
+                        {
                             string operatorCoGuid = selectQuery.Table("query").DefaultView[i].Row["CLIENT_ID"].ToString();
                             lOperatorCoGuids.Add(operatorCoGuid);
-			            }
+                        }
                     }
 
                 }
@@ -265,9 +264,9 @@ namespace DAL
             return dPackage;
         }
 
-        public static List<KeyValuePair<string,string>> GetMediaDescription(List<string> lEpgIdentifier)
+        public static List<KeyValuePair<string, string>> GetMediaDescription(List<string> lEpgIdentifier)
         {
-            List<KeyValuePair<string, string>> lMediaDescription = new  List<KeyValuePair<string,string>>(); 
+            List<KeyValuePair<string, string>> lMediaDescription = new List<KeyValuePair<string, string>>();
             KeyValuePair<string, string> keyValuePair;
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaDescription");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -278,7 +277,7 @@ namespace DAL
             {
                 foreach (DataRow row in ds.Tables[0].Rows)
                 {
-                    keyValuePair = new KeyValuePair<string,string>(row["epg_identifier"].ToString(), row["media_description"].ToString());
+                    keyValuePair = new KeyValuePair<string, string>(row["epg_identifier"].ToString(), row["media_description"].ToString());
 
                     lMediaDescription.Add(keyValuePair);
                 }
@@ -314,7 +313,7 @@ namespace DAL
             sp.AddParameter("@NewStatus", bIsDelete ? 2 : 1);
 
             return sp.ExecuteReturnValue<bool>();
-            
+
         }
 
         public static bool Update_DeviceFamilyStatus(int nGroupID, int nDeviceFamilyID, int nLimitationModuleID, bool bIsDelete)
@@ -447,8 +446,8 @@ namespace DAL
             sp.AddParameter("@ChannelID", channelID);
             sp.AddParameter("@MediaTypeID", mediaTypeID);
 
-             DataSet ds = sp.ExecuteDataSet();
-             if (ds != null)
+            DataSet ds = sp.ExecuteDataSet();
+            if (ds != null)
                 return ds.Tables[0];
             return null;
         }
@@ -504,9 +503,9 @@ namespace DAL
         public static bool insertValueToLookupTable(DataTable dt)
         {
             StoredProcedure sp = new StoredProcedure("insertValueToLookupTable");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");           
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddDataTableParameter("@dt", dt);
-            
+
             return sp.ExecuteReturnValue<bool>();
         }
 
@@ -1068,7 +1067,7 @@ namespace DAL
 
                 if (dt != null && dt.Rows.Count > 0)
                 {
-                    returnValue = Utils.GetIntSafeVal(selectQuery.Table("userSpecificStatusQuery").Rows[0], "status");                    
+                    returnValue = Utils.GetIntSafeVal(selectQuery.Table("userSpecificStatusQuery").Rows[0], "status");
                 }
                 selectQuery.Finish();
                 selectQuery = null;
@@ -1096,7 +1095,7 @@ namespace DAL
                     return ds.Tables[0];
                 return null;
             }
-            catch 
+            catch
             {
                 return null;
             }
@@ -1208,7 +1207,7 @@ namespace DAL
             sp.AddParameter("@Status", status);
             sp.AddParameter("@UpdaterId", updaterId);
 
-            return  sp.ExecuteReturnValue<int>() > 0;
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
         public static DataTable GetAvailableSubscriptionsBySetId(int groupId, long setId, int subscriptionType)
@@ -1263,5 +1262,54 @@ namespace DAL
             return sp.Execute();
         }
 
-    }    
+        public static DataTable GetDeviceRuleBrandsById(int deviceRuleId)
+        {
+            try
+            {
+                var parameters = new Dictionary<string, object>() { { "@deviceRuleId", deviceRuleId } };
+                return UtilsDal.Execute("Get_DeviceRuleBrandsById", parameters, "MAIN_CONNECTION_STRING");
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while GetDeviceTypesInRule from DB, deviceRuleId = {deviceRuleId}", ex);
+            }
+
+            return null;
+        }
+
+        public static DataTable GetDeviceBrandsFamilies()
+        {
+            try
+            {
+                return UtilsDal.Execute("GetDeviceBrandsFamilies", null, "MAIN_CONNECTION_STRING");
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while GetDeviceBrandsFamilies from DB", ex);
+            }
+
+            return null;
+        }
+
+        public static bool UpsertDeviceRulesBrands(List<string> deviceBrandsIds, int ruleId, int groupId, int updaterId)
+        {
+            bool result = false;
+
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Upsert_DeviceRulesBrands");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@userId", updaterId);
+                sp.AddParameter("@ruleId", ruleId);
+                sp.AddIDListParameter("@deviceBrandsIds", deviceBrandsIds, "id");
+                result = sp.ExecuteReturnValue<int>() > -1;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while UpsertDeviceRulesBrands, groupId: {groupId}, ruleId: {ruleId}", ex);
+            }
+
+            return result;
+        }
+    }
 }
