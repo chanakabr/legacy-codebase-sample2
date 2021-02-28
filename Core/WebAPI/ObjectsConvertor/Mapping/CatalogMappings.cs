@@ -1463,21 +1463,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion CategoryVersion
         }
 
-        internal static U? ConvertEnumsById<T, U>(T? value)
-            where T : struct, IConvertible
-            where U : struct, IConvertible
-        {
-            if (value.HasValue)
-            {
-                var intValue = (int)(object)value;
-                if (Enum.IsDefined(typeof(U), intValue))
-                {
-                    return (U)(object)intValue;
-                }
-            }
-            return null;
-        }
-
         private static int? ConvertToNullableInt(bool? value)
         {
             if (!value.HasValue)

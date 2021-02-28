@@ -818,7 +818,7 @@ namespace WebAPI.Clients
                 domainId = domainId,
                 isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
                 shouldIgnoreEndDate = ignoreEndDate,
-                isGroupingOptionInclude = CatalogMappings.ConvertEnumsById<KalturaGroupingOption, GroupingOption>(groupByType) == GroupingOption.Include
+                isGroupingOptionInclude = GenericExtensionMethods.ConvertEnumsById<KalturaGroupingOption, GroupingOption>(groupByType) == GroupingOption.Include
         };
 
             if (groupBy != null && groupBy.Count > 0)

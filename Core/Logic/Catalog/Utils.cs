@@ -946,14 +946,14 @@ namespace Core.Catalog
                     catalogGroupCache.AssetStructsMapById[media.m_nMediaTypeID] : null;
                 if (assetStruct != null)
                 {
-                    var suppressedOrderMap = assetStruct.AssetStructMetas.Where(m => m.Value.SuppressedOrder.HasValue)?
-                        .OrderBy(m => m.Value.SuppressedOrder).ToDictionary(x => x.Key, y => y.Value);
-                    if (suppressedOrderMap != null)
+                    var suppressedOrderMetaIds = assetStruct.AssetStructMetas.Where(m => m.Value.SuppressedOrder.HasValue)?
+                        .OrderBy(m => m.Value.SuppressedOrder).Select(m=>m.Key).ToList();
+                    if (suppressedOrderMetaIds != null && suppressedOrderMetaIds.Count > 0)
                     {
                         //find default meta to suppress by
-                        foreach (var suppressedOrderPair in suppressedOrderMap)
+                        foreach (var metaId in suppressedOrderMetaIds)
                         {
-                            var topic = catalogGroupCache.TopicsMapById[suppressedOrderPair.Key];
+                            var topic = catalogGroupCache.TopicsMapById[metaId];
                             if (media.m_dMeatsValues.ContainsKey(topic.SystemName))
                             {
                                 //calculated suppressed value

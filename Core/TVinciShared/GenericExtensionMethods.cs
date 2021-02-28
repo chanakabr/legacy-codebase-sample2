@@ -85,9 +85,24 @@ namespace TVinciShared
 
             var serializeSettings = new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore };
             var serializeObject = JsonConvert.SerializeObject(source, serializeSettings);
-            
+
             var deserializeSettings = new JsonSerializerSettings { ObjectCreationHandling = ObjectCreationHandling.Replace };
             return JsonConvert.DeserializeObject<T>(serializeObject, deserializeSettings);
+        }
+
+        public static U? ConvertEnumsById<T, U>(T? value)
+           where T : struct, IConvertible
+           where U : struct, IConvertible
+        {
+            if (value.HasValue)
+            {
+                var intValue = (int)(object)value;
+                if (Enum.IsDefined(typeof(U), intValue))
+                {
+                    return (U)(object)intValue;
+                }
+            }
+            return null;
         }
     }
 }
