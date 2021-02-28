@@ -77,9 +77,8 @@ namespace AdapterControllers
                 try
                 {
                     PlaybackAdapter.AdapterStatus adapterResponse =
-                        client.SetConfigurationAsync(adapter.Id, adapter.Settings, partnerId, unixTimestamp,
-                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))))
-                        .ExecuteAndWait();
+                        client.SetConfiguration(adapter.Id, adapter.Settings, partnerId, unixTimestamp,
+                        System.Convert.ToBase64String(EncryptUtils.AesEncrypt(adapter.SharedSecret, EncryptUtils.HashSHA1(signature))));
 
                     if (adapterResponse != null)
                         log.DebugFormat("Playback Adapter Send Configuration Result = {0}", adapterResponse);
@@ -221,7 +220,7 @@ namespace AdapterControllers
                     $"contextOptions: {JsonConvert.SerializeObject(contextOptions)}, " +
                     $"request: {JsonConvert.SerializeObject(requestPlaybackContextOptions)}");
                 //call adapter
-                adapterResponse = adapterClient.GetPlaybackContextAsync(contextOptions, requestPlaybackContextOptions).ExecuteAndWait();
+                adapterResponse = adapterClient.GetPlaybackContext(contextOptions, requestPlaybackContextOptions);
             }
 
             if (adapterResponse != null)
@@ -779,7 +778,7 @@ namespace AdapterControllers
             using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
             {
                 //call adapter
-                adapterResponse = adapterClient.GetPlaybackManifestAsync(contextOptions, requestPlaybackContextOptions).ExecuteAndWait();
+                adapterResponse = adapterClient.GetPlaybackManifest(contextOptions, requestPlaybackContextOptions);
             }
 
             if (adapterResponse != null)

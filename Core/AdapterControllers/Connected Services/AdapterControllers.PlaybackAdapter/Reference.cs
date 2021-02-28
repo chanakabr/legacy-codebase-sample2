@@ -1338,15 +1338,25 @@ namespace AdapterControllers.PlaybackAdapter
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="AdapterControllers.PlaybackAdapter.IService")]
     public interface IService
     {
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/SetConfiguration", ReplyAction="http://tempuri.org/IService/SetConfigurationResponse")]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/SetConfiguration", ReplyAction = "http://tempuri.org/IService/SetConfigurationResponse")]
+        AdapterControllers.PlaybackAdapter.AdapterStatus SetConfiguration(long adapterId, string settings, int partnerId, long timeStamp, string signature);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/SetConfiguration", ReplyAction = "http://tempuri.org/IService/SetConfigurationResponse")]
         System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.AdapterStatus> SetConfigurationAsync(long adapterId, string settings, int partnerId, long timeStamp, string signature);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetPlaybackContext", ReplyAction="http://tempuri.org/IService/GetPlaybackContextResponse")]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/GetPlaybackContext", ReplyAction = "http://tempuri.org/IService/GetPlaybackContextResponse")]
+        AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse GetPlaybackContext(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions adapterPlaybackContextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/GetPlaybackContext", ReplyAction = "http://tempuri.org/IService/GetPlaybackContextResponse")]
         System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse> GetPlaybackContextAsync(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions adapterPlaybackContextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/GetPlaybackManifest", ReplyAction="http://tempuri.org/IService/GetPlaybackManifestResponse")]
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/GetPlaybackManifest", ReplyAction = "http://tempuri.org/IService/GetPlaybackManifestResponse")]
+        AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse GetPlaybackManifest(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions contextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/GetPlaybackManifest", ReplyAction = "http://tempuri.org/IService/GetPlaybackManifestResponse")]
         System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse> GetPlaybackManifestAsync(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions contextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions);
+
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
@@ -1398,17 +1408,32 @@ namespace AdapterControllers.PlaybackAdapter
                 base(binding, remoteAddress)
         {
         }
-        
+
+        public AdapterControllers.PlaybackAdapter.AdapterStatus SetConfiguration(long adapterId, string settings, int partnerId, long timeStamp, string signature)
+        {
+            return base.Channel.SetConfiguration(adapterId, settings, partnerId, timeStamp, signature);
+        }
+
         public System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.AdapterStatus> SetConfigurationAsync(long adapterId, string settings, int partnerId, long timeStamp, string signature)
         {
             return base.Channel.SetConfigurationAsync(adapterId, settings, partnerId, timeStamp, signature);
         }
-        
+
+        public AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse GetPlaybackContext(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions adapterPlaybackContextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
+        {
+            return base.Channel.GetPlaybackContext(adapterPlaybackContextOptions, requestPlaybackContextOptions);
+        }
+
         public System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse> GetPlaybackContextAsync(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions adapterPlaybackContextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
         {
             return base.Channel.GetPlaybackContextAsync(adapterPlaybackContextOptions, requestPlaybackContextOptions);
         }
-        
+
+        public AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse GetPlaybackManifest(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions contextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
+        {
+            return base.Channel.GetPlaybackManifest(contextOptions, requestPlaybackContextOptions);
+        }
+
         public System.Threading.Tasks.Task<AdapterControllers.PlaybackAdapter.PlaybackAdapterResponse> GetPlaybackManifestAsync(AdapterControllers.PlaybackAdapter.AdapterPlaybackContextOptions contextOptions, AdapterControllers.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions)
         {
             return base.Channel.GetPlaybackManifestAsync(contextOptions, requestPlaybackContextOptions);
