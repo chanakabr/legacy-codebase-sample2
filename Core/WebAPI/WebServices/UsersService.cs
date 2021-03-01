@@ -1473,7 +1473,7 @@ namespace WebAPI.WebServices
 
             if (nGroupID != 0)
             {
-                return Core.Users.Module.GetItemsFromUsersLists(nGroupID, userIds, listType, itemType, false);
+                return Core.Users.Module.GetItemsFromUsersLists(nGroupID, userIds, listType, itemType);
             }
             else
             {
