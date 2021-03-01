@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using TVinciShared;
 
 namespace ApiLogic
 {
@@ -14,14 +15,25 @@ namespace ApiLogic
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public const string XML_TV_DATE_FORMAT = "yyyyMMddHHmmss";
 
-        public static Dictionary<string, List<string>> ParseTags(this programme prog, string langCode, string defaultLangCode, BulkUploadProgramAssetResult response)
+        public static Dictionary<string, List<string>> ParseTags(
+            this programme prog,
+            string langCode,
+            string defaultLangCode,
+            BulkUploadProgramAssetResult response,
+            bool isMultilingualFallback)
         {
             var tagsToSet = new Dictionary<string, List<string>>();
             if (prog?.tags == null) { return tagsToSet; }
 
             foreach (var tag in prog.tags)
             {
-                var tagValue = GetMetaByLanguage(tag, langCode, defaultLangCode, out var tagParsingStatus);
+                var tagValue = GetMetaByLanguage(tag.TagValues,
+                    tv => tv.lang,
+                    tv => tv.Value, 
+                    langCode,
+                    defaultLangCode,
+                    out var tagParsingStatus,
+                    isMultilingualFallback);
                 if (tagParsingStatus != eResponseStatus.OK)
                 {
                     response.AddError(tagParsingStatus, $"Error parsing meta:[{tag.TagType}] for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]");
@@ -32,14 +44,25 @@ namespace ApiLogic
             return tagsToSet;
         }
 
-        public static Dictionary<string, List<string>> ParseMetas(this programme prog, string langCode, string defaultLangCode, BulkUploadProgramAssetResult response)
+        public static Dictionary<string, List<string>> ParseMetas(
+            this programme prog,
+            string langCode,
+            string defaultLangCode,
+            BulkUploadProgramAssetResult response,
+            bool isMultilingualFallback)
         {
             var metasToSet = new Dictionary<string, List<string>>();
             if (prog?.metas == null) { return metasToSet; }
 
             foreach (var meta in prog.metas)
             {
-                var mataValue = GetMetaByLanguage(meta, langCode, defaultLangCode, out var metaParsingStatus);
+                var mataValue = GetMetaByLanguage(meta.MetaValues,
+                    mv => mv.lang,
+                    mv => mv.Value,
+                    langCode,
+                    defaultLangCode,
+                    out var metaParsingStatus,
+                    isMultilingualFallback);
                 if (metaParsingStatus != eResponseStatus.OK)
                 {
                     response.AddError(metaParsingStatus, $"Error parsing meta:[{meta.MetaType}] for programExternalID:[{prog.external_id}], lang:[{langCode}], defaultLang:[{defaultLangCode}]");
@@ -81,38 +104,24 @@ namespace ApiLogic
 
             return result;
         }
-
-
-        public static List<string> GetMetaByLanguage(this metas meta, string language, string defaultLanguage, out eResponseStatus parsingStatus)
+        
+        private static List<string> GetMetaByLanguage<T>(
+            this IEnumerable<T> metaValues,
+            Func<T, string> langRetriever,
+            Func<T, string> valueRetriever,
+            string language,
+            string defaultLanguage,
+            out eResponseStatus parsingStatus,
+            bool isMultilingualFallback)
         {
             parsingStatus = eResponseStatus.OK;
-
-            var valuesByLang = meta.MetaValues.Where(t => t.lang.Equals(language, StringComparison.OrdinalIgnoreCase));
-            valuesByLang = valuesByLang ?? meta.MetaValues.Where(t => t.lang.Equals(defaultLanguage, StringComparison.OrdinalIgnoreCase));
-            if (valuesByLang == null)
+            var valuesByLang = metaValues.Where(t => langRetriever(t).Equals(language, StringComparison.OrdinalIgnoreCase));
+            if (valuesByLang.IsEmpty() && isMultilingualFallback)
             {
-                parsingStatus = eResponseStatus.EPGLanguageNotFound;
-                return new List<string>();
+                valuesByLang = metaValues.Where(t => langRetriever(t).Equals(defaultLanguage, StringComparison.OrdinalIgnoreCase));
             }
 
-            var valuesStrByLang = valuesByLang.Select(v => v.Value).ToList();
-            return valuesStrByLang;
-        }
-
-        public static List<string> GetMetaByLanguage(this tags tags, string language, string defaultLanguage, out eResponseStatus parsingStatus)
-        {
-            parsingStatus = eResponseStatus.OK;
-
-            var valuesByLang = tags.TagValues.Where(t => t.lang.Equals(language, StringComparison.OrdinalIgnoreCase));
-            valuesByLang = valuesByLang ?? tags.TagValues.Where(t => t.lang.Equals(defaultLanguage, StringComparison.OrdinalIgnoreCase));
-            if (valuesByLang == null)
-            {
-                parsingStatus = eResponseStatus.EPGLanguageNotFound;
-                return new List<string>();
-            }
-
-            var valuesStrByLang = valuesByLang.Select(v => v.Value).ToList();
-            return valuesStrByLang;
+            return valuesByLang.Select(valueRetriever).ToList();
         }
 
         public static string GetDescriptionByLanguage(this desc[] desc, string language, string defaultLanguage, out eResponseStatus parsingStatus)

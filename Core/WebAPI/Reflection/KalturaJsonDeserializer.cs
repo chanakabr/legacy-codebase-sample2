@@ -29498,6 +29498,10 @@ namespace WebAPI.Models.Partner
                         CategoryManagement = (KalturaCategoryManagement) Deserializer.deserialize(typeof(KalturaCategoryManagement), (Dictionary<string, object>) parameters["categoryManagement"]);
                     }
                 }
+                if (parameters.ContainsKey("epgMultilingualFallbackSupport") && parameters["epgMultilingualFallbackSupport"] != null)
+                {
+                    EpgMultilingualFallbackSupport = (Boolean) Convert.ChangeType(parameters["epgMultilingualFallbackSupport"], typeof(Boolean));
+                }
             }
         }
     }

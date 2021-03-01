@@ -36503,6 +36503,10 @@ namespace WebAPI.Models.Partner
                 propertyValue = CategoryManagement.ToJson(currentVersion, omitObsolete);
                 ret.Add("categoryManagement", "\"categoryManagement\": " + propertyValue);
             }
+            if(EpgMultilingualFallbackSupport.HasValue && (retrievedProperties == null || retrievedProperties.Contains("epgMultilingualFallbackSupport")))
+            {
+                ret.Add("epgMultilingualFallbackSupport", "\"epgMultilingualFallbackSupport\": " + EpgMultilingualFallbackSupport.ToString().ToLower());
+            }
             if(SingleMultilingualMode.HasValue && (retrievedProperties == null || retrievedProperties.Contains("singleMultilingualMode")))
             {
                 ret.Add("singleMultilingualMode", "\"singleMultilingualMode\": " + SingleMultilingualMode.ToString().ToLower());
@@ -36525,6 +36529,10 @@ namespace WebAPI.Models.Partner
             {
                 propertyValue = CategoryManagement.ToXml(currentVersion, omitObsolete);
                 ret.Add("categoryManagement", "<categoryManagement>" + propertyValue + "</categoryManagement>");
+            }
+            if(EpgMultilingualFallbackSupport.HasValue && (retrievedProperties == null || retrievedProperties.Contains("epgMultilingualFallbackSupport")))
+            {
+                ret.Add("epgMultilingualFallbackSupport", "<epgMultilingualFallbackSupport>" + EpgMultilingualFallbackSupport.ToString().ToLower() + "</epgMultilingualFallbackSupport>");
             }
             if(SingleMultilingualMode.HasValue && (retrievedProperties == null || retrievedProperties.Contains("singleMultilingualMode")))
             {

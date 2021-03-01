@@ -1360,6 +1360,8 @@ namespace WebAPI.Reflection
                     {
                         case "CategoryManagement":
                             return "categoryManagement";
+                        case "EpgMultilingualFallbackSupport":
+                            return "epgMultilingualFallbackSupport";
                         case "SingleMultilingualMode":
                             return "singleMultilingualMode";
                     }

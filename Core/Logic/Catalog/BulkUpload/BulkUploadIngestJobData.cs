@@ -13,6 +13,7 @@ namespace Core.Catalog
     public class BulkUploadIngestJobData : BulkUploadJobData
     {
         public int? IngestProfileId { get; set; }
+
         public bool DisableEpgNotification { get; set; }
 
         public string[] LockKeys;

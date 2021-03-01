@@ -13,6 +13,8 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using ApiLogic.Api.Managers;
+using ApiLogic.Catalog.CatalogManagement.Helpers;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
@@ -187,7 +189,8 @@ namespace Core.Catalog.CatalogManagement
                 if (isIngestV2)
                 {
                     var epgBl = new TvinciEpgBL(groupId);
-                    newEpgId = (long)epgBl.GetNewEpgId();
+                    newEpgId = (long) epgBl.GetNewEpgId();
+                    epgCbToAdd.IsIngestV2 = true;
                 }
                 else
                 {
@@ -239,13 +242,26 @@ namespace Core.Catalog.CatalogManagement
                 bool needToUpdateMetas;
                 List<int> epgTagsIds;
                 bool needToUpdateTags;
+                bool validateSystemTopicDescription;
                 Dictionary<FieldTypes, Dictionary<string, int>> mappingFields = GetMappingFields(groupId);
 
                 // TODO - MERGE OLD TAGS AND METAS ONLY AFTER VALIDATION
                 // TAGS AND METAS IN DB CAN CONTAIN ONLY GOOD
                 // TAGS AND METAS IN CB CAN CONTAIN ALL
-                Status validateStatus = ValidateEpgAssetForUpdate(groupId, userId, epgAssetToUpdate, oldEpgAsset, catalogGroupCache, mappingFields, out needToUpdateBasicData,
-                                                                  out allNames, out epgMetas, out needToUpdateMetas, out epgTagsIds, out needToUpdateTags);
+                Status validateStatus = ValidateEpgAssetForUpdate(
+                    groupId,
+                    userId,
+                    epgAssetToUpdate,
+                    oldEpgAsset,
+                    catalogGroupCache,
+                    mappingFields,
+                    out needToUpdateBasicData,
+                    out allNames,
+                    out epgMetas,
+                    out needToUpdateMetas,
+                    out epgTagsIds,
+                    out needToUpdateTags,
+                    out validateSystemTopicDescription);
 
                 if (!validateStatus.IsOkStatusCode())
                 {
@@ -259,6 +275,7 @@ namespace Core.Catalog.CatalogManagement
                     result.SetStatus(eResponseStatus.Error);
                     return result;
                 }
+
                 // Ingest V2 does not use DB anymore so we will wrap all EpgDAL calls in !isIngestV2
                 var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
 
@@ -315,15 +332,9 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 Dictionary<string, Dictionary<string, List<string>>> epgTags = GetEpgTags(epgAssetToUpdate.Tags, allNames, defaultLanguageCode);
-
-                bool validateSystemTopic = true;
-                if (epgAssetToUpdate.DescriptionsWithLanguages == null || epgAssetToUpdate.DescriptionsWithLanguages.Count == 0)
-                {
-                    epgAssetToUpdate.DescriptionsWithLanguages = oldEpgAsset.DescriptionsWithLanguages;
-                    validateSystemTopic = false;
-                }
+                
                 var allDescriptions = GetSystemTopicValues(epgAssetToUpdate.Description, epgAssetToUpdate.DescriptionsWithLanguages,
-                                                     catalogGroupCache, AssetManager.DESCRIPTION_META_SYSTEM_NAME, validateSystemTopic, allNames);
+                                                     catalogGroupCache, AssetManager.DESCRIPTION_META_SYSTEM_NAME, validateSystemTopicDescription, allNames);
                 if (!allDescriptions.HasObject())
                 {
                     result.SetStatus(allDescriptions.Status);
@@ -740,7 +751,8 @@ namespace Core.Catalog.CatalogManagement
 
         private static Status ValidateEpgAssetForUpdate(int groupId, long userId, EpgAsset epgAssetToUpdate, EpgAsset oldEpgAsset, CatalogGroupCache catalogGroupCache,
                                                         Dictionary<FieldTypes, Dictionary<string, int>> mappingFields, out bool updateBasicData, out Dictionary<string, string> allNames,
-                                                        out Dictionary<string, Dictionary<string, List<string>>> epgMetas, out bool updateMetas, out List<int> epgTagsIds, out bool updateTags)
+                                                        out Dictionary<string, Dictionary<string, List<string>>> epgMetas, out bool updateMetas, out List<int> epgTagsIds, out bool updateTags, 
+                                                        out bool validateSystemTopicDescription)
         {
             updateBasicData = false;
             allNames = null;
@@ -748,6 +760,7 @@ namespace Core.Catalog.CatalogManagement
             updateMetas = true;
             epgTagsIds = null;
             updateTags = true;
+            validateSystemTopicDescription = true;
 
             if (!string.IsNullOrEmpty(epgAssetToUpdate.EpgIdentifier) && !epgAssetToUpdate.EpgIdentifier.Equals(oldEpgAsset.EpgIdentifier))
             {
@@ -762,6 +775,14 @@ namespace Core.Catalog.CatalogManagement
                 epgAssetToUpdate.NamesWithLanguages = oldEpgAsset.NamesWithLanguages;
                 validateSystemTopic = false;
             }
+            
+            if (epgAssetToUpdate.DescriptionsWithLanguages == null || epgAssetToUpdate.DescriptionsWithLanguages.Count == 0)
+            {
+                epgAssetToUpdate.DescriptionsWithLanguages = oldEpgAsset.DescriptionsWithLanguages;
+                validateSystemTopicDescription = false;
+            }
+            
+            EpgAssetMultilingualMutator.Instance.PrepareEpgAsset(epgAssetToUpdate, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapByCode);
 
             var nameValues = GetSystemTopicValues(epgAssetToUpdate.Name, epgAssetToUpdate.NamesWithLanguages, catalogGroupCache,
                                                   AssetManager.NAME_META_SYSTEM_NAME, validateSystemTopic);
@@ -894,6 +915,8 @@ namespace Core.Catalog.CatalogManagement
             {
                 return new Status((int)eResponseStatus.AssetExternalIdMustBeUnique, eResponseStatus.AssetExternalIdMustBeUnique.ToString());
             }
+            
+            EpgAssetMultilingualMutator.Instance.PrepareEpgAsset(epgAssetToAdd, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapByCode);
 
             // Add Name meta values
             var nameValues = GetSystemTopicValues(epgAssetToAdd.Name, epgAssetToAdd.NamesWithLanguages, catalogGroupCache,
