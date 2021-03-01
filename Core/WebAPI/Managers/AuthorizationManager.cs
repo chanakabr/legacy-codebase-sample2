@@ -793,7 +793,7 @@ namespace WebAPI.Managers
         {                        
             // Check if KS already validated by gateway
             string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
-            if (ksRandomHeader == ks.Random)
+            if (ks.IsKsFormat && ksRandomHeader == ks.Random)
             {
                 return ValidateKsSignature(ks);
             }
