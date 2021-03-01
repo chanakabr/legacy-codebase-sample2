@@ -42,6 +42,7 @@ namespace ApiLogic.CanaryDeployment
     // a class to return "default" responses when canary deployment configuration isn't enabled
     public class BaseCanaryDeploymentManager : ICanaryDeploymentManager
     {
+        private const string DEFAULT_ERROR_MSG = "Canary Deployment Configuration is disabled on the environment, to enable add should_allow_canary_deployment_configuration: true under microservices_client_configuration TCM configuration";
         private static readonly Lazy<BaseCanaryDeploymentManager> lazy = new Lazy<BaseCanaryDeploymentManager>(() => new BaseCanaryDeploymentManager(), LazyThreadSafetyMode.PublicationOnly);
 
         private readonly Status defaultResponseStatus;
@@ -50,8 +51,7 @@ namespace ApiLogic.CanaryDeployment
 
         private BaseCanaryDeploymentManager()
         {
-            defaultResponseStatus = new Status(eResponseStatus.CanaryDeploymentConfigurationIsDisabledOnTheEnvironment, @"Canary Deployment Configuration is disabled on the environment, to enable 
-                                                                                add should_allow_canary_deployment_configuration: true under microservices_client_configuration TCM configuration");
+            defaultResponseStatus = new Status(eResponseStatus.CanaryDeploymentConfigurationIsDisabledOnTheEnvironment, DEFAULT_ERROR_MSG);
         }
 
         public Status DeleteGroupConfiguration(int groupId)
