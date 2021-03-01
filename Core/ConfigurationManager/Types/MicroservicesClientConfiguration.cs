@@ -30,8 +30,9 @@ namespace ConfigurationManager.Types
             "(.*)(_InvalidateOTTUser_)(.*)",
             "(.*)(_InvalidateUserRoles_)(.*)",
             "(.*)(_InvalidateUserAndHouseholdSegments_)(.*)",
-            "(.*)(_invalidationKeySecurityPartnerConfig_groupId_)(.*)",
-            "(.*)(_InvalidatePartnerRoles)"
+            "(.*)(_InvalidatePartnerSecurityConfiguration)",
+            "(.*)(_InvalidatePartnerRoles)",
+            "(.*)(_InvalidateHouseholdDevice_)(.*)"
         };
 
         public BaseValue<bool> ShouldProduceInvalidationEventsToKafka = new BaseValue<bool>("should_produce_invalidation_events_to_kafka", false);
