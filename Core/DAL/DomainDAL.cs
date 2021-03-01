@@ -497,6 +497,7 @@ namespace DAL
             spUpdateSetDeviceStatusInDomain.AddParameter("@DeviceDomainID", nDeviceDomainID);
             spUpdateSetDeviceStatusInDomain.AddParameter("@status", nStatus);
             spUpdateSetDeviceStatusInDomain.AddParameter("@isActive", nIsActive);
+            spUpdateSetDeviceStatusInDomain.AddParameter("@UpdateDate", DateTime.UtcNow);
 
             DataTable dtResult = spUpdateSetDeviceStatusInDomain.Execute();
 
@@ -1058,6 +1059,7 @@ namespace DAL
                 updateQuery1.SetConnectionKey("USERS_CONNECTION_STRING");
                 updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
                 updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("is_Active", "=", nIsActive);
+                updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
                 updateQuery1 += " where ";
                 updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nDeviceID);
                 res = updateQuery1.Execute();
@@ -1150,6 +1152,7 @@ namespace DAL
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sNewToken);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_Date", "=", DateTime.UtcNow);
                 updateQuery += " where ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 updateQuery += " and ";
@@ -1371,7 +1374,6 @@ namespace DAL
 
             return desc;
         }
-
 
         public static long GetDeviceIDByDomainActivationToken(int nGroupID, string sToken, ref long nDomainsDevicesID)
         {
@@ -1895,7 +1897,7 @@ namespace DAL
             sp.AddParameter("@isActive", isActive);
             sp.AddParameter("@dominID", domainID);
             sp.AddIDListParameter<int>("@usersID", users, "Id");
-            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow); 
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -1956,7 +1958,6 @@ namespace DAL
             }
             return devicesToBeModified;
         }
-
 
         public static List<string> SetDevicesDomainStatusNotInList(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, int? status = null)
         {
@@ -2073,7 +2074,6 @@ namespace DAL
             return row;
         }
 
-
         public static bool UpdateDeviceDrmID(int groupId, string deviceId, string drmId, int domainId)
         {
             StoredProcedure sp = new StoredProcedure("Update_DeviceDrmID");
@@ -2090,7 +2090,6 @@ namespace DAL
             }
             return result;
         }
-
 
         public static DrmPolicy GetDrmPolicy(int groupId)
         {
