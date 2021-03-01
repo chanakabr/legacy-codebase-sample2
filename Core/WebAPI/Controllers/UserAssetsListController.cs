@@ -30,7 +30,6 @@ namespace WebAPI.Controllers
 
             var groupId = KS.GetFromRequest().GroupId;
             var userId = KS.GetFromRequest().UserId;
-            var isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, KS.GetFromRequest().OriginalUserId, true);
 
             try
             {
@@ -38,13 +37,13 @@ namespace WebAPI.Controllers
                 switch (filter.By)
                 {
                     case KalturaEntityReferenceBy.user:
-                        response = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string> { userId }, filter.ListTypeEqual, filter.AssetTypeEqual, isAllowedToViewInactiveAssets);
+                        response = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string> { userId }, filter.ListTypeEqual, filter.AssetTypeEqual);
                         break;
                     case KalturaEntityReferenceBy.household:
                         var householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
                         if (householdUserIds != null && householdUserIds.Count > 0)
                         {
-                            response = ClientsManager.UsersClient().GetItemFromList(groupId, householdUserIds, filter.ListTypeEqual, filter.AssetTypeEqual, isAllowedToViewInactiveAssets);
+                            response = ClientsManager.UsersClient().GetItemFromList(groupId, householdUserIds, filter.ListTypeEqual, filter.AssetTypeEqual);
                         }
                         else
                         {

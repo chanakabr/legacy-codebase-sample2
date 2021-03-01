@@ -1227,7 +1227,7 @@ namespace Core.Users
             return response;
         }
 
-        public static UsersItemsListsResponse GetItemsFromUsersLists(int nGroupID, List<string> userIds, ListType listType, ListItemType itemType, bool isAllowedToViewInactiveAssets)
+        public static UsersItemsListsResponse GetItemsFromUsersLists(int nGroupID, List<string> userIds, ListType listType, ListItemType itemType)
         {
             UsersItemsListsResponse response = new UsersItemsListsResponse();
             BaseUsers t = null;
@@ -1235,7 +1235,7 @@ namespace Core.Users
 
             if (t != null)
             {
-                response = t.GetItemsFromUsersLists(nGroupID, userIds, listType, itemType, isAllowedToViewInactiveAssets);
+                response = t.GetItemsFromUsersLists(nGroupID, userIds, listType, itemType);
                 if (response != null)
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 else

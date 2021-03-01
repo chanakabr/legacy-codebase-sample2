@@ -675,7 +675,7 @@ namespace WebAPI.Clients
             return favorites;
         }
 
-        public List<KalturaUserAssetsList> GetItemFromList(int groupId, List<string> userIds, KalturaUserAssetsListType listType, KalturaUserAssetsListItemType assetType, bool isAllowedToViewInactiveAssets)
+        public List<KalturaUserAssetsList> GetItemFromList(int groupId, List<string> userIds, KalturaUserAssetsListType listType, KalturaUserAssetsListItemType assetType)
         {
             List<KalturaUserAssetsList> userAssetsList = null;
             UsersItemsListsResponse response = null;
@@ -686,7 +686,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Users.Module.GetItemsFromUsersLists(groupId, userIds, wsListType, wsAssetType, isAllowedToViewInactiveAssets);
+                    response = Core.Users.Module.GetItemsFromUsersLists(groupId, userIds, wsListType, wsAssetType);
                 }
             }
             catch (Exception ex)

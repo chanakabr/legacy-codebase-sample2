@@ -810,7 +810,7 @@ namespace Core.Users
 
         public List<UserItemList> GetItemFromList(UserItemList userItemList, int groupId)
         {
-            var status = TryGetUsersAllowedItems(groupId, new List<string> { userItemList.siteGuid }, userItemList.listType, userItemList.itemType, false, out var items);
+            var status = TryGetUsersAllowedItems(groupId, new List<string> { userItemList.siteGuid }, userItemList.listType, userItemList.itemType, out var items);
             if (status.IsOkStatusCode())
             {
                 return items
@@ -828,9 +828,9 @@ namespace Core.Users
             return null;
         }
 
-        public UsersItemsListsResponse GetItemsFromUsersLists(int groupId, List<string> userIds, ListType listType, ListItemType itemType, bool isAllowedToViewInactiveAssets)
+        public UsersItemsListsResponse GetItemsFromUsersLists(int groupId, List<string> userIds, ListType listType, ListItemType itemType)
         {
-            var status = TryGetUsersAllowedItems(groupId, userIds, listType, itemType, isAllowedToViewInactiveAssets, out var items);
+            var status = TryGetUsersAllowedItems(groupId, userIds, listType, itemType, out var items);
             var response = new UsersItemsListsResponse
             {
                 Status = status
@@ -847,23 +847,16 @@ namespace Core.Users
             return response;
         }
 
-        private ApiObjects.Response.Status TryGetUsersAllowedItems(int groupId, List<string> userIds, ListType listType, ListItemType listItemType, bool isAllowedToViewInactiveAssets, out List<Item> items)
+        private ApiObjects.Response.Status TryGetUsersAllowedItems(int groupId, List<string> userIds, ListType listType, ListItemType listItemType, out List<Item> items)
         {
             var status = TryGetUsersItems(groupId, userIds, listType, listItemType, out var allItems);
             if (status.IsOkStatusCode())
             {
-                if (isAllowedToViewInactiveAssets)
-                {
-                    items = allItems;
-                }
-                else
-                {
-                    var ksqlFilter = $"(and media_id:'{string.Join(",", allItems.Select(x => x.ItemId))}')";
-                    var assets = api.SearchAssets(groupId, ksqlFilter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true, false);
-                    var allowedAssetsIds = assets.Select(x => int.Parse(x.AssetId)).ToArray();
+                var ksqlFilter = $"(and media_id:'{string.Join(",", allItems.Select(x => x.ItemId))}')";
+                var assets = api.SearchAssets(groupId, ksqlFilter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true, false);
+                var allowedAssetsIds = assets.Select(x => int.Parse(x.AssetId)).ToArray();
 
-                    items = allItems.Where(x => allowedAssetsIds.Contains(x.ItemId)).ToList();
-                }
+                items = allItems.Where(x => allowedAssetsIds.Contains(x.ItemId)).ToList();
             }
             else
             {
