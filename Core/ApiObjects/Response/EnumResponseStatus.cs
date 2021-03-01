@@ -313,6 +313,7 @@ namespace ApiObjects.Response
         CategoryItemIsRoot = 4108,
         CategoryVersionIsOlderThanDefault = 4109,
         CategoryIsAlreadyAssociatedToVersionTree = 4110,
+        StartDateShouldBeLessThanEndDate = 4111,
 
         #endregion
 
