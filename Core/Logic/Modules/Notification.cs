@@ -1210,10 +1210,10 @@ namespace Core.Notification
             var result = new Status() { Code = (int)eResponseStatus.Error };
             try
             {
-                if (SmsManager.Instance.HasAdapter(groupId, out string adapterUrl))
+                var defaultAdapetr = SmsManager.Instance.GetDefaultAdapter(groupId);
+                if (defaultAdapetr != null)
                 {
-                    result = SmsManager.Instance.Send(groupId, userId, adapterUrl,
-                        message, phoneNumber, keyValuePair);
+                    result = SmsManager.Instance.Send(groupId, userId, defaultAdapetr, message, phoneNumber, keyValuePair);
                 }
                 else
                 {
@@ -1222,12 +1222,9 @@ namespace Core.Notification
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Exception while trying to send SMS. group ID: {0}, user ID: {1}, message: {2}, Ex: {3}",
-                    groupId,
-                    userId,
-                    message,
-                    ex);
+                log.Error($"Exception while trying to send SMS. group ID: {groupId}, user ID: {userId}, message: {message}, Ex: {ex}");
             }
+
             return result;
         }
 

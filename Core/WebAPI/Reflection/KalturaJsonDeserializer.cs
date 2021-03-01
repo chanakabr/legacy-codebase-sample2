@@ -22,6 +22,7 @@ using WebAPI.Models.Segmentation;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
+using WebAPI.Models.CanaryDeployment;
 using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
 using WebAPI.Models.Billing;
@@ -285,6 +286,9 @@ namespace WebAPI.Reflection
                 case "KalturaBaseOTTUser":
                     return new KalturaBaseOTTUser(parameters);
                     
+                case "KalturaBasePermissionFilter":
+                    return new KalturaBasePermissionFilter(parameters);
+                    
                 case "KalturaBaseRegionFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
@@ -455,6 +459,18 @@ namespace WebAPI.Reflection
                     
                 case "KalturaCampaignSearchFilter":
                     return new KalturaCampaignSearchFilter(parameters);
+                    
+                case "KalturaCanaryDeploymentAuthenticationMsOwnerShip":
+                    return new KalturaCanaryDeploymentAuthenticationMsOwnerShip(parameters);
+                    
+                case "KalturaCanaryDeploymentConfiguration":
+                    return new KalturaCanaryDeploymentConfiguration(parameters);
+                    
+                case "KalturaCanaryDeploymentDataOwnerShip":
+                    return new KalturaCanaryDeploymentDataOwnerShip(parameters);
+                    
+                case "KalturaCanaryDeploymentMigrationEvents":
+                    return new KalturaCanaryDeploymentMigrationEvents(parameters);
                     
                 case "KalturaCaptionPlaybackPluginData":
                     return new KalturaCaptionPlaybackPluginData(parameters);
@@ -1436,6 +1452,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPermission":
                     return new KalturaPermission(parameters);
+                    
+                case "KalturaPermissionByIdInFilter":
+                    return new KalturaPermissionByIdInFilter(parameters);
                     
                 case "KalturaPermissionFilter":
                     return new KalturaPermissionFilter(parameters);
@@ -17935,6 +17954,12 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaBasePermissionFilter
+    {
+        public KalturaBasePermissionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaBaseRegionFilter
     {
         public KalturaBaseRegionFilter(Dictionary<string, object> parameters = null) : base(parameters)
@@ -21156,16 +21181,6 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute PermissionItemsIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermission")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         public KalturaPermission(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -21212,11 +21227,20 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("permissionItemsIds") && parameters["permissionItemsIds"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PermissionItemsIdsSchemaProperty.Validate("permissionItemsIds", parameters["permissionItemsIds"]);
-                    }
                     PermissionItemsIds = (String) Convert.ChangeType(parameters["permissionItemsIds"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaPermissionByIdInFilter
+    {
+        public KalturaPermissionByIdInFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
                 }
             }
         }
@@ -31020,6 +31044,138 @@ namespace WebAPI.Models.Upload
     }
 }
 
+namespace WebAPI.Models.CanaryDeployment
+{
+    public partial class KalturaCanaryDeploymentAuthenticationMsOwnerShip
+    {
+        public KalturaCanaryDeploymentAuthenticationMsOwnerShip(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("userLoginHistory") && parameters["userLoginHistory"] != null)
+                {
+                    UserLoginHistory = (Boolean) Convert.ChangeType(parameters["userLoginHistory"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("deviceLoginHistory") && parameters["deviceLoginHistory"] != null)
+                {
+                    DeviceLoginHistory = (Boolean) Convert.ChangeType(parameters["deviceLoginHistory"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("sSOAdapterProfiles") && parameters["sSOAdapterProfiles"] != null)
+                {
+                    SSOAdapterProfiles = (Boolean) Convert.ChangeType(parameters["sSOAdapterProfiles"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("refreshToken") && parameters["refreshToken"] != null)
+                {
+                    RefreshToken = (Boolean) Convert.ChangeType(parameters["refreshToken"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("deviceLoginPin") && parameters["deviceLoginPin"] != null)
+                {
+                    DeviceLoginPin = (Boolean) Convert.ChangeType(parameters["deviceLoginPin"], typeof(Boolean));
+                }
+            }
+        }
+    }
+    public partial class KalturaCanaryDeploymentConfiguration
+    {
+        public KalturaCanaryDeploymentConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("dataOwnerShip") && parameters["dataOwnerShip"] != null)
+                {
+                    if (parameters["dataOwnerShip"] is JObject)
+                    {
+                        DataOwnerShip = (KalturaCanaryDeploymentDataOwnerShip) Deserializer.deserialize(typeof(KalturaCanaryDeploymentDataOwnerShip), ((JObject) parameters["dataOwnerShip"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["dataOwnerShip"] is IDictionary)
+                    {
+                        DataOwnerShip = (KalturaCanaryDeploymentDataOwnerShip) Deserializer.deserialize(typeof(KalturaCanaryDeploymentDataOwnerShip), (Dictionary<string, object>) parameters["dataOwnerShip"]);
+                    }
+                }
+                if (parameters.ContainsKey("routingConfiguration") && parameters["routingConfiguration"] != null)
+                {
+                    if (parameters["routingConfiguration"] is JObject)
+                    {
+                        RoutingConfiguration = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["routingConfiguration"]).ToObject<Dictionary<string, object>>());
+                    }
+                }
+                if (parameters.ContainsKey("migrationEvents") && parameters["migrationEvents"] != null)
+                {
+                    if (parameters["migrationEvents"] is JObject)
+                    {
+                        MigrationEvents = (KalturaCanaryDeploymentMigrationEvents) Deserializer.deserialize(typeof(KalturaCanaryDeploymentMigrationEvents), ((JObject) parameters["migrationEvents"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["migrationEvents"] is IDictionary)
+                    {
+                        MigrationEvents = (KalturaCanaryDeploymentMigrationEvents) Deserializer.deserialize(typeof(KalturaCanaryDeploymentMigrationEvents), (Dictionary<string, object>) parameters["migrationEvents"]);
+                    }
+                }
+                if (parameters.ContainsKey("shouldProduceInvalidationEventsToKafka") && parameters["shouldProduceInvalidationEventsToKafka"] != null)
+                {
+                    ShouldProduceInvalidationEventsToKafka = (Boolean) Convert.ChangeType(parameters["shouldProduceInvalidationEventsToKafka"], typeof(Boolean));
+                }
+            }
+        }
+    }
+    public partial class KalturaCanaryDeploymentDataOwnerShip
+    {
+        public KalturaCanaryDeploymentDataOwnerShip(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("authenticationMsOwnerShip") && parameters["authenticationMsOwnerShip"] != null)
+                {
+                    if (parameters["authenticationMsOwnerShip"] is JObject)
+                    {
+                        AuthenticationMsOwnerShip = (KalturaCanaryDeploymentAuthenticationMsOwnerShip) Deserializer.deserialize(typeof(KalturaCanaryDeploymentAuthenticationMsOwnerShip), ((JObject) parameters["authenticationMsOwnerShip"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["authenticationMsOwnerShip"] is IDictionary)
+                    {
+                        AuthenticationMsOwnerShip = (KalturaCanaryDeploymentAuthenticationMsOwnerShip) Deserializer.deserialize(typeof(KalturaCanaryDeploymentAuthenticationMsOwnerShip), (Dictionary<string, object>) parameters["authenticationMsOwnerShip"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaCanaryDeploymentMigrationEvents
+    {
+        public KalturaCanaryDeploymentMigrationEvents(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("appToken") && parameters["appToken"] != null)
+                {
+                    AppToken = (Boolean) Convert.ChangeType(parameters["appToken"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("refreshToken") && parameters["refreshToken"] != null)
+                {
+                    RefreshToken = (Boolean) Convert.ChangeType(parameters["refreshToken"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("userPinCode") && parameters["userPinCode"] != null)
+                {
+                    UserPinCode = (Boolean) Convert.ChangeType(parameters["userPinCode"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("devicePinCode") && parameters["devicePinCode"] != null)
+                {
+                    DevicePinCode = (Boolean) Convert.ChangeType(parameters["devicePinCode"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("sessionRevocation") && parameters["sessionRevocation"] != null)
+                {
+                    SessionRevocation = (Boolean) Convert.ChangeType(parameters["sessionRevocation"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("userLoginHistory") && parameters["userLoginHistory"] != null)
+                {
+                    UserLoginHistory = (Boolean) Convert.ChangeType(parameters["userLoginHistory"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("deviceLoginHistory") && parameters["deviceLoginHistory"] != null)
+                {
+                    DeviceLoginHistory = (Boolean) Convert.ChangeType(parameters["deviceLoginHistory"], typeof(Boolean));
+                }
+            }
+        }
+    }
+}
+
 namespace WebAPI.Models.DMS
 {
     public partial class KalturaConfigurationGroup
@@ -32460,6 +32616,16 @@ namespace WebAPI.Models.Domains
             MaxLength = 255,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute DynamicDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         private static RuntimeSchemePropertyAttribute ModelSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
             ReadOnly = false,
@@ -32628,6 +32794,21 @@ namespace WebAPI.Models.Domains
                         MacAddressSchemaProperty.Validate("macAddress", parameters["macAddress"]);
                     }
                     MacAddress = (String) Convert.ChangeType(parameters["macAddress"], typeof(String));
+                }
+                if (parameters.ContainsKey("dynamicData__null") && parameters["dynamicData__null"] != null)
+                {
+                    AddNullableProperty("dynamicData");
+                }
+                if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
+                    }
+                    if (parameters["dynamicData"] is JObject)
+                    {
+                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                    }
                 }
                 if (parameters.ContainsKey("model__null") && parameters["model__null"] != null)
                 {

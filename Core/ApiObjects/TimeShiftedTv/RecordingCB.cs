@@ -48,6 +48,7 @@ namespace ApiObjects.TimeShiftedTv
             this.Tags = new Dictionary<string, List<string>>(baseEpg.Tags);
             this.Type = baseEpg.Type;
             this.UpdateDate = baseEpg.UpdateDate;
+            this.LinearMediaId = baseEpg.LinearMediaId;
         }
     }
 }

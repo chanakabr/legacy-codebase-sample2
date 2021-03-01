@@ -2648,7 +2648,7 @@ namespace WebAPI.WebServices
         /// <param name="userName"></param>
         /// <param name="webServicePassword"></param>
         /// <param name="domainId"></param>
-        /// <param name="siteGuid"></param
+        /// <param name="siteGuid"></param>
         /// <param name="epgId"></param>>
         /// <param name="channelMediaId"></param>
         /// <returns></returns>

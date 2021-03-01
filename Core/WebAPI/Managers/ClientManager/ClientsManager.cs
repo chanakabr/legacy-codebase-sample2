@@ -87,6 +87,11 @@ namespace WebAPI.ClientManagers.Client
             return Nested.Instance.GetClient(ClientType.Catalog) as CatalogClient;
         }
 
+        public static CanaryDeploymentClient CanaryDeploymentClient()
+        {
+            return Nested.Instance.GetClient(ClientType.CanaryDeployment) as CanaryDeploymentClient;
+        }
+
         private BaseClient GetClient(ClientType clientType)
         {
             BaseClient client = null;

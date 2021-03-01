@@ -3,6 +3,7 @@ using ApiObjects.Base;
 using ApiObjects.Response;
 using System;
 using System.Linq;
+using ApiObjects.User;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -111,13 +112,14 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
         [Throws(eResponseStatus.NoUsersInDomain)]
-        static public KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
+        public static KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
         {
+            device.Validate();
+
             int groupId = KS.GetFromRequest().GroupId;
             int householdId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
-            string userId = KS.GetFromRequest().UserId;
-            int.TryParse(userId, out int _userId);
-            var contextData = new ContextData(groupId) { UserId = _userId };
+            long userId = KS.GetFromRequest().UserId.ParseUserId();
+            var contextData = new ContextData(groupId) { UserId = userId };
 
             try
             {
@@ -133,7 +135,7 @@ namespace WebAPI.Controllers
                 }
                 else
                 {
-                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId, device);
+                    device = ClientsManager.DomainsClient().SubmitAddDeviceToDomain(groupId, householdId, userId.ToString(), device);
                 }
             }
             catch (ClientException ex)
@@ -197,7 +199,7 @@ namespace WebAPI.Controllers
         {
             KalturaHouseholdDevice device = null;
 
-            KS ks = KS.GetFromRequest();
+            KS ks = KS.GetFromRequest();            
 
             int householdId = 0;
             if (udid.IsNullOrEmptyOrWhiteSpace())
@@ -301,10 +303,13 @@ namespace WebAPI.Controllers
         [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.DeviceNotExists)]
-        static public KalturaHouseholdDevice Update(string udid, KalturaHouseholdDevice device)
+        public static KalturaHouseholdDevice Update(string udid, KalturaHouseholdDevice device)
         {
-            int groupId = KS.GetFromRequest().GroupId;
+            device.Udid = udid;
+            device.Validate();
 
+            int groupId = KS.GetFromRequest().GroupId;
+            
             try
             {
                 string userId = KS.GetFromRequest().UserId;
@@ -322,10 +327,10 @@ namespace WebAPI.Controllers
 
                 var allowNullExternalId = device.NullableProperties != null && device.NullableProperties.Contains("externalid");
                 var allowNullMacAddress = device.NullableProperties != null && device.NullableProperties.Contains("macaddress");
+                var allowNullDynamicData = device.NullableProperties != null && device.NullableProperties.Contains("dynamicdata");
 
                 // call client
-                device.Udid = udid;
-                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device, allowNullExternalId, allowNullMacAddress);
+                return ClientsManager.DomainsClient().SetDeviceInfo(groupId, device, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
             }
             catch (ClientException ex)
             {

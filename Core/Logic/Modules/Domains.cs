@@ -834,13 +834,18 @@ namespace Core.Domains
             return response;
         }
 
-        public static DeviceResponse SetDevice(int nGroupID, Users.DomainDevice device, bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        public static DeviceResponse SetDevice(
+            int nGroupID,
+            Users.DomainDevice device,
+            bool allowNullExternalId = false,
+            bool allowNullMacAddress = false,
+            bool allowNullDynamicData = false)
         {
             Core.Users.BaseDevice t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                DeviceResponseObject responseObject = t.SetDevice(nGroupID, device, allowNullExternalId, allowNullMacAddress);
+                DeviceResponseObject responseObject = t.SetDevice(nGroupID, device, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
 
                 DeviceResponse response = new DeviceResponse()
                 {

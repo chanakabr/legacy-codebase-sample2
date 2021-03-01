@@ -1,7 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Response;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -51,21 +53,46 @@ namespace WebAPI.Models.API
         public string DependsOnPermissionNames { get; set; }
 
         /// <summary>
-        /// Comma separated permissions names from type SPECIAL_FEATURE
+        /// Permission type
         /// </summary>
         [DataMember(Name = "type")]
         [JsonProperty("type")]
-        [XmlElement(ElementName = "type")]
+        [XmlElement(ElementName = "type")]        
         public KalturaPermissionType Type { get; set; }
 
         /// <summary>
-        /// Comma separated assosiated permission items IDs
+        /// Comma separated associated permission items IDs
         /// </summary>
         [DataMember(Name = "permissionItemsIds")]
         [JsonProperty("permissionItemsIds")]
         [XmlElement(ElementName = "permissionItemsIds")]
-        [SchemeProperty(ReadOnly = true)]
         public string PermissionItemsIds { get; set; }
+
+        internal void ValidateForUpdate()
+        {
+            if (this.Type == KalturaPermissionType.GROUP)
+            {
+
+            }
+
+            if (!string.IsNullOrEmpty(PermissionItemsIds))
+            {
+                var items = GetItemsIn<List<long>, long>(this.PermissionItemsIds, "permissionItemsIds", true);
+            }
+        }
+
+        internal void ValidateForInsert()
+        {          
+            if (!string.IsNullOrEmpty(PermissionItemsIds))
+            {
+                var items = GetItemsIn<List<long>, long>(this.PermissionItemsIds, "permissionItemsIds", true);
+            }
+        }
+
+        internal object GetPermissionItemsIds()
+        {
+            return this.GetItemsIn<List<int>, int>(PermissionItemsIds, "KalturaPermission.permissionItemsIds");
+        }
     }
 
     public enum KalturaPermissionType

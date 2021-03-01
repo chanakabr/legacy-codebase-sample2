@@ -580,7 +580,7 @@ namespace NPVR
             }
         }
 
-        public NPVRCancelDeleteResponse DeleteAsset(NPVRParamsObj args)
+        public NPVRCancelDeleteResponse DeleteAsset(NPVRCancelDeleteByObj args)
         {
             NPVRCancelDeleteResponse res = new NPVRCancelDeleteResponse();
             try
@@ -1778,17 +1778,17 @@ namespace NPVR
                         {
                             GetAccountResponse(responseJson, args, res, "Update");
 
-                            log.Debug(string.Format("UpdateAccount. Group ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode));
+                            log.Debug($"UpdateAccount. Group ID: {groupID} , Params Obj: {args.ToString()} , HTTP Status Code: {httpStatusCode} , Info: {responseJson}");
                         }
                         else
                         {
-                            throw new Exception(string.Format("UpdateAccount. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                            throw new Exception($"UpdateAccount. Connection error to ALU. HTTP Status Code: {httpStatusCode} , Response JSON: {responseJson} , Err Msg: {errorMsg}");
                         }
                     }
                     else
                     {
                         // log here the error. 
-                        log.Error(LOG_HEADER_ERROR + string.Format("UpdateAccount. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
+                        log.Error($"{LOG_HEADER_ERROR} UpdateAccount. An error occurred while trying to contact ALU REST interface. G ID: {groupID} , Params Obj: {args.ToString()} , HTTP Status Code: {httpStatusCode} , Info: {errorMsg}");
                         res.isOK = false;
                         res.msg = "An error occurred. Refer to server log files.";
                         res.quota = 0;
@@ -1960,6 +1960,16 @@ namespace NPVR
             }
 
             return HttpUtils.TrySendHttpGetRequest(url, encoding, ref httpStatusCode, ref responseJson, ref errorMsg, headers);
+        }
+
+        public NPVRRecordResponse DeleteAllRecordings(NPVRParamsObj args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public NPVRRecordResponse CancelByRecording(NPVRCancelDeleteByObj args)
+        {
+            throw new NotImplementedException();
         }
     }
 }

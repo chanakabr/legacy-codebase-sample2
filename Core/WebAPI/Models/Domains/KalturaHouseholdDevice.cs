@@ -2,9 +2,12 @@
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using TVinciShared;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
+using static WebAPI.Exceptions.BadRequestException;
 
 namespace WebAPI.Models.Domains
 {
@@ -123,6 +126,15 @@ namespace WebAPI.Models.Domains
         public string MacAddress { get; set; }
 
         /// <summary>
+        /// Dynamic data
+        /// </summary>
+        [DataMember(Name = "dynamicData")]
+        [JsonProperty("dynamicData")]
+        [XmlElement(ElementName = "dynamicData", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
+        
+        /// <summary>
         /// model
         /// </summary>
         [DataMember(Name = "model")]
@@ -160,12 +172,29 @@ namespace WebAPI.Models.Domains
 
         internal int getBrandId()
         {
-            return BrandId.HasValue ? (int)BrandId : 0;
+            return BrandId ?? 0;
         }
     }
 
     [Obsolete]
     public partial class KalturaDevice : KalturaHouseholdDevice
     {
+    }
+
+    public static class KalturaHouseholdDeviceValidator
+    {
+        private const int MaxKeyValues = 5; // numbers from BEO-8671
+        private const int MaxKeyLength = 128;
+        private const int MaxValueLength = 255;
+
+        public static void Validate(this KalturaHouseholdDevice device)
+        {
+            if (device.Udid.IsNullOrEmptyOrWhiteSpace())
+            {
+                throw new BadRequestException(ARGUMENT_CANNOT_BE_EMPTY, "udid");
+            }
+
+            device.DynamicData.Validate(MaxKeyValues, MaxKeyLength, MaxValueLength);
+        }
     }
 }

@@ -4828,7 +4828,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet GetMediaAssets(int groupId, List<long> ids, long defaultLanguageId, bool getAlsoInactive)
         {
-            StoredProcedure sp = new StoredProcedure("GetMediaAssetsByIds");
+            StoredProcedure sp = new StoredProcedure("GetMediaAssetsByIds_V2");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter<long>("@Ids", ids, "Id");
@@ -5865,6 +5865,7 @@ namespace Tvinci.Core.DAL
             return isUpdateSuccess;
         }
 
+        // TODO remove - used in one method, which should be removed
         public static bool UpdateOrAddBulkUploadAffectedObjectsToCB(long bulkUploadId, IEnumerable<IAffectedObject> affectedObjects, uint ttl)
         {
             var bulkUploadKey = GetBulkUploadKey(bulkUploadId);

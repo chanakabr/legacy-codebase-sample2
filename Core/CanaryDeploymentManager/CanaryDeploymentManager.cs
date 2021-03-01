@@ -1,0 +1,563 @@
+﻿using ApiObjects.CanaryDeployment;
+using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using CouchbaseManager;
+using KLogMonitor;
+using RedisManager;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading;
+
+namespace ApiLogic.CanaryDeployment
+{
+    public interface ICanaryDeploymentManager
+    {
+        GenericResponse<CanaryDeploymentConfiguration> GetGroupConfiguration(int groupId);
+        Status DeleteGroupConfiguration(int groupId);
+        Status SetRoutingAction(int groupId, CanaryDeploymentRoutingAction routingAction, CanaryDeploymentRoutingService routingService);
+        Status SetAllRoutingActions(int groupId, CanaryDeploymentRoutingService routingService);       
+        Status SetAllMigrationEventsStatus(int groupId, bool status);
+        Status EnableMigrationEvent(int groupId, CanaryDeploymentMigrationEvent migrationEvent);
+        Status DisableMigrationEvent(int groupId, CanaryDeploymentMigrationEvent migrationEvent);
+        bool IsDataOwnershipFlagEnabled(int groupId, CanaryDeploymentDataOwnershipEnum ownershipFlag);
+        bool IsEnabledMigrationEvent(int groupId, CanaryDeploymentMigrationEvent migrationEvent);
+    }
+
+    public class CanaryDeploymentManager : ICanaryDeploymentManager
+    {
+
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        
+        private static readonly Lazy<CanaryDeploymentManager> lazy = new Lazy<CanaryDeploymentManager>(() => new CanaryDeploymentManager(LayeredCache.Instance, RedisClientManager.PersistenceInstance,
+                                                                                                                                        new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.OTT_APPS)),
+                                                                                                                                        LazyThreadSafetyMode.PublicationOnly);
+
+        internal static CanaryDeploymentManager Instance { get { return lazy.Value; } }
+
+        private readonly ILayeredCache _layeredCache;
+        private readonly RedisClientManager _redisCM;
+        private readonly CouchbaseManager.CouchbaseManager _cbManager;
+
+
+        private CanaryDeploymentManager(ILayeredCache layeredCache, RedisClientManager redisCM, CouchbaseManager.CouchbaseManager cbManager)
+        {
+            _layeredCache = layeredCache;
+            _redisCM = redisCM;
+            _cbManager = cbManager;
+        }
+
+        public GenericResponse<CanaryDeploymentConfiguration> GetGroupConfiguration(int groupId)
+        {
+            GenericResponse<CanaryDeploymentConfiguration> res = new GenericResponse<CanaryDeploymentConfiguration>() { Object = null };
+            try
+            {
+                if (_cbManager.IsKeyExists(GetCanaryConfigurationKey(groupId)))
+                {
+                    // don't check if key exists again in GetCanaryDeploymentConfigurationFromLayeredCache method
+                    CanaryDeploymentConfiguration cdc = GetCanaryDeploymentConfigurationFromLayeredCache(groupId, false);
+                    if (cdc != null)
+                    {
+                        res.Object = cdc;
+                        res.SetStatus(eResponseStatus.OK);
+                    }
+                }
+                else
+                {
+                    res.SetStatus(eResponseStatus.GroupCanaryDeploymentConfigurationNotSetYet, "Group canary deployment configuration not set yet, check groupId 0 instead to see default value");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed to get canary deployment configuration for groupId {groupId}", ex);
+            }
+
+            return res;
+        }
+
+        public Status DeleteGroupConfiguration(int groupId)
+        {
+            Status res = new Status(eResponseStatus.FailedToDeleteGroupCanaryDeploymentConfiguration, $"Failed To delete canary deployment configuration for groupId {groupId}");
+            try
+            {
+                string key = GetCanaryConfigurationKey(groupId);
+                // if key doesn't exist or it was deleted successfully
+                if ((!_cbManager.IsKeyExists(key) || _cbManager.Remove(key)) && (!_redisCM.IsKeyExists(key) || _redisCM.Delete(key)))
+                {
+                    SetInvalidationKey(groupId);
+                    res.Set(eResponseStatus.OK);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed to delete canary deployment configuration for groupId {groupId}", ex);
+            }
+
+            return res;
+        }
+
+        public Status SetRoutingAction(int groupId, CanaryDeploymentRoutingAction routingAction, CanaryDeploymentRoutingService routingService)
+        {
+            Status res = new Status(eResponseStatus.Error, $"Failed To set canary deployment routing action {routingAction} to {routingService} for groupId {groupId}");
+            try
+            {
+                res = ValidateAndSetRoutingAction(groupId, routingAction, routingService);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed To set canary deployment routing action {routingAction} to {routingService} for groupId {groupId}", ex);
+            }
+
+            return res;
+        }
+
+        public Status SetAllRoutingActions(int groupId, CanaryDeploymentRoutingService routingService)
+        {
+            Status res = new Status(eResponseStatus.FailedToSetAllRoutingActions, $"Failed To set all canary deployment routing actions to {routingService} for groupId {groupId}");
+            try
+            {
+                foreach (CanaryDeploymentRoutingAction routingAction in CanaryDeploymentRoutingActionLists.AllRoutingActions)
+                {
+                    res = ValidateAndSetRoutingAction(groupId, routingAction, routingService);
+                    if (res.Code != (int)eResponseStatus.OK)
+                    {
+                        return res;
+                    }
+                }
+
+                // if we didn't fail on all routing actions, set res status to OK
+                res.Set(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed To set all canary deployment routing actions to {routingService} for groupId {groupId}", ex);
+            }
+
+            return res;
+        }
+
+        public Status SetAllMigrationEventsStatus(int groupId, bool status)
+        {
+            Status res = new Status(eResponseStatus.FailedToSetAllGroupCanaryDeploymentMigrationEventsStatus, $"Failed to set status {status} to all canary deployment migration events for groupId {groupId}");
+            try
+            {
+                string key = GetCanaryConfigurationKey(groupId);
+                CanaryDeploymentConfiguration cdc = GetCanaryDeploymentConfiguration(groupId);
+                if (cdc != null)
+                {
+                    if (SetStatusForAllCanaryDeploymentConfigurationMigrationEvents(groupId, status))
+                    {
+                        res.Set(eResponseStatus.OK);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed to set status {status} to all canary deployment migration events for groupId {groupId}", ex);
+            }
+
+            return res;
+        }
+
+        public Status EnableMigrationEvent(int groupId, CanaryDeploymentMigrationEvent migrationEvent)
+        {
+            Status res = new Status(eResponseStatus.FailedToEnableCanaryDeploymentMigrationEvent, $"Failed To enable canary deployment migration event {migrationEvent} for groupId {groupId}");
+            try
+            {
+                if (SetMigrationEventValue(groupId, migrationEvent, true))
+                {
+                    res.Set(eResponseStatus.OK);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed To enable canary deployment migration event {migrationEvent} for groupId {groupId}", ex);
+            }
+
+            return res;
+        }
+
+        public Status DisableMigrationEvent(int groupId, CanaryDeploymentMigrationEvent migrationEvent)
+        {
+            Status res = new Status(eResponseStatus.FailedToDisableCanaryDeploymentMigrationEvent, $"Failed To disable canary deployment migration event {migrationEvent} for groupId {groupId}");
+            try
+            {
+                if (SetMigrationEventValue(groupId, migrationEvent, false))
+                {
+                    res.Set(eResponseStatus.OK);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed To disable canary deployment migration event {migrationEvent} for groupId {groupId}", ex);
+            }
+
+            return res;
+        }
+
+        public bool IsDataOwnershipFlagEnabled(int groupId, CanaryDeploymentDataOwnershipEnum ownershipFlag)
+        {
+            var res = false;
+            try
+            {
+                var cdc = GetCanaryDeploymentConfigurationFromLayeredCache(groupId);
+                if (cdc != null)
+                {
+                    switch (ownershipFlag)
+                    {
+                        case CanaryDeploymentDataOwnershipEnum.AuthenticationUserLoginHistory:
+                            res = cdc.DataOwnership.AuthenticationMsOwnership.UserLoginHistory;
+                            break;
+                        case CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginHistory:
+                            res = cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginHistory;
+                            break;
+                        case CanaryDeploymentDataOwnershipEnum.AuthenticationSSOAdapterProfiles:
+                            res = cdc.DataOwnership.AuthenticationMsOwnership.SSOAdapterProfiles;
+                            break;
+                        case CanaryDeploymentDataOwnershipEnum.AuthenticationRefreshToken:
+                            res = cdc.DataOwnership.AuthenticationMsOwnership.RefreshToken;
+                            break;
+                        case CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginPin:
+                            res = cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginPin;
+                            break;
+                        case CanaryDeploymentDataOwnershipEnum.AuthenticationSessionRevocation:
+                            res = cdc.DataOwnership.AuthenticationMsOwnership.SessionRevocation;
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException(nameof(ownershipFlag), ownershipFlag, null);
+                    }
+                   
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed checking if ownership flag {ownershipFlag} is enabled for groupId {groupId}", ex);
+            }
+
+            return res;
+        }
+
+        public bool IsEnabledMigrationEvent(int groupId, CanaryDeploymentMigrationEvent migrationEvent)
+        {
+            bool res = false;
+            try
+            {
+                CanaryDeploymentConfiguration cdc = GetCanaryDeploymentConfigurationFromLayeredCache(groupId);
+                if (cdc != null)
+                {
+                    switch (migrationEvent)
+                    {
+                        case CanaryDeploymentMigrationEvent.AppToken:
+                            res = cdc.MigrationEvents.AppToken;
+                            break;
+                        case CanaryDeploymentMigrationEvent.RefreshToken:
+                            res = cdc.MigrationEvents.RefreshToken;
+                            break;
+                        case CanaryDeploymentMigrationEvent.UserPinCode:
+                            res = cdc.MigrationEvents.UserPinCode;
+                            break;
+                        case CanaryDeploymentMigrationEvent.DevicePinCode:
+                            res = cdc.MigrationEvents.DevicePinCode;
+                            break;
+                        case CanaryDeploymentMigrationEvent.SessionRevocation:
+                            res = cdc.MigrationEvents.SessionRevocation;
+                            break;
+                        case CanaryDeploymentMigrationEvent.UserLoginHistory:
+                            res = cdc.MigrationEvents.UserLoginHistory;
+                            break;
+                        case CanaryDeploymentMigrationEvent.DeviceLoginHistory:
+                            res = cdc.MigrationEvents.DeviceLoginHistory;
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed checking if migration event {migrationEvent} is enabled for groupId {groupId}", ex);
+            }
+
+            return res;
+        }
+
+        #region private methods
+
+        private CanaryDeploymentConfiguration GetCanaryDeploymentConfigurationFromLayeredCache(int groupId, bool shouldCheckIfGroupKeyExists = true)
+        {
+            CanaryDeploymentConfiguration cdc = null;
+            if (!_layeredCache.Get<CanaryDeploymentConfiguration>(LayeredCacheKeys.GetCanaryDeploymentConfigurationKey(groupId), ref cdc, GetGroupConfigurationFromSource,
+                                                                new Dictionary<string, object>() { { "groupId", groupId }, { "shouldCheckIfGroupKeyExists", shouldCheckIfGroupKeyExists } }, groupId,
+                                                                LayeredCacheConfigNames.GET_CANARY_CONFIGURATION, new List<string>() { LayeredCacheKeys.GetCanaryDeploymentConfigurationInvalidationKey(groupId) }))
+            {
+                log.Error($"Failed getting canary deployment configuration from layeredCache");
+            }
+
+            return cdc;
+        }
+
+        private Tuple<CanaryDeploymentConfiguration, bool> GetGroupConfigurationFromSource(Dictionary<string, object> funcParams)
+        {
+            int? groupId = null;
+            bool? shouldCheckIfGroupKeyExists = null;
+            CanaryDeploymentConfiguration cdc = null;
+            try
+            {                
+                if (funcParams != null && funcParams.ContainsKey("groupId") && funcParams.ContainsKey("shouldCheckIfGroupKeyExists"))
+                {
+                    groupId = funcParams["groupId"] as int?;
+                    shouldCheckIfGroupKeyExists = funcParams["shouldCheckIfGroupKeyExists"] as bool?;
+                    if (groupId.HasValue && groupId.Value >= 0 && shouldCheckIfGroupKeyExists.HasValue)
+                    {
+                        if (shouldCheckIfGroupKeyExists.Value && _cbManager.IsKeyExists(GetCanaryConfigurationKey(groupId.Value)))
+                        {
+                            // don't check if key exists again in GetCanaryDeploymentConfiguration method
+                            cdc = GetCanaryDeploymentConfiguration(groupId.Value, false);
+                        }
+                        // fall-back is to use groupId = 0
+                        else
+                        {
+                            cdc = GetCanaryDeploymentConfiguration(0);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetGroupConfigurationFromSource for groupId {0}", groupId.HasValue ? groupId.Value : -1), ex);
+            }
+
+            return new Tuple<CanaryDeploymentConfiguration, bool>(cdc, cdc != null);
+        }
+
+        private bool SetStatusForAllCanaryDeploymentConfigurationMigrationEvents(int groupId, bool status)
+        {
+            bool res = false;
+            try
+            {
+                string key = GetCanaryConfigurationKey(groupId);
+                CanaryDeploymentConfiguration cdc = GetCanaryDeploymentConfiguration(groupId);
+                if (cdc != null)
+                {
+                    // set status for all migration events
+                    cdc.MigrationEvents = new CanaryDeploymentMigrationEvents(status);
+                    res = SetCanaryDeploymentConfiguration(groupId, cdc);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed SetStatusForAllCanaryDeploymentConfigurationMigrationEvents for groupId {groupId} and status {status}", ex);
+            }
+
+            return res;
+        }
+
+        private Status ValidateAndSetRoutingAction(int groupId, CanaryDeploymentRoutingAction routingAction, CanaryDeploymentRoutingService routingService)
+        {            
+            CanaryDeploymentConfiguration cdc = GetCanaryDeploymentConfiguration(groupId);
+            bool isRoutingToPhoenixRestProxy = routingService == CanaryDeploymentRoutingService.PhoenixRestProxy;
+            // continue only if we are setting routing back to Phoenix or if it's valid to be routed to phoenix rest proxy
+            Status validateStatus = ValidateRoutinActionBeSentToPhoenixRestProxy(cdc, routingAction, isRoutingToPhoenixRestProxy);
+            if (validateStatus.Code != (int)eResponseStatus.OK)
+            {
+                return validateStatus;
+            }
+
+            // always enable invalidation events when routing an action to PhoenixRestProxy
+            cdc.ShouldProduceInvalidationEventsToKafka = isRoutingToPhoenixRestProxy;
+            Status res = new Status(eResponseStatus.Error, "Failed updating CanaryDeploymentConfiguration");
+            List<string> apisToRoute = new List<string>();
+            switch (routingAction)
+            {
+                case CanaryDeploymentRoutingAction.AppTokenController:
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.AppTokenControllerRouting);
+                    break;
+                case CanaryDeploymentRoutingAction.UserLoginPinController:
+                    cdc.DataOwnership.AuthenticationMsOwnership.UserLoginHistory = isRoutingToPhoenixRestProxy;
+                    cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginHistory = isRoutingToPhoenixRestProxy;
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.UserLoginPinControllerRouting);
+                    break;
+                case CanaryDeploymentRoutingAction.SsoAdapterProfileController:
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.SsoAdapterProfileControllerRouting);
+                    break;
+                case CanaryDeploymentRoutingAction.SessionController:
+                    cdc.DataOwnership.AuthenticationMsOwnership.UserLoginHistory = isRoutingToPhoenixRestProxy;
+                    cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginHistory = isRoutingToPhoenixRestProxy;
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.SessionControllerRouting);
+                    break;
+                case CanaryDeploymentRoutingAction.HouseHoldDevicePinActions:
+                    cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginPin = isRoutingToPhoenixRestProxy;
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.HouseHoldDevicePinActionsRouting);
+                    break;
+                case CanaryDeploymentRoutingAction.RefreshToken:
+                    cdc.DataOwnership.AuthenticationMsOwnership.RefreshToken = isRoutingToPhoenixRestProxy;
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.RefreshTokenRouting);
+                    break;
+                case CanaryDeploymentRoutingAction.Login:
+                    cdc.DataOwnership.AuthenticationMsOwnership.UserLoginHistory = isRoutingToPhoenixRestProxy;
+                    cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginHistory = isRoutingToPhoenixRestProxy;
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.LoginRouting);
+                    break;
+                case CanaryDeploymentRoutingAction.Logout:
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.LogoutRouting);
+                    break;
+                case CanaryDeploymentRoutingAction.AnonymousLogin:
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.AnonymousLoginRouting);
+                    break;
+                default:
+                    break;
+            }
+
+            if (cdc.RoutingConfiguration == null)
+                cdc.RoutingConfiguration = new Dictionary<string, CanaryDeploymentRoutingService>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string api in apisToRoute)
+            {
+                cdc.RoutingConfiguration[api] = routingService;
+            }
+
+            if (SetCanaryDeploymentConfiguration(groupId, cdc))
+            {
+                res.Set(eResponseStatus.OK);
+            }
+
+            return res;
+        }
+
+        private Status ValidateRoutinActionBeSentToPhoenixRestProxy(CanaryDeploymentConfiguration cdc, CanaryDeploymentRoutingAction routingAction, bool isRoutingToPhoenixRestProxy)
+        {
+            Status res = new Status(eResponseStatus.Error, "Failed validating routing action can be sent to phoenix proxy");
+            Status okStatus = new Status(eResponseStatus.OK);
+            switch (routingAction)
+            {
+                case CanaryDeploymentRoutingAction.AppTokenController:
+                    res = cdc.MigrationEvents.AppToken ? okStatus : new Status(eResponseStatus.FailedToSetRouteAppTokenController, "AppToken migration event has to be enabled first");
+                    break;
+                case CanaryDeploymentRoutingAction.UserLoginPinController:
+                    res = cdc.MigrationEvents.UserPinCode ? okStatus : new Status(eResponseStatus.FailedToSetRouteUserLoginPinController, "UserPinCode migration event has to be enabled first");
+                    break;
+                case CanaryDeploymentRoutingAction.SessionController:
+                    res = cdc.MigrationEvents.SessionRevocation ? okStatus : new Status(eResponseStatus.FailedToSetRouteSessionController, "SessionRevocation migration event has to be enabled first");
+                    break;
+                case CanaryDeploymentRoutingAction.HouseHoldDevicePinActions:
+                    res = cdc.MigrationEvents.DevicePinCode ? okStatus : new Status(eResponseStatus.FailedToSetRouteHouseHoldDevicePinActions, "DevicePinCode migration event has to be enabled first");
+                    break;
+                case CanaryDeploymentRoutingAction.RefreshToken:
+                    res = cdc.MigrationEvents.RefreshToken ? okStatus : new Status(eResponseStatus.FailedToSetRouteRefreshToken, "RefreshToken migration event has to be enabled first");
+                    break;              
+                case CanaryDeploymentRoutingAction.Login:
+                case CanaryDeploymentRoutingAction.AnonymousLogin:
+                // TODO: remove userLoginHistory and DeviceLoginHistory from migration events if we don't want them
+
+                // Currently commenting this out since we decided not to migrate user and device login history
+                    //res = cdc.MigrationEvents.UserLoginHistory && cdc.MigrationEvents.DeviceLoginHistory
+                    //break;
+                // all actions that don't require migration events can continue                              
+                case CanaryDeploymentRoutingAction.Logout:
+                case CanaryDeploymentRoutingAction.SsoAdapterProfileController:
+                    res = okStatus;
+                    break;
+                default:
+                    break;
+            }
+
+            return res;
+        }
+
+        private bool SetMigrationEventValue(int groupId, CanaryDeploymentMigrationEvent migrationEvent, bool val)
+        {
+            bool res = false;
+            CanaryDeploymentConfiguration cdc = GetCanaryDeploymentConfiguration(groupId);
+            if (cdc != null)
+            {
+                switch (migrationEvent)
+                {
+                    case CanaryDeploymentMigrationEvent.AppToken:
+                        cdc.MigrationEvents.AppToken = val;
+                        break;
+                    case CanaryDeploymentMigrationEvent.RefreshToken:
+                        cdc.MigrationEvents.RefreshToken = val;
+                        break;
+                    case CanaryDeploymentMigrationEvent.UserPinCode:
+                        cdc.MigrationEvents.UserPinCode = val;
+                        break;
+                    case CanaryDeploymentMigrationEvent.DevicePinCode:
+                        cdc.MigrationEvents.DevicePinCode = val;
+                        break;
+                    case CanaryDeploymentMigrationEvent.SessionRevocation:
+                        cdc.MigrationEvents.SessionRevocation = val;
+                        break;
+                    case CanaryDeploymentMigrationEvent.UserLoginHistory:
+                        cdc.MigrationEvents.UserLoginHistory = val;
+                        break;
+                    case CanaryDeploymentMigrationEvent.DeviceLoginHistory:
+                        cdc.MigrationEvents.DeviceLoginHistory = val;
+                        break;
+                    default:
+                        break;
+                }
+
+                if (SetCanaryDeploymentConfiguration(groupId, cdc))
+                {
+                    res = true;
+                }
+            }
+
+            return res;
+        }
+
+        private CanaryDeploymentConfiguration GetCanaryDeploymentConfiguration(int groupId, bool shouldCheckIfGroupKeyExists = true)
+        {
+            CanaryDeploymentConfiguration cdc = null;
+            string key = GetCanaryConfigurationKey(groupId);     
+            // if group key does not exist (or we shouldn't check key again since it was already found to be missing) then fetch groupId 0 configuration
+            if (shouldCheckIfGroupKeyExists && !_cbManager.IsKeyExists(key))
+            {
+                // if we got here with groupId = 0 then it means no configuration has ever been set and we use code default
+                if (groupId == 0)
+                    cdc = new CanaryDeploymentConfiguration();
+                // otherwise we return groupId 0 configuration
+                else
+                    cdc = GetCanaryDeploymentConfiguration(0);
+            }
+            // if group key exists then bring it's configuration
+            else
+            {
+                cdc = _cbManager.Get<CanaryDeploymentConfiguration>(key);
+            }
+
+            return cdc;
+        }
+
+        private bool SetCanaryDeploymentConfiguration(int groupId, CanaryDeploymentConfiguration cdc)
+        {
+            bool res = false;
+            string key = GetCanaryConfigurationKey(groupId);
+            if (_cbManager.Set<CanaryDeploymentConfiguration>(key, cdc, 0) && _redisCM.Set(key, cdc.RoutingConfiguration, 0))
+            {
+                SetInvalidationKey(groupId);
+                res = true;
+            }
+
+            return res;
+        }
+
+        private string GetCanaryConfigurationKey(int groupId)
+        {
+            return $"canary_configuration_{groupId}";
+        }
+
+        private void SetInvalidationKey(int groupId)
+        {
+            string invalidationKey = LayeredCacheKeys.GetCanaryDeploymentConfigurationInvalidationKey(groupId);
+            if (!_layeredCache.SetInvalidationKey(invalidationKey))
+            {
+                log.Error($"Failed to set invalidation key for canary deployment configuration with invalidationKey: {invalidationKey}");
+            }
+        }
+
+        #endregion
+
+    }
+
+}

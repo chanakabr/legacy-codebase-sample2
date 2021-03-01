@@ -96,7 +96,8 @@ namespace IngestHandler
 
                         }
                     }
-                    UpdateBulkUploadObjectStatusAndResults(BulkUploadJobStatus.Failed);
+                    BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, BulkUploadJobStatus.Failed);
+                    _logger.Debug($"{nameof(BulkUploadIngestHandler)} requestId:[{_eventData.RequestId}], BulkUploadId:[{_eventData.BulkUploadId}], update result status [{BulkUploadJobStatus.Failed}].");
                     return;
                 }
 
@@ -197,13 +198,12 @@ namespace IngestHandler
             }
         }
 
-        private void UpdateBulkUploadObjectStatusAndResults(BulkUploadJobStatus? statusToSet = null)
+        private void UpdateBulkUploadObjectStatusAndResults()
         {
             var resultsToUpdate = _relevantResultsDictionary.Values.SelectMany(r => r.Values).ToList();
-            BulkUploadManager.UpdateBulkUploadResults(resultsToUpdate, out var jobStatusByResultStatus);
-            var jobStatus = statusToSet ?? jobStatusByResultStatus;
+            BulkUploadManager.UpdateBulkUploadResults(resultsToUpdate, out var jobStatus);
 
-            _logger.Debug($"UpdateBulkUploadObjectStatusAndResults > updated results, calculated status by results: [{jobStatusByResultStatus}], requested status to set:[{statusToSet}], setting status:[{jobStatus}]");
+            _logger.Debug($"UpdateBulkUploadObjectStatusAndResults > updated results, calculated status by results: [{jobStatus}]");
             BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, jobStatus);
         }
 

@@ -3352,7 +3352,7 @@ namespace TvinciImporter
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select id from streaming_companies where ";
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("LTRIM(RTRIM(LOWER(STREAMING_COMPANY_NAME)))", "=", sName.Trim().ToLower());
-            selectQuery += " and ";
+            selectQuery += " and IS_ACTIVE = 1 and STATUS = 1 and "; 
             selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
             if (selectQuery.Execute("query", true) != null)
             {

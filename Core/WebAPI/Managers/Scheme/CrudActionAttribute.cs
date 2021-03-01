@@ -11,7 +11,10 @@ namespace WebAPI.Managers.Scheme
         public string Summary { get; set; }
         public eResponseStatus[] ClientThrows { get; set; }
         public StatusCode[] ApiThrows { get; set; }
-
+        /// <summary>
+        /// Prevents from this service to be written in client xml
+        /// </summary>
+        public bool IsInternal { get; set; }
         public abstract string GetName();
         public abstract string GetDescription(string paramName);
         public virtual Dictionary<string, bool> GetOptionalParameters() { return null; }

@@ -12,11 +12,13 @@ namespace Core.ConditionalAccess
 
         public List<NPVRRecordingStatus> Status { get; set; }
 
-        public string ChannelId { get; set; }        
+        public string ChannelId { get; set; }
+        
+        public string ByAlreadyWatched { get; set; }
 
         protected override NPVRResponse ExecuteFlow(BaseConditionalAccess cas)
         {
-            return cas.DeleteNPVR(siteGuid, SeriesId, SeasonNumber, ChannelId, Status, Version);
+            return cas.DeleteNPVR(siteGuid, SeriesId, SeasonNumber, ChannelId, Status, Version, assetID, ByAlreadyWatched);
         }
-    }   
+    }
 }

@@ -1124,8 +1124,13 @@ namespace Core.Catalog.CatalogManagement
                             }
 
                             var imageStream = new MemoryStream(imageBytes.Object);
-                            System.Drawing.Image downloadedImage = System.Drawing.Image.FromStream(imageStream);
-                            double downloadedImageRatio = (double)downloadedImage.Width / downloadedImage.Height;
+                            double downloadedImageRatio;
+
+                            using (System.Drawing.Image downloadedImage = System.Drawing.Image.FromStream(imageStream)) 
+                            {
+                                downloadedImageRatio = (double)downloadedImage.Width / downloadedImage.Height;
+                            }
+                            
                             double imageDefinedRatio = (double)ratio.Width / ratio.Height;
                             double imageRatioPrecisionPrecentage = Math.Round((1 - Math.Abs((downloadedImageRatio - imageDefinedRatio) / imageDefinedRatio)) * 100);
                             if (ratio.PrecisionPrecentage > imageRatioPrecisionPrecentage)

@@ -141,6 +141,7 @@ namespace Core.Api
 
         private const string PERMISSION_NOT_EXIST = "Permission doesn't exist";
         private const string CAN_NOT_DELETE_DEFAULT_ADAPTER = "Can not delete default adapter";
+        private const string CAN_MODIFY_ONLY_NORMAL_PERMISSION = "Only permission type NORMAL can be modified";
 
         #endregion
 
@@ -298,15 +299,15 @@ namespace Core.Api
 
                 if (currentRole.GroupId == 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RoleReadOnly , eResponseStatus.RoleReadOnly.ToString());
-                    return response; 
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RoleReadOnly, eResponseStatus.RoleReadOnly.ToString());
+                    return response;
                 }
 
                 var profileToUpdate = role.Profile.HasValue ? (int?)role.Profile.Value : (int?)currentRole.Profile;
 
                 XmlDocument xmlDoc = new XmlDocument();
                 BuildRolePermissionXml(role, permissionNamesDict, ref xmlDoc);
-            
+
                 if (DAL.ApiDAL.UpdateRole(groupId, role.Id, role.Name, xmlDoc.InnerXml.ToString(), profileToUpdate))
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -8480,7 +8481,7 @@ namespace Core.Api
                 if (!roleIdIn.HasValue)
                 {
                     Dictionary<long, Permission> permissions = RolesPermissionsManager.GetGroupPermissions(groupId);
-                    { 
+                    {
                         if (permissions?.Count > 0)
                         {
                             response.Permissions.AddRange(permissions.Where(p => !rolesPermissions.Keys.Contains(p.Key)).Select(p => p.Value));
@@ -11926,13 +11927,19 @@ namespace Core.Api
             return assetResponse.Object;
         }
 
-        internal static GenericResponse<Permission> AddPermission(int groupId, Permission permission)
+        internal static GenericResponse<Permission> AddPermission(int groupId, Permission permission, long userId)
         {
             GenericResponse<Permission> response = new GenericResponse<Permission>();
 
             try
             {
-                // Validate permissnio Name (Must be unique per group)
+                if( permission.Type == ePermissionType.Group)
+                {
+                    response.SetStatus(eResponseStatus.CannotAddPermissionTypeGroup , "Permission type GROUP cannot be added");
+                    return response;
+                }
+
+                // Validate permission Name (Must be unique per group)
                 if (ApiDAL.GetPermissions(groupId, new List<string>() { permission.Name })?.Count > 0)
                 {
                     response.SetStatus(eResponseStatus.PermissionNameAlreadyInUse);
@@ -11940,8 +11947,33 @@ namespace Core.Api
                     return response;
                 }
 
-                permission.Id = ApiDAL.InsertPermission(permission.Name, (int)permission.Type, string.Empty, permission.FriendlyName,
-                    permission.DependsOnPermissionNames, groupId);
+                if (permission.Type != ePermissionType.Normal && permission.PermissionItemsIds?.Count > 0)
+                {
+                    response.SetStatus(eResponseStatus.CanModifyOnlyNormalPermission, CAN_MODIFY_ONLY_NORMAL_PERMISSION);
+                    return response;
+                }
+
+                // in case permission Items add check their exist
+                if (permission.Type == ePermissionType.Normal && permission.PermissionItemsIds?.Count > 0)
+                {
+                    PermissionItem permissionItem = null;
+                    foreach (var permissionItemId in permission.PermissionItemsIds)
+                    {
+                        permissionItem = RolesPermissionsManager.GetPermissionItem(permissionItemId);
+                        if (permissionItem == null)
+                        {
+                            response.SetStatus(eResponseStatus.PermissionItemNotFound, $"Permission item {permissionItemId} cannot be found");
+                            return response;
+                        }
+                    }
+
+                    permission.Id = ApiDAL.InsertPermission(permission.Name, (int)permission.Type, permission.FriendlyName, permission.DependsOnPermissionNames, groupId, permission.PermissionItemsIds, userId);
+                }
+                else
+                {
+                    permission.Id = ApiDAL.InsertPermission(permission.Name, (int)permission.Type, string.Empty, permission.FriendlyName, permission.DependsOnPermissionNames, groupId);
+                }
+
                 if (permission.Id > 0)
                 {
                     response.Object = permission;
@@ -11981,7 +12013,9 @@ namespace Core.Api
                         GroupId = groupId,
                         DependsOnPermissionNames = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "DEPENDS_ON_PERMISSION_NAMES"),
                         FriendlyName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "FRIENDLY_NAME"),
-                        Id = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID")
+                        Id = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID"),
+                        Type = (ePermissionType)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "TYPE"),
+                        Name = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME")
                     };
                 }
                 else
@@ -12396,7 +12430,7 @@ namespace Core.Api
                     response.Status.Set(eResponseStatus.OK, "no external channels related to group");
                     return response;
                 }
-                
+
                 response.Objects = CatalogDAL.SetExternalChannels(ds);
 
                 // get userRules action filter && ApplyOnChannel
@@ -12422,6 +12456,113 @@ namespace Core.Api
             }
 
             return response;
+        }
+
+        public static GenericListResponse<Permission> GetGroupPermissionsByIds(int groupId, List<long> permissionIds)
+        {
+            GenericListResponse<Permission> response = new GenericListResponse<Permission>();
+
+            try
+            {
+                var permissions = GetGroupPermissions(groupId, null);
+                if (permissions.Status.IsOkStatusCode())
+                {
+                    response.Objects = permissions.Permissions.Where(pi => permissionIds.Contains(pi.Id)).ToList();
+                    response.TotalItems = response.Objects.Count;
+                    response.SetStatus(eResponseStatus.OK);
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while getting GetPermissions. group id = {groupId}", ex);
+            }
+
+            return response;
+        }
+
+        internal static GenericResponse<Permission> UpdatePermission(int groupId, long user, long id, Permission permissionToUpdate)
+        {
+            GenericResponse<Permission> response = new GenericResponse<Permission>();
+
+            try
+            {
+                if (permissionToUpdate.Type != ePermissionType.Normal)
+                {
+                    response.SetStatus(eResponseStatus.CanModifyOnlyNormalPermission, CAN_MODIFY_ONLY_NORMAL_PERMISSION);
+                    return response;
+                }
+
+                Permission permission = GetPermission(groupId, id);
+                if (permission == null)
+                {
+                    permission = GetPermission(0, id);
+                    if (permission == null)
+                    {
+                        log.Error($"Permission wasn't found. groupId:{groupId}, id:{id}");
+                        response.SetStatus(eResponseStatus.PermissionNotFound, PERMISSION_NOT_EXIST);
+                        return response;
+                    }
+                    else if (permission.Type != permissionToUpdate.Type)
+                    {
+                        log.Error($"Permission wasn't found. groupId:{groupId}, id:{id}, type: {permissionToUpdate.Type}");
+                        response.SetStatus(eResponseStatus.PermissionNotFound, PERMISSION_NOT_EXIST);
+                        return response;
+                    }
+                }
+
+                if (permission.Type != ePermissionType.Normal)
+                {
+                    response.SetStatus(eResponseStatus.CanModifyOnlyNormalPermission, CAN_MODIFY_ONLY_NORMAL_PERMISSION);
+                    return response;
+                }
+
+                //validate PermissionItem
+                PermissionItem permissionItem = null;
+                if (permissionToUpdate?.PermissionItemsIds?.Count > 0)
+                {
+                    foreach (var permissionItemId in permissionToUpdate.PermissionItemsIds)
+                    {
+                        if (permission.PermissionItemsIds?.Count > 0 && !permission.PermissionItemsIds.Contains(permissionItemId))
+                        {
+                            permissionItem = RolesPermissionsManager.GetPermissionItem(permissionItemId);
+                            if (permissionItem == null)
+                            {
+                                response.SetStatus(eResponseStatus.PermissionItemNotFound, $"Permission item {permissionItemId} cannot be found");
+                                return response;
+                            }
+                        }
+                    }
+
+                    permission.PermissionItemsIds = permissionToUpdate.PermissionItemsIds;
+                }
+
+                permissionToUpdate.Name = permissionToUpdate.Name == null ? permission.Name : permissionToUpdate.Name;
+                permissionToUpdate.FriendlyName = permissionToUpdate.FriendlyName == null ? permission.FriendlyName : permissionToUpdate.FriendlyName;
+                permissionToUpdate.Id = id;
+
+                response.Object = permissionToUpdate;
+
+                if (!ApiDAL.UpsertPermissionPermissionItems(groupId, user, id, permissionToUpdate.PermissionItemsIds, permissionToUpdate.Name, permissionToUpdate.FriendlyName))
+                {
+                    log.Error($"Error while trying to UpsertPermissionPermissionItems. groupId:{groupId}, id:{id}");
+                    return response;
+                }
+
+                if (!APILogic.Api.Managers.RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
+                {
+                    log.Debug($"Failed to set AllInvalidaitonKeysRelatedPermissions, groupId: {groupId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"UpdatePermission failed groupId = {groupId}, permissionId: {id}", ex);
+                return response;
+            }
+
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+
         }
     }
 }

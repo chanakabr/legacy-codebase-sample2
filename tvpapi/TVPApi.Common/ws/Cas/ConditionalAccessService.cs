@@ -27,10 +27,11 @@ namespace TVPApiServices
     public class ConditionalAccessService : IConditionalAccessService
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly HashSet<string> statuses = Enum.GetNames(typeof(NPVRRecordingStatus)).Select(x => x.ToLower()).ToHashSet();
 
         [PrivateMethod]
         public CampaignActionInfo ActivateCampaignWithInfo(InitializationObject initObj, long campID, string hashCode, int mediaID, string mediaLink,
-                                                                                                                string senderEmail, string senderName, 
+                                                                                                                string senderEmail, string senderName,
                                                                                                                 CampaignActionResult status, VoucherReceipentInfo[] voucherReceipents)
         {
             CampaignActionInfo campaignActionInfo = null;
@@ -1098,6 +1099,66 @@ namespace TVPApiServices
         }
 
         [PrivateMethod]
+        public NPVRResponse DeleteAllRecordings(InitializationObject initObj, string recordingId, int? version, bool? deleteBookings, bool? deleteProtected)
+        {
+            NPVRResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "DeleteAllRecordings", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).DeleteAllRecordings
+                        (initObj.SiteGuid, initObj.DomainID, initObj.UDID, recordingId, version, deleteBookings, deleteProtected);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+            }
+
+            return res;
+        }
+
+        [PrivateMethod]
+        public NPVRResponse CancelByRecording(InitializationObject initObj, string recordingId, int? version, string byAlreadyWatched, string byAssetId,
+            string byChannelId, string byProgramId, string bySeasonNumber, string bySeriesId, bool? deleteOngoingRecordings)
+        {
+            NPVRResponse res = null;
+
+            string clientIp = SiteHelper.GetClientIP();
+
+            int groupId = ConnectionHelper.GetGroupID("tvpapi", "CancelByRecording", initObj.ApiUser, initObj.ApiPass, clientIp);
+
+            if (groupId > 0)
+            {
+                try
+                {
+                    res = new ApiConditionalAccessService(groupId, initObj.Platform).CancelByRecording
+                        (initObj.SiteGuid, initObj.DomainID, initObj.UDID, recordingId, version, byAlreadyWatched, byAssetId, byChannelId, byProgramId, bySeasonNumber,
+                        bySeriesId, deleteOngoingRecordings);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.Current.Items["Error"] = ex;
+                }
+            }
+            else
+            {
+                HttpContext.Current.Items["Error"] = "Unknown group";
+            }
+
+            return res;
+        }
+
+        [PrivateMethod]
         public QuotaResponse GetNPVRQuota(InitializationObject initObj, int? version)
         {
             QuotaResponse res = null;
@@ -1251,7 +1312,7 @@ namespace TVPApiServices
 
         [PrivateMethod]
         public NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string bySeriesId = "", string bySeasonNumber = "", string byChannelId = "",
-            List<string> byStatus = null)
+            List<string> byStatus = null, string byAlreadyWatched = "", string byAssetId = "")
         {
             NPVRResponse res = null;
 
@@ -1263,13 +1324,16 @@ namespace TVPApiServices
             {
                 try
                 {
-                    List<NPVRRecordingStatus> status = new List<NPVRRecordingStatus>();
+                    var status = new List<NPVRRecordingStatus>();
                     if (byStatus == null || byStatus.Count == 0)
                     {
                         status = null;
                     }
                     else
                     {
+                        if (byStatus.Any(x => !statuses.Contains(x.ToLower())))
+                            return new NPVRResponse { msg = "One or more statuses are invalid", status = "Failure" };
+
                         status = byStatus.ConvertAll(delegate (string x)
                         {
                             return (NPVRRecordingStatus)Enum.Parse(typeof(NPVRRecordingStatus), x, true);
@@ -1277,7 +1341,7 @@ namespace TVPApiServices
                     }
 
                     res = new ApiConditionalAccessService(groupId, initObj.Platform).DeleteRecordingsBy(initObj.SiteGuid, initObj.DomainID, initObj.UDID, bySeriesId,
-                      bySeasonNumber, byChannelId, status);
+                      bySeasonNumber, byChannelId, status, byAlreadyWatched, byAssetId);
                 }
                 catch (Exception ex)
                 {
@@ -1381,7 +1445,7 @@ namespace TVPApiServices
             return res;
         }
 
-        [PrivateMethod]        
+        [PrivateMethod]
         public LicensedLinkNPVRResponse GetNPVRLicensedLink(InitializationObject initObj, string recordingId, DateTime startTime, int mediaFileID, string basicLink,
             string referrer, string couponCode, TVPApiModule.Objects.PlayContextType contextType)
         {

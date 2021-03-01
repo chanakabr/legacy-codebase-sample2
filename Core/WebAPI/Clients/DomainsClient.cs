@@ -640,13 +640,13 @@ namespace WebAPI.Clients
             return SetDeviceInfo(groupId, dDevice);
         }
 
-        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, KalturaHouseholdDevice device, bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, KalturaHouseholdDevice device, bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
         {
             var dDevice = CastToDomainDevice(device);
-            return SetDeviceInfo(groupId, dDevice, allowNullExternalId, allowNullMacAddress);
+            return SetDeviceInfo(groupId, dDevice, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
         }
 
-        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, DomainDevice dDevice, bool allowNullExternalId = false, bool allowNullMacAddress = false)
+        internal KalturaHouseholdDevice SetDeviceInfo(int groupId, DomainDevice dDevice, bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
         {
             KalturaHouseholdDevice result;
             DeviceResponse response = null;
@@ -655,7 +655,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.SetDevice(groupId, dDevice, allowNullExternalId, allowNullMacAddress);
+                    response = Core.Domains.Module.SetDevice(groupId, dDevice, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
                 }
             }
             catch (Exception ex)
@@ -1047,7 +1047,11 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaHouseholdDevice SubmitAddDeviceToDomain(int groupId, int domainId, string userId, KalturaHouseholdDevice device)
+        internal KalturaHouseholdDevice SubmitAddDeviceToDomain(
+            int groupId,
+            int domainId,
+            string userId,
+            KalturaHouseholdDevice device)
         {
             DeviceResponse response = null;
 
@@ -1088,27 +1092,19 @@ namespace WebAPI.Clients
 
         private static DomainDevice CastToDomainDevice(KalturaHouseholdDevice device)
         {
-            //TODO - Matan, use mapping
-            return new DomainDevice
-            {
-                Udid = device.Udid,
-                Name = device.Name,
-                DeviceBrandId = device.getBrandId(),
-                ExternalId = device.ExternalId,
-                MacAddress = device.MacAddress,
-                Model = device.Model,
-                Manufacturer = device.Manufacturer,
-                ManufacturerId = device.ManufacturerId
-            };
+            var domainDevice = Mapper.Map<DomainDevice>(device);
+
+            // BEO-8671: as part of business requirements, entries with empty values are not saved
+            domainDevice.DynamicData = domainDevice.DynamicData?
+                .Where(x => !string.IsNullOrEmpty(x.Value))
+                .ToDictionary(x => x.Key, x => x.Value);
+
+            return domainDevice;
         }
 
         internal KalturaHousehold SubmitAddUserToDomainRequest(int groupId, string userId, string householdMasterUsername)
         {
             KalturaHousehold household = null;
-
-
-
-
             DomainStatusResponse response = null;
 
             try
@@ -1223,7 +1219,7 @@ namespace WebAPI.Clients
         {
             if (household == null)
             {
-                var deviceId = Device.GetDeviceIDByExternalId(groupId, externalId);
+                var deviceId = DeviceRepository.GetDeviceIdByExternalId(groupId, externalId);
                 int.TryParse(deviceId, out int _deviceId);
                 var device = new Device(groupId);
                 device.Initialize(_deviceId);
@@ -1294,7 +1290,7 @@ namespace WebAPI.Clients
 
         private long? GetLastActivityTime(int groupId, string udid, int userId)
         {
-            return new DeviceRemovalPolicyHandler().GetUdidLastActivity(groupId, udid, userId);
+            return DeviceRemovalPolicyHandler.Instance.GetUdidLastActivity(groupId, udid, userId);
         }
 
         internal bool DeleteDevice(int groupId, string udid, out long domainId)

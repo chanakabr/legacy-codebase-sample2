@@ -836,6 +836,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AdapterNotExists)]
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.CatchUpBufferLimitation)]
+        [Throws(eResponseStatus.ProgramCatchUpNotEnabled)]
+        [Throws(eResponseStatus.AccountCatchUpNotEnabled)]
         static public KalturaPlaybackContext GetPlaybackContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams, string sourceType = null)
         {
             KalturaPlaybackContext response = null;

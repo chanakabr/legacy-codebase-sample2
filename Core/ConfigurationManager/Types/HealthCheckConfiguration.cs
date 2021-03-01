@@ -43,7 +43,8 @@ namespace ConfigurationManager
         ElasticSearch,
         RabbitMQ,
         ThirdParty,
-        Redis,
-        Kafka
+        CacheRedis,
+        Kafka,
+        PersistentRedis,
     }
 }

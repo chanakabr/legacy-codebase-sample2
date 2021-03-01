@@ -1280,6 +1280,34 @@ namespace APILogic.SSOAdapaterService
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IService/Invoke", ReplyAction="http://tempuri.org/IService/InvokeResponse")]
         System.Threading.Tasks.Task<APILogic.SSOAdapaterService.SSOAdapterProfileInvokeResponse> InvokeAsync(int adapterId, APILogic.SSOAdapaterService.SSOAdapterProfileInvokeModel ssoAdapterProfileInvokeModel);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/SetConfiguration", ReplyAction = "http://tempuri.org/IService/SetConfigurationResponse")]
+        APILogic.SSOAdapaterService.AdapterStatusCode SetConfiguration(int adapterId, int partnerId, System.Collections.Generic.Dictionary<string, string> configuration, string signature);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/GetConfiguration", ReplyAction = "http://tempuri.org/IService/GetConfigurationResponse")]
+        APILogic.SSOAdapaterService.SSOImplementationsResponse GetConfiguration(int adapterId);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PreSignIn", ReplyAction = "http://tempuri.org/IService/PreSignInResponse")]
+        APILogic.SSOAdapaterService.PreSignInResponse PreSignIn(int adapterId, APILogic.SSOAdapaterService.PreSignInModel preSignInData, string signature);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PostSignIn", ReplyAction = "http://tempuri.org/IService/PostSignInResponse")]
+        APILogic.SSOAdapaterService.UserResponse PostSignIn(int adapterId, APILogic.SSOAdapaterService.PostSignInModel postSignInData, string signature);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PreGetUserData", ReplyAction = "http://tempuri.org/IService/PreGetUserDataResponse")]
+        APILogic.SSOAdapaterService.UserResponse PreGetUserData(int adapterId, int userId, string ipAddress, System.Collections.Generic.Dictionary<string, string> customParams, string signature);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PostGetUserData", ReplyAction = "http://tempuri.org/IService/PostGetUserDataResponse")]
+        APILogic.SSOAdapaterService.UserResponse PostGetUserData(int adapterId, APILogic.SSOAdapaterService.User userData, System.Collections.Generic.Dictionary<string, string> customParams, string signature);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PreSignOut", ReplyAction = "http://tempuri.org/IService/PreSignOutResponse")]
+        APILogic.SSOAdapaterService.UserResponse PreSignOut(int adapterId, APILogic.SSOAdapaterService.PreSignOutModel preSignOutData, string signature);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/PostSignOut", ReplyAction = "http://tempuri.org/IService/PostSignOutResponse")]
+        APILogic.SSOAdapaterService.UserResponse PostSignOut(int adapterId, APILogic.SSOAdapaterService.PostSignOutModel postSignOutData, string signature);
+
+        [System.ServiceModel.OperationContractAttribute(Action = "http://tempuri.org/IService/Invoke", ReplyAction = "http://tempuri.org/IService/InvokeResponse")]
+        APILogic.SSOAdapaterService.SSOAdapterProfileInvokeResponse Invoke(int adapterId, APILogic.SSOAdapaterService.SSOAdapterProfileInvokeModel ssoAdapterProfileInvokeModel);
+
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("dotnet-svcutil", "1.0.0.1")]
@@ -1376,7 +1404,52 @@ namespace APILogic.SSOAdapaterService
         {
             return base.Channel.InvokeAsync(adapterId, ssoAdapterProfileInvokeModel);
         }
-        
+
+        public APILogic.SSOAdapaterService.AdapterStatusCode SetConfiguration(int adapterId, int partnerId, System.Collections.Generic.Dictionary<string, string> configuration, string signature)
+        {
+            return base.Channel.SetConfiguration(adapterId, partnerId, configuration, signature);
+        }
+
+        public APILogic.SSOAdapaterService.SSOImplementationsResponse GetConfiguration(int adapterId)
+        {
+            return base.Channel.GetConfiguration(adapterId);
+        }
+
+        public APILogic.SSOAdapaterService.PreSignInResponse PreSignIn(int adapterId, APILogic.SSOAdapaterService.PreSignInModel preSignInData, string signature)
+        {
+            return base.Channel.PreSignIn(adapterId, preSignInData, signature);
+        }
+
+        public APILogic.SSOAdapaterService.UserResponse PostSignIn(int adapterId, APILogic.SSOAdapaterService.PostSignInModel postSignInData, string signature)
+        {
+            return base.Channel.PostSignIn(adapterId, postSignInData, signature);
+        }
+
+        public APILogic.SSOAdapaterService.UserResponse PreGetUserData(int adapterId, int userId, string ipAddress, System.Collections.Generic.Dictionary<string, string> customParams, string signature)
+        {
+            return base.Channel.PreGetUserData(adapterId, userId, ipAddress, customParams, signature);
+        }
+
+        public APILogic.SSOAdapaterService.UserResponse PostGetUserData(int adapterId, APILogic.SSOAdapaterService.User userData, System.Collections.Generic.Dictionary<string, string> customParams, string signature)
+        {
+            return base.Channel.PostGetUserData(adapterId, userData, customParams, signature);
+        }
+
+        public APILogic.SSOAdapaterService.UserResponse PreSignOut(int adapterId, APILogic.SSOAdapaterService.PreSignOutModel preSignOutData, string signature)
+        {
+            return base.Channel.PreSignOut(adapterId, preSignOutData, signature);
+        }
+
+        public APILogic.SSOAdapaterService.UserResponse PostSignOut(int adapterId, APILogic.SSOAdapaterService.PostSignOutModel postSignOutData, string signature)
+        {
+            return base.Channel.PostSignOut(adapterId, postSignOutData, signature);
+        }
+
+        public APILogic.SSOAdapaterService.SSOAdapterProfileInvokeResponse Invoke(int adapterId, APILogic.SSOAdapaterService.SSOAdapterProfileInvokeModel ssoAdapterProfileInvokeModel)
+        {
+            return base.Channel.Invoke(adapterId, ssoAdapterProfileInvokeModel);
+        }
+
         public virtual System.Threading.Tasks.Task OpenAsync()
         {
             return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen));

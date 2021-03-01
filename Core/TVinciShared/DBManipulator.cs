@@ -907,6 +907,7 @@ namespace TVinciShared
                         {
                             break;
                         }
+                        
                         ODBCWrapper.DataSetSelectQuery selectQuery1 = new ODBCWrapper.DataSetSelectQuery();
                         selectQuery1.SetConnectionKey(sConnectionKey);
                         selectQuery1 += "select " + sCollectionPointerField + " from " + sCollectionTable + " where status<>2 and ";
@@ -939,7 +940,7 @@ namespace TVinciShared
                                 selectQuery1 += "and";
                                 selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM(sExtraFieldName, "=", sToEnter);
                             }
-                        }
+                        }                       
 
                         if (sCollectionTable != "groups" && sCollectionTable != "countries" && sCollectionTable != "lu_countries" && sCollectionTable != "lu_languages" &&
                             sCollectionTable != "lu_page_types" && sCollectionTable != "lu_pics_ratios" && sCollectionTable != "lu_pics_epg_ratios" && sCollectionTable.ToLower() != "lu_devicebrands"

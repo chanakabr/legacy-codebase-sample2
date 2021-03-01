@@ -54,8 +54,7 @@ namespace Core.Users
             //m_sDeviceName = sDeviceName;
             if (!string.IsNullOrEmpty(sDeviceUDID))
             {
-                Device device = new Device(groupID);
-                device.Initialize(sDeviceUDID, domainID);
+                Device device = DeviceRepository.Get(sDeviceUDID, domainID, groupID);
                 m_sDeviceName = device.m_deviceName;
                 m_sDeviceUDID = sDeviceUDID;
             }
@@ -78,8 +77,7 @@ namespace Core.Users
             //m_sDeviceName = sDeviceName;
             if (!string.IsNullOrEmpty(sDeviceUDID))
             {
-                Device device = new Device(groupID);
-                device.Initialize(sDeviceUDID, domainID);
+                Device device = DeviceRepository.Get(sDeviceUDID, domainID, groupID);
                 m_sDeviceName = device.m_deviceName;
                 m_sDeviceUDID = sDeviceUDID;
             }

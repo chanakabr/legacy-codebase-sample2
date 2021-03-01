@@ -299,7 +299,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.FriendlyName, opt => opt.MapFrom(src => src.FriendlyName))
-              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertPermissionType(src.Type)));
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertPermissionType(src.Type)))
+              .ForMember(dest => dest.PermissionItemsIds, opt => opt.MapFrom(src => src.GetPermissionItemsIds()));
+;
 
             cfg.CreateMap<GroupPermission, KalturaGroupPermission>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))

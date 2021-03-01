@@ -1,12 +1,8 @@
-﻿using System;
+﻿using DAL;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using TVinciShared;
 using System.Data;
-
+using TVinciShared;
 
 public partial class adm_device_rules_new : System.Web.UI.Page
 {
@@ -23,7 +19,9 @@ public partial class adm_device_rules_new : System.Web.UI.Page
         {
             if (Request.QueryString["submited"] != null && Request.QueryString["submited"].ToString() == "1")
             {
-                DBManipulator.DoTheWork();
+                int ruleId = DBManipulator.DoTheWork();
+                UpdateDeviceRulesBrands(ruleId, LoginManager.GetLoginGroupID());
+
                 return;
             }
             m_sMenu = TVinciShared.Menu.GetMainMenu(5, true, ref nMenuID);
@@ -87,40 +85,12 @@ public partial class adm_device_rules_new : System.Web.UI.Page
         dr_but_or_only.SetDefault(0);
         theRecord.AddRecord(dr_but_or_only);
 
-        //DataRecordMultiField dr_countries = new DataRecordMultiField("countries", "id", "id", "geo_block_types_countries", "GEO_BLOCK_TYPE_ID", "COUNTRY_ID", false, "ltr", 60, "tags");
-        //dr_countries.Initialize("Rule type", "adm_table_header_nbg", "FormInput", "COUNTRY_NAME", false);
-        //dr_countries.SetExtraWhere("GROUP_ID is null");
-        //dr_countries.SetOrderCollectionBy("newid()");
-        //theRecord.AddRecord(dr_countries);
-
-        //DataRecordMultiField dr_devices = new DataRecordMultiField("groups_device_brands , lu_devicebrands", "device_brand_id", "id", "Device_Rules_Brands", "Rule_ID", "Brand_ID", false, "ltr", 60, "tags");
-        
-        //????? Look up!!!
-        DataRecordMultiField dr_devices = new DataRecordMultiField("lu_devicebrands", "id", "id", "Device_Rules_Brands", "Rule_ID", "Brand_ID", false, "ltr", 60, "tags");
-        dr_devices.SetJoinCondition("device_brand_id=lu_devicebrands.ID"); 
-        dr_devices.SetCollectionQuery(string.Format("select top 8 ldb.NAME as txt, ldb.id as val from  groups_device_brands gdb, lu_devicebrands ldb where group_id {0} and gdb.device_brand_id=ldb.ID",PageUtils.GetParentsGroupsStr(LoginManager.GetLoginGroupID())));
-        dr_devices.Initialize("Device types", "adm_table_header_nbg", "FormInput", "NAME", false);
-        theRecord.AddRecord(dr_devices);
-
-        //ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-        //selectQuery += "SELECT lu.NAME, lu.ID FROM group_device_brands gdb,lu_DeviceBrands lu WHERE ";
-        //selectQuery += ODBCWrapper.Parameter.NEW_PARAM("gdb.GROUP_ID", "=", LoginManager.GetLoginGroupID());
-        //if (selectQuery.Execute("query", true) != null)
-        //{
-        //    foreach (DataRow dr in selectQuery.Table("query").Rows)
-        //    {
-        //        DataRecordBoolField dr_name = new DataRecordBoolField(true);
-        //        dr_name.Initialize(sName, "adm_table_header_nbg", "FormInput", sField, false);
-        //        theRecord.AddRecord(dr_name);
-        //    }
-        //}
-
         bool bVisible = PageUtils.IsTvinciUser();
         if (bVisible == true)
         {
             DataRecordDropDownField dr_groups = new DataRecordDropDownField("groups", "GROUP_NAME", "id", "", null, 60, false);
             dr_groups.Initialize("Group", "adm_table_header_nbg", "FormInput", "GROUP_ID", true);
-            
+
             dr_groups.SetWhereString("status<>2 and id " + PageUtils.GetAllChildGroupsStr());
             theRecord.AddRecord(dr_groups);
         }
@@ -132,13 +102,122 @@ public partial class adm_device_rules_new : System.Web.UI.Page
             theRecord.AddRecord(dr_groups);
         }
 
-        //DataRecordShortIntField dr_groups1 = new DataRecordShortIntField(false, 9, 9);
-        //dr_groups1.Initialize("Group", "adm_table_header_nbg", "FormInput", "GEO_RULE_TYPE", false);
-        //dr_groups1.SetValue("1");
-        //theRecord.AddRecord(dr_groups1);
-
         string sTable = theRecord.GetTableHTML("adm_device_rules_new.aspx?submited=1");
 
         return sTable;
+    }
+
+    //public string changeItemStatus(string sID, string dualListName)
+    //{
+    //    // userType dualList cChanged then call changeItemStatusUserTypes
+    //    if (dualListName.ToUpper() == "DualListUserTypes".ToUpper())
+    //    {
+    //        changeItemStatusUserTypes(sID);
+    //    }
+    //    return "";
+    //}
+    public string initDualObj()
+    {
+        Dictionary<string, object> dualList = new Dictionary<string, object>();
+        dualList.Add("FirstListTitle", "Device types");
+        dualList.Add("SecondListTitle", "Available Device types");
+
+        List<object> deviceBrandsList = new List<object>();
+        DataTable devicetypesInRule = new DataTable();
+
+        if (Session["device_rule_id"] != null && !string.IsNullOrEmpty(Session["device_rule_id"].ToString()) && int.TryParse(Session["device_rule_id"].ToString(), out int ruleId) && ruleId > 0)
+        {
+            devicetypesInRule = TvmDAL.GetDeviceRuleBrandsById(ruleId);
+        }
+
+        DataTable deviceBrandsFamilies = TvmDAL.GetDeviceBrandsFamilies();
+        List<string> devicetypesInRuleHashSet = new List<string>();
+        List<string> deviceBrandsFamiliesHashSet = new List<string>();
+
+        if (devicetypesInRule != null)
+        {
+            foreach (DataRow dr in devicetypesInRule.Rows)
+            {
+                devicetypesInRuleHashSet.Add(dr["DEVICE_BRANDS_ID"].ToString());
+                var data = new
+                {
+                    ID = dr["DEVICE_BRANDS_ID"],
+                    Title = $"{dr["DISPLAY_NAME"]}",
+                    Description = $"{dr["DISPLAY_NAME"]}",
+                    InList = true
+                };
+                deviceBrandsList.Add(data);
+            }
+        }
+
+        foreach (DataRow dr in deviceBrandsFamilies.Rows)
+        {
+            if (devicetypesInRuleHashSet.Count == 0 || !devicetypesInRuleHashSet.Contains(dr["id"].ToString()))
+            {
+                deviceBrandsFamiliesHashSet.Add(dr["id"].ToString());
+
+                var data = new
+                {
+                    ID = dr["Id"],
+                    Title = $"{dr["DISPLAY_NAME"]}",
+                    Description = $"{dr["DISPLAY_NAME"]}",
+                    InList = false
+                };
+                deviceBrandsList.Add(data);
+            }
+        }
+
+        Session["devicetypesInRule"] = devicetypesInRuleHashSet;
+        Session["deviceBrandsFamilies"] = deviceBrandsFamiliesHashSet;
+
+
+        object[] resultData = deviceBrandsList.ToArray();
+
+        dualList.Add("Data", resultData);
+        dualList.Add("pageName", "adm_device_rules_new.aspx");
+        dualList.Add("withCalendar", false);
+
+        return dualList.ToJSON();
+    }
+
+    public string changeItemStatus(string id, string sAction)
+    {
+
+        List<string> devicetypesInRuleHashSet = new List<string>();
+        List<string> deviceBrandsFamiliesHashSet = new List<string>();
+        if (Session["devicetypesInRule"] != null && Session["deviceBrandsFamilies"] != null)
+        {
+            devicetypesInRuleHashSet = (List<string>)Session["devicetypesInRule"];
+            deviceBrandsFamiliesHashSet = (List<string>)Session["deviceBrandsFamilies"];
+        }
+        if (int.TryParse(id, out int deviceBrandsId))
+        {
+            if (devicetypesInRuleHashSet.Contains(id))
+            {
+                devicetypesInRuleHashSet.Remove(id);
+                deviceBrandsFamiliesHashSet.Add(id);
+            }
+
+            else if (deviceBrandsFamiliesHashSet.Contains(id))
+            {
+                deviceBrandsFamiliesHashSet.Remove(id);
+                devicetypesInRuleHashSet.Add(id);
+            }
+        }
+
+        Session["devicetypesInRule"] = devicetypesInRuleHashSet;
+        Session["deviceBrandsFamilies"] = deviceBrandsFamiliesHashSet;
+
+        return "";
+    }
+
+    private void UpdateDeviceRulesBrands(int ruleId, int groupId)
+    {
+        if (Session["devicetypesInRule"] != null && Session["devicetypesInRule"] is List<string>)
+        {
+            List<string> ids = Session["devicetypesInRule"] as List<string>;
+
+            TvmDAL.UpsertDeviceRulesBrands(ids, ruleId, groupId, LoginManager.GetLoginID());
+        }
     }
 }

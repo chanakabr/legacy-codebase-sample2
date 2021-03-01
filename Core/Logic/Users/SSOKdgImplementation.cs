@@ -196,7 +196,7 @@ namespace Core.Users
         {
             try
             {
-                log.Debug("ValidateCredentials - " + string.Format("username:{0}, password:{1}, clientIp:{3}", username, password, clientIp));
+                log.Debug($"ValidateCredentials - username:{username}, password:{password}, clientIp:{clientIp}");
                 KdgLoginResp kdgLoginRespObj = new KdgLoginResp() { Status = eKdgStatus.Unknown };
                 string kdgUrl = TCMClient.Settings.Instance.GetValue<string>("KDG-AuthURL");
 

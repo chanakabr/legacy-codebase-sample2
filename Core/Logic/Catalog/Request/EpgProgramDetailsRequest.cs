@@ -90,8 +90,8 @@ namespace Core.Catalog.Request
             }
             catch (Exception ex)
             {
-                log.Error("EpgProgramDetailsRequest - " + String.Format("Failed ex={0}, siteGuid={1}, group_id={3} , ST: {4}", ex.Message,
-                  oBaseRequest.m_sSiteGuid, oBaseRequest.m_nGroupID, ex.StackTrace), ex);
+                log.Error($"EpgProgramDetailsRequest - Failed ex={ex.Message}, siteGuid={oBaseRequest.m_sSiteGuid}, group_id={oBaseRequest.m_nGroupID} , ST: {ex.StackTrace}"
+                          , ex);
                 return new EpgProgramResponse();
             }
 

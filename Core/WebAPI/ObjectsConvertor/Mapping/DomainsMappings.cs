@@ -38,6 +38,8 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ManufacturerId, opt => opt.MapFrom(src => src.ManufacturerId))
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.m_deviceFamilyID))
                 .ForMember(dest => dest.LastActivityTime, opt => opt.MapFrom(src => src.LastActivityTime))
+                .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => Utils.Utils.ConvertToSerializableDictionary(src.DynamicData)))
+                .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
                 ;
 
             cfg.CreateMap<Device, KalturaDevice>()
@@ -48,7 +50,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_activationDate)))
                 .ForMember(dest => dest.Status, opt => opt.ResolveUsing(src => ConvertDeviceStatus(src.m_state)))
                 .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertDeviceState(src.m_state)))
-                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID));
+                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID))
+                .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
+                ;
 
             //HomeNetwork
             cfg.CreateMap<HomeNetwork, KalturaHomeNetwork>()
@@ -131,18 +135,25 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Manufacturer, opt => opt.MapFrom(src => src.Manufacturer))
                 .ForMember(dest => dest.ManufacturerId, opt => opt.MapFrom(src => src.ManufacturerId))
                 .ForMember(dest => dest.LastActivityTime, opt => opt.MapFrom(src => src.LastActivityTime))
+                .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => Utils.Utils.ConvertToSerializableDictionary(src.DynamicData)))
+                .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
             ;
 
             cfg.CreateMap<KalturaHouseholdDevice, DomainDevice>()
                 .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.DomainId, opt => opt.MapFrom(src => src.HouseholdId))
-                .ForMember(dest => dest.DeviceBrandId, opt => opt.MapFrom(src => src.BrandId))
+                .ForMember(dest => dest.DeviceBrandId, opt => opt.ResolveUsing(src => src.BrandId ?? 0))
                 .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.ActivatedOn ?? 0)))
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                 .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress))
                 .ForMember(dest => dest.LastActivityTime, opt => opt.MapFrom(src => src.LastActivityTime))
+                .ForMember(dest => dest.Model, opt => opt.MapFrom(src => src.Model))
+                .ForMember(dest => dest.Manufacturer, opt => opt.MapFrom(src => src.Manufacturer))
+                .ForMember(dest => dest.ManufacturerId, opt => opt.MapFrom(src => src.ManufacturerId))
+                .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => src.DynamicData?.ToDictionary(x => x.Key, x => x.Value?.value)))
+                .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
                 ;
 
             //CouponWallet, KalturaHouseholdCoupon
