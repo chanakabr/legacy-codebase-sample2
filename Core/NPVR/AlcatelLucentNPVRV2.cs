@@ -1782,19 +1782,14 @@ namespace NPVR
 
         private string GetTime(string value)
         {
-            long unixTime;
-            if (long.TryParse(value, out unixTime))
+            if (!string.IsNullOrEmpty(value))
             {
-                return TVinciShared.DateUtils.UtcUnixTimestampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
-            }
-            else
-            {
-                Regex rx = new Regex(@"(\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})(.\d*)?Z",
-                    RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-                if (rx.IsMatch(value))
+                if (long.TryParse(value, out long unixTime))
                 {
-                    DateTime date = DateTime.Parse(value, null, System.Globalization.DateTimeStyles.RoundtripKind);
+                    return TVinciShared.DateUtils.UtcUnixTimestampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
+                }
+                else if (DateTime.TryParse(value, null, System.Globalization.DateTimeStyles.RoundtripKind, out var date))
+                {
                     return date.ToString(DATE_FORMAT);
                 }
             }
