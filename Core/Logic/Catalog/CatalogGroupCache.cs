@@ -9,6 +9,22 @@ namespace Core.Catalog
     public class CatalogGroupCache
     {
         private LanguageObj defaultLanguage;
+        public LanguageObj DefaultLanguage
+        {
+            get
+            {
+                if (defaultLanguage == null || defaultLanguage.ID == 0)
+                {
+                    var defaultLanguageObj = LanguageMapById != null && LanguageMapById.Count > 0 ? LanguageMapById.Values.FirstOrDefault(x => x.IsDefault) : null;
+                    if (defaultLanguageObj != null && defaultLanguageObj.ID > 0)
+                    {
+                        defaultLanguage = new LanguageObj(defaultLanguageObj.ID, defaultLanguageObj.Name, defaultLanguageObj.Code, defaultLanguageObj.Direction, defaultLanguageObj.IsDefault, defaultLanguageObj.DisplayName);
+                    }
+                }
+
+                return defaultLanguage;
+            }
+        }
 
         public Dictionary<string, LanguageObj> LanguageMapByCode { get; set; }
         public Dictionary<int, LanguageObj> LanguageMapById { get; set; }
