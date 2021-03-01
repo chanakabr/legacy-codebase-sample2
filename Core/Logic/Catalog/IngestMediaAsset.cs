@@ -276,7 +276,7 @@ namespace Core.Catalog
             }
 
             // Check Default Language Is Sent
-            if (!languageCodes.Contains(cache.DefaultLanguage.Code))
+            if (!languageCodes.Contains(cache.GetDefaultLanguage().Code))
             {
                 status.Set((int)eResponseStatus.Error, string.Format("Default language must be one of the values sent for {0}", parameterName));
                 return status;
@@ -531,7 +531,7 @@ namespace Core.Catalog
                     }
 
                     // check if need to add or remove meta from asset
-                    if (topicIdsToRemove != null && stringMeta.Values.Any(x => cache.DefaultLanguage.Code.Equals(x.LangCode) && string.IsNullOrEmpty(x.Text)))
+                    if (topicIdsToRemove != null && stringMeta.Values.Any(x => cache.GetDefaultLanguage().Code.Equals(x.LangCode) && string.IsNullOrEmpty(x.Text)))
                     {
                         var topic = cache.TopicsMapBySystemNameAndByType[stringMeta.Name][currMetaType];
                         if (!topicIdsToRemove.Contains(topic.Id)) { topicIdsToRemove.Add(topic.Id); }
@@ -545,8 +545,8 @@ namespace Core.Catalog
                         }
 
                         validMetaStrings.Add(new Metas(new TagMeta(stringMeta.Name, currMetaType),
-                                             stringMeta.Values.FirstOrDefault(x => x.LangCode.Equals(cache.DefaultLanguage.Code)).Text,
-                                             stringMeta.Values.Where(x => !x.LangCode.Equals(cache.DefaultLanguage.Code) && !string.IsNullOrEmpty(x.Text))
+                                             stringMeta.Values.FirstOrDefault(x => x.LangCode.Equals(cache.GetDefaultLanguage().Code)).Text,
+                                             stringMeta.Values.Where(x => !x.LangCode.Equals(cache.GetDefaultLanguage().Code) && !string.IsNullOrEmpty(x.Text))
                                                               .Select(x => new LanguageContainer(x.LangCode, x.Text))));
                     }
                 }
@@ -589,7 +589,7 @@ namespace Core.Catalog
 
                         if (metaTag.Containers.Count == 1 &&
                             metaTag.Containers[0].Values != null &&
-                            metaTag.Containers[0].Values.Any(x => cache.DefaultLanguage.Code.Equals(x.LangCode) && string.IsNullOrEmpty(x.Text)))
+                            metaTag.Containers[0].Values.Any(x => cache.GetDefaultLanguage().Code.Equals(x.LangCode) && string.IsNullOrEmpty(x.Text)))
                         {
                             if (topicIdsToRemove != null && !topicIdsToRemove.Contains(cache.TopicsMapBySystemNameAndByType[metaTag.Name][metaTypeTag].Id))
                             {
@@ -645,7 +645,7 @@ namespace Core.Catalog
                     if (string.IsNullOrEmpty(languageValue.Text)) { continue; }
 
                     // add default value
-                    if (cache.DefaultLanguage.Code.Equals(languageValue.LangCode))
+                    if (cache.GetDefaultLanguage().Code.Equals(languageValue.LangCode))
                     {
                         // check if default language allready have this value
                         if (metaTagsContainersToDefaultValue[metaTagName].ContainsKey(containerIndex))

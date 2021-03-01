@@ -8,14 +8,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Web;
 
 namespace Core.Pricing
 {
-    public class Module
+    public interface IPricingModule
     {
+        GenericListResponse<DiscountDetails> GetValidDiscounts(int groupId);
+    }
 
+    public class Module : IPricingModule
+    {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static readonly Lazy<Module> lazy = new Lazy<Module>(() => new Module(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static Module Instance { get { return lazy.Value; } }
+
+        private Module()
+        {
+        }
 
         public static Currency GetCurrencyValues(int nGroupID, string sCurrencyCode3)
         {
@@ -1816,8 +1829,7 @@ namespace Core.Pricing
 
             return response;
         }
-
-        public static GenericListResponse<DiscountDetails> GetValidDiscounts(int groupId)
+        public  GenericListResponse<DiscountDetails> GetValidDiscounts(int groupId)
         {
             var response = new GenericListResponse<DiscountDetails>();
 

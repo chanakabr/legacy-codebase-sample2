@@ -633,7 +633,7 @@ namespace Core.Notification
         public static string GetEpisodeAssociationTag(int groupId, ref CatalogGroupCache cache, ref AssetStruct episodeAssetStruct, long? seriesMediaTypeId = null)
         {
             string associationTag = string.Empty;
-            if (CatalogManager.DoesGroupUsesTemplates(groupId))
+            if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
             {
                 if (cache == null)
                 {

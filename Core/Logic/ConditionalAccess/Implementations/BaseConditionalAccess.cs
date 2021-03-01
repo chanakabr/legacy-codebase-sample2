@@ -7680,7 +7680,7 @@ namespace Core.ConditionalAccess
                     res.m_eItemType = BillingItemsType.PPV;
                     res.m_sPurchasedItemCode = nMediaID.ToString();
 
-                    if (Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(m_nGroupID))
+                    if (Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(m_nGroupID))
                     {
                         GenericResponse<Catalog.Asset> assetResponse = Catalog.CatalogManagement.AssetManager.GetAsset(m_nGroupID, nMediaID, eAssetTypes.MEDIA, true);
                         if (assetResponse?.Object != null)
@@ -14079,7 +14079,7 @@ namespace Core.ConditionalAccess
                 // check for single recording if the epg is already part of a followed series\season
                 if (isSingleRecording)
                 {
-                    ApiObjects.Response.Status IsFollowingResponse = Utils.IsFollowingEpgAsSeriesOrSeason(m_nGroupID, epg, domainID, recordingType);
+                    ApiObjects.Response.Status IsFollowingResponse = Utils.Instance.IsFollowingEpgAsSeriesOrSeason(m_nGroupID, epg, domainID, recordingType);
                     if (IsFollowingResponse.Code != (int)eResponseStatus.OK)
                     {
                         recording.Status.Set(IsFollowingResponse.Code, IsFollowingResponse.Message);
@@ -14710,7 +14710,7 @@ namespace Core.ConditionalAccess
                                     if (action == eAction.On || (currentStatus != null && currentStatus.Code == (int)eResponseStatus.OK))
                                     {
                                         // check if the epg is series by getting the fields mappings for the epg
-                                        Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg);
+                                        Dictionary<string, string> epgFieldMappings = Utils.Instance.GetEpgFieldTypeEntitys(m_nGroupID, epg);
                                         if (epgFieldMappings != null && epgFieldMappings.Count > 0 && epgFieldMappings.ContainsKey(Utils.SERIES_ID))
                                         {
                                             long channelId;
@@ -15857,7 +15857,7 @@ namespace Core.ConditionalAccess
                 List<ExtendedSearchResult> relevantRecordingsForRecord = null;
 
                 relevantRecordingsForRecord =
-                    Utils.SearchSeriesRecordings(m_nGroupID,
+                    Utils.Instance.SearchSeriesRecordings(m_nGroupID,
                     excludedCrids.ToList(), series, SearchSeriesRecordingsTimeOptions.past);
 
                 if (relevantRecordingsForRecord == null)
@@ -15907,7 +15907,7 @@ namespace Core.ConditionalAccess
 
                         RecordingType recordingType;
                         long domainSeriesRecordingId;
-                        userId = Utils.GetFollowingUserIdForSerie(m_nGroupID, series, potentialRecording, out recordingType, out domainSeriesRecordingId);
+                        userId = Utils.Instance.GetFollowingUserIdForSerie(m_nGroupID, series, potentialRecording, out recordingType, out domainSeriesRecordingId);
                         epgId = Utils.GetLongParamFromExtendedSearchResult(potentialRecording, "epg_id");
 
                         if (epgId > 0 && !string.IsNullOrEmpty(userId) && domainSeriesRecordingId > 0
@@ -16156,7 +16156,7 @@ namespace Core.ConditionalAccess
                     epgs = new List<EPGChannelProgrammeObject>();
                 }
 
-                ApiObjects.Response.Status IsFollowingResponse = Utils.IsFollowingEpgAsSeriesOrSeason(m_nGroupID, epgs[0], domainID, recordingType);
+                ApiObjects.Response.Status IsFollowingResponse = Utils.Instance.IsFollowingEpgAsSeriesOrSeason(m_nGroupID, epgs[0], domainID, recordingType);
                 if (IsFollowingResponse.Code != (int)eResponseStatus.OK)
                 {
                     seriesRecording.Status = IsFollowingResponse;
@@ -16166,7 +16166,7 @@ namespace Core.ConditionalAccess
                 bool isSeriesFollowed = false;
                 List<long> futureSeriesRecordingIds = new List<long>();
                 //saves record to the database
-                seriesRecording = Utils.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isSeriesFollowed, ref futureSeriesRecordingIds, epgs[0]);
+                seriesRecording = Utils.Instance.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isSeriesFollowed, ref futureSeriesRecordingIds, epgs[0]);
                 if (seriesRecording == null || seriesRecording.Status == null)
                 {
                     log.ErrorFormat("Failed Utils.FollowSeasonOrSeries, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
@@ -16352,7 +16352,7 @@ namespace Core.ConditionalAccess
                 if (epgs != null && epgs.Count > 0)
                 {
                     // check if epg related to series and season
-                    List<EpgCB> epgMatch = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, seriesRecording, epgs, seasonNumber);
+                    List<EpgCB> epgMatch = Utils.Instance.GetEpgRelatedToSeriesRecording(m_nGroupID, seriesRecording, epgs, seasonNumber);
                     if (epgMatch != null && epgMatch.Count > 0)
                     {
                         // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
@@ -16422,7 +16422,7 @@ namespace Core.ConditionalAccess
                 TvinciEpgBL epgBLTvinci = new TvinciEpgBL(m_nGroupID);
                 List<EpgCB> epgs = epgBLTvinci.GetEpgs(new List<string> { epgId.ToString() }, true);
                 // check if epg related to series and season
-                List<EpgCB> epgMatch = Utils.GetEpgRelatedToSeriesRecording(m_nGroupID, seriesRecording, epgs);
+                List<EpgCB> epgMatch = Utils.Instance.GetEpgRelatedToSeriesRecording(m_nGroupID, seriesRecording, epgs);
                 if (epgMatch != null && epgMatch.Count > 0) // epg related to series and season
                 {
                     // convert status Cancel/Delete ==> SeriesCancel/SeriesDelete
@@ -16667,7 +16667,7 @@ namespace Core.ConditionalAccess
             }
 
             EPGChannelProgrammeObject epg = epgs.First();
-            Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg);
+            Dictionary<string, string> epgFieldMappings = Utils.Instance.GetEpgFieldTypeEntitys(m_nGroupID, epg);
             if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);
@@ -17318,7 +17318,7 @@ namespace Core.ConditionalAccess
             }
 
             EPGChannelProgrammeObject epg = epgs.First();
-            Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(m_nGroupID, epg);
+            Dictionary<string, string> epgFieldMappings = Utils.Instance.GetEpgFieldTypeEntitys(m_nGroupID, epg);
             if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
                 log.ErrorFormat("failed GetEpgFieldTypeEntitys, groupId: {0}, epgId: {1}", m_nGroupID, epg.EPG_ID);

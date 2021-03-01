@@ -147,7 +147,7 @@ namespace ElasticSearchHandler.IndexBuilders
             group = null;
             languages = null;
             groupManager = new GroupManager();
-            doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             defaultLanguage = null;
 
             if (doesGroupUsesTemplates)
@@ -159,7 +159,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
 
                 languages = catalogGroupCache.LanguageMapById.Values.ToList();
-                defaultLanguage = catalogGroupCache.DefaultLanguage;
+                defaultLanguage = catalogGroupCache.GetDefaultLanguage();
             }
             else
             {
@@ -307,7 +307,7 @@ namespace ElasticSearchHandler.IndexBuilders
         {
             try
             {
-                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                 CatalogGroupCache catalogGroupCache = null;
                 Dictionary<ulong, Dictionary<string, EpgCB>> programs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
                 if (doesGroupUsesTemplates)
@@ -402,7 +402,7 @@ namespace ElasticSearchHandler.IndexBuilders
                         }
                         else
                         {
-                            language = doesGroupUsesTemplates ? catalogGroupCache.DefaultLanguage : group.GetGroupDefaultLanguage();
+                            language = doesGroupUsesTemplates ? catalogGroupCache.GetDefaultLanguage() : group.GetGroupDefaultLanguage();
                         }
 
                         EpgCB epg = programs[epgID][languageCode];

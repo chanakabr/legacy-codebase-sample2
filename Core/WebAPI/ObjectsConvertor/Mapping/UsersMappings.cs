@@ -283,7 +283,7 @@ namespace ObjectsConvertor.Mapping
             .ForMember(dest => dest.UserRoleIdIn, opt => opt.MapFrom(src => string.Join(",", src.RoleIdsIn)));
 
             cfg.CreateMap<KalturaSSOAdapterProfileInvoke, SSOAdapterProfileInvoke>()
-            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.AdapterData, false)))
+            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.AdapterData, false, false)))
             .AfterMap((src, dest) => dest.AdapterData = src.AdapterData != null ? dest.AdapterData : null)
             .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.Code))
             .ForMember(dest => dest.Message, opt => opt.MapFrom(src => src.Message))

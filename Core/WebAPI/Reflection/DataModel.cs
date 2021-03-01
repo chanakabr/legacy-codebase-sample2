@@ -4392,6 +4392,8 @@ namespace WebAPI.Reflection
                             return "createDate";
                         case "DataType":
                             return "dataType";
+                        case "DynamicData":
+                            return "dynamicData";
                         case "Features":
                             return "features";
                         case "FieldName":

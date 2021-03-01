@@ -13,12 +13,30 @@ using System.Reflection;
 using System.Xml;
 using Newtonsoft.Json;
 using static ODBCWrapper.Parameter;
+using System.Threading;
 
 namespace DAL
 {
-    public class PricingDAL
+    public interface ICampaignRepository 
+    {
+        bool Update_Campaign(Campaign campaign, ContextData contextData);
+        List<CampaignDB> GetCampaignsByGroupId(int groupId, eCampaignType campaignType);
+        Campaign GetCampaignById(int groupId, long id);
+        T AddCampaign<T>(T campaign, ContextData contextData) where T : Campaign, new();
+        bool DeleteCampaign(long groupId, long campaignId);
+    }
+
+    public class PricingDAL : ICampaignRepository
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static readonly Lazy<PricingDAL> lazy = new Lazy<PricingDAL>(() => new PricingDAL(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static PricingDAL Instance { get { return lazy.Value; } }
+
+        private PricingDAL()
+        {
+        }
 
         public static DataTable Get_PPVModuleListForMediaFiles(int nGroupID, List<int> mediaFileList)
         {
@@ -1883,7 +1901,7 @@ namespace DAL
 
         #region Campaign
 
-        public static T AddCampaign<T>(T campaign, ContextData contextData) where T : Campaign, new()
+        public T AddCampaign<T>(T campaign, ContextData contextData) where T : Campaign, new()
         {
             campaign.UpdaterId = contextData.UserId.Value;
 
@@ -1912,7 +1930,7 @@ namespace DAL
             return null;
         }
 
-        public static bool Update_Campaign(Campaign campaign, ContextData contextData)
+        public bool Update_Campaign(Campaign campaign, ContextData contextData)
         {
             campaign.UpdaterId = contextData.UserId.Value;
 
@@ -1929,7 +1947,7 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static bool DeleteCampaign(long groupId, long campaignId)
+        public bool DeleteCampaign(long groupId, long campaignId)
         {
             var sp = new StoredProcedure("Delete_Campaign");
             sp.SetConnectionKey("pricing_connection");
@@ -1939,7 +1957,7 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static List<CampaignDB> GetCampaignsByGroupId(int groupId, eCampaignType campaignType)
+        public List<CampaignDB> GetCampaignsByGroupId(int groupId, eCampaignType campaignType)
         {
             var sp = new StoredProcedure("Get_CampaignsByGroupId");
             sp.SetConnectionKey("pricing_connection");
@@ -1948,7 +1966,7 @@ namespace DAL
             return sp.ExecuteDataSet().Tables[0].ToList<CampaignDB>();
         }
 
-        public static Campaign GetCampaignById(int groupId, long id)
+        public Campaign GetCampaignById(int groupId, long id)
         {
             var sp = new StoredProcedure("Get_CampaignById");
             sp.SetConnectionKey("pricing_connection");

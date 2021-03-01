@@ -1,25 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ApiObjects;
+﻿using ApiObjects;
 using DAL;
-using Tvinci.Core.DAL;
-using System.Threading;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
-using System.Collections.Concurrent;
-using System.Threading.Tasks;
+using Tvinci.Core.DAL;
 
 namespace GroupsCacheManager
 {
     public class GroupManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private GroupsCache cache;
-        public GroupManager()
+        private IGroupsCache cache;
+
+        public GroupManager(IGroupsCache groupsCache = null)
         {
-            cache = GroupsCache.Instance();
+            // Depracated dont send null
+            cache = groupsCache ?? GroupsCache.Instance();
         }
 
         #region Public

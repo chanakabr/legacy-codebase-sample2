@@ -784,14 +784,17 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.MultipleValue, opt => opt.MapFrom(src => src.Type == ApiObjects.MetaType.Tag))
               .ForMember(dest => dest.IsProtected, opt => opt.MapFrom(src => src.IsPredefined))
               .ForMember(dest => dest.HelpText, opt => opt.MapFrom(src => src.HelpText))
-              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetCommaSeparatedFeatures()))
+              .ForMember(dest => dest.Features, opt => opt.MapFrom(src => src.GetCommaSeparatedFeatures(null)))
               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId.HasValue ? src.ParentId.Value.ToString() : null))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
               .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
               .ForMember(dest => dest.Type, opt => opt.Ignore())
               .ForMember(dest => dest.PartnerId, opt => opt.Ignore())
               .ForMember(dest => dest.FieldName, opt => opt.Ignore())
-              .ForMember(dest => dest.AssetType, opt => opt.Ignore());
+              .ForMember(dest => dest.AssetType, opt => opt.Ignore())
+              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ?
+                src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
+              ;
 
             // KalturaMeta to Topic
             cfg.CreateMap<Models.API.KalturaMeta, Topic>()
@@ -806,7 +809,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .AfterMap((src, dest) => dest.Features = src.Features != null ? dest.Features : null)
               .ForMember(dest => dest.ParentId, opt => opt.ResolveUsing(src => StringUtils.TryConvertTo<long>(src.ParentId)))
               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
-              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
+              .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
+              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true, true)))
+              .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
+              ;
 
             // AssetStructMeta to KalturaAssetStructMeta
             cfg.CreateMap<AssetStructMeta, KalturaAssetStructMeta>()
@@ -1176,7 +1182,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .AfterMap((src, dest) => dest.ChildrenIds = src.ChildrenIds != null ? dest.ChildrenIds : null)
               .ForMember(dest => dest.UnifiedChannels, opt => opt.MapFrom(src => src.UnifiedChannels))
               .AfterMap((src, dest) => dest.UnifiedChannels = src.UnifiedChannels != null ? dest.UnifiedChannels : null)
-              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)))
+              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true, false)))
               .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
               .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds, src.NullableProperties)))
@@ -2245,7 +2251,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 case OrderBy.LIKE_COUNTER:
                     {
-                        result.orderBy = KalturaChannelOrderBy.LIKES_DESC;   
+                        result.orderBy = KalturaChannelOrderBy.LIKES_DESC;
                         break;
                     }
                 case OrderBy.RECOMMENDATION:
@@ -2507,8 +2513,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
             if (devicePlayData == null || devicePlayData.AssetId == 0)
                 return null;
 
-            var sa = new KalturaSlimAsset{Id = devicePlayData.AssetId.ToString()};
-            
+            var sa = new KalturaSlimAsset { Id = devicePlayData.AssetId.ToString() };
+
             if (Enum.TryParse<KalturaAssetType>(devicePlayData.playType, out KalturaAssetType _type))
                 sa.Type = _type;
 

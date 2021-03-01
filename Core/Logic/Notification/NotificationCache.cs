@@ -27,6 +27,7 @@ namespace Core.Notification
     public interface INotificationCache
     {
         NotificationPartnerSettingsResponse GetPartnerNotificationSettings(int groupId);
+        List<ApiObjects.Meta> GetPartnerTopicInterests(int groupId);
     }
 
     public class NotificationCache : INotificationCache

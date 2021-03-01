@@ -4085,7 +4085,7 @@ namespace WebAPI.WebServices
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
-                return Core.Api.Module.GetGroupMetaList(groupId, assetType, metaType, fieldNameEqual, fieldNameNotEqual, metaFeatureTypeList);
+                return Core.Catalog.CatalogManagement.TopicManager.Instance.GetGroupMetaList(groupId, assetType, metaType, fieldNameEqual, fieldNameNotEqual, metaFeatureTypeList);
             }
             else
             {

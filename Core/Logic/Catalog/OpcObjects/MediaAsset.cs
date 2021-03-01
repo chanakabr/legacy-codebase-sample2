@@ -314,13 +314,13 @@ namespace Core.Catalog
                                 SetImageByExcelValues(columnValue, columns[columnValue.Key], imageTypesMapBySystemName);
                                 break;
                             case ExcelColumnType.Meta:
-                                SetMetaByExcelValues(columnValue, columns[columnValue.Key], catalogGroupCache.DefaultLanguage.Code, ref dicMetas);
+                                SetMetaByExcelValues(columnValue, columns[columnValue.Key], catalogGroupCache.GetDefaultLanguage().Code, ref dicMetas);
                                 break;
                             case ExcelColumnType.Rule:
                                 SetRuleByExcelValues(columnValue, groupId);
                                 break;
                             case ExcelColumnType.Tag:
-                                SetTagByExcelValues(columnValue, columns[columnValue.Key].SystemName, assetStruct.TopicsMapBySystemName, catalogGroupCache.DefaultLanguage.Code);
+                                SetTagByExcelValues(columnValue, columns[columnValue.Key].SystemName, assetStruct.TopicsMapBySystemName, catalogGroupCache.GetDefaultLanguage().Code);
                                 break;
                             default:
                                 SetPropertyByExcelValue(columns[columnValue.Key].Property, columnValue.Value);

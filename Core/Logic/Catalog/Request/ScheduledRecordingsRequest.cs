@@ -133,7 +133,7 @@ namespace Core.Catalog.Request
                     {
                         string seriesIdMetaOrTag, seasonNumberMetaOrTag, episodeNumber;
 
-                        if (!ConditionalAccess.Utils.GetSeriesMetaTagsFieldsNamesForSearch(m_nGroupID, out seriesIdMetaOrTag, out seasonNumberMetaOrTag, out episodeNumber))
+                        if (!ConditionalAccess.Utils.Instance.GetSeriesMetaTagsFieldsNamesForSearch(m_nGroupID, out seriesIdMetaOrTag, out seasonNumberMetaOrTag, out episodeNumber))
                         {
                             log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", m_nGroupID);
                             return response;

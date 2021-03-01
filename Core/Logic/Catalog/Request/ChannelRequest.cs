@@ -79,7 +79,7 @@ namespace Core.Catalog.Request
 
                 try
                 {
-                    if (CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
+                    if (CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID))
                     {
                         doesGroupUsesTemplates = true;
                         groupId = request.m_nGroupID;
@@ -89,7 +89,7 @@ namespace Core.Catalog.Request
                             log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling ChannelRequest.GetResponse", groupId);
                             return response;
                         }
-                        defaultLanguage = catalogGroupCache.DefaultLanguage;
+                        defaultLanguage = catalogGroupCache.GetDefaultLanguage();
 
                         var channelResponse = ChannelManager.Instance.GetChannelById(groupId, request.m_nChannelID, false, 0);
                         if (!channelResponse.HasObject())

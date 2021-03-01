@@ -446,7 +446,7 @@ namespace OPC_Migration
                 {
                     foreach (Topic topicToAdd in pair.Values)
                     {
-                        GenericResponse<Topic> response = CatalogManager.Instance.AddTopic(groupId, topicToAdd, Utils.UPDATING_USER_ID, false);
+                        GenericResponse<Topic> response = TopicManager.Instance.AddTopic(groupId, topicToAdd, Utils.UPDATING_USER_ID, false);
                         if (!response.HasObject() || response.Object.Id == 0)
                         {
                             log.ErrorFormat("Failed adding topic with systemName: {0}", topicToAdd.SystemName);
@@ -462,7 +462,7 @@ namespace OPC_Migration
             }
             catch (Exception ex)
             {
-                log.Error("failed CatalogManager.AddTopic", ex);
+                log.Error("failed TopicManager.Instance.AddTopic", ex);
                 res = false;
             }
 

@@ -261,7 +261,7 @@ namespace Core.Catalog
                     List<int> mediaIds = lSearchResults.Select(item => item.assetID).ToList();
 
                     DataTable dt = null;
-                    if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+                    if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                     {
                         dt = CatalogDAL.GetAssetUpdateDate(mediaIds, eObjectType.Media);
                     }
@@ -1078,7 +1078,7 @@ namespace Core.Catalog
             {
                 var allTags = new HashSet<string>();
                 var allMetas = new Dictionary<string, bool>();
-                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                 CatalogGroupCache catalogGroupCache = null;
 
                 if (!doesGroupUsesTemplates)

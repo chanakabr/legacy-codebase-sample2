@@ -1668,11 +1668,6 @@ namespace Core.Api
             return Core.Api.api.GetCountryLocaleList(countryIds, groupId);
         }
 
-        public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, ApiObjects.MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual, List<MetaFeatureType> metaFeatureTypeList)
-        {
-            return Core.Api.api.GetGroupMetaList(groupId, assetType, metaType, fieldNameEqual, fieldNameNotEqual, metaFeatureTypeList);
-        }
-
         public static Country GetCountryByIp(int groupId, string ip)
         {
             return Core.Api.api.GetCountryByIp(groupId, ip);

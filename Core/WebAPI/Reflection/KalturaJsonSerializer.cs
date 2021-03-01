@@ -24971,6 +24971,11 @@ namespace WebAPI.Models.API
             {
                 ret.Add("dataType", "\"dataType\": " + "\"" + Enum.GetName(typeof(KalturaMetaDataType), DataType) + "\"");
             }
+            if(DynamicData != null && (retrievedProperties == null || retrievedProperties.Contains("dynamicData")))
+            {
+                propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
+            }
             if(Features != null && (retrievedProperties == null || retrievedProperties.Contains("features")))
             {
                 ret.Add("features", "\"features\": " + "\"" + EscapeJson(Features) + "\"");
@@ -25048,6 +25053,11 @@ namespace WebAPI.Models.API
             if(DataType.HasValue && (retrievedProperties == null || retrievedProperties.Contains("dataType")))
             {
                 ret.Add("dataType", "<dataType>" + "" + Enum.GetName(typeof(KalturaMetaDataType), DataType) + "" + "</dataType>");
+            }
+            if(DynamicData != null && (retrievedProperties == null || retrievedProperties.Contains("dynamicData")))
+            {
+                propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
             }
             if(Features != null && (retrievedProperties == null || retrievedProperties.Contains("features")))
             {

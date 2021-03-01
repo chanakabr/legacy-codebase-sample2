@@ -397,7 +397,7 @@ namespace Core.Catalog
 
             try
             {
-                if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                 {
                     return CatalogManagement.AssetManager.GetMediaObj(groupId, nMedia);
                 }
@@ -1605,7 +1605,7 @@ namespace Core.Catalog
         public static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta, int groupId)
         {
             Type type;
-            if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+            if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
             {
                 return CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, originalKey, out isTagOrMeta, out type);
             }
@@ -1630,7 +1630,7 @@ namespace Core.Catalog
             HashSet<string> searchKeys = new HashSet<string>();
 
             // get alias + regex expression 
-            List<FieldTypeEntity> FieldEpgAliasMapping = ConditionalAccess.Utils.GetAliasMappingFields(group.m_nParentGroupID);
+            List<FieldTypeEntity> FieldEpgAliasMapping = ConditionalAccess.Utils.Instance.GetAliasMappingFields(group.m_nParentGroupID);
 
             if (originalKey.StartsWith("tags."))
             {
@@ -1820,7 +1820,7 @@ namespace Core.Catalog
             parentMediaTypes = new Dictionary<int, int>();
             associationTags = new Dictionary<int, string>();
 
-            if (CatalogManager.DoesGroupUsesTemplates(groupId))
+            if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
             {
                 CatalogGroupCache catalogGroupCache;
                 if (!CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -1956,7 +1956,7 @@ namespace Core.Catalog
                 }
                 if (searchObj.m_oOrder.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META)
                 {
-                    if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
+                    if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID))
                     {
                         if (!CatalogManagement.CatalogManager.Instance.CheckMetaExsits(request.m_nGroupID, searchObj.m_oOrder.m_sOrderValue.ToLower()))
                         {
@@ -1983,7 +1983,7 @@ namespace Core.Catalog
 
                 if (m_dOr.Count > 0)
                 {
-                    if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
+                    if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID))
                     {
                         searchObj.m_nGroupId = request.m_nGroupID;
                         CopySearchValuesToSearchObjects(ref searchObj, CutWith.OR, m_dOr);
@@ -1996,7 +1996,7 @@ namespace Core.Catalog
 
                 if (m_dAnd.Count > 0)
                 {
-                    if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
+                    if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID))
                     {
                         searchObj.m_nGroupId = request.m_nGroupID;
                         CopySearchValuesToSearchObjects(ref searchObj, CutWith.AND, m_dAnd);
@@ -2018,7 +2018,7 @@ namespace Core.Catalog
 
                 List<int> regionIds;
                 List<string> linearMediaTypes;
-                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID);
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID);
 
                 CatalogLogic.SetSearchRegions(request.m_nGroupID, doesGroupUsesTemplates, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
 
@@ -2134,7 +2134,7 @@ namespace Core.Catalog
             }
             else
             {
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                 {
                     if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache) && catalogGroupCache.IsRegionalizationEnabled)
                     {
@@ -2791,7 +2791,7 @@ namespace Core.Catalog
                 var userMediaMark = devicePlayData.ConvertToUserMediaMark(locationSec, duration, mediaTypeId, assetType);
                 if (isFirstPlay)
                 {
-                    CatalogManager.SetHistoryValues(groupId, userMediaMark);
+                    CatalogManager.Instance.SetHistoryValues(groupId, userMediaMark);
                 }
 
                 switch (playType)
@@ -2924,7 +2924,7 @@ namespace Core.Catalog
 
             List<int> regionIds;
             List<string> linearMediaTypes;
-            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID);
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID);
 
             CatalogLogic.SetSearchRegions(request.m_nGroupID, doesGroupUsesTemplates, request.domainId, request.m_sSiteGuid, out regionIds, out linearMediaTypes);
 
@@ -3267,7 +3267,7 @@ namespace Core.Catalog
             {
                 int groupIdForCelery = groupId;
                 Group group = null;
-                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                 if (!doesGroupUsesTemplates)
                 {
                     GroupManager groupManager = new GroupManager();
@@ -3340,7 +3340,7 @@ namespace Core.Catalog
 
             if (ids != null && ids.Count > 0)
             {
-                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
 
                 if (!doesGroupUsesTemplates)
                 {
@@ -4567,7 +4567,7 @@ namespace Core.Catalog
 
             List<int> regionIds;
             List<string> linearMediaTypes;
-            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(nGroupID);
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(nGroupID);
 
             CatalogLogic.SetSearchRegions(nGroupID, doesGroupUsesTemplates, domainId, siteGuid, out regionIds, out linearMediaTypes);
 
@@ -5782,7 +5782,7 @@ namespace Core.Catalog
             List<long> channelIds = null;
             List<int> regionIds;
             List<string> linearMediaTypes;
-            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(epgSearchRequest.m_nGroupID);
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(epgSearchRequest.m_nGroupID);
 
             // Get region/regions for search
             CatalogLogic.SetSearchRegions(epgSearchRequest.m_nGroupID, doesGroupUsesTemplates, epgSearchRequest.domainId,
@@ -6062,7 +6062,7 @@ namespace Core.Catalog
             var searchResultsList = new List<UnifiedSearchResult>();
             var groupPermittedWatchRules = GetGroupPermittedWatchRules(groupId);
 
-            bool isOPC = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool isOPC = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             if (isOPC || (groupPermittedWatchRules != null && groupPermittedWatchRules.Count > 0))
             {
                 string watchRules = string.Join(" ", GetGroupPermittedWatchRules(groupId));
@@ -6560,7 +6560,7 @@ namespace Core.Catalog
             int parentGroupID = request.m_nGroupID;
             Group group = null;
             CatalogGroupCache catalogGroupCache = null;
-            if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID))
+            if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID))
             {
                 long userId = 0;
                 long.TryParse(request.m_sSiteGuid, out userId);
@@ -7061,7 +7061,7 @@ namespace Core.Catalog
             searchResults = new List<UnifiedSearchResult>();
 
             ApiObjects.Response.Status status = null;
-            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID);
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID);
             Group group = null;
             int parentGroupID = request.m_nGroupID;
 
@@ -7133,7 +7133,7 @@ namespace Core.Catalog
                 return status;
             }
 
-            bool bIsMainLang = doesGroupUsesTemplates ? catalogGroupCache.DefaultLanguage.ID == request.m_oFilter.m_nLanguage : Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
+            bool bIsMainLang = doesGroupUsesTemplates ? catalogGroupCache.GetDefaultLanguage().ID == request.m_oFilter.m_nLanguage : Utils.IsLangMain(request.m_nGroupID, request.m_oFilter.m_nLanguage);
 
             MediaSearchRequest mediaSearchRequest = BuildMediasRequest(request.m_nMediaID, bIsMainLang, request.m_oFilter, ref filter, request.m_nGroupID, request.m_nMediaTypes, request.m_sSiteGuid,
                                                                         request.OrderObj, doesGroupUsesTemplates, catalogGroupCache);
@@ -7512,7 +7512,7 @@ namespace Core.Catalog
             // Add prefix (meta/tag) e.g. metas.{key}
             Type metaType;
             HashSet<string> searchKeys = new HashSet<string>();
-            if (CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId))
+            if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
             {
                 searchKeys = CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, leaf.field, out isTagOrMeta, out metaType);
             }
@@ -8108,7 +8108,7 @@ namespace Core.Catalog
                                                                                 CatalogGroupCache catalogGroupCache = null, bool isSearchEntitlementInternal = true)
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
-            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
 
             if (doesGroupUsesTemplates && catalogGroupCache == null)
             {
@@ -8178,7 +8178,7 @@ namespace Core.Catalog
                 definitions.permittedWatchRules = string.Join(" ", group.m_sPermittedWatchRules);
             }
 
-            definitions.langauge = doesGroupUsesTemplates ? catalogGroupCache.DefaultLanguage : group.GetGroupDefaultLanguage();
+            definitions.langauge = doesGroupUsesTemplates ? catalogGroupCache.GetDefaultLanguage() : group.GetGroupDefaultLanguage();
 
             #endregion
 
@@ -9106,7 +9106,7 @@ namespace Core.Catalog
                     Group group = groupManager.GetGroup(groupId);
 
                     string watchRules = string.Empty;
-                    bool isOPC = CatalogManager.DoesGroupUsesTemplates(groupId);
+                    bool isOPC = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
 
                     if ((group.m_sPermittedWatchRules != null && group.m_sPermittedWatchRules.Count > 0) || isOPC)
                     {
@@ -9764,7 +9764,7 @@ namespace Core.Catalog
             }
 
             // make sure that meta/tag are related to partner
-            var metaResponse = Core.Api.Module.GetGroupMetaList(groupId, meta.AssetType, meta.Type, MetaFieldName.None, MetaFieldName.None, null);
+            var metaResponse = TopicManager.Instance.GetGroupMetaList(groupId, meta.AssetType, meta.Type, MetaFieldName.None, MetaFieldName.None, null);
             if (metaResponse == null || metaResponse.Status == null || metaResponse.Status.Code != (int)eResponseStatus.OK || metaResponse.MetaList == null || metaResponse.MetaList.Count == 0)
             {
                 log.ErrorFormat("Error while getting group meta list. {0}", logData);
