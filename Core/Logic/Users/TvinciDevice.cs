@@ -22,12 +22,36 @@ namespace Core.Users
 
         }
 
+        /// <summary>
+        /// Generate a PIN code (Unique per account)
+        /// Insert a new device to devices table with the new PIN code
+        /// Return the new PIN
+        /// </summary>
+        /// <returns>New PIN</returns>
         public override string GetPINForDevice(int nGroupID, string sDeviceUDID, int nBrandID)
         {
             Device device = new Device(sDeviceUDID, nBrandID, nGroupID);
             device.Initialize(sDeviceUDID);
-            var pinCode = device.GetPINForDevice();
+
+            string pinCode;
+            // Device already exists
+            if (device.m_pin != string.Empty)
+            {
+                pinCode = device.m_pin;
+            }
+            else
+            {
+                // New Device            
+                string sNewDevicePIN = DeviceRepository.GenerateNewPIN(nGroupID);
+                device.m_pin = sNewDevicePIN;
+
+                var nDeviceID = device.Save(0, 1, new DomainDevice()); // Returns device ID, 0 otherwise
+                
+                pinCode = nDeviceID != 0 ? sNewDevicePIN : string.Empty;
+            }
+            
             SendCanaryMigrationEvent(nGroupID, sDeviceUDID, pinCode);
+            
             return pinCode;
         }
 
@@ -92,7 +116,12 @@ namespace Core.Users
             return status;
         }
 
-        public override DeviceResponseObject SetDevice(int nGroupID, Users.DomainDevice dDevice, bool allowNullExternalId, bool allowNullMacAddress = false)
+        public override DeviceResponseObject SetDevice(
+            int nGroupID,
+            DomainDevice dDevice,
+            bool allowNullExternalId,
+            bool allowNullMacAddress = false,
+            bool allowNullDynamicData = false)
         {
             DeviceResponseObject ret = new DeviceResponseObject();
             Device device = new Device(dDevice.Udid, 0, nGroupID, dDevice.Name);
@@ -105,7 +134,7 @@ namespace Core.Users
             }
 
             //Check if external id already exists
-            var device_Id = Device.GetDeviceIDByExternalId(nGroupID, dDevice.ExternalId);
+            var device_Id = DeviceRepository.GetDeviceIdByExternalId(nGroupID, dDevice.ExternalId);
 
             //already exists
             if (!string.IsNullOrEmpty(device_Id) && device.m_id != device_Id)
@@ -115,9 +144,8 @@ namespace Core.Users
                 return ret;
             }
 
-            var _deviceName = !string.IsNullOrEmpty(dDevice.Name) ? dDevice.Name : device.m_deviceName;
-            dDevice.Name = _deviceName;
-            bool isSetSucceeded = device.SetDeviceInfo(dDevice, allowNullExternalId, allowNullMacAddress);
+            dDevice.Name = string.IsNullOrEmpty(dDevice.Name) ? device.m_deviceName : dDevice.Name;
+            bool isSetSucceeded = device.SetDeviceInfo(dDevice, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
 
             // in case set device Succeeded
             // domain should be remove from the cache 

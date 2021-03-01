@@ -316,7 +316,10 @@ namespace Core.Users
             {
                 // create new device
                 Device device = new Device(udid, brandId, m_nGroupID, deviceName, domainId);
-                bool res = device.Initialize(udid, deviceName);
+                if (device.Initialize(udid))
+                {
+                    device.m_deviceName = deviceName.Trim();
+                }
 
                 // add device to domain
                 oDomainResponseObject.m_oDomainResponseStatus = oDomainResponseObject.m_oDomain.AddDeviceToDomain(m_nGroupID, domainId, udid, deviceName, brandId, ref device);
@@ -340,7 +343,7 @@ namespace Core.Users
             if (string.IsNullOrEmpty(dDevice.Udid))
                 return response;
 
-            var device_Id = Device.GetDeviceIDByExternalId(groupId, dDevice.ExternalId);
+            var device_Id = DeviceDal.GetDeviceIdByExternalId(groupId, dDevice.ExternalId);
 
             //device with same external Id already exists
             if (!string.IsNullOrEmpty(device_Id))
@@ -366,7 +369,10 @@ namespace Core.Users
             {
                 // create new device
                 Device device = new Device(dDevice.Udid, dDevice.DeviceBrandId, m_nGroupID, dDevice.Name, domainId);
-                device.Initialize(dDevice.Udid, dDevice.Name);
+                if (device.Initialize(dDevice.Udid))
+                {
+                    device.m_deviceName = dDevice.Name.Trim();
+                }
 
                 if (!string.IsNullOrEmpty(dDevice.ExternalId))
                     device.ExternalId = dDevice.ExternalId;
@@ -376,6 +382,11 @@ namespace Core.Users
                     device.Model = dDevice.Model;
                 if (dDevice.ManufacturerId.HasValue)
                     device.ManufacturerId = dDevice.ManufacturerId;
+
+                if (dDevice.DynamicData != null)
+                {
+                    device.DynamicData = dDevice.DynamicData;
+                }
 
                 // add device to domain
                 domainResponseStatus = domain.AddDeviceToDomain(m_nGroupID, domainId, dDevice.Udid, dDevice.Name, dDevice.DeviceBrandId, ref device);
@@ -539,8 +550,8 @@ namespace Core.Users
             bInit = device.Initialize(sUDID);
             int nDeviceID = int.Parse(device.m_id);
 
-            int nDomainDeviceID = 0;
-            int nTokenDeviceID = DomainDal.GetDeviceIDByDomainActivationToken(m_nGroupID, sToken, ref nDomainDeviceID);
+            long nDomainDeviceID = 0;
+            var nTokenDeviceID = DomainDal.GetDeviceIDByDomainActivationToken(m_nGroupID, sToken, ref nDomainDeviceID);
 
             if (nDeviceID != nTokenDeviceID)
             {
@@ -599,7 +610,7 @@ namespace Core.Users
             try
             {
                 List<Domain> retVal = null;
-                int deviceID = Device.GetDeviceIDByUDID(sUDID, m_nGroupID);
+                var deviceID = DeviceDal.GetDeviceIdByUDID(sUDID, m_nGroupID);
                 if (deviceID > 0)
                 {
                     retVal = Domain.GetDeviceDomains(deviceID, m_nGroupID);
@@ -1722,7 +1733,7 @@ namespace Core.Users
             try
             {
                 // get device
-                int deviceID = Device.GetDeviceIDByUDID(udid, m_nGroupID);
+                var deviceID = DeviceDal.GetDeviceIdByUDID(udid, m_nGroupID);
 
                 // device not found - device not registered
                 if (deviceID == 0)
@@ -1778,7 +1789,7 @@ namespace Core.Users
             try
             {
                 // get device
-                int deviceID = Device.GetDeviceIDByUDID(udid, m_nGroupID);
+                var deviceID = DeviceDal.GetDeviceIdByUDID(udid, m_nGroupID);
 
                 // device not found - device not registered
                 if (deviceID == 0)
@@ -1951,7 +1962,7 @@ namespace Core.Users
             var device = new Device(dDevice.Udid, dDevice.DeviceBrandId, m_nGroupID, dDevice.Name, domainID);
 
             //externalId already exists
-            if (!string.IsNullOrEmpty(Device.GetDeviceIDByExternalId(m_nGroupID, dDevice.ExternalId)))
+            if (!string.IsNullOrEmpty(DeviceDal.GetDeviceIdByExternalId(m_nGroupID, dDevice.ExternalId)))
             {
                 response.Status = new ApiObjects.Response.Status(eResponseStatus.ExternalIdAlreadyExists,
                 $"External Id: '{dDevice.ExternalId}' Already Exists in Group {m_nGroupID}");
@@ -1968,6 +1979,11 @@ namespace Core.Users
                 device.Manufacturer = dDevice.Manufacturer;
             if (dDevice.ManufacturerId.HasValue)
                 device.ManufacturerId = dDevice.ManufacturerId;
+
+            if (dDevice.DynamicData != null)
+            {
+                device.DynamicData = dDevice.DynamicData;
+            }
 
             DomainResponseStatus domainResponseStatus;
             int userId = 0;
@@ -2254,7 +2270,7 @@ namespace Core.Users
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             domainId = 0;
 
-            int deviceId = Device.GetDeviceIDByUDID(udid, groupId);
+            var deviceId = DeviceDal.GetDeviceIdByUDID(udid, groupId);
             if (deviceId == 0)
             {
                 response = new ApiObjects.Response.Status((int)eResponseStatus.DeviceNotExists, "Device does not exist");

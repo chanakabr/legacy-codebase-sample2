@@ -19,7 +19,7 @@ namespace Core.Users
 
         public int DomainId { get; set; }
 
-        public int DeviceId { get; set; }
+        public long DeviceId { get; set; }
 
         public string Name { get; set; }
 
@@ -46,6 +46,8 @@ namespace Core.Users
         public string Model { get; set; }
         
         public long? LastActivityTime { get; set; }
+
+        public Dictionary<string, string> DynamicData { get; set; }
 
         protected override bool DoInsert()
         {

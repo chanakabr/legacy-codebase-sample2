@@ -40532,6 +40532,11 @@ namespace WebAPI.Models.Domains
                 propertyValue = Drm.ToJson(currentVersion, omitObsolete);
                 ret.Add("drm", "\"drm\": " + propertyValue);
             }
+            if(DynamicData != null && (retrievedProperties == null || retrievedProperties.Contains("dynamicData")))
+            {
+                propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
+            }
             if(ExternalId != null && (retrievedProperties == null || retrievedProperties.Contains("externalId")))
             {
                 ret.Add("externalId", "\"externalId\": " + "\"" + EscapeJson(ExternalId) + "\"");
@@ -40618,6 +40623,11 @@ namespace WebAPI.Models.Domains
             {
                 propertyValue = Drm.ToXml(currentVersion, omitObsolete);
                 ret.Add("drm", "<drm>" + propertyValue + "</drm>");
+            }
+            if(DynamicData != null && (retrievedProperties == null || retrievedProperties.Contains("dynamicData")))
+            {
+                propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
             }
             if(ExternalId != null && (retrievedProperties == null || retrievedProperties.Contains("externalId")))
             {
