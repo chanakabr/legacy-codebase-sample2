@@ -11431,7 +11431,7 @@ namespace Core.ConditionalAccess
         {
             throw new NotImplementedException("Not implemented yet.");
         }
-        public virtual NPVRResponse DeleteNPVR(string siteGuid, string seriesId, string seasonNumber, string channelId, List<NPVRRecordingStatus> status, int? version)
+        public virtual NPVRResponse DeleteNPVR(string siteGuid, string seriesId, string seasonNumber, string channelId, List<NPVRRecordingStatus> status, int? version, string assetId = "", string alreadyWatched = "")
         {
             throw new NotImplementedException("Not implemented yet.");
         }
@@ -11446,6 +11446,17 @@ namespace Core.ConditionalAccess
             throw new NotImplementedException("Not implemented yet.");
         }
         public virtual NPVRResponse SetAssetAlreadyWatchedStatus(string siteGuid, string assetID, int alreadyWatched, int? version)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
+
+        public virtual NPVRResponse DeleteAllRecordings(string siteGuid, int? version, bool? deleteProtected = true, bool? deleteBookings = true)
+        {
+            throw new NotImplementedException("Not implemented yet.");
+        }
+
+        public virtual NPVRResponse CancelByRecording(string siteGuid, int? version, string byChannelId, string byAssetId = "", string bySeriesId = "",
+        string bySeasonNumber = "", string byAlreadyWatched = "", string byProgramId = "", bool? deleteOngoingRecordings = false)
         {
             throw new NotImplementedException("Not implemented yet.");
         }

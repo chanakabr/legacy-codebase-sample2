@@ -8,15 +8,24 @@ namespace NPVR
 {
     public class NPVRParamsObj
     {
-        protected string assetID;
+        protected List<string> _statuses = new List<string> { "scheduled", "ongoing", "completed", "cancelled" };
+        protected string assetID; //allows to specify the list of identifiers of the bookings involved in this operation
         protected string entityID;
         protected string accountID;
         protected long quota;
         protected DateTime startDate;
-        protected string epgChannelID;
+        protected string epgChannelID; //allows filtering only the bookings associated to a given channelId(s).
         protected bool isProtect; // true for protection, false for un-protection
         protected string streamType;
         protected string hasFormat;
+
+        protected bool deleteProtected; //Indicates if protected recordings should be removed or not
+        protected bool deleteBookings; //Indicates if incomplete recordings (scheduled or ongoing) should be removed or not
+
+        protected string byAlreadyWatched; //allows to specify the list of values in the alreadyWatched involved in this operation.
+        protected string byProgramId; //allows to specify the list of program identifiers of the bookings involved in this operation.
+        protected bool deleteOngoingRecordings; //Flag to indicate if ongoing recording(s) to be removed or not.
+        protected string byStatus; //To indicate the status of the recordings to be deleted.
 
         protected int value;
 
@@ -140,7 +149,91 @@ namespace NPVR
             }
         }
 
-       public override string ToString()
+        public virtual bool DeleteProtected
+        {
+            get
+            {
+                return deleteProtected;
+            }
+            set
+            {
+                deleteProtected = value;
+            }
+        }
+
+        public virtual bool DeleteBookings
+        {
+            get
+            {
+                return deleteBookings;
+            }
+            set
+            {
+                deleteBookings = value;
+            }
+        }
+
+        public virtual string ByAlreadyWatched
+        {
+            get
+            {
+                return byAlreadyWatched;
+            }
+            set
+            {
+                byAlreadyWatched = value;
+            }
+        }
+
+        public virtual string ByProgramId
+        {
+            get
+            {
+                return byProgramId;
+            }
+            set
+            {
+                byProgramId = value;
+            }
+        }
+
+        public virtual bool DeleteOngoingRecordings
+        {
+            get
+            {
+                return deleteOngoingRecordings;
+            }
+            set
+            {
+                deleteOngoingRecordings = value;
+            }
+        }
+
+        public virtual string ByStatus
+        {
+            get
+            {
+                return byStatus;
+            }
+            set
+            {
+                byStatus = value;
+            }
+        }
+
+        public string GetValidStatuses()
+        {
+            if (string.IsNullOrEmpty(ByStatus))
+                return string.Empty;
+
+            var _list = ByStatus.Split(',').Select(x => x.Trim().ToLower()).ToList();
+            var _byStatus = _list.Where(s => _statuses.Contains(s))
+                                 .Select(s => s)
+                                 .Distinct().ToList();
+            return string.Join(",", _byStatus);
+        }
+
+        public override string ToString()
         {
             StringBuilder sb = new StringBuilder("NPVRParamsObj. ");
             sb.Append(String.Concat("Asset ID: ", AssetID));
@@ -152,6 +245,12 @@ namespace NPVR
             sb.Append(String.Concat(" Stream Type: ", streamType));
             sb.Append(String.Concat(" HAS Format: ", hasFormat));
             sb.Append(String.Concat(" Value: ", value));
+            sb.Append(String.Concat(" DeleteProtected: ", deleteProtected.ToString().ToLower()));
+            sb.Append(String.Concat(" DeleteBookings: ", deleteBookings.ToString().ToLower()));
+            sb.Append(String.Concat(" ByAlreadyWatched: ", byAlreadyWatched));
+            sb.Append(String.Concat(" ByProgramId: ", byProgramId));
+            sb.Append(String.Concat(" ByStatus: ", GetValidStatuses()));
+            sb.Append(String.Concat(" DeleteOngoingRecordings: ", deleteOngoingRecordings.ToString().ToLower()));
             return sb.ToString();
         }
 

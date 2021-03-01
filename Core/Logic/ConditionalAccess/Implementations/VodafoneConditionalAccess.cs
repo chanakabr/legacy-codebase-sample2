@@ -423,7 +423,7 @@ namespace Core.ConditionalAccess
         }
 
         //Delete Series Nokia new implementation
-        public override NPVRResponse DeleteNPVR(string siteGuid, string seriesId, string seasonNumber, string channelId, List<NPVRRecordingStatus> status, int? version)
+        public override NPVRResponse DeleteNPVR(string siteGuid, string seriesId, string seasonNumber, string channelId, List<NPVRRecordingStatus> status, int? version, string assetId = "", string alreadyWatched = "")
         {
             NPVRResponse res = new NPVRResponse();
             DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
@@ -444,7 +444,9 @@ namespace Core.ConditionalAccess
                             Status = status,
                             SeriesID = seriesId,
                             ChannelId = channelId,
-                            SeasonNumber = seasonNumber
+                            SeasonNumber = seasonNumber,
+                            AssetID = assetId,
+                            ByAlreadyWatched = alreadyWatched
                         });
                         if (response != null)
                         {
@@ -494,6 +496,154 @@ namespace Core.ConditionalAccess
             return res;
         }
 
+        public override NPVRResponse DeleteAllRecordings(string siteGuid, int? version, bool? deleteProtected = true, bool? deleteBookings = true)
+        {
+            NPVRResponse res = new NPVRResponse();
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+            try
+            {
+                int domainID = 0;
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
+                {
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID, version);
+                    if (npvr != null)
+                    {
+                        var response = npvr.DeleteAllRecordings(new NPVRParamsObj()
+                        {
+                            EntityID = domainID.ToString(),
+                            AccountID = m_nGroupID.ToString(),
+                            DeleteProtected = deleteProtected ?? true,
+                            DeleteBookings = deleteBookings ?? true
+                        });
+
+                        if (response != null)
+                        {
+                            switch (response.status)
+                            {
+                                case RecordStatus.OK:
+                                    res.status = NPVRStatus.OK.ToString();
+                                    break;
+                                case RecordStatus.AssetDoesNotExist:
+                                    res.status = NPVRStatus.InvalidAssetID.ToString();
+                                    break;
+                                case RecordStatus.BadRequest:
+                                    res.status = NPVRStatus.BadRequest.ToString();
+                                    break;
+                                case RecordStatus.Error:
+                                    res.status = NPVRStatus.Error.ToString();
+                                    break;
+                                default:
+                                    log.Debug("DeleteAllRecording - " + GetNPVRLogMsg(String.Concat("Unrecognized DeleteAllRecordingStatus enum: ", response.status.ToString()), siteGuid, string.Empty, false, null));
+                                    res.status = NPVRStatus.Unknown.ToString();
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            // log here npvr layer instance is null
+                            log.Debug("DeleteAllRecordings - " + GetNPVRLogMsg("INPVRProvider instance is null. ", siteGuid, string.Empty, false, null));
+                        }
+                    }
+                    else
+                    {
+                        // asset id is invalid
+                        log.Debug("DeleteAllRecordings - " + GetNPVRLogMsg("Invalid npvr", siteGuid, string.Empty, false, null));
+                        res.status = NPVRStatus.Unknown.ToString();
+                    }
+                }
+                else
+                {
+                    // either user or domain is invalid
+                    log.Debug("DeleteAllRecordings - " + GetNPVRLogMsg(String.Concat("Invalid user. SG: ", siteGuid, " D ID: ", domainID), siteGuid, string.Empty, false, null));
+                    res.status = NPVRStatus.InvalidUser.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Exception - Exception at DeleteAllRecordings, site guid: {siteGuid}, ex: {ex}", ex);
+                res.status = NPVRStatus.Error.ToString();
+
+            }
+            return res;
+        }
+
+        public override NPVRResponse CancelByRecording(string siteGuid, int? version, string byChannelId, string byAssetId = "", string bySeriesId = "",
+            string bySeasonNumber = "", string byAlreadyWatched = "", string byProgramId = "", bool? deleteOngoingRecordings = false)
+        {
+            NPVRResponse res = new NPVRResponse();
+            DomainSuspentionStatus suspendStatus = DomainSuspentionStatus.OK;
+            try
+            {
+                int domainID = 0;
+                if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
+                {
+                    INPVRProvider npvr = NPVRProviderFactory.Instance().GetProvider(m_nGroupID, version);
+                    if (npvr != null)
+                    {
+                        var response = npvr.CancelByRecording(
+                            new NPVRCancelDeleteByObj()
+                            {
+                                EntityID = domainID.ToString(),
+                                AccountID = m_nGroupID.ToString(),
+                                EpgChannelID = byChannelId,
+                                AssetID = byAssetId,
+                                BySeriesId = bySeriesId,
+                                BySeasonNumber = bySeasonNumber,
+                                ByAlreadyWatched = byAlreadyWatched,
+                                ByProgramId = byProgramId,
+                                DeleteOngoingRecordings = deleteOngoingRecordings ?? false
+                            });
+
+                        if (response != null)
+                        {
+                            switch (response.status)
+                            {
+                                case RecordStatus.OK:
+                                    res.status = NPVRStatus.OK.ToString();
+                                    break;
+                                case RecordStatus.AssetDoesNotExist:
+                                    res.status = NPVRStatus.InvalidAssetID.ToString();
+                                    break;
+                                case RecordStatus.BadRequest:
+                                    res.status = NPVRStatus.BadRequest.ToString();
+                                    break;
+                                case RecordStatus.Error:
+                                    res.status = NPVRStatus.Error.ToString();
+                                    break;
+                                default:
+                                    log.Debug("CancelByRecording - " + GetNPVRLogMsg(String.Concat("Unrecognized CancelByRecordingStatus enum: ", response.status.ToString()), siteGuid, string.Empty, false, null));
+                                    res.status = NPVRStatus.Unknown.ToString();
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            // log here npvr layer instance is null
+                            log.Debug("CancelByRecording - " + GetNPVRLogMsg("INPVRProvider instance is null. ", siteGuid, string.Empty, false, null));
+                        }
+                    }
+                    else
+                    {
+                        // asset id is invalid
+                        log.Debug("CancelByRecording - " + GetNPVRLogMsg("Invalid npvr", siteGuid, string.Empty, false, null));
+                        res.status = NPVRStatus.Unknown.ToString();
+                    }
+                }
+                else
+                {
+                    // either user or domain is invalid
+                    log.Debug("CancelByRecording - " + GetNPVRLogMsg(String.Concat("Invalid user. SG: ", siteGuid, " D ID: ", domainID), siteGuid, string.Empty, false, null));
+                    res.status = NPVRStatus.InvalidUser.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Exception - Exception at CancelByRecording, site guid: {siteGuid}, ex: {ex}", ex);
+                res.status = NPVRStatus.Error.ToString();
+            }
+            return res;
+        }
+
         // here assetID will be the recording ID in ALU
         public override NPVRResponse DeleteNPVR(string siteGuid, string assetID, bool isSeries, int? version)
         {
@@ -518,7 +668,7 @@ namespace Core.ConditionalAccess
                             else
                             {
                                 // single asset
-                                response = npvr.DeleteAsset(new NPVRParamsObj() { EntityID = domainID.ToString(), AssetID = assetID });
+                                response = npvr.DeleteAsset(new NPVRCancelDeleteByObj() { EntityID = domainID.ToString(), AssetID = assetID });
                             }
 
                             if (response != null)
@@ -808,7 +958,7 @@ namespace Core.ConditionalAccess
         }
 
         protected override string CalcNPVRLicensedLink(string sProgramId, DateTime dStartTime, int format, string sSiteGUID, int nMediaFileID, string sBasicLink,
-            string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, int drmAdapterId, string fileCoGuid, 
+            string sUserIP, string sRefferer, string sCOUNTRY_CODE, string sLANGUAGE_CODE, string sDEVICE_NAME, string sCouponCode, int drmAdapterId, string fileCoGuid,
             PlayContextType contextType, out string drmData)
         {
             // don't catch exceptions in this function!
@@ -895,7 +1045,7 @@ namespace Core.ConditionalAccess
             }
 
             if (drmAdapterId > 0)
-            { 
+            {
                 object mediaId = ODBCWrapper.Utils.GetTableSingleVal("media_files", "media_id", nMediaFileID, 3600, "MAIN_CONNECTION_STRING");
                 if (mediaId != null && mediaId != DBNull.Value)
                 {

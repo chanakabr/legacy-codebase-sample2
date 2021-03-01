@@ -580,7 +580,7 @@ namespace NPVR
             }
         }
 
-        public NPVRCancelDeleteResponse DeleteAsset(NPVRParamsObj args)
+        public NPVRCancelDeleteResponse DeleteAsset(NPVRCancelDeleteByObj args)
         {
             NPVRCancelDeleteResponse res = new NPVRCancelDeleteResponse();
             try
@@ -1960,6 +1960,16 @@ namespace NPVR
             }
 
             return HttpUtils.TrySendHttpGetRequest(url, encoding, ref httpStatusCode, ref responseJson, ref errorMsg, headers);
+        }
+
+        public NPVRRecordResponse DeleteAllRecordings(NPVRParamsObj args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public NPVRRecordResponse CancelByRecording(NPVRCancelDeleteByObj args)
+        {
+            throw new NotImplementedException();
         }
     }
 }

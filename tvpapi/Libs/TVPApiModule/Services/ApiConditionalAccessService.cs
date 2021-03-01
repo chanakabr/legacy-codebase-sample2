@@ -23,7 +23,7 @@ namespace TVPApiModule.Services
     public class ApiConditionalAccessService : ApiBase
     {
         private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
+
         private string m_wsUserName = string.Empty;
         private string m_wsPassword = string.Empty;
         private int m_groupID;
@@ -449,7 +449,7 @@ namespace TVPApiModule.Services
                 CampaignActionInfo campaignActionInfoParam = new CampaignActionInfo()
                 {
                     m_siteGuid = int.Parse(siteGuid),
-                    m_socialInviteInfo = !string.IsNullOrEmpty(hashCode) ? 
+                    m_socialInviteInfo = !string.IsNullOrEmpty(hashCode) ?
                     new CampaignActionInfo.SocialInviteInfo() { m_hashCode = hashCode } : default(CampaignActionInfo.SocialInviteInfo),
                     m_mediaID = mediaID,
                     m_mediaLink = mediaLink,
@@ -1228,6 +1228,79 @@ namespace TVPApiModule.Services
             return res;
         }
 
+        public NPVRResponse DeleteAllRecordings(string siteGuid, long domainId, string udid, string recordingId,
+            int? version, bool? deleteBookings, bool? deleteProtected)
+        {
+            NPVRResponse res = null;
+
+            try
+            {
+                var commend = new DeleteNPVRAllRecordingsCommand()
+                {
+                    assetID = recordingId,
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName,
+                    Version = version,
+                    DeleteBookings = deleteBookings,
+                    DeleteProtected = deleteProtected
+                };
+
+                using (var km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = Core.ConditionalAccess.Module.GetNPVRResponse(commend);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("DeleteAllRecording: Error calling webservice protocol : GetNPVRResponse with DeleteNPVRAllRecordingsCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, recordingId: {4}",
+                    ex.Message, siteGuid, domainId, udid, recordingId);
+            }
+            return res;
+        }
+
+        public NPVRResponse CancelByRecording(string siteGuid, long domainId, string udid, string recordingId,
+        int? version, string byAlreadyWatched, string byAssetId, string byChannelId, string byProgramId, string bySeasonNumber,
+        string bySeriesId, bool? deleteOngoingRecordings)
+        {
+            NPVRResponse res = null;
+
+            try
+            {
+                var commend = new CancelNPVRByRecordingsCommand()
+                {
+                    assetID = recordingId,
+                    domainID = domainId,
+                    siteGuid = siteGuid,
+                    udid = udid,
+                    wsPassword = m_wsPassword,
+                    wsUsername = m_wsUserName,
+                    Version = version,
+                    ByAlreadyWatched = byAlreadyWatched,
+                    ByAssetId = byAssetId,
+                    ByChannelId = byChannelId,
+                    ByProgramId = byProgramId,
+                    BySeasonNumber = bySeasonNumber,
+                    BySeriesId = bySeriesId,
+                    DeleteOngoingRecordings = deleteOngoingRecordings
+                };
+
+
+                using (var km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null))
+                {
+                    res = Core.ConditionalAccess.Module.GetNPVRResponse(commend);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorFormat("CancelByRecording: Error calling webservice protocol : GetNPVRResponse with CancelNPVRByRecordingsCommand, Error Message: {0}, Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, recordingId: {4}",
+                    ex.Message, siteGuid, domainId, udid, recordingId);
+            }
+            return res;
+        }
+
         public NPVRResponse DeleteAssetRecording(string siteGuid, long domainId, string udid, string recordingId, int? version)
         {
             NPVRResponse res = null;
@@ -1378,13 +1451,13 @@ namespace TVPApiModule.Services
         }
 
         public NPVRResponse DeleteRecordingsBy(string siteGuid, long domainId, string udid, string seriesId, string seasonNumber, string channelId,
-            List<NPVRRecordingStatus> status)
+            List<NPVRRecordingStatus> status, string byAlreadyWatched, string byAssetId)
         {
             NPVRResponse res = null;
 
             try
             {
-                DeleteSeriesRecordingByNPVRCommand commend = new DeleteSeriesRecordingByNPVRCommand()
+                var commend = new DeleteSeriesRecordingByNPVRCommand()
                 {
                     domainID = domainId,
                     siteGuid = siteGuid,
@@ -1395,7 +1468,9 @@ namespace TVPApiModule.Services
                     SeriesId = seriesId,
                     SeasonNumber = seasonNumber,
                     Status = status,
-                    Version = 2
+                    Version = 2,
+                    ByAlreadyWatched = byAlreadyWatched,
+                    assetID = byAssetId,
                 };
 
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1405,9 +1480,10 @@ namespace TVPApiModule.Services
             }
             catch (Exception ex)
             {
-                logger.ErrorFormat("DeleteRecordingsBy: Error calling webservice protocol : GetNPVRResponse with DeleteSeriesRecordingByNPVRCommand, Error Message: {0}, " +
-                    " Parameters : siteGuid: {1}, domainId: {2}, udid: {3}, seriesId: {4}, seasonNumber: {5}, channelId: {6}, status: {7}, version: {8}",
-                    ex.Message, siteGuid, domainId, udid, seriesId, seasonNumber, channelId, status != null ? string.Join(",", status.Select(x => x.ToString())) : string.Empty);
+                var _status = status == null ? string.Empty : string.Join(",", status.Select(x => x.ToString()));
+                logger.Error($"DeleteRecordingsBy: Error calling webservice protocol : GetNPVRResponse with DeleteSeriesRecordingByNPVRCommand, Error Message: {ex.Message}, Parameters : siteGuid: {siteGuid}, domainId: {domainId}, " +
+                    $"udid: {udid}, seriesId: {seriesId}, seasonNumber: {seasonNumber}, channelId: {channelId}, status: {_status}, version: 2," +
+                    $"AssetId: {byAssetId}, AlreadyWatched: {byAlreadyWatched}");
             }
             return res;
         }
@@ -1594,7 +1670,7 @@ namespace TVPApiModule.Services
             }
 
             return res;
-        }        
+        }
 
         public ClientResponseStatus CancelServiceNow(int domainId, int assetId, eTransactionType transactionType, bool bIsForce = false, string udid = null, string userId = null)
         {
@@ -1668,7 +1744,7 @@ namespace TVPApiModule.Services
 
             string wsUser = GroupsManager.GetGroup(m_groupID).ConditionalAccessCredentials.Username;
             string wsPassword = GroupsManager.GetGroup(m_groupID).ConditionalAccessCredentials.Password;
-            
+
             try
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
@@ -1702,7 +1778,7 @@ namespace TVPApiModule.Services
                     var contextData = new ContextData(m_groupID)
                     {
                         UserId = userID,
-                        DomainId = 0, 
+                        DomainId = 0,
                         UserIp = SiteHelper.GetClientIP(),
                         Udid = deviceName,
                     };
@@ -1738,7 +1814,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = Core.ConditionalAccess.Module.ProcessReceipt(m_groupID, userId, 0, contentId, productId, transactionType, 
+                    var result = Core.ConditionalAccess.Module.ProcessReceipt(m_groupID, userId, 0, contentId, productId, transactionType,
                         SiteHelper.GetClientIP(), deviceName, purchaseToken, paymentGatewayName, null);
                     response = new TVPApiModule.Objects.Responses.ConditionalAccess.TransactionResponse(result);
                 }

@@ -2056,6 +2056,8 @@ namespace WebAPI.WebServices
         [System.Xml.Serialization.XmlInclude(typeof(DeleteSeriesRecordingByNPVRCommand))]
         [System.Xml.Serialization.XmlInclude(typeof(RecordSeriesBySeriesIdNPVRCommand))]
         [System.Xml.Serialization.XmlInclude(typeof(RecordNPVRAlreadyWatchedCommand))]
+        [System.Xml.Serialization.XmlInclude(typeof(DeleteNPVRAllRecordingsCommand))]
+        [System.Xml.Serialization.XmlInclude(typeof(CancelNPVRByRecordingsCommand))]
 
 
         public NPVRResponse GetNPVRResponse(BaseNPVRCommand command)
