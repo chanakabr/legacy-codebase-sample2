@@ -1269,20 +1269,6 @@ namespace DAL
             return result;
         }
 
-        public static DataTable GetItemFromList(int nSiteGuid, int listType, int itemType, int nGroupID)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ItemFromList");
-            sp.SetConnectionKey("USERS_CONNECTION_STRING");
-            sp.AddParameter("@userID", nSiteGuid);
-            sp.AddParameter("@listType", listType);
-            sp.AddParameter("@itemType", itemType);
-            sp.AddParameter("@groupID", nGroupID);
-            DataSet ds = sp.ExecuteDataSet();
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
-        }
-
         public static DataTable GetItemsFromUsersLists(List<int> userIds, int listType, int itemType, int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ItemsFromUsersLists");
