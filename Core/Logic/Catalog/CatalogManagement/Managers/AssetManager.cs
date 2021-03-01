@@ -3598,7 +3598,7 @@ namespace Core.Catalog.CatalogManagement
                                 if (isFromIngest)
                                 {
                                     var oldLiveAsset = currentAsset as LiveAsset;
-                                    linearMediaAssetToUpdate.ExternalEpgIngestId = oldLiveAsset.ExternalEpgIngestId;
+                                    linearMediaAssetToUpdate.ExternalEpgIngestId = string.IsNullOrEmpty(linearMediaAssetToUpdate.ExternalEpgIngestId)? oldLiveAsset.ExternalEpgIngestId: linearMediaAssetToUpdate.ExternalEpgIngestId;
                                     linearMediaAssetToUpdate.EnableCatchUpState = oldLiveAsset.EnableCatchUpState;
                                     linearMediaAssetToUpdate.EnableCdvrState = oldLiveAsset.EnableCdvrState;
                                     linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannelState = oldLiveAsset.EnableRecordingPlaybackNonEntitledChannelState;
