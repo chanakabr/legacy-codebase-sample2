@@ -5711,31 +5711,51 @@ namespace Core.ConditionalAccess
                         return response;
                     }
 
-                    if (epgStartDate < DateTime.UtcNow)
-                    {
-                        if (!accountSettings.IsCatchUpEnabled.HasValue || !accountSettings.IsCatchUpEnabled.Value)
-                        {
-                            response.Set((int)eResponseStatus.AccountCatchUpNotEnabled, eResponseStatus.AccountCatchUpNotEnabled.ToString());
-                            return response;
-                        }
-                        if (epg.ENABLE_CATCH_UP != 1)
-                        {
-                            response.Set((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
-                            return response;
-                        }
-                        if (epg.CHANNEL_CATCH_UP_BUFFER == 0 || epgStartDate.AddMinutes(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow)
-                        {
-                            response.Set((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
-                            return response;
-                        }
-                    }
+                    return ValidateEpgForCatchUp(accountSettings, epg, epgStartDate);
                 }
             }
-
             catch (Exception ex)
             {
                 response.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Exception at ValidateEpgForRecord. epgID: {0}", epg.EPG_ID), ex);
+            }
+
+            return response;
+        }
+
+        internal static ApiObjects.Response.Status ValidateEpgForCatchUp(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, DateTime? epgStartDate = null) 
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            DateTime newEpgStartDate;
+
+            if (epgStartDate.HasValue) {
+                newEpgStartDate = epgStartDate.Value;
+            }
+            else if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgStartDate))
+            {
+                log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.START_DATE);
+                response.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                return response;
+            }
+
+            if (newEpgStartDate < DateTime.UtcNow)
+            {
+                if (!accountSettings.IsCatchUpEnabled.HasValue || !accountSettings.IsCatchUpEnabled.Value)
+                {
+                    response.Set((int)eResponseStatus.AccountCatchUpNotEnabled, eResponseStatus.AccountCatchUpNotEnabled.ToString());
+                    return response;
+                }
+                if (epg.ENABLE_CATCH_UP != 1)
+                {
+                    response.Set((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
+                    return response;
+                }
+                if (epg.CHANNEL_CATCH_UP_BUFFER == 0 || newEpgStartDate.AddMinutes(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow)
+                {
+                    response.Set((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
+                    return response;
+                }
             }
 
             return response;
