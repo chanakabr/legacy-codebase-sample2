@@ -28,21 +28,25 @@ namespace RedisManager
         private RedisClientManager(RedisClientType redisClientType)
         {
             string address = string.Empty;
+            int defaultDatabase = 0;
             EndPointCollection epc = new EndPointCollection();
             // persistent redis address
             if (redisClientType == RedisClientType.Persistent)
             {
                 address = ApplicationConfiguration.Current.RedisClientConfiguration.PersistentAddress.Value;
+                defaultDatabase = ApplicationConfiguration.Current.RedisClientConfiguration.PersistentDatabase.Value;
             }
             // persistent redis address
             else
             {
                 address = ApplicationConfiguration.Current.RedisClientConfiguration.CacheAddress.Value;
+                defaultDatabase = ApplicationConfiguration.Current.RedisClientConfiguration.CacheDatabase.Value;
             }
 
             ConfigurationOptions configOptions = new ConfigurationOptions()
             {
-                EndPoints = { { address } }
+                EndPoints = { { address } },
+                DefaultDatabase = defaultDatabase
             };
 
             connection = ConnectionMultiplexer.Connect(configOptions);

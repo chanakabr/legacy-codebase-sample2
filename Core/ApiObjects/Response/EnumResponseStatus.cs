@@ -387,6 +387,7 @@ namespace ApiObjects.Response
         ParentAlreadyContainsChannel = 5077,
         InputFormatIsInvalid = 5078,
         CanModifyOnlyNormalPermission = 5079,
+        CannotAddPermissionTypeGroup = 5080,
 
         #endregion
 
@@ -607,7 +608,8 @@ namespace ApiObjects.Response
         FailedToSetRouteSessionController = 13007,
         FailedToSetRouteHouseHoldDevicePinActions = 13008,
         FailedToSetRouteRefreshToken = 13009,
-        FailedToSetAllRoutingActions = 13010
+        FailedToSetAllRoutingActions = 13010,
+        CanaryDeploymentConfigurationIsDisabledOnTheEnvironment = 13011
 
         #endregion
     }

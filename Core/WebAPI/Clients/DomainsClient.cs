@@ -1290,7 +1290,7 @@ namespace WebAPI.Clients
 
         private long? GetLastActivityTime(int groupId, string udid, int userId)
         {
-            return new DeviceRemovalPolicyHandler().GetUdidLastActivity(groupId, udid, userId);
+            return DeviceRemovalPolicyHandler.Instance.GetUdidLastActivity(groupId, udid, userId);
         }
 
         internal bool DeleteDevice(int groupId, string udid, out long domainId)

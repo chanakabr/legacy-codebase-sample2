@@ -20,7 +20,7 @@ namespace WebAPI.Clients
 
         public KalturaCanaryDeploymentConfiguration GetCanaryDeploymentConfiguration(int groupId)
         {
-            Func<GenericResponse<CanaryDeploymentConfiguration>> getGroupConfiguration = () => CanaryDeploymentManager.Instance.GetGroupConfiguration(groupId);
+            Func<GenericResponse<CanaryDeploymentConfiguration>> getGroupConfiguration = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().GetGroupConfiguration(groupId);
             return ClientUtils.GetResponseFromWS<KalturaCanaryDeploymentConfiguration, CanaryDeploymentConfiguration>(getGroupConfiguration);
         }
 
@@ -30,11 +30,11 @@ namespace WebAPI.Clients
             CanaryDeploymentMigrationEvent canaryDeploymentMigrationEvent = CanaryDeploymentMapping.ConvertMigrationEvent(migrationEvent);
             if (status)
             {
-                setMigrationEvent = () => CanaryDeploymentManager.Instance.EnableMigrationEvent(groupId, canaryDeploymentMigrationEvent);
+                setMigrationEvent = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().EnableMigrationEvent(groupId, canaryDeploymentMigrationEvent);
             }
             else
             {
-                setMigrationEvent = () => CanaryDeploymentManager.Instance.DisableMigrationEvent(groupId, canaryDeploymentMigrationEvent);
+                setMigrationEvent = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().DisableMigrationEvent(groupId, canaryDeploymentMigrationEvent);
             }
 
             return ClientUtils.GetResponseStatusFromWS(setMigrationEvent);
@@ -42,7 +42,7 @@ namespace WebAPI.Clients
 
         internal bool SetAllMigrationEventsStatus(int groupId, bool status)
         {
-            Func<Status> setAllMigrationEvents = () => CanaryDeploymentManager.Instance.SetAllMigrationEventsStatus(groupId, status);
+            Func<Status> setAllMigrationEvents = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().SetAllMigrationEventsStatus(groupId, status);
             return ClientUtils.GetResponseStatusFromWS(setAllMigrationEvents);
         }
 
@@ -50,7 +50,7 @@ namespace WebAPI.Clients
         {
             CanaryDeploymentRoutingAction canaryDeploymentRoutingAction = CanaryDeploymentMapping.ConvertRoutingAction(routingAction);
             CanaryDeploymentRoutingService canaryDeploymentRoutingService = CanaryDeploymentMapping.ConvertRoutingService(routingService);
-            Func<Status> setRoutingAction = () => CanaryDeploymentManager.Instance.SetRoutingAction(groupId, canaryDeploymentRoutingAction, canaryDeploymentRoutingService);         
+            Func<Status> setRoutingAction = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().SetRoutingAction(groupId, canaryDeploymentRoutingAction, canaryDeploymentRoutingService);         
 
             return ClientUtils.GetResponseStatusFromWS(setRoutingAction);
         }
@@ -58,14 +58,14 @@ namespace WebAPI.Clients
         internal bool SetAllRoutingActions(int groupId, KalturaCanaryDeploymentRoutingService routingService)
         {
             CanaryDeploymentRoutingService canaryDeploymentRoutingService = CanaryDeploymentMapping.ConvertRoutingService(routingService);
-            Func<Status> setAllRoutingActions = () => CanaryDeploymentManager.Instance.SetAllRoutingActions(groupId, canaryDeploymentRoutingService);
+            Func<Status> setAllRoutingActions = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().SetAllRoutingActions(groupId, canaryDeploymentRoutingService);
 
             return ClientUtils.GetResponseStatusFromWS(setAllRoutingActions);
         }
 
         internal bool DeleteCanaryDeploymentConfiguration(int groupId)
         {
-            Func<Status> deleteGroupConfiguration = () => CanaryDeploymentManager.Instance.DeleteGroupConfiguration(groupId);
+            Func<Status> deleteGroupConfiguration = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().DeleteGroupConfiguration(groupId);
             return ClientUtils.GetResponseStatusFromWS(deleteGroupConfiguration);
         }
     }

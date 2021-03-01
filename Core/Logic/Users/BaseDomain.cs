@@ -2260,7 +2260,8 @@ namespace Core.Users
             {
                 log.ErrorFormat("Failed to delete pin for device after successful login. udid = {0}, pin = {1}", udid, pin);
             }
-            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid, groupId);
+
+            DeviceRemovalPolicyHandler.Instance.SaveDomainDeviceUsageDate(udid, groupId);
             return response;
         }
 

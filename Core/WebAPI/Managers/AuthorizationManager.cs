@@ -49,7 +49,7 @@ namespace WebAPI.Managers
         {
             KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
-            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationRefreshToken))
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationRefreshToken))
             {
                 throw new Exception("This code should not be called, ownership flag of refresh token has been transfered to Authentication Service, Check TCM [MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.RefreshToken]");
             }
@@ -117,7 +117,7 @@ namespace WebAPI.Managers
                 throw new UnauthorizedException(UnauthorizedException.REFRESH_TOKEN_FAILED);
             }
 
-            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid, groupId);
+            DeviceRemovalPolicyHandler.Instance.SaveDomainDeviceUsageDate(udid, groupId);
             return new KalturaLoginSession()
             {
                 KS = token.KS,
@@ -163,7 +163,7 @@ namespace WebAPI.Managers
                 // try store in CB, will return false if the same token already exists
                 uint refreshTokenExpirationSeconds = (uint)(token.RefreshTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow));
 
-                if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(token.GroupID, CanaryDeploymentDataOwnershipEnum.AuthenticationRefreshToken))
+                if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(token.GroupID, CanaryDeploymentDataOwnershipEnum.AuthenticationRefreshToken))
                 {
                     var authClient = AuthenticationGrpcClientWrapper.AuthenticationClient.GetClientFromTCM();
                     var refreshTokenFromAuthMs = authClient.GenerateRefreshToken(token.GroupID, token.KS, refreshTokenExpirationSeconds);
@@ -192,14 +192,14 @@ namespace WebAPI.Managers
 
             session.KS = token.KS;
             session.Expiry = DateUtils.DateTimeToUtcUnixTimestampSeconds(token.KsObject.Expiration);
-            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(token.Udid, token.GroupID);
+            DeviceRemovalPolicyHandler.Instance.SaveDomainDeviceUsageDate(token.Udid, token.GroupID);
 
             return session;
         }
 
         private static void SendRefreshTokenCanaryMigrationEvent(ApiToken token, uint refreshTokenExpirationSeconds)
         {
-            if (CanaryDeploymentManager.Instance.IsEnabledMigrationEvent(token.GroupID, CanaryDeploymentMigrationEvent.RefreshToken))
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(token.GroupID, CanaryDeploymentMigrationEvent.RefreshToken))
             {
                 var migrationEvent = new ApiObjects.DataMigrationEvents.RefreshToken()
                 {
@@ -463,7 +463,7 @@ namespace WebAPI.Managers
             usersClient.UpdateLastLoginDate(groupId, userId);
 
             //12. update udid last activity
-            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid, groupId);
+            DeviceRemovalPolicyHandler.Instance.SaveDomainDeviceUsageDate(udid, groupId);
 
             // 13. build the response from the ks:
             response = new KalturaSessionInfo(ks);
@@ -586,7 +586,7 @@ namespace WebAPI.Managers
 
         private static void SendAppTokenCanaryMigrationEvent(eMigrationOperation op, KalturaAppToken appToken, int groupId)
         {
-            if (CanaryDeploymentManager.Instance.IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.AppToken))
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.AppToken))
             {
                 var migrationEvent = new ApiObjects.DataMigrationEvents.AppToken()
                 {
@@ -671,7 +671,7 @@ namespace WebAPI.Managers
 
         private static void SendAppTokenRevocationMigrationEvent(int groupId, KalturaAppToken appToken, long revokedSessionTime, long revokedSessionExpiryInSeconds)
         {
-            if (CanaryDeploymentManager.Instance.IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.SessionRevocation))
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.SessionRevocation))
             {
                 var migrationEvent = new RevokeAppTokenSession
                 {
@@ -730,7 +730,7 @@ namespace WebAPI.Managers
 
         private static void SendRevokeKsCanaryMigrationEvent(KS ks)
         {
-            if (CanaryDeploymentManager.Instance.IsEnabledMigrationEvent(ks.GroupId, CanaryDeploymentMigrationEvent.SessionRevocation))
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(ks.GroupId, CanaryDeploymentMigrationEvent.SessionRevocation))
             {
                 var migrationEvent = new RevokeKs
                 {
@@ -803,7 +803,7 @@ namespace WebAPI.Managers
                 return false;
             }
 
-            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(ks.GroupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSessionRevocation))
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(ks.GroupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSessionRevocation))
             {
                 //use cache if not found
                 //call GRPC         

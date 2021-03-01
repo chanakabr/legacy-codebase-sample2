@@ -9,6 +9,7 @@ namespace ConfigurationManager.Types
         public override string[] TcmPath => new string[] { TcmKey };
         public AuthenticationServiceConfiguration Authentication = new AuthenticationServiceConfiguration();
         public MicroServicesLayeredCacheConfiguration LayeredCacheConfiguration = new MicroServicesLayeredCacheConfiguration();
+        public BaseValue<bool> ShouldAllowCanaryDeploymentConfiguration = new BaseValue<bool>("should_allow_canary_deployment_configuration", false, false, "configures if canary deployment configuration per group is looked at");
     }
 
     public class AuthenticationServiceConfiguration : BaseConfig<AuthenticationServiceConfiguration>

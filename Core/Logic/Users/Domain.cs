@@ -1332,7 +1332,7 @@ namespace Core.Users
 
         private static void GetDeviceIdAndBrandByPin(int groupId, string pin, ref string udid, ref int brandId)
         {
-            if (CanaryDeploymentManager.Instance.IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginPin))
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginPin))
             {
                 var authClient = AuthenticationClient.GetClientFromTCM();
                 udid = authClient.GetDeviceLoginPin(groupId, pin);
@@ -2034,8 +2034,7 @@ namespace Core.Users
             List<int> rollingDeviceRemovalFamilyIds)
         {
             //remove by policy based on the dates
-            var udid = new DeviceRemovalPolicyHandler()
-                .GetDeviceRemovalCandidate(m_nGroupID, rollingDeviceRemovalPolicy, rollingDeviceRemovalFamilyIds, m_deviceFamilies);
+            var udid = DeviceRemovalPolicyHandler.Instance.GetDeviceRemovalCandidate(m_nGroupID, rollingDeviceRemovalPolicy, rollingDeviceRemovalFamilyIds, m_deviceFamilies);
 
             if (udid.IsNullOrEmptyOrWhiteSpace())
             {

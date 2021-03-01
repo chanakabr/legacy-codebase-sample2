@@ -81,10 +81,10 @@ namespace Core.Users
                 var customParamsStr = preSignInModel.CustomParams != null ? string.Concat(preSignInModel.CustomParams.Select(c => c.Key + c.Value)) : string.Empty;
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, preSignInModel.UserId, preSignInModel.UserName, preSignInModel.Password, customParamsStr);
                 _Logger.InfoFormat("Calling sso adapter PreSignIn [{0}], group:[{1}]", _AdapterConfig.Name, _GroupId);
-                var response = _AdapterClient.PreSignInAsync(_AdapterId, preSignInModel, signature).ExecuteAndWait();
+                var response = _AdapterClient.PreSignIn(_AdapterId, preSignInModel, signature);
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
                 {
-                    response = _AdapterClient.PreSignInAsync(_AdapterId, preSignInModel, signature).ExecuteAndWait();
+                    response = _AdapterClient.PreSignIn(_AdapterId, preSignInModel, signature);
                 }
 
                 if (response.SSOResponseStatus.ResponseStatus != eSSOUserResponseStatus.OK)
@@ -137,12 +137,12 @@ namespace Core.Users
 
                 var customParamsStr = string.Concat(postSignInModel.CustomParams.Select(c => c.Key + c.Value));
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, postSignInModel.AuthenticatedUser?.Id, postSignInModel.AuthenticatedUser?.Username, postSignInModel.AuthenticatedUser?.Email, customParamsStr);
-                var response = _AdapterClient.PostSignInAsync(_AdapterId, postSignInModel, signature).ExecuteAndWait();
+                var response = _AdapterClient.PostSignIn(_AdapterId, postSignInModel, signature);
 
                 _Logger.InfoFormat("Calling sso adapter PostSignIn [{0}], group:[{1}]", _AdapterConfig.Name, _GroupId);
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
                 {
-                    response = _AdapterClient.PostSignInAsync(_AdapterId, postSignInModel, signature).ExecuteAndWait();
+                    response = _AdapterClient.PostSignIn(_AdapterId, postSignInModel, signature);
                 }
 
                 if (response.AdapterStatus != AdapterStatusCode.OK)
@@ -188,10 +188,10 @@ namespace Core.Users
             try
             {
                 var adapterId = (int)arg["adapterId"];
-                var implementationsResponse = _AdapterClient.GetConfigurationAsync(adapterId).ExecuteAndWait();
+                var implementationsResponse = _AdapterClient.GetConfiguration(adapterId);
                 if (!ValidateConfigurationIsSet(implementationsResponse.Status))
                 {
-                    implementationsResponse = _AdapterClient.GetConfigurationAsync(adapterId).ExecuteAndWait();
+                    implementationsResponse = _AdapterClient.GetConfiguration(adapterId);
                 }
 
                 return new Tuple<SSOImplementationsResponse, bool>(implementationsResponse, true);
@@ -311,7 +311,7 @@ namespace Core.Users
             var signature = GenerateSignature(adapter.SharedSecret, adapter.Id, adapter.GroupId, settingsString);
 
             _Logger.DebugFormat("SSO Adapater [{0}] returned with no configuration. sending configuration: [{1}]", adapter.Name, string.Concat(configDict.Select(kv => string.Format("[{0}|{1}], ", kv.Key, kv.Value))));
-            client.SetConfigurationAsync(adapter.Id.Value, adapter.GroupId, configDict, signature).ExecuteAndWait();
+            client.SetConfiguration(adapter.Id.Value, adapter.GroupId, configDict, signature);
         }
 
         private static string GenerateSignature(string secret, params object[] values)
@@ -346,11 +346,11 @@ namespace Core.Users
                     AdapterData = keyValueList?.Select(x => new KeyValue { Key = x.key, Value = x.value }).ToArray()
                 };
 
-                var adapterResponse = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait();
+                var adapterResponse = _AdapterClient.Invoke(_AdapterId, ssoAdapterProfileInvokeModel);
 
                 if (!ValidateConfigurationIsSet(adapterResponse.AdapterStatus))
                 {
-                    adapterResponse = _AdapterClient.InvokeAsync(_AdapterId, ssoAdapterProfileInvokeModel).ExecuteAndWait();
+                    adapterResponse = _AdapterClient.Invoke(_AdapterId, ssoAdapterProfileInvokeModel);
                 }
 
                 var status = CreateFromAdapterResponseStatus(adapterResponse.SSOResponseStatus);
@@ -414,10 +414,10 @@ namespace Core.Users
 
                 _Logger.Debug($"[PreSignOut] Adapter model object: {JsonConvert.SerializeObject(preSignOutModel)}, Signature: {signature}");
 
-                var response = _AdapterClient.PreSignOutAsync(_AdapterId, preSignOutModel, signature).ExecuteAndWait();
+                var response = _AdapterClient.PreSignOut(_AdapterId, preSignOutModel, signature);
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
                 {
-                    response = _AdapterClient.PreSignOutAsync(_AdapterId, preSignOutModel, signature).ExecuteAndWait();
+                    response = _AdapterClient.PreSignOut(_AdapterId, preSignOutModel, signature);
                 }
 
                 if (response.SSOResponseStatus.ResponseStatus != eSSOUserResponseStatus.OK)
@@ -459,13 +459,13 @@ namespace Core.Users
                 var signature = GenerateSignature(_AdapterConfig.SharedSecret, _AdapterId, postSignOutModel.UserId);
                 _Logger.Debug($"[PostSignOut] Adapter model object: {JsonConvert.SerializeObject(postSignOutModel)}, Signature: {signature}");
 
-                var response = _AdapterClient.PostSignOutAsync(_AdapterId, postSignOutModel, signature).ExecuteAndWait();
+                var response = _AdapterClient.PostSignOut(_AdapterId, postSignOutModel, signature);
 
                 _Logger.Info($"Calling SSO adapter PostSignOut [{_AdapterConfig.Name}], group:[{_GroupId}]");
 
                 if (!ValidateConfigurationIsSet(response.AdapterStatus))
                 {
-                    response = _AdapterClient.PostSignOutAsync(_AdapterId, postSignOutModel, signature).ExecuteAndWait();
+                    response = _AdapterClient.PostSignOut(_AdapterId, postSignOutModel, signature);
                 }
 
                 if (response.AdapterStatus != AdapterStatusCode.OK)
