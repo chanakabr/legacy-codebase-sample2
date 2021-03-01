@@ -810,7 +810,7 @@ namespace Core.Users
 
         public List<UserItemList> GetItemFromList(UserItemList userItemList, int groupId)
         {
-            var status = TryGetUsersAllowedItems(groupId, new List<string> { userItemList.siteGuid }, userItemList.listType, userItemList.itemType, out var items);
+            var status = TryGetUsersAvailableItems(groupId, new List<string> { userItemList.siteGuid }, userItemList.listType, userItemList.itemType, out var items);
             if (status.IsOkStatusCode())
             {
                 return items
@@ -830,7 +830,7 @@ namespace Core.Users
 
         public UsersItemsListsResponse GetItemsFromUsersLists(int groupId, List<string> userIds, ListType listType, ListItemType itemType)
         {
-            var status = TryGetUsersAllowedItems(groupId, userIds, listType, itemType, out var items);
+            var status = TryGetUsersAvailableItems(groupId, userIds, listType, itemType, out var items);
             var response = new UsersItemsListsResponse
             {
                 Status = status
@@ -847,16 +847,18 @@ namespace Core.Users
             return response;
         }
 
-        private ApiObjects.Response.Status TryGetUsersAllowedItems(int groupId, List<string> userIds, ListType listType, ListItemType listItemType, out List<Item> items)
+        private ApiObjects.Response.Status TryGetUsersAvailableItems(int groupId, List<string> userIds, ListType listType, ListItemType listItemType, out List<Item> items)
         {
             var status = TryGetUsersItems(groupId, userIds, listType, listItemType, out var allItems);
             if (status.IsOkStatusCode())
             {
-                var ksqlFilter = $"(and media_id:'{string.Join(",", allItems.Select(x => x.ItemId))}')";
-                var assets = api.SearchAssets(groupId, ksqlFilter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true, false);
-                var allowedAssetsIds = assets.Select(x => int.Parse(x.AssetId)).ToArray();
+                items = FilterOutUnavailableItems(groupId, allItems);
 
-                items = allItems.Where(x => allowedAssetsIds.Contains(x.ItemId)).ToList();
+                var unavailableItems = allItems.Except(items).ToList();
+                if (unavailableItems.Any())
+                {
+                    RemoveUnavailableItemsFromUsersList(groupId, userIds, unavailableItems.Select(x => (long)x.ItemId).ToList());
+                }
             }
             else
             {
@@ -866,7 +868,7 @@ namespace Core.Users
             return status;
         }
 
-        private ApiObjects.Response.Status TryGetUsersItems(int groupId, List<string> userIds, ListType listType, ListItemType listItemType, out List<Item> items)
+        private ApiObjects.Response.Status TryGetUsersItems(int groupId, IReadOnlyCollection<string> userIds, ListType listType, ListItemType listItemType, out List<Item> items)
         {
             items = new List<Item>();
 
@@ -917,6 +919,28 @@ namespace Core.Users
             {
                 log.Error($"{nameof(TryGetUsersItems)} - exception = {ex.Message}", ex);
                 return ApiObjects.Response.Status.Error;
+            }
+        }
+
+        private List<Item> FilterOutUnavailableItems(int groupId, IReadOnlyCollection<Item> allItems)
+        {
+            var ksqlFilter = $"(and media_id:'{string.Join(",", allItems.Select(x => x.ItemId))}')";
+            var availableAssets = api.SearchAssets(groupId, ksqlFilter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
+
+            var availableItemIds = availableAssets.Select(x => long.Parse(x.AssetId));
+            var availableItems = allItems
+                .Where(x => availableItemIds.Contains(x.ItemId))
+                .ToList();
+
+            return availableItems;
+        }
+
+        private void RemoveUnavailableItemsFromUsersList(int groupId, List<string> userIds, List<long> unavailableItemIds)
+        {
+            var removeResult = UsersDal.Remove_ItemsFromUsersList(groupId, userIds.Select(long.Parse).ToList(), unavailableItemIds);
+            if (!removeResult)
+            {
+                log.Error($"Unavailable user's items were detected but couldn't be deleted: {nameof(groupId)}:{groupId}, {nameof(userIds)}:{string.Join(",", userIds)}, {nameof(unavailableItemIds)}:{string.Join(",", unavailableItemIds)}.");
             }
         }
 
