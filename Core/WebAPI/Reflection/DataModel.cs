@@ -29,6 +29,7 @@ using WebAPI.Models.Upload;
 using WebAPI.Models.CanaryDeployment;
 using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
+using WebAPI.Controllers;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
@@ -2876,6 +2877,24 @@ namespace WebAPI.Reflection
                             return "ids";
                         case "StartTime":
                             return "startTime";
+                    }
+                    break;
+                    
+                case "KalturaEpgFilter":
+                    switch(property.Name)
+                    {
+                        case "Date":
+                            return "dateEqual";
+                        case "LiveAssetId":
+                            return "liveAssetIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaEpgListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -8934,6 +8953,16 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("epgChannel", "list", false);
                             return EpgChannelController.List((KalturaEpgChannelFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "epg":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("epg", "list", false);
+                            return EpgController.List((KalturaEpgFilter) methodParams[0]);
                             
                     }
                     break;
@@ -15054,6 +15083,22 @@ namespace WebAPI.Reflection
                                 IsList = true,
                                 GenericType = typeof(KalturaCatalogWithHolder),
                                 Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "epg":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEpgFilter),
                             });
                             return ret;
                             

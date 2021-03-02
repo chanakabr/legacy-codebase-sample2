@@ -25,6 +25,7 @@ using WebAPI.Models.Upload;
 using WebAPI.Models.CanaryDeployment;
 using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
+using WebAPI.Controllers;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
@@ -41352,6 +41353,128 @@ namespace WebAPI.Models.Domains
             if((retrievedProperties == null || retrievedProperties.Contains("type")))
             {
                 ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaHouseholdWith), type) + "" + "</type>");
+            }
+            return ret;
+        }
+    }
+}
+
+namespace WebAPI.Controllers
+{
+    public partial class KalturaEpg
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+
+            return ret;
+        }
+    }
+    public partial class KalturaEpgFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("dateEqual")))
+            {
+                ret.Add("dateEqual", "\"dateEqual\": " + Date);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("liveAssetIdEqual")))
+            {
+                ret.Add("liveAssetIdEqual", "\"liveAssetIdEqual\": " + LiveAssetId);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("dateEqual")))
+            {
+                ret.Add("dateEqual", "<dateEqual>" + Date + "</dateEqual>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("liveAssetIdEqual")))
+            {
+                ret.Add("liveAssetIdEqual", "<liveAssetIdEqual>" + LiveAssetId + "</liveAssetIdEqual>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaEpgListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
         }

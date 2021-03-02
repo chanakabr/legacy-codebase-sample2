@@ -9,8 +9,10 @@ namespace ApiObjects.EventBus
         public long LiveAssetId { get; set; }
         public long EpgChannelId { get; set; }
         public Range<DateTime> UpdatedRange { get; set; }
+        public bool DisableEpgNotification { get; set; }
     }
 
+    [Serializable]
     public class Range<T>
     {
         public T From { get; }

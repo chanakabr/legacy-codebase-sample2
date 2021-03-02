@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  
+  <PropertyGroup>
+    <Version>5.2.0.3673</Version>
+    <AssemblyTitle>2021-02-01 Published by:Vladimir Statkevich </AssemblyTitle>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition=" '$(OS)' != 'Windows_NT' ">
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+    
+  <PropertyGroup Condition=" '$(OS)' == 'Windows_NT' ">
+    <TargetFrameworks>netcoreapp3.1;net48</TargetFrameworks>
+  </PropertyGroup>
+    
+  <ItemGroup>
+    <PackageReference Include="ott.client.epgcache.grpc" Version="0.1.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GrpcClientCommon\GrpcClientCommon.csproj" />
+  </ItemGroup>
+  
+
+
+</Project>

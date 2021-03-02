@@ -1723,7 +1723,8 @@ namespace Core.Catalog.CatalogManagement
                         program.LinearMediaId,
                         program.ChannelID,
                         program.StartDate,
-                        program.EndDate);
+                        program.EndDate,
+                        false);
                 }
                 else
                 {

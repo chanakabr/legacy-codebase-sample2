@@ -8,6 +8,7 @@ namespace ConfigurationManager.Types
         public override string TcmKey => TcmObjectKeys.MicroservicesClientConfiguration;
         public override string[] TcmPath => new string[] { TcmKey };
         public AuthenticationServiceConfiguration Authentication = new AuthenticationServiceConfiguration();
+        public EpgCacheServiceConfiguration EpgCache = new EpgCacheServiceConfiguration();
         public MicroServicesLayeredCacheConfiguration LayeredCacheConfiguration = new MicroServicesLayeredCacheConfiguration();
         public BaseValue<bool> ShouldAllowCanaryDeploymentConfiguration = new BaseValue<bool>("should_allow_canary_deployment_configuration", false, false, "configures if canary deployment configuration per group is looked at");
     }
@@ -16,6 +17,14 @@ namespace ConfigurationManager.Types
     {
         public override string TcmKey => TcmObjectKeys.AuthenticationServiceConfiguration;
         public override string[] TcmPath => new string[] { TcmObjectKeys.MicroservicesClientConfiguration, TcmKey };
+        public BaseValue<string> Address = new BaseValue<string>("address", "");
+        public BaseValue<string> CertFilePath = new BaseValue<string>("cert_file_path", "");
+    }
+    
+    public class EpgCacheServiceConfiguration : BaseConfig<EpgCacheServiceConfiguration>
+    {
+        public override string TcmKey => TcmObjectKeys.EpgCacheServiceConfiguration;
+        public override string[] TcmPath => new [] { TcmObjectKeys.MicroservicesClientConfiguration, TcmKey };
         public BaseValue<string> Address = new BaseValue<string>("address", "");
         public BaseValue<string> CertFilePath = new BaseValue<string>("cert_file_path", "");
     }

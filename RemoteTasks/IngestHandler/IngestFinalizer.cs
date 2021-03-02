@@ -16,6 +16,7 @@ using IngestHandler.Common;
 using KLogMonitor;
 using Polly;
 using Polly.Retry;
+using TVinciShared;
 
 namespace IngestHandler
 {
@@ -33,6 +34,7 @@ namespace IngestHandler
         private readonly string _requestId;
         private readonly BulkUploadIngestJobData _bulkUploadJobData;
         private readonly EpgNotificationManager _notificationManager;
+
 
         public IngestFinalizer(BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults, DateTime dateOfProgramsToIngest, string requestId)
         {
@@ -78,19 +80,27 @@ namespace IngestHandler
 
                     BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, newStatus);
                     _logger.Info($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}] > Ingest Validation for entire bulk is completed, status:[{newStatus}]");
-                    if (newStatus == BulkUploadJobStatus.Success && !_bulkUploadJobData.DisableEpgNotification)
+                    if (newStatus == BulkUploadJobStatus.Success)
                     {
+                        // DatesOfProgramsToIngest are ordered ascending [min..max]. 
+                        // DatesOfProgramsToIngest - these are dates for ALL channels
+                        // and potentially specific channel could have no updates on some dates,
+                        // but we still notify that it was changed in date range [min..max]. could be better.
+                        var minDate = _bulkUploadJobData.DatesOfProgramsToIngest.First().StartOfDay();
+                        var maxDate = _bulkUploadJobData.DatesOfProgramsToIngest.Last().EndOfDay();
                         foreach ((var epgChannelId, var externalIdToProgram) in bulkUploadResultsDictionaries)
                         {
-                            var minDate = DateTime.MaxValue;
-                            var maxDate = DateTime.MinValue;
                             var linearAssetId = externalIdToProgram.Values.First().LiveAssetId;
-                            foreach (var program in externalIdToProgram.Values)
-                            {
-                                minDate = program.StartDate < minDate ? program.StartDate : minDate;
-                                maxDate = program.EndDate > maxDate ? program.EndDate : maxDate;
-                            }
-                            _notificationManager.ChannelWasUpdated(_requestId, _bulkUpload.GroupId, _bulkUpload.UpdaterId, linearAssetId, epgChannelId, minDate, maxDate);
+
+                            _notificationManager.ChannelWasUpdated(
+                                _requestId,
+                                _bulkUpload.GroupId,
+                                _bulkUpload.UpdaterId,
+                                linearAssetId,
+                                epgChannelId,
+                                minDate,
+                                maxDate,
+                                _bulkUploadJobData.DisableEpgNotification);
                         }
                     }
                 }

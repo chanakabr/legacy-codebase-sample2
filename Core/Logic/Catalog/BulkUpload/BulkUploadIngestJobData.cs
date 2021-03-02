@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ApiObjects.BulkUpload;
 using ApiObjects.Response;
 using Newtonsoft.Json;
@@ -16,8 +17,9 @@ namespace Core.Catalog
 
         public bool DisableEpgNotification { get; set; }
 
+        // LockKeys and DatesOfProgramsToIngest should be updated simultaneously,
+        // because currently we lock by a day => LockKeys just a string-array representation of DatesOfProgramsToIngest
         public string[] LockKeys;
-
         public DateTime[] DatesOfProgramsToIngest;
 
         public override GenericListResponse<BulkUploadResult> Deserialize(int groupId, long bulkUploadId, string fileUrl, BulkUploadObjectData objectData)

@@ -3506,16 +3506,25 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static void NotifyChannelWasUpdated(int groupId, long userId, EpgAsset epgAsset)
+        private static void NotifyChannelWasUpdated(int groupId, long userId, EpgAsset epgAsset, EpgAsset oldEpgAsset = null)
         {
+            var startDate = epgAsset.StartDate.Value;
+            var endDate = epgAsset.EndDate.Value;
+            if (oldEpgAsset != null) // when program was moved to another day, should notify about both dates
+            {
+                startDate = startDate < oldEpgAsset.StartDate.Value ? startDate : oldEpgAsset.StartDate.Value;
+                endDate = endDate > oldEpgAsset.EndDate.Value ? endDate : oldEpgAsset.EndDate.Value;
+            }
+
             EpgNotificationManager.Instance().ChannelWasUpdated(
                 KLogger.GetRequestId(),
                 groupId,
                 userId,
                 epgAsset.LinearAssetId.Value,
                 epgAsset.EpgChannelId.Value,
-                epgAsset.StartDate.Value,
-                epgAsset.EndDate.Value);
+                startDate,
+                endDate,
+                false);
         }
 
         public static GenericResponse<Asset> UpdateAsset(int groupId, long id, Asset assetToUpdate, long userId, bool isFromIngest = false,
@@ -3552,13 +3561,14 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.EPG:
                         if (assetToUpdate is EpgAsset epgAssetToUpdate)
                         {
-                            result = EpgAssetManager.UpdateEpgAsset(groupId, epgAssetToUpdate, userId, oldAsset?.Object as EpgAsset, catalogGroupCache);
+                            var oldEpgAsset = oldAsset?.Object as EpgAsset;
+                            result = EpgAssetManager.UpdateEpgAsset(groupId, epgAssetToUpdate, userId, oldEpgAsset, catalogGroupCache);
 
                             if (!isFromIngest && result.HasObject())
                             {
                                 var epgAssetEvent = result.Object.ToAssetEvent(groupId, userId);
                                 epgAssetEvent.Update();
-                                NotifyChannelWasUpdated(groupId, userId, epgAssetToUpdate);
+                                NotifyChannelWasUpdated(groupId, userId, epgAssetToUpdate, oldEpgAsset);
                             }
                         }
                         break;
