@@ -52,7 +52,15 @@ namespace ApiLogic.CanaryDeployment
             GenericResponse<CanaryDeploymentConfiguration> res = new GenericResponse<CanaryDeploymentConfiguration>() { Object = null };
             try
             {
-                if (_cbManager.IsKeyExists(GetCanaryConfigurationKey(groupId)))
+                if (groupId == 0)
+                {
+                    var cdc = GetCanaryDeploymentConfigurationFromLayeredCache(0, false);
+                    {
+                        res.Object = cdc;
+                        res.SetStatus(eResponseStatus.OK);
+                    }
+                }
+                else if (_cbManager.IsKeyExists(GetCanaryConfigurationKey(groupId)))
                 {
                     // don't check if key exists again in GetCanaryDeploymentConfigurationFromLayeredCache method
                     CanaryDeploymentConfiguration cdc = GetCanaryDeploymentConfigurationFromLayeredCache(groupId, false);
