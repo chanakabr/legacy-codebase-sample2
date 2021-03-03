@@ -347,11 +347,26 @@ namespace Core.Catalog.CatalogManagement
                 // update epgCb in CB for all languages
                 SaveEpgCbToCB(epgCBToUpdate, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, false);
 
-                // update index
-                bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAssetToUpdate.Id }, false);
-                if (!indexingResult)
+                // delete index, if EPG moved to another day
+                var indexAddAction = false;
+                if (epgAssetToUpdate.StartDate != oldEpgAsset.StartDate)
                 {
-                    log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, groupId: {1} after UpdateEpgAsset", epgAssetToUpdate.Id, groupId);
+                    var deleteIndexResult = IndexManager.DeleteProgram(groupId, new List<long> { epgAssetToUpdate.Id }, new List<string> { epgAssetToUpdate.EpgChannelId.ToString() });
+                    if (deleteIndexResult)
+                    {
+                        indexAddAction = true;
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed {0} index for groupId: {1}, assetId: {2}, channelId: {3} after {4}.", nameof(IndexManager.DeleteProgram), groupId, epgAssetToUpdate.Id, epgAssetToUpdate.EpgChannelId, nameof(SaveEpgCbToCB));
+                    }
+                }
+
+                // update index
+                var upsertIndexingResult = IndexManager.UpsertProgram(groupId, new List<int> { (int)epgAssetToUpdate.Id }, indexAddAction);
+                if (!upsertIndexingResult)
+                {
+                    log.ErrorFormat("Failed {0} index for groupId: {1}, assetId: {2} after {3}.", nameof(IndexManager.UpsertProgram), groupId, epgAssetToUpdate.Id, nameof(SaveEpgCbToCB));
                 }
 
                 SendActionEvent(groupId, oldEpgAsset.Id, eAction.Update);
