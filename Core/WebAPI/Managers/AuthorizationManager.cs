@@ -208,7 +208,9 @@ namespace WebAPI.Managers
                     Token = token.RefreshToken,
                     Udid = token.Udid,
                     UserId = long.Parse(token.UserId),
+                    Ks = token.KS,
                     Ttl = refreshTokenExpirationSeconds,
+                    ExpirationDate = DateUtils.GetUtcUnixTimestampNow()+refreshTokenExpirationSeconds
                 };
 
                 KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
