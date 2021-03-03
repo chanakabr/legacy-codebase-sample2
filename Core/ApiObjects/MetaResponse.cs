@@ -1,5 +1,6 @@
 ﻿using ApiObjects.Response;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace ApiObjects
 {
@@ -28,6 +29,7 @@ namespace ApiObjects
         public int PartnerId { get; set; }
         public string Id { get; set; }  // partnerId_AssetType_ColumnIndex  || partnerId_AssetType_TagId              
         public bool MultipleValue { get; set; }
+        [XmlIgnore]
         public Dictionary<string, string> DynamicData { get; set; }
     }
 
