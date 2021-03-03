@@ -349,7 +349,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // delete index, if EPG moved to another day
                 var indexAddAction = false;
-                if (epgAssetToUpdate.StartDate != oldEpgAsset.StartDate)
+                if (epgAssetToUpdate.StartDate?.Date != oldEpgAsset.StartDate?.Date && isIngestV2)
                 {
                     var deleteIndexResult = IndexManager.DeleteProgram(groupId, new List<long> { epgAssetToUpdate.Id }, new List<string> { epgAssetToUpdate.EpgChannelId.ToString() });
                     if (deleteIndexResult)
