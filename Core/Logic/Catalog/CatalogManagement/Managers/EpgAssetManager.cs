@@ -783,11 +783,6 @@ namespace Core.Catalog.CatalogManagement
                 return new Status((int)eResponseStatus.Error, "cannot update EpgIdentifier");
             }
 
-            if (!epgAssetToUpdate.IsStartAndEndDatesAreValid())
-            {
-                return new Status(eResponseStatus.StartDateShouldBeLessThanEndDate, START_DATE_SHOULD_BE_LESS_THAN_END_DATE_ERROR);
-            }
-
             updateBasicData = epgAssetToUpdate.UpdateFields(oldEpgAsset);
 
             bool validateSystemTopic = true;
@@ -915,11 +910,6 @@ namespace Core.Catalog.CatalogManagement
             if (!epgAssetToAdd.StartDate.HasValue || !epgAssetToAdd.EndDate.HasValue)
             {
                 return new Status((int)eResponseStatus.EPGSProgramDatesError, EPGS_PROGRAM_DATES_ERROR);
-            }
-
-            if (!epgAssetToAdd.IsStartAndEndDatesAreValid())
-            {
-                return new Status(eResponseStatus.StartDateShouldBeLessThanEndDate, START_DATE_SHOULD_BE_LESS_THAN_END_DATE_ERROR);
             }
 
             long linearAssetId = epgAssetToAdd.LinearAssetId ?? 0;

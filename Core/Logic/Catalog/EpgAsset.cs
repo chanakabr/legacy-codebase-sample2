@@ -386,11 +386,6 @@ namespace Core.Catalog
 
             return epgEvent;
         }
-
-        public bool IsStartAndEndDatesAreValid()
-        {
-            return StartDate < EndDate;
-        }
     }
 
     public class RecordingAsset : EpgAsset

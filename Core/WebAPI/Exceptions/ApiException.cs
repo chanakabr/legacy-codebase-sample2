@@ -266,7 +266,6 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType INPUT_FORMAT_IS_INVALID = new ClientExceptionType(eResponseStatus.InputFormatIsInvalid, "", "The input format is invalid");
         public static ClientExceptionType DUPLICATE_REGION_CHANNEL = new ClientExceptionType(eResponseStatus.DuplicateRegionChannel, "", "The channel already in region channels list");
         public static ClientExceptionType PARENT_ALREADY_CONTAINS_CHANNEL = new ClientExceptionType(eResponseStatus.ParentAlreadyContainsChannel, "", "Parent region already contains channel");
-        public static ClientExceptionType START_DATE_SHOULD_BE_LESS_THAN_END_DATE = new ClientExceptionType(eResponseStatus.StartDateShouldBeLessThanEndDate, "StartDate should be less than EndDate");
 
         #endregion
 
