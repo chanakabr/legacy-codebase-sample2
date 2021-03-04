@@ -294,9 +294,22 @@ namespace ApiLogic.CanaryDeployment
         private CanaryDeploymentConfiguration GetCanaryDeploymentConfigurationFromLayeredCache(int groupId, bool shouldCheckIfGroupKeyExists = true)
         {
             CanaryDeploymentConfiguration cdc = null;
-            if (!_layeredCache.Get<CanaryDeploymentConfiguration>(LayeredCacheKeys.GetCanaryDeploymentConfigurationKey(groupId), ref cdc, GetGroupConfigurationFromSource,
-                                                                new Dictionary<string, object>() { { "groupId", groupId }, { "shouldCheckIfGroupKeyExists", shouldCheckIfGroupKeyExists } }, groupId,
-                                                                LayeredCacheConfigNames.GET_CANARY_CONFIGURATION, new List<string>() { LayeredCacheKeys.GetCanaryDeploymentConfigurationInvalidationKey(groupId) }))
+            var invalidationKeys = new List<string>() { LayeredCacheKeys.GetCanaryDeploymentConfigurationInvalidationKey(groupId) };
+
+            // group id 0 also affects other group ids so we should consider its invalidation key as well
+            if (groupId != 0)
+            {
+                invalidationKeys.Add(LayeredCacheKeys.GetCanaryDeploymentConfigurationInvalidationKey(0));
+            }
+
+            if (!_layeredCache.Get<CanaryDeploymentConfiguration>(
+                    LayeredCacheKeys.GetCanaryDeploymentConfigurationKey(groupId), ref cdc, GetGroupConfigurationFromSource,
+                    new Dictionary<string, object>() { 
+                        { "groupId", groupId }, 
+                        { "shouldCheckIfGroupKeyExists", shouldCheckIfGroupKeyExists } },
+                    groupId,
+                    LayeredCacheConfigNames.GET_CANARY_CONFIGURATION, invalidationKeys
+                    ))
             {
                 log.Error($"Failed getting canary deployment configuration from layeredCache");
             }

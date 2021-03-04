@@ -1303,6 +1303,13 @@ namespace CachingProvider.LayeredCache
             return $"{groupId}_InvalidateKSRevocationStatus_{ks}";
         }
 
+        public static string GetValidatKSInvalidationKeyUdid(string udid, int groupId)
+        {
+            return $"{groupId}_InvalidateDeviceRevocationStatus_{udid}";
+
+        }
+            
+
 
         public static string GetGroupSegmentationTypeIdsOfActionInvalidationKey(int groupId)
         {
