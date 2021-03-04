@@ -2648,7 +2648,7 @@ namespace WebAPI.WebServices
         /// <param name="userName"></param>
         /// <param name="webServicePassword"></param>
         /// <param name="domainId"></param>
-        /// <param name="siteGuid"></param
+        /// <param name="siteGuid"></param>
         /// <param name="epgId"></param>>
         /// <param name="channelMediaId"></param>
         /// <returns></returns>
@@ -4085,7 +4085,7 @@ namespace WebAPI.WebServices
             int groupId = GetGroupID(sWSUserName, sWSPassword);
             if (groupId > 0)
             {
-                return Core.Api.Module.GetGroupMetaList(groupId, assetType, metaType, fieldNameEqual, fieldNameNotEqual, metaFeatureTypeList);
+                return Core.Catalog.CatalogManagement.TopicManager.Instance.GetGroupMetaList(groupId, assetType, metaType, fieldNameEqual, fieldNameNotEqual, metaFeatureTypeList);
             }
             else
             {

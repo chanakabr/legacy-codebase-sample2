@@ -101,6 +101,10 @@ namespace TVPApi.Common
                                 // get group ID
                                 if (initObj.ApiUser != null && initObj.ApiUser != null)
                                 {
+                                    //this will print a monitor log with wrong group ID but we need the DB call to identify the group id, so we just clear the group id from klogger
+                                    KLogger.SetGroupId("");
+                                    HttpContext.Current.Items[Constants.GROUP_ID] = "";
+                                    
                                     int groupId = ConnectionHelper.GetGroupID("tvpapi", "Gateways_JsonPostGW", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
                                     HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
                                     KLogger.SetGroupId(groupId.ToString());
@@ -152,18 +156,21 @@ namespace TVPApi.Common
                 #endif
             }
 
-            // add web service
-            MethodFinder queryServices = new MethodFinder(m_MediaService,
-                                                            m_SiteService,
-                                                            m_PricingService,
-                                                            m_DomainService,
-                                                            m_BillingService,
-                                                            m_ConditionalAccessService,
-                                                            m_SocialService,
-                                                            m_UsersService,
-                                                            m_NotificationService);
-            
-            result = queryServices.ProcessRequest(sJsonRequest);
+            using (_ = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
+            {
+                // add web service
+                MethodFinder queryServices = new MethodFinder(m_MediaService,
+                    m_SiteService,
+                    m_PricingService,
+                    m_DomainService,
+                    m_BillingService,
+                    m_ConditionalAccessService,
+                    m_SocialService,
+                    m_UsersService,
+                    m_NotificationService);
+
+                result = queryServices.ProcessRequest(sJsonRequest);
+            }
 
             return result;
         }

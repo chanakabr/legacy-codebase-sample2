@@ -25,6 +25,7 @@
 		public const string HttpClientConfiguration = "http_client_configuration";
 		public const string MicroservicesClientConfiguration = "microservices_client_configuration";
 		public const string AuthenticationServiceConfiguration = "authentication";
+		public const string EpgCacheServiceConfiguration = "epgcache";
 		public const string MicroserviceLayeredCacheConfiguration = "layeredcache_configuration";
 		public const string MicroserviceDataOwnershipConfiguration = "data_ownership";
 		public const string TVPApiConfiguration = "tvpapi_configuration";
@@ -79,6 +80,10 @@
 		public const string IotConfiguration = "iot_configuration";
 		public const string UdidUsageConfiguration = "udid_usage";
 		public const string RedisClientConfiguration = "redis_client_configuration";
+		public const string RedisCacheAddress = "cache_address";
+		public const string RedisCacheDatabase = "cache_database";
+		public const string RedisPersistentAddress = "persistent_address";
+		public const string RedisPersistentDatabase = "persistent_database";
 		public const string LayeredCacheInMemoryCacheConfiguration = "layered_cache_memory_cache_configuration";
 		public const string GeneralInMemoryCacheConfiguration = "general_in_memory_cache_configuration";
 	}

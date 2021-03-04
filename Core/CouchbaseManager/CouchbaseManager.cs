@@ -572,6 +572,27 @@ namespace CouchbaseManager
             return result;
         }
 
+        public bool IsKeyExists(string key)
+        {
+            bool res = false;
+
+            try
+            {
+                var bucket = ClusterHelper.GetBucket(bucketName);
+                string cbDescription = string.Format("bucket: {0}; key: {1}", bucketName, key);
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.SELECT, Database = cbDescription })
+                {
+                    res = bucket.Exists(key);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("CouchbaseManager - Failed IsKeyExists on bucket = {0} for key = {1}, ex = {2}", bucketName, key, ex);
+            }
+
+            return res;
+        }
+
         /// <summary>
         /// 
         /// </summary>

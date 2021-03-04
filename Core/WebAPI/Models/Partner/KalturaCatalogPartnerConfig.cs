@@ -33,6 +33,14 @@ namespace WebAPI.Models.Partner
         [JsonProperty("categoryManagement")]
         [XmlElement(ElementName = "categoryManagement", IsNullable = true)]
         public KalturaCategoryManagement CategoryManagement { get; set; }
+        
+        /// <summary>
+        /// EPG Multilingual Fallback Support
+        /// </summary>
+        [DataMember(Name = "epgMultilingualFallbackSupport")]
+        [JsonProperty("epgMultilingualFallbackSupport")]
+        [XmlElement(ElementName = "epgMultilingualFallbackSupport")]
+        public bool? EpgMultilingualFallbackSupport { get; set; }
 
         internal override bool Update(int groupId)
         {

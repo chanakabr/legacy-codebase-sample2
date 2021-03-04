@@ -154,7 +154,7 @@ namespace WebAPI.Utils
                 return null;
             }
 
-            if (Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId.Value))
+            if (Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId.Value))
             {
                 Core.Catalog.CatalogGroupCache groupCache;
 
@@ -229,7 +229,7 @@ namespace WebAPI.Utils
 
         public static bool DoesGroupUsesTemplates(int groupId)
         {
-            return Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            return Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
         }
 
         internal static bool GetAbortOnErrorFromRequest()
@@ -248,7 +248,7 @@ namespace WebAPI.Utils
             return str.Replace('_', '/');
         }
 
-        internal static Dictionary<string, string> ConvertSerializeableDictionary(SerializableDictionary<string, KalturaStringValue> dict, bool setNullIfEmpty)
+        internal static Dictionary<string, string> ConvertSerializeableDictionary(SerializableDictionary<string, KalturaStringValue> dict, bool setNullIfEmpty, bool allowNullKey = false)
         {
             Dictionary<string, string> res = new Dictionary<string, string>();
 
@@ -256,7 +256,8 @@ namespace WebAPI.Utils
             {
                 foreach (KeyValuePair<string, KalturaStringValue> pair in dict)
                 {
-                    if (!string.IsNullOrEmpty(pair.Key))
+                    //BEO-9601 - Not saved in case "key" is empty
+                    if (allowNullKey || !string.IsNullOrEmpty(pair.Key))
                     {
                         if (!res.ContainsKey(pair.Key))
                         {
@@ -275,6 +276,28 @@ namespace WebAPI.Utils
             }
 
             return res;
+        }
+
+        internal static SerializableDictionary<string, KalturaStringValue> ConvertToSerializableDictionary(Dictionary<string, string> dictionary)
+        {
+            var result = new SerializableDictionary<string, KalturaStringValue>();
+
+            if (dictionary?.Any() == true)
+            {
+                foreach (KeyValuePair<string, string> pair in dictionary)
+                {
+                    if (!result.ContainsKey(pair.Key))
+                    {
+                        result.Add(pair.Key, new KalturaStringValue {value = pair.Value});
+                    }
+                    else
+                    {
+                        throw new ClientException((int) StatusCode.ArgumentsDuplicate, $"key {pair.Key} already exists in sent dictionary");
+                    }
+                }
+            }
+
+            return result;
         }
 
         public static IEnumerable<string> GetOnDemandResponseProfileProperties()

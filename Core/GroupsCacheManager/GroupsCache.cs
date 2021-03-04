@@ -13,7 +13,26 @@ using System.Threading;
 
 namespace GroupsCacheManager
 {
-    public class GroupsCache
+    public interface IGroupsCache
+    {
+        Group GetGroup(int groupId);
+        bool AddChannelsToOperator(int nOperatorID, List<long> subscriptionChannels, Group group);
+        bool RemoveChannel(int nGroupID, int nChannelId);
+        bool RemoveGroup(int nGroupID);
+        bool AddServices(int nGroupID, List<int> services);
+        bool DeleteServices(int nGroupID, List<int> services);
+        bool UpdateServices(int nGroupID, List<int> services);
+        List<MediaType> GetMediaTypes(List<int> typeIds, int groupId);
+        int GetLinearMediaTypeId(int groupId);
+        bool UpdateRegionalizationData(bool isRegionalizationEnabled, int defaultRegion, int groupID);
+        Channel GetChannel(int channelId, Group group, bool isAlsoInActive = false);
+        List<Channel> GetChannels(List<int> channelIds, Group group, bool isAlsoInActive = false);
+        bool UpdateoOperatorChannels(int nGroupID, int nOperatorID, List<long> channelIDs, bool bAddNewOperator = true);
+        bool DeleteOperator(int nGroupID, int nOperatorID);
+        bool AddOperatorChannels(int nGroupID, int nOperatorID, List<long> channelIDs, bool bAddNewOperator);
+    }
+
+    public class GroupsCache: IGroupsCache
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -195,7 +214,7 @@ namespace GroupsCacheManager
             return new Tuple<Group, bool>(group, success);
         }
 
-        internal bool AddChannelsToOperator(int nOperatorID, List<long> subscriptionChannels, Group group)
+        public bool AddChannelsToOperator(int nOperatorID, List<long> subscriptionChannels, Group group)
         {
             return Add(nOperatorID, subscriptionChannels, group);
         }
@@ -292,7 +311,7 @@ namespace GroupsCacheManager
             }
         }
 
-        internal bool UpdateoOperatorChannels(int nGroupID, int nOperatorID, List<long> channelIDs, bool bAddNewOperator = true)
+        public bool UpdateoOperatorChannels(int nGroupID, int nOperatorID, List<long> channelIDs, bool bAddNewOperator = true)
         {
             bool bUpdate = false;
             Group group = null;
@@ -327,7 +346,7 @@ namespace GroupsCacheManager
             }
         }
 
-        internal Channel GetChannel(int channelId, Group group, bool isAlsoInActive = false)
+        public Channel GetChannel(int channelId, Group group, bool isAlsoInActive = false)
         {
             Channel resultChannel = null;
 
@@ -349,7 +368,7 @@ namespace GroupsCacheManager
             return resultChannel;
         }
 
-        internal List<Channel> GetChannels(List<int> channelIds, Group group, bool isAlsoInActive = false)
+        public List<Channel> GetChannels(List<int> channelIds, Group group, bool isAlsoInActive = false)
         {
             {
                 List<Channel> channels = new List<Channel>();
@@ -421,7 +440,7 @@ namespace GroupsCacheManager
             return new Tuple<Dictionary<string, Channel>, bool>(result, success);
         }
 
-        internal bool RemoveChannel(int nGroupID, int nChannelId)
+        public bool RemoveChannel(int nGroupID, int nChannelId)
         {
             bool isRemovingChannelSucceded = false;
 
@@ -440,7 +459,7 @@ namespace GroupsCacheManager
             return isRemovingChannelSucceded;
         }
 
-        internal bool RemoveGroup(int nGroupID)
+        public bool RemoveGroup(int nGroupID)
         {
             bool isRemovingGroupSucceded = false;
             VersionModuleCache vModule = null;
@@ -476,7 +495,7 @@ namespace GroupsCacheManager
             }
         }
 
-        internal bool AddOperatorChannels(int nGroupID, int nOperatorID, List<long> channelIDs, bool bAddNewOperator)
+        public bool AddOperatorChannels(int nGroupID, int nOperatorID, List<long> channelIDs, bool bAddNewOperator)
         {
             try
             {
@@ -513,7 +532,7 @@ namespace GroupsCacheManager
             }
         }
 
-        internal bool DeleteOperator(int nGroupID, int nOperatorID)
+        public bool DeleteOperator(int nGroupID, int nOperatorID)
         {
             try
             {
@@ -561,7 +580,7 @@ namespace GroupsCacheManager
             return string.Format("{2}_group_{0}_mediaType_{1}", groupId, mediaType, this.version);
         }
 
-        internal bool AddServices(int nGroupID, List<int> services)
+        public bool AddServices(int nGroupID, List<int> services)
         {
             try
             {
@@ -596,7 +615,7 @@ namespace GroupsCacheManager
                 return false;
             }
         }
-        internal bool DeleteServices(int nGroupID, List<int> services)
+        public bool DeleteServices(int nGroupID, List<int> services)
         {
             try
             {
@@ -626,11 +645,11 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                log.Error("DeleteServices - " + string.Format("failed to DeleteServices to IChach with nGroupID={0}, ex={2}", nGroupID, ex.Message), ex);
+                log.Error($"DeleteServices - failed to DeleteServices to IChach with nGroupID={nGroupID}, ex={ex.Message}", ex);
                 return false;
             }
         }
-        internal bool UpdateServices(int nGroupID, List<int> services)
+        public bool UpdateServices(int nGroupID, List<int> services)
         {
             try
             {
@@ -659,13 +678,13 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                log.Error("UpdateServices - " + string.Format("failed to UpdateServices to IChach with nGroupID={0}, ex={2}", nGroupID, ex.Message), ex);
+                log.Error($"UpdateServices - failed to UpdateServices to IChach with nGroupID={nGroupID}, ex={ex.Message}", ex);
                 return false;
             }
         }
 
 
-        internal bool UpdateRegionalizationData(bool isRegionalizationEnabled, int defaultRegion, int groupID)
+        public bool UpdateRegionalizationData(bool isRegionalizationEnabled, int defaultRegion, int groupID)
         {
             try
             {
@@ -694,12 +713,12 @@ namespace GroupsCacheManager
             }
             catch (Exception ex)
             {
-                log.Error("UpdateRegionalizationData - " + string.Format("failed to UpdateRegionalizationData to IChach with nGroupID={0}, ex={2}", groupID, ex.Message), ex);
+                log.Error($"UpdateRegionalizationData - failed to UpdateRegionalizationData to IChach with nGroupID={groupID}, ex={ex.Message}", ex);
                 return false;
             }
         }
 
-        internal List<MediaType> GetMediaTypes(List<int> typeIds, int groupId)
+        public List<MediaType> GetMediaTypes(List<int> typeIds, int groupId)
         {
             List<MediaType> mediaTypes = new List<MediaType>();
 
@@ -723,7 +742,7 @@ namespace GroupsCacheManager
             return (mediaTypes);
         }
 
-        internal int GetLinearMediaTypeId(int groupId)
+        public int GetLinearMediaTypeId(int groupId)
         {
             int result = 0;
 

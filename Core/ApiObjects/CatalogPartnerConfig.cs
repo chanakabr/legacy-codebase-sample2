@@ -3,7 +3,10 @@
     public class CatalogPartnerConfig
     {
         public bool? SingleMultilingualMode { get; set; }
+        
         public CategoryManagement CategoryManagement { get; set; }
+
+        public bool? EpgMultilingualFallbackSupport { get; set; }
 
         public bool SetUnchangedProperties(CatalogPartnerConfig oldConfig)
         {
@@ -24,6 +27,15 @@
             else
             {
                 this.CategoryManagement = oldConfig.CategoryManagement;
+            }
+
+            if (this.EpgMultilingualFallbackSupport.HasValue)
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                this.EpgMultilingualFallbackSupport = oldConfig.EpgMultilingualFallbackSupport;
             }
 
             return needToUpdate;

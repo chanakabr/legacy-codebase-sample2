@@ -118,7 +118,7 @@ namespace Core.Notification
         public static List<Core.Catalog.Response.UnifiedSearchResult> SearchSeriesEpisodes(int groupId, string seriesId, long? seasonNumber, long epgChannelId)
         {
             string seriesIdName, seasonNumberName, episodeNumberName;
-            if (!Core.ConditionalAccess.Utils.GetSeriesMetaTagsFieldsNamesForSearch(groupId, out seriesIdName, out seasonNumberName, out episodeNumberName))
+            if (!Core.ConditionalAccess.Utils.Instance.GetSeriesMetaTagsFieldsNamesForSearch(groupId, out seriesIdName, out seasonNumberName, out episodeNumberName))
             {
                 log.ErrorFormat("failed to 'GetSeriesMetaTagsNamesForGroup' for groupId = {0} ", groupId);
                 return null;
@@ -286,12 +286,12 @@ namespace Core.Notification
 
             try
             {
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                 {
                     return GetSeriesMetaTagsFieldsNamesAndTypesForOpcAccount(groupId, out seriesIdName, out seasonNumberName, out episodeNumberName);
                 }
 
-                var metaTagsMappings = ConditionalAccess.Utils.GetAliasMappingFields(groupId);
+                var metaTagsMappings = ConditionalAccess.Utils.Instance.GetAliasMappingFields(groupId);
                 if (metaTagsMappings == null || metaTagsMappings.Count == 0)
                 {
                     log.ErrorFormat("failed to 'GetAliasMappingFields' for seriesId. groupId = {0} ", groupId);

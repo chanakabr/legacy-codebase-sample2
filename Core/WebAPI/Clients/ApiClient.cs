@@ -1,7 +1,6 @@
 ﻿using ApiLogic.Api.Managers;
 using APILogic.Api.Managers;
 using ApiObjects;
-using ApiObjects.Base;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Response;
@@ -31,6 +30,7 @@ using WebAPI.Models.Segmentation;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
+using Core.Catalog.CatalogManagement;
 
 namespace WebAPI.Clients
 {
@@ -232,7 +232,7 @@ namespace WebAPI.Clients
             }
 
             return userRole;
-        }
+        }       
 
         internal bool DeleteRole(int groupId, long id)
         {
@@ -3206,7 +3206,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetGroupMetaList(groupId, wsAssetType, wsMetaType, wsFieldNameEqual, wsFieldNameNotEqual, ApiMappings.ConvertMetaFeatureTypes(metaFeatureTypeList));
+                    response = TopicManager.Instance.GetGroupMetaList(groupId, wsAssetType, wsMetaType, wsFieldNameEqual, wsFieldNameNotEqual, ApiMappings.ConvertMetaFeatureTypes(metaFeatureTypeList));
                 }
             }
             catch (Exception ex)
@@ -4332,10 +4332,10 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseFromWS<KalturaIngestProfile, IngestProfile>(ingestProfile, p => Core.Profiles.IngestProfileManager.UpdateIngestProfile(groupId, userId, ingestProfileId, p));
         }
 
-        internal KalturaPermission AddPermission(int groupId, KalturaPermission permission)
+        internal KalturaPermission AddPermission(int groupId, KalturaPermission permission, long userId)
         {
             Func<Permission, GenericResponse<Permission>> addPermissionFunc = (Permission permissionToAdd) =>
-              Core.Api.Module.AddPermission(groupId, permissionToAdd);
+              Core.Api.Module.AddPermission(groupId, permissionToAdd, userId);
 
             KalturaPermission result =
                 ClientUtils.GetResponseFromWS<KalturaPermission, Permission>(permission, addPermissionFunc);
@@ -4589,6 +4589,17 @@ namespace WebAPI.Clients
 
             result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
             result.TotalCount = response.TotalCount;
+            return result;
+        }
+
+        internal KalturaPermission UpdatePermission(int groupId, long id, KalturaPermission permission, long userId)
+        {
+            Func<Permission, GenericResponse<Permission>> updatePermissionFunc = (Permission permissionToUpdate) =>
+                         Core.Api.Module.UpdatePermission(groupId, userId, id, permissionToUpdate);
+
+            KalturaPermission result =
+                ClientUtils.GetResponseFromWS<KalturaPermission, Permission>(permission, updatePermissionFunc);
+
             return result;
         }
     }

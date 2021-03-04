@@ -13,15 +13,33 @@ using MoreLinq;
 using Grpc;
 using KLogMonitor;
 using System.Reflection;
+using ApiLogic.CanaryDeployment;
+using ApiObjects.CanaryDeployment;
+using ApiObjects.DataMigrationEvents;
+using EventBus.Kafka;
 
 namespace ApiLogic.Users.Services
 {
     public class DeviceRemovalPolicyHandler
     {
-        private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());      
 
         private static readonly Lazy<DeviceRemovalPolicyHandler> lazy = new Lazy<DeviceRemovalPolicyHandler>(() => new DeviceRemovalPolicyHandler());
         public static DeviceRemovalPolicyHandler Instance { get { return lazy.Value; } }
+
+        private readonly CouchbaseManager.CouchbaseManager _cbManager;
+        private readonly eCouchbaseBucket _couchbaseBucket;
+        private readonly uint _ttl;
+
+        private DeviceRemovalPolicyHandler()
+        {
+            _ttl = ApplicationConfiguration.Current.UdidUsageConfiguration.TTL.Value;
+            bool tryParse = Enum.TryParse(ApplicationConfiguration.Current.UdidUsageConfiguration.BucketName.Value, true, out eCouchbaseBucket _couchbaseBucket);
+            if (!tryParse)
+                _couchbaseBucket = eCouchbaseBucket.OTT_APPS;
+
+            _cbManager = new CouchbaseManager.CouchbaseManager(_couchbaseBucket);
+        }
 
         public string GetDeviceRemovalCandidate(int groupId, RollingDevicePolicy rollingDeviceRemovalPolicy,
             List<int> rollingDeviceRemovalFamilyIds,
@@ -29,14 +47,6 @@ namespace ApiLogic.Users.Services
         {
             if (rollingDeviceRemovalPolicy == RollingDevicePolicy.NONE)
                 return string.Empty;
-
-
-            var tryParse = Enum.TryParse(ApplicationConfiguration.Current.UdidUsageConfiguration.BucketName.Value,
-                true,
-                out eCouchbaseBucket couchbaseBucket);
-
-            if (!tryParse)
-                couchbaseBucket = eCouchbaseBucket.OTT_APPS;
 
             // map device usage key to uuid 
             //don't map family ids that are not in the policy
@@ -67,7 +77,7 @@ namespace ApiLogic.Users.Services
                 case RollingDevicePolicy.ACTIVE_DEVICE_ASCENDING:
                     // map device usage to usage date
 
-                    if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.DeviceLoginHistory.Value)
+                    if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginHistory))
                     {
                         var authClient = AuthenticationClient.GetClientFromTCM();
                         var deviceLoginRecords = authClient.ListDevicesLoginHistory(groupId, deviceUuidUsageKeyToDevice.Keys);
@@ -95,15 +105,14 @@ namespace ApiLogic.Users.Services
                     }
                     else
                     {
-                        var cbMgr = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
-                        var loginRecords = cbMgr.GetValues<string>(deviceUuidUsageKeyToDevice.Keys.ToList(), shouldAllowPartialQuery: true);
+                        var loginRecords = _cbManager.GetValues<string>(deviceUuidUsageKeyToDevice.Keys.ToList(), shouldAllowPartialQuery: true);
                         if (loginRecords?.Any() != true)
                         {
                             _logger.Error($"could not fetch device login records groupId:[{groupId}]");
                             break;
                         }
 
-                        // first check if there such old devices that do not have a login recotrd at all because of TTL
+                        // first check if there such old devices that do not have a login record at all because of TTL
                         var nonExistingDevices = deviceUuidUsageKeyToDevice.Keys.Except(loginRecords.Keys);
                         if (nonExistingDevices.Any())
                         {
@@ -128,7 +137,7 @@ namespace ApiLogic.Users.Services
 
         public long? GetUdidLastActivity(int groupId, string UDID, int userId)
         {
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.DeviceLoginHistory.Value)
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginHistory))
             {
                 var authClient = AuthenticationClient.GetClientFromTCM();
                 var loginHistoryList = authClient.ListDevicesLoginHistory(groupId, new List<string>() { UDID });
@@ -145,7 +154,7 @@ namespace ApiLogic.Users.Services
             else
             {
                 var key = GetDomainDeviceUsageDateKey(UDID);
-                var deviceLoginTime = UtilsDal.GetObjectFromCB<long?>(GetCouchbaseBucket(), key, true);
+                var deviceLoginTime = UtilsDal.GetObjectFromCB<long?>(_couchbaseBucket, key, true);
                 if (!deviceLoginTime.HasValue)
                 {
                     _logger.Debug($"Could not fetch device ([{UDID}]) login record groupId:[{groupId}]]");
@@ -162,45 +171,42 @@ namespace ApiLogic.Users.Services
                 return;
             }
 
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.DeviceLoginHistory.Value)
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginHistory))
             {
                 var authClient = AuthenticationClient.GetClientFromTCM();
                 authClient.RecordDeviceSuccessfulLogin(groupId, UDID);
             }
             else
             {
-                UtilsDal.SaveObjectInCB<long>(GetCouchbaseBucket(),
-                    GetDomainDeviceUsageDateKey(UDID),
-                    DateUtils.GetUtcUnixTimestampNow(),
-                    true,
-                    ApplicationConfiguration.Current.UdidUsageConfiguration.TTL.Value);
+                var now = DateUtils.GetUtcUnixTimestampNow();
+                UtilsDal.SaveObjectInCB<long>(_couchbaseBucket, GetDomainDeviceUsageDateKey(UDID), now, true, _ttl);
+
+                if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.DeviceLoginHistory))
+                {
+                    var migrationEvent = new ApiObjects.DataMigrationEvents.DeviceLoginHistory
+                    {
+                        Operation = eMigrationOperation.Update,
+                        GroupId = groupId,
+                        Udid = UDID,
+                        LastLoginDate = now,
+                    };
+                    
+                    KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+
+                }
             }
         }
 
         public void DeleteDomainDeviceUsageDate(string UDID, int groupId)
         {
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.DeviceLoginHistory.Value)
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginHistory))
             {
                 AuthenticationClient.GetClientFromTCM().DeleteDomainDeviceUsageDate(groupId, UDID);
             }
             else
             {
-                UtilsDal.DeleteObjectFromCB(GetCouchbaseBucket(), GetDomainDeviceUsageDateKey(UDID));
+                UtilsDal.DeleteObjectFromCB(_couchbaseBucket, GetDomainDeviceUsageDateKey(UDID));
             }
-        }
-
-        private eCouchbaseBucket GetCouchbaseBucket()
-        {
-            var tryParse = Enum.TryParse(ApplicationConfiguration.Current.UdidUsageConfiguration.BucketName.Value,
-                true,
-                out eCouchbaseBucket couchbaseBucket);
-
-            if (!tryParse)
-            {
-                couchbaseBucket = eCouchbaseBucket.OTT_APPS;
-            }
-
-            return couchbaseBucket;
         }
 
         private static string GetDomainDeviceUsageDateKey(string udid)

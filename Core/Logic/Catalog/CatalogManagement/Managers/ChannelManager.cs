@@ -23,6 +23,7 @@ namespace Core.Catalog.CatalogManagement
     public interface IChannelManager
     {
         GenericResponse<Channel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId);
+        GenericListResponse<Channel> GetChannelsListResponseByChannelIds(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets, int? totalItems);
     }
 
     public class ChannelManager : IChannelManager
@@ -389,7 +390,7 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, Channel>, bool>(result, res);
         }
 
-        public static GenericListResponse<Channel> GetChannelsListResponseByChannelIds(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets, int? totalItems)
+        public GenericListResponse<Channel> GetChannelsListResponseByChannelIds(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets, int? totalItems)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
@@ -463,7 +464,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static List<Channel> SearchChannelByAssetUserId(int groupId, long ruleId)
+        private List<Channel> SearchChannelByAssetUserId(int groupId, long ruleId)
         {
             List<Channel> channels = null;
             GenericListResponse<Channel> response = SearchChannels(groupId, true, string.Empty, null, 0, 500, ChannelOrderBy.Id, OrderDir.ASC, false, 0, ruleId);
@@ -706,13 +707,13 @@ namespace Core.Catalog.CatalogManagement
             return groupChannels;
         }
 
-        public static GenericListResponse<Channel> SearchChannels(int groupId, bool isExcatValue, string searchValue, List<int> specificChannelIds, int pageIndex, int pageSize,
+        public GenericListResponse<Channel> SearchChannels(int groupId, bool isExcatValue, string searchValue, List<int> specificChannelIds, int pageIndex, int pageSize,
             ChannelOrderBy orderBy, OrderDir orderDirection, bool isAllowedToViewInactiveAssets, long userId, long assetUserRuleId = 0)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
             {
-                if (!CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (!CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                 {
                     result.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
                     return result;
@@ -755,7 +756,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 bool isGroupExcludedFromTemplatesImplementation = CatalogManager.IsGroupIdExcludedFromTemplatesImplementation(groupId);
-                if (!CatalogManager.DoesGroupUsesTemplates(groupId) && !isGroupExcludedFromTemplatesImplementation)
+                if (!CatalogManager.Instance.DoesGroupUsesTemplates(groupId) && !isGroupExcludedFromTemplatesImplementation)
                 {
                     response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
                     return response;
@@ -957,7 +958,7 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                if (!CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (!CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                 {
                     response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
                     return response;
@@ -1197,7 +1198,7 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                 if (shouldCheckGroupUsesTemplates && !doesGroupUsesTemplates)
                 {
                     response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
@@ -1259,7 +1260,7 @@ namespace Core.Catalog.CatalogManagement
                     RemoveRelatedEntitiesData(groupId, userId, channelId);
 
                     bool deleteResult = false;
-                    bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                    bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
 
                     // delete index only for OPC accounts since previously channels index didn't exist
                     if (doesGroupUsesTemplates)
@@ -1338,13 +1339,13 @@ namespace Core.Catalog.CatalogManagement
             affectedAssets.ForEach(x => AssetManager.InvalidateAsset((eAssetTypes)x.Value, groupId, x.Key));
         }
 
-        public static GenericListResponse<Channel> GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize,
+        public GenericListResponse<Channel> GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize,
             ChannelOrderBy orderBy, OrderDir orderDirection, bool isAllowedToViewInactiveAssets, long userId)
         {
             GenericListResponse<Channel> result = new GenericListResponse<Channel>();
             try
             {
-                if (!CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (!CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                 {
                     result.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
                     return result;

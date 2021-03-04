@@ -383,6 +383,12 @@ namespace Core.Catalog
                     excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
                 }
 
+                if (this.IsLinearAssetStruct && systemNameToExcelAttribute.ContainsKey(LiveAsset.EXTERNAL_EPG_INGEST_ID))
+                {
+                    var excelColumn = ExcelManager.GetExcelColumnByAttribute(systemNameToExcelAttribute[LiveAsset.EXTERNAL_EPG_INGEST_ID], LiveAsset.EXTERNAL_EPG_INGEST_ID);
+                    excelColumns.TryAdd(excelColumn.ToString(), excelColumn);
+                }
+
                 excelStructure = new ExcelStructure(excelColumns, OVERVIEW_INSTRUCTIONS, COLUMNS_COLORS, mandatoryPropertyAndValueMap);
             }
 

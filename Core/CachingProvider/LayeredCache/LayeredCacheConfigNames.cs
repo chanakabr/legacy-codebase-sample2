@@ -133,6 +133,7 @@
         public const string GET_CATEGORY_VERSIONS_OF_TREE = "GetCategoryVersionsOfTree";
         public const string GET_KS_VALIDATION = "Get_KsValidation";
         public const string GET_OPC_PARTNER_CONFIG = "GetOpcPartnerConfig";
+        public const string GET_CANARY_CONFIGURATION = "GetCanaryConfiguration";
 
         #endregion
 

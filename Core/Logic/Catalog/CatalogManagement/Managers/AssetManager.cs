@@ -9,6 +9,7 @@ using CachingProvider.LayeredCache;
 using Core.Api.Managers;
 using Core.Catalog.Response;
 using DAL;
+using Force.DeepCloner;
 using KLogMonitor;
 using Newtonsoft.Json;
 using System;
@@ -252,7 +253,7 @@ namespace Core.Catalog.CatalogManagement
                 return;
             }
 
-            newAsset = (MediaAsset)originalAsset.First().Clone();
+            newAsset = (MediaAsset)originalAsset.First().DeepClone();
             newAsset.Id = 0;
             newAsset.CoGuid = Guid.NewGuid().ToString();
         }
@@ -431,7 +432,7 @@ namespace Core.Catalog.CatalogManagement
             DateTime? startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "START_DATE");
             DateTime? endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "END_DATE");
             DateTime? catalogStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "CATALOG_START_DATE");
-            DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "UPDATE_DATE");
+            DateTime? maxUpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "UPDATE_DATE");
             string fallbackEpgIdentifier = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "EPG_IDENTIFIER");
 
             int inheritancePolicy = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "INHERITANCE_POLICY");
@@ -455,7 +456,7 @@ namespace Core.Catalog.CatalogManagement
                 tagsTable = tables[TABLE_NAME_TAGS];
             }
 
-            if (!TryGetMetasAndTags(groupId, id, defaultLanguage.ID, groupLanguages, metasTable, tagsTable, ref metas, ref tags))
+            if (!TryGetMetasAndTags(groupId, id, defaultLanguage.ID, groupLanguages, metasTable, tagsTable, ref metas, ref tags, ref maxUpdateDate))
             {
                 log.WarnFormat("CreateMediaAssetFromDataSet - failed to get media metas and tags for Id: {0}", id);
                 return null;
@@ -468,6 +469,13 @@ namespace Core.Catalog.CatalogManagement
                 files = FileManager.CreateAssetFileListResponseFromDataTable(groupId, tables[TABLE_NAME_FILES]);
                 // get only active files
                 files = files.Where(x => x.IsActive.HasValue && x.IsActive.Value).ToList();
+
+                var maxFilesUpdateDate = files.Max(x => x.UpdateDate);
+
+                if (maxFilesUpdateDate.HasValue && (!maxUpdateDate.HasValue || maxFilesUpdateDate.Value > maxUpdateDate.Value))
+                {
+                    maxUpdateDate = maxFilesUpdateDate;
+                }
             }
 
             // Images table
@@ -526,6 +534,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
             }
+
             // update dates
             if (tables.ContainsKey(TABLE_NAME_UPDATE_DATE) && tables[TABLE_NAME_UPDATE_DATE]?.Rows.Count > 0)
             {
@@ -533,7 +542,7 @@ namespace Core.Catalog.CatalogManagement
                 // overide existing update with the max update date from all possible tables (from GetAssetUpdateDate stored procedure)
                 if (assetUpdateDate.HasValue)
                 {
-                    updateDate = assetUpdateDate;
+                    maxUpdateDate = assetUpdateDate;
                 }
             }
 
@@ -564,7 +573,7 @@ namespace Core.Catalog.CatalogManagement
             int? geoBlockRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "GEO_BLOCK_RULE_ID", -1);
             string userTypes = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "user_types");
 
-            result = new MediaAsset(id, eAssetTypes.MEDIA, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, updateDate, startDate, endDate, metas, tags, images, coGuid,
+            result = new MediaAsset(id, eAssetTypes.MEDIA, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, maxUpdateDate, startDate, endDate, metas, tags, images, coGuid,
                                     isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes,
                                     assetInheritancePolicy, fallbackEpgIdentifier);
 
@@ -584,7 +593,7 @@ namespace Core.Catalog.CatalogManagement
             List<MediaAsset> result = null;
             try
             {
-                if (ds == null || ds.Tables == null || ds.Tables.Count < 7)
+                if (ds == null || ds.Tables == null || ds.Tables.Count < 6)
                 {
                     log.WarnFormat("CreateMediaAssets didn't receive dataset with 7 or more tables");
                     return result;
@@ -603,9 +612,9 @@ namespace Core.Catalog.CatalogManagement
                 var tagsTable = GetDataRows(ds, 2);
                 var filesTable = GetDataRows(ds, 3);
                 var imagesTable = GetDataRows(ds, 4);
-                var assetUpdateDateTable = GetDataRows(ds, 5);
-                var linearMediasTable = GetDataRows(ds, 6);
-                var relatedEntitiesTable = GetDataRows(ds, 7);
+                // assetUpdateDateTable = GetDataRows(ds, 5);
+                var linearMediasTable = GetDataRows(ds, 5);
+                var relatedEntitiesTable = GetDataRows(ds, 6);
 
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
                 {
@@ -620,7 +629,7 @@ namespace Core.Catalog.CatalogManagement
                         tables.Add(TABLE_NAME_TAGS, GetTableByAssetDataRows(tagsTable, "ASSET_ID", id, ds, 2));
                         tables.Add(TABLE_NAME_FILES, GetTableByAssetDataRows(filesTable, "MEDIA_ID", id, ds, 3));
                         tables.Add(TABLE_NAME_IMAGES, GetTableByAssetDataRows(imagesTable, "ASSET_ID", id, ds, 4));
-                        tables.Add(TABLE_NAME_UPDATE_DATE, GetTableByAssetDataRows(assetUpdateDateTable, "ID", id, ds, 5));
+                        //tables.Add(TABLE_NAME_UPDATE_DATE, GetTableByAssetDataRows(assetUpdateDateTable, "ID", id, ds, 5));
                         tables.Add(TABLE_NAME_LINEAR, GetTableByAssetDataRows(linearMediasTable, "MEDIA_ID", id, ds, 6));
                         tables.Add(TABLE_NAME_RELATED_ENTITIES, GetTableByAssetDataRows(relatedEntitiesTable, "ASSET_ID", id, ds, 7));
 
@@ -848,7 +857,7 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // Validate meta values are correct and add to to metaXml
-                    if (!IsMetaValueValid(meta, topic.Id, catalogGroupCache.DefaultLanguage.ID, catalogGroupCache.LanguageMapByCode, ref result, ref metasXmlDoc, ref rootNode,
+                    if (!IsMetaValueValid(meta, topic.Id, catalogGroupCache.GetDefaultLanguage().ID, catalogGroupCache.LanguageMapByCode, ref result, ref metasXmlDoc, ref rootNode,
                                             ref assetCatalogStartDate, ref assetFinalEndDate))
                     {
                         return result;
@@ -908,7 +917,7 @@ namespace Core.Catalog.CatalogManagement
                     foreach (string tagValue in tag.m_lValues)
                     {
                         index++;
-                        AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, tagValue, index);
+                        AddTopicLanguageValueToXml(tagsXmlDoc, rootNode, topic.Id, catalogGroupCache.GetDefaultLanguage().ID, tagValue, index);
                     }
                 }
             }
@@ -949,8 +958,8 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
-                            DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.DefaultLanguage.ID, isAllowedToViewInactiveAssets.Value);
-                            mediaAssets = CreateMediaAssets(groupId.Value, ds, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+                            DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.GetDefaultLanguage().ID, isAllowedToViewInactiveAssets.Value);
+                            mediaAssets = CreateMediaAssets(groupId.Value, ds, catalogGroupCache.GetDefaultLanguage(), catalogGroupCache.LanguageMapById.Values.ToList());
 
                             if (isAllowedToViewInactiveAssets.Value && mediaAssets?.Count != ids.Count)
                             {
@@ -1078,7 +1087,7 @@ namespace Core.Catalog.CatalogManagement
                 DateTime startDate = assetToAdd.StartDate ?? DateTime.UtcNow;
                 DateTime catalogStartDate = assetToAdd.CatalogStartDate ?? startDate;
                 DateTime endDate = assetToAdd.EndDate ?? DateTime.MaxValue;
-                DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.DefaultLanguage.ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid,
+                DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.GetDefaultLanguage().ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid,
                                                         assetToAdd.EntryId, assetToAdd.DeviceRuleId, assetToAdd.GeoBlockRuleId, assetToAdd.IsActive,
                                                         startDate, endDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId, (int)assetToAdd.InheritancePolicy,
                                                         relatedEntitiesXmlDoc);
@@ -1090,7 +1099,7 @@ namespace Core.Catalog.CatalogManagement
                     result.SetStatus(status);
                     return result;
                 }
-                result = CreateMediaAssetResponseFromDataSet(groupId, tables, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+                result = CreateMediaAssetResponseFromDataSet(groupId, tables, catalogGroupCache.GetDefaultLanguage(), catalogGroupCache.LanguageMapById.Values.ToList());
 
                 if (result.HasObject() && result.Object.Id > 0 && !isLinear)
                 {
@@ -1335,7 +1344,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (basicTopicSystemName == NAME_META_SYSTEM_NAME && !string.IsNullOrEmpty(asset.Name))
                 {
-                    AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, asset.Name);
+                    AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.GetDefaultLanguage().ID, asset.Name);
                     if (asset.NamesWithLanguages != null && asset.NamesWithLanguages.Count > 0)
                     {
                         foreach (LanguageContainer language in asset.NamesWithLanguages)
@@ -1349,7 +1358,7 @@ namespace Core.Catalog.CatalogManagement
                 }
                 else if (basicTopicSystemName == DESCRIPTION_META_SYSTEM_NAME && asset.Description != null)
                 {
-                    AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.DefaultLanguage.ID, asset.Description);
+                    AddTopicLanguageValueToXml(xmlDoc, rootNode, topic.Id, catalogGroupCache.GetDefaultLanguage().ID, asset.Description);
                     if (asset.DescriptionsWithLanguages != null && asset.DescriptionsWithLanguages.Count > 0)
                     {
                         foreach (LanguageContainer language in asset.DescriptionsWithLanguages)
@@ -1506,7 +1515,7 @@ namespace Core.Catalog.CatalogManagement
                 AssetInheritancePolicy inheritancePolicy = assetToUpdate.InheritancePolicy ?? (currentAsset.InheritancePolicy ?? AssetInheritancePolicy.Enable);
 
                 // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)
-                DataSet ds = CatalogDAL.UpdateMediaAsset(groupId, assetToUpdate.Id, catalogGroupCache.DefaultLanguage.ID, metasXmlDocToAdd, tagsXmlDocToAdd, metasXmlDocToUpdate, tagsXmlDocToUpdate,
+                DataSet ds = CatalogDAL.UpdateMediaAsset(groupId, assetToUpdate.Id, catalogGroupCache.GetDefaultLanguage().ID, metasXmlDocToAdd, tagsXmlDocToAdd, metasXmlDocToUpdate, tagsXmlDocToUpdate,
                                                         assetToUpdate.CoGuid, assetToUpdate.EntryId, assetToUpdate.DeviceRuleId, assetToUpdate.GeoBlockRuleId, assetToUpdate.IsActive, startDate,
                                                         endDate, catalogStartDate, assetToUpdate.FinalEndDate, userId, (int)inheritancePolicy, relatedEntitiesXmlDocToAdd, relatedEntitiesXmlDocToUpdate);
 
@@ -1518,7 +1527,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                result = CreateMediaAssetResponseFromDataSet(groupId, tables, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList(), isForMigration);
+                result = CreateMediaAssetResponseFromDataSet(groupId, tables, catalogGroupCache.GetDefaultLanguage(), catalogGroupCache.LanguageMapById.Values.ToList(), isForMigration);
                 if (!isForMigration && result != null && result.HasObject() && result.Object.Id > 0 && !isLinear)
                 {
                     if (assetStruct.ParentId.HasValue && assetStruct.ParentId.Value > 0)
@@ -1533,7 +1542,7 @@ namespace Core.Catalog.CatalogManagement
                                 result.SetStatus(status);
                                 return result;
                             }
-                            result = CreateMediaAssetResponseFromDataSet(groupId, tables, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList());
+                            result = CreateMediaAssetResponseFromDataSet(groupId, tables, catalogGroupCache.GetDefaultLanguage(), catalogGroupCache.LanguageMapById.Values.ToList());
                         }
                     }
 
@@ -1649,7 +1658,7 @@ namespace Core.Catalog.CatalogManagement
                 if (inheritancePolicy == AssetInheritancePolicy.Disable)
                 {
                     //update inheritancePolicy
-                    ds = CatalogDAL.UpdateMediaAsset(groupId, asset.Id, catalogGroupCache.DefaultLanguage.ID, null, null, null, null, null, null, null, null, null, null,
+                    ds = CatalogDAL.UpdateMediaAsset(groupId, asset.Id, catalogGroupCache.GetDefaultLanguage().ID, null, null, null, null, null, null, null, null, null, null,
                                                        null, null, null, userId, (int)inheritancePolicy, null, null);
                 }
             }
@@ -1679,7 +1688,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static bool TryGetMetasAndTags(int groupId, long mediaId, int defaultLanguageId, List<LanguageObj> groupLanguages, DataTable metasTable, DataTable tagsTable,
-                                                ref List<Metas> metas, ref List<Tags> tags)
+                                                ref List<Metas> metas, ref List<Tags> tags, ref DateTime? maxUpdateDate)
         {
             bool res = false;
             Dictionary<long, List<LanguageContainer>> topicIdToMeta = new Dictionary<long, List<LanguageContainer>>();
@@ -1695,6 +1704,12 @@ namespace Core.Catalog.CatalogManagement
                 long topicId = ODBCWrapper.Utils.GetLongSafeVal(dr, "topic_id");
                 long languageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "language_id");
                 string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
+                DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+
+                if (updateDate.HasValue && (!maxUpdateDate.HasValue || updateDate.Value > maxUpdateDate.Value))
+                {
+                    maxUpdateDate = updateDate;
+                }
 
                 if (languagesDictionary.ContainsKey(languageId))
                 {
@@ -1719,6 +1734,13 @@ namespace Core.Catalog.CatalogManagement
                 long tagId = ODBCWrapper.Utils.GetLongSafeVal(dr, "tag_id");
                 long languageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "language_id");
                 string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
+                DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+
+                if (updateDate.HasValue && (!maxUpdateDate.HasValue || updateDate.Value > maxUpdateDate.Value))
+                {
+                    maxUpdateDate = updateDate;
+                }
+
 
                 if (languagesDictionary.ContainsKey(languageId))
                 {
@@ -1745,7 +1767,8 @@ namespace Core.Catalog.CatalogManagement
             topicIds.AddRange(topicIdToTag.Keys.ToList());
             if (topicIds.Count > 0)
             {
-                GenericListResponse<Topic> groupTopicsResponse = CatalogManager.Instance.GetTopicsByIds(groupId, topicIds, MetaType.All);
+                GenericListResponse<Topic> groupTopicsResponse = TopicManager.Instance.GetTopicsByIds(groupId, topicIds, MetaType.All);
+
                 if (groupTopicsResponse != null && groupTopicsResponse.Status != null && groupTopicsResponse.Status.Code == (int)eResponseStatus.OK
                     && groupTopicsResponse.Objects != null && groupTopicsResponse.Objects.Count > 0)
                 {
@@ -1920,7 +1943,7 @@ namespace Core.Catalog.CatalogManagement
                                 }
                             }
 
-                            MediaAsset mediaAsset = CreateMediaAsset(groupId, id, tables, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList(), true);
+                            MediaAsset mediaAsset = CreateMediaAsset(groupId, id, tables, catalogGroupCache.GetDefaultLanguage(), catalogGroupCache.LanguageMapById.Values.ToList(), true);
                             if (mediaAsset != null)
                             {
                                 EnumerableRowCollection<DataRow> assetFileTypes = null;
@@ -2182,6 +2205,13 @@ namespace Core.Catalog.CatalogManagement
             if (!epgChannelId.HasValue)
             {
                 epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+            }
+
+            DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+
+            if (updateDate.HasValue && (!mediaAsset.UpdateDate.HasValue || updateDate.Value > mediaAsset.UpdateDate.Value))
+            {
+                mediaAsset.UpdateDate = updateDate;
             }
 
             result = new LiveAsset(epgChannelId.Value, enableCdvr, enableCatchUp, enableStartOver, enableTrickPlay, enableRecordingPlaybackNonEntitledChannel,
@@ -3340,7 +3370,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                DataSet ds = CatalogDAL.GetMediaAssetForElasitcSearch(groupId, mediaId, catalogGroupCache.DefaultLanguage.ID);
+                DataSet ds = CatalogDAL.GetMediaAssetForElasitcSearch(groupId, mediaId, catalogGroupCache.GetDefaultLanguage().ID);
 
                 Dictionary<string, DataTable> tables = null;
                 Status status = BuildTableDicAfterGetMediaAssetForElasitcSearch(ds, mediaId, out tables);
@@ -3349,7 +3379,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                MediaAsset mediaAsset = CreateMediaAsset(groupId, mediaId, tables, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapById.Values.ToList(), true);
+                MediaAsset mediaAsset = CreateMediaAsset(groupId, mediaId, tables, catalogGroupCache.GetDefaultLanguage(), catalogGroupCache.LanguageMapById.Values.ToList(), true);
                 if (mediaAsset != null)
                 {
                     EnumerableRowCollection<DataRow> assetFileTypes = null;
@@ -3476,16 +3506,25 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static void NotifyChannelWasUpdated(int groupId, long userId, EpgAsset epgAsset)
+        private static void NotifyChannelWasUpdated(int groupId, long userId, EpgAsset epgAsset, EpgAsset oldEpgAsset = null)
         {
+            var startDate = epgAsset.StartDate.Value;
+            var endDate = epgAsset.EndDate.Value;
+            if (oldEpgAsset != null) // when program was moved to another day, should notify about both dates
+            {
+                startDate = startDate < oldEpgAsset.StartDate.Value ? startDate : oldEpgAsset.StartDate.Value;
+                endDate = endDate > oldEpgAsset.EndDate.Value ? endDate : oldEpgAsset.EndDate.Value;
+            }
+
             EpgNotificationManager.Instance().ChannelWasUpdated(
                 KLogger.GetRequestId(),
                 groupId,
                 userId,
                 epgAsset.LinearAssetId.Value,
                 epgAsset.EpgChannelId.Value,
-                epgAsset.StartDate.Value,
-                epgAsset.EndDate.Value);
+                startDate,
+                endDate,
+                false);
         }
 
         public static GenericResponse<Asset> UpdateAsset(int groupId, long id, Asset assetToUpdate, long userId, bool isFromIngest = false,
@@ -3522,13 +3561,14 @@ namespace Core.Catalog.CatalogManagement
                     case eAssetTypes.EPG:
                         if (assetToUpdate is EpgAsset epgAssetToUpdate)
                         {
-                            result = EpgAssetManager.UpdateEpgAsset(groupId, epgAssetToUpdate, userId, oldAsset?.Object as EpgAsset, catalogGroupCache);
+                            var oldEpgAsset = oldAsset?.Object as EpgAsset;
+                            result = EpgAssetManager.UpdateEpgAsset(groupId, epgAssetToUpdate, userId, oldEpgAsset, catalogGroupCache);
 
                             if (!isFromIngest && result.HasObject())
                             {
                                 var epgAssetEvent = result.Object.ToAssetEvent(groupId, userId);
                                 epgAssetEvent.Update();
-                                NotifyChannelWasUpdated(groupId, userId, epgAssetToUpdate);
+                                NotifyChannelWasUpdated(groupId, userId, epgAssetToUpdate, oldEpgAsset);
                             }
                         }
                         break;
@@ -3570,7 +3610,7 @@ namespace Core.Catalog.CatalogManagement
                                 if (isFromIngest)
                                 {
                                     var oldLiveAsset = currentAsset as LiveAsset;
-                                    linearMediaAssetToUpdate.ExternalEpgIngestId = oldLiveAsset.ExternalEpgIngestId;
+                                    linearMediaAssetToUpdate.ExternalEpgIngestId = string.IsNullOrEmpty(linearMediaAssetToUpdate.ExternalEpgIngestId)? oldLiveAsset.ExternalEpgIngestId: linearMediaAssetToUpdate.ExternalEpgIngestId;
                                     linearMediaAssetToUpdate.EnableCatchUpState = oldLiveAsset.EnableCatchUpState;
                                     linearMediaAssetToUpdate.EnableCdvrState = oldLiveAsset.EnableCdvrState;
                                     linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannelState = oldLiveAsset.EnableRecordingPlaybackNonEntitledChannelState;
@@ -3844,7 +3884,7 @@ namespace Core.Catalog.CatalogManagement
                     return groupMediaAssetsMap;
                 }
 
-                DataSet groupAssetsDs = CatalogDAL.GetGroupMediaAssets(groupId, catalogGroupCache.DefaultLanguage.ID, nextId, pageSize);
+                DataSet groupAssetsDs = CatalogDAL.GetGroupMediaAssets(groupId, catalogGroupCache.GetDefaultLanguage().ID, nextId, pageSize);
                 groupMediaAssetsMap = CreateGroupMediaMapFromDataSet(groupId, groupAssetsDs, catalogGroupCache);
             }
             catch (Exception ex)

@@ -11,7 +11,11 @@ namespace ConfigurationManager.Types
 
         public override string[] TcmPath => new string[] { TcmKey };
 
-        public BaseValue<string> HostName = new BaseValue<string>("hostname", "redis.service.consul", false, "redis hostname, default value is redis.service.consul");
-        public BaseValue<int> Port = new BaseValue<int>("port", 6379, false, "redis port, default value is 6379");
+
+        public BaseValue<string> PersistentAddress = new BaseValue<string>(TcmObjectKeys.RedisPersistentAddress, "redis.service.consul:6379", false, "redis persistent hostname, default value is redis.service.consul:6379");
+        public BaseValue<int> PersistentDatabase = new BaseValue<int>(TcmObjectKeys.RedisPersistentDatabase, 0, false, "redis persistent database, default value is 0");
+        public BaseValue<string> CacheAddress = new BaseValue<string>(TcmObjectKeys.RedisCacheAddress, "redis.service.consul:6379", false, "redis cache hostname, default value is redis.service.consul:6379");
+        public BaseValue<int> CacheDatabase = new BaseValue<int>(TcmObjectKeys.RedisCacheDatabase, 0, false, "redis cache database, default value is 0");
     }
+
 }

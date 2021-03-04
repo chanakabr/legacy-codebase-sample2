@@ -97,7 +97,7 @@ namespace ElasticSearchHandler.Updaters
             CatalogGroupCache catalogGroupCache = null;
 
             // Check if group supports Templates
-            if (CatalogManager.DoesGroupUsesTemplates(groupId))
+            if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
             {
 
                 try

@@ -1,15 +1,15 @@
 ﻿using ApiObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using ApiObjects.BulkUpload;
 using ApiObjects.TimeShiftedTv;
+using System.Collections.Generic;
+using TVinciShared;
 
 namespace Core.Catalog
 {
-    public class LiveAsset: MediaAsset
+    public class LiveAsset : MediaAsset
     {
+        public const string EXTERNAL_EPG_INGEST_ID = "External Epg Ingest ID";
+
         public TstvState? EnableCdvrState { get; set; }
         public TstvState? EnableCatchUpState { get; set; }
         public TstvState? EnableStartOverState { get; set; }
@@ -17,7 +17,10 @@ namespace Core.Catalog
         public TstvState? EnableRecordingPlaybackNonEntitledChannelState { get; set; }
         public long? BufferCatchUp { get; set; }
         public long? BufferTrickPlay { get; set; }
+
+        [ExcelColumn(ExcelColumnType.Basic, EXTERNAL_EPG_INGEST_ID)]
         public string ExternalEpgIngestId { get; set; }
+
         public string ExternalCdvrId { get; set; }
         public bool CdvrEnabled { get; set; }
         public bool CatchUpEnabled { get; set; }
@@ -31,7 +34,7 @@ namespace Core.Catalog
         public long EpgChannelId { get; set; }
 
         public LiveAsset()
-            :base()
+            : base()
         {
             this.EnableCdvrState = null;
             this.EnableCatchUpState = null;
@@ -146,8 +149,32 @@ namespace Core.Catalog
                 if (this.SummedTrickPlayBuffer == 0)
                 {
                     this.SummedTrickPlayBuffer = accountTstvSettings.TrickPlayBufferLength.HasValue ? accountTstvSettings.TrickPlayBufferLength.Value : 0;
-                }                 
+                }
             }
+        }
+
+        public override void SetExcelValues(int groupId, Dictionary<string, object> columnNamesToValues, Dictionary<string, ExcelColumn> columns, IExcelStructureManager structureManager)
+        {
+            base.SetExcelValues(groupId, columnNamesToValues, columns, structureManager);
+
+            // EXTERNAL_EPG_INGEST_ID
+            var columnName = ExcelColumn.GetFullColumnName(EXTERNAL_EPG_INGEST_ID);
+            if (columnNamesToValues.ContainsKey(columnName))
+            {
+                this.ExternalEpgIngestId = columnNamesToValues[columnName].ToString();                
+            }
+        }
+        public override Dictionary<string, object> GetExcelValues(int groupId)
+        {
+            Dictionary<string, object> excelValues = base.GetExcelValues(groupId);
+
+            if (!string.IsNullOrEmpty(this.ExternalEpgIngestId))
+            {
+                var excelColumn = ExcelColumn.GetFullColumnName(EXTERNAL_EPG_INGEST_ID);
+                excelValues.TryAdd(excelColumn, this.ExternalEpgIngestId);
+            }
+
+            return excelValues;
         }
     }
 }

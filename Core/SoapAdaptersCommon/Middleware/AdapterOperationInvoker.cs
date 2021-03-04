@@ -49,7 +49,7 @@ namespace SoapAdaptersCommon.Middleware
 
             _ = Task.Run(() =>
             {
-                var isSetSuccess = RedisClientManager.Instance.Set(key, result, TimeSpan.FromMinutes(5).TotalSeconds, new JsonSerializerSettings());
+                var isSetSuccess = RedisClientManager.CacheInstance.Set(key, result, TimeSpan.FromMinutes(5).TotalSeconds, new JsonSerializerSettings());
                 if (!isSetSuccess)
                 {
                     _Logger.Error($"Failed to recorder response for key:[{key}] into redis");

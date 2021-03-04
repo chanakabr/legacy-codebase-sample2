@@ -1,11 +1,8 @@
-﻿using ApiLogic.Catalog;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.Roles;
-using ApiObjects.Social;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
 using DAL;
 using KLogMonitor;
 using System;
@@ -13,13 +10,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using TVinciShared;
 
 namespace APILogic.Api.Managers
 {
     public static class RolesPermissionsManager
     {
-        
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public const long ANONYMOUS_ROLE_ID = 0;
@@ -121,10 +117,10 @@ namespace APILogic.Api.Managers
                 //{
                 //    return true;
                 //}
-              
+
                 Dictionary<string, List<KeyValuePair<long, bool>>> rolesPermission = GetPermissionsRolesByGroup(groupId);
                 if (rolesPermission != null && rolesPermission.Any() && rolesPermission.ContainsKey(rolePermission.ToString().ToLower()))
-                {   
+                {
                     List<long> userRoleIDs = GetRoleIds(groupId, userId);
                     if (userRoleIDs != null && userRoleIDs.Any())
                     {
@@ -149,7 +145,7 @@ namespace APILogic.Api.Managers
         {
             bool result = false;
             try
-            {                
+            {
                 if (string.IsNullOrEmpty(userId) || userId == "0")// anonymouse
                 {
                     result = true;
@@ -185,7 +181,7 @@ namespace APILogic.Api.Managers
                 if (roles != null && roles.Any())
                 {
                     result = BuildPermissionItemsDictionary(roles);
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -291,7 +287,7 @@ namespace APILogic.Api.Managers
                     if (userRoleIDs != null && userRoleIDs.Count > 0 && roles.Any(x => userRoleIDs.Contains(x.Id)))
                     {
                         result = roles.Where(x => userRoleIDs.Contains(x.Id)).SelectMany(x => x.Permissions).GroupBy(x => x.Name).Select(x => x.First()).ToList();
-                    }                                         
+                    }
                 }
             }
             catch (Exception ex)
@@ -428,12 +424,12 @@ namespace APILogic.Api.Managers
 
         public static bool IsAllowedToViewInactiveAssets(int groupId, string userId, bool ignoreDoesGroupUsesTemplates = false)
         {
-            return IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS) && 
+            return IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS) &&
                 (DoesGroupUsesTemplates(groupId) || ignoreDoesGroupUsesTemplates);
         }
         private static bool DoesGroupUsesTemplates(int groupId)
         {
-            return Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            return Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
         }
 
         public static GenericListResponse<PermissionItem> GetPermissionItemList(PermissionItemFilter filter, CorePager pager)
@@ -601,7 +597,7 @@ namespace APILogic.Api.Managers
 
         private static List<PermissionItem> GetAllPermissionItems()
         {
-            List<PermissionItem> items = new List<PermissionItem>(); 
+            List<PermissionItem> items = new List<PermissionItem>();
             var roles = GetRolesByGroupId(0);
 
             HashSet<long> ids = new HashSet<long>();
@@ -650,7 +646,7 @@ namespace APILogic.Api.Managers
         {
             var allPermissionItems = GetAllPermissionItems();
             PermissionItem permissionItem = allPermissionItems.FirstOrDefault(x => x.Id == permissionItemId);
-            
+
             return permissionItem;
         }
 
@@ -760,6 +756,17 @@ namespace APILogic.Api.Managers
             }
 
             return permissions;
+        }
+
+        public static GenericListResponse<Permission> GetPermissions(int groupId, List<long> permissionIds)
+        {
+
+            GenericListResponse<Permission> response = new GenericListResponse<Permission>();
+            response.Objects = GetGroupPermissions(groupId, null).Values.ToList();
+            response.Objects = response.Objects.Where(pi => permissionIds.Contains(pi.Id)).ToList();
+            response.TotalItems = response.Objects.Count;
+            response.SetStatus(eResponseStatus.OK);
+            return response;
         }
     }
 }

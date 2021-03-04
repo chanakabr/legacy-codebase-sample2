@@ -39,6 +39,8 @@ namespace Reflector
 
     class Serializer : Base
     {
+        private static readonly HashSet<string> RetrievedPropertiesToSkip = new HashSet<string> {"TotalCount", "objectType", "Metas", "Tags"};
+        
         public static string GetJsonSerializerCSFilePath()
         {
             var currentLocation = AppDomain.CurrentDomain.BaseDirectory;
@@ -317,8 +319,8 @@ namespace Reflector
                     conditions.Add(string.Format("(requestType != RequestType.READ || RolesManager.IsPropertyPermitted(\"{0}\", \"{1}\", requestType.Value))", type.Name, propertyName));
                 }
 
-                // responseProfile 
-                if (propertyName != "TotalCount" && property.DeclaringType.BaseType.Name != "KalturaListResponse" && propertyName != "Metas" && propertyName != "Tags")
+                // responseProfile
+                if (!RetrievedPropertiesToSkip.Contains(propertyName) && property.DeclaringType.BaseType.Name != "KalturaListResponse")
                 {
                     conditions.Add("(retrievedProperties == null || retrievedProperties.Contains(\"" + dataMember.Name + "\"))");
                 }

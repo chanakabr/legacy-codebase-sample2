@@ -179,7 +179,14 @@ namespace TVPApiServices
 
         [OperationContract]
         NPVRResponse DeleteRecordingsBy(InitializationObject initObj, string bySeriesId, string bySeasonNumber, string byChannelId,
-            List<string> byStatus);       
+            List<string> byStatus, string byAlreadyWatched, string byAssetId);
+
+        [OperationContract]
+        NPVRResponse DeleteAllRecordings(InitializationObject initObj, string recordingId, int? version, bool? deleteBookings, bool? deleteProtected);
+
+        [OperationContract]
+        NPVRResponse CancelByRecording(InitializationObject initObj, string recordingId, int? version, string byAlreadyWatched, string byAssetId,
+            string byChannelId, string byProgramId, string bySeasonNumber, string bySeriesId, bool? deleteOngoingRecordings);
     }
 }
 

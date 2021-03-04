@@ -60,7 +60,7 @@ namespace ElasticSearchHandler.IndexBuilders
             epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMapByRecordingStatuses(this.groupId, statuses);
             List<string> epgIds = new List<string>();
 
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             CatalogGroupCache catalogGroupCache = null;
             Dictionary<ulong, Dictionary<string, EpgCB>> programs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
             List<LanguageObj> languages = new List<LanguageObj>();

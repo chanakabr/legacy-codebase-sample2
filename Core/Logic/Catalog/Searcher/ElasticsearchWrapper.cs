@@ -24,7 +24,11 @@ using TVinciShared;
 
 namespace Core.Catalog
 {
-    public class ElasticsearchWrapper : ISearcher
+    public interface IElasticsearchWrapper
+    {
+        ApiObjects.Response.Status DeleteTagsByTopic(int groupId, CatalogGroupCache group, long topicId);
+    }
+    public class ElasticsearchWrapper : ISearcher, IElasticsearchWrapper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -44,14 +48,9 @@ namespace Core.Catalog
         protected const string CHANNEL_ASSET_USER_RULE_ID = "asset_user_rule_id";
         protected IElasticSearchApi m_oESApi;
 
-        public ElasticsearchWrapper()
+        public ElasticsearchWrapper(IElasticSearchApi elasticSearchClient = null)
         {
-            m_oESApi = new ElasticSearchApi();
-        }
-
-        public ElasticsearchWrapper(IElasticSearchApi elasticSearchClient)
-        {
-            m_oESApi = elasticSearchClient;
+            m_oESApi = elasticSearchClient ?? new ElasticSearchApi();
         }
 
         public SearchResultsObj SearchMedias(int nGroupID, MediaSearchObj oSearch, int nLangID, bool bUseStartDate, int nIndex)
@@ -3427,7 +3426,7 @@ namespace Core.Catalog
 
             if (defaultLanguageId == 0)
             {
-                defaultLanguageId = group.DefaultLanguage.ID;
+                defaultLanguageId = group.GetDefaultLanguage().ID;
             }
 
             tagsToInsert.Add(new TagValue()

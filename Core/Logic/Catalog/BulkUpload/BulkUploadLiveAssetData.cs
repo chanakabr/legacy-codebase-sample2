@@ -25,9 +25,7 @@ namespace Core.Catalog
         public override BulkUploadResult GetNewBulkUploadResult(long bulkUploadId, IBulkUploadObject bulkUploadObject, int index, List<Status> errorStatusDetails)
         {
             // We know for sure this should be a LiveAsset if not we want an exception here
-            var liveAsset = (LiveAsset)bulkUploadObject;
-            var externalId = string.IsNullOrEmpty(liveAsset.CoGuid) ? null : liveAsset.CoGuid;
-            liveAsset.ExternalEpgIngestId = externalId;
+            var liveAsset = (LiveAsset)bulkUploadObject;            
             liveAsset.EnableCatchUpState = TstvState.Inherited;
             liveAsset.EnableCdvrState = TstvState.Inherited;
             liveAsset.EnableRecordingPlaybackNonEntitledChannelState = TstvState.Inherited;
@@ -46,8 +44,7 @@ namespace Core.Catalog
                 ObjectId = liveAsset.Id > 0 ? liveAsset.Id : (long?)null,
                 BulkUploadId = bulkUploadId,
                 Status = BulkUploadResultStatus.InProgress,
-                Type = liveAsset.MediaType != null && liveAsset.MediaType.m_nTypeID > 0 ? liveAsset.MediaType.m_nTypeID : (int?)null,
-                ExternalId = externalId,
+                Type = liveAsset.MediaType != null && liveAsset.MediaType.m_nTypeID > 0 ? liveAsset.MediaType.m_nTypeID : (int?)null,                
                 Object = liveAsset
             };
 

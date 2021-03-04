@@ -19,6 +19,7 @@ namespace TVPApi.Web
         {
             var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
             var defaultLogDir = $@"/var/log/tvpapi/{apiVersion}";
+            KLogMonitor.KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);
             ConfigurationManager.ApplicationConfiguration.Init();
             await KalturaWebHostBuilder.RunWebServerAsync<Startup>(new WebServerConfiguration
             {

@@ -37,7 +37,10 @@ namespace NPVR
         CommunicationsError = 7,
         InvalidStatus = 8,
         InternalServerError = 9,
-        NotImplemented = 10
+        NotImplemented = 10,
+        UnauthorizedContent = 11,
+        UnknownResource = 12,
+        WebServiceException = 13
     }
 
     public enum CancelDeleteStatus

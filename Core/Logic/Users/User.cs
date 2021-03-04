@@ -224,7 +224,7 @@ namespace Core.Users
             UserState retVal = UserState.Unknown;
             int userSessionID = 0;
 
-            long lIDInDevices = string.IsNullOrEmpty(deviceID) ? 0 : DeviceDal.Get_IDInDevicesByDeviceUDID(deviceID, nGroupID);
+            var lIDInDevices = string.IsNullOrEmpty(deviceID) ? 0 : DeviceDal.GetDeviceIdByUDID(deviceID, nGroupID);
 
             ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
             selectQuery += "select is_active, id from users_sessions with (nolock)  where ";
@@ -900,7 +900,7 @@ namespace Core.Users
             User u = new User();
             u.Initialize(siteGuid, nGroupID);
             UserState currentState = GetCurrentUserState(siteGuid, nGroupID);
-            long lIDInDevices = DeviceDal.Get_IDInDevicesByDeviceUDID(sDeviceUDID, nGroupID);
+            var lIDInDevices = DeviceDal.GetDeviceIdByUDID(sDeviceUDID, nGroupID);
             int instanceID = 0;
             UserState userStats = DoUserAction(siteGuid, nGroupID, sessionID, sIP, lIDInDevices > 0 ? lIDInDevices + "" : string.Empty, currentState, UserAction.SignOut, false, ref instanceID);
 
@@ -965,7 +965,7 @@ namespace Core.Users
             if (retObj != null && retObj.m_RespStatus == ResponseStatus.OK && retObj.m_user != null)
             {
                 bool bIsDeviceActivated = false;
-                Device device = CreateAndInitializeDevice(deviceUDID, groupID, retObj.m_user.m_domianID);
+                Device device = GetDevice(deviceUDID, groupID, retObj.m_user.m_domianID);
                 bIsDeviceActivated = (device != null && device.m_state == DeviceState.Activated) || (device == null); // device == null means web login
 
                 {
@@ -1255,14 +1255,11 @@ namespace Core.Users
             return !string.IsNullOrEmpty(sIDInDevices) && Int64.TryParse(sIDInDevices, out l) && l > 0;
         }
 
-        private static Device CreateAndInitializeDevice(string sDeviceID, int nGroupID, int nDomainID)
+        private static Device GetDevice(string sDeviceUDID, int nGroupID, int nDomainID)
         {
-            if (string.IsNullOrEmpty(sDeviceID))
-                return null;
-            Device res = new Device(nGroupID);
-            res.Initialize(sDeviceID, nDomainID);
-
-            return res;
+            return string.IsNullOrEmpty(sDeviceUDID)
+                ? null
+                : DeviceRepository.Get(sDeviceUDID, nDomainID, nGroupID);
         }
 
         public static bool IsUserValid(int nGroupID, int userGuid)

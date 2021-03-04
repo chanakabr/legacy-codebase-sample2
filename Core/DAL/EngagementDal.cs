@@ -164,7 +164,7 @@ namespace DAL
 
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_EngagementAdapter");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_EngagementAdapter_V2");
                 sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);
                 sp.AddParameter("@groupId", groupId);
                 sp.AddParameter("@name", engagementAdapter.Name);
@@ -249,7 +249,7 @@ namespace DAL
             EngagementAdapter adapterRes = null;
             try
             {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_EngagementAdapterSettings");
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Set_EngagementAdapterSettings_V2");
                 sp.SetConnectionKey(MESSAGE_BOX_CONNECTION);              
                 
                 sp.AddParameter("@groupID", groupId);

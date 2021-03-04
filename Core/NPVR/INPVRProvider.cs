@@ -20,7 +20,7 @@ namespace NPVR
 
         NPVRCancelDeleteResponse CancelAsset(NPVRParamsObj args);
 
-        NPVRCancelDeleteResponse DeleteAsset(NPVRParamsObj args);
+        NPVRCancelDeleteResponse DeleteAsset(NPVRCancelDeleteByObj args);
 
         NPVRProtectResponse SetAssetProtectionStatus(NPVRParamsObj args);
 
@@ -43,5 +43,9 @@ namespace NPVR
         NPVRRecordResponse RecordSeries(NPVRRecordObj args);
 
         NPVRRecordResponse SetAssetAlreadyWatchedValue(NPVRParamsObj args);
+
+        NPVRRecordResponse DeleteAllRecordings(NPVRParamsObj args);
+
+        NPVRRecordResponse CancelByRecording(NPVRCancelDeleteByObj args);
     }
 }

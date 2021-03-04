@@ -295,10 +295,19 @@ namespace TCMClient
                     var response = Task.Run(() => httpClient.GetAsync(tcmRequesturl)).ConfigureAwait(false).GetAwaiter().GetResult();
 
                     _Logger.Info($"TCM Response Status: ({response.StatusCode})");
+                    response.EnsureSuccessStatusCode();
 
                     settings = Task.Run(() => response.Content.ReadAsStringAsync()).ConfigureAwait(false).GetAwaiter().GetResult();
+
+                    // validate that returned string from TCM Server is a valid JSON. 
+                    // If it's not, it should throw an error and retry
+                    JToken.Parse(settings);
                 }
                 );
+            }
+            catch (JsonException e)
+            {
+                _Logger.Error($"Error while parsing JSON data from TCM server:", e);
             }
             catch (Exception e)
             {
@@ -398,7 +407,7 @@ namespace TCMClient
                 catch (Exception e)
                 {
                     _Logger.Error($"Error while trying to populate TCM settings[{settings}]", e);
-                    //throw new Exception("Source is corrupted.");
+                    throw new Exception("Source is corrupted.");
                 }
             }
             else

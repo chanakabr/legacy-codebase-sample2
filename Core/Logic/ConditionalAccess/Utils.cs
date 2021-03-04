@@ -24,6 +24,7 @@ using Core.Pricing;
 using Core.Recordings;
 using Core.Users;
 using DAL;
+using EpgBL;
 using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
@@ -36,19 +37,28 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Xml;
+using Core.GroupManagers;
 using TVinciShared;
 using Tvinic.GoogleAPI;
 
 namespace Core.ConditionalAccess
 {
-    public class Utils
+    public interface IConditionalAccessUtils
+    {
+        List<ApiObjects.Epg.FieldTypeEntity> GetAliasMappingFields(int groupId);
+    }
+    public class Utils: IConditionalAccessUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly KLogger offlinePpvLogger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "OfflinePpvLogger");
         private static readonly KLogger offlineSubscriptionLogger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "OfflineSubscriptionLogger");
         private static readonly KLogger offlineCollectionLogger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "offlineCollectionLogger");
         private static object lck = new object();
+
+        private static readonly Lazy<Utils> lazy = new Lazy<Utils>(() => new Utils(), LazyThreadSafetyMode.PublicationOnly);
+        public static Utils Instance { get { return lazy.Value; } }
 
         public const string SERIES_ID = "seriesId";
         public const string SEASON_NUMBER = "seasonNumber";
@@ -72,6 +82,11 @@ namespace Core.ConditionalAccess
         private static readonly int RECOVERY_GRACE_PERIOD = 864000;
 
         public const string ROUTING_KEY_PROCESS_UNIFIED_RENEW_SUBSCRIPTION = "PROCESS_UNIFIED_RENEW_SUBSCRIPTION\\{0}";
+
+        private Utils()
+        {
+        }
+
         public static void GetBaseConditionalAccessImpl(ref BaseConditionalAccess t, Int32 nGroupID)
         {
             GetBaseConditionalAccessImpl(ref t, nGroupID, "CA_CONNECTION_STRING");
@@ -5284,6 +5299,42 @@ namespace Core.ConditionalAccess
             return epgs;
         }
 
+        internal static bool GetProgramFromRecordingCB(int groupId, long epgId, out EPGChannelProgrammeObject program, TvinciEpgBL epgBLTvinci = null)
+        {
+            bool response = false;
+            program = null;
+
+            try
+            {
+                if (epgBLTvinci == null)
+                {
+                    epgBLTvinci = new TvinciEpgBL(groupId);
+                }
+
+                List<string> epgIds = new List<string>() { epgId.ToString() };
+                List<EpgCB> epgs = epgBLTvinci.GetEpgs(epgIds, true);
+
+                if (epgs?.Count > 0)
+                {
+                    var programs = TvinciEpgBL.ConvertEpgCBtoEpgProgramm(epgs);
+                    Catalog.CatalogLogic.GetLinearChannelSettings(groupId, programs);
+                    program = programs[0];
+                    response = true;
+                }
+                else
+                {
+                    log.Debug($"GetProgramFromRecordingCB - failed to get program {epgId}");
+                }
+            }
+
+            catch (Exception ex)
+            {
+                log.Error("GetProgramFromRecordingCB", ex);
+            }
+
+            return response;
+        }
+
         internal static bool IsValidRecordingStatus(TstvRecordingStatus recordingStatus, bool isOkStatusValid = false)
         {
             bool res = false;
@@ -5673,31 +5724,51 @@ namespace Core.ConditionalAccess
                         return response;
                     }
 
-                    if (epgStartDate < DateTime.UtcNow)
-                    {
-                        if (!accountSettings.IsCatchUpEnabled.HasValue || !accountSettings.IsCatchUpEnabled.Value)
-                        {
-                            response.Set((int)eResponseStatus.AccountCatchUpNotEnabled, eResponseStatus.AccountCatchUpNotEnabled.ToString());
-                            return response;
-                        }
-                        if (epg.ENABLE_CATCH_UP != 1)
-                        {
-                            response.Set((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
-                            return response;
-                        }
-                        if (epg.CHANNEL_CATCH_UP_BUFFER == 0 || epgStartDate.AddMinutes(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow)
-                        {
-                            response.Set((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
-                            return response;
-                        }
-                    }
+                    return ValidateEpgForCatchUp(accountSettings, epg, epgStartDate);
                 }
             }
-
             catch (Exception ex)
             {
                 response.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
                 log.Error(string.Format("Exception at ValidateEpgForRecord. epgID: {0}", epg.EPG_ID), ex);
+            }
+
+            return response;
+        }
+
+        internal static ApiObjects.Response.Status ValidateEpgForCatchUp(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, DateTime? epgStartDate = null) 
+        {
+            ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+
+            DateTime newEpgStartDate;
+
+            if (epgStartDate.HasValue) {
+                newEpgStartDate = epgStartDate.Value;
+            }
+            else if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgStartDate))
+            {
+                log.ErrorFormat("Failed parsing EPG start date, epgID: {0}, startDate: {1}", epg.EPG_ID, epg.START_DATE);
+                response.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+                return response;
+            }
+
+            if (newEpgStartDate < DateTime.UtcNow)
+            {
+                if (!accountSettings.IsCatchUpEnabled.HasValue || !accountSettings.IsCatchUpEnabled.Value)
+                {
+                    response.Set((int)eResponseStatus.AccountCatchUpNotEnabled, eResponseStatus.AccountCatchUpNotEnabled.ToString());
+                    return response;
+                }
+                if (epg.ENABLE_CATCH_UP != 1)
+                {
+                    response.Set((int)eResponseStatus.ProgramCatchUpNotEnabled, eResponseStatus.ProgramCatchUpNotEnabled.ToString());
+                    return response;
+                }
+                if (epg.CHANNEL_CATCH_UP_BUFFER == 0 || newEpgStartDate.AddMinutes(epg.CHANNEL_CATCH_UP_BUFFER) < DateTime.UtcNow)
+                {
+                    response.Set((int)eResponseStatus.CatchUpBufferLimitation, eResponseStatus.CatchUpBufferLimitation.ToString());
+                    return response;
+                }
             }
 
             return response;
@@ -6395,7 +6466,7 @@ namespace Core.ConditionalAccess
                 var seasonNumberName = SEASON_ALIAS;
 
                 // support for OPC accout
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                 {
                     seriesIdName = SERIES_ID;
                     seasonNumberName = SEASON_NUMBER;
@@ -6535,7 +6606,7 @@ namespace Core.ConditionalAccess
             return recording;
         }
 
-        internal static SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed, ref List<long> futureSeriesRecordingIds, EPGChannelProgrammeObject epg = null)
+        public SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed, ref List<long> futureSeriesRecordingIds, EPGChannelProgrammeObject epg = null)
         {
             SeriesRecording seriesRecording = new SeriesRecording();
             if (epg == null)
@@ -6590,8 +6661,8 @@ namespace Core.ConditionalAccess
             }
 
             // check if the user has future single episodes of the series/season and return them so we will cancel them and they will be recorded as part of series/season
-            DomainSeriesRecording domainSeriesRecording = (DomainSeriesRecording)seriesRecording;
-            List<ExtendedSearchResult> futureRecordingsOfSeasonOrSeries = Utils.SearchSeriesRecordings(groupId, new List<string>(), new List<DomainSeriesRecording>() { domainSeriesRecording }, SearchSeriesRecordingsTimeOptions.future);
+            var domainSeriesRecording = (DomainSeriesRecording)seriesRecording;
+            List<ExtendedSearchResult> futureRecordingsOfSeasonOrSeries = SearchSeriesRecordings(groupId, new List<string>(), new List<DomainSeriesRecording>() { domainSeriesRecording }, SearchSeriesRecordingsTimeOptions.future);
             if (futureRecordingsOfSeasonOrSeries != null)
             {
                 foreach (ExtendedSearchResult futureRecordingSearchResult in futureRecordingsOfSeasonOrSeries)
@@ -6607,13 +6678,13 @@ namespace Core.ConditionalAccess
             return seriesRecording;
         }
 
-        internal static Dictionary<string, string> GetEpgFieldTypeEntitys(int groupId, EPGChannelProgrammeObject epg, bool isSeasonRequired = false)
+        public Dictionary<string, string> GetEpgFieldTypeEntitys(int groupId, EPGChannelProgrammeObject epg, bool isSeasonRequired = false)
         {
             Dictionary<string, string> epgFieldMappings = new Dictionary<string, string>();
             try
             {
                 // support for OPC accout
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                 {
                     return GetEpgFieldTypeEntitysForOpcAccount(groupId, epg);
                 }
@@ -6774,7 +6845,7 @@ namespace Core.ConditionalAccess
             return epgFieldMappings;
         }
 
-        internal static List<ExtendedSearchResult> SearchSeriesRecordings(int groupID, List<string> excludedCrids, List<DomainSeriesRecording> series, SearchSeriesRecordingsTimeOptions SearchSeriesRecordingsTimeOption)
+        public List<ExtendedSearchResult> SearchSeriesRecordings(int groupID, List<string> excludedCrids, List<DomainSeriesRecording> series, SearchSeriesRecordingsTimeOptions SearchSeriesRecordingsTimeOption)
         {
             List<ExtendedSearchResult> recordings = null;
 
@@ -6892,14 +6963,13 @@ namespace Core.ConditionalAccess
             return recordings;
         }
 
-        internal static bool GetSeriesMetaTagsFieldsNamesForSearch(int groupId, out string seriesIdName, out string seasonNumberName, out string episodeNumberName)
+        internal bool GetSeriesMetaTagsFieldsNamesForSearch(int groupId, out string seriesIdName, out string seasonNumberName, out string episodeNumberName)
         {
             seriesIdName = seasonNumberName = episodeNumberName = string.Empty;
             // support for OPC accout
-            if (CatalogManager.DoesGroupUsesTemplates(groupId))
+            if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
             {
-                CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetSeriesMetaTagsFieldsNamesForSearch", groupId);
                     return false;
@@ -6950,12 +7020,12 @@ namespace Core.ConditionalAccess
             return true;
         }
 
-        internal static List<EpgCB> GetEpgRelatedToSeriesRecording(int groupId, SeriesRecording seriesRecording, List<EpgCB> epgs, long seasonNumber = 0)
+        public List<EpgCB> GetEpgRelatedToSeriesRecording(int groupId, SeriesRecording seriesRecording, List<EpgCB> epgs, long seasonNumber = 0)
         {
             List<EpgCB> epgMatch = new List<EpgCB>();
             try
             {
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                 {
                     return GetEpgRelatedToSeriesRecordingForOpcAccount(groupId, seriesRecording, epgs, seasonNumber);
                 }
@@ -7016,8 +7086,7 @@ namespace Core.ConditionalAccess
             List<EpgCB> epgMatch = new List<EpgCB>();
             try
             {
-                CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetEpgRelatedToSeriesRecordingForOpcAccount", groupId);
                     return epgMatch;
@@ -7069,7 +7138,7 @@ namespace Core.ConditionalAccess
             return epgMatch;
         }
 
-        internal static string GetFollowingUserIdForSerie(int groupId, List<DomainSeriesRecording> series, ExtendedSearchResult potentialRecording,
+        public string GetFollowingUserIdForSerie(int groupId, List<DomainSeriesRecording> series, ExtendedSearchResult potentialRecording,
                                                             out RecordingType recordingType, out long domainSeriesRecordingId)
         {
             string userId = null;
@@ -7425,10 +7494,10 @@ namespace Core.ConditionalAccess
             return DomainRecordingIdToRecordingMap;
         }
 
-        internal static ApiObjects.Response.Status IsFollowingEpgAsSeriesOrSeason(int groupId, EPGChannelProgrammeObject epg, long domainId, RecordingType recordingType)
+        public ApiObjects.Response.Status IsFollowingEpgAsSeriesOrSeason(int groupId, EPGChannelProgrammeObject epg, long domainId, RecordingType recordingType)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            Dictionary<string, string> epgFieldMappings = Utils.GetEpgFieldTypeEntitys(groupId, epg);
+            Dictionary<string, string> epgFieldMappings = GetEpgFieldTypeEntitys(groupId, epg);
             if (epgFieldMappings == null || epgFieldMappings.Count == 0 || !epgFieldMappings.ContainsKey(Utils.SERIES_ID))
             {
                 log.DebugFormat("no epgFieldMappings found, groupId: {0}, epgId: {1}", groupId, epg.EPG_ID);
@@ -7634,7 +7703,7 @@ namespace Core.ConditionalAccess
 
             catch (Exception ex)
             {
-                log.Error(string.Format("Error in GetFileIdsToEpgIdsMap: groupID = {0}, epgChannelId: {1]", groupId, epgChannelId), ex);
+                log.Error($"Error in GetFileIdsToEpgIdsMap: groupID = {groupId}, epgChannelId: {epgChannelId}", ex);
             }
 
             return channelFileIds;
@@ -7788,11 +7857,16 @@ namespace Core.ConditionalAccess
             List<MediaFile> files = null;
 
             List<MediaFile> allMediafiles = null;
+            // Once we get rid of TVM parent/child groups, groupId should be used in stored procedure for security.
+            // Please, note after that MediaFileCacheKey should be extended with groupId as well.
             string key = LayeredCacheKeys.GetMediaFilesKey(mediaId, assetType.ToString());
             bool cacheResult = LayeredCache.Instance.Get<List<MediaFile>>(key, ref allMediafiles, GetMediaFiles, new Dictionary<string, object>() { { "mediaId", mediaId }, { "groupId", groupId },
                                                                         { "assetType", assetType } }, groupId, LayeredCacheConfigNames.MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME,
                                                                         new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
 
+            // We're using check for IsOPC to apply security concerns, once we get rid of TVM parent/child groups, this logic will be moved to stored procedure.
+            allMediafiles = ValidateMediaFilesUponSecurity(allMediafiles, groupId);
+            
             // filter
             if (allMediafiles != null && allMediafiles.Count > 0)
             {
@@ -7816,6 +7890,18 @@ namespace Core.ConditionalAccess
             }
 
             return files;
+        }
+
+        private static List<MediaFile> ValidateMediaFilesUponSecurity(List<MediaFile> allMediafiles, int groupId)
+        {
+            if (!GroupSettingsManager.IsOpc(groupId))
+            {
+                // If group is not OPC, we should check child subgroups for permissions as well.
+                var subGroups = new GroupManager().GetSubGroup(groupId);
+                return allMediafiles.Where(m => subGroups.Any(sg => sg == m.GroupId) || m.GroupId == groupId).ToList();
+            }
+
+            return allMediafiles.Where(m => m.GroupId == groupId).ToList();
         }
 
         internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain, string udid,
@@ -7906,10 +7992,8 @@ namespace Core.ConditionalAccess
                                         }
                                         else
                                         {
-                                            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(groupId.Value, new List<long> { recording.EpgId });
-                                            if (epgs != null && epgs.Count > 0)
+                                            if (GetProgramFromRecordingCB(groupId.Value, recording.EpgId, out program))
                                             {
-                                                program = epgs[0];
                                                 mediaId = program.LINEAR_MEDIA_ID;
                                             }
                                             else
@@ -9112,13 +9196,13 @@ namespace Core.ConditionalAccess
             return couponGroupId;
         }
 
-        internal static List<ApiObjects.Epg.FieldTypeEntity> GetAliasMappingFields(int groupId)
+        public List<ApiObjects.Epg.FieldTypeEntity> GetAliasMappingFields(int groupId)
         {
             List<ApiObjects.Epg.FieldTypeEntity> res = null;
 
             try
             {
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                 {
                     return new List<ApiObjects.Epg.FieldTypeEntity>();
                 }
@@ -9569,10 +9653,10 @@ namespace Core.ConditionalAccess
         internal static long GetCurrentProgramByMediaId(int groupId, int mediaId)
         {
             long programId = 0;
-            string epgChannelId = EpgManager.GetEpgChannelId(mediaId, groupId);
+            string epgChannelId = APILogic.Api.Managers.EpgManager.GetEpgChannelId(mediaId, groupId);
             if (!string.IsNullOrEmpty(epgChannelId))
             {
-                programId = EpgManager.GetCurrentProgram(groupId, epgChannelId);
+                programId = APILogic.Api.Managers.EpgManager.GetCurrentProgram(groupId, epgChannelId);
             }
 
             return programId;

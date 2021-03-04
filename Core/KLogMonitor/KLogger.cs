@@ -44,6 +44,7 @@ namespace KLogMonitor
 
         public static string GetRequestId() => LogContextData[Constants.REQUEST_ID_KEY]?.ToString();
         public static string GetServerName() => LogContextData[Constants.SERVER]?.ToString();
+        public static string GetGroupId() => LogContextData[Constants.GROUP_ID]?.ToString();
 
         public static void SetRequestId(string sessionId) => LogContextData[Constants.REQUEST_ID_KEY] = sessionId;
 

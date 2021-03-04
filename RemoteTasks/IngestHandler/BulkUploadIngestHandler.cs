@@ -22,6 +22,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using ApiLogic.Catalog.CatalogManagement.Helpers;
+using Core.Catalog;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
@@ -48,12 +50,14 @@ namespace IngestHandler
         private Dictionary<string, EpgCB> _autoFillEpgsCb;
         private Lazy<IReadOnlyDictionary<long, List<int>>> _linearChannelToRegionsMap;
         private string _logPrefix;
+        private readonly IEpgAssetMultilingualMutator _epgAssetMultilingualMutator;
 
         public BulkUploadIngestHandler()
         {
             _elasticSearchClient = new ElasticSearchApi();
             _couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
             _ingestRetryPolicy = GetRetryPolicy<Exception>();
+            _epgAssetMultilingualMutator = EpgAssetMultilingualMutator.Instance;
         }
 
         public async Task Handle(BulkUploadIngestEvent serviceEvent)
@@ -96,7 +100,8 @@ namespace IngestHandler
 
                         }
                     }
-                    UpdateBulkUploadObjectStatusAndResults(BulkUploadJobStatus.Failed);
+                    BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, BulkUploadJobStatus.Failed);
+                    _logger.Debug($"{nameof(BulkUploadIngestHandler)} requestId:[{_eventData.RequestId}], BulkUploadId:[{_eventData.BulkUploadId}], update result status [{BulkUploadJobStatus.Failed}].");
                     return;
                 }
 
@@ -197,13 +202,12 @@ namespace IngestHandler
             }
         }
 
-        private void UpdateBulkUploadObjectStatusAndResults(BulkUploadJobStatus? statusToSet = null)
+        private void UpdateBulkUploadObjectStatusAndResults()
         {
             var resultsToUpdate = _relevantResultsDictionary.Values.SelectMany(r => r.Values).ToList();
-            BulkUploadManager.UpdateBulkUploadResults(resultsToUpdate, out var jobStatusByResultStatus);
-            var jobStatus = statusToSet ?? jobStatusByResultStatus;
+            BulkUploadManager.UpdateBulkUploadResults(resultsToUpdate, out var jobStatus);
 
-            _logger.Debug($"UpdateBulkUploadObjectStatusAndResults > updated results, calculated status by results: [{jobStatusByResultStatus}], requested status to set:[{statusToSet}], setting status:[{jobStatus}]");
+            _logger.Debug($"UpdateBulkUploadObjectStatusAndResults > updated results, calculated status by results: [{jobStatus}]");
             BulkUploadManager.UpdateBulkUploadStatusWithVersionCheck(_bulkUpload, jobStatus);
         }
 
@@ -236,7 +240,11 @@ namespace IngestHandler
                     foreach (var lang in _languages.Values)
                     {
                         var progResult = _relevantResultsDictionary[prog.ChannelId][prog.EpgExternalId];
-                        var epgItem = GenerateEpgCBObject(lang.Code, _defaultLanguage.Code, prog, progResult);
+                        var epgItem = GenerateEpgCBObject(lang.Code,
+                            _defaultLanguage.Code,
+                            prog,
+                            progResult,
+                            _epgAssetMultilingualMutator.IsAllowedToFallback(_eventData.GroupId, _languages));
                         prog.EpgCbObjects.Add(epgItem);
                     }
                 }
@@ -273,7 +281,12 @@ namespace IngestHandler
             }
         }
 
-        private EpgCB GenerateEpgCBObject(string langCode, string defaultLangCode, EpgProgramBulkUploadObject prog, BulkUploadProgramAssetResult bulkUploadResultItem)
+        private EpgCB GenerateEpgCBObject(
+            string langCode,
+            string defaultLangCode,
+            EpgProgramBulkUploadObject prog,
+            BulkUploadProgramAssetResult bulkUploadResultItem,
+            bool isMultilingualFallback)
         {
             var epgItem = new EpgCB();
             var parsedProg = prog.ParsedProgramObject;
@@ -311,8 +324,8 @@ namespace IngestHandler
                 bulkUploadResultItem.AddError(nameParsingStatus, $"Error parsing description for programExternalId:[{parsedProg.external_id}], langCode:[{langCode}], defaultLang:[{defaultLangCode}]");
             }
 
-            epgItem.Metas = parsedProg.ParseMetas(langCode, defaultLangCode, bulkUploadResultItem);
-            epgItem.Tags = parsedProg.ParseTags(langCode, defaultLangCode, bulkUploadResultItem);
+            epgItem.Metas = parsedProg.ParseMetas(langCode, defaultLangCode, bulkUploadResultItem, isMultilingualFallback);
+            epgItem.Tags = parsedProg.ParseTags(langCode, defaultLangCode, bulkUploadResultItem, isMultilingualFallback);
             epgItem.regions = GetRegions(epgItem.LinearMediaId);
 
             PrepareEpgItemImages(parsedProg.icon, epgItem);

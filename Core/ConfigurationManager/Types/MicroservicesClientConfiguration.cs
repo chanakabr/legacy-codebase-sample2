@@ -8,7 +8,9 @@ namespace ConfigurationManager.Types
         public override string TcmKey => TcmObjectKeys.MicroservicesClientConfiguration;
         public override string[] TcmPath => new string[] { TcmKey };
         public AuthenticationServiceConfiguration Authentication = new AuthenticationServiceConfiguration();
+        public EpgCacheServiceConfiguration EpgCache = new EpgCacheServiceConfiguration();
         public MicroServicesLayeredCacheConfiguration LayeredCacheConfiguration = new MicroServicesLayeredCacheConfiguration();
+        public BaseValue<bool> ShouldAllowCanaryDeploymentConfiguration = new BaseValue<bool>("should_allow_canary_deployment_configuration", false, false, "configures if canary deployment configuration per group is looked at");
     }
 
     public class AuthenticationServiceConfiguration : BaseConfig<AuthenticationServiceConfiguration>
@@ -17,20 +19,14 @@ namespace ConfigurationManager.Types
         public override string[] TcmPath => new string[] { TcmObjectKeys.MicroservicesClientConfiguration, TcmKey };
         public BaseValue<string> Address = new BaseValue<string>("address", "");
         public BaseValue<string> CertFilePath = new BaseValue<string>("cert_file_path", "");
-        public AuthenticationServiceDataOwnershipConfiguration DataOwnershipConfiguration = new AuthenticationServiceDataOwnershipConfiguration();
     }
-
-    public class AuthenticationServiceDataOwnershipConfiguration : BaseConfig<AuthenticationServiceConfiguration>
+    
+    public class EpgCacheServiceConfiguration : BaseConfig<EpgCacheServiceConfiguration>
     {
-        public override string TcmKey => TcmObjectKeys.MicroserviceDataOwnershipConfiguration;
-        public override string[] TcmPath => new string[] { TcmObjectKeys.MicroservicesClientConfiguration, TcmObjectKeys.AuthenticationServiceConfiguration, TcmKey };
-        public BaseValue<bool> UserLoginHistory = new BaseValue<bool>("user_login_history", false);
-        public BaseValue<bool> DeviceLoginHistory = new BaseValue<bool>("device_login_history", false);
-        public BaseValue<bool> SSOAdapterProfiles = new BaseValue<bool>("sso_adapter_profiles", false);
-        public BaseValue<bool> RefreshToken = new BaseValue<bool>("refresh_token", false);
-        public BaseValue<bool> KSStatusCheck = new BaseValue<bool>("ks_status_check", false,description:"when set to true will call ks validation in auth ms");
-        public BaseValue<bool> DeviceLoginPin = new BaseValue<bool>("device_login_pin", false, 
-            description:"when set to true, when on registering device to domain with PIN, data from authentication ms will be used");
+        public override string TcmKey => TcmObjectKeys.EpgCacheServiceConfiguration;
+        public override string[] TcmPath => new [] { TcmObjectKeys.MicroservicesClientConfiguration, TcmKey };
+        public BaseValue<string> Address = new BaseValue<string>("address", "");
+        public BaseValue<string> CertFilePath = new BaseValue<string>("cert_file_path", "");
     }
 
     public class MicroServicesLayeredCacheConfiguration : BaseConfig<MicroServicesLayeredCacheConfiguration>
@@ -43,8 +39,9 @@ namespace ConfigurationManager.Types
             "(.*)(_InvalidateOTTUser_)(.*)",
             "(.*)(_InvalidateUserRoles_)(.*)",
             "(.*)(_InvalidateUserAndHouseholdSegments_)(.*)",
-            "(.*)(_invalidationKeySecurityPartnerConfig_groupId_)(.*)",
-            "(.*)(_InvalidatePartnerRoles)"
+            "(.*)(_InvalidatePartnerSecurityConfiguration)",
+            "(.*)(_InvalidatePartnerRoles)",
+            "(.*)(_InvalidateHouseholdDevice_)(.*)"
         };
 
         public BaseValue<bool> ShouldProduceInvalidationEventsToKafka = new BaseValue<bool>("should_produce_invalidation_events_to_kafka", false);

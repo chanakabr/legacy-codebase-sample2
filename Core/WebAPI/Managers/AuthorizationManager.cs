@@ -8,7 +8,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using ApiLogic.CanaryDeployment;
 using ApiLogic.Users.Services;
+using ApiObjects.CanaryDeployment;
+using ApiObjects.DataMigrationEvents;
 using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
@@ -25,6 +28,8 @@ using SessionManager;
 using AuthenticationGrpcClientWrapper;
 using CachingProvider.LayeredCache;
 using CachingProvider;
+using EventBus.Kafka;
+using AppToken = WebAPI.Managers.Models.AppToken;
 
 namespace WebAPI.Managers
 {
@@ -39,18 +44,16 @@ namespace WebAPI.Managers
         private const string KS_VALIDATION_FALLBACK_EXPIRATION_KEY = "ks_validation_fallback_expiration_{0}";
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
-        // sending empty string since it isn't used in hybrid cache anyway
-        private static ICachingService groupKsValidationFallbackCache = HybridCache<object>.GetInstance(CouchbaseManager.eCouchbaseBucket.OTT_APPS, string.Empty);
 
         public static KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.RefreshToken.Value)
+            KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationRefreshToken))
             {
                 throw new Exception("This code should not be called, ownership flag of refresh token has been transfered to Authentication Service, Check TCM [MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.RefreshToken]");
             }
 
-            KS ks = KS.GetFromRequest();
-            int groupId = ks.GroupId;
 
             // validate request parameters
             if (string.IsNullOrEmpty(refreshToken))
@@ -101,7 +104,7 @@ namespace WebAPI.Managers
 
             // update the sessions data
             var ksData = KSUtils.ExtractKSPayload(token.KsObject);
-            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, token.AccessTokenExpiration))
+            if (!UpdateUsersSessionsRevocationTime(groupId, group, userId, udid, ksData.CreateDate, token.AccessTokenExpiration))
             {
                 log.ErrorFormat("RefreshSession: Failed to store updated users sessions, userId = {0}", userId);
                 throw new UnauthorizedException(UnauthorizedException.REFRESH_TOKEN_FAILED);
@@ -114,7 +117,7 @@ namespace WebAPI.Managers
                 throw new UnauthorizedException(UnauthorizedException.REFRESH_TOKEN_FAILED);
             }
 
-            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid, groupId);
+            DeviceRemovalPolicyHandler.Instance.SaveDomainDeviceUsageDate(udid, groupId);
             return new KalturaLoginSession()
             {
                 KS = token.KS,
@@ -147,7 +150,7 @@ namespace WebAPI.Managers
 
             // update the sessions data
             var ksData = KSUtils.ExtractKSPayload(token.KsObject);
-            if (!UpdateUsersSessionsRevocationTime(group, token.UserId, token.Udid, ksData.CreateDate, token.AccessTokenExpiration))
+            if (!UpdateUsersSessionsRevocationTime(token.GroupID, group, token.UserId, token.Udid, ksData.CreateDate, token.AccessTokenExpiration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", token.UserId);
                 throw new InternalServerErrorException();
@@ -160,7 +163,7 @@ namespace WebAPI.Managers
                 // try store in CB, will return false if the same token already exists
                 uint refreshTokenExpirationSeconds = (uint)(token.RefreshTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow));
 
-                if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.RefreshToken.Value)
+                if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(token.GroupID, CanaryDeploymentDataOwnershipEnum.AuthenticationRefreshToken))
                 {
                     var authClient = AuthenticationGrpcClientWrapper.AuthenticationClient.GetClientFromTCM();
                     var refreshTokenFromAuthMs = authClient.GenerateRefreshToken(token.GroupID, token.KS, refreshTokenExpirationSeconds);
@@ -179,6 +182,8 @@ namespace WebAPI.Managers
                         log.ErrorFormat("GenerateSession: Failed to store refreshed token");
                         throw new InternalServerErrorException();
                     }
+
+                    SendRefreshTokenCanaryMigrationEvent(token, refreshTokenExpirationSeconds);
                 }
 
 
@@ -187,9 +192,29 @@ namespace WebAPI.Managers
 
             session.KS = token.KS;
             session.Expiry = DateUtils.DateTimeToUtcUnixTimestampSeconds(token.KsObject.Expiration);
-            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(token.Udid, token.GroupID);
+            DeviceRemovalPolicyHandler.Instance.SaveDomainDeviceUsageDate(token.Udid, token.GroupID);
 
             return session;
+        }
+
+        private static void SendRefreshTokenCanaryMigrationEvent(ApiToken token, uint refreshTokenExpirationSeconds)
+        {
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(token.GroupID, CanaryDeploymentMigrationEvent.RefreshToken))
+            {
+                var migrationEvent = new ApiObjects.DataMigrationEvents.RefreshToken()
+                {
+                    Operation = eMigrationOperation.Create,
+                    PartnerId = token.GroupID,
+                    Token = token.RefreshToken,
+                    Udid = token.Udid,
+                    UserId = long.Parse(token.UserId),
+                    Ks = token.KS,
+                    Ttl = refreshTokenExpirationSeconds,
+                    ExpirationDate = DateUtils.GetUtcUnixTimestampNow()+refreshTokenExpirationSeconds
+                };
+
+                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+            }
         }
 
         private static Group GetGroupConfiguration(int groupId)
@@ -427,7 +452,7 @@ namespace WebAPI.Managers
 
             log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
             var ksData = new KS.KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId, userSegments, userRoles);
-            if (!UpdateUsersSessionsRevocationTime(group, userId, udid, ksData.CreateDate, sessionDuration))
+            if (!UpdateUsersSessionsRevocationTime(groupId, group, userId, udid, ksData.CreateDate, sessionDuration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", userId);
                 throw new InternalServerErrorException();
@@ -440,7 +465,7 @@ namespace WebAPI.Managers
             usersClient.UpdateLastLoginDate(groupId, userId);
 
             //12. update udid last activity
-            new DeviceRemovalPolicyHandler().SaveDomainDeviceUsageDate(udid, groupId);
+            DeviceRemovalPolicyHandler.Instance.SaveDomainDeviceUsageDate(udid, groupId);
 
             // 13. build the response from the ks:
             response = new KalturaSessionInfo(ks);
@@ -555,8 +580,33 @@ namespace WebAPI.Managers
                 log.ErrorFormat("GenerateSession: Failed to store refreshed token");
                 throw new InternalServerErrorException();
             }
+            
+            SendAppTokenCanaryMigrationEvent(eMigrationOperation.Create, appToken, groupId);
 
             return appToken;
+        }
+
+        private static void SendAppTokenCanaryMigrationEvent(eMigrationOperation op, KalturaAppToken appToken, int groupId)
+        {
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.AppToken))
+            {
+                var migrationEvent = new ApiObjects.DataMigrationEvents.AppToken()
+                {
+                    Operation = op,
+                    PartnerId = groupId,
+                    Id = appToken.Id,
+                    Token = appToken.Token,
+                    Expiry = appToken.getExpiry(),
+                    HashType = appToken.HashType.ToString(),
+                    CreateDate = appToken.CreateDate,
+                    SessionDuration = appToken.getSessionDuration(),
+                    SessionType = appToken.SessionType.ToString(),
+                    SessionUserId = appToken.SessionUserId,
+                    UpdateDate = appToken.UpdateDate,
+                };
+
+                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+            }
         }
 
         internal static KalturaAppToken GetAppToken(string id, int groupId)
@@ -605,6 +655,8 @@ namespace WebAPI.Managers
                 throw new InternalServerErrorException();
             }
 
+            SendAppTokenCanaryMigrationEvent(eMigrationOperation.Delete, appToken, groupId);
+
             string revokedSessionKeyFormat = GetRevokedSessionKeyFormat(group);
             string revokedSessionCbKey = string.Format(revokedSessionKeyFormat, appToken.Token);
             long revokedSessionTime = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
@@ -614,7 +666,25 @@ namespace WebAPI.Managers
 
             cbManager.Add(revokedSessionCbKey, revokedSessionTime, (uint)revokedSessionExpiryInSeconds, true);
 
+            SendAppTokenRevocationMigrationEvent(groupId, appToken, revokedSessionTime, revokedSessionExpiryInSeconds);
+            
             return response;
+        }
+
+        private static void SendAppTokenRevocationMigrationEvent(int groupId, KalturaAppToken appToken, long revokedSessionTime, long revokedSessionExpiryInSeconds)
+        {
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.SessionRevocation))
+            {
+                var migrationEvent = new RevokeAppTokenSession
+                {
+                    Operation = eMigrationOperation.Create,
+                    GroupId = groupId,
+                    AppTokenId = appToken.Id,
+                    KsExpiry = revokedSessionTime + revokedSessionExpiryInSeconds,
+                    SessionRevocationTime = revokedSessionTime,
+                };
+                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+            }
         }
 
         #endregion
@@ -653,9 +723,27 @@ namespace WebAPI.Managers
                     log.ErrorFormat("LogOut: Failed to store revoked KS");
                     throw new InternalServerErrorException();
                 }
-
+                
+                SendRevokeKsCanaryMigrationEvent(ks);
             }
+            
             return true;
+        }
+
+        private static void SendRevokeKsCanaryMigrationEvent(KS ks)
+        {
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(ks.GroupId, CanaryDeploymentMigrationEvent.SessionRevocation))
+            {
+                var migrationEvent = new RevokeKs
+                {
+                    Operation = eMigrationOperation.Create,
+                    GroupId = ks.GroupId,
+                    Ks = ks.ToString(),
+                    KsExpiry = TVinciShared.DateUtils.ToUtcUnixTimestampSeconds(ks.Expiration),
+                };
+
+                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
+            }
         }
 
         private static string GetRevokedKsKeyFormat(Group group)
@@ -694,7 +782,7 @@ namespace WebAPI.Managers
         {
             Group group = GroupsManager.GetGroup(groupId);
 
-            if (!UpdateUsersSessionsRevocationTime(group, userId, string.Empty, DateUtils.GetUtcUnixTimestampNow(), 0, true))
+            if (!UpdateUsersSessionsRevocationTime(groupId, group, userId, string.Empty, DateUtils.GetUtcUnixTimestampNow(), 0, true))
             {
                 log.ErrorFormat("RevokeKs: Failed to store users sessions");
                 throw new InternalServerErrorException();
@@ -717,7 +805,7 @@ namespace WebAPI.Managers
                 return false;
             }
 
-            if (ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.KSStatusCheck.Value)
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(ks.GroupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSessionRevocation))
             {
                 //use cache if not found
                 //call GRPC         
@@ -726,68 +814,13 @@ namespace WebAPI.Managers
                 var key = LayeredCacheKeys.GetKsValidationResultKey(hashedKS);                
                 var invalidationKeys = new List<string>() { LayeredCacheKeys.GetValidateKsInvalidationKey(hashedKS, ks.GroupId) };
 
-                bool isCacheResultRetrived = LayeredCache.Instance.Get<bool>(key,
-                                                        ref isKSValid,
-                                                        GetKsValidationResult,
-                                                        new Dictionary<string, object>() { { "ks", ks.ToString() }, { "ksPartnerId", (long)ks.GroupId } },
-                                                        ks.GroupId,
-                                                        LayeredCacheConfigNames.GET_KS_VALIDATION,
-                                                        invalidationKeys);
-                //return result if found
-                if (isCacheResultRetrived)
-                {
-                    // if we found the ks is not valid on authentication MS, no need to continue and we can return false
-                    if (!isKSValid)
-                    {
-                        return false;
-                    }
+                bool isCacheResultRetrived = LayeredCache.Instance.Get<bool>(key, ref isKSValid, GetKsValidationResult, new Dictionary<string, object>() { { "ks", ks.ToString() }, { "ksPartnerId", (long)ks.GroupId } },
+                                                        ks.GroupId, LayeredCacheConfigNames.GET_KS_VALIDATION, invalidationKeys);
 
-                    bool isKSStatusCheckFallbackEnabled = DateTime.UtcNow.ToUtcUnixTimestampSeconds() <= GetGroupKsValidationFallbackExpiration(ks.GroupId);
-
-                    //in case the fallback already expired for this account, return the result we got from authentication MS
-                    if (!isKSStatusCheckFallbackEnabled)
-                    {
-                        return isKSValid;
-                    }
-
-                    // since we got until here, it means we need the fall back mechanism so we have the return ValidateKSLegacy(ks); at the end
-                }
+                return isCacheResultRetrived && isKSValid;
             }
 
             return ValidateKSLegacy(ks);
-        }
-
-        private static long GetGroupKsValidationFallbackExpiration(int groupId)
-        {
-            //throw new NotImplementedException("GetGroupKsValidationFallbackExpiration not implemented");
-            long groupKsValidationFallbackExpiration = long.MaxValue;
-            string key = string.Format(KS_VALIDATION_FALLBACK_EXPIRATION_KEY, groupId);
-            ulong version = 0;
-            if (groupKsValidationFallbackCache.GetWithVersion<long>(key, out version, ref groupKsValidationFallbackExpiration))
-            {
-                return groupKsValidationFallbackExpiration;
-            }
-
-            Group group = GroupsManager.GetGroup(groupId);
-            long expirationPeriodInSeconds = Math.Max(group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds);
-            long refreshTokenExpirationPeriod = 0;
-            // assuming account is using refresh token we need to check which refresh token expiration is longer
-            if (group.IsRefreshTokenEnabled)
-            {
-                refreshTokenExpirationPeriod = Math.Max(group.RefreshTokenExpirationSeconds, group.RefreshExpirationForPinLoginSeconds);
-            }
-
-            // set the largest expiration period per group configuration to be on the safe side
-            expirationPeriodInSeconds = Math.Max(expirationPeriodInSeconds, refreshTokenExpirationPeriod);
-            // create the expiration time in epoch
-            groupKsValidationFallbackExpiration = DateTime.UtcNow.AddSeconds(expirationPeriodInSeconds).ToUtcUnixTimestampSeconds();            
-            // add to CB
-            if (!groupKsValidationFallbackCache.SetWithVersion(key, groupKsValidationFallbackExpiration, 0, 0))
-            {
-                log.ErrorFormat($"Failed adding KS validation fall back expiration document with key {key} for groupId {groupId}");
-            }
-
-            return groupKsValidationFallbackExpiration;
         }
 
         private static bool ValidateKSLegacy(KS ks)
@@ -906,9 +939,9 @@ namespace WebAPI.Managers
             return SessionManager.SessionManager.GetUserSessionsKeyFormat(group.UserSessionsKeyFormat);
         }
 
-        private static bool UpdateUsersSessionsRevocationTime(Group group, string userId, string udid, long revocationTime, long expiration, bool revokeAll = false)
+        private static bool UpdateUsersSessionsRevocationTime(int groupId, Group group, string userId, string udid, long revocationTime, long expiration, bool revokeAll = false)
         {
-            return SessionManager.SessionManager.UpdateUsersSessionsRevocationTime(group.UserSessionsKeyFormat,
+            return SessionManager.SessionManager.UpdateUsersSessionsRevocationTime(groupId, group.UserSessionsKeyFormat,
                  group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds, userId, udid, revocationTime,
                  expiration, revokeAll);
         }
@@ -970,7 +1003,7 @@ namespace WebAPI.Managers
 
                 foreach (string userId in householdUserIds)
                 {
-                    if (!UpdateUsersSessionsRevocationTime(group, userId, udid, utcNow, (int)maxSessionDuration, revokeAll))
+                    if (!UpdateUsersSessionsRevocationTime(groupId, group, userId, udid, utcNow, (int)maxSessionDuration, revokeAll))
                     {
                         log.ErrorFormat("RevokeDeviceSessions: Failed to revoke session for userId = {0}, UDID = {1}", userId, revokeAll ? "All" : udid);
                     }

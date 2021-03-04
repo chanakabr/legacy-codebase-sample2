@@ -63,7 +63,7 @@ namespace WebAPI.Models.Social
 
         public override string ToString()
         {
-            string res = string.Format("actionType : {0}, Time :{1}, AssetId : {2}, AssetID :{3}, AssetType : {4}, Url : {5}", ActionType.ToString(), Time, AssetId, AssetType, Url);
+            string res = $"actionType : {ActionType.ToString()}, Time :{Time}, AssetId : {AssetId}, AssetType : {AssetType}, Url : {Url}";
             return res;  
         }
     }

@@ -38,7 +38,7 @@ namespace Core.Api.Managers
             RuleActionType? ruleActionType = null, bool returnConfigError = false)
         {
             GenericListResponse<AssetUserRule> response = new GenericListResponse<AssetUserRule>();
-            bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             GroupsCacheManager.Group group = null;
             CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates)
@@ -350,7 +350,7 @@ namespace Core.Api.Managers
         internal static Status AddAssetUserRuleToUser(long userId, long ruleId, int groupId)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             GroupsCacheManager.Group group = null;
             CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates)
@@ -423,7 +423,7 @@ namespace Core.Api.Managers
         internal static Status DeleteAssetUserRuleFromUser(long userId, long ruleId, int groupId)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             GroupsCacheManager.Group group = null;
             CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates)
@@ -542,7 +542,7 @@ namespace Core.Api.Managers
                 }
                 catch (Exception ex)
                 {
-                    log.Error(string.Format("Error in GetMediaAssetUserRulesToUser: group={0}, user={1}, media={2}", groupId, userId), ex);
+                    log.Error($"Error in GetMediaAssetUserRulesToUser: group={groupId}, user={userId}, media={mediaId}", ex);
                 }
             }
 

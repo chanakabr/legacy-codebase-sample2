@@ -51,7 +51,7 @@ namespace DAL
 
         }
 
-        public static bool InitDeviceInDb(int nDeviceID, int nDomainID,
+        public static bool InitDeviceInDb(long nDeviceID, int nDomainID,
                                     ref int nGroupID, ref string sDbDeviceUDID, ref int nDbDeviceBrandID, ref string sDbDeviceName, ref int nDbDeviceFamilyID, ref string sDbPin, ref DateTime dtDbActivationDate, ref string sDbState)
         {
             bool res = false;
@@ -179,7 +179,7 @@ namespace DAL
             return res;
         }
 
-        public static int InsertDeviceToDomain(int nDeviceID, int nDomainID, int nGroupID, int nIsActive, int nStatus, string sActivationToken = "")
+        public static long InsertDeviceToDomain(long nDeviceID, int nDomainID, int nGroupID, int nIsActive, int nStatus, string sActivationToken = "")
         {
             ODBCWrapper.StoredProcedure spInsertDeviceToDomain = new ODBCWrapper.StoredProcedure(SP_INSERT_DEVICE_TO_DOMAIN);
             spInsertDeviceToDomain.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -191,7 +191,7 @@ namespace DAL
             spInsertDeviceToDomain.AddParameter("@isActive", nIsActive);
             spInsertDeviceToDomain.AddParameter("@activationToken", sActivationToken);
 
-            return spInsertDeviceToDomain.ExecuteReturnValue<int>();
+            return spInsertDeviceToDomain.ExecuteReturnValue<long>();
         }
 
         public static bool UpdateDomainsDevicesStatus(int nDomainsDevicesID, int nIsActive, int nStatus)
@@ -206,13 +206,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-
-        public static int DoesDeviceExistInDomain(int nDomainID, int nGroupID, string deviceUdid, ref int isActive, ref int nDeviceID)
-        {
-            return Get_IsDeviceExistInDomain(nDomainID, nGroupID, deviceUdid, ref isActive, ref nDeviceID);
-        }
-
-        public static int GetDeviceDomainData(int nGroupID, string sDeviceUdid, ref int nDeviceID, ref int nIsActive, ref int nStatus, ref int nDbDomainDeviceID)
+        public static int GetDeviceDomainData(int nGroupID, string sDeviceUdid, ref long nDeviceID, ref int nIsActive, ref int nStatus, ref long nDbDomainDeviceID)
         {
             int nDomainID = 0;
 
@@ -227,11 +221,11 @@ namespace DAL
                 int nCount = ds.Tables[0].DefaultView.Count;
                 if (nCount > 0)
                 {
-                    nDbDomainDeviceID = int.Parse(ds.Tables[0].DefaultView[0].Row["id"].ToString());
+                    nDbDomainDeviceID = long.Parse(ds.Tables[0].DefaultView[0].Row["id"].ToString());
                     nDomainID = int.Parse(ds.Tables[0].DefaultView[0].Row["domain_id"].ToString());
                     nIsActive = int.Parse(ds.Tables[0].DefaultView[0].Row["is_active"].ToString());
                     nStatus = int.Parse(ds.Tables[0].DefaultView[0].Row["status"].ToString());
-                    nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(ds.Tables[0].DefaultView[0].Row, "device_id");
+                    nDeviceID = ODBCWrapper.Utils.GetLongSafeVal(ds.Tables[0].DefaultView[0].Row, "device_id");
                 }
             }
             return nDomainID;
@@ -239,7 +233,7 @@ namespace DAL
 
 
 
-        public static int GetDomainOfDevice(int nGroupID, string sDeviceUdid, ref int nDeviceID, ref int nIsActive, ref int nStatus)
+        public static int GetDomainOfDevice(int nGroupID, string sDeviceUdid, ref long nDeviceID, ref int nIsActive, ref int nStatus)
         {
             int nDomainID = 0;
 
@@ -277,12 +271,12 @@ namespace DAL
             return nDomainID;
         }
 
-        public static bool UpdateDomainsDevicesIsActive(int nDomainDeviceID, int enableInt, bool bIsEnable)
+        public static bool UpdateDomainsDevicesIsActive(long nDomainDeviceID, int enableInt, bool bIsEnable)
         {
             return Update_DomainsDevicesIsActive(nDomainDeviceID, enableInt, bIsEnable);
         }
 
-        public static bool Update_DomainsDevicesIsActive(int nDomainsDevicesID, int nEnableInt, bool bIsUpdateLastActivationDate)
+        public static bool Update_DomainsDevicesIsActive(long nDomainsDevicesID, int nEnableInt, bool bIsUpdateLastActivationDate)
         {
             StoredProcedure sp = new StoredProcedure("Update_DomainsDevicesIsActive");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -492,7 +486,7 @@ namespace DAL
 
         }
 
-        public static int SetDeviceStatusInDomain(int nDeviceID, int nDomainID, int nGroupID, int? nDeviceDomainID = null, int nStatus = 1, int nIsActive = 1)
+        public static int SetDeviceStatusInDomain(long nDeviceID, int nDomainID, int nGroupID, long? nDeviceDomainID = null, int nStatus = 1, int nIsActive = 1)
         {
             ODBCWrapper.StoredProcedure spUpdateSetDeviceStatusInDomain = new ODBCWrapper.StoredProcedure(SP_UPDATE_SET_DEVICE_STATUS_IN_DOMAIN);
             spUpdateSetDeviceStatusInDomain.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -503,6 +497,7 @@ namespace DAL
             spUpdateSetDeviceStatusInDomain.AddParameter("@DeviceDomainID", nDeviceDomainID);
             spUpdateSetDeviceStatusInDomain.AddParameter("@status", nStatus);
             spUpdateSetDeviceStatusInDomain.AddParameter("@isActive", nIsActive);
+            spUpdateSetDeviceStatusInDomain.AddParameter("@UpdateDate", DateTime.UtcNow);
 
             DataTable dtResult = spUpdateSetDeviceStatusInDomain.Execute();
 
@@ -798,7 +793,7 @@ namespace DAL
             return res;
         }
 
-        public static List<int> GetDeviceDomains(int deviceID, int groupID)
+        public static List<int> GetDeviceDomains(long deviceID, int groupID)
         {
             List<int> domainIDs = null;
 
@@ -830,9 +825,9 @@ namespace DAL
             return domainIDs;
         }
 
-        public static List<int> GetDevicesInDomain(int m_nGroupID, int m_nDomainID)
+        public static List<long> GetDevicesInDomain(int m_nGroupID, int m_nDomainID)
         {
-            List<int> devicesIDs = new List<int>();
+            var devicesIDs = new List<long>();
 
             try
             {
@@ -850,7 +845,7 @@ namespace DAL
 
                     for (int i = 0; i < nCount; i++)
                     {
-                        int nDeviceId = int.Parse(selectQuery.Table("query").DefaultView[i].Row["device_id"].ToString());
+                        var nDeviceId = long.Parse(selectQuery.Table("query").DefaultView[i].Row["device_id"].ToString());
 
                         devicesIDs.Add(nDeviceId);
                     }
@@ -1044,7 +1039,7 @@ namespace DAL
             return nMinPeriod;
         }
 
-        public static int GetDomainsDevicesCount(int nGroupID, int nDeviceID)
+        public static int GetDomainsDevicesCount(int nGroupID, long nDeviceID)
         {
             StoredProcedure sp = new StoredProcedure("Get_DomainsDevicesCount");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -1054,7 +1049,7 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
-        public static bool UpdateDeviceStatus(int nDeviceID, int nIsActive, int nStatus)
+        public static bool UpdateDeviceStatus(long nDeviceID, int nIsActive, int nStatus)
         {
             bool res = false;
 
@@ -1064,6 +1059,7 @@ namespace DAL
                 updateQuery1.SetConnectionKey("USERS_CONNECTION_STRING");
                 updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("status", "=", nStatus);
                 updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("is_Active", "=", nIsActive);
+                updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
                 updateQuery1 += " where ";
                 updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nDeviceID);
                 res = updateQuery1.Execute();
@@ -1156,6 +1152,7 @@ namespace DAL
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", 1);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", 1);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ACTIVATION_TOKEN", "=", sNewToken);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("Update_Date", "=", DateTime.UtcNow);
                 updateQuery += " where ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", nGroupID);
                 updateQuery += " and ";
@@ -1378,10 +1375,9 @@ namespace DAL
             return desc;
         }
 
-
-        public static int GetDeviceIDByDomainActivationToken(int nGroupID, string sToken, ref int nDomainsDevicesID)
+        public static long GetDeviceIDByDomainActivationToken(int nGroupID, string sToken, ref long nDomainsDevicesID)
         {
-            int nDeviceID = 0;
+            long nDeviceID = 0;
 
             try
             {
@@ -1398,7 +1394,7 @@ namespace DAL
                     Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                     if (nCount > 0)
                     {
-                        nDeviceID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["DEVICE_ID"].ToString());
+                        nDeviceID = long.Parse(selectQuery.Table("query").DefaultView[0].Row["DEVICE_ID"].ToString());
                         nDomainsDevicesID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["ID"].ToString());
                     }
                 }
@@ -1414,7 +1410,7 @@ namespace DAL
             return nDeviceID;
         }
 
-        public static int UpdateDeviceDomainActivationToken(int nGroupID, int nDomainsDevicesID, int nDeviceID, string sToken, string sNewToken)
+        public static int UpdateDeviceDomainActivationToken(int nGroupID, long nDomainsDevicesID, long nDeviceID, string sToken, string sNewToken)
         {
             ODBCWrapper.StoredProcedure spUpdateDeviceActivation = new ODBCWrapper.StoredProcedure("Update_DeviceActivation");
             spUpdateDeviceActivation.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -1429,7 +1425,7 @@ namespace DAL
             return rowsAffected;
         }
 
-        public static int GetDomainDeviceActivateStatus(int nGroupID, int nDeviceID)
+        public static int GetDomainDeviceActivateStatus(int nGroupID, long nDeviceID)
         {
             int nActivationStatus = -1;
 
@@ -1715,7 +1711,7 @@ namespace DAL
             return null;
         }
 
-        public static int Get_IsDeviceExistInDomain(int nDomainID, int nGroupID, string sDeviceUDID, ref int isActive, ref int nDeviceID)
+        public static int DoesDeviceExistInDomain(int nDomainID, int nGroupID, string sDeviceUDID, ref int isActive, ref long nDeviceID)
         {
             int res = 0;
             StoredProcedure sp = new StoredProcedure("Get_IsDeviceExistInDomain");
@@ -1732,7 +1728,7 @@ namespace DAL
                 {
                     res = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["id"]);
                     isActive = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["is_active"]);
-                    nDeviceID = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["device_id"]);
+                    nDeviceID = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0]["device_id"]);
                 }
             }
             return res;
@@ -1901,7 +1897,7 @@ namespace DAL
             sp.AddParameter("@isActive", isActive);
             sp.AddParameter("@dominID", domainID);
             sp.AddIDListParameter<int>("@usersID", users, "Id");
-            sp.AddParameter("@UpdateDate", DateTime.UtcNow);
+            sp.AddParameter("@UpdateDate", DateTime.UtcNow); 
 
             DataSet ds = sp.ExecuteDataSet();
 
@@ -1962,7 +1958,6 @@ namespace DAL
             }
             return devicesToBeModified;
         }
-
 
         public static List<string> SetDevicesDomainStatusNotInList(int nDeviceToDelete, int isActive, int domainID, List<int> lDevicesID, int? status = null)
         {
@@ -2079,7 +2074,6 @@ namespace DAL
             return row;
         }
 
-
         public static bool UpdateDeviceDrmID(int groupId, string deviceId, string drmId, int domainId)
         {
             StoredProcedure sp = new StoredProcedure("Update_DeviceDrmID");
@@ -2096,7 +2090,6 @@ namespace DAL
             }
             return result;
         }
-
 
         public static DrmPolicy GetDrmPolicy(int groupId)
         {
@@ -2335,12 +2328,12 @@ namespace DAL
             return result;
         }
 
-        public static bool ClearDevicesDrmID(int groupId, List<int> deviceIds, int domainId)
+        public static bool ClearDevicesDrmID(int groupId, List<long> deviceIds, int domainId)
         {
             bool result = true;
             bool RemoveDomainDrmIdResult = false;
             StoredProcedure sp;
-            foreach (int deviceId in deviceIds)
+            foreach (var deviceId in deviceIds)
             {
                 sp = new StoredProcedure("Update_DeviceDrmID");
                 sp.SetConnectionKey("USERS_CONNECTION_STRING");

@@ -39,7 +39,6 @@ namespace ConfigurationManager
         public BaseValue<string> DMSUrl = new BaseValue<string>("dms_url", TcmObjectKeys.Stub, true, "Address of DMS server.");
         public BaseValue<string> CatalogSignatureKey = new BaseValue<string>("CatalogSignatureKey", "liat regev", false, "liat regev");
         public BaseValue<string> ExcludePsDllImplementation = new BaseValue<string>("EXCLUDE_PS_DLL_IMPLEMENTATION", TcmObjectKeys.Stub, true);
-        public BaseValue<string> UsersAssemblyLocation = new BaseValue<string>("USERS_ASSEMBLY_LOCATION", TcmObjectKeys.Stub, true, null);
         public BaseValue<string> FriendsActivityViewStaleState = new BaseValue<string>("FRIENDS_ACTIVITY_VIEW_STALE_STATE", "None", false, "Corresponding to ViewStaleState enum. Possible values: None, False, Ok, UpdateAfter");
         public BaseValue<string> EncryptorService = new BaseValue<string>("EncryptorService", TcmObjectKeys.Stub, true);
         public BaseValue<string> EncryptorPassword = new BaseValue<string>("EncryptorPassword", TcmObjectKeys.Stub, true);

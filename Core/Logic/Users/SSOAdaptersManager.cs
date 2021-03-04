@@ -162,7 +162,7 @@ namespace APILogic.Users
                     return response;
                 }
 
-                var isDeleted = DAL.UsersDal.DeleteSSOAdapter(ssoAdapterId, updaterId);
+                var isDeleted = DAL.UsersDal.DeleteSSOAdapter(groupId, ssoAdapterId, updaterId);
 
                 if (isDeleted)
                 {
@@ -201,7 +201,7 @@ namespace APILogic.Users
                     return response;
                 }
 
-                response.SSOAdapter = DAL.UsersDal.SetSharedSecret(ssoAdapterId, sharedSecret, updaterId);
+                response.SSOAdapter = DAL.UsersDal.SetSharedSecret(groupId, ssoAdapterId, sharedSecret, updaterId);
                 if (response.SSOAdapter != null)
                 {
                     response.RespStatus = new Status((int)eResponseStatus.OK);
@@ -230,7 +230,7 @@ namespace APILogic.Users
 
 
             // Check ExternalIdentifierMustBeUnique
-            var ssoAdapaterByExternalId = DAL.UsersDal.GetSSOAdapterByExternalId(adapterDetails.ExternalIdentifier);
+            var ssoAdapaterByExternalId = DAL.UsersDal.GetSSOAdapterByExternalId(adapterDetails.GroupId, adapterDetails.ExternalIdentifier);
             _Logger.DebugFormat("Checking if sso adapter external id already exist externalId:[{0}], found sso adapater id:[{1}], externalId:[{2}]", adapterDetails.ExternalIdentifier, ssoAdapaterByExternalId != null ? ssoAdapaterByExternalId.Id : null, ssoAdapaterByExternalId != null ? ssoAdapaterByExternalId.ExternalIdentifier : null);
 
             if (ssoAdapaterByExternalId != null && ssoAdapaterByExternalId.Id != adapterDetails.Id) { return new Status((int)eResponseStatus.ExternalIdentifierMustBeUnique, EXTERNAL_IDENTIFIER_MUST_BE_UNIQUE); }

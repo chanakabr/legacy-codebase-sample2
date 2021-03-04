@@ -21,6 +21,8 @@ namespace ApiObjects
         public long? ParentId { get; set; }
         public long CreateDate { get; set; }
         public long UpdateDate { get; set; }
+        public bool HasDynamicData { get; set; }
+        public Dictionary<string, string> DynamicData { get; set; }
 
         public Topic()
         {
@@ -36,10 +38,11 @@ namespace ApiObjects
             this.ParentId = 0;
             this.CreateDate = 0;
             this.UpdateDate = 0;
+            this.HasDynamicData = false;
         }
 
         public Topic(long id, string name, List<LanguageContainer> namesInOtherLanguages, string systemName, MetaType type,
-                     HashSet<string> features, bool isPredefined, string helpText, long parentId, long createDate, long updateDate)
+                     HashSet<string> features, bool isPredefined, string helpText, long parentId, long createDate, long updateDate, bool hasDynamicData)
         {
             this.Id = id;
             this.Name = name;
@@ -61,6 +64,7 @@ namespace ApiObjects
             this.ParentId = parentId;
             this.CreateDate = createDate;
             this.UpdateDate = updateDate;
+            this.HasDynamicData = hasDynamicData;
         }
 
         public Topic(string systemName, bool isPredefined, string name)
@@ -88,31 +92,17 @@ namespace ApiObjects
             this.UpdateDate = topicToCopy.UpdateDate;            
         }
 
-        public string GetCommaSeparatedFeatures()
+        public string GetCommaSeparatedFeatures(HashSet<string> existingFeatures = null)
         {
-            if (this.Features != null && this.Features.Count > 0)
+            var features = this.Features ?? existingFeatures;
+            if (features != null && features.Count > 0)
             {
-                return string.Join(",", this.Features);
+                return string.Join(",", features);
             }
             else
             {
                 return string.Empty;
             }
-        }
-
-        public string GetFeaturesForDB(HashSet<string> existingFeatures = null)
-        {
-            string result = string.Empty;
-            if (this.Features == null && existingFeatures != null && existingFeatures.Count > 0)
-            {
-                result = string.Join(",", existingFeatures);
-            }
-            else
-            {
-                result = GetCommaSeparatedFeatures();
-            }
-
-            return result;
         }
 
         public void SetType(MetaType metaType)

@@ -26,8 +26,10 @@ using WebAPI.Models.Segmentation;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
+using WebAPI.Models.CanaryDeployment;
 using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
+using WebAPI.Controllers;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
@@ -1282,6 +1284,64 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaCanaryDeploymentAuthenticationMsOwnerShip":
+                    switch(property.Name)
+                    {
+                        case "DeviceLoginHistory":
+                            return "deviceLoginHistory";
+                        case "DeviceLoginPin":
+                            return "deviceLoginPin";
+                        case "RefreshToken":
+                            return "refreshToken";
+                        case "SSOAdapterProfiles":
+                            return "sSOAdapterProfiles";
+                        case "UserLoginHistory":
+                            return "userLoginHistory";
+                    }
+                    break;
+                    
+                case "KalturaCanaryDeploymentConfiguration":
+                    switch(property.Name)
+                    {
+                        case "DataOwnerShip":
+                            return "dataOwnerShip";
+                        case "MigrationEvents":
+                            return "migrationEvents";
+                        case "RoutingConfiguration":
+                            return "routingConfiguration";
+                        case "ShouldProduceInvalidationEventsToKafka":
+                            return "shouldProduceInvalidationEventsToKafka";
+                    }
+                    break;
+                    
+                case "KalturaCanaryDeploymentDataOwnerShip":
+                    switch(property.Name)
+                    {
+                        case "AuthenticationMsOwnerShip":
+                            return "authenticationMsOwnerShip";
+                    }
+                    break;
+                    
+                case "KalturaCanaryDeploymentMigrationEvents":
+                    switch(property.Name)
+                    {
+                        case "AppToken":
+                            return "appToken";
+                        case "DeviceLoginHistory":
+                            return "deviceLoginHistory";
+                        case "DevicePinCode":
+                            return "devicePinCode";
+                        case "RefreshToken":
+                            return "refreshToken";
+                        case "SessionRevocation":
+                            return "sessionRevocation";
+                        case "UserLoginHistory":
+                            return "userLoginHistory";
+                        case "UserPinCode":
+                            return "userPinCode";
+                    }
+                    break;
+                    
                 case "KalturaCaptionPlaybackPluginData":
                     switch(property.Name)
                     {
@@ -1301,6 +1361,8 @@ namespace WebAPI.Reflection
                     {
                         case "CategoryManagement":
                             return "categoryManagement";
+                        case "EpgMultilingualFallbackSupport":
+                            return "epgMultilingualFallbackSupport";
                         case "SingleMultilingualMode":
                             return "singleMultilingualMode";
                     }
@@ -2818,6 +2880,24 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaEpgFilter":
+                    switch(property.Name)
+                    {
+                        case "Date":
+                            return "dateEqual";
+                        case "LiveAssetId":
+                            return "liveAssetIdEqual";
+                    }
+                    break;
+                    
+                case "KalturaEpgListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaEpgNotificationSettings":
                     switch(property.Name)
                     {
@@ -3319,6 +3399,8 @@ namespace WebAPI.Reflection
                             return "deviceFamilyId";
                         case "Drm":
                             return "drm";
+                        case "DynamicData":
+                            return "dynamicData";
                         case "ExternalId":
                             return "externalId";
                         case "HouseholdId":
@@ -4331,6 +4413,8 @@ namespace WebAPI.Reflection
                             return "createDate";
                         case "DataType":
                             return "dataType";
+                        case "DynamicData":
+                            return "dynamicData";
                         case "Features":
                             return "features";
                         case "FieldName":
@@ -4963,6 +5047,14 @@ namespace WebAPI.Reflection
                             return "permissionItemsIds";
                         case "Type":
                             return "type";
+                    }
+                    break;
+                    
+                case "KalturaPermissionByIdInFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
                     }
                     break;
                     
@@ -8195,6 +8287,36 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "canarydeploymentconfiguration":
+                    switch(action)
+                    {
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "delete", false);
+                            return CanaryDeploymentConfigurationController.Delete((int) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "get", false);
+                            return CanaryDeploymentConfigurationController.Get((int) methodParams[0]);
+                            
+                        case "setallmigrationeventsstatus":
+                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setAllMigrationEventsStatus", false);
+                            return CanaryDeploymentConfigurationController.SetAllMigrationEventsStatus((int) methodParams[0], (bool) methodParams[1]);
+                            
+                        case "setallroutingactions":
+                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setAllRoutingActions", false);
+                            return CanaryDeploymentConfigurationController.SetAllRoutingActions((int) methodParams[0], (KalturaCanaryDeploymentRoutingService) methodParams[1]);
+                            
+                        case "setmigrationeventstatus":
+                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setMigrationEventStatus", false);
+                            return CanaryDeploymentConfigurationController.SetMigrationEventStatus((int) methodParams[0], (KalturaCanaryDeploymentMigrationEvent) methodParams[1], (bool) methodParams[2]);
+                            
+                        case "setroutingaction":
+                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setRoutingAction", false);
+                            return CanaryDeploymentConfigurationController.SetRoutingAction((int) methodParams[0], (KalturaCanaryDeploymentRoutingAction) methodParams[1], (KalturaCanaryDeploymentRoutingService) methodParams[2]);
+                            
+                    }
+                    break;
+                    
                 case "category":
                     switch(action)
                     {
@@ -8561,10 +8683,6 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("coupon", "get", false);
                             return CouponController.Get((string) methodParams[0]);
                             
-                        case "list":
-                            RolesManager.ValidateActionPermitted("coupon", "list", false);
-                            return CouponController.List((KalturaCouponFilter) methodParams[0]);
-                            
                     }
                     break;
                     
@@ -8835,6 +8953,16 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("epgChannel", "list", false);
                             return EpgChannelController.List((KalturaEpgChannelFilter) methodParams[0], (List<KalturaCatalogWithHolder>) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "epg":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("epg", "list", false);
+                            return EpgController.List((KalturaEpgFilter) methodParams[0]);
                             
                     }
                     break;
@@ -10316,12 +10444,16 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("permission", "list", false);
-                            return PermissionController.List((KalturaPermissionFilter) methodParams[0]);
+                            return PermissionController.List((KalturaBasePermissionFilter) methodParams[0]);
                             
                         case "removepermissionitem":
                             RolesManager.ValidateActionPermitted("permission", "removePermissionItem", false);
                             PermissionController.RemovePermissionItem((long) methodParams[0], (long) methodParams[1]);
                             return null;
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("permission", "update", false);
+                            return PermissionController.Update((long) methodParams[0], (KalturaPermission) methodParams[1]);
                             
                     }
                     break;
@@ -13504,6 +13636,82 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "canarydeploymentconfiguration":
+                    switch(action)
+                    {
+                        case "delete":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "setallmigrationeventsstatus":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("status", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(bool),
+                            });
+                            return ret;
+                            
+                        case "setallroutingactions":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("routingService", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaCanaryDeploymentRoutingService),
+                            });
+                            return ret;
+                            
+                        case "setmigrationeventstatus":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("migrationEvent", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaCanaryDeploymentMigrationEvent),
+                            });
+                            ret.Add("status", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(bool),
+                            });
+                            return ret;
+                            
+                        case "setroutingaction":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("routingAction", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaCanaryDeploymentRoutingAction),
+                            });
+                            ret.Add("routingService", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaCanaryDeploymentRoutingService),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
                 case "category":
                     switch(action)
                     {
@@ -14198,14 +14406,6 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
-                        case "list":
-                            ret.Add("filter", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaCouponFilter),
-                            });
-                            return ret;
-                            
                     }
                     break;
                     
@@ -14883,6 +15083,22 @@ namespace WebAPI.Reflection
                                 IsList = true,
                                 GenericType = typeof(KalturaCatalogWithHolder),
                                 Type = typeof(List<KalturaCatalogWithHolder>),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "epg":
+                    switch(action)
+                    {
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEpgFilter),
                             });
                             return ret;
                             
@@ -17878,7 +18094,7 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaPermissionFilter),
+                                Type = typeof(KalturaBasePermissionFilter),
                             });
                             return ret;
                             
@@ -17890,6 +18106,24 @@ namespace WebAPI.Reflection
                             ret.Add("permissionItemId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "permission", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("permission", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPermission),
                             });
                             return ret;
                             

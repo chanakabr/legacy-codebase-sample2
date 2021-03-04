@@ -5,7 +5,6 @@ using ApiObjects.CouchbaseWrapperObjects;
 using ApiObjects.Epg;
 using ApiObjects.MediaMarks;
 using ApiObjects.PlayCycle;
-using ApiObjects.SearchObjects;
 using ConfigurationManager;
 using CouchbaseManager;
 using DAL;
@@ -19,9 +18,20 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
+using ApiObjects.SearchObjects;
 
 namespace Tvinci.Core.DAL
 {
+    public interface ITopicRepository
+    {
+        Topic InsertTopic(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, ApiObjects.MetaType topicType, string commaSeparatedFeatures,
+                                            bool? isPredefined, long? parent_topic_id, string helpText, long userId, bool shouldCheckRegularFlowValidations, Dictionary<string, string> dynamicData, out long id);
+        Topic UpdateTopic(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, string commaSeparatedFeatures,
+                                            long? parent_topic_id, string helpText, long userId, Dictionary<string, string> dynamicData);
+
+        Dictionary<string, string> GetTopicDynamicData(long topicId);
+        bool DeleteTopic(int groupId, long id, long userId);
+    }
     // work with sql/db only
     public interface ICategoryRepository
     {
@@ -49,7 +59,7 @@ namespace Tvinci.Core.DAL
         bool UpdateDefaultCategoryVersion(int groupId, long userId, long updateDate, long newDefaultVersionId, long currentDefaultVersionId);
     }
 
-    public class CatalogDAL : BaseDal, ICategoryRepository
+    public class CatalogDAL : BaseDal, ICategoryRepository, ITopicRepository
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
@@ -4550,6 +4560,11 @@ namespace Tvinci.Core.DAL
             return string.Format("domain_devices_mapping_{0}", domainId);
         }
 
+        private string GetTopicKey(long id)
+        {
+            return $"topic_{id}";
+        }
+
 
 
         public static bool SaveDomainDevices(Dictionary<string, int> domainDevices, long domainId)
@@ -4558,6 +4573,28 @@ namespace Tvinci.Core.DAL
             List<DomainDevice> domainDevicesList = new List<DomainDevice>(domainDevices.Select(x => new DomainDevice() { UDID = x.Key, DeviceFamilyId = x.Value }));
 
             return UtilsDal.SaveObjectInCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, domainDevicesList, true);
+        }
+
+        Tuple<bool, Dictionary<string, string>> UpdateTopicDynamicData(long topicId, Dictionary<string, string> dynamicData)
+        {
+            //BEO-9629
+            dynamicData = dynamicData?.Where(d => !string.IsNullOrEmpty(d.Value))
+                .ToDictionary(x=>x.Key, y => y.Value);
+
+            var key = GetTopicKey(topicId);
+            return Tuple.Create(UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, dynamicData, true), dynamicData);
+        }
+
+        public Dictionary<string, string> GetTopicDynamicData(long topicId)
+        {
+            var key = GetTopicKey(topicId);
+            return UtilsDal.GetObjectFromCB<Dictionary<string, string>>(eCouchbaseBucket.OTT_APPS, key, true);
+        }
+
+        bool DeleteTopicDynamicData(long topicId)
+        {
+            var key = GetTopicKey(topicId);
+            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, key);
         }
 
         public static Dictionary<string, int> GetDomainDevices(long domainId)
@@ -4775,8 +4812,8 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteDataSet();
         }
 
-        public static DataSet InsertTopic(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, ApiObjects.MetaType topicType, string commaSeparatedFeatures,
-                                            bool? isPredefined, long? parent_topic_id, string helpText, long userId, bool shouldCheckRegularFlowValidations)
+        public Topic InsertTopic(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName, ApiObjects.MetaType topicType, string commaSeparatedFeatures,
+                                            bool? isPredefined, long? parent_topic_id, string helpText, long userId, bool shouldCheckRegularFlowValidations, Dictionary<string, string> dynamicData, out long id)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4792,13 +4829,26 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@HelpText", helpText);
             sp.AddParameter("@UpdaterId", userId);
             sp.AddParameter("@ShouldValidateSystemName", shouldCheckRegularFlowValidations ? 1 : 0);
+            sp.AddParameter("@HasDynamicData", dynamicData?.Count > 0 ? 1 : 0);
 
+            var ds = sp.ExecuteDataSet();
 
-            return sp.ExecuteDataSet();
+            var topic = CreateTopicResponseFromDataSet(ds, out id);
+
+            if (topic.HasDynamicData)
+            {
+                var updateResult = UpdateTopicDynamicData(topic.Id, dynamicData);
+                if (!updateResult.Item1)
+                    log.Error($"Failed to save topic in CB (id: {topic.Id}), dynamicData: {JsonConvert.SerializeObject(topic.DynamicData)}");
+                else
+                    topic.DynamicData = updateResult.Item2;
+            }
+
+            return topic;
         }
 
-        public static DataSet UpdateTopic(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, string commaSeparatedFeatures,
-                                            long? parent_topic_id, string helpText, long userId)
+        public Topic UpdateTopic(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages, string commaSeparatedFeatures,
+                                            long? parent_topic_id, string helpText, long userId, Dictionary<string, string> dynamicData)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4811,11 +4861,25 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ParentTopicId", parent_topic_id);
             sp.AddParameter("@HelpText", helpText);
             sp.AddParameter("@UpdaterId", userId);
+            sp.AddParameter("@HasDynamicData", dynamicData?.Count > 0 ? 1 : 0);
 
-            return sp.ExecuteDataSet();
+            var ds = sp.ExecuteDataSet();
+
+            var topic = CreateTopicResponseFromDataSet(ds, out id);
+
+            if (topic.HasDynamicData)
+            {
+                var updateResult = UpdateTopicDynamicData(topic.Id, dynamicData);
+                if (!updateResult.Item1)
+                    log.Error($"Failed to save topic in CB (id: {topic.Id}), dynamicData: {JsonConvert.SerializeObject(topic.DynamicData)}");
+                else
+                    topic.DynamicData = updateResult.Item2;
+            }
+
+            return topic;
         }
 
-        public static bool DeleteTopic(int groupId, long id, long userId)
+        public bool DeleteTopic(int groupId, long id, long userId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DeleteTopic");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4823,12 +4887,20 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@Id", id);
             sp.AddParameter("@UpdaterId", userId);
 
-            return sp.ExecuteReturnValue<int>() > 0;
+            var response = sp.ExecuteReturnValue<int>() > 0;
+
+            if (response && GetTopicDynamicData(id)?.Count > 0)
+            {
+                if (!DeleteTopicDynamicData(id))
+                    log.Error($"Failed to delete topic: {id} dynamicData");
+            }
+
+            return response;
         }
 
         public static DataSet GetMediaAssets(int groupId, List<long> ids, long defaultLanguageId, bool getAlsoInactive)
         {
-            StoredProcedure sp = new StoredProcedure("GetMediaAssetsByIds");
+            StoredProcedure sp = new StoredProcedure("GetMediaAssetsByIds_V2");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@GroupId", groupId);
             sp.AddIDListParameter<long>("@Ids", ids, "Id");
@@ -5419,7 +5491,7 @@ namespace Tvinci.Core.DAL
                 else
                 {
                     channel.Order.m_eOrderBy =
-                        (ApiObjects.SearchObjects.OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), orderBy);
+                        (OrderBy)ApiObjects.SearchObjects.OrderBy.ToObject(typeof(ApiObjects.SearchObjects.OrderBy), orderBy);
                 }
 
                 channel.Order.m_eOrderDir = (OrderDir)orderDirection;
@@ -5864,6 +5936,7 @@ namespace Tvinci.Core.DAL
             return isUpdateSuccess;
         }
 
+        // TODO remove - used in one method, which should be removed
         public static bool UpdateOrAddBulkUploadAffectedObjectsToCB(long bulkUploadId, IEnumerable<IAffectedObject> affectedObjects, uint ttl)
         {
             var bulkUploadKey = GetBulkUploadKey(bulkUploadId);
@@ -6658,6 +6731,86 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@currentDefaultVersionId", currentDefaultVersionId);
 
             return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        private Topic CreateTopicResponseFromDataSet(DataSet ds, out long id)
+        {
+            id = 0;
+            var response = new Topic();
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                {
+                    id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
+                    if (id > 0)
+                    {
+                        EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
+                        List<DataRow> topicTranslations = (from row in translations
+                                                           select row).ToList();
+                        response = CreateTopic(id, dt.Rows[0], topicTranslations);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+
+            return response;
+        }
+
+        public Topic CreateTopic(long id, DataRow dr, List<DataRow> topicTranslations)
+        {
+            Topic result = null;
+            if (id > 0)
+            {
+                string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
+                string systemName = ODBCWrapper.Utils.GetSafeStr(dr, "SYSTEM_NAME");
+                int topicType = ODBCWrapper.Utils.GetIntSafeVal(dr, "TOPIC_TYPE_ID", 0);
+                if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(systemName) && topicType > 0 && typeof(ApiObjects.MetaType).IsEnumDefined(topicType))
+                {
+                    string commaSeparatedFeatures = ODBCWrapper.Utils.GetSafeStr(dr, "FEATURES");
+                    HashSet<string> features = null;
+                    if (!string.IsNullOrEmpty(commaSeparatedFeatures))
+                    {
+                        features = new HashSet<string>(commaSeparatedFeatures.Split(new string[] { "," },
+                            StringSplitOptions.RemoveEmptyEntries));
+                    }
+
+                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
+                    string helpText = ODBCWrapper.Utils.GetSafeStr(dr, "HELP_TEXT");
+                    long parentId = Utils.GetLongSafeVal(dr, "PARENT_TOPIC_ID", 0);
+                    DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
+                    DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
+                    var namesInOtherLanguages = new List<LanguageContainer>();
+                    if (topicTranslations != null && topicTranslations.Count > 0)
+                    {
+                        foreach (DataRow translationDr in topicTranslations)
+                        {
+                            string languageCode = ODBCWrapper.Utils.GetSafeStr(translationDr, "CODE3");
+                            string translation = ODBCWrapper.Utils.GetSafeStr(translationDr, "TRANSLATION");
+                            if (!string.IsNullOrEmpty(languageCode) && !string.IsNullOrEmpty(translation))
+                            {
+                                namesInOtherLanguages.Add(new LanguageContainer(languageCode, translation));
+                            }
+                        }
+                    }
+
+                    var hasDynamicData = ODBCWrapper.Utils.ExtractBoolean(dr, "HAS_DYNAMIC_DATA");
+
+                    result = new Topic(id, name, namesInOtherLanguages, systemName, (ApiObjects.MetaType)topicType, features, isPredefined, helpText, parentId,
+                                        createDate.HasValue ? Utils.DateTimeToUtcUnixTimestampSeconds(createDate.Value) : 0,
+                                        updateDate.HasValue ? Utils.DateTimeToUtcUnixTimestampSeconds(updateDate.Value) : 0, hasDynamicData);
+
+                    if (hasDynamicData)
+                    {
+                        result.DynamicData = GetTopicDynamicData(result.Id);
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

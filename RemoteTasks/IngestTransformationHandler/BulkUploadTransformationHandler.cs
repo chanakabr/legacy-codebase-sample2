@@ -90,8 +90,7 @@ namespace IngestTransformationHandler
                 BulkUploadManager.UpdateBulkUpload(_bulUpload, BulkUploadJobStatus.Processing);
 
                 // start lock before calculating crude so that the schedule will not change while we try to calculate and ingest
-                _jobData.DatesOfProgramsToIngest = CalculateIngestDates(_bulUpload.Results).OrderBy(d => d).ToArray();
-                _jobData.LockKeys = _jobData.DatesOfProgramsToIngest.Select(programDate => BulkUploadMethods.GetIngestLockKey(_bulUpload.GroupId, programDate)).ToArray();
+                SetDatesOfIngestToJobData(CalculateIngestDates(_bulUpload.Results));
                 AcquireLockOnIngestRange();
 
                 var crudOperations = _crudOperationsManager.CalculateCRUDOperations(_bulUpload, _ingestProfile.DefaultOverlapPolicy, _ingestProfile.DefaultAutoFillPolicy);
@@ -106,12 +105,16 @@ namespace IngestTransformationHandler
 
                 // todo: arthur, consider unlocking dates that were locked before CRUD calculation (+-1) and evatually were no crud ops required for
 
-                // affected objects are saved on the bulk upload object.
-                // they are also used by the ingest finalizer for cache invalidation.
-                if (crudOperations.AffectedItems.Any())
-                {
-                    _bulUpload.AffectedObjects = crudOperations.AffectedItems.Cast<IAffectedObject>().ToList();
-                }
+                // objects are saved on the bulk upload object, because
+                // they are also used by the ingest finalizer for cache invalidation and update recordings quota
+                SetToBulkUpload(crudOperations.AffectedItems, (u, i) => u.AffectedObjects = i);
+                SetToBulkUpload(crudOperations.ItemsToUpdate, (u, i) => u.UpdatedObjects = i);
+                SetToBulkUpload(crudOperations.ItemsToDelete, (u, i) => u.DeletedObjects = i);
+                // new items don't have EpgId on this step, EpgId will appear in BulkUploadIngestHandler.SetResultsWithObjectId.
+                // and we'll retrieve EpgId by EpgExternalId in IngestFinalizer
+                SetToBulkUpload(crudOperations.ItemsToAdd, (u, i) => u.AddedObjects = i);
+
+
                 BulkUploadManager.UpdateBulkUpload(_bulUpload, BulkUploadJobStatus.Processed);
                 EnqueueIngestEvents(crudOperations);
             }
@@ -393,7 +396,7 @@ namespace IngestTransformationHandler
 
 
 
-        public void EnqueueIngestEvents(CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
+        private void EnqueueIngestEvents(CRUDOperations<EpgProgramBulkUploadObject> crudOperations)
         {
             var ingestEvents = GenerateIngestEvents(crudOperations);
             if (!ingestEvents.Any())
@@ -405,13 +408,14 @@ namespace IngestTransformationHandler
             }
 
             // in case the actual crud calculations are less thant the keys we locked initially this means we can unlock few days
-            var effectiveLockDays = ingestEvents.Select(e => BulkUploadMethods.GetIngestLockKey(e.GroupId, e.DateOfProgramsToIngest));
-            var keysToUnlock = _jobData.LockKeys.Except(effectiveLockDays);
+            var effectiveLockDays = ingestEvents.Select(e => e.DateOfProgramsToIngest).ToList();
+            var effectiveLockKeys = effectiveLockDays.Select(day => BulkUploadMethods.GetIngestLockKey(_bulUpload.GroupId, day));
+            var keysToUnlock = _jobData.LockKeys.Except(effectiveLockKeys);
             if (keysToUnlock.Any())
             {
                 _logger.Info($"calculated crud operations did not include several days that were locked, unlocking:[{string.Join(",", keysToUnlock)}]");
                 _locker.Unlock(keysToUnlock);
-                _jobData.LockKeys = effectiveLockDays.ToArray();
+                SetDatesOfIngestToJobData(effectiveLockDays);
                 BulkUploadManager.UpdateBulkUpload(_bulUpload, _bulUpload.Status);
             }
 
@@ -497,6 +501,21 @@ namespace IngestTransformationHandler
             }
 
             return ingestProfile;
+        }
+
+        public void SetToBulkUpload(List<EpgProgramBulkUploadObject> items, Action<BulkUpload, List<IAffectedObject>> setter)
+        {
+            if (items.Any())
+            {
+                setter(_bulUpload, items.Cast<IAffectedObject>().ToList());
+            }
+        }
+        
+        private void SetDatesOfIngestToJobData(IEnumerable<DateTime> dates)
+        {
+            var orderedDates = dates.OrderBy(d => d).ToArray();
+            _jobData.DatesOfProgramsToIngest = orderedDates;
+            _jobData.LockKeys = orderedDates.Select(programDate => BulkUploadMethods.GetIngestLockKey(_bulUpload.GroupId, programDate)).ToArray();
         }
     }
 }

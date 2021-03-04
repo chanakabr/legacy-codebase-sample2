@@ -54,7 +54,7 @@ namespace Core.Catalog.Request
 
                 CheckSignature(request);
 
-                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(request.m_nGroupID);
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID);
                 int parentGroupId = request.m_nGroupID;
                 Group groupInCache = null;
                 GroupsCacheManager.GroupManager groupManager = null;
@@ -79,7 +79,7 @@ namespace Core.Catalog.Request
                     long userId = 0;
                     long.TryParse(m_sSiteGuid, out userId);
 
-                    GenericListResponse<GroupsCacheManager.Channel> channelRes = CatalogManagement.ChannelManager.SearchChannels(
+                    GenericListResponse<GroupsCacheManager.Channel> channelRes = CatalogManagement.ChannelManager.Instance.SearchChannels(
                         parentGroupId, true, string.Empty, channelIds, 0, channelIds.Count, ChannelOrderBy.Id,
                         ApiObjects.SearchObjects.OrderDir.ASC, false, userId);
                     if (channelRes.HasObjects())

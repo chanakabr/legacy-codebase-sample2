@@ -299,7 +299,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
               .ForMember(dest => dest.FriendlyName, opt => opt.MapFrom(src => src.FriendlyName))
-              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertPermissionType(src.Type)));
+              .ForMember(dest => dest.Type, opt => opt.MapFrom(src => ConvertPermissionType(src.Type)))
+              .ForMember(dest => dest.PermissionItemsIds, opt => opt.MapFrom(src => src.GetPermissionItemsIds()));
+;
 
             cfg.CreateMap<GroupPermission, KalturaGroupPermission>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -530,6 +532,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
               .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
+              .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => src.DynamicData != null ? src.DynamicData.ToDictionary(k => k.Key, v => v.Value) : null))
               ;
 
             cfg.CreateMap<KalturaMeta, Meta>()
@@ -543,6 +546,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
              .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
              .ForMember(dest => dest.PartnerId, opt => opt.MapFrom(src => src.PartnerId))
+             .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true, false)))
+              .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
              ;
 
             #endregion
@@ -1683,7 +1688,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<KalturaPluginData, ApiObjects.PlaybackAdapter.DrmPlaybackPluginData>()
                 .ForMember(dest => dest.Scheme, opt => opt.MapFrom(src => src.Scheme))
                 .ForMember(dest => dest.LicenseURL, opt => opt.MapFrom(src => src.LicenseURL))
-                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true)))
+                .ForMember(dest => dest.DynamicData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.DynamicData, true, false)))
                 .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
                 ;
 
@@ -1934,7 +1939,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             cfg.CreateMap<KalturaPlaybackContextOptions, ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions>()
-            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.AdapterData, false)))
+            .ForMember(dest => dest.AdapterData, opt => opt.MapFrom(src => WebAPI.Utils.Utils.ConvertSerializeableDictionary(src.AdapterData, false, false)))
             .ForMember(dest => dest.AssetFileIds, opt => opt.MapFrom(src => src.AssetFileIds))
             .ForMember(dest => dest.Context, opt => opt.MapFrom(src => src.Context))
             .ForMember(dest => dest.UrlType, opt => opt.MapFrom(src => src.UrlType));

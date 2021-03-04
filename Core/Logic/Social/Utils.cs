@@ -160,7 +160,7 @@ namespace Core.Social
             catch (Exception ex)
             {
                 dObj.m_oDomainResponseStatus = DomainResponseStatus.Error;
-                string msg = string.Format("GroupID:{0}, SITE_GUID:{1}; msg:{3}", nGroupID, user.m_sSiteGUID, ex.Message);
+                string msg = $"GroupID:{nGroupID}, SITE_GUID:{user.m_sSiteGUID}; msg:{ex.Message}";
                 log.Error("AddNewDomain - ERROR - " + msg, ex);
             }
 

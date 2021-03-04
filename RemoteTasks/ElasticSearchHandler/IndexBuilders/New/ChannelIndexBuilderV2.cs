@@ -46,7 +46,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 CatalogGroupCache catalogGroupCache = null;
                 Group group = null;
                 GroupManager groupManager = new GroupManager();
-                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                 if (doesGroupUsesTemplates)
                 {
                     if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))

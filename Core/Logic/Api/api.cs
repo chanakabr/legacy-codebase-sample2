@@ -25,7 +25,6 @@ using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
-using Core.Notification;
 using Core.Pricing;
 using DAL;
 using EpgBL;
@@ -141,6 +140,7 @@ namespace Core.Api
 
         private const string PERMISSION_NOT_EXIST = "Permission doesn't exist";
         private const string CAN_NOT_DELETE_DEFAULT_ADAPTER = "Can not delete default adapter";
+        private const string CAN_MODIFY_ONLY_NORMAL_PERMISSION = "Only permission type NORMAL can be modified";
 
         #endregion
 
@@ -298,15 +298,15 @@ namespace Core.Api
 
                 if (currentRole.GroupId == 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RoleReadOnly , eResponseStatus.RoleReadOnly.ToString());
-                    return response; 
+                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.RoleReadOnly, eResponseStatus.RoleReadOnly.ToString());
+                    return response;
                 }
 
                 var profileToUpdate = role.Profile.HasValue ? (int?)role.Profile.Value : (int?)currentRole.Profile;
 
                 XmlDocument xmlDoc = new XmlDocument();
                 BuildRolePermissionXml(role, permissionNamesDict, ref xmlDoc);
-            
+
                 if (DAL.ApiDAL.UpdateRole(groupId, role.Id, role.Name, xmlDoc.InnerXml.ToString(), profileToUpdate))
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -7648,7 +7648,7 @@ namespace Core.Api
                         response.ExternalChannel.MetaData = externalChannel.MetaData;
                     }
 
-                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                    if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                     {
                         CreateVirtualChannel(groupId, userId, response.ExternalChannel);
                     }
@@ -7707,7 +7707,7 @@ namespace Core.Api
                     // delete meta data
                     CatalogDAL.DeleteChannelMetaData(externalChannelId, ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData.eChannelType.External);
 
-                    if (CatalogManager.DoesGroupUsesTemplates(groupId) && !isFromAsset)
+                    if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId) && !isFromAsset)
                     {
                         //delete virtual asset
                         bool needToCreateVirtualAsset = false;
@@ -7862,7 +7862,7 @@ namespace Core.Api
 
                     response.ExternalChannel.MetaData = metaData;
 
-                    if (CatalogManager.DoesGroupUsesTemplates(groupId) && !isFromAsset)
+                    if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId) && !isFromAsset)
                     {
                         UpdateChannelVirtualAsset(groupId, userId, response.ExternalChannel);
                     }
@@ -8480,7 +8480,7 @@ namespace Core.Api
                 if (!roleIdIn.HasValue)
                 {
                     Dictionary<long, Permission> permissions = RolesPermissionsManager.GetGroupPermissions(groupId);
-                    { 
+                    {
                         if (permissions?.Count > 0)
                         {
                             response.Permissions.AddRange(permissions.Where(p => !rolesPermissions.Keys.Contains(p.Key)).Select(p => p.Value));
@@ -9809,268 +9809,6 @@ namespace Core.Api
             return result;
         }
 
-        public static MetaResponse GetGroupMetaList(int groupId, eAssetTypes assetType, ApiObjects.MetaType metaType, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual, List<MetaFeatureType> metaFeatureTypeList)
-        {
-            MetaResponse response = new MetaResponse()
-            {
-                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
-
-            try
-            {
-                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-                GroupsCacheManager.Group group = GroupsCacheManager.GroupsCache.Instance().GetGroup(groupId);
-
-                if (group == null)
-                {
-                    log.ErrorFormat("Error. Group {0} data is empty.", groupId);
-                    return response;
-                }
-
-                response.MetaList = new List<Meta>();
-
-                if (assetType != eAssetTypes.MEDIA && group.m_oEpgGroupSettings != null)
-                {
-                    if (group.m_oEpgGroupSettings.metas != null && (metaType == ApiObjects.MetaType.String || metaType == ApiObjects.MetaType.All))
-                    {
-                        foreach (long key in group.m_oEpgGroupSettings.metas.Keys)
-                        {
-                            string val = group.m_oEpgGroupSettings.metas[key];
-
-                            Meta meta = new Meta()
-                            {
-                                AssetType = eAssetTypes.EPG,
-                                FieldName = MetaFieldName.None,
-                                Name = GetTagName(val, group.m_oEpgGroupSettings.MetasDisplayName),
-                                Type = ApiObjects.MetaType.String,
-                                MultipleValue = false,
-                                PartnerId = group.m_oEpgGroupSettings.GroupId
-                            };
-
-                            meta.Id = BuildMetaId(meta, key.ToString());
-                            response.MetaList.Add(meta);
-                        }
-                    }
-
-                    if (group.m_oEpgGroupSettings.tags != null && (metaType == ApiObjects.MetaType.Tag || metaType == ApiObjects.MetaType.All))
-                    {
-                        foreach (long key in group.m_oEpgGroupSettings.tags.Keys)
-                        {
-                            string val = group.m_oEpgGroupSettings.tags[key];
-
-                            Meta meta = new Meta()
-                            {
-                                AssetType = eAssetTypes.EPG,
-                                FieldName = MetaFieldName.None,
-                                Name = GetTagName(val, group.m_oEpgGroupSettings.TagsDisplayName),
-                                Type = ApiObjects.MetaType.Tag,
-                                MultipleValue = true,
-                                PartnerId = group.m_oEpgGroupSettings.GroupId
-                            };
-
-                            meta.Id = BuildMetaId(meta, key.ToString());
-                            response.MetaList.Add(meta);
-                        }
-                    }
-
-                    var epgAliasMappings = ConditionalAccess.Utils.GetAliasMappingFields(groupId);
-                    if (epgAliasMappings != null)
-                    {
-                        var metasMapping = response.MetaList.Where(x => epgAliasMappings.Select(y => y.Name).ToList().Contains(x.Name)).ToList();
-                        foreach (var metaMapping in metasMapping)
-                        {
-                            ApiObjects.Epg.FieldTypeEntity epgFieldTypeEntity = epgAliasMappings.FirstOrDefault(x => x.Name == metaMapping.Name);
-                            if (epgFieldTypeEntity != null)
-                            {
-                                metaMapping.FieldName = GetFieldNameByAlias(epgFieldTypeEntity.Alias);
-                            }
-                        }
-                    }
-
-
-                    // filter result according to fieldNameEqual, fieldNameNotEqual
-                    if (response.MetaList != null && response.MetaList.Count > 0)
-                        response.MetaList = FilterMetaList(response.MetaList, fieldNameEqual, fieldNameNotEqual);
-                }
-
-                if (assetType == eAssetTypes.MEDIA || assetType == eAssetTypes.UNKNOWN)
-                {
-                    Meta meta;
-
-                    if (metaType != ApiObjects.MetaType.Tag && group.m_oMetasValuesByGroupId != null)
-                    {
-                        List<int> partnerIds = group.m_oMetasValuesByGroupId.Keys.ToList();
-                        int keyIndex = 0;
-                        int partnerId = 0;
-                        foreach (Dictionary<string, string> groupMetas in group.m_oMetasValuesByGroupId.Values)
-                        {
-                            partnerId = partnerIds[keyIndex];
-                            keyIndex++;
-                            foreach (var metaVal in groupMetas)
-                            {
-                                meta = new Meta()
-                                {
-                                    AssetType = eAssetTypes.MEDIA,
-                                    FieldName = MetaFieldName.None,
-                                    Name = metaVal.Value,
-                                    Type = APILogic.Utils.GetMetaTypeByDbName(metaVal.Key),
-                                    PartnerId = partnerId,
-                                    MultipleValue = false
-                                };
-
-                                meta.Id = BuildMetaId(meta, metaVal.Key);
-
-                                if (meta.Type == metaType || metaType == ApiObjects.MetaType.All)
-                                {
-                                    response.MetaList.Add(meta);
-                                }
-                            }
-                        }
-                    }
-
-                    if ((metaType == ApiObjects.MetaType.Tag || metaType == ApiObjects.MetaType.All) && group.m_oGroupTags != null)
-                    {
-                        foreach (var tagVal in group.m_oGroupTags)
-                        {
-                            meta = new Meta()
-                            {
-                                AssetType = eAssetTypes.MEDIA,
-                                FieldName = MetaFieldName.None,
-                                Name = tagVal.Value,
-                                Type = ApiObjects.MetaType.Tag,
-                                MultipleValue = true
-                            };
-
-                            meta.PartnerId = GetPartnerIdforTag(tagVal, group);
-                            meta.Id = BuildMetaId(meta, tagVal.Key.ToString());
-
-                            response.MetaList.Add(meta);
-                        }
-                    }
-                }
-
-                // Update Meta with topic_interest
-                if (response.MetaList != null && response.MetaList.Count > 0)
-                {
-                    List<Meta> topicInterestList = NotificationCache.Instance().GetPartnerTopicInterests(groupId);
-                    Meta topicInterestMeta;
-
-                    if (topicInterestList != null && topicInterestList.Count > 0)
-                    {
-                        foreach (var meta in response.MetaList)
-                        {
-                            topicInterestMeta = topicInterestList.FirstOrDefault(x => x.Id == meta.Id);
-                            if (topicInterestMeta != null)
-                            {
-                                meta.Features = topicInterestMeta.Features;
-                                meta.ParentId = topicInterestMeta.ParentId;
-                                meta.Id = topicInterestMeta.Id;
-                            }
-                        }
-
-                        // filer metaFeatureTypeList if requested
-                        if (metaFeatureTypeList != null && metaFeatureTypeList.Count > 0)
-                        {
-                            var metaListFilterd = response.MetaList.Where(x => metaFeatureTypeList.All(d => x.Features != null && x.Features.Contains(d)));
-                            if (metaListFilterd != null)
-                                response.MetaList = metaListFilterd.ToList();
-                        }
-                    }
-                }
-
-                response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed to get meta for group = {0}", groupId), ex);
-            }
-            return response;
-        }
-
-        private static List<Meta> FilterMetaList(List<Meta> list, MetaFieldName fieldNameEqual, MetaFieldName fieldNameNotEqual)
-        {
-            List<Meta> filteredMetaList = null;
-            if (fieldNameEqual == MetaFieldName.All && fieldNameNotEqual == MetaFieldName.All)
-                return list;
-
-            if (fieldNameEqual != MetaFieldName.All)
-            {
-                switch (fieldNameEqual)
-                {
-                    case MetaFieldName.None:
-                        return list.Where(x => x.FieldName != MetaFieldName.EpisodeNumber && x.FieldName != MetaFieldName.SeasonNumber && x.FieldName != MetaFieldName.SeriesId).ToList();
-                    case MetaFieldName.SeriesId:
-                    case MetaFieldName.SeasonNumber:
-                    case MetaFieldName.EpisodeNumber:
-                        return list.Where(x => x.FieldName == fieldNameEqual).ToList();
-                    case MetaFieldName.All:
-                    default:
-                        break;
-                }
-            }
-            else if (fieldNameNotEqual != MetaFieldName.All)
-            {
-                switch (fieldNameNotEqual)
-                {
-                    case MetaFieldName.None:
-                        return list.Where(x => x.FieldName == MetaFieldName.EpisodeNumber || x.FieldName == MetaFieldName.SeasonNumber || x.FieldName == MetaFieldName.SeriesId).ToList();
-                    case MetaFieldName.SeriesId:
-                    case MetaFieldName.SeasonNumber:
-                    case MetaFieldName.EpisodeNumber:
-                        return list.Where(x => x.FieldName != fieldNameNotEqual).ToList();
-                    case MetaFieldName.All:
-                    default:
-                        break;
-                }
-            }
-
-            return filteredMetaList;
-        }
-
-        private static string GetTagName(string val, List<string> list)
-        {
-            if (list == null)
-                return val;
-
-            if (string.IsNullOrEmpty(val))
-                return val;
-
-            return list.FirstOrDefault(x => x.ToLower() == val);
-        }
-
-        private static MetaFieldName GetFieldNameByAlias(string alias)
-        {
-            switch (alias)
-            {
-                case "episode_number":
-                    return MetaFieldName.EpisodeNumber;
-                case "season_number":
-                    return MetaFieldName.SeasonNumber;
-                case "series_id":
-                    return MetaFieldName.SeriesId;
-                default:
-                    log.ErrorFormat("The is no EPG FieldName mapping. alias: {0}", alias);
-                    throw new Exception(string.Format("The is no EPG FieldName mapping. alias: {0}", alias));
-            }
-        }
-
-        private static string BuildMetaId(Meta meta, string metaDBId)
-        {
-            string prefix = meta.AssetType == eAssetTypes.MEDIA && meta.Type == ApiObjects.MetaType.String ? "_NAME" : "";
-            return ApiObjectsUtils.Base64Encode(string.Format("{0}_{1}_{2}_{3}{4}", meta.PartnerId, (int)meta.AssetType, meta.MultipleValue ? 1 : 0, metaDBId, prefix));
-        }
-
-        private static int GetPartnerIdforTag(KeyValuePair<int, string> tagVal, GroupsCacheManager.Group group)
-        {
-            if (group.TagToGroup != null && group.TagToGroup.ContainsKey(tagVal.Key))
-            {
-                return group.TagToGroup[tagVal.Key];
-            }
-
-            log.ErrorFormat("Failed to get groupId from group.TagToGroup. tagVal.key:{0}", tagVal.Key);
-            return 0;
-        }
-
         public static string GetLayeredCacheGroupConfig(int groupId)
         {
             string groupConfigResult = string.Empty;
@@ -11120,7 +10858,7 @@ namespace Core.Api
         internal static bool IsMediaBlockedForCountryGeoAvailability(int groupId, int countryId, long mediaId, out bool isGeoAvailability, GroupsCacheManager.Group group = null)
         {
             isGeoAvailability = false;
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             CatalogGroupCache catalogGroupCache = null;
             if (doesGroupUsesTemplates)
             {
@@ -11926,13 +11664,19 @@ namespace Core.Api
             return assetResponse.Object;
         }
 
-        internal static GenericResponse<Permission> AddPermission(int groupId, Permission permission)
+        internal static GenericResponse<Permission> AddPermission(int groupId, Permission permission, long userId)
         {
             GenericResponse<Permission> response = new GenericResponse<Permission>();
 
             try
             {
-                // Validate permissnio Name (Must be unique per group)
+                if( permission.Type == ePermissionType.Group)
+                {
+                    response.SetStatus(eResponseStatus.CannotAddPermissionTypeGroup , "Permission type GROUP cannot be added");
+                    return response;
+                }
+
+                // Validate permission Name (Must be unique per group)
                 if (ApiDAL.GetPermissions(groupId, new List<string>() { permission.Name })?.Count > 0)
                 {
                     response.SetStatus(eResponseStatus.PermissionNameAlreadyInUse);
@@ -11940,8 +11684,33 @@ namespace Core.Api
                     return response;
                 }
 
-                permission.Id = ApiDAL.InsertPermission(permission.Name, (int)permission.Type, string.Empty, permission.FriendlyName,
-                    permission.DependsOnPermissionNames, groupId);
+                if (permission.Type != ePermissionType.Normal && permission.PermissionItemsIds?.Count > 0)
+                {
+                    response.SetStatus(eResponseStatus.CanModifyOnlyNormalPermission, CAN_MODIFY_ONLY_NORMAL_PERMISSION);
+                    return response;
+                }
+
+                // in case permission Items add check their exist
+                if (permission.Type == ePermissionType.Normal && permission.PermissionItemsIds?.Count > 0)
+                {
+                    PermissionItem permissionItem = null;
+                    foreach (var permissionItemId in permission.PermissionItemsIds)
+                    {
+                        permissionItem = RolesPermissionsManager.GetPermissionItem(permissionItemId);
+                        if (permissionItem == null)
+                        {
+                            response.SetStatus(eResponseStatus.PermissionItemNotFound, $"Permission item {permissionItemId} cannot be found");
+                            return response;
+                        }
+                    }
+
+                    permission.Id = ApiDAL.InsertPermission(permission.Name, (int)permission.Type, permission.FriendlyName, permission.DependsOnPermissionNames, groupId, permission.PermissionItemsIds, userId);
+                }
+                else
+                {
+                    permission.Id = ApiDAL.InsertPermission(permission.Name, (int)permission.Type, string.Empty, permission.FriendlyName, permission.DependsOnPermissionNames, groupId);
+                }
+
                 if (permission.Id > 0)
                 {
                     response.Object = permission;
@@ -11981,7 +11750,9 @@ namespace Core.Api
                         GroupId = groupId,
                         DependsOnPermissionNames = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "DEPENDS_ON_PERMISSION_NAMES"),
                         FriendlyName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "FRIENDLY_NAME"),
-                        Id = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID")
+                        Id = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "ID"),
+                        Type = (ePermissionType)ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "TYPE"),
+                        Name = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "NAME")
                     };
                 }
                 else
@@ -12396,7 +12167,7 @@ namespace Core.Api
                     response.Status.Set(eResponseStatus.OK, "no external channels related to group");
                     return response;
                 }
-                
+
                 response.Objects = CatalogDAL.SetExternalChannels(ds);
 
                 // get userRules action filter && ApplyOnChannel
@@ -12422,6 +12193,113 @@ namespace Core.Api
             }
 
             return response;
+        }
+
+        public static GenericListResponse<Permission> GetGroupPermissionsByIds(int groupId, List<long> permissionIds)
+        {
+            GenericListResponse<Permission> response = new GenericListResponse<Permission>();
+
+            try
+            {
+                var permissions = GetGroupPermissions(groupId, null);
+                if (permissions.Status.IsOkStatusCode())
+                {
+                    response.Objects = permissions.Permissions.Where(pi => permissionIds.Contains(pi.Id)).ToList();
+                    response.TotalItems = response.Objects.Count;
+                    response.SetStatus(eResponseStatus.OK);
+                    return response;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while getting GetPermissions. group id = {groupId}", ex);
+            }
+
+            return response;
+        }
+
+        internal static GenericResponse<Permission> UpdatePermission(int groupId, long user, long id, Permission permissionToUpdate)
+        {
+            GenericResponse<Permission> response = new GenericResponse<Permission>();
+
+            try
+            {
+                if (permissionToUpdate.Type != ePermissionType.Normal)
+                {
+                    response.SetStatus(eResponseStatus.CanModifyOnlyNormalPermission, CAN_MODIFY_ONLY_NORMAL_PERMISSION);
+                    return response;
+                }
+
+                Permission permission = GetPermission(groupId, id);
+                if (permission == null)
+                {
+                    permission = GetPermission(0, id);
+                    if (permission == null)
+                    {
+                        log.Error($"Permission wasn't found. groupId:{groupId}, id:{id}");
+                        response.SetStatus(eResponseStatus.PermissionNotFound, PERMISSION_NOT_EXIST);
+                        return response;
+                    }
+                    else if (permission.Type != permissionToUpdate.Type)
+                    {
+                        log.Error($"Permission wasn't found. groupId:{groupId}, id:{id}, type: {permissionToUpdate.Type}");
+                        response.SetStatus(eResponseStatus.PermissionNotFound, PERMISSION_NOT_EXIST);
+                        return response;
+                    }
+                }
+
+                if (permission.Type != ePermissionType.Normal)
+                {
+                    response.SetStatus(eResponseStatus.CanModifyOnlyNormalPermission, CAN_MODIFY_ONLY_NORMAL_PERMISSION);
+                    return response;
+                }
+
+                //validate PermissionItem
+                PermissionItem permissionItem = null;
+                if (permissionToUpdate?.PermissionItemsIds?.Count > 0)
+                {
+                    foreach (var permissionItemId in permissionToUpdate.PermissionItemsIds)
+                    {
+                        if (permission.PermissionItemsIds?.Count > 0 && !permission.PermissionItemsIds.Contains(permissionItemId))
+                        {
+                            permissionItem = RolesPermissionsManager.GetPermissionItem(permissionItemId);
+                            if (permissionItem == null)
+                            {
+                                response.SetStatus(eResponseStatus.PermissionItemNotFound, $"Permission item {permissionItemId} cannot be found");
+                                return response;
+                            }
+                        }
+                    }
+
+                    permission.PermissionItemsIds = permissionToUpdate.PermissionItemsIds;
+                }
+
+                permissionToUpdate.Name = permissionToUpdate.Name == null ? permission.Name : permissionToUpdate.Name;
+                permissionToUpdate.FriendlyName = permissionToUpdate.FriendlyName == null ? permission.FriendlyName : permissionToUpdate.FriendlyName;
+                permissionToUpdate.Id = id;
+
+                response.Object = permissionToUpdate;
+
+                if (!ApiDAL.UpsertPermissionPermissionItems(groupId, user, id, permissionToUpdate.PermissionItemsIds, permissionToUpdate.Name, permissionToUpdate.FriendlyName))
+                {
+                    log.Error($"Error while trying to UpsertPermissionPermissionItems. groupId:{groupId}, id:{id}");
+                    return response;
+                }
+
+                if (!APILogic.Api.Managers.RolesPermissionsManager.SetAllInvalidaitonKeysRelatedPermissions(groupId))
+                {
+                    log.Debug($"Failed to set AllInvalidaitonKeysRelatedPermissions, groupId: {groupId}");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"UpdatePermission failed groupId = {groupId}, permissionId: {id}", ex);
+                return response;
+            }
+
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+
         }
     }
 }

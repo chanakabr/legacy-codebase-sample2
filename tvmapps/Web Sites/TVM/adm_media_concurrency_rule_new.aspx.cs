@@ -100,7 +100,7 @@ public partial class adm_media_concurrency_rule_new : System.Web.UI.Page
 
         DataRecordDropDownField dr_tag_type = null;
         string query = string.Empty;
-        if (CatalogManager.DoesGroupUsesTemplates(groupId))
+        if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
         {
             dr_tag_type = new DataRecordDropDownField("topics", "SYSTEM_NAME", "id", "", null, 60, true);
             query = " select t.system_name as txt, t.id as id from topics t where [status]=1 and topic_type_id="

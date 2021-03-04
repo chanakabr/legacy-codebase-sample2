@@ -16,6 +16,9 @@ using Core.Catalog.CatalogManagement;
 using GroupsCacheManager;
 using Core.Catalog;
 using System.Threading.Tasks;
+using System.Threading;
+using Core.Pricing;
+using EventBus.Abstraction;
 
 namespace ApiLogic.Users.Managers
 {
@@ -24,10 +27,43 @@ namespace ApiLogic.Users.Managers
         private const int MAX_TRIGGER_CAMPAIGNS = 100;
         private const int MAX_BATCH_CAMPAIGNS = 100;
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly Lazy<CampaignManager> lazy = new Lazy<CampaignManager>(() => new CampaignManager());
+
+        private static readonly Lazy<CampaignManager> lazy = new Lazy<CampaignManager>(() =>
+            new CampaignManager(LayeredCache.Instance,
+                                PricingDAL.Instance,
+                                Core.Pricing.Module.Instance,
+                                ChannelManager.Instance,
+                                EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration(),
+                                CatalogManager.Instance,
+                                GroupsCache.Instance()),
+            LazyThreadSafetyMode.PublicationOnly);
+
+        private readonly ILayeredCache _layeredCache;
+        private readonly ICampaignRepository _repository;
+        private readonly IPricingModule _pricing;
+        private readonly IChannelManager _channelManager;
+        private readonly IEventBusPublisher _eventBusPublisher;
+        private readonly ICatalogManager _catalogManager;
+        private readonly IGroupsCache _groupsCache;
+
         public static CampaignManager Instance { get { return lazy.Value; } }
 
-        private CampaignManager() { }
+        public CampaignManager(ILayeredCache layeredCache,
+                               ICampaignRepository repository,
+                               IPricingModule pricing,
+                               IChannelManager channelManager,
+                               IEventBusPublisher eventBusPublisher,
+                               ICatalogManager catalogManager,
+                               IGroupsCache groupsCache)
+        {
+            _layeredCache = layeredCache;
+            _repository = repository;
+            _pricing = pricing;
+            _channelManager = channelManager;
+            _eventBusPublisher = eventBusPublisher;
+            _catalogManager = catalogManager;
+            _groupsCache = groupsCache;
+        }
 
         public Status Delete(ContextData contextData, long id)
         {
@@ -48,7 +84,7 @@ namespace ApiLogic.Users.Managers
                     return response;
                 }
 
-                if (!PricingDAL.DeleteCampaign(contextData.GroupId, id))
+                if (!_repository.DeleteCampaign(contextData.GroupId, id))
                 {
                     response.Set(eResponseStatus.Error, "Error while deleting Campaign");
                     return response;
@@ -78,19 +114,19 @@ namespace ApiLogic.Users.Managers
 
             try
             {
-                var key = LayeredCacheKeys.GetCampaignKey(contextData.GroupId, id);
-                var cacheResult = LayeredCache.Instance.Get(key,
-                                                            ref _campaign,
-                                                            Get_CampaignsByIdDB,
-                                                            new Dictionary<string, object>()
-                                                            {
-                                                                    { "groupId", contextData.GroupId },
-                                                                    { "campaignId", id }
-                                                            },
-                                                            contextData.GroupId,
-                                                            LayeredCacheConfigNames.GET_CAMPAIGN_BY_ID,
-                                                            new List<string>() { LayeredCacheKeys.GetCampaignInvalidationKey(contextData.GroupId, id) }, 
-                                                            true);
+                var key = LayeredCacheKeys.GetCampaignKey(contextData.GroupId, id); 
+                var cacheResult = _layeredCache.Get(key,
+                                                    ref _campaign,
+                                                    Get_CampaignsByIdDB,
+                                                    new Dictionary<string, object>()
+                                                    {
+                                                            { "groupId", contextData.GroupId },
+                                                            { "campaignId", id }
+                                                    },
+                                                    contextData.GroupId,
+                                                    LayeredCacheConfigNames.GET_CAMPAIGN_BY_ID,
+                                                    new List<string>() { LayeredCacheKeys.GetCampaignInvalidationKey(contextData.GroupId, id) }, 
+                                                    true);
             }
             catch (Exception ex)
             {
@@ -107,7 +143,7 @@ namespace ApiLogic.Users.Managers
 
                     Task.Run(() => {
                         _campaign.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
-                        if (PricingDAL.Update_Campaign(_campaign, contextData))
+                        if (_repository.Update_Campaign(_campaign, contextData))
                         {
                             SetInvalidationKeys(contextData, _campaign);
                             log.Debug($"success to set campaign:[${id}] state to archive.");
@@ -180,7 +216,7 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        private static void ManagePagination<T>(CorePager pager, GenericListResponse<T> response) where T : Campaign
+        private void ManagePagination<T>(CorePager pager, GenericListResponse<T> response) where T : Campaign
         {
             if (pager?.PageSize > 0)
             {
@@ -208,7 +244,7 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        private static void ManageOrderBy<T>(CampaignFilter filter, GenericListResponse<T> response) where T : Campaign
+        private void ManageOrderBy<T>(CampaignFilter filter, GenericListResponse<T> response) where T : Campaign
         {
             if (filter.OrderBy.HasValue && filter.OrderBy.Value == CampaignOrderBy.StartDateDesc)
             {
@@ -240,7 +276,7 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<Campaign> AddTriggerCampaign(ContextData contextData, TriggerCampaign campaignToAdd)
+        public GenericResponse<Campaign> AddCampaign<T>(ContextData contextData, T campaignToAdd) where T: Campaign, new()
         {
             var response = new GenericResponse<Campaign>();
 
@@ -257,7 +293,7 @@ namespace ApiLogic.Users.Managers
                 campaignToAdd.CreateDate = DateUtils.GetUtcUnixTimestampNow();
                 campaignToAdd.UpdateDate = campaignToAdd.CreateDate;
 
-                var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd, contextData);
+                var insertedCampaign = _repository.AddCampaign(campaignToAdd, contextData);
                 if (insertedCampaign?.Id > 0)
                 {
                     response.Object = insertedCampaign;
@@ -266,49 +302,12 @@ namespace ApiLogic.Users.Managers
                 }
                 else
                 {
-                    response.SetStatus(eResponseStatus.Error, $"Error while saving TriggerCampaign");
+                    response.SetStatus(eResponseStatus.Error, $"Error while saving {campaignToAdd.type} Campaign");
                 }
             }
             catch (Exception ex)
             {
-                log.Error($"Error while adding new TriggerCampaign. contextData: {contextData}, ex: {ex}", ex);
-            }
-
-            return response;
-        }
-
-        public GenericResponse<Campaign> AddBatchCampaign(ContextData contextData, BatchCampaign campaignToAdd)
-        {
-            var response = new GenericResponse<Campaign>();
-
-            try
-            {
-                var validateStatus = ValidateCampaign(contextData, campaignToAdd);
-                if (!validateStatus.IsOkStatusCode())
-                {
-                    response.SetStatus(validateStatus);
-                    return response;
-                }
-
-                campaignToAdd.State = CampaignState.INACTIVE;
-                campaignToAdd.CreateDate = DateUtils.GetUtcUnixTimestampNow();
-                campaignToAdd.UpdateDate = campaignToAdd.CreateDate;
-
-                var insertedCampaign = PricingDAL.AddCampaign(campaignToAdd, contextData);
-                if (insertedCampaign?.Id > 0)
-                {
-                    response.Object = insertedCampaign;
-                    SetInvalidationKeys(contextData, insertedCampaign);
-                    response.SetStatus(eResponseStatus.OK);
-                }
-                else
-                {
-                    response.SetStatus(eResponseStatus.Error, $"Error while saving BatchCampaign");
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Error while adding new BatchCampaign. contextData: {contextData}, ex: {ex}", ex);
+                log.Error($"Error while adding new {campaignToAdd.type} Campaign. contextData: {contextData}, ex: {ex}", ex);
             }
 
             return response;
@@ -355,7 +354,7 @@ namespace ApiLogic.Users.Managers
                 campaignToUpdate.FillEmpty(oldTriggercampaign);
                 campaignToUpdate.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
 
-                if (PricingDAL.Update_Campaign(campaignToUpdate, contextData))
+                if (_repository.Update_Campaign(campaignToUpdate, contextData))
                 {
                     response.Object = campaignToUpdate;
                     SetInvalidationKeys(contextData, campaignToUpdate);
@@ -413,7 +412,7 @@ namespace ApiLogic.Users.Managers
                 campaignToUpdate.FillEmpty(oldBatchcampaign);
                 campaignToUpdate.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
 
-                if (PricingDAL.Update_Campaign(campaignToUpdate, contextData))
+                if (_repository.Update_Campaign(campaignToUpdate, contextData))
                 {
                     response.Object = campaignToUpdate;
                     SetInvalidationKeys(contextData, campaignToUpdate);
@@ -452,7 +451,7 @@ namespace ApiLogic.Users.Managers
                 }
 
                 campaign.Object.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
-                if (PricingDAL.Update_Campaign(campaign.Object, contextData))
+                if (_repository.Update_Campaign(campaign.Object, contextData))
                 {
                     SetInvalidationKeys(contextData, campaign.Object);
                     response.Set(eResponseStatus.OK);
@@ -496,6 +495,7 @@ namespace ApiLogic.Users.Managers
                 {
                     var campaignFilter = new TriggerCampaignFilter() { StateEqual = CampaignState.ACTIVE };
                     var campaigns = ListTriggerCampaigns(contextData, campaignFilter);
+
                     if (campaigns.HasObjects() && campaigns.Objects.Count >= MAX_TRIGGER_CAMPAIGNS)
                     {
                         response.Set(eResponseStatus.ExceededMaxCapacity, "Active trigger campaigns Exceeded Max Size");
@@ -506,6 +506,7 @@ namespace ApiLogic.Users.Managers
                 {
                     var campaignFilter = new BatchCampaignFilter() { StateEqual = CampaignState.ACTIVE };
                     var campaigns = ListBatchCampaigns(contextData, campaignFilter);
+
                     if (campaigns.HasObjects() && campaigns.Objects.Count >= MAX_BATCH_CAMPAIGNS)
                     {
                         response.Set(eResponseStatus.ExceededMaxCapacity, "Active batch campaigns Exceeded Max Size");
@@ -513,6 +514,7 @@ namespace ApiLogic.Users.Managers
                     }
                 }
             }
+
             if (newState == CampaignState.ACTIVE && campaign.EndDate <= DateUtils.GetUtcUnixTimestampNow())
             {
                 response.Set(eResponseStatus.Error, $"Campaign: {campaign.Id} was ended");
@@ -529,7 +531,7 @@ namespace ApiLogic.Users.Managers
             var status = Status.Error;
             if (campaign.Promotion != null)
             {
-                var discounts = Core.Pricing.Module.GetValidDiscounts(contextData.GroupId);
+                var discounts = _pricing.GetValidDiscounts(contextData.GroupId);
                 if (!discounts.HasObjects() || !discounts.Objects.Any(x => x.Id == campaign.Promotion.DiscountModuleId))
                 {
                     status.Set(eResponseStatus.DiscountCodeNotExist);
@@ -541,9 +543,9 @@ namespace ApiLogic.Users.Managers
             {
                 var channels = new List<GroupsCacheManager.Channel>();
 
-                if (Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(contextData.GroupId))
+                if (_catalogManager.DoesGroupUsesTemplates(contextData.GroupId))
                 {
-                    var result = ChannelManager.GetChannelsListResponseByChannelIds(contextData.GroupId, campaign.CollectionIds.Select(x => (int)x).ToList(), true, null);
+                    var result = _channelManager.GetChannelsListResponseByChannelIds(contextData.GroupId, campaign.CollectionIds.Select(x => (int)x).ToList(), true, null);
 
                     if (!result.Status.IsOkStatusCode() || result.Objects.Count != campaign.CollectionIds.Count)
                     {
@@ -554,7 +556,7 @@ namespace ApiLogic.Users.Managers
                 else
                 {
                     Group group = null;
-                    GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                    GroupManager groupManager = new GroupsCacheManager.GroupManager(_groupsCache);
                     GroupsCacheManager.Channel channel = null;
 
                     foreach (var channelId in campaign.CollectionIds)
@@ -580,14 +582,14 @@ namespace ApiLogic.Users.Managers
             if (SetCampaignInvalidationKey(contextData, campaign.Id))
             {
                 var invalidationKey = LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, (int)campaign.CampaignType);
-                LayeredCache.Instance.SetInvalidationKey(invalidationKey);
+                _layeredCache.SetInvalidationKey(invalidationKey);
             }
         }
 
         private bool SetCampaignInvalidationKey(ContextData contextData, long campaignId)
         {
             var invalidationKey = LayeredCacheKeys.GetCampaignInvalidationKey(contextData.GroupId, campaignId);
-            return LayeredCache.Instance.SetInvalidationKey(invalidationKey);
+            return _layeredCache.SetInvalidationKey(invalidationKey);
         }
 
         public void PublishTriggerCampaign(int groupId, int domainId, Core.Users.DomainDevice eventObject, ApiService apiService, ApiAction apiAction)
@@ -616,8 +618,7 @@ namespace ApiLogic.Users.Managers
                         ApiService = (int)apiService
                     };
 
-                    var publisher = EventBus.RabbitMQ.EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration();
-                    publisher.Publish(serviceEvent);
+                    _eventBusPublisher.Publish(serviceEvent);
                 }
             }
             catch (Exception ex)
@@ -634,16 +635,16 @@ namespace ApiLogic.Users.Managers
             {
                 IEnumerable<CampaignDB> campaignsDB = null;
                 var key = LayeredCacheKeys.GetGroupCampaignKey(contextData.GroupId, (int)campaignType);
-                var cacheResult = LayeredCache.Instance.Get(key,
-                                                            ref campaignsDB,
-                                                            ListCampaignsByGroupIdDB,
-                                                            new Dictionary<string, object>() {
-                                                                { "groupId", contextData.GroupId },
-                                                                { "campaignType", campaignType }
-                                                            },
-                                                            contextData.GroupId,
-                                                            LayeredCacheConfigNames.LIST_CAMPAIGNS_BY_GROUP_ID,
-                                                            new List<string>() { LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, (int)campaignType) });
+                var cacheResult = _layeredCache.Get(key,
+                                                    ref campaignsDB,
+                                                    ListCampaignsByGroupIdDB,
+                                                    new Dictionary<string, object>() {
+                                                        { "groupId", contextData.GroupId },
+                                                        { "campaignType", campaignType }
+                                                    },
+                                                    contextData.GroupId,
+                                                    LayeredCacheConfigNames.LIST_CAMPAIGNS_BY_GROUP_ID,
+                                                    new List<string>() { LayeredCacheKeys.GetGroupCampaignInvalidationKey(contextData.GroupId, (int)campaignType) });
 
                 if (campaignsDB != null)
                 {
@@ -710,7 +711,7 @@ namespace ApiLogic.Users.Managers
             return list;
         }
 
-        private static Tuple<IEnumerable<CampaignDB>, bool> ListCampaignsByGroupIdDB(Dictionary<string, object> arg)
+        private Tuple<IEnumerable<CampaignDB>, bool> ListCampaignsByGroupIdDB(Dictionary<string, object> arg)
         {
             IEnumerable<CampaignDB> list = null;
 
@@ -718,7 +719,7 @@ namespace ApiLogic.Users.Managers
             {
                 var groupId = (int)arg["groupId"];
                 var campaignType = (eCampaignType)arg["campaignType"];
-                list = PricingDAL.GetCampaignsByGroupId(groupId, campaignType);
+                list = _repository.GetCampaignsByGroupId(groupId, campaignType);
             }
             catch (Exception ex)
             {
@@ -728,7 +729,7 @@ namespace ApiLogic.Users.Managers
             return new Tuple<IEnumerable<CampaignDB>, bool>(list, list != null);
         }
 
-        private static Tuple<Campaign, bool> Get_CampaignsByIdDB(Dictionary<string, object> arg)
+        private Tuple<Campaign, bool> Get_CampaignsByIdDB(Dictionary<string, object> arg)
         {
             Campaign campaign = null;
 
@@ -736,7 +737,7 @@ namespace ApiLogic.Users.Managers
             {
                 var groupId = (int)arg["groupId"];
                 var id = (long)arg["campaignId"];
-                campaign = PricingDAL.GetCampaignById(groupId, id);
+                campaign = _repository.GetCampaignById(groupId, id);
             }
             catch (Exception ex)
             {

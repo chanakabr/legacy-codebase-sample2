@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using ElasticSearch.Utilities;
 using Tvinci.Core.DAL;
 
 namespace Core.Catalog.CatalogManagement
@@ -34,7 +35,6 @@ namespace Core.Catalog.CatalogManagement
         public static readonly int DAYS = 7;
         private const string PERCOLATOR = ".percolator";
 
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
         // Basic TCM configurations for indexing - number of shards/replicas, max results
         private static readonly int NUM_OF_SHARDS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
         private static readonly int NUM_OF_REPLICAS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
@@ -42,23 +42,24 @@ namespace Core.Catalog.CatalogManagement
         private static readonly int sizeOfBulkDefaultValue = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
         private static int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
         private static readonly ElasticSearchApi esClientApi = null;
+        private static readonly ITtlService _ttlService = new TtlService();
 
         protected const string ES_VERSION = "2";
 
         public const string EPG_INDEX_TYPE = "epg";
         public const string RECORDING_IDEX_TYPE = "recording";
         public const string LOWERCASE_ANALYZER =
-            "\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\"],\"char_filter\": [\"html_strip\"]}";
+            "\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\",\"asciifolding\"],\"char_filter\": [\"html_strip\"]}";
 
         public const string PHRASE_STARTS_WITH_FILTER =
             "\"edgengram_filter\": {\"type\":\"edgeNGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}";
 
         public const string PHRASE_STARTS_WITH_ANALYZER =
-            "\"phrase_starts_with_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\",\"edgengram_filter\", \"icu_folding\",\"icu_normalizer\"]," +
+            "\"phrase_starts_with_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\",\"edgengram_filter\", \"icu_folding\",\"icu_normalizer\",\"asciifolding\"]," +
             "\"char_filter\":[\"html_strip\"]}";
 
         public const string PHRASE_STARTS_WITH_SEARCH_ANALYZER =
-            "\"phrase_starts_with_search_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\", \"icu_folding\",\"icu_normalizer\"]," +
+            "\"phrase_starts_with_search_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\", \"icu_folding\",\"icu_normalizer\",\"asciifolding\"]," +
             "\"char_filter\":[\"html_strip\"]}";
 
         public const string EPG_GREEN_SUFFIX = "green";
@@ -86,7 +87,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (!doesGroupUsesTemplates.HasValue)
             {
-                doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             }
 
             if (doesGroupUsesTemplates.Value && catalogGroupCache != null)
@@ -235,7 +236,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
 
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                 {
                     return AssetManager.GetMediaForElasticSearchIndex(groupId, mediaId);
                 }
@@ -289,7 +290,7 @@ namespace Core.Catalog.CatalogManagement
             Group group = null;
             HashSet<string> metasToPad = null;
 
-            if (CatalogManager.DoesGroupUsesTemplates(groupId))
+            if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
             {
                 if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
@@ -451,7 +452,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             List<LanguageObj> languages = null;
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             if (doesGroupUsesTemplates)
             {
                 CatalogGroupCache catalogGroupCache;
@@ -770,7 +771,7 @@ namespace Core.Catalog.CatalogManagement
                 sizeOfBulk = sizeOfBulk == 0 ? sizeOfBulkDefaultValue : sizeOfBulk > sizeOfBulkDefaultValue ? sizeOfBulkDefaultValue : sizeOfBulk;
                 ESSerializerV2 esSerializer = new ESSerializerV2();
 
-                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                 CatalogGroupCache catalogGroupCache = null;
                 Group group = null;
                 if (doesGroupUsesTemplates)
@@ -920,7 +921,7 @@ namespace Core.Catalog.CatalogManagement
                                     }
 
                                     string serializedEpg = esSerializer.SerializeEpgObject(epg, suffix);
-                                    string ttl = string.Format("{0}m", Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes));
+                                    var totalMinutes = _ttlService.GetEpgTtlMinutes(epg);
 
                                     bulkRequests.Add(new ESBulkRequestObj<ulong>()
                                     {
@@ -930,7 +931,7 @@ namespace Core.Catalog.CatalogManagement
                                         Operation = eOperation.index,
                                         document = serializedEpg,
                                         routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
-                                        ttl = ttl
+                                        ttl = $"{totalMinutes}m"
                                     });
 
                                     if (bulkRequests.Count > sizeOfBulk)
@@ -1024,7 +1025,7 @@ namespace Core.Catalog.CatalogManagement
         {
             bool result = false;
             //result &= Core.Catalog.CatalogManagement.IndexManager.DeleteEpg(groupId, id);
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
 
             if (epgIds != null & epgIds.Count > 0)
             {
@@ -1328,7 +1329,7 @@ namespace Core.Catalog.CatalogManagement
                 string channelQueryForMedia = string.Empty;
                 string channelQueryForEpg = string.Empty;
 
-                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
 
                 if ((channel.m_nChannelTypeID == (int)ChannelType.KSQL) ||
                     (channel.m_nChannelTypeID == (int)ChannelType.Manual && doesGroupUsesTemplates && channel.AssetUserRuleId > 0))

@@ -52,6 +52,9 @@ namespace NPVR
         private static readonly string ALU_UPDATE_FIELD_COMMAND = "updateField";
         private static readonly string ALU_READ_COMMAND = "read";
         private static readonly string ALU_GET_LOCATOR_COMMAND = "getLocator";
+        private static readonly string ALU_DELETE_ALL_COMMAND = "deleteAll";
+        private static readonly string ALU_CANCEL_BY = "cancelBy";
+        private static readonly string ALU_DELETE_BY = "deleteBy";
 
         private static readonly string ALU_FORM_URL_PARAM = "form";
         private static readonly string ALU_QUOTA_URL_PARAM = "quota";
@@ -117,6 +120,19 @@ namespace NPVR
         private static readonly string ALU_FIELDS = "fields";
         private static readonly string ALU_ADDITIONAL_FIELDS = "additionalFields";
         private static readonly string ALU_TIME_FORMAT = "timeFormat";
+
+        private static readonly string ALU_DELETE_PROTECTED = "deleteProtected";
+        private static readonly string ALU_DELETE_BOOKINGS = "deleteBookings";
+
+        private static readonly string ALU_BY_CHANNEL_ID = "byChannelId";
+        private static readonly string ALU_BY_USER_ID = "byUserId";
+        private static readonly string ALU_BY_ASSET_ID = "byAssetId";
+        private static readonly string ALU_BY_SERIES_ID = "bySeriesId";
+        private static readonly string ALU_BY_SEASON_ID = "bySeasonNumber";
+        private static readonly string ALU_BY_ALREADY_WATCHED = "byAlreadyWatched";
+        private static readonly string ALU_BY_PROGRAM_ID = "byProgramId";
+        private static readonly string ALU_BY_STATUS = "byStatus";
+        private static readonly string ALU_DELETE_ONGOING_RECORDINGS = "deleteOngoingRecordings";
 
         /********************************************************************************/
         #endregion
@@ -398,9 +414,9 @@ namespace NPVR
             return res;
         }
 
-        public NPVRCancelDeleteResponse DeleteAsset(NPVRParamsObj args)
+        public NPVRCancelDeleteResponse DeleteAsset(NPVRCancelDeleteByObj args)
         {
-            NPVRCancelDeleteResponse res = new NPVRCancelDeleteResponse();
+            var res = new NPVRCancelDeleteResponse();
             try
             {
                 if (IsCancelDeleteAssetInputValid(args))
@@ -410,7 +426,20 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_ASSET_ID_URL_PARAM, args.AssetID));
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
 
-                    string url = BuildRestCommand(ALU_DELETE_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
+                    if (!string.IsNullOrEmpty(args.AssetID))
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_ASSET_ID, args.AssetID));
+                    if (!string.IsNullOrEmpty(args.BySeriesId))
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SERIES_ID, args.BySeriesId));
+                    if (!string.IsNullOrEmpty(args.BySeasonNumber))
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SEASON_ID, args.BySeasonNumber));
+                    if (!string.IsNullOrEmpty(args.EpgChannelID))
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_CHANNEL_ID, args.EpgChannelID));
+                    if (!string.IsNullOrEmpty(args.ByAlreadyWatched))
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_ALREADY_WATCHED, args.ByAlreadyWatched));
+                    if (!string.IsNullOrEmpty(args.ByStatus))
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_STATUS, args.GetValidStatuses()));
+
+                    var url = BuildRestCommand(ALU_DELETE_BY, ALU_RECORD_COMMAND, urlParams);
 
                     int httpStatusCode = 0;
                     string responseJson = string.Empty;
@@ -919,7 +948,7 @@ namespace NPVR
         // new implementation for NOKIA (TVPAPI request is : DeleteRecordingsBy)
         public NPVRCancelDeleteResponse DeleteSeries(NPVRDeleteObj args)
         {
-            NPVRCancelDeleteResponse res = new NPVRCancelDeleteResponse();
+            var res = new NPVRCancelDeleteResponse();
             try
             {
                 if (IsCancelDeleteAssetInputValid(args))
@@ -929,21 +958,18 @@ namespace NPVR
                     urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
 
                     if (!string.IsNullOrEmpty(args.SeriesID))
-                    {
                         urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SERIES_ID_PARAM, args.SeriesID));
-                    }
                     if (!string.IsNullOrEmpty(args.SeasonNumber))
-                    {
                         urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SEASON_NUMBER_PARAM, args.SeasonNumber));
-                    }
                     if (!string.IsNullOrEmpty(args.ChannelId))
-                    {
                         urlParams.Add(new KeyValuePair<string, string>(ALU_BY_CHANNEL_ID_PARAM, ConvertEpgChannelIdToExternalID(args.ChannelId)));
-                    }
                     if (args.Status != null && args.Status.Count > 0)
-                    {
                         urlParams.Add(new KeyValuePair<string, string>(ALU_BY_STATUS_PARAM, string.Join(",", args.Status.Select(x => x.ToString().ToLower()))));
-                    }
+                    if (!string.IsNullOrEmpty(args.AssetID))
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_ASSET_ID, args.AssetID));
+                    if (!string.IsNullOrEmpty(args.ByAlreadyWatched))
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_ALREADY_WATCHED, args.ByAlreadyWatched));
+                    args.Status = args.Status ?? new List<NPVRRecordingStatus>();
 
                     string url = BuildRestCommand(ALU_DELETE_BY_COMMAND, ALU_ENDPOINT_RECORD, urlParams);
 
@@ -1140,17 +1166,17 @@ namespace NPVR
                         {
                             GetAccountResponse(responseJson, args, res, "Update");
 
-                            log.Debug(string.Format("UpdateAccount. Group ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode));
+                            log.Debug($"UpdateAccount. Group ID: {groupID} , Params Obj: {args.ToString()} , HTTP Status Code: {httpStatusCode} , Info: {responseJson}");
                         }
                         else
                         {
-                            throw new Exception(string.Format("UpdateAccount. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                            throw new Exception($"UpdateAccount. Connection error to ALU. HTTP Status Code: {httpStatusCode} , Response JSON: {responseJson} , Err Msg: {errorMsg}");
                         }
                     }
                     else
                     {
                         // log here the error. 
-                        log.Error(LOG_HEADER_ERROR + string.Format("UpdateAccount. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
+                        log.Error($"{LOG_HEADER_ERROR} UpdateAccount. An error occurred while trying to contact ALU REST interface. G ID: {groupID} , Params Obj: {args.ToString()} , HTTP Status Code: {httpStatusCode} , Info: {errorMsg}");
                         res.isOK = false;
                         res.msg = "An error occurred. Refer to server log files.";
                         res.quota = 0;
@@ -1176,6 +1202,28 @@ namespace NPVR
         private bool IsCancelDeleteAssetInputValid(NPVRParamsObj args)
         {
             return args != null && !string.IsNullOrEmpty(args.EntityID) && !string.IsNullOrEmpty(args.AssetID);
+        }
+
+        private bool IsDeleteAllRecordingInputValid(NPVRParamsObj args)
+        {
+            if (args == null)
+                return false;
+
+            return !string.IsNullOrEmpty(args.AccountID) && !string.IsNullOrEmpty(args.EntityID);
+        }
+
+        private bool IsCancelByInputValid(NPVRParamsObj args)
+        {
+            if (args == null)
+                return false;
+
+            if (string.IsNullOrEmpty(args.EpgChannelID))
+            {
+                log.Info("Can't call 'CancelBy' without [args.EpgChannelID]");
+                return false;
+            }
+
+            return !string.IsNullOrEmpty(args.AccountID) && !string.IsNullOrEmpty(args.EntityID);
         }
 
         private void GetGetQuotaDataResponse(string responseJson, NPVRParamsObj args, NPVRQuotaResponse response)
@@ -1258,6 +1306,73 @@ namespace NPVR
                 catch (Exception ex)
                 {
                     log.Error("Error - " + GetLogMsg(String.Concat("Failed to deserialize JSON at GetDeleteAssetResponse. Response JSON: ", responseJson), null, ex), ex);
+                    throw;
+                }
+            }
+        }
+
+        private void GetNPVRRecordResponse(string responseJson, NPVRParamsObj args, NPVRRecordResponse initializedResp, string methodName)
+        {
+            string unbeautified = JSON_UNBEAUTIFIER.Replace(responseJson, string.Empty);
+            if (unbeautified.Equals(EMPTY_JSON))
+            {
+                initializedResp.entityID = args.EntityID;
+                initializedResp.msg = string.Empty;
+                initializedResp.status = RecordStatus.OK;
+            }
+            else
+            {
+                try
+                {
+                    GenericFailureResponseJSON error = JsonConvert.DeserializeObject<GenericFailureResponseJSON>(responseJson);
+                    initializedResp.entityID = args.EntityID;
+                    switch (error.ResultCode)
+                    {
+                        case 200:
+                            initializedResp.msg = "OK.";
+                            initializedResp.status = RecordStatus.OK;
+                            break;
+                        case 400:
+                            initializedResp.msg = "Missing mandatory parameter.";
+                            initializedResp.status = RecordStatus.BadRequest;
+                            break;
+                        case 401:
+                            initializedResp.msg = "This operation is forbidden due to lack of privileges.";
+                            initializedResp.status = RecordStatus.UnauthorizedOperation;
+                            break;
+                        case 4030:
+                            initializedResp.msg = "This operation is rejected due to lack of privileges to access the referred content.";
+                            initializedResp.status = RecordStatus.UnauthorizedContent;
+                            break;
+                        case 404:
+                            initializedResp.msg = "The resource is not found or the object does not exist.";
+                            initializedResp.status = RecordStatus.UnknownResource;
+                            break;
+                        case 408:
+                            initializedResp.msg = "The request has not been completed in time due to communication problems.";
+                            initializedResp.status = RecordStatus.CommunicationsError;
+                            break;
+                        case 409:
+                            initializedResp.msg = "The status of a resource does not allow to perform the operation.";
+                            initializedResp.status = RecordStatus.InvalidStatus;
+                            break;
+                        case 500:
+                            initializedResp.msg = "Internal server error.";
+                            initializedResp.status = RecordStatus.WebServiceException;
+                            break;
+                        case 501:
+                            initializedResp.msg = "Parameter value not supported by the method..";
+                            initializedResp.status = RecordStatus.NotImplemented;
+                            break;
+                        default:
+                            initializedResp.msg = error.Description;
+                            initializedResp.status = RecordStatus.Error;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error - " + GetLogMsg($"Failed to deserialize JSON at {methodName}. Response JSON: {responseJson}", null, ex), ex);
                     throw;
                 }
             }
@@ -1782,19 +1897,14 @@ namespace NPVR
 
         private string GetTime(string value)
         {
-            long unixTime;
-            if (long.TryParse(value, out unixTime))
+            if (!string.IsNullOrEmpty(value))
             {
-                return TVinciShared.DateUtils.UtcUnixTimestampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
-            }
-            else
-            {
-                Regex rx = new Regex(@"(\d{4})-(\d{2})-(\d{2})T(\d{2})\:(\d{2})\:(\d{2})(.\d*)?Z",
-                    RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-                if (rx.IsMatch(value))
+                if (long.TryParse(value, out long unixTime))
                 {
-                    DateTime date = DateTime.Parse(value, null, System.Globalization.DateTimeStyles.RoundtripKind);
+                    return TVinciShared.DateUtils.UtcUnixTimestampMillisecondsToDateTime(unixTime).ToString(DATE_FORMAT);
+                }
+                else if (DateTime.TryParse(value, null, System.Globalization.DateTimeStyles.RoundtripKind, out var date))
+                {
                     return date.ToString(DATE_FORMAT);
                 }
             }
@@ -2463,6 +2573,133 @@ namespace NPVR
             }
 
             return HttpUtils.TrySendHttpGetRequest(url, encoding, ref httpStatusCode, ref responseJson, ref errorMsg, headers);
+        }
+
+        public NPVRRecordResponse DeleteAllRecordings(NPVRParamsObj args)
+        {
+            var res = new NPVRRecordResponse();
+            try
+            {
+                if (IsDeleteAllRecordingInputValid(args))
+                {
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, args.EntityID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_DELETE_PROTECTED, args.DeleteProtected.ToString().ToLower()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_DELETE_BOOKINGS, args.DeleteBookings.ToString().ToLower()));
+
+                    var url = BuildRestCommand(ALU_DELETE_ALL_COMMAND, ALU_RECORD_COMMAND, urlParams);
+
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetNPVRRecordResponse(responseJson, args, res, System.Reflection.MethodBase.GetCurrentMethod().Name);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("DeleteAllRecording. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
+                    }
+                    else
+                    {
+                        log.Error(LOG_HEADER_ERROR + string.Format("DeleteAllRecording. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
+                        res.entityID = args.EntityID;
+                        res.recordingID = args.AssetID;
+                        res.status = RecordStatus.Error;
+                        res.msg = "An error occurred. Refer to server log files.";
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("Either args obj is null, entity id is empty or failed validation");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at DeleteAllRecording.", args, ex), ex);
+                throw;
+            }
+
+            return res;
+        }
+
+        public NPVRRecordResponse CancelByRecording(NPVRCancelDeleteByObj args)
+        {
+            var res = new NPVRRecordResponse();
+            try
+            {
+                if (IsCancelByInputValid(args))
+                {
+                    List<KeyValuePair<string, string>> urlParams = new List<KeyValuePair<string, string>>();
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_SCHEMA_URL_PARAM, "1.0"));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_USER_ID_URL_PARAM, BuildUserRequestParam()));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_BY_USER_ID, args.EntityID));
+                    urlParams.Add(new KeyValuePair<string, string>(ALU_BY_CHANNEL_ID, args.EpgChannelID));
+
+                    if (!string.IsNullOrEmpty(args.AssetID))
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_ASSET_ID, args.AssetID));
+                    if (!string.IsNullOrEmpty(args.BySeriesId))
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SERIES_ID, args.BySeriesId));
+                    if (!string.IsNullOrEmpty(args.BySeasonNumber))
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_SEASON_ID, args.BySeasonNumber));
+                    if (!string.IsNullOrEmpty(args.ByAlreadyWatched))
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_ALREADY_WATCHED, args.ByAlreadyWatched));
+                    if (!string.IsNullOrEmpty(args.ByProgramId))
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_BY_PROGRAM_ID, args.ByProgramId));
+                    if (args.DeleteOngoingRecordings)
+                        urlParams.Add(new KeyValuePair<string, string>(ALU_DELETE_ONGOING_RECORDINGS, 
+                            args.DeleteOngoingRecordings.ToString().ToLower()));
+
+                    var url = BuildRestCommand(ALU_CANCEL_BY, ALU_RECORD_COMMAND, urlParams);
+
+                    int httpStatusCode = 0;
+                    string responseJson = string.Empty;
+                    string errorMsg = string.Empty;
+
+                    if (SendHttpRequest(url, ref httpStatusCode, ref responseJson, ref errorMsg))
+                    {
+                        if (httpStatusCode == HTTP_STATUS_OK)
+                        {
+                            GetNPVRRecordResponse(responseJson, args, res, System.Reflection.MethodBase.GetCurrentMethod().Name);
+                        }
+                        else
+                        {
+                            throw new Exception(string.Format("CancelByRecording. Connection error to ALU. HTTP Status Code: {0} , Response JSON: {1} , Err Msg: {2}", httpStatusCode, responseJson, errorMsg));
+                        }
+                    }
+                    else
+                    {
+                        log.Error(LOG_HEADER_ERROR + string.Format("CancelByRecording. An error occurred while trying to contact ALU REST interface. G ID: {0} , Params Obj: {1} , HTTP Status Code: {2} , Info: {3}", groupID, args.ToString(), httpStatusCode, errorMsg));
+                        res.entityID = args.EntityID;
+                        res.recordingID = args.AssetID;
+                        res.status = RecordStatus.Error;
+                        res.msg = "An error occurred. Refer to server log files.";
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("Either args obj is null, entity id is empty or failed validation");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(LOG_HEADER_EXCEPTION + GetLogMsg("Exception at CancelByRecording.", args, ex), ex);
+                throw;
+            }
+
+            return res;
+        }
+
+        private string BuildUserRequestParam()
+        {
+            var result = WS_Utils.GetTcmGenericValue<string>(string.Concat("ALU_BY_USER_", groupID));
+            log.Debug($"BuildUserRequestParam value: {result}");
+            return result;
         }
 
         #endregion

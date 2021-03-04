@@ -12,10 +12,10 @@ using KLogMonitor;
 using KlogMonitorHelper;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using ElasticSearch.Utilities;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
@@ -23,7 +23,7 @@ namespace ElasticSearchHandler.IndexBuilders
     {
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
+        private readonly ITtlService _ttlService = new TtlService();
 
         #region Data Members
 
@@ -147,7 +147,7 @@ namespace ElasticSearchHandler.IndexBuilders
             group = null;
             languages = null;
             groupManager = new GroupManager();
-            doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             defaultLanguage = null;
 
             if (doesGroupUsesTemplates)
@@ -159,7 +159,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
 
                 languages = catalogGroupCache.LanguageMapById.Values.ToList();
-                defaultLanguage = catalogGroupCache.DefaultLanguage;
+                defaultLanguage = catalogGroupCache.GetDefaultLanguage();
             }
             else
             {
@@ -307,7 +307,7 @@ namespace ElasticSearchHandler.IndexBuilders
         {
             try
             {
-                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                 CatalogGroupCache catalogGroupCache = null;
                 Dictionary<ulong, Dictionary<string, EpgCB>> programs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
                 if (doesGroupUsesTemplates)
@@ -402,7 +402,7 @@ namespace ElasticSearchHandler.IndexBuilders
                         }
                         else
                         {
-                            language = doesGroupUsesTemplates ? catalogGroupCache.DefaultLanguage : group.GetGroupDefaultLanguage();
+                            language = doesGroupUsesTemplates ? catalogGroupCache.GetDefaultLanguage() : group.GetGroupDefaultLanguage();
                         }
 
                         EpgCB epg = programs[epgID][languageCode];
@@ -427,13 +427,13 @@ namespace ElasticSearchHandler.IndexBuilders
                             string epgType = ElasticSearchTaskUtils.GetTanslationType(type, language);
                             ulong documentId = GetDocumentId(epg);
 
-                            string ttl = string.Empty;
-                            bool shouldSetTTL = ShouldSetTTL();
 
+                            var ttl = string.Empty;
+                            var shouldSetTTL = ShouldSetTTL();
                             if (shouldSetTTL)
                             {
-                                double totalMinutes = GetTTLMinutes(epg);
-                                ttl = string.Format("{0}m", totalMinutes);
+                                var totalMinutes = _ttlService.GetEpgTtlMinutes(epg);
+                                ttl = $"{totalMinutes}m";
                             }
 
                             // If we exceeded the size of a single bulk reuquest then create another list
@@ -510,11 +510,6 @@ namespace ElasticSearchHandler.IndexBuilders
         protected virtual bool ShouldSetTTL()
         {
             return true;
-        }
-
-        protected virtual double GetTTLMinutes(EpgCB epg)
-        {
-            return Math.Ceiling((epg.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalMinutes);
         }
 
         protected virtual ulong GetDocumentId(ulong epgId)

@@ -90,5 +90,16 @@ namespace TVinciShared
         #if NET48
         public static TValue GetValueOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key) => dict.TryGetValue(key, out var value) ? value : default(TValue);
         #endif
+
+        /// <summary>
+        /// Indicates collection emptiness.
+        /// </summary>
+        /// <param name="collection"><see cref="IEnumerable{T}"/> collection.</param>
+        /// <typeparam name="T">Generic type of collection.</typeparam>
+        /// <returns>An <see cref="bool"/> which indicates whether collection is empty or not.</returns>
+        public static bool IsEmpty<T>(this IEnumerable<T> collection)
+        {
+            return !collection.Any();
+        }
     }
 }

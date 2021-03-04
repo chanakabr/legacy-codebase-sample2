@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Core.Users
 {
@@ -22,7 +19,13 @@ namespace Core.Users
             var dDevice = new DomainDevice { Udid = sDeviceUDID, Name = sDeviceName, ExternalId = externalId };
             return SetDevice(nGroupID, dDevice, allowNullExternalId);
         }
-        public abstract DeviceResponseObject SetDevice(int nGroupID, DomainDevice device, bool allowNullExternalId, bool allowNullMacAddress = false);
+        public abstract DeviceResponseObject SetDevice(
+            int nGroupID,
+            DomainDevice device,
+            bool allowNullExternalId,
+            bool allowNullMacAddress = false,
+            bool allowNullDynamicData = false);
+
         public abstract DeviceResponseObject GetDeviceInfo(int nGroupID, string sID, bool bIsUDID);
     }
 }

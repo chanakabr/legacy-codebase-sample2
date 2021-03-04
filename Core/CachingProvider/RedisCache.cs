@@ -18,7 +18,7 @@ namespace CachingProvider
             bool res = false;
             try
             {
-                RedisClientResponse<T> getResponse = RedisClientManager.Instance.Get<T>(key, jsonSerializerSettings);
+                RedisClientResponse<T> getResponse = RedisClientManager.CacheInstance.Get<T>(key, jsonSerializerSettings);
                 if (getResponse.IsSuccess)
                 {
                     res = true;
@@ -42,7 +42,7 @@ namespace CachingProvider
             {
                 foreach (string key in keys)
                 {
-                    RedisClientResponse<T> getResponse = RedisClientManager.Instance.Get<T>(key, jsonSerializerSettings);
+                    RedisClientResponse<T> getResponse = RedisClientManager.CacheInstance.Get<T>(key, jsonSerializerSettings);
                     if (getResponse.IsSuccess)
                     {
                         results[key] = getResponse.Result;
@@ -71,7 +71,7 @@ namespace CachingProvider
             bool res = false;
             try
             {
-                res = RedisClientManager.Instance.Set<T>(key, value, expirationInSeconds, jsonSerializerSettings);
+                res = RedisClientManager.CacheInstance.Set<T>(key, value, expirationInSeconds, jsonSerializerSettings);
             }
             catch (Exception ex)
             {
