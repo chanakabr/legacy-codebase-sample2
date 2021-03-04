@@ -2273,7 +2273,7 @@ namespace Core.Catalog
                     Name =  CatalogLogic.SUB_SUM_AGGREGATION_NAME,
                     Type = eElasticAggregationType.sum,
                     Field = CatalogLogic.STAT_ACTION_COUNT_VALUE_FIELD,
-                    Missing = 1
+                    Missing = "1"
                 });
             }
 

@@ -371,7 +371,7 @@ namespace ElasticSearch.Searcher
                         };
                         if (addMissingToGroupByAgg)
                         {
-                            currentAggregation.Missing = 1;
+                            currentAggregation.Missing = Guid.NewGuid().ToString();
                         }
 
                         // Get top hit as well if necessary

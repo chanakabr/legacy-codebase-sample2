@@ -5177,7 +5177,7 @@ namespace Core.Catalog
                     Name = SUB_SUM_AGGREGATION_NAME,
                     Type = eElasticAggregationType.sum,
                     Field = STAT_ACTION_COUNT_VALUE_FIELD,
-                    Missing = 1
+                    Missing = "1"
                 });
             }
 
