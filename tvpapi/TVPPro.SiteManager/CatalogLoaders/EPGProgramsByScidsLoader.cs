@@ -79,11 +79,11 @@ namespace TVPPro.SiteManager.CatalogLoaders
                 {
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.EPGProgramsByScidsRequest":
                         EPGProgramsByScidsRequest request = obj as EPGProgramsByScidsRequest;
-                        sText.AppendFormat("EPGProgramsByScidsRequest: GroupID = {0}, PageIndex = {1}, PageSize = {2}, searchText = {3}, duration = {4}, eLang = {5}, num of scids = {6}", request.m_nGroupID, request.m_nPageIndex, request.m_nPageSize, request.duration, request.eLang, request.scids.Count);
-                        break;
+                        sText.AppendFormat($"EPGProgramsByScidsRequest: GroupID = {request.m_nGroupID}, PageIndex = {request.m_nPageIndex}, PageSize = {request.m_nPageSize}, duration = {request.duration}, eLang = {request.eLang}, num of scids = {request.scids.Count}");
+                        break; 
                     case "Tvinci.Data.Loaders.TvinciPlatform.Catalog.EpgProgramsResponse":
                         EpgProgramsResponse response = obj as EpgProgramsResponse;
-                        sText.AppendFormat("EpgProgramsResponse: TotalItems = {0}, ", response.m_nTotalItems);
+                        sText.AppendFormat($"EpgProgramsResponse: TotalItems = {response.m_nTotalItems}, ");
 
                         break;
                     default:

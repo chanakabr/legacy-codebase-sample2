@@ -56,7 +56,7 @@ namespace Core.ConditionalAccess
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        internal string m_sPurchaseMailTemplate;
+        private string m_sPurchaseMailTemplate;
         internal string m_sMailFromName;
         internal string m_sMailFromAdd;
         internal string m_sMailServer;
@@ -81,7 +81,7 @@ namespace Core.ConditionalAccess
         internal const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
         internal const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
         internal const double MAX_SERVER_TIME_DIF = 5;
-        internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3;
+        internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3; 
 
         //errors
         internal const string CONFLICTED_PARAMS = "Conflicted params";

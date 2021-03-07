@@ -787,7 +787,7 @@ namespace TVPPro.SiteManager.Manager
             }
             else
             {
-                string msg = string.Format("No pages found in language {1}", TextLocalization.Instance.UserContext.Culture);
+                string msg = string.Format($"No pages found in language {TextLocalization.Instance.UserContext.Culture}");
                 logger.Error(msg);
                 throw new Exception(msg);
             }

@@ -50,7 +50,7 @@ namespace TvinciImporter
         private const string MEDIA_ID_NOT_EXIST = "Media Id not exist";
         private const string EPG_SCHED_ID_NOT_EXIST = "EPG schedule id not exist";
 
-        static string m_sLocker = "";
+        private static object m_sLocker = new object();
         static protected bool IsNodeExists(ref XmlNode theItem, string sXpath)
         {
             XmlNode theNodeVal = theItem.SelectSingleNode(sXpath);
