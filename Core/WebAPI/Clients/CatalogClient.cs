@@ -450,7 +450,7 @@ namespace WebAPI.Clients
                     {
                         if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
                         {
-                            if (aggregationResult.value == ElasticsearchWrapper.MissedHitBucketKey.ToString())
+                            if (aggregationResult.value == ElasticSearch.Searcher.ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
                             {
                                 //take all hits from 'missing' bucket
                                 assetsBaseDataList.AddRange(aggregationResult.topHits);

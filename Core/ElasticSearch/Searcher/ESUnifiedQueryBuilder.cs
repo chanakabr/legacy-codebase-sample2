@@ -36,6 +36,7 @@ namespace ElasticSearch.Searcher
         public const string AUTO_FILL_FIELD = "auto_fill";
         public const string ENABLE_CDVR = "enable_cdvr";
         public const string ENABLE_CATCHUP = "enable_catchup";
+        public static readonly int MissedHitBucketKey = 999;
 
         protected static readonly ESPrefix epgPrefixTerm = new ESPrefix()
         {
@@ -371,7 +372,7 @@ namespace ElasticSearch.Searcher
                         };
                         if (addMissingToGroupByAgg)
                         {
-                            currentAggregation.Missing = ElasticsearchWrapper.MissedHitBucketKey;
+                            currentAggregation.Missing = MissedHitBucketKey;
                             this.SearchDefinitions.topHitsCount = 10000; //allow missed bucket max results
                         }
 

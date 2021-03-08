@@ -43,7 +43,6 @@ namespace Core.Catalog
         protected const string ES_EPG_TYPE = "epg";
         protected const string CHANNEL_ASSET_USER_RULE_ID = "asset_user_rule_id";
         protected IElasticSearchApi m_oESApi;
-        public static readonly int MissedHitBucketKey = 999;
 
         public ElasticsearchWrapper()
         {
