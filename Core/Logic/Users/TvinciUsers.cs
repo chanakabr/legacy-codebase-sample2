@@ -1715,91 +1715,87 @@ namespace Core.Users
             if (m_sActivationMail == null)
                 m_sActivationMail = "";
 
-            lock (m_sActivationMail)
+            // try get mail parameters from cache
+            TvinciUsers tUser = null;
+            string key = string.Format("users_TvinciUsersInitialize_{0}", m_nGroupID);
+            bool bRes = UsersCache.GetItem<TvinciUsers>(key, out tUser);
+            if (bRes)
             {
+                #region Initialize from cache
+                this.m_bIsActivationNeeded = tUser.m_bIsActivationNeeded;
+                this.m_mailImpl = tUser.m_mailImpl;
+                this.m_nGroupID = tUser.m_nGroupID;
+                this.m_sActivationMail = tUser.m_sActivationMail;
+                this.m_sChangedPinMail = tUser.m_sChangedPinMail;
+                this.m_sChangedPinMailSubject = tUser.m_sChangedPinMailSubject;
+                this.m_sChangePassMailSubject = tUser.m_sChangePassMailSubject;
+                this.m_sChangePasswordMail = tUser.m_sChangePasswordMail;
+                this.m_sForgotPassMailSubject = tUser.m_sForgotPassMailSubject;
+                this.m_sForgotPasswordMail = tUser.m_sForgotPasswordMail;
+                this.m_sMailFromAdd = tUser.m_sMailFromAdd;
+                this.m_sMailFromName = tUser.m_sMailFromName;
+                this.m_sMailPort = tUser.m_sMailPort;
+                this.m_sMailServer = tUser.m_sMailServer;
+                this.m_sMailServerPass = tUser.m_sMailServerPass;
+                this.m_sMailServerUN = tUser.m_sMailServerUN;
+                this.m_sMailSSL = tUser.m_sMailSSL;
+                this.m_sSendPasswordMailSubject = tUser.m_sSendPasswordMailSubject;
+                this.m_sSendPasswordMailTemplate = tUser.m_sSendPasswordMailTemplate;
+                this.m_sWelcomeFacebookMailSubject = tUser.m_sWelcomeFacebookMailSubject;
+                this.m_sWelcomeFacebookMailTemplate = tUser.m_sWelcomeFacebookMailTemplate;
+                this.m_sWelcomeMailSubject = tUser.m_sWelcomeMailSubject;
+                this.m_sWelcomeMailTemplate = tUser.m_sWelcomeMailTemplate;
+                this.m_nActivationMustHours = tUser.m_nActivationMustHours;
+                this.m_nTokenValidityHours = tUser.m_nTokenValidityHours;
+                this.m_nChangePinTokenValidityHours = tUser.m_nChangePinTokenValidityHours;
+                #endregion
+            }
+            else
+            {
+                #region GetValues from DB
+                DataRowView dvMailParameters = DAL.UsersDal.GetGroupMailParameters(m_nGroupID);
+                if (dvMailParameters != null)
+                {
+                    // string members
+                    m_sWelcomeMailTemplate = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_MAIL");
+                    m_sWelcomeFacebookMailTemplate = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_FACEBOOK_MAIL");
+                    m_sMailFromAdd = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_ADD");
+                    m_sWelcomeMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_MAIL_SUBJECT");
+                    m_sWelcomeFacebookMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_FACEBOOK_MAIL_SUBJECT");
+                    m_sForgotPasswordMail = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "FORGOT_PASSWORD_MAIL");
+                    m_sChangedPinMail = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGED_PIN_MAIL");
+                    m_sChangedPinMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGED_PIN_MAIL_SUBJECT");
+                    m_sActivationMail = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "ACTIVATION_MAIL");
+                    m_sMailFromName = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_NAME");
+                    m_sMailServer = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_SERVER");
+                    m_sMailServerUN = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_USER_NAME");
+                    m_sMailServerPass = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_PASSWORD");
+                    m_sForgotPassMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "FORGOT_PASS_MAIL_SUBJECT");
+                    m_sSendPasswordMailTemplate = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "SEND_PASSWORD_MAIL");
+                    m_sSendPasswordMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "SEND_PASSWORD_MAIL_SUBJECT");
+                    m_sChangePasswordMail = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGE_PASSWORD_MAIL");
+                    m_sChangePassMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGE_PASSWORD_MAIL_SUBJECT");
+                    //int members
+                    Int32 nActivationNeeded = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["IS_ACTIVATION_NEEDED"]);
+                    m_nActivationMustHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["ACTIVATION_MUST_HOURS"]);
+                    m_nTokenValidityHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["TOKEN_VALIDITY_HOURS"]);
+                    m_nChangePinTokenValidityHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["CHANGED_PIN_TOKEN_VALIDITY_HOURS"]);
+                    m_sMailSSL = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters, "MAIL_SSL");
+                    m_sMailPort = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters, "MAIL_PORT");
+                    //bool member
+                    m_bIsActivationNeeded = (nActivationNeeded == 1);
 
-                // try get mail parameters from cache 
-                TvinciUsers tUser = null;
-                string key = string.Format("users_TvinciUsersInitialize_{0}", m_nGroupID);
-                bool bRes = UsersCache.GetItem<TvinciUsers>(key, out tUser);
-                if (bRes)
-                {
-                    #region Initialize from cache
-                    this.m_bIsActivationNeeded = tUser.m_bIsActivationNeeded;
-                    this.m_mailImpl = tUser.m_mailImpl;
-                    this.m_nGroupID = tUser.m_nGroupID;
-                    this.m_sActivationMail = tUser.m_sActivationMail;
-                    this.m_sChangedPinMail = tUser.m_sChangedPinMail;
-                    this.m_sChangedPinMailSubject = tUser.m_sChangedPinMailSubject;
-                    this.m_sChangePassMailSubject = tUser.m_sChangePassMailSubject;
-                    this.m_sChangePasswordMail = tUser.m_sChangePasswordMail;
-                    this.m_sForgotPassMailSubject = tUser.m_sForgotPassMailSubject;
-                    this.m_sForgotPasswordMail = tUser.m_sForgotPasswordMail;
-                    this.m_sMailFromAdd = tUser.m_sMailFromAdd;
-                    this.m_sMailFromName = tUser.m_sMailFromName;
-                    this.m_sMailPort = tUser.m_sMailPort;
-                    this.m_sMailServer = tUser.m_sMailServer;
-                    this.m_sMailServerPass = tUser.m_sMailServerPass;
-                    this.m_sMailServerUN = tUser.m_sMailServerUN;
-                    this.m_sMailSSL = tUser.m_sMailSSL;
-                    this.m_sSendPasswordMailSubject = tUser.m_sSendPasswordMailSubject;
-                    this.m_sSendPasswordMailTemplate = tUser.m_sSendPasswordMailTemplate;
-                    this.m_sWelcomeFacebookMailSubject = tUser.m_sWelcomeFacebookMailSubject;
-                    this.m_sWelcomeFacebookMailTemplate = tUser.m_sWelcomeFacebookMailTemplate;
-                    this.m_sWelcomeMailSubject = tUser.m_sWelcomeMailSubject;
-                    this.m_sWelcomeMailTemplate = tUser.m_sWelcomeMailTemplate;
-                    this.m_nActivationMustHours = tUser.m_nActivationMustHours;
-                    this.m_nTokenValidityHours = tUser.m_nTokenValidityHours;
-                    this.m_nChangePinTokenValidityHours = tUser.m_nChangePinTokenValidityHours;
-                    #endregion
-                }
-                else
-                {
-                    #region GetValues from DB
-                    DataRowView dvMailParameters = DAL.UsersDal.GetGroupMailParameters(m_nGroupID);
-                    if (dvMailParameters != null)
+                    int nMailImplID = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters, "Mail_Impl_ID");
+
+                    if (nMailImplID > 0)
                     {
-                        // string members
-                        m_sWelcomeMailTemplate = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_MAIL");
-                        m_sWelcomeFacebookMailTemplate = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_FACEBOOK_MAIL");
-                        m_sMailFromAdd = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_ADD");
-                        m_sWelcomeMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_MAIL_SUBJECT");
-                        m_sWelcomeFacebookMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "WELCOME_FACEBOOK_MAIL_SUBJECT");
-                        m_sForgotPasswordMail = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "FORGOT_PASSWORD_MAIL");
-                        m_sChangedPinMail = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGED_PIN_MAIL");
-                        m_sChangedPinMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGED_PIN_MAIL_SUBJECT");
-                        m_sActivationMail = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "ACTIVATION_MAIL");
-                        m_sMailFromName = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_FROM_NAME");
-                        m_sMailServer = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_SERVER");
-                        m_sMailServerUN = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_USER_NAME");
-                        m_sMailServerPass = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "MAIL_PASSWORD");
-                        m_sForgotPassMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "FORGOT_PASS_MAIL_SUBJECT");
-                        m_sSendPasswordMailTemplate = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "SEND_PASSWORD_MAIL");
-                        m_sSendPasswordMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "SEND_PASSWORD_MAIL_SUBJECT");
-                        m_sChangePasswordMail = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGE_PASSWORD_MAIL");
-                        m_sChangePassMailSubject = ODBCWrapper.Utils.GetSafeStr(dvMailParameters, "CHANGE_PASSWORD_MAIL_SUBJECT");
-                        //int members
-                        Int32 nActivationNeeded = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["IS_ACTIVATION_NEEDED"]);
-                        m_nActivationMustHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["ACTIVATION_MUST_HOURS"]);
-                        m_nTokenValidityHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["TOKEN_VALIDITY_HOURS"]);
-                        m_nChangePinTokenValidityHours = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters["CHANGED_PIN_TOKEN_VALIDITY_HOURS"]);
-                        m_sMailSSL = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters, "MAIL_SSL");
-                        m_sMailPort = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters, "MAIL_PORT");
-                        //bool member
-                        m_bIsActivationNeeded = (nActivationNeeded == 1);
-
-                        int nMailImplID = ODBCWrapper.Utils.GetIntSafeVal(dvMailParameters, "Mail_Impl_ID");
-
-                        if (nMailImplID > 0)
-                        {
-                            m_mailImpl = Utils.GetBaseImpl(m_nGroupID, 0, nMailImplID);
-                        }
-
-                        // add to cache 
-                        bRes = UsersCache.AddItem(key, this);
+                        m_mailImpl = Utils.GetBaseImpl(m_nGroupID, 0, nMailImplID);
                     }
-                    #endregion
+
+                    // add to cache 
+                    bRes = UsersCache.AddItem(key, this);
                 }
+                #endregion
             }
         }
 
