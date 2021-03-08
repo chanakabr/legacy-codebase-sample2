@@ -450,7 +450,15 @@ namespace WebAPI.Clients
                     {
                         if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
                         {
-                            assetsBaseDataList.Add(aggregationResult.topHits[0]);
+                            if (aggregationResult.value == ElasticsearchWrapper.MissedHitBucketKey.ToString())
+                            {
+                                //take all hits from 'missing' bucket
+                                assetsBaseDataList.AddRange(aggregationResult.topHits);
+                            }
+                            else
+                            {
+                                assetsBaseDataList.Add(aggregationResult.topHits[0]);
+                            }
                         }
                     }
 
@@ -818,7 +826,7 @@ namespace WebAPI.Clients
                 isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
                 shouldIgnoreEndDate = ignoreEndDate,
                 isGroupingOptionInclude = GenericExtensionMethods.ConvertEnumsById<KalturaGroupingOption, GroupingOption>(groupByType) == GroupingOption.Include
-        };
+            };
 
             if (groupBy != null && groupBy.Count > 0)
             {
@@ -2692,7 +2700,7 @@ namespace WebAPI.Clients
 
         internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
                                                             KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
-                                                            KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, List<string> groupByValues = null, 
+                                                            KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, List<string> groupByValues = null,
                                                             bool allowIncludedGroupBy = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();

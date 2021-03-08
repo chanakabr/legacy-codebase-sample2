@@ -70,7 +70,11 @@ namespace ApiLogic.Catalog.Searcher.GroupBy
 
         private static string GetFieldValue(ESAggregationBucket bucket, Func<ElasticSearchApi.ESAssetDocument, string> fieldGetter)
         {
-            var document = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME].hits?.hits.SingleOrDefault();
+            var hits = bucket.Aggregations[ESTopHitsAggregation.DEFAULT_NAME].hits?.hits;
+            if (hits!=null && hits.Count > 1)
+                return null;
+            
+            var document = hits.SingleOrDefault();
             return document == null ? null : fieldGetter(document);
         }
     }

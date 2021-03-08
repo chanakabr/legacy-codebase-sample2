@@ -504,19 +504,38 @@ namespace WebAPI.Utils
 
                 if (tempAssets != null)
                 {
-                    for (int i = 0; i < tempAssets.Count; i++)
+                    if (tempAssets.Count <= aggregationResults.Count)
                     {
-                        KalturaIntegerValueListResponse res = null;
-
-                        res = new KalturaIntegerValueListResponse()
+                        for (int i = 0; i < tempAssets.Count; i++)
                         {
-                            Values = new List<KalturaIntegerValue>() { new KalturaIntegerValue() { value = aggregationResults[i].count } },
-                            TotalCount = aggregationResults[i].count
-                        };
+                            KalturaIntegerValueListResponse res = null;
 
-                        if (res != null)
+                            res = new KalturaIntegerValueListResponse()
+                            {
+                                Values = new List<KalturaIntegerValue>() { new KalturaIntegerValue() { value = aggregationResults[i].count } },
+                                TotalCount = aggregationResults[i].count
+                            };
+
+                            if (res != null)
+                            {
+                                tempAssets[i].relatedObjects = new SerializableDictionary<string, IKalturaListResponse>() { { profileName, res } };
+                            }
+                        }
+                    }
+                    else
+                    {
+                        for (int i = 0; i < aggregationResults.Count; i++)
                         {
-                            tempAssets[i].relatedObjects = new SerializableDictionary<string, IKalturaListResponse>() { { profileName, res } };
+                            var res = new KalturaIntegerValueListResponse()
+                            {
+                                Values = new List<KalturaIntegerValue>() { new KalturaIntegerValue() { value = aggregationResults[i].count } },
+                                TotalCount = aggregationResults[i].count
+                            };
+
+                            if (res != null)
+                            {
+                                tempAssets[i].relatedObjects = new SerializableDictionary<string, IKalturaListResponse>() { { profileName, res } };
+                            }
                         }
                     }
                 }

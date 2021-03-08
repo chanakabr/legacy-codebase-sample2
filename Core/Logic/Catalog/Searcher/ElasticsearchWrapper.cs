@@ -43,6 +43,7 @@ namespace Core.Catalog
         protected const string ES_EPG_TYPE = "epg";
         protected const string CHANNEL_ASSET_USER_RULE_ID = "asset_user_rule_id";
         protected IElasticSearchApi m_oESApi;
+        public static readonly int MissedHitBucketKey = 999;
 
         public ElasticsearchWrapper()
         {
@@ -2273,7 +2274,7 @@ namespace Core.Catalog
                     Name =  CatalogLogic.SUB_SUM_AGGREGATION_NAME,
                     Type = eElasticAggregationType.sum,
                     Field = CatalogLogic.STAT_ACTION_COUNT_VALUE_FIELD,
-                    Missing = "1"
+                    Missing = 1
                 });
             }
 
