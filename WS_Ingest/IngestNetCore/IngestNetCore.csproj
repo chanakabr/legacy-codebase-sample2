@@ -10,6 +10,24 @@
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <LangVersion>7.1</LangVersion>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <None Remove="ssl\ssl.crt" />
+    <None Remove="ssl\ssl.key" />
+    <None Remove="ssl\ssl.pfx" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Include="ssl\ssl.crt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ssl\ssl.key">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ssl\ssl.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="SoapCore" Version="1.0.0" />
