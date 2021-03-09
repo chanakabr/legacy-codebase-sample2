@@ -380,6 +380,9 @@ namespace ObjectsConvertor.Mapping
             KalturaUserAssetsListType result;
             switch (listType)
             {
+                case ListType.All:
+                    result = KalturaUserAssetsListType.all;
+                    break;
                 case ListType.Watch:
                     result = KalturaUserAssetsListType.watch;
                     break;

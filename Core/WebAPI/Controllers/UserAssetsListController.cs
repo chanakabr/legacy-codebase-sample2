@@ -24,11 +24,12 @@ namespace WebAPI.Controllers
         [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.InvalidUser)]
-        static public List<KalturaUserAssetsList> List(KalturaUserAssetsListFilter filter)
+        public static List<KalturaUserAssetsList> List(KalturaUserAssetsListFilter filter)
         {
             List<KalturaUserAssetsList> response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
+            var groupId = KS.GetFromRequest().GroupId;
+            var userId = KS.GetFromRequest().UserId;
 
             try
             {
@@ -36,23 +37,22 @@ namespace WebAPI.Controllers
                 switch (filter.By)
                 {
                     case KalturaEntityReferenceBy.user:
-                        response = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string>() { KS.GetFromRequest().UserId}, filter.ListTypeEqual, filter.AssetTypeEqual);
+                        response = ClientsManager.UsersClient().GetItemFromList(groupId, new List<string> { userId }, filter.ListTypeEqual, filter.AssetTypeEqual);
                         break;
                     case KalturaEntityReferenceBy.household:
-                        List<string> householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
+                        var householdUserIds = HouseholdUtils.GetHouseholdUserIds(groupId);
                         if (householdUserIds != null && householdUserIds.Count > 0)
                         {
                             response = ClientsManager.UsersClient().GetItemFromList(groupId, householdUserIds, filter.ListTypeEqual, filter.AssetTypeEqual);
                         }
                         else
                         {
-                            throw new ClientException((int)WebAPI.Managers.Models.StatusCode.HouseholdInvalid, "Household not found");
+                            throw new ClientException((int)StatusCode.HouseholdInvalid, "Household not found");
                         }
                         break;
                     default:
                         break;
                 }
-                
             }
             catch (ClientException ex)
             {
