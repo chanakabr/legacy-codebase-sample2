@@ -52,6 +52,7 @@ namespace Core.Catalog.CatalogManagement
         private const string GENRE_META_SYSTEM_NAME = "Genre";
         private const string CRID_META_SYSTEM_NAME = "Crid";
         private const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
+        private const string START_DATE_SHOULD_BE_LESS_THAN_END_DATE_ERROR = "StartDate should be less than EndDate.";
         private static readonly int MaxDescriptionSize = 1024;
         private static readonly int MaxNameSize = 255;
 

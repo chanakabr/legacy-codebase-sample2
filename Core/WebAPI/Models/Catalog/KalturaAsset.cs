@@ -250,6 +250,7 @@ namespace WebAPI.Models.Catalog
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
             }
 
+            this.ValidateStartEndDates();
             this.ValidateMetas();
             this.ValidateTags();
             this.ValidateRelatedEntities();
@@ -290,7 +291,8 @@ namespace WebAPI.Models.Catalog
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
             }
-
+            
+            this.ValidateStartEndDates();
             this.ValidateMetas();
             this.ValidateTags();
             this.ValidateRelatedEntities();
@@ -340,6 +342,14 @@ namespace WebAPI.Models.Catalog
                         multilingualStringValue.value.Validate(metaValues.Key);
                     }
                 }
+            }
+        }
+
+        internal void ValidateStartEndDates()
+        {
+            if (!(this.StartDate < this.EndDate))
+            {
+                throw new BadRequestException(BadRequestException.START_DATE_SHOULD_BE_LESS_THAN_END_DATE, "StartDate", "EndDate");
             }
         }
 

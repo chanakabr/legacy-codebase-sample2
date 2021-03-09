@@ -1028,6 +1028,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidValueSentForMeta)]
         [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
         [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
+        [Throws(StatusCode.StartDateShouldBeLessThanEndDate)]
         static public KalturaAsset Add(KalturaAsset asset)
         {
             KalturaAsset response = null;
@@ -1095,6 +1096,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
         [Throws(eResponseStatus.RelatedEntitiesExceedLimitation)]
+        [Throws(StatusCode.StartDateShouldBeLessThanEndDate)]
         [SchemeArgument("id", MinLong = 1)]
         static public KalturaAsset Update(long id, KalturaAsset asset)
         {
