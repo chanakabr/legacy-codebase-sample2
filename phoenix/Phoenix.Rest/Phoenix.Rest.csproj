@@ -12,9 +12,24 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="ssl-dev\cert.pfx">
+    <None Remove="ssl\ssl.crt" />
+    <None Remove="ssl\ssl.key" />
+    <None Remove="ssl\ssl.pfx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="ssl\ssl.crt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="ssl\ssl.key">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ssl\ssl.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Update="app.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

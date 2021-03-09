@@ -6,6 +6,7 @@ using ApiObjects.SearchObjects;
 using ConfigurationManager;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using Core.GroupManagers;
 using DAL;
 using KLogMonitor;
 using KlogMonitorHelper;
@@ -84,7 +85,9 @@ namespace Core.Api.Managers
             {
                 if (assetIds != null && assetIds.Count > 0 && ruleToApply != null && ruleToApply.Actions != null)
                 {
-                    res = ApplyLifeCycleRuleTagTransitionsOnAssets(ruleToApply.IsAssetRule, assetIds, ruleToApply.Actions.TagIdsToAdd, ruleToApply.Actions.TagIdsToRemove) &&
+                    bool isOpc = GroupSettingsManager.IsOpc(groupId); //BEO-9685
+
+                    res = ApplyLifeCycleRuleTagTransitionsOnAssets(isOpc, assetIds, ruleToApply.Actions.TagIdsToAdd, ruleToApply.Actions.TagIdsToRemove) &&
                           ApplyLifeCycleRuleFileTypeAndPpvTransitionsOnAssets(assetIds, ruleToApply.Actions.FileTypesAndPpvsToAdd, ruleToApply.Actions.FileTypesAndPpvsToRemove) &&
                           (!ruleToApply.Actions.GeoBlockRuleToSet.HasValue || ApplyLifeCycleRuleGeoBlockTransitionOnAssets(assetIds, ruleToApply.Actions.GeoBlockRuleToSet.Value));
                     if (!Catalog.Module.UpdateIndex(assetIds, groupId, eAction.Update))
