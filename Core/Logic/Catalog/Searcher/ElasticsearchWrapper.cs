@@ -2933,6 +2933,13 @@ namespace Core.Catalog
                 totalItems = Convert.ToInt32(aggregationsResult.Aggregations[cardinalityKey].value);
             }
 
+            //BEO-9740
+            if (aggregationsResult.Aggregations[currentGroupBy].buckets.Any(x=>x.key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString()))
+            {
+                totalItems += aggregationsResult.Aggregations[currentGroupBy].buckets
+                    .Where(x => x.key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString()).First().doc_count;
+            }
+
             var result = new AggregationsResult()
             {
                 field = currentGroupBy,
