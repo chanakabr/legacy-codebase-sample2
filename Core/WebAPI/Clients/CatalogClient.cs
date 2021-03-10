@@ -3114,7 +3114,15 @@ namespace WebAPI.Clients
 
                 // get assets from catalog/cache
                 result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request);
-                result.TotalCount = result.Objects.Count; //BEO-8507
+                
+                if (result.Objects.Count < request.m_nPageSize && request.m_nPageIndex == 1)
+                {
+                   result.TotalCount = result.Objects.Count; //BEO-8507
+                }
+                else
+                {
+                    result.TotalCount = scheduledRecordingResponse.m_nTotalItems; //BEO-9440
+                }
             }
 
             return result;
