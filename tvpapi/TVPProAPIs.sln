@@ -173,6 +173,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RedisManager", "..\Core\Red
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CanaryDeploymentManager", "..\Core\CanaryDeploymentManager\CanaryDeploymentManager.csproj", "{417B7482-5985-45C4-8AEE-57BD7618C87F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticationGrpcClientWrapper", "..\Core\AuthenticationGrpcClientWrapper\AuthenticationGrpcClientWrapper.csproj", "{A3189DB3-0B51-4364-88A3-C39D1AD7D043}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcClientCommon", "..\Core\GrpcClientCommon\GrpcClientCommon.csproj", "{26624559-8C40-490D-A342-0D9CA5C141B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		AllClients|Any CPU = AllClients|Any CPU
@@ -1150,6 +1154,34 @@ Global
 		{417B7482-5985-45C4-8AEE-57BD7618C87F}.test|Any CPU.Build.0 = Debug|Any CPU
 		{417B7482-5985-45C4-8AEE-57BD7618C87F}.Yes|Any CPU.ActiveCfg = Debug|Any CPU
 		{417B7482-5985-45C4-8AEE-57BD7618C87F}.Yes|Any CPU.Build.0 = Debug|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.AllClients|Any CPU.ActiveCfg = Release|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.AllClients|Any CPU.Build.0 = Release|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.debug32|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.debug32|Any CPU.Build.0 = Debug|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.Local|Any CPU.Build.0 = Release|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.test|Any CPU.ActiveCfg = Release|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.test|Any CPU.Build.0 = Release|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.Yes|Any CPU.ActiveCfg = Release|Any CPU
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043}.Yes|Any CPU.Build.0 = Release|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.AllClients|Any CPU.ActiveCfg = Release|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.AllClients|Any CPU.Build.0 = Release|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.debug32|Any CPU.ActiveCfg = Debug|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.debug32|Any CPU.Build.0 = Debug|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.Local|Any CPU.ActiveCfg = Release|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.Local|Any CPU.Build.0 = Release|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.test|Any CPU.ActiveCfg = Release|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.test|Any CPU.Build.0 = Release|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.Yes|Any CPU.ActiveCfg = Release|Any CPU
+		{26624559-8C40-490D-A342-0D9CA5C141B4}.Yes|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1230,9 +1262,11 @@ Global
 		{76DCEFBC-7486-425C-BD49-4E49EC3CBB2F} = {1DA53641-8E7E-4FF5-BA7D-2A467BCEB42F}
 		{B999E28E-EF70-42DA-A50E-ACC2BD710C65} = {8986F8B1-7C12-4AEE-A0DB-1A613A8E9F40}
 		{417B7482-5985-45C4-8AEE-57BD7618C87F} = {8986F8B1-7C12-4AEE-A0DB-1A613A8E9F40}
+		{A3189DB3-0B51-4364-88A3-C39D1AD7D043} = {80535B55-CED9-4B4A-9040-933D6AC84B2E}
+		{26624559-8C40-490D-A342-0D9CA5C141B4} = {80535B55-CED9-4B4A-9040-933D6AC84B2E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {5604D01E-691A-49EC-9DF9-EECBFAFD1E19}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {5604D01E-691A-49EC-9DF9-EECBFAFD1E19}
 	EndGlobalSection
 EndGlobal

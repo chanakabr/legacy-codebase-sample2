@@ -6,6 +6,7 @@ using ApiObjects.CanaryDeployment;
 using ApiObjects.DataMigrationEvents;
 using Core.Users.Cache;
 using EventBus.Kafka;
+using ConfigurationManager;
 
 namespace Core.Users
 {
@@ -30,10 +31,28 @@ namespace Core.Users
         /// <returns>New PIN</returns>
         public override string GetPINForDevice(int nGroupID, string sDeviceUDID, int nBrandID)
         {
+            string pinCode = string.Empty;
+
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().
+                IsDataOwnershipFlagEnabled(nGroupID, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginPin))
+            {
+                var authClient = AuthenticationGrpcClientWrapper.AuthenticationClient.GetClientFromTCM();
+                pinCode = authClient.GenerateDeviceLoginPin(nGroupID, sDeviceUDID, nBrandID);
+            }
+            else
+            {
+                pinCode = GetPinForDeviceFromDB(nGroupID, sDeviceUDID, nBrandID);
+            }
+
+            return pinCode;
+        }
+
+        private static string GetPinForDeviceFromDB(int nGroupID, string sDeviceUDID, int nBrandID)
+        {
+            string pinCode;
             Device device = new Device(sDeviceUDID, nBrandID, nGroupID);
             device.Initialize(sDeviceUDID);
 
-            string pinCode;
             // Device already exists
             if (device.m_pin != string.Empty)
             {
@@ -46,12 +65,11 @@ namespace Core.Users
                 device.m_pin = sNewDevicePIN;
 
                 var nDeviceID = device.Save(0, 1, new DomainDevice()); // Returns device ID, 0 otherwise
-                
+
                 pinCode = nDeviceID != 0 ? sNewDevicePIN : string.Empty;
             }
-            
+
             SendCanaryMigrationEvent(nGroupID, sDeviceUDID, pinCode);
-            
             return pinCode;
         }
 
