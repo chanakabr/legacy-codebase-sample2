@@ -273,14 +273,14 @@ namespace AuthenticationGrpcClientWrapper
                 using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "GenerateDeviceLoginPin"))
                 {
                     mon.Table = $"partnerId:{partnerId}";
-                    var grpcResponse = _Client.GenerateDevicePin(new GenerateDevicePinRequest()
+                    var grpcResponse = _Client.GenerateDeviceLoginPin(new GenerateDeviceLoginPinRequest()
                     {
                         PartnerId = partnerId,
                         BrandId = brandId,
                         UDID = udid
                     });
 
-                    return grpcResponse?.Pin_;
+                    return grpcResponse?.Pin;
                 }
             }
             catch (Exception e)
