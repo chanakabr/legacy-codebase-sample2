@@ -127,7 +127,7 @@ namespace ApiLogic.Api.Managers
             else
             {
                 var groupDynamicLists = GetDynamicListIdsByGroup(contextData.GroupId, filter.TypeEqual);
-                if (groupDynamicLists.Count > 0)
+                if (groupDynamicLists != null && groupDynamicLists.Any())
                 {
                     response.Objects = groupDynamicLists.Select(id => Get(contextData, id)).Where(dynamicListResponse => dynamicListResponse.HasObject()).Select(x => x.Object).ToList();
                     if (pager != null)

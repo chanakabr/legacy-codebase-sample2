@@ -138,7 +138,7 @@ namespace ElasticSearchHandler.Updaters
             //result &= Core.Catalog.CatalogManagement.IndexManager.UpsertEpg(groupId, id);
             try
             {
-                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                 CatalogGroupCache catalogGroupCache = null;
                 Group group = null;
                 if (doesGroupUsesTemplates)
@@ -395,7 +395,7 @@ namespace ElasticSearchHandler.Updaters
 
             if (epgIDs != null & epgIDs.Count > 0)
             {
-                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                 CatalogGroupCache catalogGroupCache = null;
                 Group group = null;
                 if (doesGroupUsesTemplates)

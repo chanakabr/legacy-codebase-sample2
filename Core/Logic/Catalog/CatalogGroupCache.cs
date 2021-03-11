@@ -25,13 +25,14 @@ namespace Core.Catalog
                 return defaultLanguage;
             }
         }
-        
+
         public Dictionary<string, LanguageObj> LanguageMapByCode { get; set; }
-        public Dictionary<int, LanguageObj> LanguageMapById { get; set; }        
+        public Dictionary<int, LanguageObj> LanguageMapById { get; set; }
         public Dictionary<string, AssetStruct> AssetStructsMapBySystemName { get; set; }
         public Dictionary<long, AssetStruct> AssetStructsMapById { get; private set; }
         public Dictionary<string, Dictionary<string, Topic>> TopicsMapBySystemNameAndByType { get; set; }
         public Dictionary<long, Topic> TopicsMapById { get; set; }
+
 
         /// Indicates if this group has DTT regionalisation support or not
         /// </summary>
@@ -69,24 +70,12 @@ namespace Core.Catalog
         public bool IsAssetUserRuleEnabled { get; set; }
 
         private long programAssetStructId;
-        public long ProgramAssetStructId
-        {
-            get
-            {
-                if (programAssetStructId == 0)
-                {
-                    SetProgramAssetStructId();
-                }
-
-                return programAssetStructId;
-            }
-        }
 
         public CatalogGroupCache()
         {
             defaultLanguage = null;
             LanguageMapByCode = new Dictionary<string, LanguageObj>(StringComparer.OrdinalIgnoreCase);
-            LanguageMapById = new Dictionary<int, LanguageObj>();            
+            LanguageMapById = new Dictionary<int, LanguageObj>();
             AssetStructsMapBySystemName = new Dictionary<string, AssetStruct>(StringComparer.OrdinalIgnoreCase);
             AssetStructsMapById = new Dictionary<long, AssetStruct>();
             TopicsMapBySystemNameAndByType = new Dictionary<string, Dictionary<string, Topic>>(StringComparer.OrdinalIgnoreCase);
@@ -156,6 +145,7 @@ namespace Core.Catalog
 
         public bool IsValid()
         {
+            var DefaultLanguage = GetDefaultLanguage();
             return DefaultLanguage != null && DefaultLanguage.ID > 0 && LanguageMapByCode != null && LanguageMapByCode.Count > 0 && LanguageMapById != null && LanguageMapById.Count > 0
                     && AssetStructsMapById != null && AssetStructsMapById.Count > 0 && AssetStructsMapBySystemName != null && AssetStructsMapBySystemName.Count == AssetStructsMapById.Count
                     && TopicsMapById != null && TopicsMapById.Count > 0 && TopicsMapBySystemNameAndByType != null;
@@ -164,8 +154,8 @@ namespace Core.Catalog
         private static void SetCatalogGroupCacheDefaults(int groupId, CatalogGroupCache catalogGroupCache)
         {
             bool isRegionalizationEnabled, isGeoAvailabilityEnabled, isAssetUserRuleEnabled;
-            int defaultRegion, defaultRecommendationEngine, relatedRecommendationEngine, searchRecommendationEngine, relatedRecommendationEngineEnrichments, searchRecommendationEngineEnrichments;      
-            
+            int defaultRegion, defaultRecommendationEngine, relatedRecommendationEngine, searchRecommendationEngine, relatedRecommendationEngineEnrichments, searchRecommendationEngineEnrichments;
+
             CatalogDAL.GetGroupDefaultParameters(groupId, out isRegionalizationEnabled, out defaultRegion, out defaultRecommendationEngine, out relatedRecommendationEngine, out searchRecommendationEngine,
                                                 out relatedRecommendationEngineEnrichments, out searchRecommendationEngineEnrichments, out isGeoAvailabilityEnabled, out isAssetUserRuleEnabled);
             catalogGroupCache.IsRegionalizationEnabled = isRegionalizationEnabled;
@@ -193,16 +183,16 @@ namespace Core.Catalog
             var realAssetStructId = assetStructId;
             isProgramAssetStruct = false;
 
-            if (ProgramAssetStructId != 0 && (assetStructId == 0 || assetStructId == ProgramAssetStructId))
+            if (GetProgramAssetStructId() != 0 && (assetStructId == 0 || assetStructId == GetProgramAssetStructId()))
             {
-                realAssetStructId = ProgramAssetStructId;
+                realAssetStructId = GetProgramAssetStructId();
                 isProgramAssetStruct = true;
             }
 
             return realAssetStructId;
         }
 
-        public HashSet<long> GetObjectVirtualAssetIds( )
+        public HashSet<long> GetObjectVirtualAssetIds()
         {
             HashSet<long> ObjectVirtualAssetIds = null;
             var ids = AssetStructsMapById.Values.Where(x => x.IsObjectVirtualAsset).Select(x => x.Id).ToList();
@@ -212,6 +202,30 @@ namespace Core.Catalog
             }
 
             return ObjectVirtualAssetIds;
+        }
+
+        public LanguageObj GetDefaultLanguage()
+        {
+            if (defaultLanguage == null || defaultLanguage.ID == 0)
+            {
+                var defaultLanguageObj = LanguageMapById != null && LanguageMapById.Count > 0 ? LanguageMapById.Values.FirstOrDefault(x => x.IsDefault) : null;
+                if (defaultLanguageObj != null && defaultLanguageObj.ID > 0)
+                {
+                    defaultLanguage = new LanguageObj(defaultLanguageObj.ID, defaultLanguageObj.Name, defaultLanguageObj.Code, defaultLanguageObj.Direction, defaultLanguageObj.IsDefault, defaultLanguageObj.DisplayName);
+                }
+            }
+
+            return defaultLanguage;
+        }
+
+        public long GetProgramAssetStructId()
+        {
+            if (programAssetStructId == 0)
+            {
+                SetProgramAssetStructId();
+            }
+
+            return programAssetStructId;
         }
     }
 }

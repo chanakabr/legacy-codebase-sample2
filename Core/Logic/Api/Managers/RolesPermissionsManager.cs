@@ -429,7 +429,7 @@ namespace APILogic.Api.Managers
         }
         private static bool DoesGroupUsesTemplates(int groupId)
         {
-            return Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            return Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
         }
 
         public static GenericListResponse<PermissionItem> GetPermissionItemList(PermissionItemFilter filter, CorePager pager)

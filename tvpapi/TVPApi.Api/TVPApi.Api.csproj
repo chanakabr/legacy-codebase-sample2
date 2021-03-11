@@ -52,6 +52,22 @@
     <Content Remove="DefaultTechnicalConfiguration.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="ssl\ssl.crt" />
+    <None Remove="ssl\ssl.key" />
+    <None Remove="ssl\ssl.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ssl\ssl.crt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ssl\ssl.key">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ssl\ssl.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <None Include="DefaultTechnicalConfiguration.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

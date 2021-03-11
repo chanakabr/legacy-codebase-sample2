@@ -64,7 +64,7 @@ public partial class adm_media_concurrency_rule : System.Web.UI.Page
     {
         Int32 groupId = LoginManager.GetLoginGroupID();
 
-        if (CatalogManager.DoesGroupUsesTemplates(groupId))
+        if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
         {
             theTable += "select m.id as id, m.NAME , m.status , m.is_active , m.media_concurrency_limit as 'Media Concurrency Limit',  m.tag_type_id as 'TagTypeID'  , t.system_name as 'Tag Type' " +
                         " from media_concurrency_rules m  left join topics t on	m.tag_type_id = t.id " +

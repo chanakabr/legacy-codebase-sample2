@@ -229,10 +229,10 @@ namespace Core.Catalog.CatalogManagement
                 EntryId = media.EntryId,
                 IsActive = StringUtils.TryConvertTo<bool>(media.IsActive),
                 MediaType = new MediaType(mediaType, (int)cache.AssetStructsMapBySystemName[mediaType].Id),
-                Name = GetMainLanguageValue(cache.DefaultLanguage.Code, media.Basic.Name),
-                NamesWithLanguages = GetOtherLanguages(cache.DefaultLanguage.Code, media.Basic.Name),
-                Description = GetMainLanguageValue(cache.DefaultLanguage.Code, media.Basic.Description),
-                DescriptionsWithLanguages = GetOtherLanguages(cache.DefaultLanguage.Code, media.Basic.Description),
+                Name = GetMainLanguageValue(cache.GetDefaultLanguage().Code, media.Basic.Name),
+                NamesWithLanguages = GetOtherLanguages(cache.GetDefaultLanguage().Code, media.Basic.Name),
+                Description = GetMainLanguageValue(cache.GetDefaultLanguage().Code, media.Basic.Description),
+                DescriptionsWithLanguages = GetOtherLanguages(cache.GetDefaultLanguage().Code, media.Basic.Description),
                 StartDate = startDate,
                 CatalogStartDate = GetDateTimeFromString(media.Basic.Dates.CatalogStart, startDate),
                 EndDate = endDate,
@@ -305,7 +305,7 @@ namespace Core.Catalog.CatalogManagement
         {
             var tagMetaType = MetaType.Tag.ToString();
             List<TagToInvalidate> tagsToInvalidate = new List<TagToInvalidate>();
-            var defaultLanguageId = cache.DefaultLanguage.ID;
+            var defaultLanguageId = cache.GetDefaultLanguage().ID;
             Dictionary<string, ApiObjects.SearchObjects.TagValue> tagsMap = new Dictionary<string, TagValue>();
 
             foreach (var tag in tagsTranslations)

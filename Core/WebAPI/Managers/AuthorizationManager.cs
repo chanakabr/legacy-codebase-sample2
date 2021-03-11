@@ -208,7 +208,9 @@ namespace WebAPI.Managers
                     Token = token.RefreshToken,
                     Udid = token.Udid,
                     UserId = long.Parse(token.UserId),
+                    Ks = token.KS,
                     Ttl = refreshTokenExpirationSeconds,
+                    ExpirationDate = DateUtils.GetUtcUnixTimestampNow()+refreshTokenExpirationSeconds
                 };
 
                 KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
@@ -793,7 +795,7 @@ namespace WebAPI.Managers
         {                        
             // Check if KS already validated by gateway
             string ksRandomHeader = HttpContext.Current.Request.Headers["X-Kaltura-KS-Random"];
-            if (ksRandomHeader == ks.Random)
+            if (ks.IsKsFormat && ksRandomHeader == ks.Random)
             {
                 return ValidateKsSignature(ks);
             }
@@ -811,6 +813,12 @@ namespace WebAPI.Managers
                 var hashedKS = new Core.Users.SHA384Encrypter().Encrypt(ks.ToString(), "");
                 var key = LayeredCacheKeys.GetKsValidationResultKey(hashedKS);                
                 var invalidationKeys = new List<string>() { LayeredCacheKeys.GetValidateKsInvalidationKey(hashedKS, ks.GroupId) };
+                //if udid exists add also as invalidation key
+                if (!string.IsNullOrEmpty(KSUtils.ExtractKSPayload().UDID))
+                {
+                    var invKeyUdid = LayeredCacheKeys.GetValidatKSInvalidationKeyUdid(KSUtils.ExtractKSPayload().UDID, ks.GroupId);
+                    invalidationKeys.Add(invKeyUdid);
+                }
 
                 bool isCacheResultRetrived = LayeredCache.Instance.Get<bool>(key, ref isKSValid, GetKsValidationResult, new Dictionary<string, object>() { { "ks", ks.ToString() }, { "ksPartnerId", (long)ks.GroupId } },
                                                         ks.GroupId, LayeredCacheConfigNames.GET_KS_VALIDATION, invalidationKeys);

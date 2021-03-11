@@ -632,7 +632,7 @@ namespace Core.Notification
 
         private static bool IsAlreadyFollowedAsSeries(int groupId, ProgramObj epgProgram, List<Announcement> userSeriesReminders)
         {
-            Dictionary<string, string> aliases = Core.ConditionalAccess.Utils.GetEpgFieldTypeEntitys(groupId, epgProgram.m_oProgram);
+            Dictionary<string, string> aliases = Core.ConditionalAccess.Utils.Instance.GetEpgFieldTypeEntitys(groupId, epgProgram.m_oProgram);
             if (aliases == null || aliases.Count == 0)
             {
                 log.ErrorFormat("failed to alias mappings for groupId = {0}, programId = {1} ", groupId, epgProgram.AssetId);
@@ -1282,7 +1282,7 @@ namespace Core.Notification
                 log.ErrorFormat("series reminder message template was not found. group: {0}", partnerId);
             }
 
-            Dictionary<string, string> aliases = Core.ConditionalAccess.Utils.GetEpgFieldTypeEntitys(partnerId, program.m_oProgram);
+            Dictionary<string, string> aliases = Core.ConditionalAccess.Utils.Instance.GetEpgFieldTypeEntitys(partnerId, program.m_oProgram);
             if (aliases == null || aliases.Count == 0)
             {
                 log.ErrorFormat("failed to alias mappings for groupId = {0}, programId = {1} ", partnerId, program.AssetId);
@@ -1659,7 +1659,7 @@ namespace Core.Notification
                 if (dbReminder == null)
                 {
                     log.DebugFormat("reminder was not found for ingested EPG: group {0}, program ID: {1}", partnerId, program.m_oProgram.EPG_ID);
-                    Dictionary<string, string> epgFieldMappings = ConditionalAccess.Utils.GetEpgFieldTypeEntitys(partnerId, program.m_oProgram);
+                    Dictionary<string, string> epgFieldMappings = ConditionalAccess.Utils.Instance.GetEpgFieldTypeEntitys(partnerId, program.m_oProgram);
                     if (epgFieldMappings != null && epgFieldMappings.Count > 0)
                     {
                         long epgChannelId;

@@ -51,7 +51,7 @@ namespace ElasticSearchHandler.IndexBuilders
             List<Topic> tags = new List<Topic>();
 
             // Check if group supports Templates
-            if (CatalogManager.DoesGroupUsesTemplates(groupId))
+            if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
             {
                 CatalogGroupCache catalogGroupCache;
 

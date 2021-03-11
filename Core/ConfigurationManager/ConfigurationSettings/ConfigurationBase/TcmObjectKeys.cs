@@ -25,6 +25,7 @@
 		public const string HttpClientConfiguration = "http_client_configuration";
 		public const string MicroservicesClientConfiguration = "microservices_client_configuration";
 		public const string AuthenticationServiceConfiguration = "authentication";
+		public const string EpgCacheServiceConfiguration = "epgcache";
 		public const string MicroserviceLayeredCacheConfiguration = "layeredcache_configuration";
 		public const string MicroserviceDataOwnershipConfiguration = "data_ownership";
 		public const string TVPApiConfiguration = "tvpapi_configuration";

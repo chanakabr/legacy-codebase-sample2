@@ -266,8 +266,10 @@ namespace DAL
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("is_active", "=", enableInt);
                 if (bIsEnable)
                 {
-                    updateQuery += ", last_activation_date = getdate()";
+                    updateQuery += ", last_activation_date = getutcdate()";
                 }
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("update_date", "=", DateTime.UtcNow);
+
                 updateQuery += " where ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nDomainDeviceID);
 

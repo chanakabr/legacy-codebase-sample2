@@ -107,7 +107,7 @@ namespace APILogic
                 // if there are updated assets - get the media objects from catalog and append them to the xml
                 if (updatedAssetsIds != null && updatedAssetsIds.Count > 0)
                 {
-                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                    if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                     {
                         RunExportTasks(groupId, updatedAssetsIds, taskId, exportVodFullPath, mainLang, DoOpcExportUpdatedMediaJob);
                     }
@@ -185,7 +185,7 @@ namespace APILogic
                 // if there are updated assets - get the media objects from catalog and append them to the xml
                 if (updatedAssetsIds != null && updatedAssetsIds.Count > 0)
                 {
-                    if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                    if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                     {
                         RunExportTasks(groupId, updatedAssetsIds, taskId, exportEpgFullPath, mainLang, DoOpcExportUpdatedEpgJob);
                     }

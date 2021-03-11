@@ -28,7 +28,7 @@ namespace Core.Catalog
             int parentGroupId = groupId;
             GroupsCacheManager.GroupManager groupManager = null;
             Group group = null;
-            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             if (doesGroupUsesTemplates)
             {
                 if (catalogGroupCache == null)
@@ -73,7 +73,7 @@ namespace Core.Catalog
                     long userId = 0;
                     long.TryParse(request.m_sSiteGuid, out userId);
 
-                    GenericListResponse<Channel> channelRes = CatalogManagement.ChannelManager.SearchChannels(groupId, true, string.Empty, 
+                    GenericListResponse<Channel> channelRes = CatalogManagement.ChannelManager.Instance.SearchChannels(groupId, true, string.Empty, 
                         userBundles.channels, 0, userBundles.channels.Count, ChannelOrderBy.Id, OrderDir.ASC, false, userId);
                     if (channelRes.HasObjects())
                     {

@@ -54,13 +54,13 @@ namespace Core.Api.Managers
                 foreach (KeyValuePair<int, List<AssetRule>> pair in allRules)
                 {
                     groupId = pair.Key;
-                    bool doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId);
+                    bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                     Group group = null;
                     CatalogGroupCache catalogGroupCache = null;
 
                     if (doesGroupUsesTemplates)
                     {
-                        if (!Catalog.CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                        if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                         {
                             log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DoActionRules", groupId);
                             return result;
@@ -975,7 +975,7 @@ namespace Core.Api.Managers
 
         public static bool IsGeoAssetRulesEnabled(int groupId)
         {
-            if (CatalogManager.DoesGroupUsesTemplates(groupId))
+            if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
             {
                 CatalogGroupCache catalogGroupCache;
                 if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))

@@ -1244,6 +1244,18 @@ namespace DAL
             return result;
         }
 
+        public static bool Remove_ItemsFromUsersList(int groupId, List<long> userIds, List<long> unavailableItemIds)
+        {
+            StoredProcedure sp = new StoredProcedure("Remove_ItemsFromUsersList");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupID", groupId);
+            sp.AddIDListParameter("@userIDs", userIds, "id");
+            sp.AddIDListParameter("@itemIDs", unavailableItemIds, "id");
+            var result = sp.ExecuteReturnValue<bool>();
+            
+            return result;
+        }
+
         public static bool Update_ItemInList(int nSiteGuid, Dictionary<int, List<int>> dItems, int listType, int itemType, int nGroupID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Update_ItemInList");
@@ -1255,20 +1267,6 @@ namespace DAL
             sp.AddParameter("@groupID", nGroupID);
             bool result = sp.ExecuteReturnValue<bool>();
             return result;
-        }
-
-        public static DataTable GetItemFromList(int nSiteGuid, int listType, int itemType, int nGroupID)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_ItemFromList");
-            sp.SetConnectionKey("USERS_CONNECTION_STRING");
-            sp.AddParameter("@userID", nSiteGuid);
-            sp.AddParameter("@listType", listType);
-            sp.AddParameter("@itemType", itemType);
-            sp.AddParameter("@groupID", nGroupID);
-            DataSet ds = sp.ExecuteDataSet();
-            if (ds != null)
-                return ds.Tables[0];
-            return null;
         }
 
         public static DataTable GetItemsFromUsersLists(List<int> userIds, int listType, int itemType, int groupId)

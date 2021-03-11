@@ -382,7 +382,7 @@ namespace APILogic
                         groupId = funcParams["groupId"] as int?;
                         if (groupId.HasValue)
                         {
-                            bool doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId.Value);
+                            bool doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId.Value);
                             DataSet ds = DAL.ApiDAL.Get_MCRulesByGroup(groupId.Value, doesGroupUsesTemplates);
                             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                             {
@@ -492,7 +492,7 @@ namespace APILogic
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue)
                     {
-                        bool doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.DoesGroupUsesTemplates(groupId.Value);
+                        bool doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId.Value);
                         result = DAL.ApiDAL.Get_Group_ParentalRules(groupId.Value, false, doesGroupUsesTemplates);
                         res = result != null ? true : false;
                     }

@@ -13,6 +13,8 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using ApiLogic.Api.Managers;
+using ApiLogic.Catalog.CatalogManagement.Helpers;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
@@ -50,6 +52,7 @@ namespace Core.Catalog.CatalogManagement
         private const string GENRE_META_SYSTEM_NAME = "Genre";
         private const string CRID_META_SYSTEM_NAME = "Crid";
         private const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
+        private const string START_DATE_SHOULD_BE_LESS_THAN_END_DATE_ERROR = "StartDate should be less than EndDate.";
         private static readonly int MaxDescriptionSize = 1024;
         private static readonly int MaxNameSize = 255;
 
@@ -158,7 +161,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                string defaultLanguageCode = catalogGroupCache.DefaultLanguage.Code;
+                string defaultLanguageCode = catalogGroupCache.GetDefaultLanguage().Code;
                 DateTime dateTimeNow = DateTime.UtcNow;
                 EpgCB epgCbToAdd = CreateEpgCbFromEpgAsset(epgAssetToAdd, groupId, dateTimeNow, dateTimeNow);
 
@@ -187,11 +190,12 @@ namespace Core.Catalog.CatalogManagement
                 if (isIngestV2)
                 {
                     var epgBl = new TvinciEpgBL(groupId);
-                    newEpgId = (long)epgBl.GetNewEpgId();
+                    newEpgId = (long) epgBl.GetNewEpgId();
+                    epgCbToAdd.IsIngestV2 = true;
                 }
                 else
                 {
-                    newEpgId = EpgDal.InsertEpgToDB(epgCbToAdd, userId, dateTimeNow, epgMetaIdToValues, catalogGroupCache.DefaultLanguage.ID, epgTagsIds);
+                    newEpgId = EpgDal.InsertEpgToDB(epgCbToAdd, userId, dateTimeNow, epgMetaIdToValues, catalogGroupCache.GetDefaultLanguage().ID, epgTagsIds);
                     if (newEpgId == 0)
                     {
                         log.Error("Inesrt epg to epg_channels_schedule failed");
@@ -230,7 +234,7 @@ namespace Core.Catalog.CatalogManagement
             try
             {
                 DateTime updateDate = DateTime.UtcNow;
-                string defaultLanguageCode = catalogGroupCache.DefaultLanguage.Code;
+                string defaultLanguageCode = catalogGroupCache.GetDefaultLanguage().Code;
                 EpgCB epgCBToUpdate = null;
 
                 bool needToUpdateBasicData;
@@ -239,13 +243,26 @@ namespace Core.Catalog.CatalogManagement
                 bool needToUpdateMetas;
                 List<int> epgTagsIds;
                 bool needToUpdateTags;
+                bool validateSystemTopicDescription;
                 Dictionary<FieldTypes, Dictionary<string, int>> mappingFields = GetMappingFields(groupId);
 
                 // TODO - MERGE OLD TAGS AND METAS ONLY AFTER VALIDATION
                 // TAGS AND METAS IN DB CAN CONTAIN ONLY GOOD
                 // TAGS AND METAS IN CB CAN CONTAIN ALL
-                Status validateStatus = ValidateEpgAssetForUpdate(groupId, userId, epgAssetToUpdate, oldEpgAsset, catalogGroupCache, mappingFields, out needToUpdateBasicData,
-                                                                  out allNames, out epgMetas, out needToUpdateMetas, out epgTagsIds, out needToUpdateTags);
+                Status validateStatus = ValidateEpgAssetForUpdate(
+                    groupId,
+                    userId,
+                    epgAssetToUpdate,
+                    oldEpgAsset,
+                    catalogGroupCache,
+                    mappingFields,
+                    out needToUpdateBasicData,
+                    out allNames,
+                    out epgMetas,
+                    out needToUpdateMetas,
+                    out epgTagsIds,
+                    out needToUpdateTags,
+                    out validateSystemTopicDescription);
 
                 if (!validateStatus.IsOkStatusCode())
                 {
@@ -259,6 +276,7 @@ namespace Core.Catalog.CatalogManagement
                     result.SetStatus(eResponseStatus.Error);
                     return result;
                 }
+
                 // Ingest V2 does not use DB anymore so we will wrap all EpgDAL calls in !isIngestV2
                 var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
 
@@ -302,7 +320,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (!isIngestV2)
                     {
-                        EpgDal.UpdateEpgMetas(epgAssetToUpdate.Id, epgMetaIdToValues, userId, updateDate, groupId, catalogGroupCache.DefaultLanguage.ID);
+                        EpgDal.UpdateEpgMetas(epgAssetToUpdate.Id, epgMetaIdToValues, userId, updateDate, groupId, catalogGroupCache.GetDefaultLanguage().ID);
                     }
                 }
 
@@ -315,15 +333,9 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 Dictionary<string, Dictionary<string, List<string>>> epgTags = GetEpgTags(epgAssetToUpdate.Tags, allNames, defaultLanguageCode);
-
-                bool validateSystemTopic = true;
-                if (epgAssetToUpdate.DescriptionsWithLanguages == null || epgAssetToUpdate.DescriptionsWithLanguages.Count == 0)
-                {
-                    epgAssetToUpdate.DescriptionsWithLanguages = oldEpgAsset.DescriptionsWithLanguages;
-                    validateSystemTopic = false;
-                }
+                
                 var allDescriptions = GetSystemTopicValues(epgAssetToUpdate.Description, epgAssetToUpdate.DescriptionsWithLanguages,
-                                                     catalogGroupCache, AssetManager.DESCRIPTION_META_SYSTEM_NAME, validateSystemTopic, allNames);
+                                                     catalogGroupCache, AssetManager.DESCRIPTION_META_SYSTEM_NAME, validateSystemTopicDescription, allNames);
                 if (!allDescriptions.HasObject())
                 {
                     result.SetStatus(allDescriptions.Status);
@@ -336,11 +348,26 @@ namespace Core.Catalog.CatalogManagement
                 // update epgCb in CB for all languages
                 SaveEpgCbToCB(epgCBToUpdate, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, false);
 
-                // update index
-                bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAssetToUpdate.Id }, false);
-                if (!indexingResult)
+                // delete index, if EPG moved to another day
+                var indexAddAction = false;
+                if (epgAssetToUpdate.StartDate?.Date != oldEpgAsset.StartDate?.Date && isIngestV2)
                 {
-                    log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, groupId: {1} after UpdateEpgAsset", epgAssetToUpdate.Id, groupId);
+                    var deleteIndexResult = IndexManager.DeleteProgram(groupId, new List<long> { epgAssetToUpdate.Id }, new List<string> { epgAssetToUpdate.EpgChannelId.ToString() });
+                    if (deleteIndexResult)
+                    {
+                        indexAddAction = true;
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed {0} index for groupId: {1}, assetId: {2}, channelId: {3} after {4}.", nameof(IndexManager.DeleteProgram), groupId, epgAssetToUpdate.Id, epgAssetToUpdate.EpgChannelId, nameof(SaveEpgCbToCB));
+                    }
+                }
+
+                // update index
+                var upsertIndexingResult = IndexManager.UpsertProgram(groupId, new List<int> { (int)epgAssetToUpdate.Id }, indexAddAction);
+                if (!upsertIndexingResult)
+                {
+                    log.ErrorFormat("Failed {0} index for groupId: {1}, assetId: {2} after {3}.", nameof(IndexManager.UpsertProgram), groupId, epgAssetToUpdate.Id, nameof(SaveEpgCbToCB));
                 }
 
                 SendActionEvent(groupId, oldEpgAsset.Id, eAction.Update);
@@ -388,7 +415,8 @@ namespace Core.Catalog.CatalogManagement
 
             foreach (EpgCB epgCB in epgCbList)
             {
-                var docId = GetEpgCBKey(groupId, epgId, epgCB.Language, catalogGroupCache.DefaultLanguage.Code);
+                var docId = GetEpgCBKey(groupId, epgId, epgCB.Language, 
+                    catalogGroupCache.GetDefaultLanguage().Code);
                 if (!EpgDal.DeleteEpgCB(docId, epgCB))
                 {
                     log.ErrorFormat("Failed to DeleteEpgCB for epgId: {0}", epgId);
@@ -440,7 +468,7 @@ namespace Core.Catalog.CatalogManagement
                     var noneExistingMetaIds = topicIds.Except(existingTopicsIds).ToArray();
                     if (noneExistingMetaIds.Any())
                     {
-                        result = new Status((int) eResponseStatus.MetaIdsDoesNotExistOnAsset, $"{eResponseStatus.MetaIdsDoesNotExistOnAsset.ToString()} for the following Meta Ids: {string.Join(",", noneExistingMetaIds)}");
+                        result = new Status((int)eResponseStatus.MetaIdsDoesNotExistOnAsset, $"{eResponseStatus.MetaIdsDoesNotExistOnAsset.ToString()} for the following Meta Ids: {string.Join(",", noneExistingMetaIds)}");
                         return result;
                     }
 
@@ -586,7 +614,7 @@ namespace Core.Catalog.CatalogManagement
 
                             if (epgCbList != null && epgCbList.Count > 0)
                             {
-                                EpgAsset epgAsset = new EpgAsset(epgCbList, catalogGroupCache.DefaultLanguage.Code, groupEpgPicturesSizes, groupId.Value);
+                                EpgAsset epgAsset = new EpgAsset(epgCbList, catalogGroupCache.GetDefaultLanguage().Code, groupEpgPicturesSizes, groupId.Value);
                                 epgAsset.IndexStatus = AssetIndexStatus.Ok;
                                 string epgAssetKey = LayeredCacheKeys.GetAssetKey(eAssetTypes.EPG.ToString(), epgAsset.Id);
                                 epgAssets.Add(epgAssetKey, epgAsset);
@@ -683,7 +711,7 @@ namespace Core.Catalog.CatalogManagement
             else
             {
                 // in case no language was found - return defalut language
-                languages.Add(catalogGroupCache.DefaultLanguage);
+                languages.Add(catalogGroupCache.GetDefaultLanguage());
             }
 
             return languages;
@@ -739,7 +767,8 @@ namespace Core.Catalog.CatalogManagement
 
         private static Status ValidateEpgAssetForUpdate(int groupId, long userId, EpgAsset epgAssetToUpdate, EpgAsset oldEpgAsset, CatalogGroupCache catalogGroupCache,
                                                         Dictionary<FieldTypes, Dictionary<string, int>> mappingFields, out bool updateBasicData, out Dictionary<string, string> allNames,
-                                                        out Dictionary<string, Dictionary<string, List<string>>> epgMetas, out bool updateMetas, out List<int> epgTagsIds, out bool updateTags)
+                                                        out Dictionary<string, Dictionary<string, List<string>>> epgMetas, out bool updateMetas, out List<int> epgTagsIds, out bool updateTags, 
+                                                        out bool validateSystemTopicDescription)
         {
             updateBasicData = false;
             allNames = null;
@@ -747,6 +776,7 @@ namespace Core.Catalog.CatalogManagement
             updateMetas = true;
             epgTagsIds = null;
             updateTags = true;
+            validateSystemTopicDescription = true;
 
             if (!string.IsNullOrEmpty(epgAssetToUpdate.EpgIdentifier) && !epgAssetToUpdate.EpgIdentifier.Equals(oldEpgAsset.EpgIdentifier))
             {
@@ -761,6 +791,14 @@ namespace Core.Catalog.CatalogManagement
                 epgAssetToUpdate.NamesWithLanguages = oldEpgAsset.NamesWithLanguages;
                 validateSystemTopic = false;
             }
+            
+            if (epgAssetToUpdate.DescriptionsWithLanguages == null || epgAssetToUpdate.DescriptionsWithLanguages.Count == 0)
+            {
+                epgAssetToUpdate.DescriptionsWithLanguages = oldEpgAsset.DescriptionsWithLanguages;
+                validateSystemTopicDescription = false;
+            }
+            
+            EpgAssetMultilingualMutator.Instance.PrepareEpgAsset(epgAssetToUpdate, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapByCode);
 
             var nameValues = GetSystemTopicValues(epgAssetToUpdate.Name, epgAssetToUpdate.NamesWithLanguages, catalogGroupCache,
                                                   AssetManager.NAME_META_SYSTEM_NAME, validateSystemTopic);
@@ -807,14 +845,14 @@ namespace Core.Catalog.CatalogManagement
                 epgMetasToUpdate = new List<Metas>();
             }
 
-            if (catalogGroupCache.ProgramAssetStructId == 0 || oldMetasAsset == null || oldMetasAsset.Count == 0)
+            if (catalogGroupCache.GetProgramAssetStructId() == 0 || oldMetasAsset == null || oldMetasAsset.Count == 0)
             {
                 return epgMetasToUpdate;
             }
 
             List<Metas> excluded = oldMetasAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
                                                             catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
-                                                            catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas
+                                                            catalogGroupCache.AssetStructsMapById[catalogGroupCache.GetProgramAssetStructId()].AssetStructMetas
                                                                 .ContainsKey(catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id) &&
                                                             !epgMetasToUpdate.Contains(x, new MetasComparer())).ToList();
 
@@ -822,7 +860,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 // get all program asset struct topic systemNames and types mapping
                 Dictionary<string, string> programStructTopicSystemNamesToType =
-                    catalogGroupCache.TopicsMapById.Where(x => catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas.ContainsKey(x.Key))
+                    catalogGroupCache.TopicsMapById.Where(x => catalogGroupCache.AssetStructsMapById[catalogGroupCache.GetProgramAssetStructId()].AssetStructMetas.ContainsKey(x.Key))
                                                    .ToDictionary(x => x.Value.SystemName, x => x.Value.Type.ToString());
                 // set Metas original m_sType
                 foreach (Metas meta in excluded)
@@ -843,14 +881,14 @@ namespace Core.Catalog.CatalogManagement
                 epgTagsToUpdate = new List<Tags>();
             }
 
-            if (catalogGroupCache.ProgramAssetStructId == 0 || oldTagsAsset == null || oldTagsAsset.Count == 0)
+            if (catalogGroupCache.GetProgramAssetStructId() == 0 || oldTagsAsset == null || oldTagsAsset.Count == 0)
             {
                 return epgTagsToUpdate;
             }
 
             List<Tags> excluded = oldTagsAsset.Where(x => catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(x.m_oTagMeta.m_sName) &&
                                                           catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName].ContainsKey(x.m_oTagMeta.m_sType) &&
-                                                          catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId].AssetStructMetas
+                                                          catalogGroupCache.AssetStructsMapById[catalogGroupCache.GetProgramAssetStructId()].AssetStructMetas
                                                             .ContainsKey(catalogGroupCache.TopicsMapBySystemNameAndByType[x.m_oTagMeta.m_sName][x.m_oTagMeta.m_sType].Id) &&
                                                           !epgTagsToUpdate.Contains(x, new TagsComparer())).ToList();
 
@@ -893,6 +931,8 @@ namespace Core.Catalog.CatalogManagement
             {
                 return new Status((int)eResponseStatus.AssetExternalIdMustBeUnique, eResponseStatus.AssetExternalIdMustBeUnique.ToString());
             }
+            
+            EpgAssetMultilingualMutator.Instance.PrepareEpgAsset(epgAssetToAdd, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapByCode);
 
             // Add Name meta values
             var nameValues = GetSystemTopicValues(epgAssetToAdd.Name, epgAssetToAdd.NamesWithLanguages, catalogGroupCache,
@@ -902,7 +942,7 @@ namespace Core.Catalog.CatalogManagement
                 return nameValues.Status;
             }
 
-            if (!nameValues.Object.ContainsKey(catalogGroupCache.DefaultLanguage.Code))
+            if (!nameValues.Object.ContainsKey(catalogGroupCache.GetDefaultLanguage().Code))
             {
                 return new Status((int)eResponseStatus.NameRequired, "Name in default language is required");
             }
@@ -926,13 +966,13 @@ namespace Core.Catalog.CatalogManagement
             epgMetas = null;
             epgTagsIds = null;
 
-            if (catalogGroupCache.ProgramAssetStructId == 0)
+            if (catalogGroupCache.GetProgramAssetStructId() == 0)
             {
                 return new Status((int)eResponseStatus.AssetStructDoesNotExist, "Program AssetStruct does not exist");
             }
 
-            AssetStruct programAssetStruct = catalogGroupCache.AssetStructsMapById[catalogGroupCache.ProgramAssetStructId];
-            string mainCode = catalogGroupCache.DefaultLanguage.Code;
+            AssetStruct programAssetStruct = catalogGroupCache.AssetStructsMapById[catalogGroupCache.GetProgramAssetStructId()];
+            string mainCode = catalogGroupCache.GetDefaultLanguage().Code;
 
             if (epgAsset.Metas != null && epgAsset.Metas.Count > 0)
             {
@@ -1425,7 +1465,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (!string.IsNullOrEmpty(mainLangValue))
             {
-                topicValues.Object.Add(catalogGroupCache.DefaultLanguage.Code, mainLangValue);
+                topicValues.Object.Add(catalogGroupCache.GetDefaultLanguage().Code, mainLangValue);
 
                 if (otherLanguages != null && otherLanguages.Count > 0)
                 {
@@ -1593,7 +1633,7 @@ namespace Core.Catalog.CatalogManagement
 
             foreach (EpgCB epgCB in epgCbList)
             {
-                RemoveTopicsFromProgramEpgCB(epgCB, programMetas, programTags, catalogGroupCache.DefaultLanguage.Code);
+                RemoveTopicsFromProgramEpgCB(epgCB, programMetas, programTags, catalogGroupCache.GetDefaultLanguage().Code);
             }
         }
 
@@ -1699,7 +1739,8 @@ namespace Core.Catalog.CatalogManagement
                         program.LinearMediaId,
                         program.ChannelID,
                         program.StartDate,
-                        program.EndDate);
+                        program.EndDate,
+                        false);
                 }
                 else
                 {

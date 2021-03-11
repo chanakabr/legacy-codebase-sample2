@@ -18,7 +18,6 @@ namespace WebAPI
     public static class RequestContext
     {       
         private const string CB_SECTION_NAME = "tokens";
-        private static int accessTokenLength = ApplicationConfiguration.Current.RequestParserConfiguration.AccessTokenLength.Value;
         private static string accessTokenKeyFormat = ApplicationConfiguration.Current.RequestParserConfiguration.AccessTokenKeyFormat.Value;
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
@@ -230,8 +229,8 @@ namespace WebAPI
 
         private static void InitKS(string ksVal)
         {
-            // the supplied ks is in KS forma (project phoenix's)
-            if (IsKsFormat(ksVal))
+            // the supplied ks is in KS format (project phoenix's)
+            if (KS.HasKsFormat(ksVal))
             {
                 parseKS(ksVal);
             }
@@ -247,12 +246,7 @@ namespace WebAPI
             KS ks = KS.ParseKS(ksVal);
             ks.SaveOnRequest();
         }
-
-        private static bool IsKsFormat(string ksVal)
-        {
-            return ksVal.Length > accessTokenLength;
-        }
-
+        
         private static void GetUserDataFromCB(string ksVal)
         {
             // get token from CB

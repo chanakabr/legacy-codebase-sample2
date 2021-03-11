@@ -56,7 +56,7 @@ namespace Core.Middleware
                 }
                 catch (Exception innerEx)
                 {
-                    _Logger.Error($"Error while trying to generate an API Error response from APIException:[{e.ToString()}]", innerEx);
+                    _Logger.Error($"Error while trying to generate an API Error response from APIException:[{e.ToString()}], innerEx:[{innerEx}]", innerEx);
                     throw e;
                 }
             }

@@ -160,7 +160,7 @@ namespace ApiLogic.Api.Managers
                     }
 
                     CatalogGroupCache catalogGroupCache;
-                    shouldInvalidateRegions = (Core.Catalog.CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache)
+                    shouldInvalidateRegions = (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache)
                                                && defaultRegion.id != catalogGroupCache.DefaultRegion);
                 }
 

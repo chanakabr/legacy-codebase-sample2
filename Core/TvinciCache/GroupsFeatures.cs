@@ -11,6 +11,11 @@ using System.Reflection;
 
 namespace TvinciCache
 {
+    public interface IGroupsFeatures
+    {
+        bool GetGroupFeatureStatus(int groupId, GroupFeature groupFeature);
+    }
+    
     public class GroupsFeatures
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

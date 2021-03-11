@@ -25,6 +25,7 @@ using WebAPI.Models.Upload;
 using WebAPI.Models.CanaryDeployment;
 using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
+using WebAPI.Controllers;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
@@ -895,6 +896,9 @@ namespace WebAPI.Reflection
                 case "KalturaEntitlementsFilter":
                     return new KalturaEntitlementsFilter(parameters);
                     
+                case "KalturaEpg":
+                    return new KalturaEpg(parameters);
+                    
                 case "KalturaEPGChannelAssets":
                     return new KalturaEPGChannelAssets(parameters);
                     
@@ -903,6 +907,12 @@ namespace WebAPI.Reflection
                     
                 case "KalturaEpgChannelFilter":
                     return new KalturaEpgChannelFilter(parameters);
+                    
+                case "KalturaEpgFilter":
+                    return new KalturaEpgFilter(parameters);
+                    
+                case "KalturaEpgListResponse":
+                    return new KalturaEpgListResponse(parameters);
                     
                 case "KalturaEpgNotificationSettings":
                     return new KalturaEpgNotificationSettings(parameters);
@@ -20546,6 +20556,13 @@ namespace WebAPI.Models.API
                     }
                     UpdateDate = (Int64) Convert.ChangeType(parameters["updateDate"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
+                {
+                    if (parameters["dynamicData"] is JObject)
+                    {
+                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                    }
+                }
             }
         }
     }
@@ -29524,6 +29541,10 @@ namespace WebAPI.Models.Partner
                         CategoryManagement = (KalturaCategoryManagement) Deserializer.deserialize(typeof(KalturaCategoryManagement), (Dictionary<string, object>) parameters["categoryManagement"]);
                     }
                 }
+                if (parameters.ContainsKey("epgMultilingualFallbackSupport") && parameters["epgMultilingualFallbackSupport"] != null)
+                {
+                    EpgMultilingualFallbackSupport = (Boolean) Convert.ChangeType(parameters["epgMultilingualFallbackSupport"], typeof(Boolean));
+                }
             }
         }
     }
@@ -33465,6 +33486,53 @@ namespace WebAPI.Models.Domains
                     if (!Enum.IsDefined(typeof(KalturaHouseholdWith), type))
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", type, typeof(KalturaHouseholdWith)));
+                    }
+                }
+            }
+        }
+    }
+}
+
+namespace WebAPI.Controllers
+{
+    public partial class KalturaEpg
+    {
+        public KalturaEpg(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaEpgFilter
+    {
+        public KalturaEpgFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("dateEqual") && parameters["dateEqual"] != null)
+                {
+                    Date = (Int64) Convert.ChangeType(parameters["dateEqual"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("liveAssetIdEqual") && parameters["liveAssetIdEqual"] != null)
+                {
+                    LiveAssetId = (Int64) Convert.ChangeType(parameters["liveAssetIdEqual"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaEpgListResponse
+    {
+        public KalturaEpgListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaEpg>(typeof(KalturaEpg), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaEpg), parameters["objects"] as object[]);
                     }
                 }
             }

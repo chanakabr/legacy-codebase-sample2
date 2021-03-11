@@ -54,7 +54,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 maxResults = 100000;
             }
 
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             // Check if group supports Templates
             if (doesGroupUsesTemplates)
             {
@@ -83,7 +83,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 List<ApiObjects.LanguageObj> languages = new List<ApiObjects.LanguageObj>()
                 {
-                    catalogGroupCache.DefaultLanguage
+                    catalogGroupCache.GetDefaultLanguage()
                 };
 
                 GetAnalyzers(languages, out analyzers, out filters, out tokenizers);

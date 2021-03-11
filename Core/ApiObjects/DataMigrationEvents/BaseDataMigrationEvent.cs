@@ -22,6 +22,9 @@ namespace ApiObjects.DataMigrationEvents
             get => GroupId;
             set => GroupId = (int) value;
         }
+
+        [JsonProperty("source")]
+        public int Source => 0; // indicates source is set to live system (phoenix) migration source
         
         public eMigrationOperation Operation { get; set; }
         

@@ -5,6 +5,7 @@ using WebAPI.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Core.Notification;
 using ApiLogic.Notification;
+using EpgNotificationHandler.EpgCache;
 
 namespace EpgNotificationHandler
 {
@@ -13,14 +14,16 @@ namespace EpgNotificationHandler
         public static async Task Main(string[] args)
         {
             var builder = new HostBuilder()
-              .ConfigureMappings()
-              .ConfigureEventNotificationsConfig()
-              .ConfigureEventBustConsumer()
-              .ConfigureServices(services =>
-              {
-                  services.AddScoped<IIotManager>(provider => IotManager.Instance);
-                  services.AddSingleton<INotificationCache>(provider => NotificationCache.Instance());
-              });
+                .ConfigureMappings()
+                .ConfigureEventNotificationsConfig()
+                .ConfigureEventBustConsumer()
+                .ConfigureServices(services =>
+                {
+                    services
+                        .AddScoped<IIotManager>(provider => IotManager.Instance)
+                        .AddSingleton<INotificationCache>(provider => NotificationCache.Instance())
+                        .AddEpgCacheClient();
+                });
 
             AppMetrics.Start();
 

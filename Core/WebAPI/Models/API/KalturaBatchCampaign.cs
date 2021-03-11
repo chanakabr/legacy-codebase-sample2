@@ -46,7 +46,7 @@ namespace WebAPI.Models.API
         internal override GenericResponse<Campaign> Add(ContextData contextData)
         {
             var coreObject = AutoMapper.Mapper.Map<BatchCampaign>(this);
-            return CampaignManager.Instance.AddBatchCampaign(contextData, coreObject);
+            return CampaignManager.Instance.AddCampaign<BatchCampaign>(contextData, coreObject);
         }
 
         internal override void ValidateForUpdate()

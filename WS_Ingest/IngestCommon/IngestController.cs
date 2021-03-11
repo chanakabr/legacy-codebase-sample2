@@ -78,7 +78,7 @@ namespace Ingest
                             {
                                 KLogger.LogContextData[Constants.TOPIC] = "VOD Ingest";
 
-                                if (CatalogManager.DoesGroupUsesTemplates(groupID))
+                                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupID))
                                 {
                                     ingestResponse = IngestManager.HandleMediaIngest(groupID, request.Data);
                                 }
@@ -122,11 +122,11 @@ namespace Ingest
                                 EpgIngest.Ingest ingest = new EpgIngest.Ingest();
 
                                 Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
-                                if (CatalogManager.DoesGroupUsesTemplates(groupID))
+                                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupID))
                                 {
                                     groupRatioNamesToImageTypes = Core.Catalog.CatalogManagement.ImageManager.GetImageTypesMapBySystemName(groupID);
                                 }
-                                isSucceeded = ingest.Initialize(request.Data, groupID, CatalogManager.DoesGroupUsesTemplates(groupID), groupRatioNamesToImageTypes, out ingestResponse);
+                                isSucceeded = ingest.Initialize(request.Data, groupID, CatalogManager.Instance.DoesGroupUsesTemplates(groupID), groupRatioNamesToImageTypes, out ingestResponse);
                                 if (isSucceeded)
                                 {
                                     response = ingest.SaveChannelPrograms(ref ingestResponse);

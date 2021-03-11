@@ -153,6 +153,15 @@ namespace WebAPI.Models.API
         [SchemeProperty(ReadOnly = true)]
         public long UpdateDate { get; set; }
 
+        /// <summary>
+        /// Dynamic data
+        /// </summary>
+        [DataMember(Name = "dynamicData")]
+        [JsonProperty("dynamicData")]
+        [XmlArray(ElementName = "dynamicData", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
+
         internal void ValidateFeatures()
         {
             if (!string.IsNullOrEmpty(this.Features))

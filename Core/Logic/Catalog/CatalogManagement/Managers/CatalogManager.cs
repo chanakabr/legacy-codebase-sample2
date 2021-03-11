@@ -30,6 +30,10 @@ namespace Core.Catalog.CatalogManagement
     public interface ICatalogManager
     {
         bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache);
+        bool DoesGroupUsesTemplates(int groupId);
+        void InvalidateCatalogGroupCache(int groupId, Status resultStatus, bool shouldCheckResultObject, object resultObject = null);
+        bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds,
+                                                                        long assetStructId, long userId, List<long> relatedEntitiesTopicIds, bool shouldDeleteRelatedEntities);
     }
 
     public class CatalogManager : ICatalogManager
@@ -108,7 +112,7 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, res);
         }
 
-        private static void InvalidateCatalogGroupCache(int groupId, Status resultStatus, bool shouldCheckResultObject, object resultObject = null)
+        public void InvalidateCatalogGroupCache(int groupId, Status resultStatus, bool shouldCheckResultObject, object resultObject = null)
         {
             if (resultStatus != null && resultStatus.Code == (int)eResponseStatus.OK && (!shouldCheckResultObject || resultObject != null))
             {
@@ -339,101 +343,6 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static Status CreateTopicResponseStatusFromResult(long result)
-        {
-            Status responseStatus = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            switch (result)
-            {
-                case -222:
-                    responseStatus = new Status((int)eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
-                    break;
-                case -333:
-                    responseStatus = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
-                    break;
-                default:
-                    break;
-            }
-
-            return responseStatus;
-        }
-
-        private static Topic CreateTopic(long id, DataRow dr, List<DataRow> topicTranslations)
-        {
-            Topic result = null;
-            if (id > 0)
-            {
-                string name = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                string systemName = ODBCWrapper.Utils.GetSafeStr(dr, "SYSTEM_NAME");
-                int topicType = ODBCWrapper.Utils.GetIntSafeVal(dr, "TOPIC_TYPE_ID", 0);
-                if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(systemName) && topicType > 0 && typeof(MetaType).IsEnumDefined(topicType))
-                {
-                    string commaSeparatedFeatures = ODBCWrapper.Utils.GetSafeStr(dr, "FEATURES");
-                    HashSet<string> features = null;
-                    if (!string.IsNullOrEmpty(commaSeparatedFeatures))
-                    {
-                        features = new HashSet<string>(commaSeparatedFeatures.Split(new string[] { "," }, StringSplitOptions.RemoveEmptyEntries));
-                    }
-
-                    bool isPredefined = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_BASIC");
-                    string helpText = ODBCWrapper.Utils.GetSafeStr(dr, "HELP_TEXT");
-                    long parentId = ODBCWrapper.Utils.GetLongSafeVal(dr, "PARENT_TOPIC_ID", 0);
-                    DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
-                    DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
-                    List<LanguageContainer> namesInOtherLanguages = new List<LanguageContainer>();
-                    if (topicTranslations != null && topicTranslations.Count > 0)
-                    {
-                        foreach (DataRow translationDr in topicTranslations)
-                        {
-                            string languageCode = ODBCWrapper.Utils.GetSafeStr(translationDr, "CODE3");
-                            string translation = ODBCWrapper.Utils.GetSafeStr(translationDr, "TRANSLATION");
-                            if (!string.IsNullOrEmpty(languageCode) && !string.IsNullOrEmpty(translation))
-                            {
-                                namesInOtherLanguages.Add(new LanguageContainer(languageCode, translation));
-                            }
-                        }
-                    }
-
-                    result = new Topic(id, name, namesInOtherLanguages, systemName, (MetaType)topicType, features, isPredefined, helpText, parentId,
-                                        createDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(createDate.Value) : 0,
-                                        updateDate.HasValue ? DateUtils.DateTimeToUtcUnixTimestampSeconds(updateDate.Value) : 0);
-                }
-            }
-
-            return result;
-        }
-
-        private static GenericResponse<Topic> CreateTopicResponseFromDataSet(DataSet ds)
-        {
-            GenericResponse<Topic> response = new GenericResponse<Topic>();
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-            {
-                DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
-                {
-                    long id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID", 0);
-                    if (id > 0)
-                    {
-                        EnumerableRowCollection<DataRow> translations = ds.Tables.Count == 2 ? ds.Tables[1].AsEnumerable() : new DataTable().AsEnumerable();
-                        List<DataRow> topicTranslations = (from row in translations
-                                                           select row).ToList();
-                        response.Object = CreateTopic(id, dt.Rows[0], topicTranslations);
-                    }
-                    else
-                    {
-                        response.SetStatus(CreateTopicResponseStatusFromResult(id));
-                        return response;
-                    }
-                }
-
-                if (response.Object != null)
-                {
-                    response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-
-            return response;
-        }
-
         private static List<Topic> CreateTopicListFromDataSet(DataSet ds)
         {
             List<Topic> response = null;
@@ -452,7 +361,7 @@ namespace Core.Catalog.CatalogManagement
                             List<DataRow> topicTranslations = (from row in translations
                                                                where (Int64)row["TOPIC_ID"] == id
                                                                select row).ToList();
-                            Topic topic = CreateTopic(id, dr, topicTranslations);
+                            Topic topic = CatalogDAL.Instance.CreateTopic(id, dr, topicTranslations);
                             if (topic != null)
                             {
                                 response.Add(topic);
@@ -678,7 +587,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds,
+        public bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds,
                                                                         long assetStructId, long userId, List<long> relatedEntitiesTopicIds, bool shouldDeleteRelatedEntities)
         {
             bool res = true;
@@ -1302,7 +1211,7 @@ namespace Core.Catalog.CatalogManagement
         /// This method is here for backward compatability, redirecting all calls to the main method in GroupSettingsManager.
         /// This was done to avoid solution wide chanages 
         /// </summary>
-        public static bool DoesGroupUsesTemplates(int groupId)
+        public bool DoesGroupUsesTemplates(int groupId)
         {
             return Core.GroupManagers.GroupSettingsManager.DoesGroupUsesTemplates(groupId);
         }
@@ -1796,7 +1705,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     foreach (ObjectVirtualAssetInfo objectVirtualAssetInfo in objectVirtualAssetPartnerConfig.Objects[0].ObjectVirtualAssets)
                     {
-                        if(objectVirtualAssetInfo?.ExtendedTypes?.Count > 0)
+                        if (objectVirtualAssetInfo?.ExtendedTypes?.Count > 0)
                         {
                             var assetStructExist = objectVirtualAssetInfo.ExtendedTypes.Values.Contains(id);
                             if (assetStructExist)
@@ -1806,7 +1715,7 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
                     }
-                }               
+                }
 
                 if (CatalogDAL.DeleteAssetStruct(groupId, id, userId))
                 {
@@ -1890,313 +1799,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return response;
-        }
-
-        public GenericListResponse<Topic> GetTopicsByIds(int groupId, List<long> ids, MetaType type)
-        {
-            GenericListResponse<Topic> response = new GenericListResponse<Topic>();
-            try
-            {
-                if (!DoesGroupUsesTemplates(groupId))
-                {
-                    response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
-                    return response;
-                }
-
-                CatalogGroupCache catalogGroupCache;
-                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetTopicsByIds", groupId);
-                    return response;
-                }
-
-                if (ids != null && ids.Count > 0)
-                {
-                    response.Objects = ids.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
-                                                .Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
-                }
-                else
-                {
-                    response.Objects = catalogGroupCache.TopicsMapById.Values.Where(x => type == MetaType.All || x.Type == type).ToList();
-                }
-
-                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetTopicsByIds with groupId: {0} and ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty), ex);
-            }
-
-            return response;
-        }
-
-        public GenericListResponse<Topic> GetTopicsByAssetStructId(int groupId, long assetStructId, MetaType type)
-        {
-            GenericListResponse<Topic> response = new GenericListResponse<Topic>();
-            try
-            {
-                if (!DoesGroupUsesTemplates(groupId))
-                {
-                    response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
-                    return response;
-                }
-
-                CatalogGroupCache catalogGroupCache;
-                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetTopicsByAssetStructId", groupId);
-                    return response;
-                }
-
-                assetStructId = catalogGroupCache.GetRealAssetStructId(assetStructId, out bool isProgramStruct);
-
-                if (catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
-                {
-                    List<long> topicIds = catalogGroupCache.AssetStructsMapById[assetStructId].MetaIds;
-                    if (topicIds != null && topicIds.Count > 0)
-                    {
-                        response.Objects = topicIds.Where(x => catalogGroupCache.TopicsMapById.ContainsKey(x) && (type == MetaType.All || catalogGroupCache.TopicsMapById[x].Type == type))
-                                                        .Select(x => catalogGroupCache.TopicsMapById[x]).ToList();
-                    }
-                }
-
-                response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetTopicsByAssetStructId with groupId: {0} and assetStructId: {1}", groupId, assetStructId), ex);
-            }
-
-            return response;
-        }
-
-        public GenericResponse<Topic> AddTopic(int groupId, Topic topicToAdd, long userId, bool shouldCheckRegularFlowValidations = true)
-        {
-            GenericResponse<Topic> result = new GenericResponse<Topic>();
-            try
-            {
-                if (shouldCheckRegularFlowValidations)
-                {
-                    if (!DoesGroupUsesTemplates(groupId))
-                    {
-                        result.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
-                        return result;
-                    }
-
-                    CatalogGroupCache catalogGroupCache = null;
-                    if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                    {
-                        log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddTopic", groupId);
-                        return result;
-                    }
-
-                    if (catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(topicToAdd.SystemName))
-                    {
-                        result.SetStatus(eResponseStatus.MetaSystemNameAlreadyInUse, eResponseStatus.MetaSystemNameAlreadyInUse.ToString());
-                        return result;
-                    }
-
-                    if (topicToAdd.ParentId.HasValue && topicToAdd.ParentId.Value.Equals(topicToAdd.Id))
-                    {
-                        result.SetStatus(eResponseStatus.ParentIdShouldNotPointToItself, eResponseStatus.ParentIdShouldNotPointToItself.ToString());
-                        return result;
-                    }
-
-                    if (topicToAdd.ParentId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(topicToAdd.ParentId.Value))
-                    {
-                        result.SetStatus(eResponseStatus.ParentIdNotExist, eResponseStatus.ParentIdNotExist.ToString());
-                        return result;
-                    }
-                }
-
-                List<KeyValuePair<string, string>> languageCodeToName = new List<KeyValuePair<string, string>>();
-                if (topicToAdd.NamesInOtherLanguages != null && topicToAdd.NamesInOtherLanguages.Count > 0)
-                {
-                    foreach (LanguageContainer language in topicToAdd.NamesInOtherLanguages)
-                    {
-                        languageCodeToName.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
-                    }
-                }
-
-                DataSet ds = CatalogDAL.InsertTopic(groupId, topicToAdd.Name, languageCodeToName, topicToAdd.SystemName, topicToAdd.Type, topicToAdd.GetFeaturesForDB(),
-                                                      topicToAdd.IsPredefined, topicToAdd.ParentId, topicToAdd.HelpText, userId, shouldCheckRegularFlowValidations);
-                result = CreateTopicResponseFromDataSet(ds);
-                if (shouldCheckRegularFlowValidations)
-                {
-                    InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed AddTopic for groupId: {0} and topic: {1}", groupId, topicToAdd.ToString()), ex);
-            }
-
-            return result;
-        }
-
-        public GenericResponse<Topic> UpdateTopic(int groupId, long id, Topic topicToUpdate, long userId)
-        {
-            GenericResponse<Topic> result = new GenericResponse<Topic>();
-            try
-            {
-                if (!DoesGroupUsesTemplates(groupId))
-                {
-                    result.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
-                    return result;
-                }
-
-                CatalogGroupCache catalogGroupCache;
-                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateTopic", groupId);
-                    return result;
-                }
-
-                if (!catalogGroupCache.TopicsMapById.ContainsKey(id))
-                {
-                    result.SetStatus(eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
-                    return result;
-                }
-
-                if (topicToUpdate.ParentId.HasValue && topicToUpdate.ParentId.Value.Equals(topicToUpdate.Id))
-                {
-                    result.SetStatus(eResponseStatus.ParentIdShouldNotPointToItself, eResponseStatus.ParentIdShouldNotPointToItself.ToString());
-                    return result;
-                }
-
-                if (topicToUpdate.ParentId.HasValue && !catalogGroupCache.TopicsMapById.ContainsKey(topicToUpdate.ParentId.Value))
-                {
-                    result.SetStatus(eResponseStatus.ParentIdNotExist, eResponseStatus.ParentIdNotExist.ToString());
-                    return result;
-                }
-
-                /************** According to new TVM UI system name can not be modified so no need for this validation *************************************************/
-                //if (topic.IsPredefined.HasValue && topic.IsPredefined.Value && topicToUpdate.SystemName != null && topicToUpdate.SystemName != topic.SystemName)
-                //{
-                //    result.Status = new Status((int)eResponseStatus.CanNotChangePredefinedMetaSystemName, eResponseStatus.CanNotChangePredefinedMetaSystemName.ToString());
-                //    return result;
-                //}
-
-                List<KeyValuePair<string, string>> languageCodeToName = null;
-                bool shouldUpdateOtherNames = false;
-                if (topicToUpdate.NamesInOtherLanguages != null)
-                {
-                    shouldUpdateOtherNames = true;
-                    languageCodeToName = new List<KeyValuePair<string, string>>();
-                    foreach (LanguageContainer language in topicToUpdate.NamesInOtherLanguages)
-                    {
-                        languageCodeToName.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
-                    }
-                }
-
-                Topic topic = new Topic(catalogGroupCache.TopicsMapById[id]);
-                DataSet ds = CatalogDAL.UpdateTopic(groupId, id, topicToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, topicToUpdate.GetFeaturesForDB(topic.Features),
-                                                    topicToUpdate.ParentId, topicToUpdate.HelpText, userId);
-                result = CreateTopicResponseFromDataSet(ds);
-                InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed UpdateTopic for groupId: {0}, id: {1} and topic: {2}", groupId, id, topicToUpdate.ToString()), ex);
-            }
-
-            return result;
-        }
-
-        public Status DeleteTopic(int groupId, long id, long userId)
-        {
-            Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            try
-            {
-                if (!DoesGroupUsesTemplates(groupId))
-                {
-                    result.Set((int)eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
-                    return result;
-                }
-
-                CatalogGroupCache catalogGroupCache;
-                if (!TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling DeleteTopic", groupId);
-                    return result;
-                }
-
-                if (!catalogGroupCache.TopicsMapById.ContainsKey(id))
-                {
-                    result = new Status((int)eResponseStatus.MetaDoesNotExist, eResponseStatus.MetaDoesNotExist.ToString());
-                    return result;
-                }
-
-                Topic topic = new Topic(catalogGroupCache.TopicsMapById[id]);
-                if (topic.IsPredefined.HasValue && topic.IsPredefined.Value)
-                {
-                    result = new Status((int)eResponseStatus.CanNotDeletePredefinedMeta, eResponseStatus.CanNotDeletePredefinedMeta.ToString());
-                    return result;
-                }
-
-                var objectVirtualAssetPartnerConfig = VirtualAssetPartnerConfigManager.Instance.GetObjectVirtualAssetPartnerConfiguration(groupId);
-                if (objectVirtualAssetPartnerConfig.HasObjects())
-                {
-                    if (objectVirtualAssetPartnerConfig.Objects.Any(x => x.ObjectVirtualAssets.Any(y => y.MetaId == id)))
-                    {
-                        result = new Status((int)eResponseStatus.CanNotDeleteObjectVirtualAssetMeta, eResponseStatus.CanNotDeleteObjectVirtualAssetMeta.ToString());
-                        return result;
-                    }
-                }
-
-                bool haveConnection = catalogGroupCache.AssetStructsMapById.Any
-                    (x => (x.Value.ConnectedParentMetaId.HasValue && x.Value.ConnectedParentMetaId.Value == id) ||
-                          (x.Value.ConnectingMetaId.HasValue && x.Value.ConnectingMetaId.Value == id));
-                if (haveConnection)
-                {
-                    result = new Status((int)eResponseStatus.CanNotDeleteConnectingAssetStructMeta, "Can not delete Connecting/connected AssetStruct Meta");
-                    return result;
-                }
-
-                if (CatalogDAL.DeleteTopic(groupId, id, userId))
-                {
-                    List<long> tagTopicIds = new List<long>();
-                    List<long> metaTopicIds = new List<long>();
-                    List<long> relatedEntitiesTopicIds = new List<long>();
-
-
-                    if (topic.Type == MetaType.Tag)
-                    {
-                        ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                        Status deleteTopicFromEsResult = wrapper.DeleteTagsByTopic(groupId, catalogGroupCache, id);
-                        if (deleteTopicFromEsResult == null || deleteTopicFromEsResult.Code != (int)eResponseStatus.OK)
-                        {
-                            log.ErrorFormat("Failed deleting topic from ElasticSearch, for groupId: {0} and topicId: {1}", groupId, id);
-                        }
-
-                        tagTopicIds.Add(id);
-                    }
-                    else if (topic.Type == MetaType.ReleatedEntity)
-                    {
-                        relatedEntitiesTopicIds.Add(id);
-                    }
-                    else
-                    {
-                        metaTopicIds.Add(id);
-                    }
-
-                    // shouldDelete = isTag on purpose, since we are in DeleteTopic, if its a tag then delete it, on UpdateAssetStruct we don't delete the tag itself
-                    if (!InvalidateCacheAndUpdateIndexForTopicAssets(groupId, tagTopicIds, topic.Type == MetaType.Tag, false, metaTopicIds, 0, userId, relatedEntitiesTopicIds, topic.Type == MetaType.ReleatedEntity))
-                    {
-                        log.ErrorFormat("Failed InvalidateCacheAndUpdateIndexForTopicAssets for groupId: {0} and topicType: {1}, isTag: {2}", groupId, id, topic.Type.ToString());
-                    }
-
-                    result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    InvalidateCatalogGroupCache(groupId, result, false);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed DeleteTopic for groupId: {0} and assetStructId: {1}", groupId, id), ex);
-            }
-
-            return result;
         }
 
         public HashSet<string> GetUnifiedSearchKey(int groupId, string originalKey, out bool isTagOrMeta, out Type type)
@@ -2324,7 +1926,7 @@ namespace Core.Catalog.CatalogManagement
                 return null;
             }
 
-            int defaultLanguage = catalogGroupCache.DefaultLanguage.ID;
+            int defaultLanguage = catalogGroupCache.GetDefaultLanguage().ID;
             DataSet dataSet = null;
             try
             {
@@ -3147,7 +2749,7 @@ namespace Core.Catalog.CatalogManagement
         internal bool IsRegionalizationEnabled(int groupId)
         {
             var regionalizationEnabled = GroupSettingsManager.IsOpc(groupId)
-                ? TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache) 
+                ? TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache)
                     && catalogGroupCache.IsRegionalizationEnabled
                 : GroupsCache.Instance().GetGroup(groupId)?.isRegionalizationEnabled ?? false;
             return regionalizationEnabled;
@@ -3252,9 +2854,9 @@ namespace Core.Catalog.CatalogManagement
             return linearMediaTypeIds;
         }
 
-        internal static void SetHistoryValues(int groupId, UserMediaMark userMediaMark)
+        internal void SetHistoryValues(int groupId, UserMediaMark userMediaMark)
         {
-            if (CatalogManager.DoesGroupUsesTemplates(groupId) && CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+            if (DoesGroupUsesTemplates(groupId) && TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
             {
                 EpgAsset asset = null;
 
@@ -3266,7 +2868,7 @@ namespace Core.Catalog.CatalogManagement
                         if (catalogGroupCache.TopicsMapById.ContainsKey(locationAssetStractMeta.MetaId))
                         {
                             var locationTagName = catalogGroupCache.TopicsMapById[locationAssetStractMeta.MetaId].SystemName;
-                           
+
                             if (!string.IsNullOrEmpty(locationTagName))
                             {
                                 var assetResponse = AssetManager.GetAsset(groupId, userMediaMark.AssetID, userMediaMark.AssetType, true);
@@ -3303,14 +2905,14 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (asset.SearchEndDate == DateTime.MinValue)
                         {
-                            asset.SearchEndDate = IndexManager.GetProgramSearchEndDate(groupId, asset.EpgChannelId.Value.ToString(), asset.EndDate.Value);   
+                            asset.SearchEndDate = IndexManager.GetProgramSearchEndDate(groupId, asset.EpgChannelId.Value.ToString(), asset.EndDate.Value);
                         }
 
                         userMediaMark.ExpiredAt = DateUtils.ToUtcUnixTimestampSeconds(asset.SearchEndDate);
                     }
                 }
 
-                
+
             }
         }
 

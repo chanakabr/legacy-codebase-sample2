@@ -30,6 +30,7 @@ using WebAPI.Models.Segmentation;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
+using Core.Catalog.CatalogManagement;
 
 namespace WebAPI.Clients
 {
@@ -3205,7 +3206,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Api.Module.GetGroupMetaList(groupId, wsAssetType, wsMetaType, wsFieldNameEqual, wsFieldNameNotEqual, ApiMappings.ConvertMetaFeatureTypes(metaFeatureTypeList));
+                    response = TopicManager.Instance.GetGroupMetaList(groupId, wsAssetType, wsMetaType, wsFieldNameEqual, wsFieldNameNotEqual, ApiMappings.ConvertMetaFeatureTypes(metaFeatureTypeList));
                 }
             }
             catch (Exception ex)

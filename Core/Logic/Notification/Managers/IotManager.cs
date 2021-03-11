@@ -334,7 +334,8 @@ namespace ApiLogic.Notification
 
         private string GetAdapterUrl(int groupId, IotAction action, IotProfile iotProfile = null)
         {
-            var adapterUrl = iotProfile != null ? iotProfile.AdapterUrl : NotificationDal.GetIotProfile(groupId).AdapterUrl;
+            iotProfile = iotProfile ?? NotificationDal.GetIotProfile(groupId);
+            var adapterUrl = iotProfile?.AdapterUrl;
 
             if (string.IsNullOrEmpty(adapterUrl))
             {

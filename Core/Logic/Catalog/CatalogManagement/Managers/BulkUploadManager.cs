@@ -17,6 +17,8 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using ApiLogic.Api.Managers;
+using ApiLogic.Catalog.CatalogManagement.Helpers;
 using Tvinci.Core.DAL;
 using ESUtils = ElasticSearch.Common.Utils;
 
@@ -208,6 +210,8 @@ namespace Core.Catalog.CatalogManagement
                         response.SetStatus(eResponseStatus.AccountEpgIngestVersionDoesNotSupportBulk, msg);
                         return response;
                     }
+                   
+
                     response = SendTransformationEventToServiceEventBus(groupId, userId, response);
                 }
                 else

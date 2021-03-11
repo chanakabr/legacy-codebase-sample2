@@ -65,7 +65,7 @@ namespace WebAPI.Models.API
         internal override GenericResponse<Campaign> Add(ContextData contextData)
         {
             var coreObject = AutoMapper.Mapper.Map<TriggerCampaign>(this);
-            return CampaignManager.Instance.AddTriggerCampaign(contextData, coreObject);
+            return CampaignManager.Instance.AddCampaign<TriggerCampaign>(contextData, coreObject);
         }
 
         internal override GenericResponse<Campaign> Update(ContextData contextData)

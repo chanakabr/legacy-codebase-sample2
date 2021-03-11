@@ -10,6 +10,15 @@ using Tvinci.Core.DAL;
 
 namespace Core.GroupManagers
 {
+    public interface IGroupSettingsManager
+    {
+        bool IsOpc(int groupId);
+        
+        bool DoesGroupUsesTemplates(int groupId);
+
+        bool DoesGroupUseNewEpgIngest(int groupId);
+    }
+    
     public static class GroupSettingsManager
     {
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

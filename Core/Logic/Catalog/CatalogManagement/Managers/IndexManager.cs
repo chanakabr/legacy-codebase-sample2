@@ -87,7 +87,7 @@ namespace Core.Catalog.CatalogManagement
 
             if (!doesGroupUsesTemplates.HasValue)
             {
-                doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             }
 
             if (doesGroupUsesTemplates.Value && catalogGroupCache != null)
@@ -235,7 +235,7 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-                if (CatalogManager.DoesGroupUsesTemplates(groupId))
+                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                 {
                     return AssetManager.GetMediaForElasticSearchIndex(groupId, mediaId);
                 }
@@ -289,7 +289,7 @@ namespace Core.Catalog.CatalogManagement
             Group group = null;
             HashSet<string> metasToPad = null;
 
-            if (CatalogManager.DoesGroupUsesTemplates(groupId))
+            if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
             {
                 if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
                 {
@@ -449,7 +449,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             List<LanguageObj> languages = null;
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             if (doesGroupUsesTemplates)
             {
                 CatalogGroupCache catalogGroupCache;
@@ -768,7 +768,7 @@ namespace Core.Catalog.CatalogManagement
                 sizeOfBulk = sizeOfBulk == 0 ? sizeOfBulkDefaultValue : sizeOfBulk > sizeOfBulkDefaultValue ? sizeOfBulkDefaultValue : sizeOfBulk;
                 ESSerializerV2 esSerializer = new ESSerializerV2();
 
-                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                 CatalogGroupCache catalogGroupCache = null;
                 Group group = null;
                 if (doesGroupUsesTemplates)
@@ -1022,7 +1022,7 @@ namespace Core.Catalog.CatalogManagement
         {
             bool result = false;
             //result &= Core.Catalog.CatalogManagement.IndexManager.DeleteEpg(groupId, id);
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
 
             if (epgIds != null & epgIds.Count > 0)
             {
@@ -1326,7 +1326,7 @@ namespace Core.Catalog.CatalogManagement
                 string channelQueryForMedia = string.Empty;
                 string channelQueryForEpg = string.Empty;
 
-                bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
 
                 if ((channel.m_nChannelTypeID == (int)ChannelType.KSQL) ||
                     (channel.m_nChannelTypeID == (int)ChannelType.Manual && doesGroupUsesTemplates && channel.AssetUserRuleId > 0))

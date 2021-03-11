@@ -162,6 +162,7 @@ namespace WebAPI.Clients
 
             Func<GenericListResponse<Topic>> getTopicListFunc = delegate ()
             {
+                GenericListResponse<Topic> topicList = null;
                 ApiObjects.MetaType metaType = ApiObjects.MetaType.All;
                 if (type.HasValue)
                 {
@@ -170,12 +171,14 @@ namespace WebAPI.Clients
 
                 if (assetStructId.HasValue)
                 {
-                    return Core.Catalog.CatalogManagement.CatalogManager.Instance.GetTopicsByAssetStructId(groupId, assetStructId.Value, metaType);
+                    topicList = TopicManager.Instance.GetTopicsByAssetStructId(groupId, assetStructId.Value, metaType);
                 }
                 else
                 {
-                    return Core.Catalog.CatalogManagement.CatalogManager.Instance.GetTopicsByIds(groupId, ids, metaType);
+                    topicList = TopicManager.Instance.GetTopicsByIds(groupId, ids, metaType);
                 }
+
+                return topicList;
             };
 
             KalturaGenericListResponse<KalturaMeta> response =
@@ -225,7 +228,7 @@ namespace WebAPI.Clients
         public KalturaMeta AddMeta(int groupId, KalturaMeta meta, long userId)
         {
             Func<Topic, GenericResponse<Topic>> addTopicFunc = (Topic topicToAdd) =>
-                Core.Catalog.CatalogManagement.CatalogManager.Instance.AddTopic(groupId, topicToAdd, userId);
+                TopicManager.Instance.AddTopic(groupId, topicToAdd, userId);
 
             KalturaMeta result =
                 ClientUtils.GetResponseFromWS<KalturaMeta, Topic>(meta, addTopicFunc);
@@ -236,7 +239,7 @@ namespace WebAPI.Clients
         public KalturaMeta UpdateMeta(int groupId, long id, KalturaMeta meta, long userId)
         {
             Func<Topic, GenericResponse<Topic>> updateTopicFunc = (Topic topicToUpdate) =>
-                Core.Catalog.CatalogManagement.CatalogManager.Instance.UpdateTopic(groupId, id, topicToUpdate, userId);
+                TopicManager.Instance.UpdateTopic(groupId, id, topicToUpdate, userId);
 
             KalturaMeta result =
                 ClientUtils.GetResponseFromWS<KalturaMeta, Topic>(meta, updateTopicFunc);
@@ -246,7 +249,7 @@ namespace WebAPI.Clients
 
         public bool DeleteMeta(int groupId, long id, long userId)
         {
-            Func<Status> deleteTopicFunc = () => Core.Catalog.CatalogManagement.CatalogManager.Instance.DeleteTopic(groupId, id, userId);
+            Func<Status> deleteTopicFunc = () => TopicManager.Instance.DeleteTopic(groupId, id, userId);
             return ClientUtils.GetResponseStatusFromWS(deleteTopicFunc);
         }
 
@@ -3125,7 +3128,15 @@ namespace WebAPI.Clients
 
                 // get assets from catalog/cache
                 result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request);
-                result.TotalCount = result.Objects.Count; //BEO-8507
+                
+                if (result.Objects.Count < request.m_nPageSize && request.m_nPageIndex == 1)
+                {
+                   result.TotalCount = result.Objects.Count; //BEO-8507
+                }
+                else
+                {
+                    result.TotalCount = scheduledRecordingResponse.m_nTotalItems; //BEO-9440
+                }
             }
 
             return result;
@@ -3653,7 +3664,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.SearchChannels(groupId, isExcatValue, value, specificChannelIds,
+                    response = Core.Catalog.CatalogManagement.ChannelManager.Instance.SearchChannels(groupId, isExcatValue, value, specificChannelIds,
                         pageIndex, pageSize, orderBy, orderDirection, isAllowedToViewInactiveAssets, userId);
                 }
             }
@@ -4018,7 +4029,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize,
+                    response = Core.Catalog.CatalogManagement.ChannelManager.Instance.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize,
                         orderBy, orderDirection, isAllowedToViewInactiveAssets, userId);
                 }
             }
@@ -4243,7 +4254,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = ChannelManager.GetChannelsListResponseByChannelIds(groupId, channelsIds, isAllowedToViewInactiveAssets, null);
+                    response = ChannelManager.Instance.GetChannelsListResponseByChannelIds(groupId, channelsIds, isAllowedToViewInactiveAssets, null);
                 }
             }
             catch (Exception ex)

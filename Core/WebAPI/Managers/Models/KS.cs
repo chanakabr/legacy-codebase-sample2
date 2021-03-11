@@ -10,14 +10,14 @@ using TVinciShared;
 using ApiObjects.Base;
 using WebAPI.Utils;
 using System.Text.RegularExpressions;
-using WebAPI.ClientManagers;
 using ConfigurationManager;
-using Newtonsoft.Json;
 
 namespace WebAPI.Managers.Models
 {
     public class KS
     {
+        private static int AccessTokenLength = ApplicationConfiguration.Current.RequestParserConfiguration.AccessTokenLength.Value;
+        
         private const int BLOCK_SIZE = 16;
         private const int SHA1_SIZE = 20;
         private const string KS_FORMAT = "{0}&_t={1}&_e={2}&_u={3}&_d={4}";
@@ -30,6 +30,8 @@ namespace WebAPI.Managers.Models
         private DateTime expiration;
         private Dictionary<string, string> privileges;
         private string data;
+
+        public bool IsKsFormat => HasKsFormat(encryptedValue);
 
         public enum KSVersion
         {
@@ -295,6 +297,11 @@ namespace WebAPI.Managers.Models
 
             return ks;
         }
+        
+        public static bool HasKsFormat(string value)
+        {
+            return value.Length > AccessTokenLength;
+        }
 
         private static byte[] TrimRight(byte[] arr)
         {
@@ -392,13 +399,13 @@ namespace WebAPI.Managers.Models
 
         public static KS CreateKSFromApiToken(ApiToken token, string tokenVal)
         {
-            KS ks = new KS()
+            var ks = new KS
             {
                 groupId = token.GroupID,
                 userId = token.UserId,
                 expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(token.AccessTokenExpiration),
                 sessionType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
-                data = KSUtils.PrepareKSPayload(new KS.KSData(token, 0, token.Udid)),
+                data = KSUtils.PrepareKSPayload(new KSData(token, 0, token.Udid)),
                 encryptedValue = tokenVal
             };
 

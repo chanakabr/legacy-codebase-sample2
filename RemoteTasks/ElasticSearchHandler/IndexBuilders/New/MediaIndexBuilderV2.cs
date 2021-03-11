@@ -72,7 +72,7 @@ namespace ElasticSearchHandler.IndexBuilders
             GroupManager groupManager = new GroupManager();
             List<ApiObjects.LanguageObj> languages = null;
             ApiObjects.LanguageObj defaultLanguage = null;
-            bool doesGroupUsesTemplates = CatalogManager.DoesGroupUsesTemplates(groupId);
+            bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             if (doesGroupUsesTemplates)
             {
                 if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
@@ -82,7 +82,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
 
                 languages = catalogGroupCache.LanguageMapById.Values.ToList();
-                defaultLanguage = catalogGroupCache.DefaultLanguage;
+                defaultLanguage = catalogGroupCache.GetDefaultLanguage();
             }
             else
             {

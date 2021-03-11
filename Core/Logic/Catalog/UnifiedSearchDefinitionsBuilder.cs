@@ -52,7 +52,7 @@ namespace Core.Catalog
                 GroupManager groupManager = null;
                 Group group = null;
                 CatalogGroupCache catalogGroupCache = null;
-                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(parentGroupID);
+                bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(parentGroupID);
                 if (doesGroupUsesTemplates && !CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(parentGroupID, out catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetDefinitions", parentGroupID);
@@ -615,7 +615,7 @@ namespace Core.Catalog
         {
             int[] fileTypes = null;
             CatalogGroupCache catalogGroupCache = null;
-            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.DoesGroupUsesTemplates(parentGroupID);
+            bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(parentGroupID);
             List<int> linearChannelMediaTypes = new List<int>();
             if (doesGroupUsesTemplates)
             {

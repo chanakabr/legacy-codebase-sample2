@@ -10,7 +10,7 @@ namespace ApiObjects.DataMigrationEvents
         [JsonProperty("refreshToken")]
         public string Token { get; set; }
         
-        public string SessionHash { get; set; }
+        public string Ks { get; set; }
         public long Ttl { get; set; }
         public string Udid { get; set; }
         public new long UserId { get; set; }

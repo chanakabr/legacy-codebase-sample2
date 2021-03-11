@@ -11,7 +11,7 @@ using OTT.Service.Authentication;
 
 namespace AuthenticationGrpcClientWrapper
 {
-    public class AuthenticationClient : GrpcClientBase
+    public class AuthenticationClient
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private readonly Authentication.AuthenticationClient _Client;
@@ -41,9 +41,9 @@ namespace AuthenticationGrpcClientWrapper
             return _Instance;
         }
 
-        private AuthenticationClient(string address, string certFilePath) : base(address, certFilePath)
+        private AuthenticationClient(string address, string certFilePath)
         {
-            _Client = new Authentication.AuthenticationClient(_channel);
+            _Client = new Authentication.AuthenticationClient(GrpcCommon.CreateChannel(address, certFilePath));
         }
 
         public UserLoginHistory GetUserLoginHistory(int partnerId, int userId)
@@ -273,14 +273,14 @@ namespace AuthenticationGrpcClientWrapper
                 using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "GenerateDeviceLoginPin"))
                 {
                     mon.Table = $"partnerId:{partnerId}";
-                    var grpcResponse = _Client.GenerateDevicePin(new GenerateDevicePinRequest()
+                    var grpcResponse = _Client.GenerateDeviceLoginPin(new GenerateDeviceLoginPinRequest()
                     {
                         PartnerId = partnerId,
                         BrandId = brandId,
                         UDID = udid
                     });
 
-                    return grpcResponse?.Pin_;
+                    return grpcResponse?.Pin;
                 }
             }
             catch (Exception e)
