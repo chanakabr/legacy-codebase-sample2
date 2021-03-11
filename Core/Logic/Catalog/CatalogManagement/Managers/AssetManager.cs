@@ -2063,6 +2063,8 @@ namespace Core.Catalog.CatalogManagement
                     regions = regions
                 };
 
+                Catalog.Utils.ExtractSuppressedValue(catalogGroupCache, media);
+
                 languageToMedia.Add(language.ID, media);
             }
 
@@ -3431,7 +3433,7 @@ namespace Core.Catalog.CatalogManagement
                             asset.allowedCountries.Add(0);
                         }
                     }
-
+                    
                     result.Add((int)mediaAsset.Id, assets);
                 }
             }
