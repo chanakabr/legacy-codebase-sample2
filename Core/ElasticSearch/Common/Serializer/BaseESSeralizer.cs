@@ -29,7 +29,7 @@ namespace ElasticSearch.Common
             recordBuilder.AppendFormat("\"media_id\": {0}, \"group_id\": {1}, \"media_type_id\": {2}, \"wp_type_id\": {3}, \"is_active\": {4}, " +
                 "\"device_rule_id\": {5}, \"like_counter\": {6}, \"views\": {7}, \"rating\": {8}, \"votes\": {9}, \"start_date\": \"{10}\", " +
                 "\"end_date\": \"{11}\", \"final_date\": \"{12}\", \"create_date\": \"{13}\", \"update_date\": \"{14}\", \"{21}\": \"{15}\", " +
-                "\"{22}\": \"{16}\", \"cache_date\": \"{17}\", \"geo_block_rule_id\": {18}, \"external_id\": \"{19}\", \"catalog_start_date\": \"{20}\", ",
+                "\"{22}\": \"{16}\", \"cache_date\": \"{17}\", \"geo_block_rule_id\": {18}, \"external_id\": \"{19}\", \"catalog_start_date\": \"{20}\", \"suppressed\": \"{23}\",",
                 media.m_nMediaID, media.m_nGroupID, media.m_nMediaTypeID, media.m_nWPTypeID, media.m_nIsActive,
                 media.m_nDeviceRuleId, media.m_nLikeCounter, media.m_nViews, media.m_dRating, media.m_nVotes, media.m_sStartDate,
                 media.m_sEndDate, media.m_sFinalEndDate, media.m_sCreateDate, media.m_sUpdateDate, Common.Utils.ReplaceDocumentReservedCharacters(media.m_sName, shouldLowerCase),
@@ -38,7 +38,8 @@ namespace ElasticSearch.Common
                 // {21}
                 AddSuffix("name", suffix),
                 // {22}
-                AddSuffix("description", suffix)
+                AddSuffix("description", suffix),
+                media.suppressed
                 );
 
             #region add media file types

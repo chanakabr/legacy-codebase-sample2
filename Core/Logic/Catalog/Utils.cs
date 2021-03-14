@@ -956,7 +956,7 @@ namespace Core.Catalog
                                 if (media.m_dMeatsValues.ContainsKey(topic.SystemName))
                                 {
                                     //calculated suppressed value
-                                    media.m_dMeatsValues.Add("suppressed", media.m_dMeatsValues[topic.SystemName]);
+                                    media.suppressed = media.m_dMeatsValues[topic.SystemName];
                                     break;
                                 }
                             }

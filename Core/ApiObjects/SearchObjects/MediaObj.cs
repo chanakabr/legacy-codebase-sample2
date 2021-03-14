@@ -77,6 +77,11 @@ namespace ApiObjects.SearchObjects
         /// Inheritance Policy
         /// </summary>
         public int? inheritancePolicy;
+
+        /// <summary>
+        /// suppressed value
+        /// </summary>
+        public string suppressed;
         #endregion
 
         #region Ctor
@@ -157,8 +162,8 @@ namespace ApiObjects.SearchObjects
                 EntryId = this.EntryId,
                 allowedCountries = this.allowedCountries,
                 blockedCountries = this.blockedCountries,
-                inheritancePolicy = this.inheritancePolicy
-                
+                inheritancePolicy = this.inheritancePolicy,
+                suppressed = this.suppressed
             };
 
             clone.m_dMeatsValues = (from meta in this.m_dMeatsValues select meta).ToDictionary(x => x.Key, x => x.Value);
