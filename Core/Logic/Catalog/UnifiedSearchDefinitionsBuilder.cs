@@ -22,8 +22,10 @@ namespace Core.Catalog
         private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
         {
             "media_type_id",
-            "name"
-             ,"crid"
+            "name",
+            "crid",
+            "suppressed",
+            "linear_media_id"
         };
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
