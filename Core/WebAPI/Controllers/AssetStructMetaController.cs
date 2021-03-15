@@ -54,7 +54,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.MetaDoesNotExist)]
-        [SchemeArgument("assetStructId", MinLong = 1)]
+        [SchemeArgument("assetStructId", MinLong = 0)]
         [SchemeArgument("metaId", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         static public KalturaAssetStructMeta Update(long assetStructId, long metaId, KalturaAssetStructMeta assetStructMeta)

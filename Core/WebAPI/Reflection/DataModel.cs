@@ -13347,7 +13347,7 @@ namespace WebAPI.Reflection
                                     RequiresPermission = false,
                                     MaxLength = -1,
                                     MinLength = -1,
-                                    MinLong = 1,
+                                    MinLong = 0,
                                 },
                             });
                             ret.Add("metaId", new MethodParam(){
