@@ -798,7 +798,7 @@ namespace Core.Catalog.CatalogManagement
                 validateSystemTopicDescription = false;
             }
             
-            EpgAssetMultilingualMutator.Instance.PrepareEpgAsset(epgAssetToUpdate, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapByCode);
+            EpgAssetMultilingualMutator.Instance.PrepareEpgAsset(groupId, epgAssetToUpdate, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapByCode);
 
             var nameValues = GetSystemTopicValues(epgAssetToUpdate.Name, epgAssetToUpdate.NamesWithLanguages, catalogGroupCache,
                                                   AssetManager.NAME_META_SYSTEM_NAME, validateSystemTopic);
@@ -932,7 +932,7 @@ namespace Core.Catalog.CatalogManagement
                 return new Status((int)eResponseStatus.AssetExternalIdMustBeUnique, eResponseStatus.AssetExternalIdMustBeUnique.ToString());
             }
             
-            EpgAssetMultilingualMutator.Instance.PrepareEpgAsset(epgAssetToAdd, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapByCode);
+            EpgAssetMultilingualMutator.Instance.PrepareEpgAsset(groupId, epgAssetToAdd, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapByCode);
 
             // Add Name meta values
             var nameValues = GetSystemTopicValues(epgAssetToAdd.Name, epgAssetToAdd.NamesWithLanguages, catalogGroupCache,

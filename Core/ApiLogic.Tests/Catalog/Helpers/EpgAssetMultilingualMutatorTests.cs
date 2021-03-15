@@ -151,7 +151,7 @@ namespace ApiLogic.Tests.Catalog.Helpers
             var expectedEpgAsset = epgAsset.DeepClone();
             
             var epgAssetMultilingualMutator = new EpgAssetMultilingualMutator(_catalogPartnerConfigManagerMock.Object, _groupSettingsManagerMock.Object, _groupsFeaturesMock.Object);
-            epgAssetMultilingualMutator.PrepareEpgAsset(epgAsset, defaultLanguage, languages);
+            epgAssetMultilingualMutator.PrepareEpgAsset(GroupId, epgAsset, defaultLanguage, languages);
 
             epgAsset.Should().BeEquivalentTo(expectedEpgAsset);
         }
@@ -167,7 +167,7 @@ namespace ApiLogic.Tests.Catalog.Helpers
             _catalogPartnerConfigManagerMock.Setup(x => x.GetCatalogConfig(GroupId)).Returns(genericResponse);
             
             var epgAssetMultilingualMutator = new EpgAssetMultilingualMutator(_catalogPartnerConfigManagerMock.Object, _groupSettingsManagerMock.Object, _groupsFeaturesMock.Object);
-            epgAssetMultilingualMutator.PrepareEpgAsset(epgAsset, defaultLanguage, languages);
+            epgAssetMultilingualMutator.PrepareEpgAsset(GroupId, epgAsset, defaultLanguage, languages);
 
             epgAsset.Should().BeEquivalentTo(expectedEpgAsset);
         }
@@ -520,7 +520,7 @@ namespace ApiLogic.Tests.Catalog.Helpers
 
             #endregion
 
-            #region Only Metas with type MultilingualString should be processed.
+            #region Metas without type MultilingualString should be processed as well.
 
             epgAsset = new EpgAsset
             {
@@ -563,16 +563,60 @@ namespace ApiLogic.Tests.Catalog.Helpers
                     new Metas
                     {
                         m_sValue = defaultMetaValue,
-                        m_oTagMeta = new TagMeta(string.Empty, MetaType.Bool.ToString())
+                        m_oTagMeta = new TagMeta(string.Empty, MetaType.Bool.ToString()),
+                        Value = new []
+                        {
+                            new LanguageContainer("csp", defaultMetaValue),
+                            new LanguageContainer("arb", defaultMetaValue),
+                        }
                     },
                     new Metas
                     {
                         m_sValue = defaultMetaValue,
-                        m_oTagMeta = new TagMeta(string.Empty, MetaType.String.ToString())
+                        m_oTagMeta = new TagMeta(string.Empty, MetaType.String.ToString()),
+                        Value = new []
+                        {
+                            new LanguageContainer("csp", defaultMetaValue),
+                            new LanguageContainer("arb", defaultMetaValue),
+                        }
                     },
                 }
             };
-            yield return new TestCaseData(epgAsset, expectedEpgAsset).SetName("Only Metas with type MultilingualString should be processed.");
+            yield return new TestCaseData(epgAsset, expectedEpgAsset).SetName("Metas without type MultilingualString should be processed as well.");
+
+            #endregion
+
+            #region Nulls for Description should be replaced if there is a default value.
+
+            epgAsset = new EpgAsset
+            {
+                GroupId = GroupId,
+                Name = defaultName,
+                NamesWithLanguages = null,
+                Description = defaultDescription,
+                DescriptionsWithLanguages =  new List<LanguageContainer>
+                {
+                    new LanguageContainer("csp", "234"),
+                    new LanguageContainer("arb", null),
+                },
+            };
+            expectedEpgAsset = new EpgAsset
+            {
+                GroupId = GroupId,
+                Name = defaultName,
+                NamesWithLanguages = new List<LanguageContainer>
+                {
+                    new LanguageContainer("csp", defaultName),
+                    new LanguageContainer("arb", defaultName),
+                },
+                Description = defaultDescription,
+                DescriptionsWithLanguages =  new List<LanguageContainer>
+                {
+                    new LanguageContainer("csp", "234"),
+                    new LanguageContainer("arb", defaultDescription),
+                }
+            };
+            yield return new TestCaseData(epgAsset, expectedEpgAsset).SetName("Nulls for Description should be replaced if there is a default value.");
 
             #endregion
         }
