@@ -13794,6 +13794,10 @@ namespace WebAPI.Models.Catalog
                     ret.Add("filter_types", "\"filter_types\": " + propertyValue);
                 }
             }
+            if(Ksql != null && (retrievedProperties == null || retrievedProperties.Contains("kSql")))
+            {
+                ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
+            }
             if(StatusEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("statusEqual")))
             {
                 ret.Add("statusEqual", "\"statusEqual\": " + "\"" + Enum.GetName(typeof(KalturaWatchStatus), StatusEqual) + "\"");
@@ -13845,6 +13849,10 @@ namespace WebAPI.Models.Catalog
                 {
                 ret.Add("filter_types", "<filter_types>" + propertyValue + "</filter_types>");
                 }
+            }
+            if(Ksql != null && (retrievedProperties == null || retrievedProperties.Contains("kSql")))
+            {
+                ret.Add("kSql", "<kSql>" + EscapeXml(Ksql) + "</kSql>");
             }
             if(StatusEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("statusEqual")))
             {

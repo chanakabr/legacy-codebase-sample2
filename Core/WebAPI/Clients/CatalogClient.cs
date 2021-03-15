@@ -1058,7 +1058,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetHistoryListResponse getAssetHistory(int groupId, string siteGuid, string udid, string language, int pageIndex, int? pageSize,
-            KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<string> assetIds, bool suppress, List<KalturaCatalogWith> withList = null)
+            KalturaWatchStatus watchStatus, int days, List<int> assetTypes, List<string> assetIds, bool suppress, string ksql, List<KalturaCatalogWith> withList = null)
         {
             KalturaAssetHistoryListResponse finalResults = new KalturaAssetHistoryListResponse();
             finalResults.Objects = new List<KalturaAssetHistory>();
@@ -1088,7 +1088,8 @@ namespace WebAPI.Clients
                 NumOfDays = days,
                 OrderDir = ApiObjects.SearchObjects.OrderDir.DESC,
                 AssetIds = assetIds,
-                Suppress = suppress
+                Suppress = suppress,
+                FilterQuery = ksql
             };
 
             // fire history watched request

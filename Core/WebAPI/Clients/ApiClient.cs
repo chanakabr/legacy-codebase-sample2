@@ -9,6 +9,7 @@ using ApiObjects.Rules;
 using ApiObjects.Segmentation;
 using ApiObjects.TimeShiftedTv;
 using AutoMapper;
+using Core.Catalog.CatalogManagement;
 using Core.Pricing;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
@@ -30,7 +31,6 @@ using WebAPI.Models.Segmentation;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
-using Core.Catalog.CatalogManagement;
 
 namespace WebAPI.Clients
 {
@@ -3543,13 +3543,12 @@ namespace WebAPI.Clients
             return success;
         }
 
-        internal void CleanUserAssetHistory(int groupId, string userId, string udid, List<string> assetIds, List<int> assetTypes, KalturaWatchStatus watchStatus, int days)
+        internal void CleanUserAssetHistory(int groupId, string userId, string udid, List<string> assetIds, List<int> assetTypes, KalturaWatchStatus watchStatus, int days, string ksql)
         {
-            bool success = false;
-
             Status response = null;
 
-            KalturaAssetHistoryListResponse historyResponse = ClientsManager.CatalogClient().getAssetHistory(groupId, userId, udid, string.Empty, 0, 0, watchStatus, days, assetTypes, assetIds, false);
+            KalturaAssetHistoryListResponse historyResponse = ClientsManager.CatalogClient().getAssetHistory(groupId, userId, udid, string.Empty, 0, 0, watchStatus, days, assetTypes,
+                            assetIds, false, ksql);
 
             if (historyResponse != null && historyResponse.Objects != null && historyResponse.Objects.Count > 0)
             {

@@ -1,19 +1,13 @@
 ﻿using ApiObjects;
+using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Web;
-using ApiObjects.MediaMarks;
-using Tvinci.Core.DAL;
-using System.Data;
 using Core.Catalog.Response;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Core.Catalog.Request
 {
@@ -40,6 +34,12 @@ namespace Core.Catalog.Request
         [DataMember]
         public bool Suppress { get; set; }
 
+        /// <summary>
+        /// Valid KSQL expression. If provided – the filter is applied on the collection response
+        /// </summary>
+        [DataMember]
+        public string FilterQuery;
+
         public override BaseResponse GetResponse(BaseRequest baseRequest)
         {
             WatchHistoryResponse response = new WatchHistoryResponse();
@@ -64,7 +64,7 @@ namespace Core.Catalog.Request
                 CheckSignature(baseRequest);
 
                 int userDomainID = 0;
-                if (!CatalogLogic.IsUserValid(request.m_sSiteGuid, request.m_nGroupID, ref userDomainID) || userDomainID ==  0)
+                if (!CatalogLogic.IsUserValid(request.m_sSiteGuid, request.m_nGroupID, ref userDomainID) || userDomainID == 0)
                 {
                     throw new Exception("Either user is not valid or user has no domain.");
                 }
@@ -75,18 +75,18 @@ namespace Core.Catalog.Request
                 List<int> excludedAssetTypes = new List<int>();
 
                 // If asset types contains NPVR explicitly, don't exclude it.
-                if (AssetTypes == null || !AssetTypes.Contains((int)eAssetTypes.NPVR))
+                if (string.IsNullOrEmpty(FilterQuery) && (AssetTypes == null || !AssetTypes.Contains((int)eAssetTypes.NPVR)))
                 {
                     excludedAssetTypes.Add((int)eAssetTypes.NPVR);
                 }
 
-                if (AssetTypes == null || !AssetTypes.Contains((int)eAssetTypes.EPG))
+                if (string.IsNullOrEmpty(FilterQuery) && (AssetTypes == null || !AssetTypes.Contains((int)eAssetTypes.EPG)))
                 {
                     excludedAssetTypes.Add((int)eAssetTypes.EPG);
                 }
 
                 List<WatchHistory> res = CatalogLogic.GetUserWatchHistory(m_nGroupID, m_sSiteGuid, userDomainID, AssetTypes, AssetIds, excludedAssetTypes, FilterStatus, NumOfDays,
-                                                                          OrderDir, m_nPageIndex, m_nPageSize, Suppress, out totalItems);
+                                                                          OrderDir, m_nPageIndex, m_nPageSize, Suppress, FilterQuery, out totalItems);
 
                 // convert to client response
                 UserWatchHistory userWatchHistory;
