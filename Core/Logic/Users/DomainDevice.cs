@@ -47,7 +47,7 @@ namespace Core.Users
         
         public long? LastActivityTime { get; set; }
 
-        public Dictionary<string, string> DynamicData { get; set; }
+        public List<ApiObjects.KeyValuePair> DynamicData { get; set; }
 
         protected override bool DoInsert()
         {
