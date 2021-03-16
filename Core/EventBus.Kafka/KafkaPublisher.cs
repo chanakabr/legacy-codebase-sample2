@@ -1,6 +1,7 @@
 ﻿using ConfigurationManager;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
+using Couchbase.N1QL;
 using EventBus.Abstraction;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -14,7 +15,9 @@ namespace EventBus.Kafka
     public class KafkaPublisher : IEventBusPublisher
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
+        private const string REQ_ID_HEADER = "traceId";
+        private const string PARTNER_ID_HEADER = "partnerId";
+        private const string USER_ID_HEADER = "userId";
         private static IProducer<string, string> _Producer = null;
         private static KafkaPublisher _Instance = null;
         private static object locker = new object();
@@ -72,17 +75,68 @@ namespace EventBus.Kafka
 
         public void Publish(ServiceEvent serviceEvent)
         {
-            using (var kmon = new KLogMonitor.KMonitor(Events.eEvent.EVENT_KAFKA, serviceEvent.GroupId.ToString(), "kafka.publish", serviceEvent.RequestId))
-            {
-                var topic = serviceEvent.GetRoutingKey();
-                var key = serviceEvent.EventKey;
-                var payload = JsonConvert.SerializeObject(serviceEvent);
-                kmon.Database = topic;
-                kmon.Table = key;
+            Publish(serviceEvent, false);
+        }
 
-                var msg = new Message<string, string> { Key = key, Value = payload };
+        public void Publish(IEnumerable<ServiceEvent> serviceEvents)
+        {
+            if (serviceEvents != null)
+            {
+                foreach (ServiceEvent serviceEvent in serviceEvents)
+                {
+                    Publish(serviceEvent, false);
+                }
+            }
+        }
+
+        public void PublishHeadersOnly(ServiceEvent serviceEvent, Dictionary<string, string> headersToAdd = null)
+        {
+            Publish(serviceEvent, true, headersToAdd);
+        }
+
+        private void Publish(ServiceEvent serviceEvent, bool shouldSendOnlyHeaders = false, Dictionary<string, string> headersToAdd = null)
+        {
+            string groupId = serviceEvent.GroupId.ToString();
+            string reqId = serviceEvent.RequestId;
+            var topic = serviceEvent.GetRoutingKey();
+            var msg = new Message<string, string>();
+            string key = serviceEvent.EventKey;
+            msg.Key = key;
+            msg.Headers = GetMessageHeaders(groupId, reqId, serviceEvent.UserId, headersToAdd);
+            if (!shouldSendOnlyHeaders)
+            {
+                msg.Value = JsonConvert.SerializeObject(serviceEvent);
+            }
+
+            using (var kmon = new KLogMonitor.KMonitor(Events.eEvent.EVENT_KAFKA, groupId, "kafka.publish", reqId) { Database = topic, Table = key })
+            {                
                 _Producer.Produce(topic, msg, DeliveryHandler);
             }
+        }
+
+        private Headers GetMessageHeaders(string groupId, string reqId, long userId, Dictionary<string, string> headersToAdd = null)
+        {
+            Headers headers = new Headers();
+            headers.Add(PARTNER_ID_HEADER, System.Text.Encoding.UTF8.GetBytes(groupId));
+            if (!string.IsNullOrEmpty(reqId))
+            {
+                headers.Add(REQ_ID_HEADER, System.Text.Encoding.UTF8.GetBytes(reqId));
+            }
+
+            if (userId > 0)
+            {
+                headers.Add(USER_ID_HEADER, System.Text.Encoding.UTF8.GetBytes(userId.ToString()));
+            }
+
+            if (headersToAdd != null)
+            {
+                foreach (KeyValuePair<string, string> header in headersToAdd)
+                {
+                    headers.Add(header.Key, System.Text.Encoding.UTF8.GetBytes(header.Value)); 
+                }
+            }
+
+            return headers;
         }
 
         private void DeliveryHandler(DeliveryReport<string, string> ack)

@@ -1513,7 +1513,7 @@ namespace CachingProvider.LayeredCache
                 var invalidationEvent = new CacheInvalidationEvent(key, InvalidationEventsTopic);
                 if (invalidationEvent != null)
                 {
-                    _InvalidationEventsPublisher.Publish(invalidationEvent);
+                    _InvalidationEventsPublisher.PublishHeadersOnly(invalidationEvent);
                 }
             }
             catch (Exception e)
