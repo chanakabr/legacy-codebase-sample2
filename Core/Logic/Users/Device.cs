@@ -52,7 +52,7 @@ namespace Core.Users
 
         public string MacAddress;
 
-        public Dictionary<string, string> DynamicData;
+        public List<ApiObjects.KeyValuePair> DynamicData;
 
         public string Model;
         
@@ -174,7 +174,7 @@ namespace Core.Users
             string model = "",
             long? manufacturerId = null,
             string manufacturer = null,
-            Dictionary<string, string> dynamicData = null,
+            List<ApiObjects.KeyValuePair> dynamicData = null,
             bool allowNullExternalId = false,
             bool allowNullMacAddress = false,
             bool allowNullDynamicData = false)
@@ -187,7 +187,7 @@ namespace Core.Users
 
             log.Debug($"Device for Save: {nameof(isActive)}: {isActive}, {nameof(status)}: {status}, {nameof(deviceId)}: {deviceId}, " +
                       $"{nameof(macAddress)}: {macAddress}, {nameof(externalId)}: {externalId}, {nameof(model)}: {model}, manufacturerId: {manufacturerId}, " +
-                      $"{nameof(dynamicData)}: {{{string.Join(", ", dynamicData?.Select(pair => $"\"{pair.Key}\": \"{pair.Value}\"") ?? Enumerable.Empty<string>())}}}, " +
+                      $"{nameof(dynamicData)}: {{{string.Join(", ", dynamicData?.Select(pair => $"\"{pair.key}\": \"{pair.value}\"") ?? Enumerable.Empty<string>())}}}, " +
                       $"{nameof(allowNullExternalId)}: {allowNullExternalId}, {nameof(allowNullMacAddress)}: {allowNullMacAddress}, {nameof(allowNullDynamicData)}: {allowNullDynamicData}, " +
                       $"{nameof(deviceFound)}: {deviceFound}, {nameof(retVal)}: {retVal}");
 
@@ -385,7 +385,7 @@ namespace Core.Users
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
         }
 
-        private void SetUpdatedValues(string externalId, string macAddress, string model, long? manufacturerId, string manufacturer, Dictionary<string, string> dynamicData)
+        private void SetUpdatedValues(string externalId, string macAddress, string model, long? manufacturerId, string manufacturer, List<ApiObjects.KeyValuePair> dynamicData)
         {
             if (externalId != null)
             {
@@ -488,7 +488,7 @@ namespace Core.Users
             string macAddress = null;
             string model = null;
             long? manufacturerId = null;
-            Dictionary<string, string> dynamicData = null;
+            List<ApiObjects.KeyValuePair> dynamicData = null;
             int m_domainID = 0;
             DateTime m_activationDate = DateTime.UtcNow;
 

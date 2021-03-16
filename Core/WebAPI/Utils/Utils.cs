@@ -278,21 +278,21 @@ namespace WebAPI.Utils
             return res;
         }
 
-        internal static SerializableDictionary<string, KalturaStringValue> ConvertToSerializableDictionary(Dictionary<string, string> dictionary)
+        internal static SerializableDictionary<string, KalturaStringValue> ConvertToSerializableDictionary(List<ApiObjects.KeyValuePair> dictionary)
         {
             var result = new SerializableDictionary<string, KalturaStringValue>();
 
             if (dictionary?.Any() == true)
             {
-                foreach (KeyValuePair<string, string> pair in dictionary)
+                foreach (var pair in dictionary)
                 {
-                    if (!result.ContainsKey(pair.Key))
+                    if (!result.ContainsKey(pair.key))
                     {
-                        result.Add(pair.Key, new KalturaStringValue {value = pair.Value});
+                        result.Add(pair.key, new KalturaStringValue {value = pair.value});
                     }
                     else
                     {
-                        throw new ClientException((int) StatusCode.ArgumentsDuplicate, $"key {pair.Key} already exists in sent dictionary");
+                        throw new ClientException((int) StatusCode.ArgumentsDuplicate, $"key {pair.key} already exists in sent dictionary");
                     }
                 }
             }
