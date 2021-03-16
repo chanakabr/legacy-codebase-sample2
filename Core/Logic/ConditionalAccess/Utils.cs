@@ -7982,7 +7982,7 @@ namespace Core.ConditionalAccess
                                         }
                                         else
                                         {
-                                            validateStatus = ValidateRecording(groupId.Value, domain, udid, userId, id, ref recording);
+                                            validateStatus = ValidateRecording(groupId.Value, domain, udid, userId, id, ref recording, true);
                                         }
 
                                         if (validateStatus.Code != (int)eResponseStatus.OK)
@@ -8078,12 +8078,13 @@ namespace Core.ConditionalAccess
             return type;
         }
 
-        internal static ApiObjects.Response.Status ValidateRecording(int groupId, Domain domain, string udid, string userId, long domainRecordingId, ref Recording recording)
+        internal static ApiObjects.Response.Status ValidateRecording(int groupId, Domain domain, string udid, string userId,
+            long domainRecordingId, ref Recording recording, bool skipDeviceCheck = false)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             // get device brand ID - and make sure the device is in the domain
-            if (!Utils.IsDeviceInDomain(domain, udid))
+            if (!skipDeviceCheck && !Utils.IsDeviceInDomain(domain, udid))
             {
                 log.ErrorFormat("Device not in the user's domain. groupId = {0}, userId = {1}, domainId = {2}, domainRecordingId = {3}, udid = {4}",
                     groupId, userId, domain.m_nDomainID, domainRecordingId, udid);

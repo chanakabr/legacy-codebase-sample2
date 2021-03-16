@@ -61,9 +61,9 @@ namespace ApiLogic.Catalog.CatalogManagement.Helpers
             return true;
         }
 
-        public void PrepareEpgAsset(EpgAsset epgAsset, LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languageMapByCode)
+        public void PrepareEpgAsset(int groupId, EpgAsset epgAsset, LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languageMapByCode)
         {
-            if (!IsAllowedToFallback(epgAsset.GroupId, languageMapByCode))
+            if (!IsAllowedToFallback(groupId, languageMapByCode))
             {
                 return;
             }
@@ -73,7 +73,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Helpers
             epgAsset.NamesWithLanguages =
                 FallbackMultilingualLanguageContainers(epgAsset.NamesWithLanguages, epgAsset.Name, languageCodesWithoutDefault).ToList();
             epgAsset.DescriptionsWithLanguages =
-                FallbackMultilingualLanguageContainers(epgAsset.DescriptionsWithLanguages, epgAsset.Description, languageCodesWithoutDefault)
+                FallbackMultilingualLanguageContainers(epgAsset.DescriptionsWithLanguages, epgAsset.Description, languageCodesWithoutDefault, true)
                     .ToList();
 
             FallbackMultilingualMetas(epgAsset.Metas, languageCodesWithoutDefault);
@@ -84,10 +84,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Helpers
         {
             foreach (var meta in metas)
             {
-                if (meta.m_oTagMeta.m_sType == nameof(MetaType.MultilingualString))
-                {
-                    FallbackMeta(meta, languageCodesWithoutDefault);
-                }
+                FallbackMeta(meta, languageCodesWithoutDefault);
             }
         }
 
@@ -126,12 +123,16 @@ namespace ApiLogic.Catalog.CatalogManagement.Helpers
         private static LanguageContainer[] FallbackMultilingualLanguageContainers(
             IEnumerable<LanguageContainer> languageContainers,
             string defaultLanguageValue,
-            IReadOnlyCollection<string> languageCodesWithoutDefault)
+            IReadOnlyCollection<string> languageCodesWithoutDefault,
+            bool replaceNullValueWithDefault = false)
         {
             var containers = languageContainers ?? Enumerable.Empty<LanguageContainer>();
-            var existingLanguages = containers.Select(lc => lc.m_sLanguageCode3);
-            var languagesToAdd = languageCodesWithoutDefault.Except(existingLanguages);
-            return languagesToAdd.Select(l => new LanguageContainer(l, defaultLanguageValue)).Concat(containers).ToArray();
+            var existingLanguages = !replaceNullValueWithDefault
+                ? containers.Select(lc => lc.m_sLanguageCode3)
+                : containers.Where(x => x.m_sValue != null).Select(lc => lc.m_sLanguageCode3);
+            var languagesToAdd = !string.IsNullOrEmpty(defaultLanguageValue) ? languageCodesWithoutDefault.Except(existingLanguages) : Enumerable.Empty<string>();
+            var languageContainersToReAdd = containers.Where(x => !languagesToAdd.Contains(x.m_sLanguageCode3));
+            return languagesToAdd.Select(l => new LanguageContainer(l, defaultLanguageValue)).Concat(languageContainersToReAdd).ToArray();
         }
     }
 }

@@ -8,6 +8,6 @@ namespace ApiLogic.Catalog.CatalogManagement.Helpers
     {
         bool IsAllowedToFallback(int groupId, IDictionary<string, LanguageObj> languages);
         
-        void PrepareEpgAsset(EpgAsset epgAsset, LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languageMapByCode);
+        void PrepareEpgAsset(int groupId, EpgAsset epgAsset, LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languageMapByCode);
     }
 }

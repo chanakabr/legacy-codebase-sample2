@@ -473,6 +473,8 @@ namespace WebAPI.Reflection
                             return "assetIdIn";
                         case "DaysLessThanOrEqual":
                             return "daysLessThanOrEqual";
+                        case "Ksql":
+                            return "kSql";
                         case "StatusEqual":
                             return "statusEqual";
                         case "TypeIn":

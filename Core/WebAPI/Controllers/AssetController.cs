@@ -1028,6 +1028,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidValueSentForMeta)]
         [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
         [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
+        [Throws(StatusCode.StartDateShouldBeLessThanEndDate)]
         static public KalturaAsset Add(KalturaAsset asset)
         {
             KalturaAsset response = null;
@@ -1095,6 +1096,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
         [Throws(eResponseStatus.RelatedEntitiesExceedLimitation)]
+        [Throws(StatusCode.StartDateShouldBeLessThanEndDate)]
         [SchemeArgument("id", MinLong = 1)]
         static public KalturaAsset Update(long id, KalturaAsset asset)
         {
@@ -1286,11 +1288,13 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams, sourceType, true);
+                string udid = KSUtils.ExtractKSPayload().UDID;
+
+                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, udid, assetId, assetType, contextDataParams, sourceType, true);
 
                 if (response.Sources != null && response.Sources.Count > 0)
                 {
-                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterManifest(ks.GroupId, assetId, assetType, response, contextDataParams, ks.UserId);
+                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterManifest(ks.GroupId, assetId, assetType, response, contextDataParams, ks.UserId, udid, Utils.Utils.GetClientIP());
                     if (adapterResponse != null)
                     {
                         response = adapterResponse;

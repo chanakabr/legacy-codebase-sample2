@@ -52,6 +52,7 @@ namespace Core.Catalog.CatalogManagement
         private const string GENRE_META_SYSTEM_NAME = "Genre";
         private const string CRID_META_SYSTEM_NAME = "Crid";
         private const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
+        private const string START_DATE_SHOULD_BE_LESS_THAN_END_DATE_ERROR = "StartDate should be less than EndDate.";
         private static readonly int MaxDescriptionSize = 1024;
         private static readonly int MaxNameSize = 255;
 
@@ -347,11 +348,26 @@ namespace Core.Catalog.CatalogManagement
                 // update epgCb in CB for all languages
                 SaveEpgCbToCB(epgCBToUpdate, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, false);
 
-                // update index
-                bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAssetToUpdate.Id }, false);
-                if (!indexingResult)
+                // delete index, if EPG moved to another day
+                var indexAddAction = false;
+                if (epgAssetToUpdate.StartDate?.Date != oldEpgAsset.StartDate?.Date && isIngestV2)
                 {
-                    log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, groupId: {1} after UpdateEpgAsset", epgAssetToUpdate.Id, groupId);
+                    var deleteIndexResult = IndexManager.DeleteProgram(groupId, new List<long> { epgAssetToUpdate.Id }, new List<string> { epgAssetToUpdate.EpgChannelId.ToString() });
+                    if (deleteIndexResult)
+                    {
+                        indexAddAction = true;
+                    }
+                    else
+                    {
+                        log.ErrorFormat("Failed {0} index for groupId: {1}, assetId: {2}, channelId: {3} after {4}.", nameof(IndexManager.DeleteProgram), groupId, epgAssetToUpdate.Id, epgAssetToUpdate.EpgChannelId, nameof(SaveEpgCbToCB));
+                    }
+                }
+
+                // update index
+                var upsertIndexingResult = IndexManager.UpsertProgram(groupId, new List<int> { (int)epgAssetToUpdate.Id }, indexAddAction);
+                if (!upsertIndexingResult)
+                {
+                    log.ErrorFormat("Failed {0} index for groupId: {1}, assetId: {2} after {3}.", nameof(IndexManager.UpsertProgram), groupId, epgAssetToUpdate.Id, nameof(SaveEpgCbToCB));
                 }
 
                 SendActionEvent(groupId, oldEpgAsset.Id, eAction.Update);
@@ -782,7 +798,7 @@ namespace Core.Catalog.CatalogManagement
                 validateSystemTopicDescription = false;
             }
             
-            EpgAssetMultilingualMutator.Instance.PrepareEpgAsset(epgAssetToUpdate, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapByCode);
+            EpgAssetMultilingualMutator.Instance.PrepareEpgAsset(groupId, epgAssetToUpdate, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapByCode);
 
             var nameValues = GetSystemTopicValues(epgAssetToUpdate.Name, epgAssetToUpdate.NamesWithLanguages, catalogGroupCache,
                                                   AssetManager.NAME_META_SYSTEM_NAME, validateSystemTopic);
@@ -916,7 +932,7 @@ namespace Core.Catalog.CatalogManagement
                 return new Status((int)eResponseStatus.AssetExternalIdMustBeUnique, eResponseStatus.AssetExternalIdMustBeUnique.ToString());
             }
             
-            EpgAssetMultilingualMutator.Instance.PrepareEpgAsset(epgAssetToAdd, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapByCode);
+            EpgAssetMultilingualMutator.Instance.PrepareEpgAsset(groupId, epgAssetToAdd, catalogGroupCache.DefaultLanguage, catalogGroupCache.LanguageMapByCode);
 
             // Add Name meta values
             var nameValues = GetSystemTopicValues(epgAssetToAdd.Name, epgAssetToAdd.NamesWithLanguages, catalogGroupCache,

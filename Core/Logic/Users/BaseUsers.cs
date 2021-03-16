@@ -18,6 +18,7 @@ using ApiLogic.CanaryDeployment;
 using ApiObjects.CanaryDeployment;
 using ApiObjects.DataMigrationEvents;
 using EventBus.Kafka;
+using Core.Api;
 using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Users
@@ -807,138 +808,139 @@ namespace Core.Users
             }
         }
 
-        public virtual List<UserItemList> GetItemFromList(UserItemList userItemList, int nGroupID)
+        public List<UserItemList> GetItemFromList(UserItemList userItemList, int groupId)
         {
-            try
+            var status = TryGetUsersAvailableItems(groupId, new List<string> { userItemList.siteGuid }, userItemList.listType, userItemList.itemType, out var items);
+            if (status.IsOkStatusCode())
             {
-                List<UserItemList> luserItemList = new List<UserItemList>();
-                int nSiteGuid = 0;
-                if (userItemList == null || string.IsNullOrEmpty(userItemList.siteGuid))
-                    return null;
-
-                try
-                {
-                    nSiteGuid = int.Parse(userItemList.siteGuid);
-                }
-                catch
-                {
-                    return null;
-                }
-
-                DataTable dt = UsersDal.GetItemFromList(nSiteGuid, (int)userItemList.listType, (int)userItemList.itemType, nGroupID);
-                if (dt != null && dt.DefaultView.Count > 0)
-                {
-                    UserItemList userItem = new UserItemList();
-                    foreach (DataRow dr in dt.Rows)
+                return items
+                    .GroupBy(x => new { x.UserId, x.ListType, x.ItemType })
+                    .Select(x => new UserItemList
                     {
-                        ListType elistType = (ListType)ODBCWrapper.Utils.GetIntSafeVal(dr["list_type"]);
-                        ListItemType eitemType = (ListItemType)ODBCWrapper.Utils.GetIntSafeVal(dr["item_type"]);
-
-                        if (elistType == userItem.listType && eitemType == userItem.itemType)
-                            continue;
-
-                        DataRow[] dRows = dt.Select("list_type=" + (int)elistType + " AND item_type=" + (int)eitemType);
-
-                        bool firstTime = true;
-                        userItem = new UserItemList();
-                        ItemObj itemObj = null;
-                        foreach (DataRow item in dRows)
-                        {
-                            if (firstTime)
-                            {
-                                userItem.siteGuid = ODBCWrapper.Utils.GetSafeStr(item["user_id"]);
-                                userItem.listType = (ListType)ODBCWrapper.Utils.GetIntSafeVal(item["list_type"]);
-                                userItem.itemType = (ListItemType)ODBCWrapper.Utils.GetIntSafeVal(item["item_type"]);
-                                userItem.itemObj = new List<ItemObj>();
-                                firstTime = false;
-                            }
-                            itemObj = new ItemObj();
-                            itemObj.item = ODBCWrapper.Utils.GetIntSafeVal(item["item_id"]);
-                            itemObj.orderNum = ODBCWrapper.Utils.GetIntSafeVal(item["order_num"]);
-                            userItem.itemObj.Add(itemObj);
-                        }
-                        luserItemList.Add(userItem);
-                    }
-                }
-                return luserItemList;
+                        itemObj = x.Select(item => new ItemObj { item = item.ItemId, orderNum = item.OrderIndex }).ToList(),
+                        itemType = x.Key.ItemType,
+                        listType = x.Key.ListType,
+                        siteGuid = x.Key.UserId
+                    })
+                    .ToList();
             }
-            catch (Exception ex)
-            {
-                log.Error("GetItemFromList - exception =  " + ex.Message, ex);
-                return null;
-            }
+
+            return null;
         }
 
-        public virtual UsersItemsListsResponse GetItemsFromUsersLists(int groupId, List<string> userIds, ListType listType, ListItemType itemType)
+        public UsersItemsListsResponse GetItemsFromUsersLists(int groupId, List<string> userIds, ListType listType, ListItemType itemType)
         {
-            UsersItemsListsResponse response = new UsersItemsListsResponse();
+            var status = TryGetUsersAvailableItems(groupId, userIds, listType, itemType, out var items);
+            var response = new UsersItemsListsResponse
+            {
+                Status = status
+            };
+
+            if (status.IsOkStatusCode())
+            {
+                response.UsersItemsLists = items
+                    .GroupBy(x => x.ListType)
+                    .Select(x => new UserItemsList { ListType = x.Key, ItemsList = x.ToList() })
+                    .ToList();
+            }
+
+            return response;
+        }
+
+        private ApiObjects.Response.Status TryGetUsersAvailableItems(int groupId, List<string> userIds, ListType listType, ListItemType listItemType, out List<Item> items)
+        {
+            var status = TryGetUsersItems(groupId, userIds, listType, listItemType, out var allItems);
+            if (status.IsOkStatusCode())
+            {
+                items = FilterOutUnavailableItems(groupId, allItems);
+
+                var unavailableItems = allItems.Except(items).ToList();
+                if (unavailableItems.Any())
+                {
+                    RemoveUnavailableItemsFromUsersList(groupId, userIds, unavailableItems.Select(x => (long)x.ItemId).ToList());
+                }
+            }
+            else
+            {
+                items = null;
+            }
+
+            return status;
+        }
+
+        private ApiObjects.Response.Status TryGetUsersItems(int groupId, IReadOnlyCollection<string> userIds, ListType listType, ListItemType listItemType, out List<Item> items)
+        {
+            items = new List<Item>();
 
             try
             {
                 // check if user ids supplied
                 if (userIds == null || userIds.Count == 0)
                 {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "No user ids supplied");
-                    return response;
+                    return new ApiObjects.Response.Status((int)eResponseStatus.Error, "No user ids supplied");
                 }
 
                 // parse user ids to ints
-                List<int> ids = new List<int>();
-                int id;
+                var ids = new List<int>();
                 foreach (var userId in userIds)
                 {
-                    if (int.TryParse(userId, out id))
+                    if (int.TryParse(userId, out var id))
                     {
                         ids.Add(id);
                     }
                     else
                     {
-                        response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, "user id must be int");
-                        return response;
+                        return new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, "user id must be int");
                     }
                 }
 
                 // get items lists
-                DataTable dt = UsersDal.GetItemsFromUsersLists(ids, (int)listType, (int)itemType, groupId);
-                if (dt != null && dt.DefaultView.Count > 0)
+                var dataTable = UsersDal.GetItemsFromUsersLists(ids, (int)listType, (int)listItemType, groupId);
+                if (dataTable != null && dataTable.DefaultView.Count > 0)
                 {
-                    // build all the lists using dictionary
-                    Dictionary<ListType, UserItemsList> listsDict = new Dictionary<ListType, UserItemsList>();
-                    foreach (DataRow dr in dt.Rows)
+                    // build items and add them to the response
+                    foreach (DataRow dataRow in dataTable.Rows)
                     {
-                        listType = (ListType)ODBCWrapper.Utils.GetIntSafeVal(dr["list_type"]);
-                        if (!listsDict.ContainsKey(listType))
+                        var item = new Item
                         {
-                            listsDict.Add(listType, new UserItemsList()
-                            {
-                                ListType = listType,
-                                ItemsList = new List<Item>()
-                            });
-                        }
-
-                        listsDict[listType].ItemsList.Add(new Item()
-                        {
-                            ItemType = (ListItemType)ODBCWrapper.Utils.GetIntSafeVal(dr["item_type"]),
-                            ItemId = ODBCWrapper.Utils.GetIntSafeVal(dr["item_id"]),
-                            OrderIndex = ODBCWrapper.Utils.GetIntSafeVal(dr["order_num"]),
-                            UserId = ODBCWrapper.Utils.GetSafeStr(dr["user_id"]),
-                            ListType = (ListType)ODBCWrapper.Utils.GetIntSafeVal(dr["list_type"])
-                        });
-                    }
-
-                    // copy the lists to the response
-                    response.UsersItemsLists = new List<UserItemsList>();
-                    foreach (var list in listsDict)
-                    {
-                        response.UsersItemsLists.Add(list.Value);
+                            ItemId = ODBCWrapper.Utils.GetIntSafeVal(dataRow["item_id"]),
+                            ItemType = (ListItemType)ODBCWrapper.Utils.GetIntSafeVal(dataRow["item_type"]),
+                            ListType = (ListType)ODBCWrapper.Utils.GetIntSafeVal(dataRow["list_type"]),
+                            OrderIndex = ODBCWrapper.Utils.GetIntSafeVal(dataRow["order_num"]),
+                            UserId = ODBCWrapper.Utils.GetSafeStr(dataRow["user_id"])
+                        };
+                        items.Add(item);
                     }
                 }
-                return response;
+
+                return ApiObjects.Response.Status.Ok;
             }
             catch (Exception ex)
             {
-                log.Error("GetItemFromList - exception =  " + ex.Message, ex);
-                return null;
+                log.Error($"{nameof(TryGetUsersItems)} - exception = {ex.Message}", ex);
+                return ApiObjects.Response.Status.Error;
+            }
+        }
+
+        private List<Item> FilterOutUnavailableItems(int groupId, IReadOnlyCollection<Item> allItems)
+        {
+            var ksqlFilter = $"(and media_id:'{string.Join(",", allItems.Select(x => x.ItemId))}')";
+            var availableAssets = api.SearchAssets(groupId, ksqlFilter, 0, 0, true, 0, true, string.Empty, string.Empty, string.Empty, 0, 0, true);
+
+            var availableItemIds = availableAssets.Select(x => long.Parse(x.AssetId));
+            var availableItems = allItems
+                .Where(x => availableItemIds.Contains(x.ItemId))
+                .ToList();
+
+            return availableItems;
+        }
+
+        private void RemoveUnavailableItemsFromUsersList(int groupId, List<string> userIds, List<long> unavailableItemIds)
+        {
+            var removeResult = UsersDal.Remove_ItemsFromUsersList(groupId, userIds.Select(long.Parse).ToList(), unavailableItemIds);
+            if (!removeResult)
+            {
+                log.Error($"Unavailable user's items were detected but couldn't be deleted: {nameof(groupId)}:{groupId}, {nameof(userIds)}:{string.Join(",", userIds)}, {nameof(unavailableItemIds)}:{string.Join(",", unavailableItemIds)}.");
             }
         }
 

@@ -84,6 +84,15 @@ namespace WebAPI.Models.Catalog
         [Obsolete]
         public List<KalturaCatalogWithHolder> with { get; set; }
 
+        /// <summary>
+        /// KSQL expression
+        /// </summary>
+        [DataMember(Name = "kSql")]
+        [JsonProperty("kSql")]
+        [XmlElement(ElementName = "kSql")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        public string Ksql { get; set; }
+
         internal int getDaysLessThanOrEqual()
         {
             return DaysLessThanOrEqual.HasValue ? DaysLessThanOrEqual.Value : 0;

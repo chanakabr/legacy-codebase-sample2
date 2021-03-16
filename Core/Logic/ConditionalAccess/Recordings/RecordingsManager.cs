@@ -519,7 +519,7 @@ namespace Core.Recordings
                 long recordingId = recording.Id;
 
                 // First of all - if EPG was updated, update the recording index, nevermind what was the change
-                UpdateIndex(groupId, recordingId, eAction.Update);
+                UpdateIndex(groupId, recording.EpgId, recordingId);
 
                 UpdateCouchbase(groupId, programId, recordingId);
 
@@ -1049,6 +1049,20 @@ namespace Core.Recordings
         public static void UpdateIndex(int groupId, long recordingId, eAction action)
         {
             Catalog.Module.UpdateRecordingsIndex(new List<long> { recordingId }, groupId, action);
+        }
+
+        public static void UpdateIndex(int groupId, long epgId, long recordingId)
+        {
+            var epgBL = new TvinciEpgBL(groupId);
+            var epgDoc = epgBL.GetEpgCB((ulong)epgId);
+
+            var recordingDoc = RecordingsDAL.GetRecordingByProgramId_CB(epgId);
+            if (epgDoc.StartDate.Date != recordingDoc.StartDate.Date)
+            {
+                Catalog.Module.UpdateRecordingsIndex(new List<long> { recordingId }, groupId, eAction.Delete);
+            }
+
+            UpdateIndex(groupId, recordingId, eAction.Update);
         }
 
         public static void UpdateCouchbase(int groupId, long programId, long recordingId, bool shouldDelete = false)
