@@ -1288,11 +1288,13 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, KSUtils.ExtractKSPayload().UDID, assetId, assetType, contextDataParams, sourceType, true);
+                string udid = KSUtils.ExtractKSPayload().UDID;
+
+                response = ClientsManager.ConditionalAccessClient().GetPlaybackContext(ks.GroupId, ks.UserId, udid, assetId, assetType, contextDataParams, sourceType, true);
 
                 if (response.Sources != null && response.Sources.Count > 0)
                 {
-                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterManifest(ks.GroupId, assetId, assetType, response, contextDataParams, ks.UserId);
+                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterManifest(ks.GroupId, assetId, assetType, response, contextDataParams, ks.UserId, udid, Utils.Utils.GetClientIP());
                     if (adapterResponse != null)
                     {
                         response = adapterResponse;

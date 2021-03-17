@@ -9088,7 +9088,7 @@ namespace Core.Catalog
 
         public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, int domainId, List<int> assetTypes,
             List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays,
-            ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, bool suppress, out int totalItems)
+            ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, bool suppress, string filterQuery, out int totalItems)
         {
             log.DebugFormat("Start GetUserWatchHistory for user {0} in groupId {1}", siteGuid, groupId);
 
@@ -9098,6 +9098,12 @@ namespace Core.Catalog
 
             try
             {
+                if (!string.IsNullOrEmpty(filterQuery)) //BEO - 9621.use filterQuery
+                {
+                    assetTypes = assetTypes ?? new List<int>();
+                    assetIds = assetIds ?? new List<string>();
+                }
+
                 var unFilteredresult = GetRawUserWatchHistory(groupId, siteGuid, assetTypes, assetIds, excludedAssetTypes, filterStatus, numOfDays);
                 Dictionary<string, WatchHistory> seriesMap = new Dictionary<string, WatchHistory>();
 
@@ -9124,14 +9130,28 @@ namespace Core.Catalog
                             groupId = groupId,
                             permittedWatchRules = watchRules,
                             specificAssets = new Dictionary<eAssetTypes, List<string>>(),
-                            //shouldUseEndDateForEpg = true,
-                            //shouldUseStartDateForEpg = true,
-                            //shouldUseFinalEndDate = true,
-                            //shouldUseStartDateForMedia = true,
-                            shouldAddIsActiveTerm = true,
-                            //shouldIgnoreDeviceRuleID = true
+                            shouldAddIsActiveTerm = true,                            
                             extraReturnFields = new List<string>()
                         };
+
+                        if (!string.IsNullOrEmpty(filterQuery)) //BEO - 9621.use filterQuery
+                        {
+                            string filter = filterQuery;
+                            BooleanPhraseNode filterTree = null;
+                            var status = BooleanPhraseNode.ParseSearchExpression(filter, ref filterTree);
+
+                            searchDefinitions.filterPhrase = filterTree;
+
+                            BaseRequest request = new BaseRequest()
+                            {
+                                m_sSiteGuid = siteGuid,
+                                m_nGroupID = groupId,
+                                m_dServerTime = DateTime.UtcNow
+                                //,m_sUserIP
+                            };
+
+                            TreatLeaf(request, ref filterTree, searchDefinitions, group, filterTree, new Dictionary<BooleanPhraseNode, BooleanPhrase>(), groupId);
+                        }
 
                         int elasticSearchPageSize = 0;
                         string seriesIdExtraReturnField = "metas.seriesid";

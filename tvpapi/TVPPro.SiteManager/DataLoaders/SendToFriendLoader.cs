@@ -16,9 +16,7 @@ namespace TVPPro.SiteManager.DataLoaders
         #region Members
         private string _myEmail = string.Empty;
         private string _note = string.Empty;
-        private string _friendEmail = string.Empty;
         private string _myName = string.Empty;
-
 
         #endregion
 

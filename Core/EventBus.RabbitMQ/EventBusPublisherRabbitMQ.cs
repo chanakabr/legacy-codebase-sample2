@@ -48,10 +48,20 @@ namespace EventBus.RabbitMQ
 
         public void Publish(ServiceEvent serviceEvent)
         {
-            Publish(new[] { serviceEvent });
+            Publish(new[] { serviceEvent }, false);
         }
 
         public void Publish(IEnumerable<ServiceEvent> serviceEvents)
+        {
+            Publish(serviceEvents, false);
+        }
+
+        public void PublishHeadersOnly(ServiceEvent serviceEvent, Dictionary<string, string> headersToAdd = null)
+        {
+            Publish(new[] { serviceEvent }, true, headersToAdd);
+        }
+
+        private void Publish(IEnumerable<ServiceEvent> serviceEvents, bool shouldSendOnlyHeaders = false, Dictionary<string, string> headersToAdd = null)
         {
             var publishRetryPolicy = GetRetryPolicyForEventPublishing();
             using (var channel = _PersistentConnection.CreateModel())
@@ -64,35 +74,38 @@ namespace EventBus.RabbitMQ
 
                 foreach (var serviceEvent in serviceEvents)
                 {
-                    byte[] body;
+                    byte[] body = null;
                     var routingKey = serviceEvent.GetRoutingKey();
                     var eventName = serviceEvent.GetEventName();
 
-                    try
+                    if (!shouldSendOnlyHeaders)
                     {
-                        body = RabbitMqSerializationsHelper.Serialize(serviceEvent);
-                    }
-                    catch (SerializationException e)
-                    {
-                        _Logger.Warn("Could not serialize ,will use JsonConvert and Encoding.UTF8.GetBytes instead.if you see this error add [Serializable] on the object " + e.Message);
-                        var jsonMsg = JsonConvert.SerializeObject(serviceEvent);
-                        body = Encoding.UTF8.GetBytes(jsonMsg);
-                    }
-                    catch (Exception)
-                    {
-                        throw;
+                        try
+                        {
+                            body = RabbitMqSerializationsHelper.Serialize(serviceEvent);
+                        }
+                        catch (SerializationException e)
+                        {
+                            _Logger.Warn("Could not serialize ,will use JsonConvert and Encoding.UTF8.GetBytes instead.if you see this error add [Serializable] on the object " + e.Message);
+                            var jsonMsg = JsonConvert.SerializeObject(serviceEvent);
+                            body = Encoding.UTF8.GetBytes(jsonMsg);
+                        }
+                        catch (Exception)
+                        {
+                            throw;
+                        }
                     }
                         
                     publishRetryPolicy.Execute(() =>
                     {
-                        PublishEvent(channel, routingKey,eventName, body, string.Empty);
+                        PublishEvent(channel, routingKey,eventName, body, string.Empty, headersToAdd);
                     });
                     
                 }
             }
         }
 
-        private void PublishEvent(IModel channel, string routingKey, string eventName, byte[] body, string message)
+        private void PublishEvent(IModel channel, string routingKey, string eventName, byte[] body, string message, Dictionary<string, string> headersToAdd = null)
         {
             var properties = channel.CreateBasicProperties();
             properties.DeliveryMode = 2; // persistent
@@ -104,6 +117,15 @@ namespace EventBus.RabbitMQ
             {
                 properties.Headers = new Dictionary<string, object>();
             }
+
+            if (headersToAdd != null)
+            {
+                foreach (KeyValuePair<string, string> header in headersToAdd)
+                {
+                    properties.Headers.Add(header.Key, header.Value);
+                }
+            }
+
             properties.Headers.Add(HEADER_KEY_EVENT_BASE_NAME, eventName);
             const bool isDeliverySuccessMandatory = true;
             channel.BasicPublish(_ExchangeName, routingKey, isDeliverySuccessMandatory, properties, body);
@@ -122,5 +144,6 @@ namespace EventBus.RabbitMQ
                     _Logger.Warn($"Waiting for:[{time.TotalSeconds}] seconds until next publish retry");
                 });
         }
+
     }
 }

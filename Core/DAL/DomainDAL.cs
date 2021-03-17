@@ -4,6 +4,7 @@ using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
 using ODBCWrapper;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -2106,26 +2107,21 @@ namespace DAL
             {
                 try
                 {
-                    int numOfRetries = 0;
-                    while (numOfRetries < limitRetries)
+                    Random retryRandom = new Random();
+                    var policy = Polly.Policy.Handle<Exception>().OrResult<eResultStatus>(result => result == CouchbaseManager.eResultStatus.ERROR)
+                        .WaitAndRetry(limitRetries, attempt => TimeSpan.FromSeconds(retryRandom.Next(1,3)), (ex, time, attempt, ctx) =>
+                    log.Error($"Retrieving drm policy groupId: {groupId} and key {drmPolicyKey} failed with status: {getResult}, retryAttempt: {attempt}, maxRetries: {limitRetries}"));
+
+                    policy.Execute(() =>
                     {
                         response = cbClient.Get<DrmPolicy>(drmPolicyKey, out getResult);
 
-                        if (getResult == CouchbaseManager.eResultStatus.SUCCESS)
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            log.ErrorFormat("Retrieving drm policy groupId: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", groupId, drmPolicyKey, getResult, numOfRetries, limitRetries);
-                            numOfRetries++;
-                            System.Threading.Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                        }
-                    }
+                        return getResult;
+                    });
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorFormat("Error while trying to get drm policy, groupId: {0}, ex: {1}", groupId, ex);
+                    log.Error($"Error while trying to get drm policy, groupId: {groupId}, ex: {ex}");
                 }
             }
 
@@ -2147,8 +2143,12 @@ namespace DAL
             {
                 try
                 {
-                    int numOfRetries = 0;
-                    while (numOfRetries < limitRetries)
+                    Random retryRandom = new Random();
+                    var policy = Polly.Policy.Handle<Exception>().OrResult<eResultStatus>(result => result == CouchbaseManager.eResultStatus.ERROR)
+                        .WaitAndRetry(limitRetries, attempt => TimeSpan.FromSeconds(retryRandom.Next(1, 3)), (ex, time, attempt, ctx) =>
+                     log.Error($"Retrieving drm policy domainId: {domainId} and key {domainDrmIdKey} failed with status: {getResult}, retryAttempt: {attempt}, maxRetries: {limitRetries}"));
+
+                    policy.Execute(() =>
                     {
                         object document = cbClient.Get<object>(domainDrmIdKey, out getResult);
 
@@ -2156,15 +2156,10 @@ namespace DAL
                         {
                             // Deserialize to known class - for comfortable access
                             response = JsonConvert.DeserializeObject<Dictionary<int, string>>(document.ToString());
-                            break;
                         }
-                        else
-                        {
-                            log.ErrorFormat("Retrieving drm policy domainId: {0} and key {1} failed with status: {2}, retryAttempt: {3}, maxRetries: {4}", domainId, domainDrmIdKey, getResult, numOfRetries, limitRetries);
-                            numOfRetries++;
-                            System.Threading.Thread.Sleep(SLEEP_BETWEEN_RETRIES_MILLI);
-                        }
-                    }
+
+                        return getResult;
+                    });
                 }
                 catch (Exception ex)
                 {

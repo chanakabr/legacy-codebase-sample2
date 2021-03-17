@@ -2651,9 +2651,9 @@ namespace Core.Api
         }
 
         public static GenericResponse<ApiObjects.PlaybackAdapter.PlaybackContext> GetPlaybackManifest(long adapterId, int groupId, ApiObjects.PlaybackAdapter.PlaybackContext playbackContext,
-            ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions, string userId)
+            ApiObjects.PlaybackAdapter.RequestPlaybackContextOptions requestPlaybackContextOptions, string userId, string udid, string ip)
         {
-            return api.GetPlaybackAdapterManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions, userId);
+            return api.GetPlaybackAdapterManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions, userId, udid, ip);
         }
         public static GenericListResponse<Region> GetDefaultRegion(int groupId)
         {

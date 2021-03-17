@@ -1,4 +1,5 @@
 ﻿using EventBus.Abstraction;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,6 +23,7 @@ namespace CachingProvider.LayeredCache
             EventNameOverride = routingKey;
         }
 
+        [JsonIgnore]
         public string InvalidationKey { get; set; }
 
         // cache invalidation events send the invalidation key using the kafka message key

@@ -1906,7 +1906,7 @@ namespace Core.Users
                 DeviceState eState = DeviceState.UnKnown;
                 int nDeviceID = 0;
                 string externalId = string.Empty;
-                Dictionary<string, string> dynamicData = null;
+                List<ApiObjects.KeyValuePair> dynamicData = null;
                 string macAddress = string.Empty;
                 string model = string.Empty;
                 long? manufacturerId = null;

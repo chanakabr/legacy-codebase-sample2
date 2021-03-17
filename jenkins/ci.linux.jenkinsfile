@@ -13,6 +13,9 @@ pipeline {
         ECR_URL ='870777418594.dkr.ecr.us-west-2.amazonaws.com'
         component = "${env.JOB_NAME}"
         ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
+        STAGE = "build"
+        PIPECLI_VERSION="1.0.7"
+        PIPECLI="docker run 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION} python pipecli.py"
     }
     // parameters {
     //     booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
@@ -157,9 +160,14 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
 }
 
 def report(){
-    configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
+    sh ("\$(aws ecr get-login --no-include-email --region ${AWS_REGION})")
+    sh ("docker pull 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION}")
+    //configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
     def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
     def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim();
-    def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
-    echo "${reportout}"
+    //def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
+    //echo "${reportout}"
+    def report = sh (script: "${PIPECLI} report job -b ${BRANCH_NAME} -s ${STAGE} --buildnum ${env.BUILD_NUMBER} --job ${env.JOB_NAME} --type build --buildstatus ${currentBuild.currentResult} --gitcommit ${GIT_COMMIT} --ecr NA --commiter ${committerEmail}", returnStdout: true)
+    echo "${report}"
+
 }

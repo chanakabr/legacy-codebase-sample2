@@ -11971,6 +11971,10 @@ namespace WebAPI.Models.Catalog
                         with = buildList(typeof(KalturaCatalogWithHolder), parameters["with"] as object[]);
                     }
                 }
+                if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
+                {
+                    Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
+                }
             }
         }
     }

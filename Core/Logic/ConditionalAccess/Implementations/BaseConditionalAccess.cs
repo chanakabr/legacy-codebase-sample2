@@ -56,7 +56,7 @@ namespace Core.ConditionalAccess
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        internal string m_sPurchaseMailTemplate;
+        private string m_sPurchaseMailTemplate;
         internal string m_sMailFromName;
         internal string m_sMailFromAdd;
         internal string m_sMailServer;
@@ -81,7 +81,7 @@ namespace Core.ConditionalAccess
         internal const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
         internal const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
         internal const double MAX_SERVER_TIME_DIF = 5;
-        internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3;
+        internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3; 
 
         //errors
         internal const string CONFLICTED_PARAMS = "Conflicted params";
@@ -229,37 +229,34 @@ namespace Core.ConditionalAccess
             bool bRes = ConditionalAccessCache.GetItem<BaseConditionalAccess>(key, out bCas);
             if (!bRes || bCas == null)
             {
-                lock (m_sPurchaseMailTemplate)
+                ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                if (!string.IsNullOrEmpty(connectionKey))
                 {
-                    ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                    if (!string.IsNullOrEmpty(connectionKey))
-                    {
-                        selectQuery.SetConnectionKey(connectionKey);
-                    }
-                    selectQuery.SetCachedSec(0);
-                    selectQuery += "select * from groups_parameters with (nolock) where status=1 and is_active=1 and ";
-                    selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
-                    selectQuery += " order by id desc";
-                    if (selectQuery.Execute("query", true) != null)
-                    {
-                        Int32 nCount = selectQuery.Table("query").DefaultView.Count;
-                        if (nCount > 0)
-                        {
-                            DataRow dr = selectQuery.Table("query").DefaultView[0].Row;
-                            m_sPurchaseMailTemplate = ODBCWrapper.Utils.GetSafeStr(dr, "PURCHASE_MAIL");
-                            m_sPurchaseMailSubject = ODBCWrapper.Utils.GetSafeStr(dr, "PURCHASE_MAIL_SUBJECT");
-                            m_sMailFromName = ODBCWrapper.Utils.GetSafeStr(dr, "MAIL_FROM_NAME");
-                            m_sMailFromAdd = ODBCWrapper.Utils.GetSafeStr(dr, "MAIL_FROM_ADD");
-                            m_sMailServer = ODBCWrapper.Utils.GetSafeStr(dr, "MAIL_SERVER");
-                            m_sMailServerUN = ODBCWrapper.Utils.GetSafeStr(dr, "MAIL_USER_NAME");
-                            m_sMailServerPass = ODBCWrapper.Utils.GetSafeStr(dr, "MAIL_PASSWORD");
-                            ConditionalAccessCache.AddItem(key, this);
-                        }
-                    }
-                    selectQuery.Finish();
-                    selectQuery = null;
-                    m_bIsInitialized = true;
+                    selectQuery.SetConnectionKey(connectionKey);
                 }
+                selectQuery.SetCachedSec(0);
+                selectQuery += "select * from groups_parameters with (nolock) where status=1 and is_active=1 and ";
+                selectQuery += " group_id " + TVinciShared.PageUtils.GetFullChildGroupsStr(m_nGroupID, "MAIN_CONNECTION_STRING");
+                selectQuery += " order by id desc";
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                    if (nCount > 0)
+                    {
+                        DataRow dr = selectQuery.Table("query").DefaultView[0].Row;
+                        m_sPurchaseMailTemplate = ODBCWrapper.Utils.GetSafeStr(dr, "PURCHASE_MAIL");
+                        m_sPurchaseMailSubject = ODBCWrapper.Utils.GetSafeStr(dr, "PURCHASE_MAIL_SUBJECT");
+                        m_sMailFromName = ODBCWrapper.Utils.GetSafeStr(dr, "MAIL_FROM_NAME");
+                        m_sMailFromAdd = ODBCWrapper.Utils.GetSafeStr(dr, "MAIL_FROM_ADD");
+                        m_sMailServer = ODBCWrapper.Utils.GetSafeStr(dr, "MAIL_SERVER");
+                        m_sMailServerUN = ODBCWrapper.Utils.GetSafeStr(dr, "MAIL_USER_NAME");
+                        m_sMailServerPass = ODBCWrapper.Utils.GetSafeStr(dr, "MAIL_PASSWORD");
+                        ConditionalAccessCache.AddItem(key, this);
+                    }
+                }
+                selectQuery.Finish();
+                selectQuery = null;
+                m_bIsInitialized = true;
             }
             else
             {

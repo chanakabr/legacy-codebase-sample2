@@ -13,7 +13,7 @@ namespace TvinciImporter
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        static protected string m_locker = "";
+        private static object m_locker = new object();
         public Importer(int nTaskID, int nIntervalInSec, string sParameters)
             : base(nTaskID, nIntervalInSec, sParameters)
         {

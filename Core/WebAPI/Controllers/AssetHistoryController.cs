@@ -1,16 +1,16 @@
-﻿using KLogMonitor;
+﻿using ApiObjects.Response;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
-using WebAPI.Models.Catalog;
-using WebAPI.Utils;
 using WebAPI.Managers.Models;
-using WebAPI.Models.General;
 using WebAPI.Managers.Scheme;
-using ApiObjects.Response;
+using WebAPI.Models.Catalog;
+using WebAPI.Models.General;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -66,7 +66,7 @@ namespace WebAPI.Controllers
 
             // days - default value 7
             if (filter.DaysLessThanOrEqual == null || (filter.DaysLessThanOrEqual.HasValue && filter.DaysLessThanOrEqual.Value == 0))
-                filter.DaysLessThanOrEqual = 7;            
+                filter.DaysLessThanOrEqual = 7;
 
             string language = Utils.Utils.GetLanguageFromRequest();
 
@@ -85,7 +85,8 @@ namespace WebAPI.Controllers
 
                 // call client
                 response = ClientsManager.CatalogClient().getAssetHistory(groupId, userId.ToString(), udid,
-                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.getAssetIdIn(), suppress);
+                    language, pager.getPageIndex(), pager.PageSize, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.getTypeIn(), filter.getAssetIdIn(),
+                    suppress, filter.Ksql);
             }
             catch (ClientException ex)
             {
@@ -243,7 +244,7 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                ClientsManager.ApiClient().CleanUserAssetHistory(groupId, userId, udid, filter.getAssetIdIn(), filterTypes, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual());
+                ClientsManager.ApiClient().CleanUserAssetHistory(groupId, userId, udid, filter.getAssetIdIn(), filterTypes, filter.StatusEqual.Value, filter.getDaysLessThanOrEqual(), filter.Ksql);
             }
             catch (ClientException ex)
             {
@@ -264,15 +265,15 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.InvalidAssetStruct)]
         [Throws(eResponseStatus.TopicNotFound)]
         [Throws(eResponseStatus.MetaDoesNotExist)]
-        [Throws(eResponseStatus.NoNextEpisode)] 
-        static public KalturaAssetHistory GetNextEpisode(long assetId) 
+        [Throws(eResponseStatus.NoNextEpisode)]
+        static public KalturaAssetHistory GetNextEpisode(long assetId)
         {
             KalturaAssetHistory response = null;
 
             try
             {
                 var contextData = KS.GetContextData();
-                response = ClientsManager.CatalogClient().GetNextEpisode(contextData.GroupId,contextData.UserId.ToString(), assetId);
+                response = ClientsManager.CatalogClient().GetNextEpisode(contextData.GroupId, contextData.UserId.ToString(), assetId);
             }
             catch (ClientException ex)
             {

@@ -127,7 +127,7 @@ namespace DAL
             ref string macAddress,
             ref string model,
             ref long? manufacturerId,
-            ref Dictionary<string, string> dynamicData,
+            ref List<ApiObjects.KeyValuePair> dynamicData,
             ref int m_domainID,
             ref DateTime m_activationDate)
         {
@@ -343,7 +343,7 @@ namespace DAL
             string macAddress = "",
             string model = "",
             long? manufacturerId = null,
-            Dictionary<string, string> dynamicData = null)
+            List<ApiObjects.KeyValuePair> dynamicData = null)
         {
             StoredProcedure sp = new StoredProcedure("Insert_NewDevice");
             sp.SetConnectionKey("USERS_CONNECTION_STRING");
@@ -378,7 +378,7 @@ namespace DAL
             string macAddress,
             string model,
             long? manufacturerId,
-            Dictionary<string, string> dynamicData,
+            List<ApiObjects.KeyValuePair> dynamicData,
             bool allowNullExternalId,
             bool allowNullMacAddress,
             bool allowNullDynamicData)
@@ -504,14 +504,14 @@ namespace DAL
             return sNewPIN;
         }
 
-        public static Dictionary<string, string> DeserializeDynamicData(string dynamicDataString)
+        public static List<ApiObjects.KeyValuePair> DeserializeDynamicData(string dynamicDataString)
         {
             return dynamicDataString == null
                     ? null
-                    : JsonConvert.DeserializeObject<Dictionary<string, string>>(dynamicDataString);
+                    : JsonConvert.DeserializeObject<List<ApiObjects.KeyValuePair>>(dynamicDataString);
         }
 
-        private static string SerializeDynamicData(Dictionary<string, string> dynamicData)
+        private static string SerializeDynamicData(List<ApiObjects.KeyValuePair> dynamicData)
         {
             return dynamicData?.Any() == true
                 ? JsonConvert.SerializeObject(dynamicData)
