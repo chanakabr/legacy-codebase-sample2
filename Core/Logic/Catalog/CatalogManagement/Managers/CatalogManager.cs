@@ -2424,6 +2424,12 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
+                //BEO-9803
+                if (assetStructId == 0)
+                {
+                    assetStructId = catalogGroupCache.GetRealAssetStructId(assetStructId, out bool isProgramStruct);
+                }
+
                 if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
                 {
                     response.SetStatus(eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
