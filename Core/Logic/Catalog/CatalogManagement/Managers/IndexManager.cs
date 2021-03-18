@@ -832,7 +832,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // GetLinear Channel Values 
-                GetLinearChannelValues(epgObjects, groupId);
+                GetLinearChannelValues(epgObjects, groupId, catalogGroupCache);
 
                 // TODO - Lior, remove these 5 lines below - used only to currently support linear media id search on elastic search
                 List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList<string>();
@@ -1688,7 +1688,7 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static void GetLinearChannelValues(List<EpgCB> lEpg, int groupID)
+        private static void GetLinearChannelValues(List<EpgCB> lEpg, int groupID, CatalogGroupCache catalogGroupCache)
         {
             try
             {
@@ -1705,11 +1705,12 @@ namespace Core.Catalog.CatalogManagement
                 Parallel.ForEach(lEpg.Cast<EpgCB>(), currentElement =>
                 {
                     currentElement.SearchEndDate = GetProgramSearchEndDate(groupID, currentElement.ChannelID.ToString(), currentElement.EndDate, linearChannelSettings);
+                    Utils.ExtractSuppressedValue(catalogGroupCache, currentElement);
                 });
             }
             catch (Exception ex)
             {
-                log.Error("Error - " + string.Format("Update EPGs threw an exception. (in GetLinearChannelValues). Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
+                log.Error($"Error - Update EPGs threw an exception. (in GetLinearChannelValues). Exception={ex.Message};Stack={ex.StackTrace}", ex);
                 throw ex;
             }
         }

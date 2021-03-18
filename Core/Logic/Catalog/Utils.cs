@@ -935,6 +935,9 @@ namespace Core.Catalog
             }
         }
 
+        /// <summary>
+        /// Extract suppressed value from media
+        /// </summary>
         public static void ExtractSuppressedValue(CatalogGroupCache catalogGroupCache, Media media)
         {
             try
@@ -953,7 +956,7 @@ namespace Core.Catalog
                             foreach (var metaId in suppressedOrderMetaIds)
                             {
                                 var topic = catalogGroupCache.TopicsMapById[metaId];
-                                if (media.m_dMeatsValues.ContainsKey(topic.SystemName))
+                                if (media.m_dMeatsValues != null && media.m_dMeatsValues.ContainsKey(topic.SystemName))
                                 {
                                     //calculated suppressed value
                                     media.suppressed = media.m_dMeatsValues[topic.SystemName];
@@ -966,7 +969,46 @@ namespace Core.Catalog
             }
             catch (Exception ex)
             {
-                log.Debug($"Error handling media: {media.EntryId} suppressed value: {ex.Message}", ex);
+                log.Debug($"Error handling media: {media.EntryId} suppressed value, error: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Extract suppressed value from epg
+        /// </summary>
+        public static void ExtractSuppressedValue(CatalogGroupCache catalogGroupCache, EpgCB epg)
+        {
+            try
+            {
+                if (catalogGroupCache != null)
+                {
+                    var m_nMediaTypeID = catalogGroupCache.GetRealAssetStructId(0, out bool isProgramStruct);
+                    var assetStruct = catalogGroupCache.AssetStructsMapById.ContainsKey(m_nMediaTypeID) ?
+                        catalogGroupCache.AssetStructsMapById[m_nMediaTypeID] : null;
+                    if (assetStruct != null)
+                    {
+                        List<long> suppressedOrderMetaIds = assetStruct.AssetStructMetas.Where(m => m.Value.SuppressedOrder.HasValue)?
+                            .OrderBy(m => m.Value.SuppressedOrder).Select(m => m.Key).ToList();
+                        if (suppressedOrderMetaIds != null && suppressedOrderMetaIds.Count > 0)
+                        {
+                            //find default meta to suppress by
+                            foreach (var metaId in suppressedOrderMetaIds)
+                            {
+                                var topic = catalogGroupCache.TopicsMapById[metaId];
+                                if (epg.Metas != null && epg.Metas.ContainsKey(topic.SystemName))
+                                {
+                                    //calculated suppressed value
+                                    epg.Suppressed = epg.Metas[topic.SystemName].First();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Debug($"Error handling epg: {epg.EpgIdentifier} suppressed value, error: {ex.Message}", ex);
             }
         }
 
