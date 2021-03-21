@@ -4,6 +4,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
@@ -956,7 +957,47 @@ namespace Core.Catalog
                             foreach (var metaId in suppressedOrderMetaIds)
                             {
                                 var topic = catalogGroupCache.TopicsMapById[metaId];
-                                if (media.m_dMeatsValues != null && media.m_dMeatsValues.ContainsKey(topic.SystemName))
+                                if (AssetManager.BasicMediaAssetMetasSystemNameToName.ContainsKey(topic.SystemName))
+                                {
+                                    switch (topic.SystemName)
+                                    {
+                                        case AssetManager.NAME_META_SYSTEM_NAME:
+                                            media.suppressed = media.m_sName;
+                                            break;
+                                        case AssetManager.DESCRIPTION_META_SYSTEM_NAME:
+                                            media.suppressed = media.m_sDescription;
+                                            break;
+                                        case AssetManager.EXTERNAL_ID_META_SYSTEM_NAME:
+                                            media.suppressed = media.epgIdentifier;
+                                            break;
+                                        case AssetManager.ENTRY_ID_META_SYSTEM_NAME:
+                                            media.suppressed = media.EntryId;
+                                            break;
+                                        case AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME:
+                                            media.suppressed = media.m_sStartDate;
+                                            break;
+                                        case AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME:
+                                            media.suppressed = media.m_sEndDate;
+                                            break;
+                                        case AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME:
+                                            media.suppressed = media.CatalogStartDate;
+                                            break;
+                                        case AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME:
+                                            media.suppressed = media.m_sFinalEndDate;
+                                            break;
+                                        case AssetManager.CREATE_DATE_TIME_META_SYSTEM_NAME:
+                                            media.suppressed = media.m_sCreateDate;
+                                            break;
+                                        //not supported
+                                        case AssetManager.STATUS_META_SYSTEM_NAME:
+                                            break;
+                                        default:
+                                            log.Warn($"Attempt passing unmapped topic: {topic.SystemName} as a suppressed value");
+                                            break;
+                                    }
+                                }
+                                
+                                if (string.IsNullOrEmpty(media.suppressed) && media.m_dMeatsValues != null && media.m_dMeatsValues.ContainsKey(topic.SystemName))
                                 {
                                     //calculated suppressed value
                                     media.suppressed = media.m_dMeatsValues[topic.SystemName];
@@ -995,9 +1036,44 @@ namespace Core.Catalog
                             foreach (var metaId in suppressedOrderMetaIds)
                             {
                                 var topic = catalogGroupCache.TopicsMapById[metaId];
-                                if (epg.Metas != null && epg.Metas.ContainsKey(topic.SystemName))
+                                if (EpgAssetManager.BasicProgramMetasSystemNameToName.ContainsKey(topic.SystemName))
                                 {
-                                    //calculated suppressed value
+                                    switch (topic.SystemName)
+                                    {
+                                        case EpgAssetManager.NAME_META_SYSTEM_NAME:
+                                            epg.Suppressed = epg.Name;
+                                            break;
+                                        case EpgAssetManager.DESCRIPTION_META_SYSTEM_NAME:
+                                            epg.Suppressed = epg.Description;
+                                            break;
+                                        case EpgAssetManager.START_DATE_META_SYSTEM_NAME:
+                                            epg.Suppressed = epg.StartDate.ToString();
+                                            break;
+                                        case EpgAssetManager.END_DATE_META_SYSTEM_NAME:
+                                            epg.Suppressed = epg.EndDate.ToString();
+                                            break;
+                                        case EpgAssetManager.CRID_META_SYSTEM_NAME:
+                                            epg.Suppressed = epg.Crid;
+                                            break;
+                                        case EpgAssetManager.EXTERNAL_ID_META_SYSTEM_NAME:
+                                            epg.Suppressed = epg.EpgIdentifier;
+                                            break;
+                                        //not supported
+                                        case EpgAssetManager.SERIES_NAME_META_SYSTEM_NAME:
+                                        case EpgAssetManager.SERIES_ID_META_SYSTEM_NAME:
+                                        case EpgAssetManager.EPISODE_NUMBER_META_SYSTEM_NAME:
+                                        case EpgAssetManager.SEASON_NUMBER_META_SYSTEM_NAME:
+                                        case EpgAssetManager.PARENTAL_RATING_META_SYSTEM_NAME:
+                                        case EpgAssetManager.GENRE_META_SYSTEM_NAME:
+                                            break;
+                                        default:
+                                            log.Warn($"Attempt passing unmapped topic: {topic.SystemName} as a suppressed value");
+                                            break;
+                                    }
+                                }
+                                
+                                if (string.IsNullOrEmpty(epg.Suppressed) && epg.Metas != null && epg.Metas.ContainsKey(topic.SystemName))
+                                {
                                     epg.Suppressed = epg.Metas[topic.SystemName].First();
                                     break;
                                 }
@@ -1791,3 +1867,4 @@ namespace Core.Catalog
         }
     }
 }
+
