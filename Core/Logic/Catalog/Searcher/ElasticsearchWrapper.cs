@@ -1660,7 +1660,6 @@ namespace Core.Catalog
                     }
                     else
                     {
-                        log.WarnFormat("unifiedSearchDefinitions.recordingIdToSearchableRecordingMapping is null, assetId: {0}", assetId);
                         string epgId = string.Empty;
 
                         if (doc.extraReturnFields.ContainsKey("epg_id"))
