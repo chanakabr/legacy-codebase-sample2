@@ -266,6 +266,53 @@ namespace AuthenticationGrpcClientWrapper
             }
         }
 
+
+        public bool RevokeUserSession(long partnerId,long userId)
+        {
+            try
+            {
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "RevokeUserSession"))
+                {
+                    mon.Table = $"PartnerId:{partnerId}";
+                    _Client.RevokeUserSession(new RevokeUserSessionRequest {                         
+                        PartnerId=partnerId,
+                        UserId=  userId 
+                    });                                        
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.Error("Error while calling RevokeUserSession GRPC service", e);
+                return false;
+            }
+            return true;
+        }
+
+        public bool RevokeUserDeviceSession(long partnerId, long userId,string udid)
+        {
+            try
+            {
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "RevokeUserDeviceSession"))
+                {
+                    mon.Table = $"PartnerId:{partnerId}";
+                    _Client.RevokeUserDeviceSession(new RevokeUserDeviceSessionRequest
+                    {
+                       PartnerId=partnerId,
+                       UserId=userId,
+                       Udid= udid                                           
+                    });
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.Error("Error while calling RevokeUserDeviceSession GRPC service", e);
+                return false;
+            }
+            return true;
+        }
+
+
+
         public string GenerateDeviceLoginPin(int partnerId, string udid, long brandId)
         {
             try

@@ -1298,18 +1298,25 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeySegmentationType_groupdId_{0}_segId_{1}", groupId, segmentationTypeId);
         }
 
-        public static string GetValidateKsInvalidationKey(string ks,int groupId)
+        public static string GetValidateKsInvalidationKeyByKs(int groupId, string ks)
         {            
             return $"{groupId}_InvalidateKSRevocationStatus_{ks}";
         }
 
-        public static string GetValidatKSInvalidationKeyUdid(string udid, int groupId)
+        public static string GetValidateKSInvalidationKeyByUdid(int groupId, string udid)
         {
             return $"{groupId}_InvalidateDeviceRevocationStatus_{udid}";
 
         }
-            
+        public static string GetValidateKSInvalidationKeyByUserID(int groupId, string userID)
+        {
+            return $"{groupId}_InvalidateUserRevocationStatus_{userID}";
+        }
 
+        public static string GetValidateKSInvalidationKeyByAppTokenToken(int groupId,string token)
+        {
+            return $"{groupId}_InvalidateAppTokenRevocationStatus_{token}";
+        }
 
         public static string GetGroupSegmentationTypeIdsOfActionInvalidationKey(int groupId)
         {

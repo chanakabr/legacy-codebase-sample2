@@ -2,7 +2,7 @@
 {
     public sealed class RevokeAppTokenSession : BaseDataMigrationEvent
     {
-        public string AppTokenId { get; set; }
+        public string Token { get; set; }
         public long KsExpiry { get; set; }
         public long SessionRevocationTime { get; set; }
         public new long UserId { get; set; }

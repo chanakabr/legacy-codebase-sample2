@@ -679,7 +679,7 @@ namespace WebAPI.Managers
                 {
                     Operation = eMigrationOperation.Create,
                     GroupId = groupId,
-                    AppTokenId = appToken.Id,
+                    Token = appToken.Token,
                     KsExpiry = revokedSessionTime + revokedSessionExpiryInSeconds,
                     SessionRevocationTime = revokedSessionTime,
                 };
@@ -811,13 +811,27 @@ namespace WebAPI.Managers
                 //call GRPC         
                 var isKSValid = false;
                 var hashedKS = new Core.Users.SHA384Encrypter().Encrypt(ks.ToString(), "");
-                var key = LayeredCacheKeys.GetKsValidationResultKey(hashedKS);                
-                var invalidationKeys = new List<string>() { LayeredCacheKeys.GetValidateKsInvalidationKey(hashedKS, ks.GroupId) };
+                var key = LayeredCacheKeys.GetKsValidationResultKey(hashedKS);             
+                //add hashed ks invalidation key
+                var invalidationKeys = new List<string>() { LayeredCacheKeys.GetValidateKsInvalidationKeyByKs(ks.GroupId,hashedKS) };
                 //if udid exists add also as invalidation key
                 if (!string.IsNullOrEmpty(KSUtils.ExtractKSPayload().UDID))
                 {
-                    var invKeyUdid = LayeredCacheKeys.GetValidatKSInvalidationKeyUdid(KSUtils.ExtractKSPayload().UDID, ks.GroupId);
-                    invalidationKeys.Add(invKeyUdid);
+                    var invKey = LayeredCacheKeys.GetValidateKSInvalidationKeyByUdid(ks.GroupId,KSUtils.ExtractKSPayload().UDID);
+                    invalidationKeys.Add(invKey);
+                }
+
+                //if userid exists add also as invalidation key
+                if (!string.IsNullOrEmpty(ks.UserId)&& ks.UserId!="0")
+                {
+                    var invKey = LayeredCacheKeys.GetValidateKSInvalidationKeyByUserID(ks.GroupId, ks.UserId);
+                    invalidationKeys.Add(invKey);
+                }
+                //if sessionid Privilege exists add also as invalidation key
+                if (ks.Privileges != null && ks.Privileges.ContainsKey(APP_TOKEN_PRIVILEGE_APP_TOKEN))
+                {
+                    var invKey = LayeredCacheKeys.GetValidateKSInvalidationKeyByAppTokenToken(ks.GroupId, ks.Privileges[APP_TOKEN_PRIVILEGE_APP_TOKEN]);
+                    invalidationKeys.Add(invKey);
                 }
 
                 bool isCacheResultRetrived = LayeredCache.Instance.Get<bool>(key, ref isKSValid, GetKsValidationResult, new Dictionary<string, object>() { { "ks", ks.ToString() }, { "ksPartnerId", (long)ks.GroupId } },
@@ -946,7 +960,7 @@ namespace WebAPI.Managers
         }
 
         private static bool UpdateUsersSessionsRevocationTime(int groupId, Group group, string userId, string udid, long revocationTime, long expiration, bool revokeAll = false)
-        {
+        {            
             return SessionManager.SessionManager.UpdateUsersSessionsRevocationTime(groupId, group.UserSessionsKeyFormat,
                  group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds, userId, udid, revocationTime,
                  expiration, revokeAll);
