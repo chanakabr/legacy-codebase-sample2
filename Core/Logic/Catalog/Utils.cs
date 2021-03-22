@@ -1047,10 +1047,10 @@ namespace Core.Catalog
                                             epg.Suppressed = epg.Description;
                                             break;
                                         case EpgAssetManager.START_DATE_META_SYSTEM_NAME:
-                                            epg.Suppressed = epg.StartDate.ToString();
+                                            epg.Suppressed = epg.StartDate.ToString("yyyyMMddHHmmss");
                                             break;
                                         case EpgAssetManager.END_DATE_META_SYSTEM_NAME:
-                                            epg.Suppressed = epg.EndDate.ToString();
+                                            epg.Suppressed = epg.EndDate.ToString("yyyyMMddHHmmss");
                                             break;
                                         case EpgAssetManager.CRID_META_SYSTEM_NAME:
                                             epg.Suppressed = epg.Crid;
