@@ -832,7 +832,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // GetLinear Channel Values 
-                GetLinearChannelValues(epgObjects, groupId, catalogGroupCache);
+                GetLinearChannelValues(epgObjects, groupId, catalogGroupCache); 
 
                 // TODO - Lior, remove these 5 lines below - used only to currently support linear media id search on elastic search
                 List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList<string>();
