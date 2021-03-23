@@ -144,7 +144,6 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.DomainId, opt => opt.MapFrom(src => src.HouseholdId))
                 .ForMember(dest => dest.DeviceBrandId, opt => opt.ResolveUsing(src => src.BrandId ?? 0))
-                .ForMember(dest => dest.ActivatedOn, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.ActivatedOn ?? 0)))
                 .ForMember(dest => dest.DeviceFamilyId, opt => opt.MapFrom(src => src.DeviceFamilyId))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                 .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress))
