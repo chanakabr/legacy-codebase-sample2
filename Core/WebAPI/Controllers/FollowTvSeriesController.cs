@@ -1,7 +1,6 @@
 ﻿using ApiObjects.Response;
 using System;
-using System.Web;
-using TVinciShared;
+using ApiObjects.User;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -93,7 +92,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserNotFollowing)]
         [Throws(eResponseStatus.InvalidAssetId)]
         [Throws(eResponseStatus.AnnouncementNotFound)]
-        static public bool Delete(int assetId)
+        public static bool Delete(int assetId)
         {
             bool response = false;
 
@@ -102,7 +101,20 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = ClientsManager.NotificationClient().DeleteUserTvSeriesFollow(groupId, userID, assetId);
+                if (Utils.Utils.DoesGroupUsesTemplates(groupId))
+                {
+                    var userId = userID.ParseUserId(invalidValue: -1);
+                    if (userId == -1)
+                    {
+                        throw new ClientException((int) StatusCode.UserIDInvalid, "Invalid Username");
+                    }
+
+                    response = ClientsManager.NotificationClient().DeleteKalturaFollowTvSeries(groupId, userId, assetId);
+                }
+                else
+                {
+                    response = ClientsManager.NotificationClient().DeleteUserTvSeriesFollow(groupId, userID, assetId);
+                }
             }
             catch (ClientException ex)
             {
@@ -187,15 +199,19 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.InvalidToken)]
-        static public void DeleteWithToken(int assetId, string token, int partnerId)
+        public static void DeleteWithToken(int assetId, string token, int partnerId)
         {
-            HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_GROUP_ID, partnerId);
-
             try
             {
                 int userId = ClientsManager.NotificationClient().GetUserIdByToken(partnerId, token);
-
-                ClientsManager.NotificationClient().DeleteUserTvSeriesFollow(partnerId, userId.ToString(), assetId);
+                if (Utils.Utils.DoesGroupUsesTemplates(partnerId))
+                {
+                    ClientsManager.NotificationClient().DeleteKalturaFollowTvSeries(partnerId, userId, assetId);
+                }
+                else
+                {
+                    ClientsManager.NotificationClient().DeleteUserTvSeriesFollow(partnerId, userId.ToString(), assetId);
+                }
             }
             catch (ClientException ex)
             {

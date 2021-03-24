@@ -46,7 +46,7 @@ namespace DAL
             return string.Format("device_data_{0}_{1}", groupId, udid);
         }
 
-        private static string GetUserNotificationKey(int groupId, int userId)
+        private static string GetUserNotificationKey(int groupId, long userId)
         {
             return string.Format("user_notification_{0}_{1}", groupId, userId);
         }
@@ -1236,7 +1236,7 @@ namespace DAL
             return result;
         }
 
-        public static bool RemoveUserFollowNotification(int groupId, int userId, long notificationId)
+        public static bool RemoveUserFollowNotification(int groupId, long userId, long notificationId)
         {
             bool passed = false;
             string userNotificationItemKey = GetUserFollowsNotificationKey(groupId, userId, notificationId);
@@ -1509,7 +1509,7 @@ namespace DAL
             return result;
         }
 
-        public static UserNotification GetUserNotificationData(int groupId, int userId, ref bool isDocumentExist, bool withLock = false)
+        public static UserNotification GetUserNotificationData(int groupId, long userId, ref bool isDocumentExist, bool withLock = false)
         {
             UserNotification userNotification = null;
             CouchbaseManager.eResultStatus status = eResultStatus.ERROR;
@@ -1572,7 +1572,7 @@ namespace DAL
             return userNotification;
         }
 
-        public static bool SetUserNotificationData(int groupId, int userId, UserNotification userNotification, bool unlock = false)
+        public static bool SetUserNotificationData(int groupId, long userId, UserNotification userNotification, bool unlock = false)
         {
             bool result = false;
             try
@@ -2761,13 +2761,13 @@ namespace DAL
             return id;
         }
 
-        public static SmsNotificationData GetUserSmsNotificationData(int groupId, int userId)
+        public static SmsNotificationData GetUserSmsNotificationData(int groupId, long userId)
         {
             bool isDocumentExist = false;
             return GetUserSmsNotificationData(groupId, userId, ref isDocumentExist);
         }
 
-        public static SmsNotificationData GetUserSmsNotificationData(int groupId, int userId, ref bool isDocumentExist, bool withLock = false)
+        public static SmsNotificationData GetUserSmsNotificationData(int groupId, long userId, ref bool isDocumentExist, bool withLock = false)
         {
             SmsNotificationData userSmsNotification = null;
             CouchbaseManager.eResultStatus status = eResultStatus.ERROR;
@@ -2830,12 +2830,12 @@ namespace DAL
             return userSmsNotification;
         }
 
-        private static string GetSmsDataKey(int groupId, int userId)
+        private static string GetSmsDataKey(int groupId, long userId)
         {
             return string.Format("sms_data_{0}_{1}", groupId, userId);
         }
 
-        public static bool SetUserSmsNotificationData(int groupId, int userId, SmsNotificationData newSMSNotificationData, bool unlock = false)
+        public static bool SetUserSmsNotificationData(int groupId, long userId, SmsNotificationData newSMSNotificationData, bool unlock = false)
         {
             bool result = false;
             try
