@@ -797,7 +797,22 @@ namespace Core.ConditionalAccess
             try
             {
                 // check purchase permissions 
-                RolePermissions rolePermission = transactionType == eTransactionType.PPV || transactionType == eTransactionType.Collection ? RolePermissions.PURCHASE_PPV : RolePermissions.PURCHASE_SUBSCRIPTION;
+                RolePermissions rolePermission = RolePermissions.PURCHASE_PPV;
+                switch (transactionType)
+                {
+                    case eTransactionType.PPV:
+                        rolePermission = RolePermissions.PURCHASE_PPV;
+                        break;
+                    case eTransactionType.Subscription:
+                        rolePermission = RolePermissions.PURCHASE_SUBSCRIPTION;
+                        break;
+                    case eTransactionType.Collection:
+                        rolePermission = RolePermissions.PURCHASE_COLLECTION;
+                        break;
+                    default:
+                        break;
+                }
+
                 if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(contextData.GroupId, contextData.UserId.ToString(), rolePermission))
                 {
                     response.Status = APILogic.Api.Managers.RolesPermissionsManager.GetSuspentionStatus(contextData.GroupId, (int)contextData.DomainId.Value);
