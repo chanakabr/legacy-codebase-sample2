@@ -38559,6 +38559,10 @@ namespace WebAPI.Models.CanaryDeployment
             {
                 ret.Add("refreshToken", "\"refreshToken\": " + RefreshToken.ToString().ToLower());
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("sessionRevocation")))
+            {
+                ret.Add("sessionRevocation", "\"sessionRevocation\": " + SessionRevocation.ToString().ToLower());
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("sSOAdapterProfiles")))
             {
                 ret.Add("sSOAdapterProfiles", "\"sSOAdapterProfiles\": " + SSOAdapterProfiles.ToString().ToLower());
@@ -38592,6 +38596,10 @@ namespace WebAPI.Models.CanaryDeployment
             if((retrievedProperties == null || retrievedProperties.Contains("refreshToken")))
             {
                 ret.Add("refreshToken", "<refreshToken>" + RefreshToken.ToString().ToLower() + "</refreshToken>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("sessionRevocation")))
+            {
+                ret.Add("sessionRevocation", "<sessionRevocation>" + SessionRevocation.ToString().ToLower() + "</sessionRevocation>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("sSOAdapterProfiles")))
             {

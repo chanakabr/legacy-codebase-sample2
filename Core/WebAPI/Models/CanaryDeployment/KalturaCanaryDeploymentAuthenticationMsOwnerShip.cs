@@ -27,6 +27,14 @@ namespace WebAPI.Models.CanaryDeployment
         public bool DeviceLoginHistory { get; set; }
 
         /// <summary>
+        /// SessionRevocation
+        /// </summary>
+        [DataMember(Name = "sessionRevocation")]
+        [JsonProperty("sessionRevocation")]
+        [XmlElement(ElementName = "sessionRevocation")]
+        public bool SessionRevocation { get; set; }
+
+        /// <summary>
         /// SSOAdapterProfiles
         /// </summary>
         [DataMember(Name = "sSOAdapterProfiles")]

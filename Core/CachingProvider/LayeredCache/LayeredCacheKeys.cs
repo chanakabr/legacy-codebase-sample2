@@ -787,7 +787,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetKsValidationResultKey(string ks)
         {
-            return $"ks_validation_result{ks}";
+            return $"ks_validation_result_{ks}";
         }
 
         public static string GetCanaryDeploymentConfigurationKey(int partnerId)

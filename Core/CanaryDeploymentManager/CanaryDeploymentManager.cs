@@ -399,11 +399,13 @@ namespace ApiLogic.CanaryDeployment
                     apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.UserLoginPinControllerRouting);
                     break;
                 case CanaryDeploymentRoutingAction.SsoAdapterProfileController:
+                    cdc.DataOwnership.AuthenticationMsOwnership.SSOAdapterProfiles = isRoutingToPhoenixRestProxy;
                     apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.SsoAdapterProfileControllerRouting);
                     break;
                 case CanaryDeploymentRoutingAction.SessionController:
                     cdc.DataOwnership.AuthenticationMsOwnership.UserLoginHistory = isRoutingToPhoenixRestProxy;
                     cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginHistory = isRoutingToPhoenixRestProxy;
+                    cdc.DataOwnership.AuthenticationMsOwnership.SessionRevocation = isRoutingToPhoenixRestProxy;
                     apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.SessionControllerRouting);
                     break;
                 case CanaryDeploymentRoutingAction.HouseHoldDevicePinActions:

@@ -20,14 +20,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DeviceLoginPin, opt => opt.MapFrom(src => src.DeviceLoginPin))
                 .ForMember(dest => dest.RefreshToken, opt => opt.MapFrom(src => src.RefreshToken))
                 .ForMember(dest => dest.SSOAdapterProfiles, opt => opt.MapFrom(src => src.SSOAdapterProfiles))
-                .ForMember(dest => dest.UserLoginHistory, opt => opt.MapFrom(src => src.UserLoginHistory));
-
-            cfg.CreateMap<CanaryDeploymentAuthenticationMsOwnership, KalturaCanaryDeploymentAuthenticationMsOwnerShip>()
-                .ForMember(dest => dest.DeviceLoginHistory, opt => opt.MapFrom(src => src.DeviceLoginHistory))
-                .ForMember(dest => dest.DeviceLoginPin, opt => opt.MapFrom(src => src.DeviceLoginPin))
-                .ForMember(dest => dest.RefreshToken, opt => opt.MapFrom(src => src.RefreshToken))
-                .ForMember(dest => dest.SSOAdapterProfiles, opt => opt.MapFrom(src => src.SSOAdapterProfiles))
-                .ForMember(dest => dest.UserLoginHistory, opt => opt.MapFrom(src => src.UserLoginHistory));
+                .ForMember(dest => dest.UserLoginHistory, opt => opt.MapFrom(src => src.UserLoginHistory))
+                .ForMember(dest => dest.SessionRevocation, opt => opt.MapFrom(src => src.SessionRevocation));
 
             cfg.CreateMap<CanaryDeploymentMigrationEvents, KalturaCanaryDeploymentMigrationEvents>()
                 .ForMember(dest => dest.AppToken, opt => opt.MapFrom(src => src.AppToken))

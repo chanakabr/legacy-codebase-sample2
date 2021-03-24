@@ -1295,6 +1295,8 @@ namespace WebAPI.Reflection
                             return "deviceLoginPin";
                         case "RefreshToken":
                             return "refreshToken";
+                        case "SessionRevocation":
+                            return "sessionRevocation";
                         case "SSOAdapterProfiles":
                             return "sSOAdapterProfiles";
                         case "UserLoginHistory":
