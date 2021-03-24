@@ -219,5 +219,25 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal static string GetStringResponseFromWS(Func<string> funcInWS)
+        {
+            string result = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    result = funcInWS();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while calling service.", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            return result;
+        }
     }
 }

@@ -11251,6 +11251,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("system", "getCountry", false);
                             return SystemController.GetCountry((string) methodParams[0]);
                             
+                        case "getlayeredcachegroupconfig":
+                            RolesManager.ValidateActionPermitted("system", "getLayeredCacheGroupConfig", false);
+                            return SystemController.GetLayeredCacheGroupConfig((int) methodParams[0]);
+                            
                         case "getloglevel":
                             RolesManager.ValidateActionPermitted("system", "getLogLevel", false);
                             return SystemController.GetLogLevel();
@@ -11264,6 +11268,10 @@ namespace WebAPI.Reflection
                         case "incrementlayeredcachegroupconfigversion":
                             RolesManager.ValidateActionPermitted("system", "incrementLayeredCacheGroupConfigVersion", false);
                             return SystemController.IncrementLayeredCacheGroupConfigVersion((int) methodParams[0]);
+                            
+                        case "invalidatelayeredcacheinvalidationkey":
+                            RolesManager.ValidateActionPermitted("system", "invalidateLayeredCacheInvalidationKey", false);
+                            return SystemController.InvalidateLayeredCacheInvalidationKey((string) methodParams[0]);
                             
                         case "ping":
                             return SystemController.Ping();
@@ -19719,6 +19727,15 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "getlayeredcachegroupconfig":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
                         case "getloglevel":
                             return ret;
                             
@@ -19734,6 +19751,13 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = 0,
                                 Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "invalidatelayeredcacheinvalidationkey":
+                            ret.Add("key", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
                             });
                             return ret;
                             
