@@ -1403,9 +1403,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeyGroupPermissionItemsDictionaryKey_groupId_{0}", groupId);
         }
 
-        public static string GetAssetStatsSortInvalidationKey()
+        public static string GetAssetStatsInvalidationKey(int groupId)
         {
-            return "invalidation_key_asset_stats_sort";
+            return $"{groupId}_InvalidateAssetStats";
         }
 
         public static string GetGroupCategoriesInvalidationKey(int groupId)

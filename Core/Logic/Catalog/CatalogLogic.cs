@@ -4183,22 +4183,22 @@ namespace Core.Catalog
             }
         }
 
-        internal static List<AssetStatsResult> GetAssetStatsResults(int nGroupID, List<int> lAssetIDs, DateTime dStartDate, DateTime dEndDate, StatsType eType)
+        internal static List<AssetStatsResult> GetAssetStatsResults(int groupId, List<int> assetIDs, DateTime dStartDate, DateTime dEndDate, StatsType statsType)
         {
             // Data structures here are used for returning List<AssetStatsResult> in the same order asset ids are given in lAssetIDs
             SortedSet<AssetStatsResult.IndexedAssetStatsResult> set = null;
             Dictionary<int, AssetStatsResult> assetIdToAssetStatsMapping = null;
-            InitializeAssetStatsResultsDataStructs(lAssetIDs, ref set, ref assetIdToAssetStatsMapping);
+            InitializeAssetStatsResultsDataStructs(assetIDs, ref set, ref assetIdToAssetStatsMapping);
 
-            switch (eType)
+            switch (statsType)
             {
                 case StatsType.MEDIA:
                     {
-                        BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(nGroupID);
+                        BaseStaticticsBL staticticsBL = StatisticsBL.Utils.GetInstance(groupId);
                         Dictionary<string, BuzzWeightedAverScore> buzzDict = null;
-                        if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(nGroupID, GroupFeature.BUZZFEED))
+                        if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.BUZZFEED))
                         {
-                            buzzDict = staticticsBL.GetBuzzAverScore(lAssetIDs);
+                            buzzDict = staticticsBL.GetBuzzAverScore(assetIDs);
                         }
 
                         bool isBuzzNotEmpty = buzzDict != null && buzzDict.Count > 0;
@@ -4207,26 +4207,26 @@ namespace Core.Catalog
 
                         if (dStartDate != DateTime.MinValue || dEndDate != DateTime.MaxValue)
                         {
-                            GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
+                            GetDataForGetAssetStatsFromES(groupId, assetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
                         }
                         else
                         {
-                            Dictionary<string, string> keysToOriginalValueMap = lAssetIDs.ToDictionary(x => LayeredCacheKeys.GetMediaStatsKey(x), x => x.ToString());
+                            Dictionary<string, string> keysToOriginalValueMap = assetIDs.ToDictionary(x => LayeredCacheKeys.GetMediaStatsKey(x), x => x.ToString());
                             Dictionary<string, AssetStatsResult> results = new Dictionary<string, AssetStatsResult>();
                             Dictionary<string, object> funcParameters = new Dictionary<string, object>()
                                     {
-                                        { "assetsIds", lAssetIDs },
+                                        { "assetsIds", assetIDs },
                                         { "statsType", StatsType.MEDIA },
-                                        { "groupId", nGroupID },
+                                        { "groupId", groupId },
                                         { "mapping", assetIdToAssetStatsMapping },
                                     };
 
                             bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap,
-                                ref results, GetAssetsStats, funcParameters, nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
+                                ref results, GetAssetsStats, funcParameters, groupId, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
 
                             if (!success)
                             {
-                                log.ErrorFormat("Failed getting stats for medias {0} group {1}", string.Join(",", lAssetIDs), nGroupID);
+                                log.ErrorFormat("Failed getting stats for medias {0} group {1}", string.Join(",", assetIDs), groupId);
                             }
                             else
                             {
@@ -4236,8 +4236,6 @@ namespace Core.Catalog
                                 }
                             }
                         }
-
-
 
                         break;
                     }
@@ -4253,7 +4251,7 @@ namespace Core.Catalog
                              * When we don't have dates we bring the likes count from epg_channels_schedule bucket in CB
                              * 
                              */
-                            List<EPGChannelProgrammeObject> lEpg = GetEpgsByGroupAndIDs(nGroupID, lAssetIDs);
+                            List<EPGChannelProgrammeObject> lEpg = GetEpgsByGroupAndIDs(groupId, assetIDs);
                             if (lEpg != null && lEpg.Count > 0)
                             {
                                 for (int i = 0; i < lEpg.Count; i++)
@@ -4271,7 +4269,7 @@ namespace Core.Catalog
                             else
                             {
                                 // log here no epgs retrieved from epg_channels_schedule CB bucket.
-                                log.Error("Error - " + GetAssetStatsResultsLogMsg("No EPGs retrieved from epg_channels_schedule CB bucket", nGroupID, lAssetIDs, dStartDate, dEndDate, eType));
+                                log.Error("Error - " + GetAssetStatsResultsLogMsg("No EPGs retrieved from epg_channels_schedule CB bucket", groupId, assetIDs, dStartDate, dEndDate, statsType));
                             }
 
                         }
@@ -4281,26 +4279,28 @@ namespace Core.Catalog
 
                             if (dStartDate != DateTime.MinValue || dEndDate != DateTime.MaxValue)
                             {
-                                GetDataForGetAssetStatsFromES(nGroupID, lAssetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
+                                GetDataForGetAssetStatsFromES(groupId, assetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
                             }
                             else
                             {
-                                Dictionary<string, string> keysToOriginalValueMap = lAssetIDs.ToDictionary(x => LayeredCacheKeys.GetEPGStatsKey(x), x => x.ToString());
+                                Dictionary<string, string> keysToOriginalValueMap = assetIDs.ToDictionary(x => LayeredCacheKeys.GetEPGStatsKey(x), x => x.ToString());
                                 Dictionary<string, AssetStatsResult> results = new Dictionary<string, AssetStatsResult>();
                                 Dictionary<string, object> funcParameters = new Dictionary<string, object>()
                                     {
-                                        { "assetsIds", lAssetIDs },
+                                        { "assetsIds", assetIDs },
                                         { "statsType", StatsType.EPG },
-                                        { "groupId", nGroupID },
+                                        { "groupId", groupId },
                                         { "mapping", assetIdToAssetStatsMapping },
                                     };
+                                Dictionary<string, List<string>> invalidationKeys =
+                                    keysToOriginalValueMap.Keys.ToDictionary(x => x, x => new List<string>() { LayeredCacheKeys.GetAssetStatsInvalidationKey(groupId) });
 
                                 bool success = LayeredCache.Instance.GetValues<AssetStatsResult>(keysToOriginalValueMap,
-                                    ref results, GetAssetsStats, funcParameters, nGroupID, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME);
+                                    ref results, GetAssetsStats, funcParameters, groupId, LayeredCacheConfigNames.ASSET_STATS_CONFIG_NAME, invalidationKeys);
 
                                 if (!success)
                                 {
-                                    log.ErrorFormat("Failed getting stats for epgs {0} group {1}", string.Join(",", lAssetIDs), nGroupID);
+                                    log.ErrorFormat("Failed getting stats for epgs {0} group {1}", string.Join(",", assetIDs), groupId);
                                 }
                                 else
                                 {
@@ -4335,7 +4335,7 @@ namespace Core.Catalog
                     }
                 default:
                     {
-                        throw new NotImplementedException(String.Concat("Unsupported stats type: ", eType.ToString()));
+                        throw new NotImplementedException(String.Concat("Unsupported stats type: ", statsType.ToString()));
                     }
 
             } // switch

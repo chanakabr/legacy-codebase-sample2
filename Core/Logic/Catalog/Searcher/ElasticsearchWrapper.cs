@@ -2449,7 +2449,7 @@ namespace Core.Catalog
                     Dictionary<string, string> keyToOriginalValueMap = assetIds.Select(x => x.ToString()).
                         ToDictionary(x => LayeredCacheKeys.GetAssetStatsSortKey(x, orderBy.ToString()));
                     Dictionary<string, List<string>> invalidationKeys =
-                        keyToOriginalValueMap.Keys.ToDictionary(x => x, x => new List<string>() { LayeredCacheKeys.GetAssetStatsSortInvalidationKey() });
+                        keyToOriginalValueMap.Keys.ToDictionary(x => x, x => new List<string>() { LayeredCacheKeys.GetAssetStatsInvalidationKey(groupId) });
 
                     Dictionary<string, object> funcParams = new Dictionary<string, object>();
                     funcParams.Add("groupId", groupId);
