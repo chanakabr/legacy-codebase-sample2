@@ -37,7 +37,7 @@ namespace SessionManager
         {
 
             //just like in legacy code when user not existing we return true
-            if (string.IsNullOrEmpty(userId) || userId != "0")
+            if (string.IsNullOrEmpty(userId) || userId == "0")
                 return true;
 
             bool shouldCallAuthMS = 
