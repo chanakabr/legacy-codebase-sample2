@@ -231,5 +231,36 @@ namespace WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Returns the epoch value of an invalidation key if it was found
+        /// </summary>
+        /// <param name="layeredCacheConfigName">the layered cache config name of the invalidation key</param>
+        /// <param name="invalidationKey">the invalidation key to fetch it's value</param>
+        /// <param name="groupId">groupId</param>
+        /// <returns></returns>
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Action(name: "getInvalidationKeyValue")]
+        public static KalturaLongValue GetInvalidationKeyValue(string invalidationKey, string layeredCacheConfigName = null, int groupId = 0)
+        {
+            KalturaLongValue result = new KalturaLongValue();
+            try
+            {
+                int groupIdToUse = KS.GetFromRequest().GroupId;
+                if (groupId > 0)
+                {
+                    groupIdToUse = groupId;
+                }
+
+                result = ClientsManager.ApiClient().GetInvalidationKeyValue(groupIdToUse, layeredCacheConfigName, invalidationKey);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error GetInvalidationKeyValue. ex = {ex}");
+            }
+
+            return result;
+        }
+
     }
 }

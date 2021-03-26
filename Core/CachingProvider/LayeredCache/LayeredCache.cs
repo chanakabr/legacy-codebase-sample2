@@ -23,6 +23,8 @@ namespace CachingProvider.LayeredCache
                             int groupId, string layeredCacheConfigName, List<string> inValidationKeys = null, bool shouldUseAutoNameTypeHandling = false);
 
         bool SetInvalidationKey(string key, DateTime? updatedAt = null);
+
+        long GetInvalidationKeyValue(int groupId, string layeredCacheConfigName, string invalidationKey);
     }
 
     public class LayeredCache : ILayeredCache
@@ -336,6 +338,21 @@ namespace CachingProvider.LayeredCache
             }
 
             return res;
+        }
+
+        public long GetInvalidationKeyValue(int groupId, string layeredCacheConfigName, string invalidationKey)
+        {
+            long result = -1;
+            try
+            {
+                TryGetMaxInValidationKeysDate(layeredCacheConfigName, groupId, new List<string>() { invalidationKey }, out result);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"failed getting invalidation key value for groupId {groupId}, layeredCacheConfigName {layeredCacheConfigName} and invalidationKey {invalidationKey}", ex);
+            }
+
+            return result;
         }
 
         public bool SetInvalidationKey(string key, DateTime? updatedAt = null)

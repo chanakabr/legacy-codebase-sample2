@@ -1683,6 +1683,11 @@ namespace Core.Api
             return Core.Api.api.GetLayeredCacheGroupConfig(groupId);
         }
 
+        public static long GetInvalidationKeyValue(int groupId, string layeredCacheConfigName, string invalidationKey)
+        {
+            return Core.Api.api.GetInvalidationKeyValue(groupId, layeredCacheConfigName, invalidationKey);
+        }
+
         public static bool UpdateLayeredCacheGroupConfig(int groupId, int? version, bool? disableLayeredCache, List<string> layeredCacheSettingsToExclude, bool? shouldOverrideExistingExcludeSettings,
                                                             List<string> layeredCacheInvalidationKeySettingsToExclude, bool? shouldOverrideExistingInvalidationKeyExcludeSettings)
         {

@@ -11251,6 +11251,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("system", "getCountry", false);
                             return SystemController.GetCountry((string) methodParams[0]);
                             
+                        case "getinvalidationkeyvalue":
+                            RolesManager.ValidateActionPermitted("system", "getInvalidationKeyValue", false);
+                            return SystemController.GetInvalidationKeyValue((string) methodParams[0], (string) methodParams[1], (int) methodParams[2]);
+                            
                         case "getlayeredcachegroupconfig":
                             RolesManager.ValidateActionPermitted("system", "getLayeredCacheGroupConfig", false);
                             return SystemController.GetLayeredCacheGroupConfig((int) methodParams[0]);
@@ -19724,6 +19728,25 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "getinvalidationkeyvalue":
+                            ret.Add("invalidationKey", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("layeredCacheConfigName", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
                             });
                             return ret;
                             

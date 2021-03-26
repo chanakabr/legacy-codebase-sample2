@@ -4454,6 +4454,15 @@ namespace WebAPI.Clients
             return ClientUtils.GetBoolResponseFromWS(invalidateLayeredCacheInvalidationKey);
         }
 
+        internal KalturaLongValue GetInvalidationKeyValue(int groupId, string layeredCacheConfigName, string invalidationKey)
+        {
+            KalturaLongValue result = new KalturaLongValue();
+            Func<long> getInvalidationKeyValue = () => Core.Api.Module.GetInvalidationKeyValue(groupId, layeredCacheConfigName, invalidationKey);
+            result.value = ClientUtils.GetLongResponseFromWS(getInvalidationKeyValue);
+
+            return result;
+        }
+
         internal bool ClearLocalServerCache(string action, string key)
         {
             Func<Status> clearCache = () => Core.Api.Module.ClearLocalServerCache(action, key);
