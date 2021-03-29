@@ -465,7 +465,13 @@ namespace WebAPI.Utils
             List<BaseObject> assetsBaseDataList = new List<BaseObject>();
             foreach (AggregationResult aggregationResult in aggregationResults)
             {
-                if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
+                if (aggregationResult.topHits != null && aggregationResult.value == ElasticSearch.Searcher.ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
+                {
+                    //take all hits from 'missing' bucket
+                    var _select = aggregationResult.topHits.Select(x => x as BaseObject).ToList();
+                    assetsBaseDataList.AddRange(_select);
+                }
+                else
                 {
                     assetsBaseDataList.Add(aggregationResult.topHits[0] as BaseObject);
                 }
