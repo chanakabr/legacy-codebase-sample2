@@ -468,8 +468,8 @@ namespace WebAPI.Utils
                 if (aggregationResult.topHits != null && aggregationResult.value == ElasticSearch.Searcher.ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
                 {
                     //take all hits from 'missing' bucket
-                    var _select = aggregationResult.topHits.Select(x => x as BaseObject).ToList();
-                    assetsBaseDataList.AddRange(_select);
+                    var _hits = aggregationResult.topHits.Select(x => x as BaseObject).ToList();
+                    assetsBaseDataList.AddRange(_hits);
                 }
                 else
                 {
