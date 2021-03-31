@@ -9297,7 +9297,7 @@ namespace Core.Catalog
                         if (unFilteredRecordings != null)
                         {
                             var recordings = Core.ConditionalAccess.Module.SearchDomainRecordings(groupId, siteGuid, domainId, new TstvRecordingStatus[] { TstvRecordingStatus.Recorded }, string.Empty,
-                                0, 0, new OrderObj() { m_eOrderBy = OrderBy.NONE, m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC }, true, null);
+                                0, 0, new OrderObj() { m_eOrderBy = OrderBy.ID, m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC }, true, null);
 
                             if (recordings != null && recordings.Recordings?.Count > 0)
                             {

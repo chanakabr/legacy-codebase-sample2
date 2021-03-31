@@ -16,7 +16,7 @@ namespace Core.Pricing
             this.m_sCurrencySign = string.Empty;
             this.m_sCurrencyName = string.Empty;
             this.m_bIsDefault = false;
-        }
+        } 
 
         public Currency(int id, string name, string code, string sign, bool isDefault)
         {
