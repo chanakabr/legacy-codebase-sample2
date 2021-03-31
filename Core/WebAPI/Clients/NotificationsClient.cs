@@ -2045,5 +2045,13 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal bool DeleteKalturaFollowTvSeries(int groupId, long userId, int assetId)
+        {
+            Func<Status> deleteFollowTvSeriesFunc = () => FollowManager.Delete(groupId, userId, assetId);
+            var result = ClientUtils.GetResponseStatusFromWS(deleteFollowTvSeriesFunc);
+
+            return result;
+        } 
     }
 }

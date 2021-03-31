@@ -787,7 +787,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetKsValidationResultKey(string ks)
         {
-            return $"ks_validation_result{ks}";
+            return $"ks_validation_result_{ks}";
         }
 
         public static string GetCanaryDeploymentConfigurationKey(int partnerId)
@@ -1298,18 +1298,25 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeySegmentationType_groupdId_{0}_segId_{1}", groupId, segmentationTypeId);
         }
 
-        public static string GetValidateKsInvalidationKey(string ks,int groupId)
+        public static string GetValidateKsInvalidationKeyByKs(int groupId, string ks)
         {            
             return $"{groupId}_InvalidateKSRevocationStatus_{ks}";
         }
 
-        public static string GetValidatKSInvalidationKeyUdid(string udid, int groupId)
+        public static string GetValidateKSInvalidationKeyByUdid(int groupId, string udid)
         {
             return $"{groupId}_InvalidateDeviceRevocationStatus_{udid}";
 
         }
-            
+        public static string GetValidateKSInvalidationKeyByUserID(int groupId, string userID)
+        {
+            return $"{groupId}_InvalidateUserRevocationStatus_{userID}";
+        }
 
+        public static string GetValidateKSInvalidationKeyByAppTokenToken(int groupId,string token)
+        {
+            return $"{groupId}_InvalidateAppTokenRevocationStatus_{token}";
+        }
 
         public static string GetGroupSegmentationTypeIdsOfActionInvalidationKey(int groupId)
         {
@@ -1396,9 +1403,9 @@ namespace CachingProvider.LayeredCache
             return string.Format("invalidationKeyGroupPermissionItemsDictionaryKey_groupId_{0}", groupId);
         }
 
-        public static string GetAssetStatsSortInvalidationKey()
+        public static string GetAssetStatsInvalidationKey(int groupId)
         {
-            return "invalidation_key_asset_stats_sort";
+            return $"{groupId}_InvalidateAssetStats";
         }
 
         public static string GetGroupCategoriesInvalidationKey(int groupId)

@@ -11,6 +11,7 @@ using ApiObjects.TimeShiftedTv;
 using AutoMapper;
 using Core.Catalog.CatalogManagement;
 using Core.Pricing;
+using Couchbase.IO.Operations.Errors;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
 using System;
@@ -4432,6 +4433,34 @@ namespace WebAPI.Clients
         {
             Func<bool> incrementLayeredCacheGroupConfigVersion = () => Core.Api.Module.IncrementLayeredCacheGroupConfigVersion(groupId);
             return ClientUtils.GetBoolResponseFromWS(incrementLayeredCacheGroupConfigVersion);
+        }
+
+        internal KalturaStringValue GetLayeredCacheGroupConfig(int groupId)
+        {
+            KalturaStringValue result = new KalturaStringValue();
+            Func<string> getLayeredCacheGroupConfig = () => Core.Api.Module.GetLayeredCacheGroupConfig(groupId);
+            result.value = ClientUtils.GetStringResponseFromWS(getLayeredCacheGroupConfig);
+            if (string.IsNullOrEmpty(result.value))
+            {
+                throw new ClientException(1, $"Failed to get layeredCache group config for groupId {groupId}");
+            }
+
+            return result;
+        }
+
+        internal bool InvalidateLayeredCacheInvalidationKey(string key)
+        {
+            Func<bool> invalidateLayeredCacheInvalidationKey = () => Core.Api.Module.SetLayeredCacheInvalidationKey(key);
+            return ClientUtils.GetBoolResponseFromWS(invalidateLayeredCacheInvalidationKey);
+        }
+
+        internal KalturaLongValue GetInvalidationKeyValue(int groupId, string layeredCacheConfigName, string invalidationKey)
+        {
+            KalturaLongValue result = new KalturaLongValue();
+            Func<long> getInvalidationKeyValue = () => Core.Api.Module.GetInvalidationKeyValue(groupId, layeredCacheConfigName, invalidationKey);
+            result.value = ClientUtils.GetLongResponseFromWS(getInvalidationKeyValue);
+
+            return result;
         }
 
         internal bool ClearLocalServerCache(string action, string key)

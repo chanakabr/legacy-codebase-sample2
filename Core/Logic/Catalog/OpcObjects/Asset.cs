@@ -262,6 +262,16 @@ namespace Core.Catalog
 
             return needToUpdateBasicData;
         }
+        
+        public bool IsStartAndEndDatesAreValid()
+        {
+            return IsStartAndEndDatesAreValid(StartDate.GetValueOrDefault(), EndDate.GetValueOrDefault());
+        }
+
+        public static bool IsStartAndEndDatesAreValid(DateTime startDate, DateTime endDate)
+        {
+            return startDate < endDate;
+        }
 
         #region IExcel Methods
 

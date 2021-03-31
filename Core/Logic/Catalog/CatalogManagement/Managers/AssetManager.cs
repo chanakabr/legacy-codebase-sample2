@@ -680,9 +680,19 @@ namespace Core.Catalog.CatalogManagement
         }
 
         private static Status ValidateMediaAssetForInsert(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc,
-                                                          ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate, ref XmlDocument relatedEntitiesXmlDoc, bool isFromIngest)
+                                                          ref XmlDocument tagsXmlDoc, ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate, ref XmlDocument relatedEntitiesXmlDoc, bool isFromIngest, 
+                                                          out DateTime startDate, out DateTime endDate)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            
+            startDate = asset.StartDate ?? DateTime.UtcNow;
+            endDate = asset.EndDate ?? DateTime.MaxValue;
+            if (!Asset.IsStartAndEndDatesAreValid(startDate, endDate))
+            {
+                result = new Status(eResponseStatus.StartDateShouldBeLessThanEndDate, eResponseStatus.StartDateShouldBeLessThanEndDate.ToString());
+                return result;
+            }
+            
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
 
             if (asset.InheritancePolicy == AssetInheritancePolicy.Enable)
@@ -724,10 +734,19 @@ namespace Core.Catalog.CatalogManagement
         private static Status ValidateMediaAssetForUpdate(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, HashSet<string> currentAssetMetasAndTags,
                                                             ref XmlDocument metasXmlDocToAdd, ref XmlDocument tagsXmlDocToAdd, ref XmlDocument metasXmlDocToUpdate, ref XmlDocument tagsXmlDocToUpdate,
                                                             ref DateTime? assetCatalogStartDate, ref DateTime? assetFinalEndDate, ref XmlDocument relatedEntitiesXmlDocToAdd,
-                                                            ref XmlDocument relatedEntitiesXmlDocToUpdate, MediaAsset currentAsset, bool isFromIngest = false)
+                                                            ref XmlDocument relatedEntitiesXmlDocToUpdate, MediaAsset currentAsset, out DateTime startDate, out DateTime endDate, bool isFromIngest = false)
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             HashSet<long> assetStructMetaIds = new HashSet<long>(assetStruct.MetaIds);
+            
+            endDate = asset.EndDate ?? (currentAsset.EndDate ?? DateTime.MaxValue);
+            startDate = asset.StartDate ?? (currentAsset.StartDate ?? DateTime.UtcNow);
+
+            if (!Asset.IsStartAndEndDatesAreValid(startDate, endDate))
+            {
+                result = new Status(eResponseStatus.StartDateShouldBeLessThanEndDate, eResponseStatus.StartDateShouldBeLessThanEndDate.ToString());
+                return result;
+            }
 
             // in case isFromIngest = true. need to filter out the protected metas and tags. Should not update their values.
             List<AssetStructMeta> protectedAssetStructMeta = new List<AssetStructMeta>();
@@ -1066,7 +1085,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 Status validateAssetTopicsResult = ValidateMediaAssetForInsert(groupId, catalogGroupCache, ref assetStruct, assetToAdd, ref metasXmlDoc, ref tagsXmlDoc,
-                                                                                ref assetCatalogStartDate, ref assetFinalEndDate, ref relatedEntitiesXmlDoc, isFromIngest);
+                                                                                ref assetCatalogStartDate, ref assetFinalEndDate, ref relatedEntitiesXmlDoc, isFromIngest, out var startDate, out var endDate);
 
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
@@ -1083,10 +1102,8 @@ namespace Core.Catalog.CatalogManagement
 
                 // Add Description meta values (for languages that are not default)
                 ExtractBasicTopicLanguageAndValuesFromMediaAsset(assetToAdd, catalogGroupCache, ref metasXmlDoc, DESCRIPTION_META_SYSTEM_NAME);
-
-                DateTime startDate = assetToAdd.StartDate ?? DateTime.UtcNow;
+                
                 DateTime catalogStartDate = assetToAdd.CatalogStartDate ?? startDate;
-                DateTime endDate = assetToAdd.EndDate ?? DateTime.MaxValue;
                 DataSet ds = CatalogDAL.InsertMediaAsset(groupId, catalogGroupCache.GetDefaultLanguage().ID, metasXmlDoc, tagsXmlDoc, assetToAdd.CoGuid,
                                                         assetToAdd.EntryId, assetToAdd.DeviceRuleId, assetToAdd.GeoBlockRuleId, assetToAdd.IsActive,
                                                         startDate, endDate, catalogStartDate, assetToAdd.FinalEndDate, assetStruct.Id, userId, (int)assetToAdd.InheritancePolicy,
@@ -1477,7 +1494,7 @@ namespace Core.Catalog.CatalogManagement
 
                 Status validateAssetTopicsResult = ValidateMediaAssetForUpdate(groupId, catalogGroupCache, ref assetStruct, assetToUpdate, currentAssetMetasAndTags, ref metasXmlDocToAdd,
                                                         ref tagsXmlDocToAdd, ref metasXmlDocToUpdate, ref tagsXmlDocToUpdate, ref assetCatalogStartDate,
-                                                        ref assetFinalEndDate, ref relatedEntitiesXmlDocToAdd, ref relatedEntitiesXmlDocToUpdate, currentAsset, isFromIngest);
+                                                        ref assetFinalEndDate, ref relatedEntitiesXmlDocToAdd, ref relatedEntitiesXmlDocToUpdate, currentAsset, out var startDate, out var endDate, isFromIngest);
                 if (validateAssetTopicsResult.Code != (int)eResponseStatus.OK)
                 {
                     result.SetStatus(validateAssetTopicsResult);
@@ -1507,11 +1524,8 @@ namespace Core.Catalog.CatalogManagement
                 {
                     ExtractBasicTopicLanguageAndValuesFromMediaAsset(assetToUpdate, catalogGroupCache, ref metasXmlDocToUpdate, DESCRIPTION_META_SYSTEM_NAME);
                 }
-
-                DateTime startDate = assetToUpdate.StartDate ?? (currentAsset.StartDate ?? DateTime.UtcNow);
+                
                 DateTime catalogStartDate = assetToUpdate.CatalogStartDate ?? (currentAsset.CatalogStartDate ?? DateTime.UtcNow);
-                DateTime endDate = assetToUpdate.EndDate ?? (currentAsset.EndDate ?? DateTime.MaxValue);
-
                 AssetInheritancePolicy inheritancePolicy = assetToUpdate.InheritancePolicy ?? (currentAsset.InheritancePolicy ?? AssetInheritancePolicy.Enable);
 
                 // TODO - Lior. Need to extract all values from tags that are part of the mediaObj properties (Basic metas)

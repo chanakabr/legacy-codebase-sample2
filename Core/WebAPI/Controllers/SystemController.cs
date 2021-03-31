@@ -35,7 +35,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.CountryNotFound)]
-        static public KalturaCountry GetCountry(string ip = null)
+        public static KalturaCountry GetCountry(string ip = null)
         {
             KalturaCountry response = null;
 
@@ -63,7 +63,7 @@ namespace WebAPI.Controllers
         /// </summary>
         [Action("ping")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        static public bool Ping()
+        public static bool Ping()
         {
             return true;
         }
@@ -73,7 +73,7 @@ namespace WebAPI.Controllers
         /// </summary>
         [Action("getTime")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        static public long GetTime()
+        public static long GetTime()
         {
             DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestContextUtils.REQUEST_TIME];
             return DateUtils.DateTimeToUtcUnixTimestampSeconds(serverTime);
@@ -84,7 +84,7 @@ namespace WebAPI.Controllers
         /// </summary>
         [Action("getVersion")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        static public string GetVersion()
+        public static string GetVersion()
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
         [Action(name:"getLogLevel", isInternal:true)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
-        static public string GetLogLevel()
+        public static string GetLogLevel()
         {
             return KLogger.GetLogLevel().ToString();
         }
@@ -111,7 +111,7 @@ namespace WebAPI.Controllers
         [Action(name: "setLogLevel", isInternal: true)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
-        static public bool SetLogLevel(KalturaLogLevel level)
+        public static bool SetLogLevel(KalturaLogLevel level)
         {
             try
             {
@@ -135,7 +135,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Action(name: "clearLocalServerCache")]
-        static public bool ClearLocalServerCache(string clearCacheAction = null, string key = null)
+        public static bool ClearLocalServerCache(string clearCacheAction = null, string key = null)
         {
             try
             {
@@ -161,7 +161,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Action(name: "incrementLayeredCacheGroupConfigVersion")]
-        static public bool IncrementLayeredCacheGroupConfigVersion(int groupId = 0)
+        public static bool IncrementLayeredCacheGroupConfigVersion(int groupId = 0)
         {
             try
             {                
@@ -179,5 +179,88 @@ namespace WebAPI.Controllers
                 return false;
             }
         }
+
+        /// <summary>
+        /// Returns the current layered cache group config of the sent groupId. You need to send groupId only if you wish to get it for a specific groupId and not the one the KS belongs to.
+        /// </summary>
+        /// <param name="groupId">groupId</param>
+        /// <returns></returns>
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Action(name: "getLayeredCacheGroupConfig")]
+        public static KalturaStringValue GetLayeredCacheGroupConfig(int groupId = 0)
+        {
+            KalturaStringValue version = new KalturaStringValue();
+            try
+            {
+                int groupIdToGet = KS.GetFromRequest().GroupId;
+                if (groupId > 0)
+                {
+                    groupIdToGet = groupId;
+                }
+
+                version = ClientsManager.ApiClient().GetLayeredCacheGroupConfig(groupIdToGet);
+            }
+            catch (ClientException ex)
+            {
+                log.Error($"Error GetLayeredCacheGroupConfig. ex = {ex}");
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return version;
+        }
+
+        /// <summary>
+        /// Returns true if the invalidation key was invalidated successfully or false otherwise.
+        /// </summary>
+        /// <param name="key">the invalidation key to invalidate</param>
+        /// <returns></returns>
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Action(name: "invalidateLayeredCacheInvalidationKey")]
+        public static bool InvalidateLayeredCacheInvalidationKey(string key)
+        {
+            try
+            {
+                return ClientsManager.ApiClient().InvalidateLayeredCacheInvalidationKey(key);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error InvalidateLayeredCacheInvalidationKey. ex = {ex}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Returns the epoch value of an invalidation key if it was found
+        /// </summary>
+        /// <param name="layeredCacheConfigName">the layered cache config name of the invalidation key</param>
+        /// <param name="invalidationKey">the invalidation key to fetch it's value</param>
+        /// <param name="groupId">groupId</param>
+        /// <returns></returns>
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Action(name: "getInvalidationKeyValue")]
+        public static KalturaLongValue GetInvalidationKeyValue(string invalidationKey, string layeredCacheConfigName = null, int groupId = 0)
+        {
+            KalturaLongValue result = new KalturaLongValue();
+            try
+            {
+                int groupIdToUse = KS.GetFromRequest().GroupId;
+                if (groupId > 0)
+                {
+                    groupIdToUse = groupId;
+                }
+
+                result = ClientsManager.ApiClient().GetInvalidationKeyValue(groupIdToUse, layeredCacheConfigName, invalidationKey);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error GetInvalidationKeyValue. ex = {ex}");
+            }
+
+            return result;
+        }
+
     }
 }

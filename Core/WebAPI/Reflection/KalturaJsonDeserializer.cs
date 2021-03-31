@@ -31085,6 +31085,10 @@ namespace WebAPI.Models.CanaryDeployment
                 {
                     DeviceLoginHistory = (Boolean) Convert.ChangeType(parameters["deviceLoginHistory"], typeof(Boolean));
                 }
+                if (parameters.ContainsKey("sessionRevocation") && parameters["sessionRevocation"] != null)
+                {
+                    SessionRevocation = (Boolean) Convert.ChangeType(parameters["sessionRevocation"], typeof(Boolean));
+                }
                 if (parameters.ContainsKey("sSOAdapterProfiles") && parameters["sSOAdapterProfiles"] != null)
                 {
                     SSOAdapterProfiles = (Boolean) Convert.ChangeType(parameters["sSOAdapterProfiles"], typeof(Boolean));

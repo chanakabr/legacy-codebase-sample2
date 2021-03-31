@@ -60,7 +60,6 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType KEY_CANNOT_BE_EMPTY_OR_NULL = new ApiExceptionType(StatusCode.KeyCannotBeEmptyOrNull, StatusCode.BadRequest, "Key of [@property@] cannot be empty or null", "property");
         public static ApiExceptionType MISSING_MANDATORY_ARGUMENT_IN_PROPERTY = new ApiExceptionType(StatusCode.MissingMandatoryArgumentInProperty, StatusCode.BadRequest, "[@property@] must contain one argument from type [@property@]", "property", "type");
         public static ApiExceptionType MAX_ARGUMENTS = new ApiExceptionType(StatusCode.MaxArguments, StatusCode.BadRequest, "[@property@] could not contain more than [@count@] arguments", "property", "count");
-        public static ApiExceptionType START_DATE_SHOULD_BE_LESS_THAN_END_DATE = new ApiExceptionType(StatusCode.StartDateShouldBeLessThanEndDate, "[@startDateProperty@] should be less than [@endDateProperty@].", "startDateProperty", "endDateProperty");
 
         public BadRequestException()
             : this(BAD_REQUEST)

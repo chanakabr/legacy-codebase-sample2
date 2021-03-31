@@ -9829,6 +9829,22 @@ namespace Core.Api
             return groupConfigResult;
         }
 
+        public static long GetInvalidationKeyValue(int groupId, string layeredCacheConfigName, string invalidationKey)
+        {
+            long result = 0;
+
+            try
+            {
+                result = LayeredCache.Instance.GetInvalidationKeyValue(groupId, layeredCacheConfigName, invalidationKey);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed GetInvalidationKeyValue for groupId {groupId}, layeredCacheConfigName {layeredCacheConfigName} and invalidationKey {invalidationKey}", ex);
+            }
+
+            return result;
+        }
+
         public static bool UpdateLayeredCacheGroupConfig(int groupId, int? version, bool? disableLayeredCache, List<string> layeredCacheSettingsToExclude, bool? shouldOverrideExistingExludeSettings,
                                                         List<string> layeredCacheInvalidationKeySettingsToExclude, bool? shouldOverrideExistingInvalidationKeyExludeSettings)
         {

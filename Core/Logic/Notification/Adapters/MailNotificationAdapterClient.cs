@@ -353,7 +353,7 @@ namespace Core.Notification
             return result;
         }
 
-        public static bool UnSubscribeToAnnouncement(int groupId, List<string> announcementExternalIds, UserData userData, int userId)
+        public static bool UnSubscribeToAnnouncement(int groupId, List<string> announcementExternalIds, UserData userData, long userId)
         {
             bool result = false;
 

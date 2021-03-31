@@ -1299,6 +1299,8 @@ namespace WebAPI.Reflection
                             return "deviceLoginPin";
                         case "RefreshToken":
                             return "refreshToken";
+                        case "SessionRevocation":
+                            return "sessionRevocation";
                         case "SSOAdapterProfiles":
                             return "sSOAdapterProfiles";
                         case "UserLoginHistory":
@@ -11253,6 +11255,14 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("system", "getCountry", false);
                             return SystemController.GetCountry((string) methodParams[0]);
                             
+                        case "getinvalidationkeyvalue":
+                            RolesManager.ValidateActionPermitted("system", "getInvalidationKeyValue", false);
+                            return SystemController.GetInvalidationKeyValue((string) methodParams[0], (string) methodParams[1], (int) methodParams[2]);
+                            
+                        case "getlayeredcachegroupconfig":
+                            RolesManager.ValidateActionPermitted("system", "getLayeredCacheGroupConfig", false);
+                            return SystemController.GetLayeredCacheGroupConfig((int) methodParams[0]);
+                            
                         case "getloglevel":
                             RolesManager.ValidateActionPermitted("system", "getLogLevel", false);
                             return SystemController.GetLogLevel();
@@ -11266,6 +11276,10 @@ namespace WebAPI.Reflection
                         case "incrementlayeredcachegroupconfigversion":
                             RolesManager.ValidateActionPermitted("system", "incrementLayeredCacheGroupConfigVersion", false);
                             return SystemController.IncrementLayeredCacheGroupConfigVersion((int) methodParams[0]);
+                            
+                        case "invalidatelayeredcacheinvalidationkey":
+                            RolesManager.ValidateActionPermitted("system", "invalidateLayeredCacheInvalidationKey", false);
+                            return SystemController.InvalidateLayeredCacheInvalidationKey((string) methodParams[0]);
                             
                         case "ping":
                             return SystemController.Ping();
@@ -19721,6 +19735,34 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "getinvalidationkeyvalue":
+                            ret.Add("invalidationKey", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("layeredCacheConfigName", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                Type = typeof(string),
+                            });
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "getlayeredcachegroupconfig":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = 0,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
                         case "getloglevel":
                             return ret;
                             
@@ -19736,6 +19778,13 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = 0,
                                 Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "invalidatelayeredcacheinvalidationkey":
+                            ret.Add("key", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
                             });
                             return ret;
                             

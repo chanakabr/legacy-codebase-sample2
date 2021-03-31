@@ -9,6 +9,7 @@ using ApiLogic.CanaryDeployment;
 using ApiObjects.CanaryDeployment;
 using ApiObjects.DataMigrationEvents;
 using EventBus.Kafka;
+using AuthenticationGrpcClientWrapper;
 
 namespace SessionManager
 {
@@ -33,6 +34,47 @@ namespace SessionManager
             long revocationTime, 
             long expiration,
             bool revokeAll = false)
+        {
+
+            //just like in legacy code when user not existing we return true
+            if (string.IsNullOrEmpty(userId) || userId == "0")
+                return true;
+
+            bool shouldCallAuthMS = 
+                    CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager()
+                    .IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSessionRevocation);
+            
+            if (shouldCallAuthMS)
+            {
+                var authClient = AuthenticationClient.GetClientFromTCM();
+                if (revokeAll)
+                {
+                    return authClient.RevokeUserSession(groupId, long.Parse(userId));
+                }
+                else if (!string.IsNullOrEmpty(udid))
+                {
+                    return authClient.RevokeUserDeviceSession(groupId, long.Parse(userId), udid);
+                }
+                else
+                {
+                    log.Debug("UpdateUsersSessionsRevocationTime user is empty and it's not revokeAll ,will not call revoke");
+                }
+                return true;
+            }
+
+            return legacyRevokeByUserOrDevice(groupId,
+                groupUserSessionsKeyFormat, 
+                groupAppTokenSessionMaxDurationSeconds, 
+                groupKSExpirationSeconds, 
+                userId, 
+                udid, 
+                revocationTime, 
+                expiration, 
+                revokeAll);
+
+        }
+
+        private static bool legacyRevokeByUserOrDevice(int groupId, string groupUserSessionsKeyFormat, int groupAppTokenSessionMaxDurationSeconds, long groupKSExpirationSeconds, string userId, string udid, long revocationTime, long expiration, bool revokeAll)
         {
             if (!string.IsNullOrEmpty(userId) && userId != "0")
             {
@@ -90,7 +132,7 @@ namespace SessionManager
                     log.ErrorFormat("LogOut: failed to set UserSessions in CB, key = {0}", userSessionsCbKey);
                     return false;
                 }
-                
+
                 // what should we do with the exporter sunny is created that is using same code ????
                 SendUserAndDeviceSessionRevocationCanaryMigrationEvent(groupId, userId, udid, revocationTime, usersSessions);
             }
