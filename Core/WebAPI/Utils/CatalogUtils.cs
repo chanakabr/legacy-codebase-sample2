@@ -4,6 +4,7 @@ using Catalog.Response;
 using Core.Catalog;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using ElasticSearch.Searcher;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -252,7 +253,7 @@ namespace WebAPI.Utils
 
         internal static List<KalturaIAssetable> GetAssets(List<BaseObject> assetsBaseData, BaseRequest request, List<KalturaCatalogWith> withList, CatalogConvertor.ConvertAssetsDelegate convertAssets)
         {
-            List<BaseObject> assets = Core.Catalog.Utils.GetOrderedAssets(request.m_nGroupID,assetsBaseData, request.m_oFilter);
+            List<BaseObject> assets = Core.Catalog.Utils.GetOrderedAssets(request.m_nGroupID, assetsBaseData, request.m_oFilter);
             if (assets != null)
             {
                 return convertAssets(request.m_nGroupID, assets, withList);
@@ -263,14 +264,14 @@ namespace WebAPI.Utils
 
         internal static List<KalturaAsset> GetAssets(List<BaseObject> assetsBaseData, BaseRequest request, bool managementData = false)
         {
-            List<BaseObject> assets = Core.Catalog.Utils.GetOrderedAssets(request.m_nGroupID, assetsBaseData, request.m_oFilter, managementData);            
+            List<BaseObject> assets = Core.Catalog.Utils.GetOrderedAssets(request.m_nGroupID, assetsBaseData, request.m_oFilter, managementData);
 
             if (assets != null)
-                return  MapAssets(request.m_nGroupID, assets);
+                return MapAssets(request.m_nGroupID, assets);
             else
                 return null;
         }
-        
+
         private static void BuildMediasFromCatalogAccordingAssetsBaseData(List<BaseObject> assetsBaseDataList, out List<long> missingMediaIds)
         {
             missingMediaIds = new List<long>();
@@ -477,7 +478,7 @@ namespace WebAPI.Utils
                 }
             }
 
-            List<BaseObject> assets = Core.Catalog.Utils.GetOrderedAssets(request.m_nGroupID, assetsBaseDataList, request.m_oFilter, managementData); 
+            List<BaseObject> assets = Core.Catalog.Utils.GetOrderedAssets(request.m_nGroupID, assetsBaseDataList, request.m_oFilter, managementData);
 
             if (assets != null)
             {
@@ -492,7 +493,7 @@ namespace WebAPI.Utils
                 return null;
             }
         }
-        
+
         internal static void SetTopHitCount(KalturaBaseResponseProfile responseProfile, List<AggregationResult> aggregationResults, List<KalturaAsset> tempAssets)
         {
             if (responseProfile != null)
@@ -530,6 +531,7 @@ namespace WebAPI.Utils
                     }
                     else
                     {
+                        var internalIndex = 0;
                         for (int i = 0; i < aggregationResults.Count; i++)
                         {
                             var res = new KalturaIntegerValueListResponse()
@@ -538,9 +540,19 @@ namespace WebAPI.Utils
                                 TotalCount = aggregationResults[i].count
                             };
 
-                            if (res != null)
+                            if (aggregationResults[i].value == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
                             {
-                                tempAssets[i].relatedObjects = new SerializableDictionary<string, IKalturaListResponse>() { { profileName, res } };
+                                internalIndex = i;
+                                for (int _ = 0; _ < aggregationResults[i].count; _++)
+                                {
+                                    tempAssets[internalIndex].relatedObjects = new SerializableDictionary<string, IKalturaListResponse>() { { profileName, res } };
+                                    internalIndex++;
+                                }
+                            }
+                            else if (res != null)
+                            {
+                                tempAssets[internalIndex].relatedObjects = new SerializableDictionary<string, IKalturaListResponse>() { { profileName, res } };
+                                internalIndex++;
                             }
                         }
                     }
@@ -551,7 +563,7 @@ namespace WebAPI.Utils
         internal static List<KalturaAsset> MapAssets(int groupId, List<BaseObject> assets)
         {
             GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-            int linearMediaTypeId = groupManager.GetLinearMediaTypeId(groupId);            
+            int linearMediaTypeId = groupManager.GetLinearMediaTypeId(groupId);
             Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
             bool isNewerThenOpcMergeVersion = requestVersion.CompareTo(opcMergeVersion) > 0;
             List<KalturaAsset> result = new List<KalturaAsset>();
