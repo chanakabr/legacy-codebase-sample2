@@ -543,6 +543,11 @@ namespace WebAPI.Utils
                             if (aggregationResults[i].value == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
                             {
                                 internalIndex = i;
+
+                                //mark missed bucket results with a single hit
+                                res.Values = new List<KalturaIntegerValue>() { new KalturaIntegerValue() { value = 1 } };
+                                res.TotalCount = 1;
+
                                 for (int _ = 0; _ < aggregationResults[i].count; _++)
                                 {
                                     tempAssets[internalIndex].relatedObjects = new SerializableDictionary<string, IKalturaListResponse>() { { profileName, res } };
