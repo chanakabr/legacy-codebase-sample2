@@ -36902,6 +36902,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("secondaryLanguages", "\"secondaryLanguages\": " + "\"" + EscapeJson(SecondaryLanguages) + "\"");
             }
+            if(SuspensionProfileInheritanceType.HasValue && (retrievedProperties == null || retrievedProperties.Contains("suspensionProfileInheritanceType")))
+            {
+                ret.Add("suspensionProfileInheritanceType", "\"suspensionProfileInheritanceType\": " + "\"" + Enum.GetName(typeof(KalturaSuspensionProfileInheritanceType), SuspensionProfileInheritanceType) + "\"");
+            }
             return ret;
         }
         
@@ -36972,6 +36976,10 @@ namespace WebAPI.Models.Partner
             if(SecondaryLanguages != null && (retrievedProperties == null || retrievedProperties.Contains("secondaryLanguages")))
             {
                 ret.Add("secondaryLanguages", "<secondaryLanguages>" + EscapeXml(SecondaryLanguages) + "</secondaryLanguages>");
+            }
+            if(SuspensionProfileInheritanceType.HasValue && (retrievedProperties == null || retrievedProperties.Contains("suspensionProfileInheritanceType")))
+            {
+                ret.Add("suspensionProfileInheritanceType", "<suspensionProfileInheritanceType>" + "" + Enum.GetName(typeof(KalturaSuspensionProfileInheritanceType), SuspensionProfileInheritanceType) + "" + "</suspensionProfileInheritanceType>");
             }
             return ret;
         }

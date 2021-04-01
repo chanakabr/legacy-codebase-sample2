@@ -20,6 +20,7 @@ using TVinciShared;
 using EventBus.Abstraction;
 using ConfigurationManager;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using ApiLogic.Api.Managers;
 
 namespace APILogic.Notification
 {
@@ -700,7 +701,8 @@ namespace APILogic.Notification
                     if (userResponseObject.m_RespStatus == ResponseStatus.OK)
                     {
                         //check user suspend
-                        if (userResponseObject.m_user.m_eSuspendState == DAL.DomainSuspentionStatus.Suspended)
+                        if (userResponseObject.m_user.m_eSuspendState == DAL.DomainSuspentionStatus.Suspended 
+                            && !PartnerConfigurationManager.Instance.AllowSuspendedAction(partnerId))
                         {
                             return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.UserSuspended, Message = eResponseStatus.UserSuspended.ToString() };
                         }

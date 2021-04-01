@@ -23,6 +23,7 @@ namespace DAL
     {
         ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfiguration(int groupId, out eResultStatus resultStatus);
         bool UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate);
+        DataSet GetGeneralPartnerConfig(int groupId);
     }
 
     public interface ICatalogPartnerRepository
@@ -5657,10 +5658,15 @@ namespace DAL
                 sp.AddParameter("@finishedPercentThreshold", partnerConfig.FinishedPercentThreshold.Value);
             }
 
+            if (partnerConfig.SuspensionProfileInheritanceType.HasValue)
+            {
+                sp.AddParameter("@suspensionProfileInheritanceType", partnerConfig.SuspensionProfileInheritanceType.Value);
+            }
+
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataSet GetGeneralPartnerConfig(int groupId)
+        public DataSet GetGeneralPartnerConfig(int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupsById");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");

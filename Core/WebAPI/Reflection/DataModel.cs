@@ -3233,6 +3233,8 @@ namespace WebAPI.Reflection
                             return "secondaryCurrencies";
                         case "SecondaryLanguages":
                             return "secondaryLanguages";
+                        case "SuspensionProfileInheritanceType":
+                            return "suspensionProfileInheritanceType";
                     }
                     break;
                     

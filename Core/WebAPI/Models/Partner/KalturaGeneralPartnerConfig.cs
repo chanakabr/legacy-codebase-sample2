@@ -131,6 +131,14 @@ namespace WebAPI.Models.Partner
         [SchemeProperty(MinInteger = 90, MaxInteger = 99)]
         public int? FinishedPercentThreshold { get; set; }
 
+        /// <summary>
+        /// Suspension Profile Inheritance
+        /// </summary>
+        [DataMember(Name = "suspensionProfileInheritanceType")]
+        [JsonProperty("suspensionProfileInheritanceType")]
+        [XmlElement(ElementName = "suspensionProfileInheritanceType")]
+        public KalturaSuspensionProfileInheritanceType? SuspensionProfileInheritanceType { get; set; }
+
         internal List<int> GetSecondaryLanguagesIds()
         {
             return GetItemsIn<List<int>, int>(SecondaryLanguages, "KalturaGeneralPartnerConfig.secondaryLanguages", false, false);
@@ -159,5 +167,12 @@ namespace WebAPI.Models.Partner
         LIFO = 1,
         FIFO = 2,
         ACTIVE_DEVICE_ASCENDING = 3
+    }
+
+    public enum KalturaSuspensionProfileInheritanceType
+    {
+        ALWAYS = 1,
+        NEVER = 2,
+        DEFAULT = 3
     }
 }

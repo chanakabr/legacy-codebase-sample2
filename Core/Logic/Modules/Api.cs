@@ -2504,7 +2504,7 @@ namespace Core.Api
 
         public static Status UpdateOpcPartnerConfig(int groupId, OpcPartnerConfig partnerConfigToUpdate)
         {
-            return PartnerConfigurationManager.UpdateOpcPartnerConfig(groupId, partnerConfigToUpdate);
+            return PartnerConfigurationManager.Instance.UpdateOpcPartnerConfig(groupId, partnerConfigToUpdate);
         }
 
         public static GenericListResponse<OpcPartnerConfig> GetOpcPartnerConfiguration(int groupId)

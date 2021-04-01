@@ -16,6 +16,7 @@ using ApiLogic.Users.Services;
 using KeyValuePair = ApiObjects.KeyValuePair;
 using ApiObjects.Base;
 using ApiLogic.Users.Security;
+using ApiLogic.Api.Managers;
 
 namespace Core.Users
 {
@@ -1950,9 +1951,9 @@ namespace Core.Users
             }
 
             Domain domain = DomainInitializer(groupID, domainID, false);
-            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
             {
-                if (domain.roleId == 0 || !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, userID, PermissionItems.HOUSEHOLDDEVICE_ADD.ToString()))
+                if (domain.roleId == 0 || !APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermissionItem(m_nGroupID, userID, PermissionItems.HOUSEHOLDDEVICE_ADD.ToString()))
                 {
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainSuspended, "Domain suspended");
                     return response;

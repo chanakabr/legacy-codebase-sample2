@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Api.Managers;
+using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.Billing;
 using ApiObjects.ConditionalAccess;
@@ -813,7 +814,8 @@ namespace Core.ConditionalAccess
                         break;
                 }
 
-                if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(contextData.GroupId, contextData.UserId.ToString(), rolePermission))
+                if (!PartnerConfigurationManager.Instance.AllowSuspendedAction(contextData.GroupId) && 
+                    !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(contextData.GroupId, contextData.UserId.ToString(), rolePermission))
                 {
                     response.Status = APILogic.Api.Managers.RolesPermissionsManager.GetSuspentionStatus(contextData.GroupId, (int)contextData.DomainId.Value);
                     log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);

@@ -13,10 +13,16 @@ using System.Reflection;
 
 namespace APILogic.Api.Managers
 {
-    public static class RolesPermissionsManager
+    public interface IRolesPermissionsManager
     {
-
+        bool IsPermittedPermissionItem(int groupId, string userId, string permissionItem);
+    }
+    public class RolesPermissionsManager: IRolesPermissionsManager
+    {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static readonly Lazy<RolesPermissionsManager> lazy = new Lazy<RolesPermissionsManager>(() => new RolesPermissionsManager());
+        public static RolesPermissionsManager Instance { get { return lazy.Value; } }
 
         public const long ANONYMOUS_ROLE_ID = 0;
 
@@ -141,7 +147,7 @@ namespace APILogic.Api.Managers
             return false;
         }
 
-        internal static bool IsPermittedPermissionItem(int groupId, string userId, string permissionItem)
+        public bool IsPermittedPermissionItem(int groupId, string userId, string permissionItem)
         {
             bool result = false;
             try

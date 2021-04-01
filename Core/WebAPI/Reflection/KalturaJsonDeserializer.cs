@@ -29830,6 +29830,20 @@ namespace WebAPI.Models.Partner
                     }
                     FinishedPercentThreshold = (Int32) Convert.ChangeType(parameters["finishedPercentThreshold"], typeof(Int32));
                 }
+                if (parameters.ContainsKey("suspensionProfileInheritanceType") && parameters["suspensionProfileInheritanceType"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["suspensionProfileInheritanceType"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "suspensionProfileInheritanceType");
+                    }
+
+                    SuspensionProfileInheritanceType = (KalturaSuspensionProfileInheritanceType) Enum.Parse(typeof(KalturaSuspensionProfileInheritanceType), parameters["suspensionProfileInheritanceType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSuspensionProfileInheritanceType), SuspensionProfileInheritanceType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", SuspensionProfileInheritanceType, typeof(KalturaSuspensionProfileInheritanceType)));
+                    }
+                }
             }
         }
     }

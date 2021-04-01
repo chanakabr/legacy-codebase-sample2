@@ -5970,6 +5970,12 @@ namespace Core.Api
                         }
                     case ResponseStatus.UserSuspended:
                         {
+                            if (PartnerConfigurationManager.Instance.AllowSuspendedAction(groupId))
+                            {
+                                status.Code = (int)eResponseStatus.OK;
+                                status.Message = string.Empty;
+                                break;
+                            }
                             status.Code = (int)eResponseStatus.UserSuspended;
                             break;
                         }

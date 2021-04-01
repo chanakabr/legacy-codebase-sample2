@@ -107,7 +107,7 @@ namespace WebAPI.Utils
                     return null;
                 }
 
-                if (!ks.OriginalUserId.IsNullOrEmpty() || !RequestContextUtils.IsPartnerRequest())
+                if (!ks.OriginalUserId.IsNullOrEmpty() || !RequestContextUtils.Instance.IsPartnerRequest())
                 {
                     try
                     {
