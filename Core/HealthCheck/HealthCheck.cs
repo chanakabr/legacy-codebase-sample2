@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Http;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -25,7 +27,8 @@ namespace HealthCheck
         {
             var healthCheckBuilder = services.AddHealthChecks();
             services.AddHttpClient();
-            
+            services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
+
             foreach (var definition in definitions)
             {
                 switch (definition.Type)

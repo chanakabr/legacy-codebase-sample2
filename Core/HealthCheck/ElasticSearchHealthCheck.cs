@@ -6,11 +6,15 @@ using ConfigurationManager;
 using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
+using log4net.Repository.Hierarchy;
+using KLogMonitor;
+using System.Reflection;
 
 namespace HealthCheck
 {
     class ElasticSearchHealthCheck : IHealthCheck
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private readonly HttpClient httpClient = null;
 
         public ElasticSearchHealthCheck(IHttpClientFactory factory)
@@ -35,9 +39,9 @@ namespace HealthCheck
         private bool HealthCheck()
         {
             bool result = false;
+            var url = $"{ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value}/{"_cluster/health"}";
             try
-            {
-                var url = $"{ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value}/{"_cluster/health"}";
+            {                
                 var status = 0;
                 var response = httpClient.GetAsync(url).ExecuteAndWait();
 
@@ -46,6 +50,7 @@ namespace HealthCheck
 
                 if (status != 200)
                 {
+                    log.Error($"ES health-check get request to url {url} failed");
                     return false;
                 }
 
@@ -63,11 +68,16 @@ namespace HealthCheck
                         {
                             result = true;
                         }
+                        else
+                        {
+                            log.Error($"ES health-check status did not return green/yellow from url {url}");
+                        }
                     }
                 }
             }
             catch (Exception ex)
             {
+                log.Error($"Failed to do health-check on ES, request url {url}", ex);
                 result = false;
             }
 
