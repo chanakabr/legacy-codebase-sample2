@@ -2651,10 +2651,10 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static bool CleanupRecordings()
+        public static bool CleanupRecordings(bool isTest = false)
         {
             BaseConditionalAccess t = new TvinciConditionalAccess(0);
-            return t.CleanupRecordings();
+            return t.CleanupRecordings(isTest);
         }
 
 

@@ -2957,10 +2957,10 @@ namespace WebAPI.WebServices
         }
 
         [WebMethod]
-        public bool CleanupRecordings()
+        public bool CleanupRecordings(bool isTest)
         {
             BaseConditionalAccess t = new TvinciConditionalAccess(0);
-            return Core.ConditionalAccess.Module.CleanupRecordings();
+            return Core.ConditionalAccess.Module.CleanupRecordings(isTest);
         }
 
         [WebMethod]
