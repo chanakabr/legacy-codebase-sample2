@@ -18165,6 +18165,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("altStreamingCode", "\"altStreamingCode\": " + "\"" + EscapeJson(AltStreamingCode) + "\"");
             }
+            if(AltUrl != null && (retrievedProperties == null || retrievedProperties.Contains("altUrl")))
+            {
+                ret.Add("altUrl", "\"altUrl\": " + "\"" + EscapeJson(AltUrl) + "\"");
+            }
             if(AssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("assetId")))
             {
                 ret.Add("assetId", "\"assetId\": " + AssetId);
@@ -18316,6 +18320,10 @@ namespace WebAPI.Models.Catalog
             if(AltStreamingCode != null && (retrievedProperties == null || retrievedProperties.Contains("altStreamingCode")))
             {
                 ret.Add("altStreamingCode", "<altStreamingCode>" + EscapeXml(AltStreamingCode) + "</altStreamingCode>");
+            }
+            if(AltUrl != null && (retrievedProperties == null || retrievedProperties.Contains("altUrl")))
+            {
+                ret.Add("altUrl", "<altUrl>" + EscapeXml(AltUrl) + "</altUrl>");
             }
             if(AssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("assetId")))
             {

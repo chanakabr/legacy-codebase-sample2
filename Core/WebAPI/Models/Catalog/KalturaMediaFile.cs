@@ -78,6 +78,14 @@ namespace WebAPI.Models.Catalog
         public string Url { get; set; }
 
         /// <summary>
+        /// URL of the media file to be played
+        /// </summary>
+        [DataMember(Name = "altUrl")]
+        [JsonProperty(PropertyName = "altUrl")]
+        [XmlElement(ElementName = "altUrl")]
+        public string AltUrl { get; set; }
+
+        /// <summary>
         /// Duration of the media file
         /// </summary>
         [DataMember(Name = "duration")]

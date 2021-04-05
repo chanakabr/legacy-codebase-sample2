@@ -8696,6 +8696,7 @@ namespace Core.ConditionalAccess
                                 foreach (MediaFile mediaFile in mediaFiles)
                                 {
                                     mediaFile.Url = GetAssetUrl(groupId.Value, assetType.Value, mediaFile.Url, mediaFile.CdnId);
+                                    mediaFile.AltUrl = GetAssetUrl(groupId.Value, assetType.Value, mediaFile.AltUrl, mediaFile.AltCdnId);
                                 }
                             }
                             res = true;

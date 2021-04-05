@@ -17606,9 +17606,9 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public PlayManifestResponse GetPlayManifest(string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType, bool isTokenizedUrl = false)
+        public PlayManifestResponse GetPlayManifest(string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType, bool isTokenizedUrl = false, bool isAltUrl = false)
         {
-            return PlaybackManager.GetPlayManifest(this, m_nGroupID, userId, assetId, assetType, fileId, ip, udid, playContextType, isTokenizedUrl);
+            return PlaybackManager.GetPlayManifest(this, m_nGroupID, userId, assetId, assetType, fileId, ip, udid, playContextType, isTokenizedUrl, isAltUrl);
         }
 
         public CompensationResponse AddCompensation(string userId, Compensation compensation)

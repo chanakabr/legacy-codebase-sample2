@@ -15894,6 +15894,10 @@ namespace WebAPI.Models.Catalog
                 {
                     Url = (String) Convert.ChangeType(parameters["url"], typeof(String));
                 }
+                if (parameters.ContainsKey("altUrl") && parameters["altUrl"] != null)
+                {
+                    AltUrl = (String) Convert.ChangeType(parameters["altUrl"], typeof(String));
+                }
                 if (parameters.ContainsKey("duration") && parameters["duration"] != null)
                 {
                     Duration = (Int64) Convert.ChangeType(parameters["duration"], typeof(Int64));

@@ -28,7 +28,11 @@ namespace ApiObjects
 
         public string Url { get; set; }
 
-        public string DirectUrl { get; set; } 
+        public string AltUrl { get; set; }
+
+        public string DirectUrl { get; set; }
+        
+        public string AltDirectUrl { get; set; }
 
         public long Duration { get; set; }
 
@@ -39,6 +43,8 @@ namespace ApiObjects
         public bool IsTrailer { get; set; }
 
         public int CdnId { get; set; }
+
+        public int AltCdnId { get; set; }
 
         public int DrmId { get; set; }
 
@@ -51,6 +57,16 @@ namespace ApiObjects
         public BusinessModuleDetails BusinessModuleDetails { get; set; }
 
         public long GroupId { get; set; }
+
+        public int GetCdnId(bool isAlternative)
+        {
+            return !isAlternative ? this.CdnId : this.AltCdnId;
+        }
+        
+        public string GetUrl(bool isAlternative)
+        {
+            return !isAlternative ? this.Url : this.AltUrl;
+        }
     }
 
     public class BusinessModuleDetails

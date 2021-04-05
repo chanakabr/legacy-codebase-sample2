@@ -4250,6 +4250,8 @@ namespace DAL
                         IsTrailer = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_TRAILER") == 1 ? true : false,
                         CdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
                         Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
+                        AltCdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ALT_STREAMING_SUPLIER_ID"),
+                        AltUrl = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_STREAMING_CODE"),
                         DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
                         MediaId = mediaId,
                         Opl = ODBCWrapper.Utils.GetSafeStr(dr, "OPL"),

@@ -874,23 +874,8 @@ namespace WebAPI.Controllers
                             foreach (var source in response.Sources)
                             {
                                 // check if is tokenized . if yes add base64 url
-                                if (source.IsTokenized == true && !string.IsNullOrEmpty(source.Url))
-                                {
-                                    url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}/tokenizedUrl/{6}",
-                                        baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context, Utils.Utils.RemoveSlashesFromBase64Str(Convert.ToBase64String(Encoding.UTF8.GetBytes(source.Url)))));
-                                }
-                                else
-                                {
-                                    url = new StringBuilder(string.Format("{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}",
-                                        baseUrl, ks.GroupId, assetId, assetType, source.Id, contextDataParams.Context));
-                                }
-
-                                if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
-                                {
-                                    url.AppendFormat("/ks/{0}", ks.ToString());
-                                }
-
-                                source.Url = url.AppendFormat("/a{0}", source.FileExtention).ToString();
+                                source.Url = ExtractUrl(source, baseUrl);
+                                source.AltUrl = ExtractUrl(source, baseUrl, true);
                             }
                         }
 
@@ -908,6 +893,42 @@ namespace WebAPI.Controllers
                             });
                         }
                     }
+                }
+
+                string ExtractUrl(KalturaPlaybackSource source, string baseUrl, bool isAltUrl = false)
+                {
+                    StringBuilder url;
+                    if (source.IsTokenized == true && !string.IsNullOrEmpty(!isAltUrl ? source.Url : source.AltUrl))
+                    {
+                        url = new StringBuilder(string.Format(
+                            "{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}/tokenizedUrl/{6}",
+                            baseUrl,
+                            ks.GroupId,
+                            assetId,
+                            assetType,
+                            source.Id,
+                            contextDataParams.Context,
+                            Utils.Utils.RemoveSlashesFromBase64Str(Convert.ToBase64String(Encoding.UTF8.GetBytes(source.Url)))));
+                    }
+                    else
+                    {
+                        url = new StringBuilder(string.Format(
+                            "{0}/api_v3/service/assetFile/action/playManifest/partnerId/{1}/assetId/{2}/assetType/{3}/assetFileId/{4}/contextType/{5}/isAltUrl/{6}",
+                            baseUrl,
+                            ks.GroupId,
+                            assetId,
+                            assetType,
+                            source.Id,
+                            contextDataParams.Context,
+                            isAltUrl));
+                    }
+
+                    if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
+                    {
+                        url.AppendFormat("/ks/{0}", ks);
+                    }
+
+                    return url.AppendFormat("/a{0}", source.FileExtention).ToString();
                 }
             }
             catch (ClientException ex)
