@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using Tvinci.Core.DAL;
 
 namespace Core.GroupManagers
@@ -21,7 +22,7 @@ namespace Core.GroupManagers
     
     public static class GroupSettingsManager
     {
-        private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());    
 
         public static bool IsOpc(int groupId) => DoesGroupUsesTemplates(groupId);
 

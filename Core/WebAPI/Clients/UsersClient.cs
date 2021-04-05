@@ -1,5 +1,7 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Users;
+using ApiObjects;
 using ApiObjects.Response;
+using ApiObjects.SSOAdapter;
 using AutoMapper;
 using Core.Users;
 using KLogMonitor;
@@ -9,7 +11,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Reflection;
-using ApiObjects.SSOAdapter;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -18,7 +19,6 @@ using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 using KeyValuePair = ApiObjects.KeyValuePair;
-using ApiLogic.Users;
 
 namespace WebAPI.Clients
 {
@@ -1316,36 +1316,6 @@ namespace WebAPI.Clients
             return true;
         }
 
-        internal KalturaUserInterest InsertUserInterest(int groupId, string user, KalturaUserInterest kalturaUserInterest)
-        {
-            ApiObjects.Response.Status response = null;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    UserInterest request = Mapper.Map<UserInterest>(kalturaUserInterest);
-                    response = Core.Users.Module.AddUserInterest(groupId, int.Parse(user), request);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while InsertUserInterest.  groupID: {0}, exception: {1}", groupId, ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException(StatusCode.Error);
-            }
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response);
-            }
-
-            return kalturaUserInterest;
-        }
-
         internal List<KalturaUserInterest> GetUserInterests(int groupId, string user)
         {
             List<KalturaUserInterest> list = null;
@@ -1377,41 +1347,6 @@ namespace WebAPI.Clients
             list = Mapper.Map<List<KalturaUserInterest>>(response.UserInterests);
 
             return list;
-        }
-
-        internal bool DeleteUserInterest(int groupId, string user, string id)
-        {
-            ApiObjects.Response.Status response = null;
-            bool success = false;
-
-            try
-            {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Users.Module.DeleteUserInterest(groupId, int.Parse(user), id);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Exception received while calling users service. exception: {0}", ex);
-                ErrorUtils.HandleWSException(ex);
-            }
-
-            if (response == null)
-            {
-                throw new ClientException(StatusCode.Error);
-            }
-
-            if (response.Code != (int)StatusCode.OK)
-            {
-                throw new ClientException(response);
-            }
-            else
-            {
-                success = true;
-            }
-
-            return success;
         }
 
         internal KalturaOTTUser LoginWithDevicePin(int groupId, string udid, string pin)

@@ -8,6 +8,7 @@ namespace ApiObjects
     public class Topic
     {
         private const string SEARCH_RELATED = "searchRelated";
+        private const string USER_INTEREST = "USER_INTEREST";
 
         public long Id { get; set; }
         public string Name { get; set; }
@@ -23,6 +24,7 @@ namespace ApiObjects
         public long UpdateDate { get; set; }
         public bool HasDynamicData { get; set; }
         public Dictionary<string, string> DynamicData { get; set; }
+        public bool IsInterest { get; set; }
 
         public Topic()
         {
@@ -50,14 +52,9 @@ namespace ApiObjects
             this.SystemName = systemName;
             this.Type = type;
             this.Features = features != null ? new HashSet<string>(features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            if (this.Features.Contains(SEARCH_RELATED))
-            {
-                this.SearchRelated = true;
-            }
-            else
-            {
-                this.SearchRelated = false;
-            }
+            
+            this.SearchRelated = this.Features.Contains(SEARCH_RELATED);
+            this.IsInterest = this.Features.Contains(USER_INTEREST);
 
             this.IsPredefined = isPredefined;
             this.HelpText = helpText;
