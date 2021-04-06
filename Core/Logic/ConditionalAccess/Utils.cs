@@ -4132,11 +4132,11 @@ namespace Core.ConditionalAccess
         /// <param name="siteGuid"></param>
         /// <param name="domainId"></param>
         /// <returns></returns>
-        public static ResponseStatus ValidateUser(int groupId, string siteGuid, ref long houseHoldID, bool ignoreSuspend = false)
+        public static ResponseStatus ValidateUser(int groupId, string siteGuid, ref long houseHoldID, bool ignoreSuspend = false, bool operatorDefaultSuspendBlock = false)
         {
             Users.User user;
 
-            return ValidateUser(groupId, siteGuid, ref houseHoldID, out user, ignoreSuspend);
+            return ValidateUser(groupId, siteGuid, ref houseHoldID, out user, ignoreSuspend, operatorDefaultSuspendBlock);
         }
 
         /// <summary>
@@ -4146,7 +4146,7 @@ namespace Core.ConditionalAccess
         /// <param name="siteGuid"></param>
         /// <param name="domainId"></param>
         /// <returns></returns>
-        public static ResponseStatus ValidateUser(int groupId, string siteGuid, ref long houseHoldID, out Users.User user, bool ignoreSuspend = false)
+        public static ResponseStatus ValidateUser(int groupId, string siteGuid, ref long houseHoldID, out Users.User user, bool ignoreSuspend = false, bool operatorDefaultSuspendBlock = false)
         {
             user = null;
             ResponseStatus status = ResponseStatus.InternalError;
@@ -4188,7 +4188,7 @@ namespace Core.ConditionalAccess
                             }
 
                             if (response.m_user.m_eSuspendState == DAL.DomainSuspentionStatus.Suspended && 
-                                !ignoreSuspend && !PartnerConfigurationManager.Instance.AllowSuspendedAction(groupId, true))
+                                !ignoreSuspend && !PartnerConfigurationManager.Instance.AllowSuspendedAction(groupId, !operatorDefaultSuspendBlock))
                             {
                                 status = ResponseStatus.UserSuspended;
                             }
