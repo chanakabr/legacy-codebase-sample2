@@ -107,8 +107,7 @@ namespace WebAPI.Utils
                     return null;
                 }
 
-                if (!ks.OriginalUserId.IsNullOrEmpty() || !RequestContextUtils.Instance.IsPartnerRequest())
-                {
+                
                     try
                     {
                         domain = ClientsManager.DomainsClient().GetDomainByUser(ks.GroupId, ks.UserId);
@@ -118,7 +117,7 @@ namespace WebAPI.Utils
                         log.Error($"GetHouseholdIDByKS: got ClientException for GetDomainByUser. userId = {ks.UserId} ex ={ex}");
                         domain = null;
                     }
-                }
+                
             }
 
             if (domain == null)
