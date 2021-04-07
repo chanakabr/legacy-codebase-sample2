@@ -107,17 +107,14 @@ namespace WebAPI.Utils
                     return null;
                 }
 
-                if (!ks.OriginalUserId.IsNullOrEmpty() || !RequestContextUtils.Instance.IsPartnerRequest())
+                try
                 {
-                    try
-                    {
-                        domain = ClientsManager.DomainsClient().GetDomainByUser(ks.GroupId, ks.UserId);
-                    }
-                    catch (ClientException ex)
-                    {
-                        log.Error($"GetHouseholdIDByKS: got ClientException for GetDomainByUser. userId = {ks.UserId} ex ={ex}");
-                        domain = null;
-                    }
+                    domain = ClientsManager.DomainsClient().GetDomainByUser(ks.GroupId, ks.UserId);
+                }
+                catch (ClientException ex)
+                {
+                    log.Error($"GetHouseholdIDByKS: got ClientException for GetDomainByUser. userId = {ks.UserId} ex ={ex}");
+                    domain = null;
                 }
             }
 
