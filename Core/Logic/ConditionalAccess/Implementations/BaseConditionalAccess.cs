@@ -16232,29 +16232,6 @@ namespace Core.ConditionalAccess
 
         public SeriesRecording RecordSeasonOrSeries(string userID, long epgID, RecordingType recordingType)
         {
-            List<EPGChannelProgrammeObject> epgs1 = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { 28779811 });
-            if (epgs1 == null || epgs1.Count != 1)
-            {
-                log.Error($"Failed Getting EPG from Catalog, groupId: {m_nGroupID}, EpgId: {28779811}");
-             
-            }
-
-            var epg = epgs1.FirstOrDefault();
-
-            
-
-            /* insert a new message for the next batch of 500 domainSeriesIds with distribution time = epgStartDate */
-            
-                RecordingsManager.EnqueueMessage(m_nGroupID, 28779811, 196843, DateTime.Now, DateTime.Now, eRecordingTask.DistributeRecording, 0);
-            
-
-
-
-            //DistributeRecordingForPrivateCopy(28779811, 196843, DateTime.UtcNow, new List<long>());
-
-
-
-
             SeriesRecording seriesRecording = new SeriesRecording() { EpgId = epgID };
             try
             {
