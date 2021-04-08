@@ -919,7 +919,6 @@ namespace WebAPI.Managers
             }
             catch (Exception ex)
             {
-                res = true;
                 log.Error(string.Format("GetKsValidationResultKey failed params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
