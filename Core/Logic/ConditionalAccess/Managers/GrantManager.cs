@@ -54,7 +54,7 @@ namespace Core.ConditionalAccess
             {
                 // validate user
                 ResponseStatus userValidStatus = ResponseStatus.OK;
-                userValidStatus = Utils.ValidateUser(groupId, userId, ref householdId);
+                userValidStatus = Utils.ValidateUser(groupId, userId, ref householdId, false, true);
 
                 if (userValidStatus != ResponseStatus.OK)
                 {
