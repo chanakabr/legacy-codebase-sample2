@@ -1377,6 +1377,8 @@ namespace Core.Recordings
 
         private static Status internalModifyRecording(int groupId, Recording recording, DateTime epgEndDate, bool sendModificationEvent, int taskId)
         {
+            log.Debug($"internalModifyRecording recording:{recording.Id}");
+            
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
             // Update all domains that have this recording

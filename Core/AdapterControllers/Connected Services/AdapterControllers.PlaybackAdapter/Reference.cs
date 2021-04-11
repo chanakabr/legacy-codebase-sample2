@@ -635,9 +635,24 @@ namespace AdapterControllers.PlaybackAdapter
     [System.Runtime.Serialization.KnownTypeAttribute(typeof(AdapterControllers.PlaybackAdapter.PlaybackSource))]
     public partial class AssetFile : object
     {
-        
+
+        private string AltUrlField;
+
         private string UrlField;
-        
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string AltUrl
+        {
+            get
+            {
+                return this.AltUrlField;
+            }
+            set
+            {
+                this.AltUrlField = value;
+            }
+        }
+
         [System.Runtime.Serialization.DataMemberAttribute()]
         public string Url
         {

@@ -18181,6 +18181,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("altStreamingCode", "\"altStreamingCode\": " + "\"" + EscapeJson(AltStreamingCode) + "\"");
             }
+            if(AltUrl != null && (retrievedProperties == null || retrievedProperties.Contains("altUrl")))
+            {
+                ret.Add("altUrl", "\"altUrl\": " + "\"" + EscapeJson(AltUrl) + "\"");
+            }
             if(AssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("assetId")))
             {
                 ret.Add("assetId", "\"assetId\": " + AssetId);
@@ -18332,6 +18336,10 @@ namespace WebAPI.Models.Catalog
             if(AltStreamingCode != null && (retrievedProperties == null || retrievedProperties.Contains("altStreamingCode")))
             {
                 ret.Add("altStreamingCode", "<altStreamingCode>" + EscapeXml(AltStreamingCode) + "</altStreamingCode>");
+            }
+            if(AltUrl != null && (retrievedProperties == null || retrievedProperties.Contains("altUrl")))
+            {
+                ret.Add("altUrl", "<altUrl>" + EscapeXml(AltUrl) + "</altUrl>");
             }
             if(AssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("assetId")))
             {
@@ -36918,6 +36926,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("secondaryLanguages", "\"secondaryLanguages\": " + "\"" + EscapeJson(SecondaryLanguages) + "\"");
             }
+            if(SuspensionProfileInheritanceType.HasValue && (retrievedProperties == null || retrievedProperties.Contains("suspensionProfileInheritanceType")))
+            {
+                ret.Add("suspensionProfileInheritanceType", "\"suspensionProfileInheritanceType\": " + "\"" + Enum.GetName(typeof(KalturaSuspensionProfileInheritanceType), SuspensionProfileInheritanceType) + "\"");
+            }
             return ret;
         }
         
@@ -36988,6 +37000,10 @@ namespace WebAPI.Models.Partner
             if(SecondaryLanguages != null && (retrievedProperties == null || retrievedProperties.Contains("secondaryLanguages")))
             {
                 ret.Add("secondaryLanguages", "<secondaryLanguages>" + EscapeXml(SecondaryLanguages) + "</secondaryLanguages>");
+            }
+            if(SuspensionProfileInheritanceType.HasValue && (retrievedProperties == null || retrievedProperties.Contains("suspensionProfileInheritanceType")))
+            {
+                ret.Add("suspensionProfileInheritanceType", "<suspensionProfileInheritanceType>" + "" + Enum.GetName(typeof(KalturaSuspensionProfileInheritanceType), SuspensionProfileInheritanceType) + "" + "</suspensionProfileInheritanceType>");
             }
             return ret;
         }

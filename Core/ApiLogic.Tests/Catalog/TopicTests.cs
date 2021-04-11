@@ -159,47 +159,47 @@ namespace ApiLogic.Tests.Catalog
             Assert.That(result.Code, Is.EqualTo((int)eResponseStatus.OK));
         }
 
-        [TestCaseSource(nameof(TestTopicAddErrorsTestCases))]
-        public void CheckTopicAddWithError(Topic topicToAdd, eResponseStatus expectedError,
-            bool doesGroupUsesTemplates, bool initCache, long? dbValueId, CatalogGroupCache catalogGroupCache)
-        {
-            var fixture = new Fixture();
+        //[TestCaseSource(nameof(TestTopicAddErrorsTestCases))]
+        //public void CheckTopicAddWithError(Topic topicToAdd, eResponseStatus expectedError,
+        //    bool doesGroupUsesTemplates, bool initCache, long? dbValueId, CatalogGroupCache catalogGroupCache)
+        //{
+        //    var fixture = new Fixture();
 
-            var catalogManager = new Mock<ICatalogManager>();
-            catalogManager.Setup(x => x.InvalidateCatalogGroupCache(It.IsAny<int>(), It.IsAny<Status>(), It.IsAny<bool>(), It.IsAny<object>()));
-            catalogManager.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>()))
-            .Returns(doesGroupUsesTemplates);
+        //    var catalogManager = new Mock<ICatalogManager>();
+        //    catalogManager.Setup(x => x.InvalidateCatalogGroupCache(It.IsAny<int>(), It.IsAny<Status>(), It.IsAny<bool>(), It.IsAny<object>()));
+        //    catalogManager.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>()))
+        //    .Returns(doesGroupUsesTemplates);
 
-            catalogManager.Setup(x => x.TryGetCatalogGroupCacheFromCache(It.IsAny<int>(), out catalogGroupCache))
-            .Returns(initCache);
+        //    catalogManager.Setup(x => x.TryGetCatalogGroupCacheFromCache(It.IsAny<int>(), out catalogGroupCache))
+        //    .Returns(initCache);
 
-            var dalMock = new Mock<ITopicRepository>();
-            dalMock.Setup(x => x.InsertTopic(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<List<KeyValuePair<string, string>>>(),
-                                             It.IsAny<string>(), It.IsAny<MetaType>(), It.IsAny<string>(),
-                                             It.IsAny<bool?>(), It.IsAny<long?>(), It.IsAny<string>(), It.IsAny<long>(),
-                                             It.IsAny<bool>(), It.IsAny<Dictionary<string, string>>(), out It.Ref<long>.IsAny))
-                           .Callback(new MockInsertTopic((int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages,
-                                                          string systemName, MetaType topicType, string commaSeparatedFeatures,
-                                                          bool? isPredefined, long? parent_topic_id, string helpText, long userId,
-                                                          bool shouldCheckRegularFlowValidations, Dictionary<string, string> dynamicData, out long id) =>
-                           {
-                               id = dbValueId ?? fixture.Create<long>();
-                           }))
-                          .Returns(fixture.Create<Topic>());
+        //    var dalMock = new Mock<ITopicRepository>();
+        //    dalMock.Setup(x => x.InsertTopic(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<List<KeyValuePair<string, string>>>(),
+        //                                     It.IsAny<string>(), It.IsAny<MetaType>(), It.IsAny<string>(),
+        //                                     It.IsAny<bool?>(), It.IsAny<long?>(), It.IsAny<string>(), It.IsAny<long>(),
+        //                                     It.IsAny<bool>(), It.IsAny<Dictionary<string, string>>(), out It.Ref<long>.IsAny))
+        //                   .Callback(new MockInsertTopic((int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages,
+        //                                                  string systemName, MetaType topicType, string commaSeparatedFeatures,
+        //                                                  bool? isPredefined, long? parent_topic_id, string helpText, long userId,
+        //                                                  bool shouldCheckRegularFlowValidations, Dictionary<string, string> dynamicData, out long id) =>
+        //                   {
+        //                       id = dbValueId ?? fixture.Create<long>();
+        //                   }))
+        //                  .Returns(fixture.Create<Topic>());
 
-            var virtualAssetPartnerConfigManagerMock = Mock.Of<Api.Managers.IVirtualAssetPartnerConfigManager>();
-            var elasticsearchWrapperMock = Mock.Of<Core.Catalog.IElasticsearchWrapper>();
-            var groupsCacheMock = Mock.Of<GroupsCacheManager.IGroupsCache>();
-            var conditionalAccessMock = Mock.Of<Core.ConditionalAccess.IConditionalAccessUtils>();
-            var notificationCacheMock = Mock.Of<Core.Notification.INotificationCache>();
+        //    var virtualAssetPartnerConfigManagerMock = Mock.Of<Api.Managers.IVirtualAssetPartnerConfigManager>();
+        //    var elasticsearchWrapperMock = Mock.Of<Core.Catalog.IElasticsearchWrapper>();
+        //    var groupsCacheMock = Mock.Of<GroupsCacheManager.IGroupsCache>();
+        //    var conditionalAccessMock = Mock.Of<Core.ConditionalAccess.IConditionalAccessUtils>();
+        //    var notificationCacheMock = Mock.Of<Core.Notification.INotificationCache>();
 
-            var manager = new TopicManager(catalogManager.Object, dalMock.Object, virtualAssetPartnerConfigManagerMock,
-                elasticsearchWrapperMock, groupsCacheMock, conditionalAccessMock, notificationCacheMock);
+        //    var manager = new TopicManager(catalogManager.Object, dalMock.Object, virtualAssetPartnerConfigManagerMock,
+        //        elasticsearchWrapperMock, groupsCacheMock, conditionalAccessMock, notificationCacheMock);
 
-            var testAddResult = manager.AddTopic(fixture.Create<int>(), topicToAdd, fixture.Create<long>(), fixture.Create<bool>());
+        //    var testAddResult = manager.AddTopic(fixture.Create<int>(), topicToAdd, fixture.Create<long>(), fixture.Create<bool>());
 
-            Assert.That(testAddResult.Status.Code, Is.EqualTo((int)expectedError));
-        }
+        //    Assert.That(testAddResult.Status.Code, Is.EqualTo((int)expectedError));
+        //}
 
         private static IEnumerable TestTopicAddErrorsTestCases()
         {

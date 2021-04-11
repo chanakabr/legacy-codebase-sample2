@@ -22,10 +22,10 @@ using System.Xml.Serialization;
 using ApiLogic.CanaryDeployment;
 using Tvinci.Core.DAL;
 using TVinciShared;
-using SessionManager;
-using ApiLogic.Users.Security;
 using ApiObjects.CanaryDeployment;
 using AuthenticationGrpcClientWrapper;
+using APILogic.Api.Managers;
+using ApiLogic.Users.Managers;
 
 namespace Core.Users
 {
@@ -37,6 +37,38 @@ namespace Core.Users
     public class Domain : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private readonly IDomainDal _repository;
+        private readonly IPartnerConfigurationManager _partnerConfigurationManager;
+        private readonly IRolesPermissionsManager _rolesPermissionsManager;
+
+        public Domain()
+        {
+            m_sName = string.Empty;
+            m_sDescription = string.Empty;
+            m_nGroupID = 0;
+            m_nDeviceLimit = m_nLimit = 0;
+            m_nUserLimit = 0;
+            m_nDomainID = 0;
+            m_nIsActive = 0;
+            m_nStatus = 0;
+            m_UsersIDs = new List<int>();
+            m_masterGUIDs = new List<int>();
+            m_DefaultUsersIDs = new List<int>();
+            m_DomainStatus = DomainStatus.UnKnown;
+            m_DomainRestriction = DomainRestriction.DeviceMasterRestricted;
+            m_homeNetworks = new List<HomeNetwork>();
+            m_oLimitationsManager = new LimitationsManager();
+            UdidToDeviceFamilyIdMapping = new Dictionary<string, int>();
+            _repository = DomainDal.Instance;
+            _partnerConfigurationManager = PartnerConfigurationManager.Instance;
+            _rolesPermissionsManager = RolesPermissionsManager.Instance;
+        }
+
+        public Domain(int nDomainID) : this()
+        {
+            m_nDomainID = nDomainID;
+        }
+
         private const string SCHEDULED_TASKS_ROUTING_KEY = "PROCESS_USER_TASK\\{0}";
 
         //Name of the Domain       
@@ -94,7 +126,7 @@ namespace Core.Users
 
         [XmlIgnore] protected Dictionary<string, int> UdidToDeviceFamilyIdMapping;
 
-        [XmlIgnore] [JsonProperty()] protected Dictionary<int, DeviceContainer> DeviceFamiliesMapping;
+        [XmlIgnore] [JsonProperty()] internal Dictionary<int, DeviceContainer> DeviceFamiliesMapping;
 
         [JsonProperty()] public DomainStatus m_DomainStatus;
 
@@ -108,7 +140,7 @@ namespace Core.Users
 
         [JsonProperty()] public DomainRestriction m_DomainRestriction;
 
-        [JsonProperty()] protected int m_totalNumOfDevices;
+        [JsonProperty()] internal int m_totalNumOfDevices;
 
         [JsonProperty()] protected int m_totalNumOfUsers;
 
@@ -137,34 +169,7 @@ namespace Core.Users
         [XmlIgnore] [JsonIgnore()] public bool shouldPurge;
 
         public DateTime CreateDate { get; set; }
-
         public DateTime UpdateDate { get; set; }
-
-        public Domain()
-        {
-            m_sName = string.Empty;
-            m_sDescription = string.Empty;
-            m_nGroupID = 0;
-            m_nDeviceLimit = m_nLimit = 0;
-            m_nUserLimit = 0;
-            m_nDomainID = 0;
-            m_nIsActive = 0;
-            m_nStatus = 0;
-            m_UsersIDs = new List<int>();
-            m_masterGUIDs = new List<int>();
-            m_DefaultUsersIDs = new List<int>();
-            m_DomainStatus = DomainStatus.UnKnown;
-            m_DomainRestriction = DomainRestriction.DeviceMasterRestricted;
-            m_homeNetworks = new List<HomeNetwork>();
-            m_oLimitationsManager = new LimitationsManager();
-            UdidToDeviceFamilyIdMapping = new Dictionary<string, int>();
-        }
-
-        public Domain(int nDomainID) : this()
-        {
-            m_nDomainID = nDomainID;
-        }
-
         #region Initialize
 
         /// <summary>
@@ -494,10 +499,10 @@ namespace Core.Users
             }
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            if (m_DomainStatus == DomainStatus.DomainSuspended && !PartnerConfigurationManager.Instance.AllowSuspendedAction(nGroupID))
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                                                          && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_DELETE.ToString())))
+                                                          && !RolesPermissionsManager.Instance.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_DELETE.ToString())))
                 {
                     eRetVal = DomainResponseStatus.DomainSuspended;
                     return eRetVal;
@@ -570,219 +575,6 @@ namespace Core.Users
             return eRetVal;
         }
 
-        public DomainResponseStatus AddDeviceToDomain(int groupId, int domainId, string udid, string deviceName, int brandId, ref Device device)
-        {
-            DomainResponseStatus responseStatus = DomainResponseStatus.UnKnown;
-            bool removeSuccess = false;
-            responseStatus = AddDeviceToDomain(groupId, domainId, udid, deviceName, brandId, ref device, out removeSuccess);
-
-            try
-            {
-                // changes made on the domain - remove it from Cache
-                if (removeSuccess)
-                {
-                    //Remove domain from cache
-                    DomainsCache domainCache = DomainsCache.Instance();
-                    domainCache.RemoveDomain(groupId, domainId);
-                    InvalidateDomain();
-
-                    var domainDevices = Api.api.Instance.GetDomainDevices(domainId, groupId);
-                    if (domainDevices != null && !domainDevices.ContainsKey(udid))
-                    {
-                        domainDevices.Add(udid, device.m_deviceFamilyID);
-                        CatalogDAL.SaveDomainDevices(domainDevices, domainId);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("AddDeviceToDomain - Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", domainId, udid, ex);
-            }
-
-            return responseStatus;
-        }
-
-        private DomainResponseStatus AddDeviceToDomain(int nGroupID, int nDomainID, string sUDID, string deviceName, int brandID, ref Device device, out bool bRemove)
-        {
-            DomainResponseStatus eRetVal = DomainResponseStatus.UnKnown;
-            bRemove = false;
-            int isDevActive = 0;
-            int status = 0;
-            long tempDeviceID = 0;
-            long nDbDomainDeviceID = 0;
-
-            //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
-            {
-                if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                                                          && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADD.ToString())))
-                {
-                    eRetVal = DomainResponseStatus.DomainSuspended;
-                    return eRetVal;
-                }
-            }
-
-            int domainID = DomainDal.GetDeviceDomainData(nGroupID, sUDID, ref tempDeviceID, ref isDevActive, ref status, ref nDbDomainDeviceID);
-
-            // If the device is already contained in any domain
-            if (domainID != 0)
-            {
-                // If the device is already contained in ANOTHER domain
-                if (domainID != nDomainID)
-                {
-                    eRetVal = DomainResponseStatus.DeviceExistsInOtherDomains;
-                    return eRetVal;
-                }
-                // If the device is already contained in THIS domain
-                else
-                {
-                    // Pending master approval
-                    if (status == 3 && isDevActive == 3)
-                    {
-                        DomainDevice domainDevice = new DomainDevice()
-                        {
-                            Id = nDbDomainDeviceID,
-                            ActivataionStatus = DeviceState.Activated,
-                            DeviceBrandId = brandID,
-                            DeviceId = tempDeviceID,
-                            DomainId = nDomainID,
-                            Name = deviceName,
-                            Udid = sUDID,
-                            ActivatedOn = DateTime.UtcNow,
-                            GroupId = m_nGroupID,
-                            DeviceFamilyId = device.m_deviceFamilyID,
-                            ExternalId = device.ExternalId,
-                            MacAddress = device.MacAddress,
-                            Model = device.Model,
-                            Manufacturer = device.Manufacturer,
-                            ManufacturerId = device.ManufacturerId,
-                            DynamicData = device.DynamicData
-                        };
-
-                        bool updated = domainDevice.Update();
-                        if (updated)
-                        {
-                            eRetVal = DomainResponseStatus.OK;
-                            bRemove = true;
-                            device.m_domainID = nDomainID;
-                            device.m_state = DeviceState.Activated;
-                            device.Save(1, 1, domainDevice);
-                            GetDeviceList();
-
-                            return eRetVal;
-                        }
-                    }
-
-                    eRetVal = DomainResponseStatus.DeviceAlreadyExists;
-                    return eRetVal;
-                }
-            }
-
-            DeviceContainer container = GetDeviceContainerByFamilyId(device.m_deviceFamilyID);
-
-            //Check if exceeded limit for the device type
-            DomainResponseStatus responseStatus = ValidateQuantity(sUDID, brandID, ref container, ref device);
-
-            if (responseStatus == DomainResponseStatus.ExceededLimit || responseStatus == DomainResponseStatus.DeviceTypeNotAllowed || responseStatus == DomainResponseStatus.DeviceAlreadyExists)
-            {
-                eRetVal = responseStatus;
-                return eRetVal;
-            }
-
-            int isActive = 0;
-            long nDeviceID = 0;
-            // Get row id from domains_devices
-            int nDomainsDevicesID = DomainDal.DoesDeviceExistInDomain(m_nDomainID, m_nGroupID, sUDID, ref isActive, ref nDeviceID);
-
-            //New Device Domain Connection
-            if (nDomainsDevicesID == 0)
-            {
-                // Get row id from devices table (not udid)
-                device.m_domainID = nDomainID;
-                var deviceID = device.Save(1, 1, null, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId, device.Manufacturer, device.DynamicData);
-                DomainDevice domainDevice = new DomainDevice()
-                {
-                    Id = nDbDomainDeviceID,
-                    ActivataionStatus = DeviceState.Activated,
-                    DeviceId = deviceID,
-                    DomainId = m_nDomainID,
-                    DeviceBrandId = brandID,
-                    ActivatedOn = DateTime.UtcNow,
-                    Udid = sUDID,
-                    GroupId = m_nGroupID,
-                    Name = deviceName,
-                    DeviceFamilyId = device.m_deviceFamilyID,
-                    ExternalId = device.ExternalId,
-                    MacAddress = device.MacAddress,
-                    Model = device.Model,
-                    Manufacturer = device.Manufacturer,
-                    ManufacturerId = device.ManufacturerId,
-                    DynamicData = device.DynamicData
-                };
-
-                bool domainDeviceInsertSuccess = domainDevice.Insert();
-
-                if (domainDeviceInsertSuccess && domainDevice.Id > 0)
-                {
-                    device.m_state = DeviceState.Activated;
-                    DeviceFamiliesMapping[device.m_deviceFamilyID].AddDeviceInstance(device);
-                    m_totalNumOfDevices++;
-
-                    bRemove = true;
-                    eRetVal = DomainResponseStatus.OK;
-                }
-                else
-                {
-                    eRetVal = DomainResponseStatus.Error;
-                }
-            }
-            else
-            {
-                //Update device status if exists
-                if (isActive != 1) // should be status != 1 ?
-                {
-                    DomainDevice domainDevice = new DomainDevice()
-                    {
-                        Id = nDomainsDevicesID,
-                        ActivataionStatus = DeviceState.Activated,
-                        DeviceId = nDeviceID,
-                        DomainId = m_nDomainID,
-                        DeviceBrandId = brandID,
-                        ActivatedOn = DateTime.UtcNow,
-                        Udid = sUDID,
-                        GroupId = m_nGroupID,
-                        DeviceFamilyId = device.m_deviceFamilyID,
-                        MacAddress = device.MacAddress,
-                        Model = device.Model,
-                        Manufacturer = device.Manufacturer,
-                        ManufacturerId = device.ManufacturerId,
-                        DynamicData = device.DynamicData
-                    };
-
-                    bool updated = domainDevice.Update();
-
-                    if (updated)
-                    {
-                        bRemove = true;
-                        eRetVal = DomainResponseStatus.OK;
-                        device.m_domainID = nDomainID;
-                        device.Save(1, 1, domainDevice);
-
-                        // change the device in the container                      
-                        DeviceFamiliesMapping[device.m_deviceFamilyID].ChangeDeviceInstanceState(device.m_deviceUDID, DeviceState.Activated);
-                    }
-                }
-                else
-                {
-                    eRetVal = DomainResponseStatus.DeviceAlreadyExists;
-                }
-            }
-
-            //GetDeviceList();
-
-            return eRetVal;
-        }
-
         public DomainResponseStatus RemoveDeviceFromDomain(string udid, bool forceRemove = false, long deviceId = 0)
         {
             DomainResponseStatus bRes = DomainResponseStatus.UnKnown;
@@ -800,7 +592,8 @@ namespace Core.Users
                 m_DomainStatus == DomainStatus.DomainSuspended &&
                 (roleId == 0 || (m_masterGUIDs != null &&
                                  m_masterGUIDs.Count > 0 &&
-                                 !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_DELETE.ToString()))))
+                                 !RolesPermissionsManager.Instance.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_DELETE.ToString()) &&
+                                 !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))))
             {
                 return DomainResponseStatus.DomainSuspended;
             }
@@ -1011,10 +804,10 @@ namespace Core.Users
             DomainResponseStatus domainResponseStatus = DomainResponseStatus.UnKnown;
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            if (m_DomainStatus == DomainStatus.DomainSuspended && !PartnerConfigurationManager.Instance.AllowSuspendedAction(nGroupID))
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                                                          && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_UPDATESTATUS.ToString())))
+                                                          && !RolesPermissionsManager.Instance.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_UPDATESTATUS.ToString())))
                 {
                     domainResponseStatus = DomainResponseStatus.DomainSuspended;
                     return domainResponseStatus;
@@ -1273,10 +1066,10 @@ namespace Core.Users
             Device device = null;
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            if (m_DomainStatus == DomainStatus.DomainSuspended && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                                                          && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADDBYPIN.ToString())))
+                                                          && !RolesPermissionsManager.Instance.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADDBYPIN.ToString())))
                 {
                     eRetVal = DeviceResponseStatus.Error;
                     device = new Device(m_nGroupID);
@@ -1328,6 +1121,39 @@ namespace Core.Users
             }
 
             return device;
+        }
+
+        public DomainResponseStatus AddDeviceToDomain(int groupId, int domainId, string udid, string deviceName, int brandId, ref Device device)
+        {
+            DomainResponseStatus responseStatus = DomainResponseStatus.UnKnown;
+            bool removeSuccess = false;
+            
+            responseStatus = DomainManager.Instance.AddDeviceToDomain(groupId, domainId, udid, deviceName, brandId, this, ref device, out removeSuccess);
+
+            try
+            {
+                // changes made on the domain - remove it from Cache
+                if (removeSuccess)
+                {
+                    //Remove domain from cache
+                    DomainsCache domainCache = DomainsCache.Instance();
+                    domainCache.RemoveDomain(groupId, domainId);
+                    InvalidateDomain();
+
+                    var domainDevices = Core.Api.api.Instance.GetDomainDevices(domainId, groupId);
+                    if (domainDevices != null && !domainDevices.ContainsKey(udid))
+                    {
+                        domainDevices.Add(udid, device.m_deviceFamilyID);
+                        CatalogDAL.SaveDomainDevices(domainDevices, domainId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("AddDeviceToDomain - Failed to remove domain from cache : m_nDomainID= {0}, UDID= {1}, ex= {2}", domainId, udid, ex);
+            }
+
+            return responseStatus;
         }
 
         private static void GetDeviceIdAndBrandByPin(int groupId, string pin, ref string udid, ref int brandId)
@@ -1648,7 +1474,7 @@ namespace Core.Users
             }
         }
 
-        protected int GetDeviceList()
+        public int GetDeviceList()
         {
             return GetDeviceList(true);
         }
@@ -1739,7 +1565,7 @@ namespace Core.Users
             return eRetVal;
         }
 
-        protected DeviceContainer GetDeviceContainerByFamilyId(int deviceFamilyId)
+        public DeviceContainer GetDeviceContainerByFamilyId(int deviceFamilyId)
         {
             InitDeviceFamilyMapping();
 
@@ -2208,7 +2034,7 @@ namespace Core.Users
             long nDeviceDomainRecordID = 0;
 
             // Now let's see which domain the device belongs to
-            int nDeviceDomainID = DomainDal.GetDeviceDomainData(nGroupID, sDeviceUdid, ref deviceID, ref isActive, ref status, ref nDeviceDomainRecordID);
+            int nDeviceDomainID = DomainDal.Instance.GetDeviceDomainData(nGroupID, sDeviceUdid, ref deviceID, ref isActive, ref status, ref nDeviceDomainRecordID);
 
             if (isActive == 1)
             {
@@ -2379,10 +2205,10 @@ namespace Core.Users
             Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            if (m_DomainStatus == DomainStatus.DomainSuspended && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
-                                                          && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_ADD.ToString())))
+                                                          && !RolesPermissionsManager.Instance.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_ADD.ToString())))
                 {
                     bRemove = false;
                     return DomainResponseStatus.DomainSuspended;

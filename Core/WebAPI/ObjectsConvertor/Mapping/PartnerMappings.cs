@@ -98,6 +98,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DefaultRegion, opt => opt.MapFrom(src => src.DefaultRegion))
                 .ForMember(dest => dest.RollingDeviceRemovalData, opt => opt.MapFrom(src => src.RollingDeviceRemovalData))
                 .ForMember(dest => dest.FinishedPercentThreshold, opt => opt.MapFrom(src => src.FinishedPercentThreshold))
+                .ForMember(dest => dest.SuspensionProfileInheritanceType, opt => opt.ResolveUsing(src => 
+                                    ConvertSuspensionProfileInheritanceType(src.SuspensionProfileInheritanceType)))
                 ;
 
             // map KalturaGeneralPartnerConfig to GeneralPartnerConfig
@@ -118,6 +120,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FinishedPercentThreshold, opt => opt.MapFrom(src => src.FinishedPercentThreshold))
                 .AfterMap((src, dest) => dest.SecondaryLanguages = src.SecondaryLanguages == null ? null : dest.SecondaryLanguages)
                 .AfterMap((src, dest) => dest.SecondaryCurrencies = src.SecondaryCurrencies == null ? null : dest.SecondaryCurrencies)
+                .ForMember(dest => dest.SuspensionProfileInheritanceType, opt => opt.ResolveUsing(src => 
+                                    ConvertSuspensionProfileInheritanceType(src.SuspensionProfileInheritanceType)))
                 ;
 
             #region KalturaObjectVirtualAssetPartnerConfig
@@ -447,6 +451,46 @@ namespace WebAPI.ObjectsConvertor.Mapping
                         break;
                     default:
                         throw new ClientException((int)StatusCode.Error, "Unknown DeleteMediaPolicy");
+                }
+            }
+
+            return result;
+        }
+
+        private static KalturaSuspensionProfileInheritanceType? ConvertSuspensionProfileInheritanceType(SuspensionProfileInheritanceType? type)
+        {
+            KalturaSuspensionProfileInheritanceType? result = null;
+
+            if (type.HasValue)
+            {
+                switch (type.Value)
+                {
+                    case SuspensionProfileInheritanceType.Always:
+                        return KalturaSuspensionProfileInheritanceType.ALWAYS;
+                    case SuspensionProfileInheritanceType.Never:
+                        return KalturaSuspensionProfileInheritanceType.NEVER;
+                    default:
+                        return KalturaSuspensionProfileInheritanceType.DEFAULT;
+                }
+            }
+
+            return result;
+        }
+
+        private static SuspensionProfileInheritanceType? ConvertSuspensionProfileInheritanceType(KalturaSuspensionProfileInheritanceType? type)
+        {
+            SuspensionProfileInheritanceType? result = null;
+
+            if (type.HasValue)
+            {
+                switch (type.Value)
+                {
+                    case KalturaSuspensionProfileInheritanceType.ALWAYS:
+                        return SuspensionProfileInheritanceType.Always;
+                    case KalturaSuspensionProfileInheritanceType.NEVER:
+                        return SuspensionProfileInheritanceType.Never;
+                    default:
+                        return SuspensionProfileInheritanceType.Default;
                 }
             }
 

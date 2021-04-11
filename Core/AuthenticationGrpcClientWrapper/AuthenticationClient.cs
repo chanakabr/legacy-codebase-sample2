@@ -260,9 +260,8 @@ namespace AuthenticationGrpcClientWrapper
             }
             catch (Exception e)
             {
-                _Logger.Error("Error while calling ValidateKS GRPC service", e);
-                //todo gil when migrate should change to false
-                return true;
+                _Logger.Error("Error while calling ValidateKS GRPC service", e);                
+                return false;
             }
         }
 

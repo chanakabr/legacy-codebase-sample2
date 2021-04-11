@@ -366,32 +366,22 @@ namespace Core.ConditionalAccess
                             {
                                 // get adapter
                                 bool isDefaultAdapter = false;
-                                PlayManifestResponse playManifestResponse = null;
+                                (PlayManifestResponse urlAdapterResponse, PlayManifestResponse altUrlAdapterResponse) urlAdapterResponse = (null, null);
                                 if (!isExternalRecordingIgnoreMode)
                                 {
-                                    CDNAdapterResponse adapterResponse = Utils.GetRelevantCDN(groupId, file.CdnId, assetType, ref isDefaultAdapter);
-                                    int assetIdInt = int.Parse(assetId);
-                                    switch (assetType)
-                                    {
-                                        case eAssetTypes.EPG:
-                                            playManifestResponse = GetEpgLicensedLink(cas, groupId, userId, program, file, udid, ip, adapterResponse, context);
-                                            break;
-                                        case eAssetTypes.NPVR:
-                                            playManifestResponse = GetRecordingLicensedLink(cas, groupId, userId, recording, file, udid, ip, adapterResponse);
-                                            break;
-                                        case eAssetTypes.MEDIA:
-                                            playManifestResponse = GetMediaLicensedLink(cas, groupId, userId, file, udid, ip, adapterResponse);
-                                            break;
-                                        default:
-                                            break;
-                                    }
+                                    urlAdapterResponse = RetrievePlayManifestAdapterResponses(cas, groupId, userId, assetId, assetType, context, ip, udid, file, isDefaultAdapter, program, recording);   
                                 }
 
                                 if (response.Status.Code == (int)eResponseStatus.OK)
                                 {
-                                    if (playManifestResponse != null)
+                                    if (urlAdapterResponse.urlAdapterResponse != null)
                                     {
-                                        file.DirectUrl = playManifestResponse.Url;
+                                        file.DirectUrl = urlAdapterResponse.urlAdapterResponse.Url;
+                                    }
+                                    
+                                    if (urlAdapterResponse.altUrlAdapterResponse != null)
+                                    {
+                                        file.AltDirectUrl = urlAdapterResponse.altUrlAdapterResponse.Url;
                                     }
 
                                     if (context != PlayContextType.Download)
@@ -405,7 +395,6 @@ namespace Core.ConditionalAccess
                                 }
                             }
                         }
-
                     }
                     else if (assetType == eAssetTypes.NPVR)
                     {
@@ -440,6 +429,60 @@ namespace Core.ConditionalAccess
                 response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             }
             return response;
+        }
+
+        private static (PlayManifestResponse urlAdapterResponse, PlayManifestResponse altUrlAdapterResponse) RetrievePlayManifestAdapterResponses(
+            BaseConditionalAccess cas,
+            int groupId,
+            string userId,
+            string assetId,
+            eAssetTypes assetType,
+            PlayContextType context,
+            string ip,
+            string udid,
+            MediaFile file,
+            bool isDefaultAdapter,
+            EPGChannelProgrammeObject program,
+            Recording recording)
+        {
+            return (urlAdapterResponse: RetrievePlayManifestAdapterResponse(cas, groupId, userId, assetId, assetType, context, ip, udid, file, isDefaultAdapter, program, recording), 
+                    altUrlAdapterResponse: RetrievePlayManifestAdapterResponse(cas, groupId, userId, assetId, assetType, context, ip, udid, file, isDefaultAdapter, program, recording, true));
+        }
+
+        private static PlayManifestResponse RetrievePlayManifestAdapterResponse(
+            BaseConditionalAccess cas,
+            int groupId,
+            string userId,
+            string assetId,
+            eAssetTypes assetType,
+            PlayContextType context,
+            string ip,
+            string udid,
+            MediaFile file,
+            bool isDefaultAdapter,
+            EPGChannelProgrammeObject program,
+            Recording recording,
+            bool isAltUrl = false)
+        {
+            var adapterResponse = Utils.GetRelevantCDN(groupId, !isAltUrl ? file.CdnId : file.AltCdnId, assetType, ref isDefaultAdapter);
+            PlayManifestResponse playManifestResponse;
+            switch (assetType)
+            {
+                case eAssetTypes.EPG:
+                    playManifestResponse = GetEpgLicensedLink(cas, groupId, userId, program, file, udid, ip, adapterResponse, context, isAltUrl);
+                    break;
+                case eAssetTypes.NPVR:
+                    playManifestResponse = GetRecordingLicensedLink(cas, groupId, userId, recording, file, udid, ip, adapterResponse);
+                    break;
+                case eAssetTypes.MEDIA:
+                    playManifestResponse = GetMediaLicensedLink(cas, groupId, userId, file, udid, ip, adapterResponse, isAltUrl);
+                    break;
+                default:
+                    playManifestResponse = null;
+                    break;
+            }
+
+            return playManifestResponse;
         }
 
         private static void HandlePlayUsesAndDevicePlayData(BaseConditionalAccess cas, string userId, long domainId, int fileId, string ip, string udid, 
@@ -516,7 +559,7 @@ namespace Core.ConditionalAccess
         }
 
         public static PlayManifestResponse GetPlayManifest(BaseConditionalAccess cas, int groupId, string userId, string assetId, eAssetTypes assetType,
-                                                           long fileId, string ip, string udid, PlayContextType playContextType, bool isTokenizedUrl = false)
+                                                           long fileId, string ip, string udid, PlayContextType playContextType, bool isTokenizedUrl = false, bool isAltUrl = false)
         {
             PlayManifestResponse response = new PlayManifestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
@@ -570,22 +613,17 @@ namespace Core.ConditionalAccess
                 {
                     // get adapter
                     bool isDefaultAdapter = false;
-                    CDNAdapterResponse adapterResponse = Utils.GetRelevantCDN(groupId, file.CdnId, assetType, ref isDefaultAdapter);
-
-                    int assetIdInt = int.Parse(assetId);
-
+                    CDNAdapterResponse adapterResponse = Utils.GetRelevantCDN(groupId, file.GetCdnId(isAltUrl), assetType, ref isDefaultAdapter);
                     switch (assetType)
                     {
                         case eAssetTypes.EPG:
-                            response = GetEpgLicensedLink(cas, groupId, userId, program, file, udid, ip, adapterResponse, playContextType);
+                            response = GetEpgLicensedLink(cas, groupId, userId, program, file, udid, ip, adapterResponse, playContextType, isAltUrl);
                             break;
                         case eAssetTypes.NPVR:
                             response = GetRecordingLicensedLink(cas, groupId, userId, recording, file, udid, ip, adapterResponse);
                             break;
                         case eAssetTypes.MEDIA:
-                            response = GetMediaLicensedLink(cas, groupId, userId, file, udid, ip, adapterResponse);
-                            break;
-                        default:
+                            response = GetMediaLicensedLink(cas, groupId, userId, file, udid, ip, adapterResponse, isAltUrl);
                             break;
                     }
                 }
@@ -605,21 +643,23 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private static PlayManifestResponse GetMediaLicensedLink(BaseConditionalAccess cas, int groupId, string userId, MediaFile file, string udid, string ip, CDNAdapterResponse adapterResponse)
+        private static PlayManifestResponse GetMediaLicensedLink(BaseConditionalAccess cas, int groupId, string userId, MediaFile file, string udid, string ip, CDNAdapterResponse adapterResponse, bool isAltUrl = false)
         {
             PlayManifestResponse response = new PlayManifestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
+            var cdnId = file.GetCdnId(isAltUrl);
+            var url = file.GetUrl(isAltUrl);
             try
             {
                 if (adapterResponse.Adapter != null && !string.IsNullOrEmpty(adapterResponse.Adapter.AdapterUrl))
                 {
-                    var link = CDNAdapterController.GetInstance().GetVodLink(groupId, adapterResponse.Adapter.ID, userId, file.Url, file.Type, (int)file.MediaId, (int)file.Id, ip);
+                    var link = CDNAdapterController.GetInstance().GetVodLink(groupId, adapterResponse.Adapter.ID, userId, url, file.Type, (int)file.MediaId, (int)file.Id, ip);
                     response.Url = link != null ? link.Url : string.Empty;
                 }
                 else
                 {
-                    Dictionary<string, string> licensedLinkParams = Utils.GetLicensedLinkParamsDict(userId, file.Id.ToString(), file.Url, ip, string.Empty, string.Empty, udid, string.Empty);
-                    response.Url = cas.GetLicensedLink(file.CdnId, licensedLinkParams);
+                    Dictionary<string, string> licensedLinkParams = Utils.GetLicensedLinkParamsDict(userId, file.Id.ToString(), url, ip, string.Empty, string.Empty, udid, string.Empty);
+                    response.Url = cas.GetLicensedLink(cdnId, licensedLinkParams);
                 }
 
                 if (!string.IsNullOrEmpty(response.Url))
@@ -698,10 +738,12 @@ namespace Core.ConditionalAccess
         }
 
         private static PlayManifestResponse GetEpgLicensedLink(BaseConditionalAccess cas, int groupId, string userId, EPGChannelProgrammeObject program, MediaFile file,
-                                                               string udid, string ip, CDNAdapterResponse adapterResponse, PlayContextType context)
+                                                               string udid, string ip, CDNAdapterResponse adapterResponse, PlayContextType context, bool isAltUrl = false)
         {
             PlayManifestResponse response = new PlayManifestResponse() { Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()) };
 
+            var cdnId = file.GetCdnId(isAltUrl);
+            var url = file.GetUrl(isAltUrl);
             try
             {
                 DateTime programEndTime = DateTime.ParseExact(program.END_DATE, "dd/MM/yyyy HH:mm:ss", null);
@@ -715,7 +757,7 @@ namespace Core.ConditionalAccess
                     int actionType = Utils.MapActionTypeForAdapter(formatType);
 
                     // main url
-                    var link = CDNAdapterController.GetInstance().GetEpgLink(groupId, adapterResponse.Adapter.ID, userId, file.Url, file.Type, (int)program.EPG_ID,
+                    var link = CDNAdapterController.GetInstance().GetEpgLink(groupId, adapterResponse.Adapter.ID, userId, url, file.Type, (int)program.EPG_ID,
                                                                             (int)file.MediaId, (int)file.Id, programStartTime.ToUtcUnixTimestampSeconds(), actionType, ip);
                     response.Url = link != null ? link.Url : null;
                 }
@@ -729,9 +771,9 @@ namespace Core.ConditionalAccess
                         dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.PROGRAM_START, programStartTime);
                     }
                     string CdnStrID = string.Empty;
-                    bool bIsDynamic = Utils.GetStreamingUrlType(file.CdnId, ref CdnStrID);
+                    bool bIsDynamic = Utils.GetStreamingUrlType(cdnId, ref CdnStrID);
                     dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.IS_DYNAMIC, bIsDynamic);
-                    dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.BASIC_LINK, file.Url);
+                    dURLParams.Add(ApiObjects.Epg.EpgLinkConstants.BASIC_LINK, url);
 
                     StreamingProvider.ILSProvider provider = StreamingProvider.LSProviderFactory.GetLSProvidernstance(CdnStrID);
                     if (provider != null)

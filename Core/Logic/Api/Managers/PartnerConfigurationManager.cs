@@ -1,7 +1,5 @@
 ﻿using ApiLogic.Users.Security;
 using ApiObjects;
-using ApiObjects.Base;
-using ApiObjects.Catalog;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Api;
@@ -11,7 +9,6 @@ using Core.Pricing;
 using CouchbaseManager;
 using DAL;
 using KLogMonitor;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -22,15 +19,42 @@ using TVinciShared;
 
 namespace ApiLogic.Api.Managers
 {
-    public class PartnerConfigurationManager
+    public interface IPartnerConfigurationManager
+    {
+        bool AllowSuspendedAction(int groupId, bool isDefault = false);
+        GeneralPartnerConfig GetGeneralPartnerConfig(int groupId);
+    }
+
+    public class PartnerConfigurationManager: IPartnerConfigurationManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly Lazy<PartnerConfigurationManager> lazy = new Lazy<PartnerConfigurationManager>(() =>
+        new PartnerConfigurationManager(LayeredCache.Instance,
+                            ApiDAL.Instance,
+                            RequestContextUtils.Instance),
+        LazyThreadSafetyMode.PublicationOnly);
+
+        private readonly ILayeredCache _layeredCache;
+        private readonly IRequestContextUtils _requestContextUtils;
+        private readonly IVirtualAssetPartnerConfigRepository _repository;
+
+        public static PartnerConfigurationManager Instance { get { return lazy.Value; } }
+
+        public PartnerConfigurationManager(
+                               ILayeredCache layeredCache,
+                               IVirtualAssetPartnerConfigRepository repository,
+                               IRequestContextUtils requestContextUtils)
+        {
+            _layeredCache = layeredCache;
+            _repository = repository;
+            _requestContextUtils = requestContextUtils;
+        }
 
         #region internal methods 
         internal static GenericListResponse<OpcPartnerConfig> GetOpcPartnerConfiguration(int groupId)
         {
             var response = new GenericListResponse<OpcPartnerConfig>();
-            var opcPartnerConfig = GetOpcPartnerConfig(groupId);
+            var opcPartnerConfig = Instance.GetOpcPartnerConfig(groupId);
             if (opcPartnerConfig != null)
             {
                 response.Objects.Add(opcPartnerConfig);
@@ -43,7 +67,7 @@ namespace ApiLogic.Api.Managers
         internal static GenericListResponse<GeneralPartnerConfig> GetGeneralPartnerConfiguration(int groupId)
         {
             GenericListResponse<GeneralPartnerConfig> response = new GenericListResponse<GeneralPartnerConfig>();
-            var generalPartnerConfig = GetGeneralPartnerConfig(groupId);
+            var generalPartnerConfig = Instance.GetGeneralPartnerConfig(groupId);
             if (generalPartnerConfig != null)
             {
                 response.Objects.Add(generalPartnerConfig);
@@ -53,7 +77,7 @@ namespace ApiLogic.Api.Managers
             return response;
         }
 
-        internal static Status UpdateOpcPartnerConfig(int groupId, OpcPartnerConfig partnerConfigToUpdate)
+        internal Status UpdateOpcPartnerConfig(int groupId, OpcPartnerConfig partnerConfigToUpdate)
         {
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
@@ -65,7 +89,7 @@ namespace ApiLogic.Api.Managers
                 }
 
                 var invalidationKey = LayeredCacheKeys.GetOpcPartnerConfigInvalidationKey(groupId);
-                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                if (!_layeredCache.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed to set invalidation key for opcPartnerConfig with invalidationKey: {0}", invalidationKey);
                 }
@@ -191,7 +215,7 @@ namespace ApiLogic.Api.Managers
                     }
                 }
 
-                var generalPartnerConfig = GetGeneralPartnerConfig(groupId);
+                var generalPartnerConfig = Instance.GetGeneralPartnerConfig(groupId);
                 if (generalPartnerConfig != null)
                 {
                     partnerConfigToUpdate.SetUnchangedProperties(generalPartnerConfig);
@@ -667,7 +691,7 @@ namespace ApiLogic.Api.Managers
 
         #region private methods
 
-        internal static GeneralPartnerConfig GetGeneralPartnerConfig(int groupId)
+        public GeneralPartnerConfig GetGeneralPartnerConfig(int groupId)
         {
             GeneralPartnerConfig generalPartnerConfig = null;
 
@@ -675,7 +699,7 @@ namespace ApiLogic.Api.Managers
             {
                 string key = LayeredCacheKeys.GetGeneralPartnerConfig(groupId);
                 List<string> configInvalidationKey = new List<string>() { LayeredCacheKeys.GetGeneralPartnerConfigInvalidationKey(groupId) };
-                if (!LayeredCache.Instance.Get<GeneralPartnerConfig>(key,
+                if (!_layeredCache.Get<GeneralPartnerConfig>(key,
                                                           ref generalPartnerConfig,
                                                           GetGeneralPartnerConfigDB,
                                                           new Dictionary<string, object>() { { "groupId", groupId } },
@@ -694,7 +718,7 @@ namespace ApiLogic.Api.Managers
             return generalPartnerConfig;
         }
 
-        internal static OpcPartnerConfig GetOpcPartnerConfig(int groupId)
+        internal OpcPartnerConfig GetOpcPartnerConfig(int groupId)
         {
             OpcPartnerConfig opcPartnerConfig = null;
 
@@ -741,7 +765,7 @@ namespace ApiLogic.Api.Managers
             return new Tuple<OpcPartnerConfig, bool>(generalPartnerConfig, generalPartnerConfig != null);
         }
 
-        private static Tuple<GeneralPartnerConfig, bool> GetGeneralPartnerConfigDB(Dictionary<string, object> funcParams)
+        private Tuple<GeneralPartnerConfig, bool> GetGeneralPartnerConfigDB(Dictionary<string, object> funcParams)
         {
             GeneralPartnerConfig generalPartnerConfig = null;
 
@@ -750,7 +774,7 @@ namespace ApiLogic.Api.Managers
                 int? groupId = funcParams["groupId"] as int?;
                 if (groupId.HasValue)
                 {
-                    DataSet ds = ApiDAL.GetGeneralPartnerConfig(groupId.Value);
+                    DataSet ds = _repository.GetGeneralPartnerConfig(groupId.Value);
                     if (ds != null && ds.Tables != null && ds.Tables.Count == 3)
                     {
                         DataTable dt = ds.Tables[0];
@@ -777,6 +801,7 @@ namespace ApiLogic.Api.Managers
                             int? downgradePolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DOWNGRADE_POLICY");
                             int? defaultRegion = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DEFAULT_REGION");
                             int? enableRegionFiltering = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "IS_REGIONALIZATION_ENABLED");
+                            int? suspensionProfileInheritanceType = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "SUSPENSION_PROFILE_INHERITANCE_TYPE");
 
                             if (deleteMediaPolicy.HasValue)
                             {
@@ -796,6 +821,15 @@ namespace ApiLogic.Api.Managers
                             if (defaultRegion.HasValue && defaultRegion.Value > 0)
                             {
                                 generalPartnerConfig.DefaultRegion = defaultRegion.Value;
+                            }
+
+                            if (suspensionProfileInheritanceType.HasValue)
+                            {
+                                generalPartnerConfig.SuspensionProfileInheritanceType = (SuspensionProfileInheritanceType)suspensionProfileInheritanceType;
+                            }
+                            else
+                            {
+                                generalPartnerConfig.SuspensionProfileInheritanceType = SuspensionProfileInheritanceType.Default;
                             }
                         }
 
@@ -1060,6 +1094,20 @@ namespace ApiLogic.Api.Managers
             }
 
             return new Status(eResponseStatus.OK);
+        }
+
+        public bool AllowSuspendedAction(int groupId, bool isDefault = false)
+        {
+            if (!_requestContextUtils.IsPartnerRequest())
+                return false;
+
+            var inheritanceType = GetGeneralPartnerConfig(groupId)?.SuspensionProfileInheritanceType;
+
+            if (inheritanceType == SuspensionProfileInheritanceType.Default && isDefault)
+                return true;
+
+            //If default or 'always' set as false
+            return inheritanceType == SuspensionProfileInheritanceType.Never;
         }
 
         private static Tuple<PaymentPartnerConfig, bool> GetPaymentPartnerConfigDB(Dictionary<string, object> funcParams)

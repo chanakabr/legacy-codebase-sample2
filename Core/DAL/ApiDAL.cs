@@ -23,6 +23,7 @@ namespace DAL
     {
         ObjectVirtualAssetPartnerConfig GetObjectVirtualAssetPartnerConfiguration(int groupId, out eResultStatus resultStatus);
         bool UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate);
+        DataSet GetGeneralPartnerConfig(int groupId);
     }
 
     public interface ICatalogPartnerRepository
@@ -4249,6 +4250,8 @@ namespace DAL
                         IsTrailer = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_TRAILER") == 1 ? true : false,
                         CdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
                         Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
+                        AltCdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ALT_STREAMING_SUPLIER_ID"),
+                        AltUrl = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_STREAMING_CODE"),
                         DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
                         MediaId = mediaId,
                         Opl = ODBCWrapper.Utils.GetSafeStr(dr, "OPL"),
@@ -5657,10 +5660,15 @@ namespace DAL
                 sp.AddParameter("@finishedPercentThreshold", partnerConfig.FinishedPercentThreshold.Value);
             }
 
+            if (partnerConfig.SuspensionProfileInheritanceType.HasValue)
+            {
+                sp.AddParameter("@suspensionProfileInheritanceType", partnerConfig.SuspensionProfileInheritanceType.Value);
+            }
+
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public static DataSet GetGeneralPartnerConfig(int groupId)
+        public DataSet GetGeneralPartnerConfig(int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_GroupsById");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");

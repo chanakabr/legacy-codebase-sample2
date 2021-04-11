@@ -9,12 +9,22 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
+using System.Threading;
 using Tvinci.Core.DAL;
 
 namespace DAL
 {
-    public class DomainDal : BaseDal
+    public interface IDomainDal
     {
+        int GetDeviceDomainData(int nGroupID, string sDeviceUdid, ref long nDeviceID, ref int nIsActive, ref int nStatus, ref long nDbDomainDeviceID);
+    }
+
+    public class DomainDal : BaseDal, IDomainDal
+    {
+        private static readonly Lazy<DomainDal> lazy = new Lazy<DomainDal>(() => new DomainDal(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static DomainDal Instance { get { return lazy.Value; } }
+
         #region Private Constants
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
@@ -207,7 +217,7 @@ namespace DAL
             return sp.ExecuteReturnValue<bool>();
         }
 
-        public static int GetDeviceDomainData(int nGroupID, string sDeviceUdid, ref long nDeviceID, ref int nIsActive, ref int nStatus, ref long nDbDomainDeviceID)
+        public int GetDeviceDomainData(int nGroupID, string sDeviceUdid, ref long nDeviceID, ref int nIsActive, ref int nStatus, ref long nDbDomainDeviceID)
         {
             int nDomainID = 0;
 

@@ -15927,6 +15927,10 @@ namespace WebAPI.Models.Catalog
                 {
                     Url = (String) Convert.ChangeType(parameters["url"], typeof(String));
                 }
+                if (parameters.ContainsKey("altUrl") && parameters["altUrl"] != null)
+                {
+                    AltUrl = (String) Convert.ChangeType(parameters["altUrl"], typeof(String));
+                }
                 if (parameters.ContainsKey("duration") && parameters["duration"] != null)
                 {
                     Duration = (Int64) Convert.ChangeType(parameters["duration"], typeof(Int64));
@@ -29862,6 +29866,20 @@ namespace WebAPI.Models.Partner
                         FinishedPercentThresholdSchemaProperty.Validate("finishedPercentThreshold", parameters["finishedPercentThreshold"]);
                     }
                     FinishedPercentThreshold = (Int32) Convert.ChangeType(parameters["finishedPercentThreshold"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("suspensionProfileInheritanceType") && parameters["suspensionProfileInheritanceType"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["suspensionProfileInheritanceType"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "suspensionProfileInheritanceType");
+                    }
+
+                    SuspensionProfileInheritanceType = (KalturaSuspensionProfileInheritanceType) Enum.Parse(typeof(KalturaSuspensionProfileInheritanceType), parameters["suspensionProfileInheritanceType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSuspensionProfileInheritanceType), SuspensionProfileInheritanceType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", SuspensionProfileInheritanceType, typeof(KalturaSuspensionProfileInheritanceType)));
+                    }
                 }
             }
         }

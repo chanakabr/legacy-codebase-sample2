@@ -41,8 +41,8 @@ namespace CachingProvider.LayeredCache
         public const string IS_READ_ACTION = "IsReadAction";
         public const string CURRENT_REQUEST_LAYERED_CACHE = "CurrentRequestLayeredCache";
         public const string DATABASE_ERROR_DURING_SESSION = "DATABASE_ERROR_DURING_SESSION";
-        public const string REQUEST_TAGS = "request_tags";
-        public const string REQUEST_TAGS_PARTNER_ROLE = "partner_role";
+        private const string REQUEST_TAGS = "request_tags";
+        private const string REQUEST_TAGS_PARTNER_ROLE = "partner_role";
 
         public static readonly HashSet<string> readActions = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
         {
@@ -1333,7 +1333,7 @@ namespace CachingProvider.LayeredCache
         }
 
         // TODO duplicate with RequestContextUtils.IsPartnerRequest
-        private bool isPartnerRequest()
+        public bool isPartnerRequest()
         {
             bool isPartner = false;
 

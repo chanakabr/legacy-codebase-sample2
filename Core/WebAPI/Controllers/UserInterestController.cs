@@ -1,6 +1,10 @@
-﻿using ApiObjects.Response;
+﻿using APILogic.Notification;
+using ApiObjects;
+using ApiObjects.Response;
+using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
@@ -43,8 +47,9 @@ namespace WebAPI.Controllers
 
             try
             {
-                // call client
-                response = ClientsManager.UsersClient().InsertUserInterest(groupId, user, userInterest);
+                Func<UserInterest, GenericResponse<UserInterest>> insertPriceDetailsFunc = (UserInterest userInterestToInsert) =>
+                                TopicInterestManager.Instance.AddUserInterest(groupId, int.Parse(user), userInterestToInsert);
+                response = ClientUtils.GetResponseFromWS<KalturaUserInterest, UserInterest>(userInterest, insertPriceDetailsFunc);
             }
             catch (ClientException ex)
             {
@@ -74,7 +79,8 @@ namespace WebAPI.Controllers
             try
             {
                 // call client
-                response = ClientsManager.UsersClient().DeleteUserInterest(groupId, user, id);
+                Func<Status> delete = () => TopicInterestManager.Instance.DeleteUserInterest(groupId, int.Parse(user), id);
+                return ClientUtils.GetResponseStatusFromWS(delete);
             }
             catch (ClientException ex)
             {
@@ -83,7 +89,7 @@ namespace WebAPI.Controllers
 
             return response;
         }
-        
+
         /// <summary>
         /// Returns all Engagement for partner
         /// </summary>
@@ -135,7 +141,9 @@ namespace WebAPI.Controllers
             {
                 int userId = ClientsManager.NotificationClient().GetUserIdByToken(partnerId, token);
 
-                ClientsManager.UsersClient().DeleteUserInterest(partnerId, userId.ToString(), id);
+                // call client
+                Func<Status> delete = () => TopicInterestManager.Instance.DeleteUserInterest(partnerId, userId, id);
+                ClientUtils.GetResponseStatusFromWS(delete);
             }
             catch (ClientException ex)
             {

@@ -268,7 +268,7 @@ namespace Core.Users
         private bool IsAddUserFavoriteParamValid(int nGroupID, string sUserGUID, string sItemType, string sItemCode, out ApiObjects.Response.Status status)
         {
             /*read from FAVORITES_SERVICE*/
-            var canManageFavoritesWhileSuspended = RolesPermissionsManager.IsPermittedPermissionItem(nGroupID, sUserGUID, "Favorite_Add");
+            var canManageFavoritesWhileSuspended = RolesPermissionsManager.Instance.IsPermittedPermissionItem(nGroupID, sUserGUID, "Favorite_Add");
             //check if userID exist
             if (!IsUserValid(nGroupID, sUserGUID, out status, canManageFavoritesWhileSuspended))
             {
@@ -295,7 +295,7 @@ namespace Core.Users
         private bool IsARemoveUserFavoriteParamValid(int nGroupID, string sUserGUID, long[] mediaIDs, out ApiObjects.Response.Status status)
         {
             /*read from FAVORITES_SERVICE*/
-            var canManageFavoritesWhileSuspended = RolesPermissionsManager.IsPermittedPermissionItem(nGroupID, sUserGUID, "Favorite_Delete");
+            var canManageFavoritesWhileSuspended = RolesPermissionsManager.Instance.IsPermittedPermissionItem(nGroupID, sUserGUID, "Favorite_Delete");
             //check if userID exist
             if (!IsUserValid(nGroupID, sUserGUID, out status, canManageFavoritesWhileSuspended))
             {
@@ -394,7 +394,7 @@ namespace Core.Users
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
 
             /*read from FAVORITES_SERVICE*/
-            var canManageFavoritesWhileSuspended = RolesPermissionsManager.IsPermittedPermissionItem(nGroupID, sSiteGUID, "Favorite_List");
+            var canManageFavoritesWhileSuspended = RolesPermissionsManager.Instance.IsPermittedPermissionItem(nGroupID, sSiteGUID, "Favorite_List");
 
             //check if userID exist
             if (IsUserValid(nGroupID, sSiteGUID, out status, canManageFavoritesWhileSuspended))
@@ -1209,7 +1209,8 @@ namespace Core.Users
                         response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "User not valid");
                         break;
                     case UserActivationState.UserSuspended:
-                        if (canManageFavoritesWhileSuspended)
+                        if (canManageFavoritesWhileSuspended || 
+                            ApiLogic.Api.Managers.PartnerConfigurationManager.Instance.AllowSuspendedAction(groupID, true))
                         {
                             response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "User valid");
                             isUserValid = true;
@@ -1453,7 +1454,7 @@ namespace Core.Users
             try
             {
                 /*read from FAVORITES_SERVICE*/
-                var canManageFavoritesWhileSuspended = RolesPermissionsManager.IsPermittedPermissionItem(groupId, userId, "Favorite_List");
+                var canManageFavoritesWhileSuspended = RolesPermissionsManager.Instance.IsPermittedPermissionItem(groupId, userId, "Favorite_List");
 
                 // check if user is valid 
                 ApiObjects.Response.Status status = null;

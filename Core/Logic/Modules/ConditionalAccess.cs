@@ -2651,10 +2651,10 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static bool CleanupRecordings()
+        public static bool CleanupRecordings(bool isTest = false)
         {
             BaseConditionalAccess t = new TvinciConditionalAccess(0);
-            return t.CleanupRecordings();
+            return t.CleanupRecordings(isTest);
         }
 
 
@@ -2929,14 +2929,14 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public static PlayManifestResponse GetPlayManifest(int groupID, string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType, bool isTokenizedUrl)
+        public static PlayManifestResponse GetPlayManifest(int groupID, string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType, bool isTokenizedUrl, bool isAltUrl = false)
         {
             PlayManifestResponse response = new PlayManifestResponse();
             ConditionalAccess.BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                response = t.GetPlayManifest(userId, assetId, assetType, fileId, ip, udid, playContextType, isTokenizedUrl);
+                response = t.GetPlayManifest(userId, assetId, assetType, fileId, ip, udid, playContextType, isTokenizedUrl, isAltUrl);
             }
             else
             {

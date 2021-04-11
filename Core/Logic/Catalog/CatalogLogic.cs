@@ -17,6 +17,7 @@ using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using Core.GroupManagers;
 using Core.Notification;
 using Core.Users;
 using DAL;
@@ -5533,7 +5534,7 @@ namespace Core.Catalog
             if (domainMediaMark.devices != null)
             {
                 int finishedPercentThreshold = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
-                var generalPartnerConfig = PartnerConfigurationManager.GetGeneralPartnerConfig(groupID);
+                var generalPartnerConfig = PartnerConfigurationManager.Instance.GetGeneralPartnerConfig(groupID);
                 if (generalPartnerConfig != null && generalPartnerConfig.FinishedPercentThreshold.HasValue)
                 {
                     finishedPercentThreshold = generalPartnerConfig.FinishedPercentThreshold.Value;
@@ -9386,7 +9387,7 @@ namespace Core.Catalog
                 var mediaMarkLogs = mediaMarkLogsDictionary.Values;
 
                 int finishedPercent = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
-                var generalPartnerConfig = PartnerConfigurationManager.GetGeneralPartnerConfig(groupId);
+                var generalPartnerConfig = PartnerConfigurationManager.Instance.GetGeneralPartnerConfig(groupId);
                 if (generalPartnerConfig != null && generalPartnerConfig.FinishedPercentThreshold.HasValue)
                 {
                     finishedPercent = generalPartnerConfig.FinishedPercentThreshold.Value;
@@ -9642,8 +9643,6 @@ namespace Core.Catalog
 
         public static UserInterestsMetasAndTags GetUserPreferences(int partnerId, int userId)
         {
-            UserInterestsMetasAndTags result = new UserInterestsMetasAndTags();
-
             // get user interests
             UserInterests userInterests = InterestDal.GetUserInterest(partnerId, userId);
             if (userInterests == null || userInterests.UserInterestList == null || userInterests.UserInterestList.Count == 0)
@@ -9651,6 +9650,13 @@ namespace Core.Catalog
                 log.DebugFormat("User interests were not found. Partner ID: {0}, User ID: {1}", partnerId, userId);
                 return null;
             }
+
+            if (GroupSettingsManager.IsOpc(partnerId))
+            {
+                return GetUserPreferencesForOpcAccount(partnerId, userId, userInterests);
+            }
+
+            UserInterestsMetasAndTags result = new UserInterestsMetasAndTags();
 
             // get partner interests configuration
             List<ApiObjects.Meta> availableTopics = NotificationCache.Instance().GetPartnerTopicInterests(partnerId);
@@ -9686,6 +9692,61 @@ namespace Core.Catalog
                                 valueList.Add(node.Value);
                             else
                                 result.Metas.Add(topic.Name, new List<string> { node.Value });
+                        }
+                    }
+
+                    // go to parent node
+                    node = node.ParentTopic;
+                }
+            }
+
+            return result;
+        }
+
+        private static UserInterestsMetasAndTags GetUserPreferencesForOpcAccount(int partnerId, int userId, UserInterests userInterests)
+        {
+            UserInterestsMetasAndTags result = new UserInterestsMetasAndTags();
+
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(partnerId, out CatalogGroupCache catalogGroupCache))
+            {
+                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling AddUserInterest", partnerId);
+                return null;
+            }
+
+            // get partner interests configuration
+            var availableTopics = catalogGroupCache.TopicsMapById.Values.Where(x => x.IsInterest).ToList();
+            if (availableTopics == null || availableTopics.Count == 0)
+            {
+                log.DebugFormat("Partner interest configuration was not found. Partner ID: {0}, User ID: {1}", partnerId, userId);
+                return null;
+            }
+
+            // iterate through all tree
+            foreach (var interestLeaf in userInterests.UserInterestList)
+            {
+                // iterate through branch
+                UserInterestTopic node = interestLeaf.Topic;
+                while (node != null)
+                {
+                    // process node 
+                    var topic = availableTopics.FirstOrDefault(x => x.Id.ToString() == node.MetaId);
+                    if (topic != null)
+                    {
+                        List<string> valueList = new List<string>();
+
+                        if (topic.Type == ApiObjects.MetaType.Tag)
+                        {
+                            if (result.Tags.TryGetValue(topic.SystemName, out valueList))
+                                valueList.Add(node.Value);
+                            else
+                                result.Tags.Add(topic.SystemName, new List<string> { node.Value });
+                        }
+                        else
+                        {
+                            if (result.Metas.TryGetValue(topic.SystemName, out valueList))
+                                valueList.Add(node.Value);
+                            else
+                                result.Metas.Add(topic.SystemName, new List<string> { node.Value });
                         }
                     }
 

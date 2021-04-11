@@ -67,7 +67,7 @@ namespace WebAPI.WebServices
         [OperationContract]
         bool CheckRecordingDuplicateCrids(string sWSUserName, string sWSPassword, long recordingId);
         [OperationContract]
-        bool CleanupRecordings();
+        bool CleanupRecordings(bool isTest);
         [OperationContract]
         bool CompleteDomainSeriesRecordings(string sWSUserName, string sWSPassword, long domainId);
         [OperationContract]

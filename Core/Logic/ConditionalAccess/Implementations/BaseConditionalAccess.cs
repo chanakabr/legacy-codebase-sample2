@@ -503,7 +503,8 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        if (uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+                        if (uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended 
+                            && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                         {
                             ret.m_oStatus = BillingResponseStatus.UserSuspended;
                             ret.m_sRecieptCode = string.Empty;
@@ -820,7 +821,8 @@ namespace Core.ConditionalAccess
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cant charge an unknown user";
                         return InAppRes.m_oBillingResponse;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended 
+                        && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                     {
                         InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.UserSuspended;
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
@@ -1740,9 +1742,9 @@ namespace Core.ConditionalAccess
                 {
                     if (domain.m_DomainStatus != DomainStatus.OK && domain.m_DomainStatus != DomainStatus.DomainCreatedWithoutNPVRAccount)
                     {
-                        if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+                        if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                         {
-                            if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
+                            if (!RolesPermissionsManager.Instance.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
                             {
                                 response.Code = (int)eResponseStatus.DomainSuspended;
                                 response.Message = "Domain suspended";
@@ -3957,7 +3959,8 @@ namespace Core.ConditionalAccess
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                         return ret;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended 
+                        && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -4115,7 +4118,8 @@ namespace Core.ConditionalAccess
                         ret.m_sRecieptCode = "";
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended 
+                        && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -5157,7 +5161,8 @@ namespace Core.ConditionalAccess
                         oResponse.m_sStatusDescription = "Cant charge an unknown user";
                         return oResponse;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended 
+                        && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                     {
                         oResponse.m_oStatus = BillingResponseStatus.UserSuspended;
                         oResponse.m_sRecieptCode = string.Empty;
@@ -6117,7 +6122,8 @@ namespace Core.ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended &&
+                        !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -9426,7 +9432,8 @@ namespace Core.ConditionalAccess
                         WriteToUserLog(sSiteGUID, "while trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                         return ret;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
+                        && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -9643,7 +9650,8 @@ namespace Core.ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
+                        && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -10131,7 +10139,8 @@ namespace Core.ConditionalAccess
                         if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
                         {
                             // check is permitted to login because if domain suspended to cancel or force cancel it should be done via Phoenix (service_action )
-                            if (!isForce && !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
+                            if (!PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID, isForce) && 
+                                !RolesPermissionsManager.Instance.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
                             {
                                 result.Code = (int)eResponseStatus.DomainSuspended;
                                 result.Message = "Domain suspended";
@@ -15190,8 +15199,99 @@ namespace Core.ConditionalAccess
                 new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
         }
 
-        public bool CleanupRecordings()
+        private bool CleanupRecordingsTest()
         {
+            log.Debug($"CleanupRecordingsTest");
+
+            try
+            {
+                int totalRecordingsToCleanup = 0;
+                int totalRecordingsDeleted = 0;
+                
+                // get first batch
+                Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(0);
+
+                if (recordingsForDeletion?.Count > 0)
+                {
+                    log.Debug($"CleanupRecordingsTest recordingsForDeletion:{recordingsForDeletion.Count}");
+
+                    // dictionary of <groupId, <adapterId, isPrivateCopy>>
+                    var groupIdToAdapterIdMap = new System.Collections.Concurrent.ConcurrentDictionary<int, int>();
+                    var groupIdToPrivateMap = new System.Collections.Concurrent.ConcurrentDictionary<int, bool>();
+
+                    var domains = new List<long>();
+                    List<long> deletedRecordingIds = new List<long>();
+                    int adapterId = 0;
+
+                    foreach (var pair in recordingsForDeletion.Values)
+                    {
+                        log.Debug($"CleanupRecordingsTest recording:{pair.Value.Id}");
+
+                        try
+                        {
+                            // get adapter data of current group, if we don't have
+                            // pair.key = groupId
+                            if (!groupIdToAdapterIdMap.ContainsKey(pair.Key))
+                            {
+                                adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(pair.Key);
+                                if (groupIdToAdapterIdMap.TryAdd(pair.Key, adapterId))
+                                {
+                                    log.DebugFormat("Successfully added groupId :{0} with adapterId: {1} to groupIdToAdapterIdMap", pair.Key, adapterId);
+                                }
+
+                                groupIdToPrivateMap.TryAdd(pair.Key, Utils.GetTimeShiftedTvPartnerSettings(pair.Key).IsPrivateCopyEnabled.Value);
+                            }
+
+                            // Try to delete the current recording
+                            ApiObjects.Response.Status deleteStatus = RecordingsManager.Instance.DeleteRecording(pair.Key, pair.Value, groupIdToPrivateMap[pair.Key], false, domains, groupIdToAdapterIdMap[pair.Key]);
+
+                            if (deleteStatus.Code != (int)eResponseStatus.OK)
+                            {
+                                log.ErrorFormat("Failed deleting recordingID: {0} for groupID {1}, code: {2}, message: {3}", pair.Value.Id, pair.Key, deleteStatus.Code, deleteStatus.Message);
+                            }
+                            else
+                            {
+                                deletedRecordingIds.Add(pair.Value.Id);
+                                log.DebugFormat("recordingID {0} has been successfully cleaned up for groupID {1}", pair.Value.Id, pair.Key);
+                            }
+                        }
+                        catch (AggregateException ex)
+                        {
+                            log.Error(string.Format("AggregateException when trying to delete recordingID: {0} for groupID {1}", pair.Value.Id, pair.Key), ex);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.Error(string.Format("Exception when trying to delete recordingID: {0} for groupID {1}", pair.Value.Id, pair.Key), ex);
+                        }
+                    }
+
+                    totalRecordingsDeleted += deletedRecordingIds.Count;
+                }
+
+                if (totalRecordingsDeleted > 0)
+                {
+                    log.DebugFormat("CleanupRecordingsTest Successfully deleted {0} recordings out of {1} that were found on the cleanup process", totalRecordingsDeleted, totalRecordingsToCleanup);
+                }
+                else
+                {
+                    log.DebugFormat("CleanupRecordingsTest Did not find any recordings to cleanup");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error in CleanupRecordings: ex = {0}, ST = {1}", ex.Message, ex.StackTrace);
+            }
+
+            return true;
+        }
+
+        public bool CleanupRecordings(bool isTest = false)
+        {
+            if (isTest)
+            {
+                return CleanupRecordingsTest();
+            }
+
             double recordingCleanupIntervalSec = 0;
             bool shouldInsertToQueue = false;
 
@@ -15228,11 +15328,12 @@ namespace Core.ConditionalAccess
                 System.Collections.Concurrent.ConcurrentDictionary<long, long> recordingsThatFailedDeletion = new System.Collections.Concurrent.ConcurrentDictionary<long, long>();
 
                 // get first batch
-                Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
+                Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(0);
                 var domains = new List<long>();
 
                 while (recordingsForDeletion != null && recordingsForDeletion.Count > 0)
                 {
+                    long maxRecordingId = recordingsForDeletion.Keys.Max();
                     totalRecordingsToCleanup += recordingsForDeletion.Count;
                     List<long> deletedRecordingIds = new List<long>();
                     int adapterId = 0;
@@ -15294,8 +15395,8 @@ namespace Core.ConditionalAccess
 
                     totalRecordingsDeleted += deletedRecordingIds.Count;
 
-                    recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup();
-                    recordingsForDeletion = recordingsForDeletion.Where(x => !recordingsThatFailedDeletion.ContainsKey(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+                    recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(maxRecordingId);
+                    //recordingsForDeletion = recordingsForDeletion.Where(x => !recordingsThatFailedDeletion.ContainsKey(x.Key)).ToDictionary(x => x.Key, x => x.Value);
                 }
 
                 // update last run date
@@ -16656,14 +16757,12 @@ namespace Core.ConditionalAccess
 
             log.DebugFormat("recording id = {0}, crid = {1}", id, recording.Crid);
 
-            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
-            if (epgs == null || epgs.Count != 1)
+            if (!Utils.GetProgramFromRecordingCB(m_nGroupID, epgId, out EPGChannelProgrammeObject epg) || epg == null)
             {
                 log.ErrorFormat("Failed Getting EPG from Catalog, groupId: {0}, EpgId: {1}", m_nGroupID, epgId);
                 return result;
             }
 
-            EPGChannelProgrammeObject epg = epgs.First();
             Dictionary<string, string> epgFieldMappings = Utils.Instance.GetEpgFieldTypeEntitys(m_nGroupID, epg);
             if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
@@ -16721,7 +16820,7 @@ namespace Core.ConditionalAccess
                     {
                         if (VerifyCanRecord(epgId, recordingType, epg))
                         {
-                            Recording userRecording = Record(userId.ToString(), epgId, recordingType, domainSeriesRecordingId, true);
+                            Recording userRecording = Record(userId.ToString(), epgId, recordingType, domainSeriesRecordingId, true, epg);
 
                             if (userRecording != null && userRecording.Status != null && userRecording.Status.Code == (int)eResponseStatus.OK && userRecording.Id > 0)
                             {
@@ -17307,14 +17406,13 @@ namespace Core.ConditionalAccess
         public Tuple<string, int, bool, int> GetEpgSeriesDetails(long epgId)
         {
             Tuple<string, int, bool, int> result = new Tuple<string, int, bool, int>(string.Empty, -1, false, 0);
-            List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, new List<long>() { epgId });
-            if (epgs == null || epgs.Count != 1)
+
+            if (!Utils.GetProgramFromRecordingCB(m_nGroupID, epgId, out EPGChannelProgrammeObject epg) || epg == null)
             {
                 log.DebugFormat("Failed Getting EPG from Catalog, groupId: {0}, EpgId: {1}", m_nGroupID, epgId);
                 return result;
             }
 
-            EPGChannelProgrammeObject epg = epgs.First();
             Dictionary<string, string> epgFieldMappings = Utils.Instance.GetEpgFieldTypeEntitys(m_nGroupID, epg);
             if (epgFieldMappings == null || epgFieldMappings.Count == 0)
             {
@@ -17485,9 +17583,9 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public PlayManifestResponse GetPlayManifest(string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType, bool isTokenizedUrl = false)
+        public PlayManifestResponse GetPlayManifest(string userId, string assetId, eAssetTypes assetType, long fileId, string ip, string udid, PlayContextType playContextType, bool isTokenizedUrl = false, bool isAltUrl = false)
         {
-            return PlaybackManager.GetPlayManifest(this, m_nGroupID, userId, assetId, assetType, fileId, ip, udid, playContextType, isTokenizedUrl);
+            return PlaybackManager.GetPlayManifest(this, m_nGroupID, userId, assetId, assetType, fileId, ip, udid, playContextType, isTokenizedUrl, isAltUrl);
         }
 
         public CompensationResponse AddCompensation(string userId, Compensation compensation)

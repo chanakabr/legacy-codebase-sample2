@@ -1,10 +1,19 @@
 ﻿using KLogMonitor;
+using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace TVinciShared
 {
-    public class RequestContextUtils
+    public interface IRequestContextUtils
     {
+        bool IsPartnerRequest();
+    }
+    public class RequestContextUtils: IRequestContextUtils
+    {
+        private static readonly Lazy<RequestContextUtils> lazy = new Lazy<RequestContextUtils>(() => new RequestContextUtils(), LazyThreadSafetyMode.PublicationOnly);
+        public static RequestContextUtils Instance { get { return lazy.Value; } }
+
         public const string REQUEST_METHOD_PARAMETERS = "requestMethodParameters";
         public const string REQUEST_VERSION = "requestVersion";
         public const string REQUEST_USER_ID = "user_id";
@@ -82,7 +91,7 @@ namespace TVinciShared
         }
 
         // TODO duplicate with LayeredCache.isPartnerRequest
-        public static bool IsPartnerRequest()
+        public bool IsPartnerRequest()
         {
             var isPartner = GetRequestContextValue(REQUEST_TAGS, out HashSet<string> tags) 
                 && tags != null && tags.Contains(REQUEST_TAGS_PARTNER_ROLE);

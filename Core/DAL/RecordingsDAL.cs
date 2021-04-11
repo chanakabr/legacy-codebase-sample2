@@ -417,10 +417,11 @@ namespace DAL
             return isProtected;
         }
 
-        public static Dictionary<long, KeyValuePair<int, Recording>> GetRecordingsForCleanup()
+        public static Dictionary<long, KeyValuePair<int, Recording>> GetRecordingsForCleanup(long minRecordingId)
         {
             Dictionary<long, KeyValuePair<int, Recording>> recordingsForCleanup = new Dictionary<long, KeyValuePair<int, Recording>>();
             ODBCWrapper.StoredProcedure spGetRecordginsForCleanup = new ODBCWrapper.StoredProcedure("GetRecordingsForCleanup");
+            spGetRecordginsForCleanup.AddParameter("@MinRecordingId", minRecordingId);
             spGetRecordginsForCleanup.SetConnectionKey(RECORDING_CONNECTION);
 
             DataTable dt = spGetRecordginsForCleanup.Execute();

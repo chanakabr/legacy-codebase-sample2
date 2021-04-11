@@ -3237,6 +3237,8 @@ namespace WebAPI.Reflection
                             return "secondaryCurrencies";
                         case "SecondaryLanguages":
                             return "secondaryLanguages";
+                        case "SuspensionProfileInheritanceType":
+                            return "suspensionProfileInheritanceType";
                     }
                     break;
                     
@@ -4233,6 +4235,8 @@ namespace WebAPI.Reflection
                             return "altExternalId";
                         case "AltStreamingCode":
                             return "altStreamingCode";
+                        case "AltUrl":
+                            return "altUrl";
                         case "AssetId":
                             return "assetId";
                         case "BillingType":
@@ -8025,7 +8029,7 @@ namespace WebAPI.Reflection
                             return AssetFileController.GetContext((string) methodParams[0], (KalturaContextType) methodParams[1]);
                             
                         case "playmanifest":
-                            return AssetFileController.PlayManifest((int) methodParams[0], (string) methodParams[1], (KalturaAssetType) methodParams[2], (long) methodParams[3], (KalturaPlaybackContextType) methodParams[4], (string) methodParams[5], (string) methodParams[6]);
+                            return AssetFileController.PlayManifest((int) methodParams[0], (string) methodParams[1], (KalturaAssetType) methodParams[2], (long) methodParams[3], (KalturaPlaybackContextType) methodParams[4], (string) methodParams[5], (string) methodParams[6], (bool) methodParams[7]);
                             
                     }
                     break;
@@ -13097,6 +13101,12 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
+                            });
+                            ret.Add("isAltUrl", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = false,
+                                Type = typeof(bool),
                             });
                             return ret;
                             
