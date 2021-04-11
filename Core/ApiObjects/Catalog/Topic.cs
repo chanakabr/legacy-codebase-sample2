@@ -84,7 +84,7 @@ namespace ApiObjects
             this.HelpText = topicToCopy.HelpText;
             this.ParentId = topicToCopy.ParentId;
             this.CreateDate = topicToCopy.CreateDate;
-            this.UpdateDate = topicToCopy.UpdateDate;            
+            this.UpdateDate = topicToCopy.UpdateDate;       
         }
 
         public string GetCommaSeparatedFeatures(HashSet<string> existingFeatures = null)
