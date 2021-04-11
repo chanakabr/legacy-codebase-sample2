@@ -30,7 +30,7 @@ namespace Core.Catalog.CatalogManagement
         bool UpdateCategory(int groupId, long? userId, List<KeyValuePair<long, string>> namesInOtherLanguages, CategoryItem categoryItemToUpdate);
         List<long> GetCategoriesIdsByChannelId(int groupId, int channelId, UnifiedChannelType channelType);
         long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId);
+            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId, string referenceId);
         void UpdateCategoryVirtualAssetId(int groupId, long id, long? virtualAssetId, long updateDate, long userId);
 
         //CategoryVersion
@@ -231,7 +231,7 @@ namespace Core.Catalog.CatalogManagement
         public bool UpdateCategory(int groupId, long? userId, List<KeyValuePair<long, string>> namesInOtherLanguages, CategoryItem categoryItemToUpdate)
         {
             if (!_repository.UpdateCategory(groupId, userId, categoryItemToUpdate.Id, categoryItemToUpdate.Name, namesInOtherLanguages, categoryItemToUpdate.UnifiedChannels, 
-                                            categoryItemToUpdate.DynamicData, categoryItemToUpdate.IsActive, categoryItemToUpdate.TimeSlot))
+                                            categoryItemToUpdate.DynamicData, categoryItemToUpdate.IsActive, categoryItemToUpdate.TimeSlot, categoryItemToUpdate.ReferenceId))
             {
                 log.Error($"Error while updateCategory. categoryId: {categoryItemToUpdate.Id}.");
                 return false;
@@ -248,10 +248,10 @@ namespace Core.Catalog.CatalogManagement
         }
 
         public long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId)
+            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId, string referenceId)
         {
             var id = _repository.InsertCategory(groupId, userId, name, namesInOtherLanguages, channels, dynamicData,
-                                                isActive, timeSlot, type, versionId);
+                                                isActive, timeSlot, type, versionId, referenceId);
             return id;
         }
 
@@ -309,7 +309,8 @@ namespace Core.Catalog.CatalogManagement
                         IsActive = categoryItemDTO.IsActive,
                         Type = categoryItemDTO.Type,
                         VersionId = categoryItemDTO.VersionId,
-                        VirtualAssetId = categoryItemDTO.VirtualAssetId
+                        VirtualAssetId = categoryItemDTO.VirtualAssetId,
+                        ReferenceId = categoryItemDTO.ReferenceId
                     };
 
                     // lazy update for virtual asset id

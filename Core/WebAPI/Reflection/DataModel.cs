@@ -1389,6 +1389,8 @@ namespace WebAPI.Reflection
                             return "name";
                         case "ParentId":
                             return "parentId";
+                        case "ReferenceId":
+                            return "referenceId";
                         case "StartDateInSeconds":
                             return "startDateInSeconds";
                         case "Type":
@@ -1459,6 +1461,8 @@ namespace WebAPI.Reflection
                             return "isActive";
                         case "Name":
                             return "name";
+                        case "ReferenceId":
+                            return "referenceId";
                         case "StartDateInSeconds":
                             return "startDateInSeconds";
                         case "Type":

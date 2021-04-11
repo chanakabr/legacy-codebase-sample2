@@ -26,6 +26,7 @@ namespace ApiLogic.Catalog
         public string Type { get; set; }
         public long? VersionId { get; set; }
         public long? VirtualAssetId { get; set; }
+        public string ReferenceId { get; set; }
 
         public CategoryItem()
         {

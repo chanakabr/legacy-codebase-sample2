@@ -135,6 +135,14 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(ReadOnly = true)]
         public long? VirtualAssetId { get; set; }
 
+        /// <summary>
+        /// Category reference identifier
+        /// </summary>
+        [DataMember(Name = "referenceId")]
+        [JsonProperty("referenceId")]
+        [XmlElement(ElementName = "referenceId", IsNullable = true)]
+        public string ReferenceId { get; set; }
+
         internal override ICrudHandler<CategoryItem, long> Handler
         {
             get

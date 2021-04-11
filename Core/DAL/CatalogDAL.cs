@@ -37,10 +37,10 @@ namespace Tvinci.Core.DAL
     {
         // CategoryItemRepository
         long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId);
+             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId, string referenceId);
         bool UpdateCategoryOrderNum(int groupId, long? userId, long id, long? versionId, List<long> childCategoriesIds, List<long> childCategoriesIdsToRemove = null);
         bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot);
+            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string referenceId);
         bool DeleteCategory(int groupId, long? userId, long id);
         List<long> GetCategoriesIdsByChannelId(int groupId, int channelId, UnifiedChannelType channelType);
         Dictionary<long, CategoryParentCache> GetCategories(int groupId);
@@ -6156,7 +6156,8 @@ namespace Tvinci.Core.DAL
                         HasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA"),
                         StartDate = ODBCWrapper.Utils.ExtractNullableDateTime(ds.Tables[0].Rows[0], "START_DATE"),
                         EndDate = ODBCWrapper.Utils.ExtractNullableDateTime(ds.Tables[0].Rows[0], "END_DATE"),
-                        VirtualAssetId = Utils.GetNullableLong(ds.Tables[0].Rows[0], "VIRTUAL_ASSET_ID")
+                        VirtualAssetId = Utils.GetNullableLong(ds.Tables[0].Rows[0], "VIRTUAL_ASSET_ID"),
+                        ReferenceId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "REFERENCE_ID")
                     };
 
                     if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
@@ -6202,7 +6203,7 @@ namespace Tvinci.Core.DAL
         }
 
         public long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId)
+             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId, string referenceId)
         {
             try
             {
@@ -6229,7 +6230,8 @@ namespace Tvinci.Core.DAL
                     sp.AddParameter("@endDate", Utils.UtcUnixTimestampSecondsToDateTime(timeSlot.EndDateInSeconds.Value));
                 }
                 sp.AddParameter("@type", type);
-                sp.AddParameter("versionId", versionId);
+                sp.AddParameter("@versionId", versionId);
+                sp.AddParameter("@referenceId", referenceId);
 
                 var id = sp.ExecuteReturnValue<long>();
                 if (dynamicData?.Count > 0 && id > 0)
@@ -6247,7 +6249,7 @@ namespace Tvinci.Core.DAL
         }
 
         public bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot)
+            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string referenceId)
         {
             try
             {
@@ -6266,6 +6268,7 @@ namespace Tvinci.Core.DAL
                 sp.AddDataTableParameter("@categoriesChannels", categoriesChannelsValues);
                 sp.AddParameter("@updaterId", userId);
                 sp.AddParameter("@isActive", isActive);
+                sp.AddParameter("@referenceId", referenceId);
 
                 if (timeSlot != null)
                 {

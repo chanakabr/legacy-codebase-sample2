@@ -19,5 +19,6 @@ namespace ApiObjects.Catalog
         public long? VirtualAssetId { get; set; }
         public List<LanguageContainerDTO> NamesInOtherLanguages { get; set; }
         public List<UnifiedChannelInfoDTO> UnifiedChannels { get; set; }
+        public string ReferenceId { get; set; }
     }
 }

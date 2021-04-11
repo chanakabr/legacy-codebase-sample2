@@ -13522,6 +13522,10 @@ namespace WebAPI.Models.Catalog
                     }
                     VirtualAssetId = (Int64) Convert.ChangeType(parameters["virtualAssetId"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("referenceId") && parameters["referenceId"] != null)
+                {
+                    ReferenceId = (String) Convert.ChangeType(parameters["referenceId"], typeof(String));
+                }
             }
         }
     }
@@ -13675,6 +13679,16 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute ReferenceIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaCategoryTree(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -13787,6 +13801,14 @@ namespace WebAPI.Models.Catalog
                         VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
                     }
                     VirtualAssetId = (Int64) Convert.ChangeType(parameters["virtualAssetId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("referenceId") && parameters["referenceId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ReferenceIdSchemaProperty.Validate("referenceId", parameters["referenceId"]);
+                    }
+                    ReferenceId = (String) Convert.ChangeType(parameters["referenceId"], typeof(String));
                 }
             }
         }

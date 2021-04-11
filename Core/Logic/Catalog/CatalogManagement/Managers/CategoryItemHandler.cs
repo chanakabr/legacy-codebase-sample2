@@ -777,7 +777,8 @@ namespace Core.Catalog.CatalogManagement
                 IsActive = parent.IsActive,
                 TimeSlot = parent.TimeSlot,
                 Type = parent.Type,
-                VersionId = parent.VersionId
+                VersionId = parent.VersionId,
+                ReferenceId = parent.ReferenceId
             };
 
             if (AddCategoryItem(groupId, userId, newICategory, parent.VirtualAssetId))
@@ -1152,7 +1153,8 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 long id = _categoryCache.InsertCategory(groupId, userId, objectToAdd.Name, languageCodeToName, objectToAdd.UnifiedChannels, 
-                                                        objectToAdd.DynamicData, objectToAdd.IsActive, objectToAdd.TimeSlot, objectToAdd.Type, objectToAdd.VersionId);
+                                                        objectToAdd.DynamicData, objectToAdd.IsActive, objectToAdd.TimeSlot, objectToAdd.Type, 
+                                                        objectToAdd.VersionId, objectToAdd.ReferenceId);
                 if (id == 0)
                 {
                     log.Error($"Error while InsertCategory");
