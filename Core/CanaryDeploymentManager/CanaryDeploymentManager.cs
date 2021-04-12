@@ -261,9 +261,6 @@ namespace ApiLogic.CanaryDeployment
                         case CanaryDeploymentMigrationEvent.RefreshToken:
                             res = cdc.MigrationEvents.RefreshToken;
                             break;
-                        case CanaryDeploymentMigrationEvent.UserPinCode:
-                            res = cdc.MigrationEvents.UserPinCode;
-                            break;
                         case CanaryDeploymentMigrationEvent.DevicePinCode:
                             res = cdc.MigrationEvents.DevicePinCode;
                             break;
@@ -500,9 +497,6 @@ namespace ApiLogic.CanaryDeployment
                         break;
                     case CanaryDeploymentMigrationEvent.RefreshToken:
                         cdc.MigrationEvents.RefreshToken = val;
-                        break;
-                    case CanaryDeploymentMigrationEvent.UserPinCode:
-                        cdc.MigrationEvents.UserPinCode = val;
                         break;
                     case CanaryDeploymentMigrationEvent.DevicePinCode:
                         cdc.MigrationEvents.DevicePinCode = val;
