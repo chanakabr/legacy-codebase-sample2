@@ -29,7 +29,8 @@ namespace WebAPI.Models.CanaryDeployment
     {
         APPTOKEN = 0,
         REFRESHTOKEN = 1,
-        USER_PIN_CODE = 2,
+        //GEN-1471- login pin live migration removed due to complexity supporting updates on usage
+        //USER_PIN_CODE = 2,
         DEVICE_PIN_CODE = 3,
         SESSION_REVOCATION = 4,
         USER_LOGIN_HISTORY = 5,

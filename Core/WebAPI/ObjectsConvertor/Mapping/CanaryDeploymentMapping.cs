@@ -76,9 +76,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaCanaryDeploymentMigrationEvent.USER_LOGIN_HISTORY:
                     res = CanaryDeploymentMigrationEvent.UserLoginHistory;
                     break;
-                case KalturaCanaryDeploymentMigrationEvent.USER_PIN_CODE:
-                    res = CanaryDeploymentMigrationEvent.UserPinCode;
-                    break;
                 default:
                     throw new Exception("invalid KalturaCanaryDeploymentMigrationEvent type");
             }
