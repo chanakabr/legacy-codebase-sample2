@@ -19,6 +19,7 @@ using System.Reflection;
 using System.Threading;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 using ApiObjects.SearchObjects;
+using CouchbaseManager.Compression;
 
 namespace Tvinci.Core.DAL
 {
@@ -5912,7 +5913,7 @@ namespace Tvinci.Core.DAL
         public static bool SaveBulkUploadCB(BulkUpload bulkUploadToSave, uint ttl)
         {
             var bulkUploadKey = GetBulkUploadKey(bulkUploadToSave.Id);
-            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUploadToSave, false, ttl);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUploadToSave, false, ttl, compress: true);
         }
 
         public static bool SaveBulkUploadResultCB(BulkUpload currentBulkUpload, int resultIndex, uint ttl, out BulkUploadJobStatus updatedStatus)
@@ -5980,7 +5981,7 @@ namespace Tvinci.Core.DAL
                 statusAfterUpdate = GetBulkStatusByResultsStatus(bulkUpload);
                 log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
 
-            });
+            }, compress: true);
 
             status = statusAfterUpdate;
             return isUpdateSuccess;
@@ -5999,7 +6000,7 @@ namespace Tvinci.Core.DAL
 
                 statusThatWasActuallyUpdated = bulkUpload.Status;
                 bulkUpload.Errors = bulkUploadToSave.Errors;
-            });
+            }, compress: true);
             updatedStatus = statusThatWasActuallyUpdated;
 
             return isSaveSuccess;
