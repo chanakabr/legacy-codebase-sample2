@@ -13,6 +13,8 @@ namespace ImageManager
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
+        private static readonly string DEFAULT_RESIZE_FILE_EXT= "png";
+        private static readonly SKEncodedImageFormat DEFAULT_RESIZE_IMAGE_FORMAT = SKEncodedImageFormat.Png;
 
         public static bool DownloadAndCropImage(int nGroupID, string sURL, string sBasePath, List<ImageObj> images, string sPicBaseName, string sUploadedFileExt)
         {
@@ -55,7 +57,7 @@ namespace ImageManager
             bool res = false;
             try
             {
-                _Logger.Debug("DownloadOriginlImage - " + string.Format("url:{0}, dest:{1}", sURL, dest));
+                _Logger.Debug($"DownloadOriginlImage - url:{sURL}, dest:{dest}");
                 using (var httpResponse = httpClient.GetAsync(sURL).ExecuteAndWait().EnsureSuccessStatusCode())
                 using (var imageStream = httpResponse.Content.ReadAsStreamAsync().ExecuteAndWait())
                 {
@@ -88,32 +90,26 @@ namespace ImageManager
                 var fileInf = new FileInfo(sImagePath);
                 if (!fileInf.Exists)
                 {
-                    throw new Exception("File does not exist : " + sImagePath);
+                    throw new Exception($"File does not exist : {sImagePath}");
                 }
                 fileInf.Delete();
-                _Logger.Debug("RemoveOriginalImage - " + string.Format("Delete:{0}", sImagePath));
+                _Logger.Debug($"RemoveOriginalImage - Delete:{sImagePath}");
             }
             catch (Exception ex)
             {
-                _Logger.Error("RemoveOriginalImage - " + string.Format("(Delete) Exception:{0}", ex.Message), ex);
+                _Logger.Error($"RemoveOriginalImage - (Delete) Exception:{ex.Message}", ex);
             }
         }
-
-
-        public static void ResizeOrCropAndSaveImage(byte[] inputByteArr, Stream destStream, ResizeSettings resizeSettings)
-        {
-            var skData = SKData.CreateCopy(inputByteArr);
-            var bitmap = SKBitmap.Decode(skData);
-            ResizeOrCropSKBitmap(destStream, resizeSettings, bitmap);
-        }
-
 
         public static void ResizeOrCropAndSaveImage(Stream inputImageStream, string destinationPath, ResizeSettings resizeSettings)
         {
             var bitmap = SKBitmap.Decode(inputImageStream);
+
+            var fileExt = FileExtension(destinationPath);
+
             using (var fs = new FileStream(destinationPath, FileMode.Create))
             {
-                ResizeOrCropSKBitmap(fs, resizeSettings, bitmap);
+                ResizeOrCropSKBitmap(fs, resizeSettings, bitmap, fileExt);
             }
         }
 
@@ -128,31 +124,70 @@ namespace ImageManager
         public static void ResizeOrCropAndSaveImage(string imagePath, Stream destStream, ResizeSettings resizeSettings)
         {
             var bitmap = SKBitmap.Decode(imagePath);
-            ResizeOrCropSKBitmap(destStream, resizeSettings, bitmap);
+
+            var fileExt = FileExtension(imagePath);
+
+            ResizeOrCropSKBitmap(destStream, resizeSettings, bitmap, fileExt);
         }
 
-        private static void ResizeOrCropSKBitmap(Stream destStream, ResizeSettings resizeSettings, SKBitmap bitmap)
+        private static string FileExtension(string filePath)
         {
+            var ext = DEFAULT_RESIZE_FILE_EXT;
+
+            int nExtractPos = filePath.LastIndexOf(".");
+
+            if (nExtractPos > 0)
+                ext = filePath.Substring(nExtractPos);
+
+            return ext;
+        }
+
+        //private static void ResizeOrCropSKBitmap(Stream destStream, ResizeSettings resizeSettings, SKBitmap bitmap)
+        //{
+        //    var image = SKImage.FromBitmap(bitmap);
+
+        //    if (resizeSettings.FitMode == FitMode.Crop)
+        //    {
+        //        var subset = image.Subset(SKRectI.Create(20, 20, 90, 90));
+        //        using (var imageData = subset.Encode(SKEncodedImageFormat.Png, resizeSettings.Quality))
+        //        {
+        //            imageData.SaveTo(destStream);
+        //        }
+        //    }
+        //    else if (resizeSettings.FitMode == FitMode.Resize)
+        //    {
+        //        var resizeInfo = new SKImageInfo(resizeSettings.Width, resizeSettings.Height);
+        //        using (var resizedBitmap = bitmap.Resize(resizeInfo, SKFilterQuality.High))
+        //        using (var newImg = SKImage.FromPixels(resizedBitmap.PeekPixels()))
+        //        using (var imageData = newImg.Encode(SKEncodedImageFormat.Png, resizeSettings.Quality))
+        //        {
+        //            imageData.SaveTo(destStream);
+
+        //        }
+        //    }
+        //}
+
+        private static void ResizeOrCropSKBitmap(Stream destStream, ResizeSettings resizeSettings, SKBitmap bitmap, string ext)
+        {
+            SKEncodedImageFormat imageFormat = DEFAULT_RESIZE_IMAGE_FORMAT;
+
+            if (ext.Replace(".", string.Empty).Equals("jpeg", StringComparison.OrdinalIgnoreCase))
+            {
+                imageFormat = SKEncodedImageFormat.Jpeg;
+            }
+
             var image = SKImage.FromBitmap(bitmap);
 
-            if (resizeSettings.FitMode == FitMode.Crop)
-            {
-                var subset = image.Subset(SKRectI.Create(20, 20, 90, 90));
-                using (var imageData = subset.Encode(SKEncodedImageFormat.Png, resizeSettings.Quality))
-                {
-                    imageData.SaveTo(destStream);
-                }
-            }
-            else if (resizeSettings.FitMode == FitMode.Resize)
-            {
-                var resizeInfo = new SKImageInfo(resizeSettings.Width, resizeSettings.Height);
-                using (var resizedBitmap = bitmap.Resize(resizeInfo, SKFilterQuality.High))
-                using (var newImg = SKImage.FromPixels(resizedBitmap.PeekPixels()))
-                using (var imageData = newImg.Encode(SKEncodedImageFormat.Png, resizeSettings.Quality))
-                {
-                    imageData.SaveTo(destStream);
+            _Logger.Debug($"ResizeOrCropSKBitmap - image dimensions = Width:{image.Width} Height:{image.Height}");
+            _Logger.Debug($"ResizeOrCropSKBitmap - resize image to dimensions = Width:{resizeSettings.Width} Height:{resizeSettings.Height}");
 
-                }
+            var resizeInfo = new SKImageInfo(resizeSettings.Width <= 0 ? image.Width : resizeSettings.Width, resizeSettings.Height <= 0 ? image.Height : resizeSettings.Height);
+            using (var resizedBitmap = bitmap.Resize(resizeInfo, SKFilterQuality.High))
+            using (var newImg = SKImage.FromPixels(resizedBitmap.PeekPixels()))
+            using (var imageData = newImg.Encode(imageFormat, resizeSettings.Quality))
+            {
+                imageData.SaveTo(destStream);
+
             }
         }
     }
