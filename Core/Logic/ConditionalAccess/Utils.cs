@@ -9479,41 +9479,35 @@ namespace Core.ConditionalAccess
 
                 if (subscriptionSets != null && subscriptionSets.Count > 0)
                 {
+                    List<long> subscriptionIds = new List<long>();
+
                     List<DependencySet> dependencySet = subscriptionSets.Where(x => x.Type == SubscriptionSetType.Dependency).Select(x => (DependencySet)x).ToList();
 
-                    // get all base subscription id 
-                    DomainEntitlements domainEntitlements = null;
-                    if (Utils.TryGetDomainEntitlementsFromCache(groupId, (int)householdId, null, ref domainEntitlements))
+                    DomainBundles domainBundles = GetDomainBundles(groupId, (int)householdId);
+                    if (domainBundles?.EntitledSubscriptions?.Count > 0)
                     {
-                        // get all household with base subscription
-                        if (domainEntitlements.DomainBundleEntitlements == null ||
-                            domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions == null ||
-                            domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Count == 0)
-                        {
-                            status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
-                            return status;
-                        }
-
-                        List<long> subscriptionIds = new List<long>();
                         if (endDate.HasValue)
                         {
-                            subscriptionIds.AddRange(domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Where(x => x.Value.dtEndDate > endDate.Value.AddSeconds(1)).Select(x => long.Parse(x.Key)));
-                            if (baseSubscriptionsInUnified != null)
+                            foreach (var item in domainBundles.EntitledSubscriptions.Values)
                             {
-                                subscriptionIds.AddRange(baseSubscriptionsInUnified.Select(x => long.Parse(x.m_SubscriptionCode)));
+                                var bundle = item[0];
+
+                                if (bundle.dtEndDate > endDate.Value.AddSeconds(1) || bundle.isSuspend)
+                                {
+                                    subscriptionIds.Add(long.Parse(bundle.sBundleCode));
+                                }
                             }
                         }
                         else
                         {
-                            subscriptionIds.AddRange(domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Select(x => long.Parse(x.Key)));
+                            subscriptionIds = domainBundles.EntitledSubscriptions.Keys.Select(long.Parse).ToList();
                         }
-
-                        // try to find if one of this base subscription id is a base in the sets above
-                        if (dependencySet.Count(x => subscriptionIds.Contains(x.BaseSubscriptionId)) == 0)
-                        {
-                            status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
-                            return status;
-                        }
+                    }
+                    
+                    if (subscriptionIds.Count == 0 || dependencySet.Count(x => subscriptionIds.Contains(x.BaseSubscriptionId)) == 0)
+                    {
+                        status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());
+                        return status;
                     }
                 }
             }
