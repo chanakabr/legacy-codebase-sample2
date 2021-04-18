@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ApiObjects
 {
@@ -8,6 +9,48 @@ namespace ApiObjects
     [JsonObject]
     public class Duration
     {
+        private static readonly Dictionary<long, Tuple<DurationUnit, long>> map = new Dictionary<long, Tuple<DurationUnit, long>>()
+            {
+            { (long) TvmDurationUnit.OneYear, new Tuple<DurationUnit, long>(DurationUnit.Years, 1) },
+            { (long) TvmDurationUnit.TwoYears, new Tuple<DurationUnit, long>(DurationUnit.Years, 2) },
+            { (long) TvmDurationUnit.ThreeYears, new Tuple<DurationUnit, long>(DurationUnit.Years, 3) },
+            { (long) TvmDurationUnit.FourYears, new Tuple<DurationUnit, long>(DurationUnit.Years, 4) },
+            { (long) TvmDurationUnit.FiveYears, new Tuple<DurationUnit, long>(DurationUnit.Years, 5) },
+            { (long) TvmDurationUnit.TenYears, new Tuple<DurationUnit, long>(DurationUnit.Years, 10) },
+            { (long) TvmDurationUnit.OneHundredYears, new Tuple<DurationUnit, long>(DurationUnit.Years, 100) },
+            { (long) TvmDurationUnit.OneMonth, new Tuple<DurationUnit, long>(DurationUnit.Months, 1) },
+            { (long) TvmDurationUnit.TwoMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 2) },
+            { (long) TvmDurationUnit.ThreeMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 3) },
+            { (long) TvmDurationUnit.FourMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 4) },
+            { (long) TvmDurationUnit.FiveMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 5) },
+            { (long) TvmDurationUnit.SixMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 6) },
+            { (long) TvmDurationUnit.NineMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 9) },
+            { (long) TvmDurationUnit.OneWeeks, new Tuple<DurationUnit, long>(DurationUnit.Weeks, 1) },
+            { (long) TvmDurationUnit.TwoWeeks, new Tuple<DurationUnit, long>(DurationUnit.Weeks, 2) },
+            { (long) TvmDurationUnit.ThreeWeeks, new Tuple<DurationUnit, long>(DurationUnit.Weeks, 3) },
+            { (long) TvmDurationUnit.FourWeeks, new Tuple<DurationUnit, long>(DurationUnit.Weeks, 4) },
+            { (long) TvmDurationUnit.OneDays, new Tuple<DurationUnit, long>(DurationUnit.Days, 1) },
+            { (long) TvmDurationUnit.TwoDays, new Tuple<DurationUnit, long>(DurationUnit.Days, 2) },
+            { (long) TvmDurationUnit.ThreeDays, new Tuple<DurationUnit, long>(DurationUnit.Days, 3) },
+            { (long) TvmDurationUnit.FiveDays, new Tuple<DurationUnit, long>(DurationUnit.Days, 5) },
+            { (long) TvmDurationUnit.TenDays, new Tuple<DurationUnit, long>(DurationUnit.Days, 10) },
+            { (long) TvmDurationUnit.ThirtyDays, new Tuple<DurationUnit, long>(DurationUnit.Days, 30) },
+            { (long) TvmDurationUnit.ThirtyOneDays, new Tuple<DurationUnit, long>(DurationUnit.Days, 31) },
+            { (long) TvmDurationUnit.OneHours, new Tuple<DurationUnit, long>(DurationUnit.Hours, 1) },
+            { (long) TvmDurationUnit.TwoHours, new Tuple<DurationUnit, long>(DurationUnit.Hours, 2) },
+            { (long) TvmDurationUnit.ThreeHours, new Tuple<DurationUnit, long>(DurationUnit.Hours, 3) },
+            { (long) TvmDurationUnit.SixHours, new Tuple<DurationUnit, long>(DurationUnit.Hours, 6) },
+            { (long) TvmDurationUnit.NineHours, new Tuple<DurationUnit, long>(DurationUnit.Hours, 9) },
+            { (long) TvmDurationUnit.TwelveHours, new Tuple<DurationUnit, long>(DurationUnit.Hours, 12) },
+            { (long) TvmDurationUnit.EighteenHours, new Tuple<DurationUnit, long>(DurationUnit.Hours, 18) },
+            { (long) TvmDurationUnit.OneMinutes, new Tuple<DurationUnit, long>(DurationUnit.Minutes, 1) },
+            { (long) TvmDurationUnit.ThreeMinutes, new Tuple<DurationUnit, long>(DurationUnit.Minutes, 3) },
+            { (long) TvmDurationUnit.FiveMinutes, new Tuple<DurationUnit, long>(DurationUnit.Minutes, 5) },
+            { (long) TvmDurationUnit.TenMinutes, new Tuple<DurationUnit, long>(DurationUnit.Minutes, 10) },
+            { (long) TvmDurationUnit.FifteenMinutes, new Tuple<DurationUnit, long>(DurationUnit.Minutes, 15) },
+            { (long) TvmDurationUnit.ThirtyMinutes, new Tuple<DurationUnit, long>(DurationUnit.Minutes, 30) }
+        };
+
         [JsonProperty]
         public DurationUnit Unit { get; set; }
 
@@ -26,135 +69,25 @@ namespace ApiObjects
 
         public Duration(long tvmDuration)
         {
-            if (tvmDuration == (long)TvmDurationUnit.OneMonth)
+            if (!map.ContainsKey(tvmDuration))
             {
-                this.Unit = DurationUnit.Months;
-                this.Value = 1;
-            }
-            else if (tvmDuration == (long)TvmDurationUnit.TwoMonths)
-            {
-                this.Unit = DurationUnit.Months;
-                this.Value = 2;
-            }
-            else if (tvmDuration == (long)TvmDurationUnit.ThreeMonths)
-            {
-                this.Unit = DurationUnit.Months;
-                this.Value = 3;
-            }
-            else if (tvmDuration == (long)TvmDurationUnit.FourMonths)
-            {
-                this.Unit = DurationUnit.Months;
-                this.Value = 4;
-            }
-            else if (tvmDuration == (long)TvmDurationUnit.FiveMonths)
-            {
-                this.Unit = DurationUnit.Months;
-                this.Value = 5;
-            }
-            else if (tvmDuration == (long)TvmDurationUnit.SixMonths)
-            {
-                this.Unit = DurationUnit.Months;
-                this.Value = 6;
-            }
-            else if (tvmDuration == (long)TvmDurationUnit.NineMonths)
-            {
-                this.Unit = DurationUnit.Months;
-                this.Value = 9;
-            }
-            else if (tvmDuration == (long)TvmDurationUnit.OneYear)
-            {
-                this.Unit = DurationUnit.Years;
-                this.Value = 1;
-            }
-            else if (tvmDuration == (long)TvmDurationUnit.TwoYears)
-            {
-                this.Unit = DurationUnit.Years;
-                this.Value = 2;
-            }
-            else if (tvmDuration == (long)TvmDurationUnit.ThreeYears)
-            {
-                this.Unit = DurationUnit.Years;
-                this.Value = 3;
-            }
-            else if (tvmDuration == (long)TvmDurationUnit.FourYears)
-            {
-                this.Unit = DurationUnit.Years;
-                this.Value = 4;
-            }
-            else if (tvmDuration == (long)TvmDurationUnit.FiveYears)
-            {
-                this.Unit = DurationUnit.Years;
-                this.Value = 5;
-            }
-            else if (tvmDuration == (long)TvmDurationUnit.TenYears)
-            {
-                this.Unit = DurationUnit.Years;
-                this.Value = 10;
-            }
-            else if (tvmDuration == (long)TvmDurationUnit.OneHundredYears)
-            {
-                this.Unit = DurationUnit.Years;
-                this.Value = 100;
+                this.Unit = DurationUnit.Minutes;
+                this.Value = tvmDuration;
             }
             else
             {
-                if (tvmDuration == 60 * 24)
-                {
-                    this.Unit = DurationUnit.Days;
-                    this.Value = 1;
-                }
-                else
-                {
-                    this.Unit = DurationUnit.Minutes;
-                    this.Value = tvmDuration;
-                }
+                this.Unit = map[tvmDuration].Item1;
+                this.Value = map[tvmDuration].Item2;
             }
         }
 
         public long GetTvmDuration()
         {
-            switch (this.Unit)
+            var duration = map.FirstOrDefault(ele => ele.Value.Item1 == this.Unit && ele.Value.Item2 == this.Value);
+
+            if (!default(KeyValuePair<long, Tuple<DurationUnit, long>>).Equals(duration))
             {
-                case DurationUnit.Minutes:
-                    return this.Value;
-                case DurationUnit.Hours:
-                    return (this.Value * 60);
-                case DurationUnit.Days:
-                    return (this.Value * 60 * 24);
-                case DurationUnit.Months:
-                    if (this.Value == 1)
-                        return (long)TvmDurationUnit.OneMonth;
-                    else if (this.Value == 2)
-                        return (long)TvmDurationUnit.TwoMonths;
-                    else if (this.Value == 3)
-                        return (long)TvmDurationUnit.ThreeMonths;
-                    else if (this.Value == 4)
-                        return (long)TvmDurationUnit.FourMonths;
-                    else if (this.Value == 5)
-                        return (long)TvmDurationUnit.FiveMonths;
-                    else if (this.Value == 6)
-                        return (long)TvmDurationUnit.SixMonths;
-                    else if (this.Value == 9)
-                        return (long)TvmDurationUnit.NineMonths;
-                    else
-                        return 0;
-                case DurationUnit.Years:
-                    if (this.Value == 1)
-                        return (long)TvmDurationUnit.OneYear;
-                    else if (this.Value == 2)
-                        return (long)TvmDurationUnit.TwoYears;
-                    else if (this.Value == 3)
-                        return (long)TvmDurationUnit.ThreeYears;
-                    else if (this.Value == 4)
-                        return (long)TvmDurationUnit.FourYears;
-                    else if (this.Value == 5)
-                        return (long)TvmDurationUnit.FiveYears;
-                    else if (this.Value == 10)
-                        return (long)TvmDurationUnit.TenYears;
-                    else if (this.Value == 100)
-                        return (long)TvmDurationUnit.OneHundredYears;
-                    else
-                        return 0;
+                return duration.Key;
             }
 
             return 0;
@@ -176,8 +109,9 @@ namespace ApiObjects
         Minutes = 0,
         Hours = 1,
         Days = 2,
-        Months = 3,
-        Years = 4
+        Weeks = 3,
+        Months = 4,
+        Years = 5
     }
 
     public enum TvmDurationUnit
@@ -195,6 +129,30 @@ namespace ApiObjects
         FourYears = 44444444,
         FiveYears = 55555555,
         TenYears = 100000000,
-        OneHundredYears = 999999999
+        OneHundredYears = 999999999,
+        OneMinutes = 1,
+        ThreeMinutes = 3,
+        FiveMinutes = 5,
+        TenMinutes = 10,
+        FifteenMinutes = 15,
+        ThirtyMinutes = 30,// mins
+        OneHours = 60,
+        TwoHours = 120,
+        ThreeHours = 180,
+        SixHours = 360,
+        NineHours = 540,
+        TwelveHours = 720,
+        EighteenHours = 1080,//hours
+        OneDays = 1440,
+        TwoDays = 2880,
+        ThreeDays = 4320,
+        FiveDays = 7200,
+        TenDays = 14400,
+        ThirtyDays = 43200,
+        ThirtyOneDays = 44600,//days
+        OneWeeks = 10080,
+        TwoWeeks = 20160,
+        ThreeWeeks = 30240,
+        FourWeeks = 40320// weeks
     }
 }

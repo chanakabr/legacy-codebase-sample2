@@ -143,7 +143,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticationGrpcClientWra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GrpcClientCommon", "GrpcClientCommon\GrpcClientCommon.csproj", "{D49DC4E6-5F30-4142-8483-C5F94B60DCAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI.Tests", "WebAPI.Tests\WebAPI.Tests.csproj", "{CAC8B4A5-9749-4E72-A77B-5C79EFFEC740}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI.Tests", "WebAPI.Tests\WebAPI.Tests.csproj", "{CAC8B4A5-9749-4E72-A77B-5C79EFFEC740}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiObjects.Tests", "ApiObjects.Tests\ApiObjects.Tests.csproj", "{7AAD7D8E-D4F0-4E07-996F-39F011BC2C5D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpgCacheGrpcClientWrapper", "EpgCacheGrpcClientWrapper\EpgCacheGrpcClientWrapper.csproj", "{E58FCE52-1C73-4FF4-A051-0BB1E63F777D}"
 EndProject
