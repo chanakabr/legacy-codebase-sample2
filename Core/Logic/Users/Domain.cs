@@ -37,9 +37,6 @@ namespace Core.Users
     public class Domain : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private readonly IDomainDal _repository;
-        private readonly IPartnerConfigurationManager _partnerConfigurationManager;
-        private readonly IRolesPermissionsManager _rolesPermissionsManager;
 
         public Domain()
         {
@@ -59,9 +56,6 @@ namespace Core.Users
             m_homeNetworks = new List<HomeNetwork>();
             m_oLimitationsManager = new LimitationsManager();
             UdidToDeviceFamilyIdMapping = new Dictionary<string, int>();
-            _repository = DomainDal.Instance;
-            _partnerConfigurationManager = PartnerConfigurationManager.Instance;
-            _rolesPermissionsManager = RolesPermissionsManager.Instance;
         }
 
         public Domain(int nDomainID) : this()
