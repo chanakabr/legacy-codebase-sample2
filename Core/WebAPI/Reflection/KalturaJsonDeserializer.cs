@@ -9931,7 +9931,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaEpgNotificationSettings
     {
-        private static RuntimeSchemePropertyAttribute TimeRangeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEpgNotificationSettings")
+        private static RuntimeSchemePropertyAttribute BackwardTimeRangeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEpgNotificationSettings")
         {
             ReadOnly = false,
             InsertOnly = false,
@@ -9941,7 +9941,19 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 72,
-            MinInteger = 6,
+            MinInteger = 0,
+        };
+        private static RuntimeSchemePropertyAttribute ForwardTimeRangeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEpgNotificationSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MaxInteger = 72,
+            MinInteger = 0,
         };
         public KalturaEpgNotificationSettings(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -9961,13 +9973,21 @@ namespace WebAPI.Models.Notification
                 {
                     LiveAssetIds = (String) Convert.ChangeType(parameters["liveAssetIds"], typeof(String));
                 }
-                if (parameters.ContainsKey("timeRange") && parameters["timeRange"] != null)
+                if (parameters.ContainsKey("backwardTimeRange") && parameters["backwardTimeRange"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        TimeRangeSchemaProperty.Validate("timeRange", parameters["timeRange"]);
+                        BackwardTimeRangeSchemaProperty.Validate("backwardTimeRange", parameters["backwardTimeRange"]);
                     }
-                    TimeRange = (Int32) Convert.ChangeType(parameters["timeRange"], typeof(Int32));
+                    BackwardTimeRange = (Int32) Convert.ChangeType(parameters["backwardTimeRange"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("forwardTimeRange") && parameters["forwardTimeRange"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ForwardTimeRangeSchemaProperty.Validate("forwardTimeRange", parameters["forwardTimeRange"]);
+                    }
+                    ForwardTimeRange = (Int32) Convert.ChangeType(parameters["forwardTimeRange"], typeof(Int32));
                 }
             }
         }

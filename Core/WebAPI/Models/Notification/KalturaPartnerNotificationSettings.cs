@@ -199,14 +199,24 @@ namespace WebAPI.Models.Notification
         public string LiveAssetIds { get; set; }
 
         /// <summary>
-        /// The range (in hours), in which, EPG updates triggers a notification,
+        /// The backward range (in hours), in which, EPG updates triggers a notification,
         /// every program that is updated and it’s starts time falls within this range shall trigger a notification
         /// </summary>
-        [DataMember(Name = "timeRange")]
-        [JsonProperty("timeRange")]
-        [XmlElement(ElementName = "timeRange")]
-        [SchemeProperty(MinInteger = 6, MaxInteger = 72)]
-        public int TimeRange { get; set; }
+        [DataMember(Name = "backwardTimeRange")]
+        [JsonProperty("backwardTimeRange")]
+        [XmlElement(ElementName = "backwardTimeRange")]
+        [SchemeProperty(MinInteger = 0, MaxInteger = 72)]
+        public int? BackwardTimeRange { get; set; }
+
+        /// <summary>
+        /// The forward range (in hours), in which, EPG updates triggers a notification,
+        /// every program that is updated and it’s starts time falls within this range shall trigger a notification
+        /// </summary>
+        [DataMember(Name = "forwardTimeRange")]
+        [JsonProperty("forwardTimeRange")]
+        [XmlElement(ElementName = "forwardTimeRange")]
+        [SchemeProperty(MinInteger = 0, MaxInteger = 72)]
+        public int? ForwardTimeRange { get; set; }
     }
 
 

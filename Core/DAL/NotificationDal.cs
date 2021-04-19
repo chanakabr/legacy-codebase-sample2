@@ -821,7 +821,8 @@ namespace DAL
                 Enabled = epgSettings.Enabled,
                 DeviceFamilyIds = epgSettings.DeviceFamilyIds,
                 LiveAssetIds = epgSettings.LiveAssetIds,
-                TimeRange = epgSettings.TimeRange
+                BackwardTimeRange = epgSettings.BackwardTimeRange,
+                ForwardTimeRange = epgSettings.ForwardTimeRange
             });
         }
 
@@ -835,8 +836,9 @@ namespace DAL
                 Enabled = dto.Enabled,
                 DeviceFamilyIds = dto.DeviceFamilyIds,
                 LiveAssetIds = dto.LiveAssetIds,
-                TimeRange = dto.TimeRange
-            };            
+                BackwardTimeRange = dto.BackwardTimeRange,
+                ForwardTimeRange = dto.ForwardTimeRange
+            };
         }
 
         public static DataRow GetNotificationSettings(int groupID, int userID)

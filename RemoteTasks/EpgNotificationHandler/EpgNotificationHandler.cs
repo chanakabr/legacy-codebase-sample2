@@ -130,11 +130,22 @@ namespace EpgNotificationHandler
 
         private static bool CheckIfEventDatesValid(NotificationPartnerSettingsResponse ns, EpgNotificationEvent serviceEvent)
         {
-            var tr = ns.settings.EpgNotification.TimeRange;
+            var backwardTimeRange = ns.settings.EpgNotification.BackwardTimeRange;
+            var forwardTimeRange = ns.settings.EpgNotification.ForwardTimeRange;
+            if (backwardTimeRange == 0 && forwardTimeRange == 0)
+            {
+                return false;
+            }
+            
             var now = SystemDateTime.UtcNow;
-            var startDate = now.AddHours(-tr);
-            var endDate = now.AddHours(tr);
-            return serviceEvent.UpdatedRange.From >= startDate && serviceEvent.UpdatedRange.From <= endDate;
+            var startDate = now.AddHours(-backwardTimeRange);
+            var endDate = now.AddHours(forwardTimeRange);
+            return CheckIfDateWithinRange(serviceEvent.UpdatedRange.From, startDate, endDate) || CheckIfDateWithinRange(serviceEvent.UpdatedRange.To, startDate, endDate);
+        }
+
+        private static bool CheckIfDateWithinRange(DateTime date, DateTime startRange, DateTime endRange)
+        {
+            return date >= startRange && date <= endRange;
         }
 
         private static bool LiveAssetIdsExists(NotificationPartnerSettingsResponse ns, EpgNotificationEvent serviceEvent)

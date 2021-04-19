@@ -51,6 +51,7 @@ namespace ApiObjects.Notification
         public bool Enabled { get; set; } = false;
         public IReadOnlyCollection<int> DeviceFamilyIds { get; set; } = new List<int>(0);
         public IReadOnlyCollection<long> LiveAssetIds { get; set; } = new List<long>(0);
-        public int TimeRange { get; set; } = 24;
+        public int BackwardTimeRange { get; set; } = 24;
+        public int ForwardTimeRange { get; set; } = 24;
     }
 }
