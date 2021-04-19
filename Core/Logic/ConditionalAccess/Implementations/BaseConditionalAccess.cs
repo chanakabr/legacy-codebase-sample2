@@ -15721,7 +15721,7 @@ namespace Core.ConditionalAccess
                             RecordingsManager.UpdateIndex(task.GroupId, recording.Id, eAction.Delete);
                             RecordingsManager.UpdateCouchbase(task.GroupId, recording.EpgId, recording.Id, true);
                         }
-                        else
+                        else if (task.OldRecordingDuration == 0) 
                         {
                             RecordingsManager.Instance.DeleteRecording(task.GroupId, recording, true, false, domainIds.ToList());
                         }

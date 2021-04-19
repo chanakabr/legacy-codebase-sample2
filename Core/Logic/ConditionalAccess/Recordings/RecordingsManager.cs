@@ -707,7 +707,7 @@ namespace Core.Recordings
         {
             GenericCeleryQueue queue = new GenericCeleryQueue();
             DateTime utcNow = DateTime.UtcNow;
-            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, taskId, recording.Id, 0) { ETA = utcNow };
+            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, taskId, recording.Id, 0, oldRecordingLength) { ETA = utcNow };
             bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
             if (!queueExpiredRecordingResult)
             {
