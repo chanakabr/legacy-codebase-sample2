@@ -332,7 +332,7 @@ namespace APILogic.Api.Managers
             {
                 string permissionRolesInvalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
                 string permissionItemsDictionaryInvalidationKey = LayeredCacheKeys.GetGroupPermissionItemsDictionaryInvalidationKey(groupId);
-                result = LayeredCache.Instance.SetInvalidationKey(permissionRolesInvalidationKey) && LayeredCache.Instance.SetInvalidationKey(permissionItemsDictionaryInvalidationKey);
+                result = LayeredCache.Instance.SetAndProduceInvalidationKey(permissionRolesInvalidationKey) && LayeredCache.Instance.SetInvalidationKey(permissionItemsDictionaryInvalidationKey);
             }
             catch (Exception ex)
             {

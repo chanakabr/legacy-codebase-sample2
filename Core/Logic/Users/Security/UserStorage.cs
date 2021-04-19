@@ -167,7 +167,7 @@ namespace ApiLogic.Users.Security
             if (success)
             {
                 var invalidationKey = LayeredCacheKeys.GetUserInvalidationKey(groupId, userId.ToString());
-                LayeredCache.Instance.SetInvalidationKey(invalidationKey);
+                LayeredCache.Instance.SetAndProduceInvalidationKey(invalidationKey);
             }
             return success;
         }
