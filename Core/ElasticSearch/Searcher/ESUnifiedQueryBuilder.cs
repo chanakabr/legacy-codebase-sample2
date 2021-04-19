@@ -36,6 +36,8 @@ namespace ElasticSearch.Searcher
         public const string AUTO_FILL_FIELD = "auto_fill";
         public const string ENABLE_CDVR = "enable_cdvr";
         public const string ENABLE_CATCHUP = "enable_catchup";
+        protected static readonly Dictionary<string, string> NONE_PHONETIC_LANGUAGES 
+            = new Dictionary<string, string> { { "heb", @"[\u0590-\u05FF]+" } };
 
         protected static readonly ESPrefix epgPrefixTerm = new ESPrefix()
         {
@@ -285,7 +287,7 @@ namespace ElasticSearch.Searcher
 
             filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", pageSize);
             filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
-            
+
             // Join return fields with commas
             if (ReturnFields.Count > 0)
             {
@@ -315,33 +317,33 @@ namespace ElasticSearch.Searcher
                     switch (this.SearchDefinitions.groupByOrder.Value)
                     {
                         case AggregationOrder.Default:
-                        break;
-                        case AggregationOrder.Count_Asc:
-                        {
-                            aggregationsOrder = "_count";
-                            aggregationsOrderDirection = "asc";
                             break;
-                        }
+                        case AggregationOrder.Count_Asc:
+                            {
+                                aggregationsOrder = "_count";
+                                aggregationsOrderDirection = "asc";
+                                break;
+                            }
                         case AggregationOrder.Count_Desc:
-                        {
+                            {
                                 aggregationsOrder = "_count";
                                 aggregationsOrderDirection = "desc";
                                 break;
-                        }
+                            }
                         case AggregationOrder.Value_Asc:
-                        {
-                            aggregationsOrder = "_term";
-                            aggregationsOrderDirection = "asc";
-                            break;
-                        }
+                            {
+                                aggregationsOrder = "_term";
+                                aggregationsOrderDirection = "asc";
+                                break;
+                            }
                         case AggregationOrder.Value_Desc:
-                        {
-                            aggregationsOrder = "_term";
-                            aggregationsOrderDirection = "desc";
-                            break;
-                        }
+                            {
+                                aggregationsOrder = "_term";
+                                aggregationsOrderDirection = "desc";
+                                break;
+                            }
                         default:
-                        break;
+                            break;
                     }
                 }
 
@@ -410,7 +412,7 @@ namespace ElasticSearch.Searcher
                             {
                                 currentAggregation.SubAggrgations.Add(orderAggregation);
                             }
-                            
+
                             if (!string.IsNullOrEmpty(distinctOrder))
                             {
                                 currentAggregation.Order = distinctOrder;
@@ -438,7 +440,7 @@ namespace ElasticSearch.Searcher
                             Size = 0,
                             Type = eElasticAggregationType.terms,
                             Order = aggregationsOrder,
-                            OrderDirection = aggregationsOrderDirection 
+                            OrderDirection = aggregationsOrderDirection
                         };
 
                         currentAggregation.SubAggrgations.Add(subAggregation);
@@ -501,7 +503,7 @@ namespace ElasticSearch.Searcher
             }
 
             fullQuery = filteredQueryBuilder.ToString();
-           
+
             return fullQuery;
         }
 
@@ -519,7 +521,7 @@ namespace ElasticSearch.Searcher
 
                 functions.Add(new ESFunctionScoreFunction(term)
                 {
-                    weight = 100 
+                    weight = 100
                 });
             }
 
@@ -594,7 +596,7 @@ namespace ElasticSearch.Searcher
                     Key = "is_active",
                     Value = "1"
                 };
-            
+
                 globalFilter.AddChild(isActiveTerm);
             }
 
@@ -629,24 +631,24 @@ namespace ElasticSearch.Searcher
                         switch (item.Key)
                         {
                             case ApiObjects.eAssetTypes.UNKNOWN:
-                            break;
+                                break;
                             case ApiObjects.eAssetTypes.EPG:
-                            {
-                                epgFilter.AddChild(idsTerm);
-                                break;
-                            }
+                                {
+                                    epgFilter.AddChild(idsTerm);
+                                    break;
+                                }
                             case ApiObjects.eAssetTypes.NPVR:
-                            {
-                                recordingFilter.AddChild(idsTerm);
-                                break;
-                            }
+                                {
+                                    recordingFilter.AddChild(idsTerm);
+                                    break;
+                                }
                             case ApiObjects.eAssetTypes.MEDIA:
-                            {
-                                mediaFilter.AddChild(idsTerm);
-                                break;
-                            }
+                                {
+                                    mediaFilter.AddChild(idsTerm);
+                                    break;
+                                }
                             default:
-                            break;
+                                break;
                         }
                     }
                 }
@@ -669,24 +671,24 @@ namespace ElasticSearch.Searcher
                     switch (item.Key)
                     {
                         case ApiObjects.eAssetTypes.UNKNOWN:
-                        break;
+                            break;
                         case ApiObjects.eAssetTypes.EPG:
-                        {
-                            epgFilter.AddChild(idsTerm);
-                            break;
-                        }
+                            {
+                                epgFilter.AddChild(idsTerm);
+                                break;
+                            }
                         case ApiObjects.eAssetTypes.NPVR:
-                        {
-                            recordingFilter.AddChild(idsTerm);
-                            break;
-                        }
+                            {
+                                recordingFilter.AddChild(idsTerm);
+                                break;
+                            }
                         case ApiObjects.eAssetTypes.MEDIA:
-                        {
-                            mediaFilter.AddChild(idsTerm);
-                            break;
-                        }
+                            {
+                                mediaFilter.AddChild(idsTerm);
+                                break;
+                            }
                         default:
-                        break;
+                            break;
                     }
                 }
             }
@@ -733,7 +735,7 @@ namespace ElasticSearch.Searcher
 
                     epgDatesFilter.AddChild(epgEndDateRange);
                 }
-                
+
                 if (SearchDefinitions.shouldUseSearchEndDate)
                 {
                     // by search_end_date - for buffer issues - MUST BE LT (nor Equal)          
@@ -1054,7 +1056,7 @@ namespace ElasticSearch.Searcher
 
                 // region ObjectVirtualAsset 
                 if ((SearchDefinitions.ksqlAssetTypes?.Count == 0 || SearchDefinitions.ksqlAssetTypes.Contains("media"))
-                    && SearchDefinitions.mediaTypes?.Count == 0 
+                    && SearchDefinitions.mediaTypes?.Count == 0
                     && SearchDefinitions.ObjectVirtualAssetIds?.Count > 0)
                 {
                     ESTerms objectVirtualAssetIds = new ESTerms(true)
@@ -1063,8 +1065,8 @@ namespace ElasticSearch.Searcher
                         isNot = true
                     };
 
-                    objectVirtualAssetIds.Value.AddRange(SearchDefinitions.ObjectVirtualAssetIds.Select( x=>x.ToString()));
-                    
+                    objectVirtualAssetIds.Value.AddRange(SearchDefinitions.ObjectVirtualAssetIds.Select(x => x.ToString()));
+
                     mediaFilter.AddChild(objectVirtualAssetIds);
                 }
 
@@ -1076,7 +1078,7 @@ namespace ElasticSearch.Searcher
             if (this.SearchDefinitions.shouldSearchRecordings)
             {
                 FilterCompositeType recoedingsDatesFilter = new FilterCompositeType(CutWith.AND);
-                
+
                 if (!recoedingsDatesFilter.IsEmpty())
                 {
                     recordingFilter.AddChild(recoedingsDatesFilter);
@@ -1086,7 +1088,7 @@ namespace ElasticSearch.Searcher
             #region Excluded CRIDs
 
             if (this.SearchDefinitions.shouldSearchRecordings || this.SearchDefinitions.shouldSearchEpg)
-            {                
+            {
 
                 if (this.SearchDefinitions.excludedCrids != null && this.SearchDefinitions.excludedCrids.Count > 0)
                 {
@@ -1329,7 +1331,7 @@ namespace ElasticSearch.Searcher
             bool shouldSearchRecordings = false;
             bool shouldSearchEpg = false;
             bool shouldSearchMedia = false;
-            
+
             QueryFilter filterPart = new QueryFilter();
             BaseFilterCompositeType filterParent = new FilterCompositeType(CutWith.AND);
 
@@ -1381,30 +1383,30 @@ namespace ElasticSearch.Searcher
                 switch (item.Key)
                 {
                     case ApiObjects.eAssetTypes.UNKNOWN:
-                    break;
+                        break;
                     case ApiObjects.eAssetTypes.EPG:
-                    {
-                        epgIdsTerm.Value.Add(item.Value);
-                        shouldSearchEpg = true;
-                        break;
-                    }
-                    case ApiObjects.eAssetTypes.NPVR:
-                    {
-                        if (!shouldIgnoreRecordings)
                         {
-                            recordingIdsTerm.Value.Add(item.Value);
-                            shouldSearchRecordings = true;
+                            epgIdsTerm.Value.Add(item.Value);
+                            shouldSearchEpg = true;
+                            break;
                         }
-                        break;
-                    }
+                    case ApiObjects.eAssetTypes.NPVR:
+                        {
+                            if (!shouldIgnoreRecordings)
+                            {
+                                recordingIdsTerm.Value.Add(item.Value);
+                                shouldSearchRecordings = true;
+                            }
+                            break;
+                        }
                     case ApiObjects.eAssetTypes.MEDIA:
-                    {
-                        mediaIdsTerm.Value.Add(item.Value);
-                        shouldSearchMedia = true;
-                        break;
-                    }
+                        {
+                            mediaIdsTerm.Value.Add(item.Value);
+                            shouldSearchMedia = true;
+                            break;
+                        }
                     default:
-                    break;
+                        break;
                 }
             }
 
@@ -1647,7 +1649,7 @@ namespace ElasticSearch.Searcher
 
                     if (definition.shouldSearchRecordings)
                     {
-                        typesList.Add(recording);                        
+                        typesList.Add(recording);
                     }
                 }
             }
@@ -1737,7 +1739,7 @@ namespace ElasticSearch.Searcher
             filteredQueryBuilder.Append("{");
             filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
             filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
-            
+
             // If not exact, order by score, and vice versa
             string sort = GetSort(this.SearchDefinitions.order, this.ReturnFields);
 
@@ -1928,6 +1930,7 @@ namespace ElasticSearch.Searcher
                         leaf.operand == ApiObjects.ComparisonOperator.Phonetic)
                     {
                         string field = string.Empty;
+                        var isFuzzySearch = false;
 
                         if (leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
                         {
@@ -1943,7 +1946,15 @@ namespace ElasticSearch.Searcher
                         }
                         else if (leaf.operand == ApiObjects.ComparisonOperator.Phonetic)
                         {
-                            field = string.Format("{0}.phonetic", leaf.field);
+                            if (leaf.valueType == typeof(string) && !IsLanguagePhoneticSupported(leaf.value.ToString()))
+                            {
+                                isFuzzySearch = true;
+                                field = leaf.field;
+                            }
+                            else
+                            {
+                                field = string.Format("{0}.phonetic", leaf.field);
+                            }
                         }
                         else if (leaf.operand == ApiObjects.ComparisonOperator.Equals &&
                             leaf.shouldLowercase)
@@ -1955,12 +1966,19 @@ namespace ElasticSearch.Searcher
                             field = leaf.field;
                         }
 
-                        term = new ESMatchQuery(null)
+                        if (isFuzzySearch)
                         {
-                            Field = field,
-                            eOperator = CutWith.AND,
-                            Query = value
-                        };
+                            term = new ESFuzzyQuery(field, value) { eOperator = CutWith.AND };
+                        }
+                        else
+                        {
+                            term = new ESMatchQuery(null)
+                            {
+                                Field = field,
+                                eOperator = CutWith.AND,
+                                Query = value
+                            };
+                        }
                     }
                     // "bool" with "must_not" when no contains
                     else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
@@ -2145,11 +2163,21 @@ namespace ElasticSearch.Searcher
                         {
                             (term as BoolQuery).AddChild(newChild, cut);
                         }
-                    }   
+                    }
                 }
             }
 
             return (term);
+        }
+
+        //Select fuzzy instead of phonetic if phrase is in non supported language
+        private bool IsLanguagePhoneticSupported(string phrase)
+        {
+            if (string.IsNullOrEmpty(phrase))
+                return true;
+
+            var anyMatch = NONE_PHONETIC_LANGUAGES.Any(x => System.Text.RegularExpressions.Regex.IsMatch(phrase, x.Value));
+            return !anyMatch;
         }
 
         private IESTerm BuildRecordingIdTerm(BooleanLeaf leaf)
@@ -2283,10 +2311,10 @@ namespace ElasticSearch.Searcher
             {
                 // If user has no preferences at all
                 result = new ESTerm(true)
-                    {
-                        Key = "_id",
-                        Value = "-1"
-                    };
+                {
+                    Key = "_id",
+                    Value = "-1"
+                };
             }
 
             return result;
@@ -2323,19 +2351,19 @@ namespace ElasticSearch.Searcher
                     switch (item.Key)
                     {
                         case ApiObjects.eAssetTypes.EPG:
-                        {
-                            idsFilter.AddChild(epgPrefixTerm);
-                            break;
-                        }
+                            {
+                                idsFilter.AddChild(epgPrefixTerm);
+                                break;
+                            }
                         case ApiObjects.eAssetTypes.MEDIA:
-                        {
-                            idsFilter.AddChild(mediaPrefixTerm);
-                            break;
-                        }
+                            {
+                                idsFilter.AddChild(mediaPrefixTerm);
+                                break;
+                            }
                         case ApiObjects.eAssetTypes.UNKNOWN:
                         case ApiObjects.eAssetTypes.NPVR:
                         default:
-                        break;
+                            break;
                     }
 
                     assetsFilter.AddChild(idsFilter);
@@ -2372,19 +2400,19 @@ namespace ElasticSearch.Searcher
                     switch (item.Key)
                     {
                         case ApiObjects.eAssetTypes.EPG:
-                        {
-                            idsFilter.AddChild(epgPrefixTerm);
-                            break;
-                        }
+                            {
+                                idsFilter.AddChild(epgPrefixTerm);
+                                break;
+                            }
                         case ApiObjects.eAssetTypes.MEDIA:
-                        {
-                            idsFilter.AddChild(mediaPrefixTerm);
-                            break;
-                        }
+                            {
+                                idsFilter.AddChild(mediaPrefixTerm);
+                                break;
+                            }
                         case ApiObjects.eAssetTypes.UNKNOWN:
                         case ApiObjects.eAssetTypes.NPVR:
                         default:
-                        break;
+                            break;
                     }
 
                     assetsFilter.AddChild(idsFilter);
@@ -2395,7 +2423,7 @@ namespace ElasticSearch.Searcher
             {
                 Filter = new QueryFilter()
                 {
-                   FilterSettings = assetsFilter
+                    FilterSettings = assetsFilter
                 }
             };
 
@@ -2407,9 +2435,9 @@ namespace ElasticSearch.Searcher
                 entitlementSearchDefinitions.fileTypes.Count > 0)
             {
                 fileTypeTerm = new ESTerms(true)
-                    {
-                        Key = "free_file_types",
-                    };
+                {
+                    Key = "free_file_types",
+                };
                 var fileTypes = entitlementSearchDefinitions.fileTypes.Select(t => t.ToString());
                 fileTypeTerm.Value.AddRange(fileTypes);
             }
@@ -2438,15 +2466,15 @@ namespace ElasticSearch.Searcher
                 // if we want ONLY ENTITLED assets
                 // and user has no entitlements:
                 // create an empty, dummy query
-                if (!entitlementSearchDefinitions.shouldGetFreeAssets && 
-                    (this.SubscriptionsQuery == null || 
+                if (!entitlementSearchDefinitions.shouldGetFreeAssets &&
+                    (this.SubscriptionsQuery == null ||
                     (this.SubscriptionsQuery.IsEmpty() && specificAssetsTerm.Filter.FilterSettings.IsEmpty())))
                 {
                     boolQuery.AddChild(new ESTerm(true)
                     {
                         Key = "_id",
                         Value = "-1"
-                    }, 
+                    },
                     CutWith.OR);
                 }
                 else
@@ -2564,89 +2592,89 @@ namespace ElasticSearch.Searcher
             switch (leaf.operand)
             {
                 case ApiObjects.ComparisonOperator.Equals:
-                {
-                    term = new ESTerm(isNumeric)
                     {
-                        Key = leaf.field,
-                        Value = value
-                    };
+                        term = new ESTerm(isNumeric)
+                        {
+                            Key = leaf.field,
+                            Value = value
+                        };
 
-                    break;
-                }
+                        break;
+                    }
                 case ApiObjects.ComparisonOperator.NotEquals:
-                {
-                    term = new ESTerm(isNumeric)
                     {
-                        Key = leaf.field,
-                        Value = value,
-                        isNot = true
-                    };
+                        term = new ESTerm(isNumeric)
+                        {
+                            Key = leaf.field,
+                            Value = value,
+                            isNot = true
+                        };
 
-                    break;
-                }
+                        break;
+                    }
                 case ApiObjects.ComparisonOperator.GreaterThanOrEqual:
                 case ApiObjects.ComparisonOperator.GreaterThan:
                 case ApiObjects.ComparisonOperator.LessThanOrEqual:
                 case ApiObjects.ComparisonOperator.LessThan:
-                {
-                    term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
+                    {
+                        term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
 
-                    break;
-                }
+                        break;
+                    }
                 case ApiObjects.ComparisonOperator.In:
-                {
-                    term = new ESTerms(false)
                     {
-                        Key = leaf.field
-                    };
+                        term = new ESTerms(false)
+                        {
+                            Key = leaf.field
+                        };
 
-                    (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+                        (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
 
-                    break;
-                }
+                        break;
+                    }
                 case ApiObjects.ComparisonOperator.NotIn:
-                {
-                    term = new ESTerms(false)
                     {
-                        Key = leaf.field,
-                        isNot = true
-                    };
+                        term = new ESTerms(false)
+                        {
+                            Key = leaf.field,
+                            isNot = true
+                        };
 
-                    (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
+                        (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
 
-                    break;
-                }
+                        break;
+                    }
                 case ApiObjects.ComparisonOperator.Prefix:
-                {
-                    term = new ESPrefix()
                     {
-                        Key = leaf.field,
-                        Value = value
-                    };
+                        term = new ESPrefix()
+                        {
+                            Key = leaf.field,
+                            Value = value
+                        };
 
-                    break;
-                }
+                        break;
+                    }
                 case ApiObjects.ComparisonOperator.Exists:
-                {
-                    term = new ESExists()
                     {
-                        Value = leaf.field
-                    };
-                    
-                    break;
-                }
+                        term = new ESExists()
+                        {
+                            Value = leaf.field
+                        };
+
+                        break;
+                    }
                 case ApiObjects.ComparisonOperator.NotExists:
-                {
-                    term = new ESExists()
                     {
-                        Value = leaf.field,
-                        isNot = true
-                    };
-                    
-                    break;
-                }
+                        term = new ESExists()
+                        {
+                            Value = leaf.field,
+                            isNot = true
+                        };
+
+                        break;
+                    }
                 default:
-                break;
+                    break;
             }
 
             return (term);
@@ -2664,29 +2692,29 @@ namespace ElasticSearch.Searcher
             switch (comparisonOperator)
             {
                 case ApiObjects.ComparisonOperator.GreaterThanOrEqual:
-                {
-                    rangeComparison = eRangeComp.GTE;
-                    break;
-                }
+                    {
+                        rangeComparison = eRangeComp.GTE;
+                        break;
+                    }
                 case ApiObjects.ComparisonOperator.GreaterThan:
-                {
-                    rangeComparison = eRangeComp.GT;
-                    break;
-                }
+                    {
+                        rangeComparison = eRangeComp.GT;
+                        break;
+                    }
                 case ApiObjects.ComparisonOperator.LessThanOrEqual:
-                {
-                    rangeComparison = eRangeComp.LTE;
-                    break;
-                }
+                    {
+                        rangeComparison = eRangeComp.LTE;
+                        break;
+                    }
                 case ApiObjects.ComparisonOperator.LessThan:
-                {
-                    rangeComparison = eRangeComp.LT;
-                    break;
-                }
+                    {
+                        rangeComparison = eRangeComp.LT;
+                        break;
+                    }
                 default:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
             }
 
             (term as ESRange).Value.Add(new KeyValuePair<eRangeComp, string>(rangeComparison, value));
@@ -2716,7 +2744,7 @@ namespace ElasticSearch.Searcher
             }
 
             string primaryOrderField = string.Empty;
-            
+
             if (order.m_eOrderBy == OrderBy.META)
             {
                 string metaFieldName = string.Empty;
@@ -2805,7 +2833,7 @@ namespace ElasticSearch.Searcher
                 : string.Format("metas.{0}", order.m_sOrderValue.ToLower());
         }
 
-        public static void GetAggregationsOrder(OrderObj orderObj, 
+        public static void GetAggregationsOrder(OrderObj orderObj,
             out string aggregationsOrder, out string aggregationsOrderDirection, out ESBaseAggsItem orderAggregation)
         {
             aggregationsOrder = "order_aggregation";
@@ -2825,61 +2853,61 @@ namespace ElasticSearch.Searcher
             switch (orderObj.m_eOrderBy)
             {
                 case OrderBy.ID:
-                {
-                    aggregationsOrder = "_term";
-                    aggregationsOrderDirection = "asc";
+                    {
+                        aggregationsOrder = "_term";
+                        aggregationsOrderDirection = "asc";
 
-                    break;
-                }
+                        break;
+                    }
                 case OrderBy.VIEWS:
-                break;
+                    break;
                 case OrderBy.RATING:
-                break;
+                    break;
                 case OrderBy.VOTES_COUNT:
-                break;
+                    break;
                 case OrderBy.LIKE_COUNTER:
-                break;
+                    break;
                 case OrderBy.START_DATE:
-                {
-                    field = "start_date";
-                    break;
-                }
+                    {
+                        field = "start_date";
+                        break;
+                    }
                 case OrderBy.NAME:
-                {
-                    aggregationsOrder = "_term";
-                    aggregationsOrderDirection = "asc";
+                    {
+                        aggregationsOrder = "_term";
+                        aggregationsOrderDirection = "asc";
 
-                    break;
-                }
+                        break;
+                    }
                 case OrderBy.CREATE_DATE:
-                {
-                    field = "create_date";
-                    break;
-                }
+                    {
+                        field = "create_date";
+                        break;
+                    }
                 case OrderBy.META:
-                {
-                    aggregationsOrder = "_term";
-                    aggregationsOrderDirection = "asc";
+                    {
+                        aggregationsOrder = "_term";
+                        aggregationsOrderDirection = "asc";
 
-                    break;
-                }
+                        break;
+                    }
                 case OrderBy.RANDOM:
-                break;
+                    break;
                 case OrderBy.RELATED:
-                {
-                    script = "_score";
-                    break;
-                }
+                    {
+                        script = "_score";
+                        break;
+                    }
                 case OrderBy.NONE:
-                {
-                    script = "_score";
-                    break;
-                }
+                    {
+                        script = "_score";
+                        break;
+                    }
                 case OrderBy.RECOMMENDATION:
-                break;
+                    break;
 
                 default:
-                break;
+                    break;
             }
 
             if (!string.IsNullOrEmpty(field) || !string.IsNullOrEmpty(script))
