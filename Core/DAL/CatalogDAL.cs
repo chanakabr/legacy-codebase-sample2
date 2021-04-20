@@ -4184,7 +4184,7 @@ namespace Tvinci.Core.DAL
         public static PlayCycleSession GetUserPlayCycle(string siteGuid, int MediaFileID, int groupID, string UDID, int platform)
         {
             string key = UtilsDal.GetPlayCycleKey(siteGuid, MediaFileID, groupID, UDID, platform);
-            return UtilsDal.GetObjectFromCB<PlayCycleSession>(eCouchbaseBucket.SOCIAL, key, true);
+            return UtilsDal.GetObjectFromCB<PlayCycleSession>(eCouchbaseBucket.SOCIAL, key);
         }
 
         public static List<LinearChannelSettings> GetLinearChannelSettings(int groupId, List<int> epgChannelIDs)
