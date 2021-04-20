@@ -162,7 +162,7 @@ namespace Core.Users
                 LayeredCacheKeys.GetDomainDeviceInvalidationKey(GroupId, DomainId, DeviceId.ToString())
             };
 
-            LayeredCache.Instance.SetAndProduceInvalidationKeys(invalidationKeys);
+            LayeredCache.Instance.InvalidateKeys(invalidationKeys);
         }
 
         public IConditionScope ConvertToConditionScope(ContextData contextData)

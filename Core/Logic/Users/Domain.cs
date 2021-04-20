@@ -920,7 +920,7 @@ namespace Core.Users
                         {
                             // add invalidation key for user roles cache
                             string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nGroupID, nUserID.ToString());
-                            if (!LayeredCache.Instance.SetAndProduceInvalidationKey(invalidationKey))
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on AddUserToDomain key = {0}", invalidationKey);
                             }
@@ -2906,7 +2906,7 @@ namespace Core.Users
 
                     // add invalidation key for user roles cache
                     string userRoleInvalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(m_nGroupID, userId.ToString());
-                    if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetAndProduceInvalidationKey(userRoleInvalidationKey))
+                    if (!CachingProvider.LayeredCache.LayeredCache.Instance.SetInvalidationKey(userRoleInvalidationKey))
                         log.ErrorFormat("Failed to set invalidation key on RemoveDomain key = {0}", userRoleInvalidationKey);
                 }
 
@@ -2996,7 +2996,7 @@ namespace Core.Users
                 invalidationKeys.Add(LayeredCacheKeys.GetUserRolesInvalidationKey(m_nGroupID, userID.ToString()));
             }
 
-            LayeredCache.Instance.SetAndProduceInvalidationKeys(invalidationKeys);
+            LayeredCache.Instance.InvalidateKeys(invalidationKeys);
         }
 
         public void InvalidateDomain()

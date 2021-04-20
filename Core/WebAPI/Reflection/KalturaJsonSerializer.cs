@@ -38680,10 +38680,6 @@ namespace WebAPI.Models.CanaryDeployment
                 propertyValue = "{" + String.Join(", ", RoutingConfiguration.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
                 ret.Add("routingConfiguration", "\"routingConfiguration\": " + propertyValue);
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("shouldProduceInvalidationEventsToKafka")))
-            {
-                ret.Add("shouldProduceInvalidationEventsToKafka", "\"shouldProduceInvalidationEventsToKafka\": " + ShouldProduceInvalidationEventsToKafka.ToString().ToLower());
-            }
             return ret;
         }
         
@@ -38712,10 +38708,6 @@ namespace WebAPI.Models.CanaryDeployment
             {
                 propertyValue = RoutingConfiguration.Count > 0 ? "<item>" + String.Join("</item><item>", RoutingConfiguration.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("routingConfiguration", "<routingConfiguration>" + propertyValue + "</routingConfiguration>");
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("shouldProduceInvalidationEventsToKafka")))
-            {
-                ret.Add("shouldProduceInvalidationEventsToKafka", "<shouldProduceInvalidationEventsToKafka>" + ShouldProduceInvalidationEventsToKafka.ToString().ToLower() + "</shouldProduceInvalidationEventsToKafka>");
             }
             return ret;
         }

@@ -381,8 +381,6 @@ namespace ApiLogic.CanaryDeployment
                 return validateStatus;
             }
 
-            // always enable invalidation events when routing an action to PhoenixRestProxy
-            cdc.ShouldProduceInvalidationEventsToKafka = isRoutingToPhoenixRestProxy;
             Status res = new Status(eResponseStatus.Error, "Failed updating CanaryDeploymentConfiguration");
             List<string> apisToRoute = new List<string>();
             switch (routingAction)

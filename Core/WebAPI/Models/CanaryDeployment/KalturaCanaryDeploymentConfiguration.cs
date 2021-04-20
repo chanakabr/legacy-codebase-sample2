@@ -34,12 +34,5 @@ namespace WebAPI.Models.CanaryDeployment
         [XmlElement(ElementName = "migrationEvents")]
         public KalturaCanaryDeploymentMigrationEvents MigrationEvents { get; set; }
 
-        /// <summary>
-        /// ShouldProduceInvalidationEventsToKafka
-        /// </summary>
-        [DataMember(Name = "shouldProduceInvalidationEventsToKafka")]
-        [JsonProperty("shouldProduceInvalidationEventsToKafka")]
-        [XmlElement(ElementName = "shouldProduceInvalidationEventsToKafka")]
-        public bool ShouldProduceInvalidationEventsToKafka { get; set; }
     }
 }

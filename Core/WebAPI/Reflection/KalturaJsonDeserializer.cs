@@ -31166,10 +31166,6 @@ namespace WebAPI.Models.CanaryDeployment
                         MigrationEvents = (KalturaCanaryDeploymentMigrationEvents) Deserializer.deserialize(typeof(KalturaCanaryDeploymentMigrationEvents), (Dictionary<string, object>) parameters["migrationEvents"]);
                     }
                 }
-                if (parameters.ContainsKey("shouldProduceInvalidationEventsToKafka") && parameters["shouldProduceInvalidationEventsToKafka"] != null)
-                {
-                    ShouldProduceInvalidationEventsToKafka = (Boolean) Convert.ChangeType(parameters["shouldProduceInvalidationEventsToKafka"], typeof(Boolean));
-                }
             }
         }
     }

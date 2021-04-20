@@ -542,7 +542,7 @@ namespace Core.Users
                         if (UsersDal.UpsertUserRoleIds(m_nGroupID, userId, newUser.m_oBasicData.RoleIds))
                         {
                             string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(m_nGroupID, userId.ToString());
-                            if (!LayeredCache.Instance.SetAndProduceInvalidationKey(invalidationKey))
+                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                             {
                                 log.ErrorFormat("Failed to set invalidation key on AddNewUser key = {0}", invalidationKey);
                             }

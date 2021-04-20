@@ -317,7 +317,7 @@ namespace Core.Users
             {
                 // add invalidation key for user roles cache
                 string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, nUserID.ToString());
-                LayeredCache.Instance.SetAndProduceInvalidationKey(invalidationKey);
+                LayeredCache.Instance.SetInvalidationKey(invalidationKey);
             }
 
             return saved;
