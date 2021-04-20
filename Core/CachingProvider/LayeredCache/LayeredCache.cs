@@ -52,7 +52,6 @@ namespace CachingProvider.LayeredCache
         private readonly bool ShouldProduceInvalidationEventsToKafka;
         private readonly string InvalidationEventsTopic = ApplicationConfiguration.Current.MicroservicesClientConfiguration.LayeredCacheConfiguration.InvalidationEventsTopic.Value;
         private readonly IEventBusPublisher _InvalidationEventsPublisher;
-        private List<Regex> _InvalidationEventsRegexRules;
 
         private LayeredCache()
         {
@@ -1533,15 +1532,6 @@ namespace CachingProvider.LayeredCache
             {
                 if (string.IsNullOrEmpty(key)) { return; }
 
-                // if we have some rules we have to verify the key is matched before we send invalidation event
-                if (_InvalidationEventsRegexRules.Any())
-                {
-                    if (!_InvalidationEventsRegexRules.Any(r => r.IsMatch(key)))
-                    {
-                        return;
-                    }
-                }
-                
                 var invalidationEvent = new CacheInvalidationEvent(key, InvalidationEventsTopic);
                 if (invalidationEvent != null)
                 {
