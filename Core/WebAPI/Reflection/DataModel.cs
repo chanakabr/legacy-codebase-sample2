@@ -1393,6 +1393,8 @@ namespace WebAPI.Reflection
                             return "name";
                         case "ParentId":
                             return "parentId";
+                        case "ReferenceId":
+                            return "referenceId";
                         case "StartDateInSeconds":
                             return "startDateInSeconds";
                         case "Type":
@@ -1463,6 +1465,8 @@ namespace WebAPI.Reflection
                             return "isActive";
                         case "Name":
                             return "name";
+                        case "ReferenceId":
+                            return "referenceId";
                         case "StartDateInSeconds":
                             return "startDateInSeconds";
                         case "Type":
@@ -2909,14 +2913,16 @@ namespace WebAPI.Reflection
                 case "KalturaEpgNotificationSettings":
                     switch(property.Name)
                     {
+                        case "BackwardTimeRange":
+                            return "backwardTimeRange";
                         case "DeviceFamilyIds":
                             return "deviceFamilyIds";
                         case "Enabled":
                             return "enabled";
+                        case "ForwardTimeRange":
+                            return "forwardTimeRange";
                         case "LiveAssetIds":
                             return "liveAssetIds";
-                        case "TimeRange":
-                            return "timeRange";
                     }
                     break;
                     

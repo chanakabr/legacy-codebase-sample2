@@ -52,7 +52,6 @@ namespace CachingProvider.LayeredCache
         private readonly bool ShouldProduceInvalidationEventsToKafka;
         private readonly string InvalidationEventsTopic = ApplicationConfiguration.Current.MicroservicesClientConfiguration.LayeredCacheConfiguration.InvalidationEventsTopic.Value;
         private readonly IEventBusPublisher _InvalidationEventsPublisher;
-        private List<Regex> _InvalidationEventsRegexRules;
 
         private LayeredCache()
         {
@@ -62,7 +61,6 @@ namespace CachingProvider.LayeredCache
             if (ShouldProduceInvalidationEventsToKafka)
             {
                 _InvalidationEventsPublisher = KafkaPublisher.GetFromTcmConfiguration();
-                LoadInvalidationEventsRules();
             }
         }
 
@@ -77,23 +75,6 @@ namespace CachingProvider.LayeredCache
             }
 
             return shouldProduceInvalidationEventsToKafka;
-        }
-
-        private void LoadInvalidationEventsRules()
-        {
-            _InvalidationEventsRegexRules = new List<Regex>();
-            foreach (var regexRule in ApplicationConfiguration.Current.MicroservicesClientConfiguration.LayeredCacheConfiguration.InvalidationEventsMatchRules.Value)
-            {
-                try
-                {
-                    var regex = new Regex(regexRule, RegexOptions.Compiled);
-                    _InvalidationEventsRegexRules.Add(regex);
-                }
-                catch (Exception e)
-                {
-                    log.Error($"error parsing invalidation event rule:[{regexRule}], skipping the rule.", e);
-                }
-            }
         }
 
         public static LayeredCache Instance
@@ -353,6 +334,44 @@ namespace CachingProvider.LayeredCache
             }
 
             return result;
+        }
+
+        public bool SetAndProduceInvalidationKey(string key, DateTime? updatedAt = null)
+        {
+            try
+            {
+                var isSetSuccess = SetInvalidationKey(key, updatedAt);
+                if (ShouldProduceInvalidationEventsToKafka && isSetSuccess)
+                {
+                    ProduceInvalidationEvent(key);
+                }
+
+                return isSetSuccess;
+            }
+            catch (Exception e)
+            {
+                log.Error($"Error while trying to set and produce invalidation key:[{key}], updatedAt:[{updatedAt}]", e);
+                return false;
+            }
+        }
+        
+        public bool SetAndProduceInvalidationKeys(List<string> keys, DateTime? updatedAt = null)
+        {
+            try
+            {
+                var isSetSuccess = InvalidateKeys(keys, updatedAt);
+                if (ShouldProduceInvalidationEventsToKafka && isSetSuccess)
+                {
+                    keys?.ForEach(k=>ProduceInvalidationEvent(k));
+                }
+
+                return isSetSuccess;
+            }
+            catch (Exception e)
+            {
+                log.Error($"Error while trying to set and produce invalidation keys.count:[{keys?.Count}], updatedAt:[{updatedAt}]", e);
+                return false;
+            }
         }
 
         public bool SetInvalidationKey(string key, DateTime? updatedAt = null)
@@ -1479,11 +1498,6 @@ namespace CachingProvider.LayeredCache
         private bool TrySetInValidationKey(string key, long valueToUpdate)
         {
             bool res = false;
-            if (ShouldProduceInvalidationEventsToKafka)
-            {
-                ProduceInvalidationEvent(key);
-            }
-
             try
             {
                 if (string.IsNullOrEmpty(key))
@@ -1518,15 +1532,6 @@ namespace CachingProvider.LayeredCache
             {
                 if (string.IsNullOrEmpty(key)) { return; }
 
-                // if we have some rules we have to verify the key is matched before we send invalidation event
-                if (_InvalidationEventsRegexRules.Any())
-                {
-                    if (!_InvalidationEventsRegexRules.Any(r => r.IsMatch(key)))
-                    {
-                        return;
-                    }
-                }
-                
                 var invalidationEvent = new CacheInvalidationEvent(key, InvalidationEventsTopic);
                 if (invalidationEvent != null)
                 {

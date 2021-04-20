@@ -1191,7 +1191,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
               .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds, src.NullableProperties)))
               .ForMember(dest => dest.VersionId, opt => opt.MapFrom(src => src.VersionId))
-              .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
+              .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
+              .ForMember(dest => dest.ReferenceId, opt => opt.MapFrom(src => src.ReferenceId));
 
             cfg.CreateMap<ApiLogic.Catalog.CategoryItem, KalturaCategoryItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1206,7 +1207,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds))
                .ForMember(dest => dest.VersionId, opt => opt.MapFrom(src => src.VersionId))
-               .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
+               .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
+               .ForMember(dest => dest.ReferenceId, opt => opt.MapFrom(src => src.ReferenceId));
 
             cfg.CreateMap<UnifiedChannelType, KalturaChannelType>()
                 .ConvertUsing(type =>
@@ -1267,7 +1269,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.VersionId, opt => opt.MapFrom(src => src.VersionId))
-                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
+                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
+                .ForMember(dest => dest.ReferenceId, opt => opt.MapFrom(src => src.ReferenceId));
 
             cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
                 .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));

@@ -1049,7 +1049,6 @@ namespace Core.Users
                                 response.siteGuid = ODBCWrapper.Utils.GetSafeStr(dr, "user_id");
 
                                 response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "New login pin was generated for the user");
-                                SendCanaryMigrationEvent(eMigrationOperation.Create, groupID, secret, pinUsages, response.pinCode, response.siteGuid, response.expiredDate);
                             }
                         }
                         // login via pin is not allowed
@@ -1081,24 +1080,6 @@ namespace Core.Users
                 log.Error("GenerateLoginPIN - " + string.Format("Failed ex={0}, siteGuid={1}, groupID ={2}, ", ex.Message, siteGuid, groupID), ex);
             }
             return response;
-        }
-
-        private static void SendCanaryMigrationEvent(eMigrationOperation op, int groupID, string secret, int? pinUsages, string pinCode, string userId, DateTime? expiredDate)
-        {
-            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(groupID, CanaryDeploymentMigrationEvent.UserPinCode))
-            {
-                var migrationEvent = new ApiObjects.DataMigrationEvents.UserLoginPin()
-                {
-                    Operation = op,
-                    PartnerId = groupID,
-                    Pin = pinCode,
-                    Secret = secret,
-                    RemainingUsages = pinUsages,
-                    ExpirationTime = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(expiredDate),
-                    UserId = long.Parse(userId),
-                };
-                KafkaPublisher.GetFromTcmConfiguration().Publish(migrationEvent);
-            }
         }
 
         private static IEnumerable<int> Digits(bool first)
@@ -1354,9 +1335,6 @@ namespace Core.Users
                             response.siteGuid = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0]["user_id"]);
 
                             response.resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, "login pin code was set for user");
-                            
-                            SendCanaryMigrationEvent(eMigrationOperation.Update, groupID, secret, pinUsages, response.pinCode, response.siteGuid, response.expiredDate);
-                            
                         }
                         else
                         {
@@ -1426,8 +1404,6 @@ namespace Core.Users
                         response = new ApiObjects.Response.Status((int)eResponseStatus.PinNotExists, "The supplied pin code does not exist for the user");
                     }
                 }
-
-                SendCanaryMigrationEvent(eMigrationOperation.Delete, groupID, secret: null, pinUsages: null, pinCode, siteGuid, expiredDate: null);
             }
             catch (Exception ex)
             {
@@ -1551,7 +1527,7 @@ namespace Core.Users
 
                     // add invalidation key for user roles cache
                     string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, userId);
-                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    if (!LayeredCache.Instance.SetAndProduceInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on AddRoleToUser key = {0}", invalidationKey);
                     }

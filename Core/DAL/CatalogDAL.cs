@@ -19,6 +19,7 @@ using System.Reflection;
 using System.Threading;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 using ApiObjects.SearchObjects;
+using CouchbaseManager.Compression;
 
 namespace Tvinci.Core.DAL
 {
@@ -37,10 +38,10 @@ namespace Tvinci.Core.DAL
     {
         // CategoryItemRepository
         long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId);
+             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId, string referenceId);
         bool UpdateCategoryOrderNum(int groupId, long? userId, long id, long? versionId, List<long> childCategoriesIds, List<long> childCategoriesIdsToRemove = null);
         bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot);
+            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string referenceId);
         bool DeleteCategory(int groupId, long? userId, long id);
         List<long> GetCategoriesIdsByChannelId(int groupId, int channelId, UnifiedChannelType channelType);
         Dictionary<long, CategoryParentCache> GetCategories(int groupId);
@@ -1382,7 +1383,7 @@ namespace Tvinci.Core.DAL
         public static int GetLastMediaPosition(int mediaID, int userID)
         {
             string key = UtilsDal.GetUserMediaMarkDocKey(userID.ToString(), mediaID);
-            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIAMARK, key, true);
+            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIAMARK, key);
 
             if (umm != null)
             {
@@ -1395,7 +1396,7 @@ namespace Tvinci.Core.DAL
         public static int GetLastNpvrPosition(string NpvrID, int userID)
         {
             string key = UtilsDal.GetUserNpvrMarkDocKey(userID, NpvrID);
-            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIAMARK, key, true);
+            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIAMARK, key);
 
             if (umm != null)
             {
@@ -4588,7 +4589,7 @@ namespace Tvinci.Core.DAL
         public Dictionary<string, string> GetTopicDynamicData(long topicId)
         {
             var key = GetTopicKey(topicId);
-            return UtilsDal.GetObjectFromCB<Dictionary<string, string>>(eCouchbaseBucket.OTT_APPS, key, true);
+            return UtilsDal.GetObjectFromCB<Dictionary<string, string>>(eCouchbaseBucket.OTT_APPS, key);
         }
 
         bool DeleteTopicDynamicData(long topicId)
@@ -4600,7 +4601,7 @@ namespace Tvinci.Core.DAL
         public static Dictionary<string, int> GetDomainDevices(long domainId)
         {
             var key = GetDomainDevicesKey(domainId);
-            var domainDevices = UtilsDal.GetObjectFromCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, true);
+            var domainDevices = UtilsDal.GetObjectFromCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
             if (domainDevices != null)
             {
                 return domainDevices.ToDictionary(x => x.UDID, x => x.DeviceFamilyId);
@@ -4665,7 +4666,7 @@ namespace Tvinci.Core.DAL
         public static DevicePlayData GetDevicePlayData(string udid)
         {
             string key = GetDevicePlayDataKey(udid);
-            return UtilsDal.GetObjectFromCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, true);
+            return UtilsDal.GetObjectFromCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
         }
 
         #region New Catalog Management
@@ -5576,7 +5577,7 @@ namespace Tvinci.Core.DAL
         public static Dictionary<string, string> GetChannelMetadataById(int id, eChannelType channelType)
         {
             var key = CBChannelMetaData.CreateChannelMetaDataKey(id, channelType);
-            var res = UtilsDal.GetObjectFromCB<CBChannelMetaData>(eCouchbaseBucket.OTT_APPS, key, true);
+            var res = UtilsDal.GetObjectFromCB<CBChannelMetaData>(eCouchbaseBucket.OTT_APPS, key);
 
             return res.MetaData;
         }
@@ -5913,7 +5914,7 @@ namespace Tvinci.Core.DAL
         public static bool SaveBulkUploadCB(BulkUpload bulkUploadToSave, uint ttl)
         {
             var bulkUploadKey = GetBulkUploadKey(bulkUploadToSave.Id);
-            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUploadToSave, false, ttl);
+            return UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUploadToSave, false, ttl, compress: true);
         }
 
         public static bool SaveBulkUploadResultCB(BulkUpload currentBulkUpload, int resultIndex, uint ttl, out BulkUploadJobStatus updatedStatus)
@@ -5981,7 +5982,7 @@ namespace Tvinci.Core.DAL
                 statusAfterUpdate = GetBulkStatusByResultsStatus(bulkUpload);
                 log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
 
-            });
+            }, compress: true);
 
             status = statusAfterUpdate;
             return isUpdateSuccess;
@@ -6000,7 +6001,7 @@ namespace Tvinci.Core.DAL
 
                 statusThatWasActuallyUpdated = bulkUpload.Status;
                 bulkUpload.Errors = bulkUploadToSave.Errors;
-            });
+            }, compress: true);
             updatedStatus = statusThatWasActuallyUpdated;
 
             return isSaveSuccess;
@@ -6157,7 +6158,8 @@ namespace Tvinci.Core.DAL
                         HasDynamicData = ODBCWrapper.Utils.ExtractBoolean(ds.Tables[0].Rows[0], "HAS_METADATA"),
                         StartDate = ODBCWrapper.Utils.ExtractNullableDateTime(ds.Tables[0].Rows[0], "START_DATE"),
                         EndDate = ODBCWrapper.Utils.ExtractNullableDateTime(ds.Tables[0].Rows[0], "END_DATE"),
-                        VirtualAssetId = Utils.GetNullableLong(ds.Tables[0].Rows[0], "VIRTUAL_ASSET_ID")
+                        VirtualAssetId = Utils.GetNullableLong(ds.Tables[0].Rows[0], "VIRTUAL_ASSET_ID"),
+                        ReferenceId = ODBCWrapper.Utils.GetSafeStr(ds.Tables[0].Rows[0], "REFERENCE_ID")
                     };
 
                     if (ds.Tables.Count > 1 && ds.Tables[1].Rows.Count > 0)
@@ -6203,7 +6205,7 @@ namespace Tvinci.Core.DAL
         }
 
         public long InsertCategory(int groupId, long? userId, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId)
+             List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string type, long? versionId, string referenceId)
         {
             try
             {
@@ -6230,7 +6232,8 @@ namespace Tvinci.Core.DAL
                     sp.AddParameter("@endDate", Utils.UtcUnixTimestampSecondsToDateTime(timeSlot.EndDateInSeconds.Value));
                 }
                 sp.AddParameter("@type", type);
-                sp.AddParameter("versionId", versionId);
+                sp.AddParameter("@versionId", versionId);
+                sp.AddParameter("@referenceId", referenceId);
 
                 var id = sp.ExecuteReturnValue<long>();
                 if (dynamicData?.Count > 0 && id > 0)
@@ -6248,7 +6251,7 @@ namespace Tvinci.Core.DAL
         }
 
         public bool UpdateCategory(int groupId, long? userId, long id, string name, List<KeyValuePair<long, string>> namesInOtherLanguages,
-            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot)
+            List<UnifiedChannel> channels, Dictionary<string, string> dynamicData, bool? isActive, TimeSlot timeSlot, string referenceId)
         {
             try
             {
@@ -6267,6 +6270,7 @@ namespace Tvinci.Core.DAL
                 sp.AddDataTableParameter("@categoriesChannels", categoriesChannelsValues);
                 sp.AddParameter("@updaterId", userId);
                 sp.AddParameter("@isActive", isActive);
+                sp.AddParameter("@referenceId", referenceId);
 
                 if (timeSlot != null)
                 {
@@ -6352,7 +6356,7 @@ namespace Tvinci.Core.DAL
         public Dictionary<string, string> GetCategoryDynamicData(long id)
         {
             var key = CBCategoryDynamicData.GetCategoryDynamicDataKey(id);
-            var res = UtilsDal.GetObjectFromCB<CBCategoryDynamicData>(eCouchbaseBucket.OTT_APPS, key, true);
+            var res = UtilsDal.GetObjectFromCB<CBCategoryDynamicData>(eCouchbaseBucket.OTT_APPS, key);
 
             return res.DynamicData;
         }

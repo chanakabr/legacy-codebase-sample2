@@ -115,21 +115,42 @@ public partial class adm_limitation_modules_new : System.Web.UI.Page
             if (Request.QueryString["limit_id"] != null &&
                     Request.QueryString["limit_id"].ToString().Length > 0 /*&& Request.QueryString["limit_id"].ToString().Trim() != "0"*/)
             {
-                Session["limit_id"] = int.Parse(Request.QueryString["limit_id"].ToString());
-                Int32 nOwnerGroupID = 0;
-                try
+                int limitId = int.Parse(Request.QueryString["limit_id"].ToString());
+
+                Session["limit_id"] = limitId;
+
+                if (!PageUtils.IsTvinciUser())
                 {
-                    nOwnerGroupID = int.Parse(PageUtils.GetTableSingleVal("device_families_limitation_modules", "group_id", int.Parse(Session["limit_id"].ToString())).ToString());
-                }
-                catch (Exception ex)
-                {
-                    log.Error(string.Empty, ex);
-                }
-                Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
-                if (nLogedInGroupID != nOwnerGroupID && !PageUtils.IsTvinciUser())
-                {
-                    LoginManager.LogoutFromSite("login.html");
-                    return;
+                    Int32 nOwnerGroupID = 0;
+                    Int32 nLogedInGroupID = LoginManager.GetLoginGroupID();
+
+                    try
+                    {
+                        ODBCWrapper.DataSetSelectQuery selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                        selectQuery.SetCachedSec(0);
+                        selectQuery += "select GROUP_ID from device_families_limitation_modules where";
+                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nLogedInGroupID);
+                        selectQuery += "and";
+                        selectQuery += ODBCWrapper.Parameter.NEW_PARAM("DEVICE_LIMITATION_MODULE_ID", "=", limitId);
+                        if (selectQuery.Execute("query", true) != null)
+                        {
+                            Int32 nCount = selectQuery.Table("query").DefaultView.Count;
+                            if (nCount > 0)
+                                nOwnerGroupID = ODBCWrapper.Utils.GetIntSafeVal(selectQuery, "GROUP_ID", 0);
+                        }
+                        selectQuery.Finish();
+                        selectQuery = null;                        
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error(string.Empty, ex);
+                    }
+                    
+                    if (nLogedInGroupID != nOwnerGroupID)
+                    {
+                        LoginManager.LogoutFromSite("login.html");
+                        return;
+                    }
                 }
             }
             else

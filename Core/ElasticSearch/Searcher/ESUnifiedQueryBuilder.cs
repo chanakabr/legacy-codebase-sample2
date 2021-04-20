@@ -37,6 +37,8 @@ namespace ElasticSearch.Searcher
         public const string ENABLE_CDVR = "enable_cdvr";
         public const string ENABLE_CATCHUP = "enable_catchup";
         public static readonly int MissedHitBucketKey = 999;
+        protected static readonly Dictionary<string, string> NONE_PHONETIC_LANGUAGES 
+            = new Dictionary<string, string> { { "heb", @"[\u0590-\u05FF]+" } };
 
         protected static readonly ESPrefix epgPrefixTerm = new ESPrefix()
         {
@@ -1934,6 +1936,7 @@ namespace ElasticSearch.Searcher
                         leaf.operand == ApiObjects.ComparisonOperator.Phonetic)
                     {
                         string field = string.Empty;
+                        var isFuzzySearch = false;
 
                         if (leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
                         {
@@ -1949,7 +1952,15 @@ namespace ElasticSearch.Searcher
                         }
                         else if (leaf.operand == ApiObjects.ComparisonOperator.Phonetic)
                         {
-                            field = string.Format("{0}.phonetic", leaf.field);
+                            if (leaf.valueType == typeof(string) && !IsLanguagePhoneticSupported(leaf.value.ToString()))
+                            {
+                                isFuzzySearch = true;
+                                field = leaf.field;
+                            }
+                            else
+                            {
+                                field = string.Format("{0}.phonetic", leaf.field);
+                            }
                         }
                         else if (leaf.operand == ApiObjects.ComparisonOperator.Equals &&
                             leaf.shouldLowercase)
@@ -1961,12 +1972,19 @@ namespace ElasticSearch.Searcher
                             field = leaf.field;
                         }
 
-                        term = new ESMatchQuery(null)
+                        if (isFuzzySearch)
                         {
-                            Field = field,
-                            eOperator = CutWith.AND,
-                            Query = value
-                        };
+                            term = new ESFuzzyQuery(field, value) { eOperator = CutWith.AND };
+                        }
+                        else
+                        {
+                            term = new ESMatchQuery(null)
+                            {
+                                Field = field,
+                                eOperator = CutWith.AND,
+                                Query = value
+                            };
+                        }
                     }
                     // "bool" with "must_not" when no contains
                     else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
@@ -2156,6 +2174,16 @@ namespace ElasticSearch.Searcher
             }
 
             return (term);
+        }
+
+        //Select fuzzy instead of phonetic if phrase is in non supported language
+        private bool IsLanguagePhoneticSupported(string phrase)
+        {
+            if (string.IsNullOrEmpty(phrase))
+                return true;
+
+            var anyMatch = NONE_PHONETIC_LANGUAGES.Any(x => System.Text.RegularExpressions.Regex.IsMatch(phrase, x.Value));
+            return !anyMatch;
         }
 
         private IESTerm BuildRecordingIdTerm(BooleanLeaf leaf)

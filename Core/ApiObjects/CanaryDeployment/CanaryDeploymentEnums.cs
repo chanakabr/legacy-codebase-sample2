@@ -44,7 +44,9 @@ namespace ApiObjects.CanaryDeployment
     {
         AppToken = 0,
         RefreshToken = 1,
-        UserPinCode = 2,
+
+        //GEN-1471: decided to remove live migration support for user pin code
+        // UserPinCode = 2,
         DevicePinCode = 3,
         SessionRevocation = 4,
         UserLoginHistory = 5,

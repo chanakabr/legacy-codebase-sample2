@@ -46,7 +46,7 @@ namespace CouchbaseManager
         KEY_NOT_EXIST = 2
     }
 
-    public class CouchbaseManager
+    public class CouchbaseManager : ICouchbaseManager
     {
         #region Consts
 
@@ -1731,6 +1731,11 @@ namespace CouchbaseManager
             }
 
             return result;
+        }
+        
+        public bool SetWithVersion<T>(string key, T content, ulong version, uint expiration)
+        {
+            return SetWithVersion(key, content, version, expiration, asJson: false);
         }
 
         public bool SetWithVersion(string key, object value, ulong version, JsonSerializerSettings jsonSerializerSettings, uint expiration = 0)

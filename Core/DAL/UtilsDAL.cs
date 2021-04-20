@@ -25,9 +25,10 @@ namespace DAL
 
         #region Generic Methods
 
-        public static bool SaveObjectWithVersionCheckInCB<T>(uint ttl, eCouchbaseBucket couchbaseBucket, string key, Action<T> updateObjectAction, bool updateObjectActionIfNotExist = false) where T : new()
+        public static bool SaveObjectWithVersionCheckInCB<T>(uint ttl, eCouchbaseBucket couchbaseBucket, string key, Action<T> updateObjectAction, bool updateObjectActionIfNotExist = false, bool compress = false) where T : new()
         {
-            var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+            var internalCouchBaseManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+            var cbManager = compress ? (ICouchbaseManager) new CompressionCouchbaseManager(internalCouchBaseManager) : internalCouchBaseManager;
             var numOfTries = 0;
             ulong version;
             eResultStatus getResult = eResultStatus.ERROR;
@@ -38,7 +39,6 @@ namespace DAL
                 while (numOfTries < UtilsDal.NUM_OF_INSERT_TRIES)
                 {
                     var objectToSave = cbManager.GetWithVersion<T>(key, out version, out getResult);
-
                     if (getResult == eResultStatus.KEY_NOT_EXIST)
                     {
                         if (!updateObjectActionIfNotExist)
@@ -57,7 +57,9 @@ namespace DAL
                         if (cbManager.SetWithVersion(key, objectToSave, version, ttl))
                         {
                             log.DebugFormat("successfully SaveObjectWithVersionCheckInCB. key:{0}, number of tries:{1}/{2}.",
-                                key, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
+                                key,
+                                numOfTries,
+                                NUM_OF_INSERT_TRIES);
                             return true;
                         }
                     }
@@ -89,10 +91,11 @@ namespace DAL
 
         public static T GetObjectFromCB<T>(eCouchbaseBucket couchbaseBucket, string key, out eResultStatus getResult, bool serializeToString = false)
         {
-            var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+            var internalCouchbaseManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+            var cbManager = new CompressionCouchbaseManager(internalCouchbaseManager);
 
             int numOfTries = 0;
-            JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };
+            var jsonSerializerSettings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Auto };
             T responseT = default(T);
             getResult = eResultStatus.ERROR;
 
@@ -120,7 +123,9 @@ namespace DAL
                     else if (getResult == eResultStatus.SUCCESS)
                     {
                         log.DebugFormat("successfully GetObjectFromCB. number of tries: {0}/{1}. key {2}",
-                                        numOfTries, NUM_OF_TRIES, key);
+                            numOfTries,
+                            NUM_OF_TRIES,
+                            key);
 
                         if (serializeToString)
                         {
@@ -134,8 +139,7 @@ namespace DAL
                     else
                     {
                         numOfTries++;
-                        log.DebugFormat("Error while GetObjectFromCB. number of tries: {0}/{1}. key: {2}",
-                                        numOfTries, NUM_OF_TRIES, key);
+                        log.DebugFormat("Error while GetObjectFromCB. number of tries: {0}/{1}. key: {2}", numOfTries, NUM_OF_TRIES, key);
                         Thread.Sleep(r.Next(50));
                     }
                 }
@@ -212,16 +216,17 @@ namespace DAL
             return null;
         }
 
-        public static bool SaveObjectInCB<T>(eCouchbaseBucket couchbaseBucket, string key, T objectToSave, bool serializeToString = false, uint expirationTTL = 0)
+        public static bool SaveObjectInCB<T>(eCouchbaseBucket couchbaseBucket, string key, T objectToSave, bool serializeToString = false, uint expirationTTL = 0, bool compress = false)
         {
-            return SaveObjectInCB(couchbaseBucket.ToString(), key, objectToSave, serializeToString, expirationTTL);
+            return SaveObjectInCB(couchbaseBucket.ToString(), key, objectToSave, serializeToString, expirationTTL, compress);
         }
 
-        public static bool SaveObjectInCB<T>(string couchbaseBucket, string key, T objectToSave, bool serializeToString = false, uint expirationTTL = 0)
+        public static bool SaveObjectInCB<T>(string couchbaseBucket, string key, T objectToSave, bool serializeToString = false, uint expirationTTL = 0, bool compress = false)
         {
             if (objectToSave != null)
             {
-                var cbManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+                var internalCouchbaseManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
+                var cbManager = compress ? (ICouchbaseManager) new CompressionCouchbaseManager(internalCouchbaseManager) : internalCouchbaseManager;
                 int numOfTries = 0;
 
                 try
@@ -238,7 +243,7 @@ namespace DAL
                     {
                         if (serializeToString)
                         {
-                            if (cbManager.Set<string>(key, serializeObject, expirationTTL))
+                            if (cbManager.Set(key, serializeObject, expirationTTL))
                             {
                                 log.Debug($"successfully SaveObjectInCB. key: {key}, number of tries: {numOfTries}/{NUM_OF_INSERT_TRIES}.");
                                 return true;
@@ -246,7 +251,7 @@ namespace DAL
                         }
                         else
                         {
-                            if (cbManager.Set<T>(key, objectToSave, expirationTTL))
+                            if (cbManager.Set(key, objectToSave, expirationTTL))
                             {
                                 log.Debug($"successfully SaveObjectInCB. key: {key}, number of tries: {numOfTries}/{NUM_OF_INSERT_TRIES}.");
                                 return true;

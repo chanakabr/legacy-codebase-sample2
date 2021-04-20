@@ -1093,7 +1093,7 @@ namespace Tvinci.Core.DAL
 
         public static EpgCB GetEpgCB(string documentId)
         {
-            return UtilsDal.GetObjectFromCB<EpgCB>(eCouchbaseBucket.EPG, documentId, true);
+            return UtilsDal.GetObjectFromCB<EpgCB>(eCouchbaseBucket.EPG, documentId);
         }
     }
 }
