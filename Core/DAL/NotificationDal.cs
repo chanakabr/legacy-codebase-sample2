@@ -3033,7 +3033,7 @@ namespace DAL
         public static TopicNotification GetTopicNotificationCB(long topicNotificationId)
         {
             string key = GetTopicNotificationKey(topicNotificationId);
-            return UtilsDal.GetObjectFromCB<TopicNotification>(eCouchbaseBucket.OTT_APPS, key, true);
+            return UtilsDal.GetObjectFromCB<TopicNotification>(eCouchbaseBucket.OTT_APPS, key);
         }
 
         public static List<TopicNotification> GetTopicsNotificationsCB(List<long> topicNotificationIds)
@@ -3125,7 +3125,7 @@ namespace DAL
         public static TopicNotificationMessage GetTopicNotificationMessageCB(long topicNotificationMeesageId)
         {
             string key = GetTopicNotificationMessageKey(topicNotificationMeesageId);
-            return UtilsDal.GetObjectFromCB<TopicNotificationMessage>(eCouchbaseBucket.OTT_APPS, key, true);
+            return UtilsDal.GetObjectFromCB<TopicNotificationMessage>(eCouchbaseBucket.OTT_APPS, key);
         }
 
         public static List<TopicNotificationMessage> GetTopicNotificationMessagesCB(List<long> topicNotificationMeesageIds)

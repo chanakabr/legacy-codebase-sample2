@@ -1383,7 +1383,7 @@ namespace Tvinci.Core.DAL
         public static int GetLastMediaPosition(int mediaID, int userID)
         {
             string key = UtilsDal.GetUserMediaMarkDocKey(userID.ToString(), mediaID);
-            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIAMARK, key, true);
+            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIAMARK, key);
 
             if (umm != null)
             {
@@ -1396,7 +1396,7 @@ namespace Tvinci.Core.DAL
         public static int GetLastNpvrPosition(string NpvrID, int userID)
         {
             string key = UtilsDal.GetUserNpvrMarkDocKey(userID, NpvrID);
-            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIAMARK, key, true);
+            var umm = UtilsDal.GetObjectFromCB<MediaMarkLog>(eCouchbaseBucket.MEDIAMARK, key);
 
             if (umm != null)
             {
@@ -4589,7 +4589,7 @@ namespace Tvinci.Core.DAL
         public Dictionary<string, string> GetTopicDynamicData(long topicId)
         {
             var key = GetTopicKey(topicId);
-            return UtilsDal.GetObjectFromCB<Dictionary<string, string>>(eCouchbaseBucket.OTT_APPS, key, true);
+            return UtilsDal.GetObjectFromCB<Dictionary<string, string>>(eCouchbaseBucket.OTT_APPS, key);
         }
 
         bool DeleteTopicDynamicData(long topicId)
@@ -4601,7 +4601,7 @@ namespace Tvinci.Core.DAL
         public static Dictionary<string, int> GetDomainDevices(long domainId)
         {
             var key = GetDomainDevicesKey(domainId);
-            var domainDevices = UtilsDal.GetObjectFromCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, true);
+            var domainDevices = UtilsDal.GetObjectFromCB<List<DomainDevice>>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
             if (domainDevices != null)
             {
                 return domainDevices.ToDictionary(x => x.UDID, x => x.DeviceFamilyId);
@@ -4666,7 +4666,7 @@ namespace Tvinci.Core.DAL
         public static DevicePlayData GetDevicePlayData(string udid)
         {
             string key = GetDevicePlayDataKey(udid);
-            return UtilsDal.GetObjectFromCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key, true);
+            return UtilsDal.GetObjectFromCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
         }
 
         #region New Catalog Management
@@ -5577,7 +5577,7 @@ namespace Tvinci.Core.DAL
         public static Dictionary<string, string> GetChannelMetadataById(int id, eChannelType channelType)
         {
             var key = CBChannelMetaData.CreateChannelMetaDataKey(id, channelType);
-            var res = UtilsDal.GetObjectFromCB<CBChannelMetaData>(eCouchbaseBucket.OTT_APPS, key, true);
+            var res = UtilsDal.GetObjectFromCB<CBChannelMetaData>(eCouchbaseBucket.OTT_APPS, key);
 
             return res.MetaData;
         }
@@ -6355,7 +6355,7 @@ namespace Tvinci.Core.DAL
         public Dictionary<string, string> GetCategoryDynamicData(long id)
         {
             var key = CBCategoryDynamicData.GetCategoryDynamicDataKey(id);
-            var res = UtilsDal.GetObjectFromCB<CBCategoryDynamicData>(eCouchbaseBucket.OTT_APPS, key, true);
+            var res = UtilsDal.GetObjectFromCB<CBCategoryDynamicData>(eCouchbaseBucket.OTT_APPS, key);
 
             return res.DynamicData;
         }
