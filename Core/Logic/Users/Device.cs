@@ -382,7 +382,7 @@ namespace Core.Users
                 LayeredCacheKeys.GetDomainDeviceInvalidationKey(m_groupID, m_domainID, m_id)
             };
 
-            LayeredCache.Instance.SetAndProduceInvalidationKeys(invalidationKeys);
+            LayeredCache.Instance.InvalidateKeys(invalidationKeys);
         }
 
         private void SetUpdatedValues(string externalId, string macAddress, string model, long? manufacturerId, string manufacturer, List<ApiObjects.KeyValuePair> dynamicData)

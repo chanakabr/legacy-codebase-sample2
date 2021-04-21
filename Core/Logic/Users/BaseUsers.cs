@@ -1527,7 +1527,7 @@ namespace Core.Users
 
                     // add invalidation key for user roles cache
                     string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, userId);
-                    if (!LayeredCache.Instance.SetAndProduceInvalidationKey(invalidationKey))
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on AddRoleToUser key = {0}", invalidationKey);
                     }

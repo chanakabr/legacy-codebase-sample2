@@ -1317,8 +1317,6 @@ namespace WebAPI.Reflection
                             return "migrationEvents";
                         case "RoutingConfiguration":
                             return "routingConfiguration";
-                        case "ShouldProduceInvalidationEventsToKafka":
-                            return "shouldProduceInvalidationEventsToKafka";
                     }
                     break;
                     

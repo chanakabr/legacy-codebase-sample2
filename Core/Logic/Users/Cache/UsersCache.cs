@@ -155,14 +155,14 @@ namespace Core.Users
             try
             {
                 string invalidationKey = LayeredCacheKeys.GetUserInvalidationKey(groupId, userId.ToString());
-                if (!LayeredCache.Instance.SetAndProduceInvalidationKey(invalidationKey))
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed removing user {0} from cache", invalidationKey);
                     return res;
                 }
 
                 invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(groupId, userId.ToString());
-                if (!LayeredCache.Instance.SetAndProduceInvalidationKey(invalidationKey))
+                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                 {
                     log.ErrorFormat("Failed removing user {0} from cache", invalidationKey);
                     return res;

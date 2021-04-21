@@ -1180,7 +1180,7 @@ namespace ApiLogic.Api.Managers
             if (!ApiDAL.SaveSecurityPartnerConfig(groupId, partnerConfig)) return new Status(eResponseStatus.Error, "SecurityPartnerConfig not saved");
 
             var invalidationKey = LayeredCacheKeys.GetSecurityPartnerConfigInvalidationKey(groupId);
-            LayeredCache.Instance.SetAndProduceInvalidationKey(invalidationKey);
+            LayeredCache.Instance.SetInvalidationKey(invalidationKey);
 
             return new Status(eResponseStatus.OK);
         }

@@ -34,7 +34,17 @@ namespace ConfigurationManager.Types
         public override string TcmKey => TcmObjectKeys.MicroserviceLayeredCacheConfiguration;
         public override string[] TcmPath => new string[] { TcmObjectKeys.MicroservicesClientConfiguration, TcmKey };
 
+        private static readonly List<string> defaultInvalidationEventsMatchRules = new List<string>()
+        {
+            "(.*)(_InvalidateOTTUser_)(.*)",
+            "(.*)(_InvalidateUserRoles_)(.*)",
+            "(.*)(_InvalidateUserAndHouseholdSegments_)(.*)",
+            "(.*)(_InvalidatePartnerSecurityConfiguration)",
+            "(.*)(_InvalidatePartnerRoles)",
+            "(.*)(_InvalidateHouseholdDevice_)(.*)"
+        };
         public BaseValue<bool> ShouldProduceInvalidationEventsToKafka = new BaseValue<bool>("should_produce_invalidation_events_to_kafka", false);
+        public BaseValue<List<string>> InvalidationEventsMatchRules = new BaseValue<List<string>>("invalidation_events_match_rules", defaultInvalidationEventsMatchRules);
         public BaseValue<string> InvalidationEventsTopic = new BaseValue<string>("invalidation_events_topic", "PHOENIX_CACHE_INVALIDATIONS");
     }
 }

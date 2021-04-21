@@ -5188,7 +5188,7 @@ namespace DAL
         public static AssetUserRule GetAssetUserRuleCB(long assetUserRuleId)
         {
             string key = UtilsDal.GetAssetUserRuleKey(assetUserRuleId);
-            return UtilsDal.GetObjectFromCB<AssetUserRule>(eCouchbaseBucket.OTT_APPS, key, true);
+            return UtilsDal.GetObjectFromCB<AssetUserRule>(eCouchbaseBucket.OTT_APPS, key);
         }
 
         public static bool SaveAssetUserRuleCB(AssetUserRule assetUserRuleToSave)
@@ -6168,7 +6168,7 @@ namespace DAL
             if (!string.IsNullOrEmpty(id))
             {
                 string key = GetEventNotificationActionIdKey(groupId, id);
-                return UtilsDal.GetObjectFromCB<EventNotificationAction>(EVENT_NOTIFICATION_ACTION_BUCKET, key, true);
+                return UtilsDal.GetObjectFromCB<EventNotificationAction>(EVENT_NOTIFICATION_ACTION_BUCKET, key);
             }
 
             return null;
@@ -6193,7 +6193,7 @@ namespace DAL
         public static List<string> GetEventNotificationActionCB(int groupId, string objectType, long objectId)
         {
             string key = GetEventNotificationActionTypeIdKey(groupId, objectType, objectId);
-            return UtilsDal.GetObjectFromCB<List<string>>(EVENT_NOTIFICATION_ACTION_BUCKET, key, true);
+            return UtilsDal.GetObjectFromCB<List<string>>(EVENT_NOTIFICATION_ACTION_BUCKET, key);
         }
 
         public static bool SaveEventNotificationActionTypeAndIdCB(int groupId, string objectType, long objectId, List<string> eventNotificationActionIds)
