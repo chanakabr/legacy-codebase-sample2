@@ -34,6 +34,8 @@ namespace APILogic
         private static int maxAssetsPerTask = ApplicationConfiguration.Current.ExportConfiguration.MaxAssetsPerThread.Value;
         private static int maxTasks = ApplicationConfiguration.Current.ExportConfiguration.MaxThreads.Value;
         private static int innerTaskRetriesLimit = ApplicationConfiguration.Current.ExportConfiguration.ThreadRetryLimit.Value;
+        private const int MaxExportSize = 500000;
+        private const int MaxPageSize = 100000;
 
         private delegate bool DoTaskJob(int groupId, long taskId, List<long> ids, string exportFullPath, string mainLang, int firstTaskIndex, int numberOfTasks, int index, int retrisCount = 0);
 
@@ -1116,7 +1118,7 @@ namespace APILogic
 
         private static List<long> GetAssetsIdsByFilter(int groupId, string filter, eBulkExportDataType assetType, List<int> vodTypes, DateTime? since = null)
         {
-            List<long> ids = null;
+            List<long> ids = new List<long>();
             
             // if since is not null - append the update date to the filter query
             if (since != null)
@@ -1141,18 +1143,37 @@ namespace APILogic
                     throw new Exception("Export: unknown export date type");
             }
 
-            // build unified search request
+            var pages = PagesCount(MaxExportSize, MaxPageSize);
+            foreach (var pageIndex in Enumerable.Range(0, pages))
+            {
+                var searchIds = SearchAssetIds(pageIndex, MaxPageSize, groupId, filter);
+                if (searchIds.Count == 0)
+                {
+                    break;
+                }
+
+                ids.AddRange(searchIds);
+            }
+
+            return ids;
+        }
+
+        private static List<long> SearchAssetIds(int pageIndex, int pageSize, int groupId, string filter)
+        {
+            var result = new List<long>();
             UnifiedSearchRequest request = new UnifiedSearchRequest()
             {
                 filterQuery = filter,
                 m_nGroupID = groupId,
                 m_oFilter = new Filter()
                 {
-                    m_bOnlyActiveMedia = true
+                    m_bOnlyActiveMedia = true,
                 },
                 shouldIgnoreDeviceRuleID = true,
                 order = new ApiObjects.SearchObjects.OrderObj(),
-                isAllowedToViewInactiveAssets = false
+                isAllowedToViewInactiveAssets = false,
+                m_nPageIndex = pageIndex,
+                m_nPageSize = pageSize,
             };
 
             Core.ConditionalAccess.Utils.FillCatalogSignature(request);
@@ -1169,10 +1190,10 @@ namespace APILogic
             // get the ids
             if (response.searchResults != null)
             {
-                ids = response.searchResults.Select(sr => Convert.ToInt64(sr.AssetId)).ToList();
+                result = response.searchResults.Select(sr => Convert.ToInt64(sr.AssetId)).ToList();
             }
-            
-            return ids;
+
+            return result;
         }
 
         private static string AppendUpdateDateToFilter(string filter, DateTime? since)
@@ -1378,6 +1399,16 @@ namespace APILogic
                TVinciShared.ProtocolsFuncs.XMLEncode(image.Version.ToString(), true),
                TVinciShared.ProtocolsFuncs.XMLEncode(image.Id, true)
            );
+        }
+        
+        private static int PagesCount(int maxSize, int pageSize)
+        {
+            if (pageSize > maxSize)
+            {
+                throw new Exception("PageSize can not exceed MaxSize.");
+            }
+            
+            return (int)Math.Ceiling((double)maxSize / pageSize);
         }
     }
 }
