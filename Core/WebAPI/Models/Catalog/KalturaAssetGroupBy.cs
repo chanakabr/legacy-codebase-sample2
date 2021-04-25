@@ -42,11 +42,14 @@ namespace WebAPI.Models.Catalog
     }
 
     /// <summary>
-    /// Different fields that can be used for groupind
+    /// Different fields that can be used for grouping
     /// </summary>
     public enum KalturaGroupByField
     {
-        media_type_id
+        media_type_id,
+        suppressed,
+        crid,
+        linear_media_id
     }
 
     /// <summary>

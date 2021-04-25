@@ -674,6 +674,7 @@ namespace Core.Catalog.CatalogManagement
                 UpdateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE")),
                 IsInherited = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_INHERITED") == 1,
                 IsLocationTag = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_LOCATION_TAG") == 1,
+                SuppressedOrder = ODBCWrapper.Utils.GetNullableInt(dr, "SUPPRESSED_ORDER")
             };
             return assetStructMeta;
         }
@@ -2423,6 +2424,12 @@ namespace Core.Catalog.CatalogManagement
                     return response;
                 }
 
+                //BEO-9803
+                if (assetStructId == 0)
+                {
+                    assetStructId = catalogGroupCache.GetRealAssetStructId(assetStructId, out bool isProgramStruct);
+                }
+
                 if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
                 {
                     response.SetStatus(eResponseStatus.AssetStructDoesNotExist, eResponseStatus.AssetStructDoesNotExist.ToString());
@@ -2465,8 +2472,8 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                DataTable dt = CatalogDAL.UpdateAssetStructMeta(assetStructId, metaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue,
-                                                                groupId, userId, assetStructMeta.IsInherited, assetStructMeta.IsLocationTag);
+                DataTable dt = CatalogDAL.UpdateAssetStructMeta(assetStructId, metaId, assetStructMeta.IngestReferencePath, assetStructMeta.ProtectFromIngest, assetStructMeta.DefaultIngestValue, 
+                                                                groupId, userId, assetStructMeta.IsInherited, assetStructMeta.IsLocationTag, assetStructMeta.SuppressedOrder);
 
                 List<AssetStructMeta> assetStructMetaList = CreateAssetStructMetaListFromDT(dt);
 
@@ -2530,7 +2537,7 @@ namespace Core.Catalog.CatalogManagement
             return status;
         }
 
-        public  GenericListResponse<AssetStructMeta> GetAssetStructMetaList(int groupId, long? assetStructId, long? metaId)
+        public GenericListResponse<AssetStructMeta> GetAssetStructMetaList(int groupId, long? assetStructId, long? metaId)
         {
             GenericListResponse<AssetStructMeta> response = new GenericListResponse<AssetStructMeta>();
 

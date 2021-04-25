@@ -42,20 +42,20 @@ namespace Core.Catalog.CatalogManagement
         private const string PLAYBACK_END_DATE_META_NAME = "Playback End Date";
         private const string CATALOG_START_DATE_META_NAME = "Catalog Start Date";
         private const string CREATE_DATE_META_NAME = "Creation Date";
-        private const string ENTRY_ID_META_SYSTEM_NAME = "EntryID";
+        public const string ENTRY_ID_META_SYSTEM_NAME = "EntryID";
         private const string DEVICE_RULE_ID = "DeviceRuleId";
         private const string GEO_BLOCK_RULE_ID = "GeoBlockRuleId";
         private const string ACTION_IS_NOT_ALLOWED = "Action is not allowed";
 
-        internal const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
-        internal const string NAME_META_SYSTEM_NAME = "Name";
-        internal const string DESCRIPTION_META_SYSTEM_NAME = "Description";
-        internal const string STATUS_META_SYSTEM_NAME = "Status";
-        internal const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
-        internal const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
-        internal const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
-        internal const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
-        internal const string CREATE_DATE_TIME_META_SYSTEM_NAME = "CreateDate";
+        public const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
+        public const string NAME_META_SYSTEM_NAME = "Name";
+        public const string DESCRIPTION_META_SYSTEM_NAME = "Description";
+        public const string STATUS_META_SYSTEM_NAME = "Status";
+        public const string CATALOG_START_DATE_TIME_META_SYSTEM_NAME = "CatalogStartDateTime";
+        public const string CATALOG_END_DATE_TIME_META_SYSTEM_NAME = "CatalogEndDateTime";
+        public const string PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME = "PlaybackStartDateTime";
+        public const string PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME = "PlaybackEndDateTime";
+        public const string CREATE_DATE_TIME_META_SYSTEM_NAME = "CreateDate";
 
         internal const string CHANNEL_ID_META_SYSTEM_NAME = "ChannelId";
         internal const string MANUAL_ASSET_STRUCT_NAME = "Manual";
@@ -73,7 +73,7 @@ namespace Core.Catalog.CatalogManagement
         private const string TABLE_NAME_LINEAR = "LINEAR";
         private const string TABLE_NAME_GEO_AVAILABILITY = "GEO_AVAILABILITY";
 
-        private static readonly Dictionary<string, string> BasicMediaAssetMetasSystemNameToName = new Dictionary<string, string>()
+        public static readonly Dictionary<string, string> BasicMediaAssetMetasSystemNameToName = new Dictionary<string, string>()
         {
             { NAME_META_SYSTEM_NAME, TITLE_META_NAME },
             { DESCRIPTION_META_SYSTEM_NAME, DESCRIPTION_META_NAME },
@@ -2079,6 +2079,8 @@ namespace Core.Catalog.CatalogManagement
                     regions = regions
                 };
 
+                Catalog.Utils.ExtractSuppressedValue(catalogGroupCache, media);
+
                 languageToMedia.Add(language.ID, media);
             }
 
@@ -3447,7 +3449,7 @@ namespace Core.Catalog.CatalogManagement
                             asset.allowedCountries.Add(0);
                         }
                     }
-
+                    
                     result.Add((int)mediaAsset.Id, assets);
                 }
             }

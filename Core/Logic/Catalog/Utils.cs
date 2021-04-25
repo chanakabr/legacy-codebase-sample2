@@ -4,6 +4,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
@@ -431,7 +432,7 @@ namespace Core.Catalog
             if (!string.IsNullOrEmpty(retval))
             {
                 //Get aggregations results
-                Dictionary<string, List<StatisticsAggregationResult>> statisticsResults = 
+                Dictionary<string, List<StatisticsAggregationResult>> statisticsResults =
                     ESAggregationsResult.DeserializeStatisticsAggregations(retval, "sub_stats");
 
                 if (statisticsResults != null && statisticsResults.Count > 0)
@@ -520,7 +521,7 @@ namespace Core.Catalog
                 return null;
             }
         }
-        
+
         public static List<T> ListPaging<T>(List<T> list, int nPageSize, int nPageIndex)
         {
             List<T> result = new List<T>();
@@ -560,7 +561,7 @@ namespace Core.Catalog
         }
 
         public static void BuildMediaFromDataSet(ref Dictionary<int, Dictionary<int, Media>> mediaTranslations,
-            ref Dictionary<int, Media> medias, Group group, DataSet dataSet, int mediaId)
+            ref Dictionary<int, Media> medias, Group group, DataSet dataSet, int mediaId, CatalogGroupCache catalogGroupCache)
         {
             if (dataSet != null && dataSet.Tables.Count > 0)
             {
@@ -661,7 +662,6 @@ namespace Core.Catalog
                                     }
                                 }
                             }
-
                             #endregion
                         }
 
@@ -759,7 +759,7 @@ namespace Core.Catalog
                     {
                         if (group.isTagsSingleTranslation)
                         {
-                            tagsTranslations = CatalogDAL.GetMediaTagsTranslations(mediaId);                            
+                            tagsTranslations = CatalogDAL.GetMediaTagsTranslations(mediaId);
                         }
 
                         foreach (DataRow row in dataSet.Tables[2].Rows)
@@ -875,7 +875,7 @@ namespace Core.Catalog
 
                     if (tagsTranslations != null)
                     {
-                        
+
                         if (tagsTranslations.Translations?.Count > 0)
                         {
                             foreach (var tagTranslation in tagsTranslations.Translations)
@@ -933,6 +933,158 @@ namespace Core.Catalog
 
                     #endregion
                 }
+            }
+        }
+
+        /// <summary>
+        /// Extract suppressed value from media
+        /// </summary>
+        public static void ExtractSuppressedValue(CatalogGroupCache catalogGroupCache, Media media)
+        {
+            try
+            {
+                if (catalogGroupCache != null)
+                {
+                    var assetStruct = catalogGroupCache.AssetStructsMapById.ContainsKey(media.m_nMediaTypeID) ?
+                        catalogGroupCache.AssetStructsMapById[media.m_nMediaTypeID] : null;
+                    if (assetStruct != null)
+                    {
+                        var suppressedOrderMetaIds = assetStruct.AssetStructMetas.Where(m => m.Value.SuppressedOrder.HasValue)?
+                            .OrderBy(m => m.Value.SuppressedOrder).Select(m => m.Key).ToList();
+                        if (suppressedOrderMetaIds != null && suppressedOrderMetaIds.Count > 0)
+                        {
+                            //find default meta to suppress by
+                            foreach (var metaId in suppressedOrderMetaIds)
+                            {
+                                var topic = catalogGroupCache.TopicsMapById[metaId];
+                                if (AssetManager.BasicMediaAssetMetasSystemNameToName.ContainsKey(topic.SystemName))
+                                {
+                                    switch (topic.SystemName)
+                                    {
+                                        case AssetManager.NAME_META_SYSTEM_NAME:
+                                            media.suppressed = media.m_sName;
+                                            break;
+                                        case AssetManager.DESCRIPTION_META_SYSTEM_NAME:
+                                            media.suppressed = media.m_sDescription;
+                                            break;
+                                        case AssetManager.EXTERNAL_ID_META_SYSTEM_NAME:
+                                            media.suppressed = media.epgIdentifier;
+                                            break;
+                                        case AssetManager.ENTRY_ID_META_SYSTEM_NAME:
+                                            media.suppressed = media.EntryId;
+                                            break;
+                                        case AssetManager.PLAYBACK_START_DATE_TIME_META_SYSTEM_NAME:
+                                            media.suppressed = media.m_sStartDate;
+                                            break;
+                                        case AssetManager.PLAYBACK_END_DATE_TIME_META_SYSTEM_NAME:
+                                            media.suppressed = media.m_sEndDate;
+                                            break;
+                                        case AssetManager.CATALOG_START_DATE_TIME_META_SYSTEM_NAME:
+                                            media.suppressed = media.CatalogStartDate;
+                                            break;
+                                        case AssetManager.CATALOG_END_DATE_TIME_META_SYSTEM_NAME:
+                                            media.suppressed = media.m_sFinalEndDate;
+                                            break;
+                                        case AssetManager.CREATE_DATE_TIME_META_SYSTEM_NAME:
+                                            media.suppressed = media.m_sCreateDate;
+                                            break;
+                                        //not supported
+                                        case AssetManager.STATUS_META_SYSTEM_NAME:
+                                            break;
+                                        default:
+                                            log.Warn($"Attempt passing unmapped topic: {topic.SystemName} as a suppressed value");
+                                            break;
+                                    }
+                                }
+                                
+                                if (string.IsNullOrEmpty(media.suppressed) && media.m_dMeatsValues != null && media.m_dMeatsValues.ContainsKey(topic.SystemName))
+                                {
+                                    //calculated suppressed value
+                                    media.suppressed = media.m_dMeatsValues[topic.SystemName];
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Debug($"Error handling media: {media.EntryId} suppressed value, error: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Extract suppressed value from epg
+        /// </summary>
+        public static void ExtractSuppressedValue(CatalogGroupCache catalogGroupCache, EpgCB epg)
+        {
+            try
+            {
+                if (catalogGroupCache != null)
+                {
+                    var m_nMediaTypeID = catalogGroupCache.GetRealAssetStructId(0, out bool isProgramStruct);
+                    var assetStruct = catalogGroupCache.AssetStructsMapById.ContainsKey(m_nMediaTypeID) ?
+                        catalogGroupCache.AssetStructsMapById[m_nMediaTypeID] : null;
+                    if (assetStruct != null)
+                    {
+                        List<long> suppressedOrderMetaIds = assetStruct.AssetStructMetas.Where(m => m.Value.SuppressedOrder.HasValue)?
+                            .OrderBy(m => m.Value.SuppressedOrder).Select(m => m.Key).ToList();
+                        if (suppressedOrderMetaIds != null && suppressedOrderMetaIds.Count > 0)
+                        {
+                            //find default meta to suppress by
+                            foreach (var metaId in suppressedOrderMetaIds)
+                            {
+                                var topic = catalogGroupCache.TopicsMapById[metaId];
+                                if (EpgAssetManager.BasicProgramMetasSystemNameToName.ContainsKey(topic.SystemName))
+                                {
+                                    switch (topic.SystemName)
+                                    {
+                                        case EpgAssetManager.NAME_META_SYSTEM_NAME:
+                                            epg.Suppressed = epg.Name;
+                                            break;
+                                        case EpgAssetManager.DESCRIPTION_META_SYSTEM_NAME:
+                                            epg.Suppressed = epg.Description;
+                                            break;
+                                        case EpgAssetManager.START_DATE_META_SYSTEM_NAME:
+                                            epg.Suppressed = epg.StartDate.ToString("yyyyMMddHHmmss");
+                                            break;
+                                        case EpgAssetManager.END_DATE_META_SYSTEM_NAME:
+                                            epg.Suppressed = epg.EndDate.ToString("yyyyMMddHHmmss");
+                                            break;
+                                        case EpgAssetManager.CRID_META_SYSTEM_NAME:
+                                            epg.Suppressed = epg.Crid;
+                                            break;
+                                        case EpgAssetManager.EXTERNAL_ID_META_SYSTEM_NAME:
+                                            epg.Suppressed = epg.EpgIdentifier;
+                                            break;
+                                        //not supported
+                                        case EpgAssetManager.SERIES_NAME_META_SYSTEM_NAME:
+                                        case EpgAssetManager.SERIES_ID_META_SYSTEM_NAME:
+                                        case EpgAssetManager.EPISODE_NUMBER_META_SYSTEM_NAME:
+                                        case EpgAssetManager.SEASON_NUMBER_META_SYSTEM_NAME:
+                                        case EpgAssetManager.PARENTAL_RATING_META_SYSTEM_NAME:
+                                        case EpgAssetManager.GENRE_META_SYSTEM_NAME:
+                                            break;
+                                        default:
+                                            log.Warn($"Attempt passing unmapped topic: {topic.SystemName} as a suppressed value");
+                                            break;
+                                    }
+                                }
+                                
+                                if (string.IsNullOrEmpty(epg.Suppressed) && epg.Metas != null && epg.Metas.ContainsKey(topic.SystemName))
+                                {
+                                    epg.Suppressed = epg.Metas[topic.SystemName].First();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Debug($"Error handling epg: {epg.EpgIdentifier} suppressed value, error: {ex.Message}", ex);
             }
         }
 
@@ -1071,7 +1223,7 @@ namespace Core.Catalog
             }
             return true;
         }
-        
+
         public static void BuildSearchGroupBy(SearchAggregationGroupBy searchGroupBy, Group group, UnifiedSearchDefinitions definitions, HashSet<string> reservedGroupByFields, int groupId)
         {
             if (searchGroupBy != null && searchGroupBy.groupBy != null && searchGroupBy.groupBy.Count > 0)
@@ -1151,7 +1303,7 @@ namespace Core.Catalog
                             {
                                 requestGroupBy = $"tags.{lowered}.lowercase";
                             }
-                            else if (definitions.shouldSearchEpg || 
+                            else if (definitions.shouldSearchEpg ||
                                      definitions.shouldSearchRecordings ||
                                      catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.String.ToString()) ||
                                      catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.MultilingualString.ToString()) ||
@@ -1181,9 +1333,9 @@ namespace Core.Catalog
                         else if (allTags.Contains(lowered))
                         {
                             requestGroupBy = $"tags.{lowered}.lowercase";
-                        }                        
+                        }
                     }
-                    
+
                     if (string.IsNullOrEmpty(requestGroupBy))
                     {
                         throw new KalturaException($"Invalid group by field was sent: {groupBy}", (int)eResponseStatus.BadSearchRequest);
@@ -1196,7 +1348,7 @@ namespace Core.Catalog
                         distinctGroupByFormatted = requestGroupBy;
                     }
                 }
-                
+
                 definitions.groupByOrder = searchGroupBy.groupByOrder;
                 definitions.topHitsCount = searchGroupBy.topHitsCount;
 
@@ -1257,7 +1409,7 @@ namespace Core.Catalog
                                                             groupId, LayeredCacheConfigNames.CHANNELS_CONTAINING_MEDIA_LAYERED_CACHE_CONFIG_NAME, invalidationKeys))
                 {
                     log.ErrorFormat("Failed getting channels containing media from LayeredCache, groupId: {0}, mediaId: {1}, key: {2}", groupId, mediaId, key);
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -1307,7 +1459,7 @@ namespace Core.Catalog
                 }
                 catch (Exception ex)
                 {
-                   
+
                 }
             }
             catch (Exception ex)
@@ -1326,31 +1478,31 @@ namespace Core.Catalog
             {
                 if (assets != null && assets.Count > 0)
                 {
-                    List <KeyValuePair<eAssetTypes, long>> assetsToRetrieve = assets.Where(x => x.AssetType != eAssetTypes.NPVR).Select(x => 
-                                                                            new KeyValuePair<eAssetTypes, long>(x.AssetType, long.Parse(x.AssetId))).ToList();
+                    List<KeyValuePair<eAssetTypes, long>> assetsToRetrieve = assets.Where(x => x.AssetType != eAssetTypes.NPVR).Select(x =>
+                                                                           new KeyValuePair<eAssetTypes, long>(x.AssetType, long.Parse(x.AssetId))).ToList();
                     List<BaseObject> npvrs = assets.Where(x => x.AssetType == eAssetTypes.NPVR).ToList();
                     List<long> epgIdsFromRecording = GetEpgIdsFromNpvrObject(npvrs);
                     if (epgIdsFromRecording != null && epgIdsFromRecording.Count > 0)
                     {
                         assetsToRetrieve.AddRange(epgIdsFromRecording.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.EPG, x)));
                     }
-                             
+
                     List<BaseObject> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, filter, managementData);
 
                     if (unOrderedAssets == null || unOrderedAssets.Count == 0)
-                    {                        
+                    {
                         return result;
                     }
 
                     string keyFormat = "{0}_{1}"; // mapped asset key format = assetType_assetId
-                    Dictionary<string, BaseObject> mappedAssets = unOrderedAssets.Where(x => x.AssetId != EMPTY_ASSET_ID).ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.AssetId), x => x);                    
+                    Dictionary<string, BaseObject> mappedAssets = unOrderedAssets.Where(x => x.AssetId != EMPTY_ASSET_ID).ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.AssetId), x => x);
                     foreach (BaseObject baseAsset in assets)
                     {
                         string key = string.Empty;
                         bool isNpvr = baseAsset.AssetType == eAssetTypes.NPVR;
                         RecordingType? scheduledRecordingType = null;
                         if (isNpvr)
-                        {                            
+                        {
                             string epgId = GetEpgIdFromNpvrObject(baseAsset, ref scheduledRecordingType);
                             if (!string.IsNullOrEmpty(epgId))
                             {
@@ -1411,7 +1563,7 @@ namespace Core.Catalog
         {
             string epgId = null;
             try
-            {                               
+            {
                 RecordingSearchResult searchResult = baseObject as RecordingSearchResult;
                 if (searchResult != null)
                 {
@@ -1457,7 +1609,7 @@ namespace Core.Catalog
                                 result.Add(watchHistory.EpgId);
                             }
                         }
-                    }                    
+                    }
                 }
             }
             catch (Exception ex)
@@ -1477,9 +1629,9 @@ namespace Core.Catalog
             {
                 if (assets != null && assets.Count > 0)
                 {
-                    result = new List<BaseObject>();                                        
+                    result = new List<BaseObject>();
                     List<int> mediaIds = assets.Where(x => x.Key == eAssetTypes.MEDIA).Select(x => (int)x.Value).Distinct().ToList();
-                    List<long> epgIds = assets.Where(x => x.Key == eAssetTypes.EPG).Select(x => x.Value).Distinct().ToList();                                        
+                    List<long> epgIds = assets.Where(x => x.Key == eAssetTypes.EPG).Select(x => x.Value).Distinct().ToList();
                     if (mediaIds != null && mediaIds.Count > 0)
                     {
                         List<MediaObj> mediaAssets = null;
@@ -1501,8 +1653,8 @@ namespace Core.Catalog
                                 log.WarnFormat("GetMediaObjectsFromCache didn't find the following mediaIds: {0}", string.Join(",", missingMediaIds));
                             }
                         }
-                        else                                                
-                        {                            
+                        else
+                        {
                             log.WarnFormat("GetMediaObjectsFromCache didn't find the following mediaIds: {0}", string.Join(",", mediaIds));
                         }
 
@@ -1522,7 +1674,7 @@ namespace Core.Catalog
                             }
                         }
                         else
-                        {                            
+                        {
                             log.WarnFormat("GetProgramFromCache didn't find the following epgIds: {0}", string.Join(",", epgIds));
                         }
 
@@ -1551,7 +1703,7 @@ namespace Core.Catalog
                 eAssetTypes assetType = eAssetTypes.MEDIA;
                 Dictionary<string, MediaObj> mediaObjMap = null;
                 int languageId = filter != null ? filter.m_nLanguage : 0;
-                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsWithLanguageKeyMap(assetType.ToString(), ids.Select(x => x.ToString()).ToList() , languageId);
+                Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsWithLanguageKeyMap(assetType.ToString(), ids.Select(x => x.ToString()).ToList(), languageId);
                 Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetMediaInvalidationKeysMap(groupId, assetType.ToString(), ids.Select(x => (long)x).ToList(), languageId);
 
                 if (!LayeredCache.Instance.GetValues<MediaObj>(keyToOriginalValueMap, ref mediaObjMap, GetMediaObjects, new Dictionary<string, object>() { { "groupId", groupId }, { "ids", ids },
@@ -1715,3 +1867,4 @@ namespace Core.Catalog
         }
     }
 }
+

@@ -224,7 +224,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static Dictionary<int, Dictionary<int, Media>> GetGroupMedias(int groupId, long mediaId)
+        public static Dictionary<int, Dictionary<int, Media>> GetGroupMedias(int groupId, long mediaId, CatalogGroupCache catalogGroupCache)
         {
             //dictionary contains medias such that first key is media_id, which returns a dictionary with a key language_id and value Media object.
             //E.g. mediaTranslations[123][2] --> will return media 123 of the hebrew language
@@ -235,7 +235,6 @@ namespace Core.Catalog.CatalogManagement
 
             try
             {
-
                 if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
                 {
                     return AssetManager.GetMediaForElasticSearchIndex(groupId, mediaId);
@@ -243,6 +242,7 @@ namespace Core.Catalog.CatalogManagement
 
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(groupId);
+
                 if (group == null)
                 {
                     log.Error("Error - Could not load group from cache in GetGroupMedias");
@@ -262,7 +262,7 @@ namespace Core.Catalog.CatalogManagement
                 storedProcedure.AddParameter("@MediaID", mediaId);
 
                 DataSet dataSet = storedProcedure.ExecuteDataSet();
-                Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet, (int)mediaId);
+                Utils.BuildMediaFromDataSet(ref mediaTranslations, ref medias, group, dataSet, (int)mediaId, catalogGroupCache);
 
                 // get media update dates
                 DataTable updateDates = CatalogDAL.Get_MediaUpdateDate(new List<int>() { (int)mediaId });
@@ -284,7 +284,6 @@ namespace Core.Catalog.CatalogManagement
                 log.WarnFormat("Received media request of invalid media id {0} when calling UpsertMedia", assetId);
                 return result;
             }
-
             Dictionary<int, LanguageObj> languagesMap = null;
             CatalogGroupCache catalogGroupCache = null;
             Group group = null;
@@ -305,7 +304,6 @@ namespace Core.Catalog.CatalogManagement
                 {
                     metasToPad = new HashSet<string>(metas);
                 }
-
             }
             else
             {
@@ -326,7 +324,7 @@ namespace Core.Catalog.CatalogManagement
                 ESSerializerV2 esSerializer = new ESSerializerV2();
 
                 //Create Media Object
-                Dictionary<int, Dictionary<int, Media>> mediaDictionary = GetGroupMedias(groupId, assetId);
+                Dictionary<int, Dictionary<int, Media>> mediaDictionary = GetGroupMedias(groupId, assetId, catalogGroupCache);
                 if (mediaDictionary != null && mediaDictionary.Count > 0 && mediaDictionary.ContainsKey((int)assetId))
                 {
                     foreach (int languageId in mediaDictionary[(int)assetId].Keys)
@@ -398,7 +396,6 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
         }
-
         public static void PadEPGMetas(HashSet<string> metasToPad, EpgCB epg)
         {
             if (metasToPad != null && metasToPad.Count > 0 && epg.Metas != null)
@@ -835,7 +832,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // GetLinear Channel Values 
-                GetLinearChannelValues(epgObjects, groupId);
+                GetLinearChannelValues(epgObjects, groupId, catalogGroupCache); 
 
                 // TODO - Lior, remove these 5 lines below - used only to currently support linear media id search on elastic search
                 List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList<string>();
@@ -1207,7 +1204,7 @@ namespace Core.Catalog.CatalogManagement
                 }
             }
         }
-        
+
         public static void AddLanguageMapping(
             string indexName,
             LanguageObj language,
@@ -1223,7 +1220,7 @@ namespace Core.Catalog.CatalogManagement
             var serializer = new ESSerializerV2();
             var mapping = serializer.CreateEpgMapping(metas, tags, metasToPad, specificMappingAnalyzers,
                 defaultMappingAnalyzers, mappingName, true);
-            
+
             var success = esClientApi.InsertMapping(indexName, mappingName, mapping);
             if (!success) throw new Exception($"Failed to add mapping. index: [{indexName}]. mapping [{mappingName}]");
         }
@@ -1691,7 +1688,7 @@ namespace Core.Catalog.CatalogManagement
             return res;
         }
 
-        private static void GetLinearChannelValues(List<EpgCB> lEpg, int groupID)
+        private static void GetLinearChannelValues(List<EpgCB> lEpg, int groupID, CatalogGroupCache catalogGroupCache)
         {
             try
             {
@@ -1708,11 +1705,12 @@ namespace Core.Catalog.CatalogManagement
                 Parallel.ForEach(lEpg.Cast<EpgCB>(), currentElement =>
                 {
                     currentElement.SearchEndDate = GetProgramSearchEndDate(groupID, currentElement.ChannelID.ToString(), currentElement.EndDate, linearChannelSettings);
+                    Utils.ExtractSuppressedValue(catalogGroupCache, currentElement);
                 });
             }
             catch (Exception ex)
             {
-                log.Error("Error - " + string.Format("Update EPGs threw an exception. (in GetLinearChannelValues). Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
+                log.Error($"Error - Update EPGs threw an exception. (in GetLinearChannelValues). Exception={ex.Message};Stack={ex.StackTrace}", ex);
                 throw ex;
             }
         }

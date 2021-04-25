@@ -109,9 +109,10 @@ namespace WebAPI.Models.Catalog
                 }
 
                 var userId = contextData.UserId.ToString();
+                var allowIncludedGroupBy = GroupingOptionEqual == KalturaGroupingOption.Include;
                 bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
                 response = ClientsManager.CatalogClient().GetChannelAssets(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(), 
-                    pager.PageSize, this.IdEqual, this.OrderBy, this.Ksql, this.GetShouldUseChannelDefault(), this.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets, groupByList);
+                    pager.PageSize, this.IdEqual, this.OrderBy, this.Ksql, this.GetShouldUseChannelDefault(), this.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets, groupByList, allowIncludedGroupBy);
             }
 
             return response;

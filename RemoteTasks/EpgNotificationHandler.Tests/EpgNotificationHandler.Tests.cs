@@ -31,7 +31,8 @@ namespace EpgNotificationHandler.Tests
                 EpgNotification = new EpgNotificationSettings
                 {
                     Enabled = true,
-                    TimeRange = 2,
+                    BackwardTimeRange = 2,
+                    ForwardTimeRange = 2,
                     DeviceFamilyIds = new List<int> {1, 2, 3, 4, 5},
                     LiveAssetIds = new List<long> {10, 20, 30, 40}
                 }
@@ -42,7 +43,7 @@ namespace EpgNotificationHandler.Tests
             
             _epgEvent = new EpgNotificationEvent
             {
-                UpdatedRange = new Range<DateTime>(DateTime.UtcNow.AddSeconds(12), DateTime.UtcNow.AddHours(3)),
+                UpdatedRange = new Range<DateTime>(DateTime.UtcNow.AddSeconds(20), DateTime.UtcNow.AddHours(3)),
                 LiveAssetId = 10,
                 DisableEpgNotification = false
             };
@@ -59,7 +60,127 @@ namespace EpgNotificationHandler.Tests
         }
 
         [Test]
-        public async Task TestSuccessSending()
+        [TestCaseSource(nameof(TestBackwardAndForwardTimeRangeForSendingNotificationsSource))]
+        public async Task TestBackwardAndForwardTimeRangeForSendingNotifications(int backwardTimeRange, int forwardTimeRange, bool shouldNotify, EpgNotificationEvent epgEvent)
+        {
+            _notificationSettings.EpgNotification.BackwardTimeRange = backwardTimeRange;
+            _notificationSettings.EpgNotification.ForwardTimeRange = forwardTimeRange;
+            await _handler.Handle(epgEvent);
+            if (shouldNotify)
+            {
+                VerifyNotificationWasSent(Times.Once);
+            }
+            else
+            {
+                VerifyNotificationWasSent(Times.Never);
+            }
+        }
+
+        private static IEnumerable TestBackwardAndForwardTimeRangeForSendingNotificationsSource()
+        {
+            yield return new TestCaseData(6, 6, true, new EpgNotificationEvent
+            {
+                UpdatedRange = new Range<DateTime>(DateTime.UtcNow.AddHours(-7), DateTime.UtcNow.AddHours(3)),
+                LiveAssetId = 10,
+                DisableEpgNotification = false
+            });
+            
+            yield return new TestCaseData(6, 6, true, new EpgNotificationEvent
+            {
+                UpdatedRange = new Range<DateTime>(DateTime.UtcNow, DateTime.UtcNow.AddHours(3)),
+                LiveAssetId = 10,
+                DisableEpgNotification = false
+            });
+            
+            yield return new TestCaseData(6, 6, true, new EpgNotificationEvent
+            {
+                UpdatedRange = new Range<DateTime>(DateTime.UtcNow, DateTime.UtcNow.AddHours(10)),
+                LiveAssetId = 10,
+                DisableEpgNotification = false
+            });
+            
+            yield return new TestCaseData(6, 6, false, new EpgNotificationEvent
+            {
+                UpdatedRange = new Range<DateTime>(DateTime.UtcNow.AddHours(7), DateTime.UtcNow.AddHours(8)),
+                LiveAssetId = 10,
+                DisableEpgNotification = false
+            });
+            
+            yield return new TestCaseData(6, 6, false, new EpgNotificationEvent
+            {
+                UpdatedRange = new Range<DateTime>(DateTime.UtcNow.AddHours(-8), DateTime.UtcNow.AddHours(-7)),
+                LiveAssetId = 10,
+                DisableEpgNotification = false
+            });
+            
+            yield return new TestCaseData(0, 0, false, new EpgNotificationEvent
+            {
+                UpdatedRange = new Range<DateTime>(DateTime.UtcNow.AddHours(-6.1), DateTime.UtcNow.AddHours(8)),
+                LiveAssetId = 10,
+                DisableEpgNotification = false
+            });
+            
+            // #region Backward - 6H, Forward - 6H
+            //
+            // yield return new TestCaseData(6, 6, true, new EpgNotificationEvent
+            // {
+            //     UpdatedRange = new Range<DateTime>(DateTime.UtcNow, DateTime.UtcNow.AddHours(3)),
+            //     LiveAssetId = 10,
+            //     DisableEpgNotification = false
+            // });
+            //
+            // yield return new TestCaseData(6, 6, false, new EpgNotificationEvent
+            // {
+            //     UpdatedRange = new Range<DateTime>(DateTime.UtcNow.AddHours(6.1), DateTime.UtcNow.AddHours(8)),
+            //     LiveAssetId = 10,
+            //     DisableEpgNotification = false
+            // });
+            //
+            // #endregion
+            //
+            // #region Backward - 0H, Forward - 6H
+            //
+            // yield return new TestCaseData(0, 6, true, new EpgNotificationEvent
+            // {
+            //     UpdatedRange = new Range<DateTime>(DateTime.UtcNow.AddHours(-1), DateTime.UtcNow.AddHours(3)),
+            //     LiveAssetId = 10,
+            //     DisableEpgNotification = false
+            // });
+            //
+            // #endregion
+            //
+            // #region Backward - 6H, Forward - 0H
+            //
+            // yield return new TestCaseData(6, 0, false, new EpgNotificationEvent
+            // {
+            //     UpdatedRange = new Range<DateTime>(DateTime.UtcNow.AddHours(6.1), DateTime.UtcNow.AddHours(8)),
+            //     LiveAssetId = 10,
+            //     DisableEpgNotification = false
+            // });
+            //
+            // yield return new TestCaseData(6, 0, false, new EpgNotificationEvent
+            // {
+            //     UpdatedRange = new Range<DateTime>(DateTime.UtcNow.AddHours(5.9), DateTime.UtcNow.AddHours(8)),
+            //     LiveAssetId = 10,
+            //     DisableEpgNotification = false
+            // });
+            //
+            // #endregion
+            //
+            // #region Backward - 0H, Forward - 0H
+            //
+            // yield return new TestCaseData(0, 0, false, new EpgNotificationEvent
+            // {
+            //     UpdatedRange = new Range<DateTime>(DateTime.UtcNow.AddHours(-6.1), DateTime.UtcNow.AddHours(8)),
+            //     LiveAssetId = 10,
+            //     DisableEpgNotification = false
+            // });
+            //
+            // #endregion
+        }
+
+        [Test]
+        public async Task TestForwardBackwardTimeRanges()
         {
             await _handler.Handle(_epgEvent);
             VerifyNotificationWasSent(Times.Once);

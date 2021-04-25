@@ -11,7 +11,9 @@ namespace DAL.DTO.Notification
         public IReadOnlyCollection<int> DeviceFamilyIds { get; set; }
         [JsonProperty("live_assets")]
         public IReadOnlyCollection<long> LiveAssetIds { get; set; }
-        [JsonProperty("time_range")]
-        public int TimeRange { get; set; }
+        [JsonProperty("backward_time_range")]
+        public int BackwardTimeRange { get; set; }
+        [JsonProperty("forward_time_range")]
+        public int ForwardTimeRange { get; set; }
     }
 }

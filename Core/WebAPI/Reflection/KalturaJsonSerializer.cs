@@ -10769,6 +10769,10 @@ namespace WebAPI.Models.Notification
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(BackwardTimeRange.HasValue && (retrievedProperties == null || retrievedProperties.Contains("backwardTimeRange")))
+            {
+                ret.Add("backwardTimeRange", "\"backwardTimeRange\": " + BackwardTimeRange);
+            }
             if(DeviceFamilyIds != null && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyIds")))
             {
                 ret.Add("deviceFamilyIds", "\"deviceFamilyIds\": " + "\"" + EscapeJson(DeviceFamilyIds) + "\"");
@@ -10777,13 +10781,13 @@ namespace WebAPI.Models.Notification
             {
                 ret.Add("enabled", "\"enabled\": " + Enabled.ToString().ToLower());
             }
+            if(ForwardTimeRange.HasValue && (retrievedProperties == null || retrievedProperties.Contains("forwardTimeRange")))
+            {
+                ret.Add("forwardTimeRange", "\"forwardTimeRange\": " + ForwardTimeRange);
+            }
             if(LiveAssetIds != null && (retrievedProperties == null || retrievedProperties.Contains("liveAssetIds")))
             {
                 ret.Add("liveAssetIds", "\"liveAssetIds\": " + "\"" + EscapeJson(LiveAssetIds) + "\"");
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("timeRange")))
-            {
-                ret.Add("timeRange", "\"timeRange\": " + TimeRange);
             }
             return ret;
         }
@@ -10799,6 +10803,10 @@ namespace WebAPI.Models.Notification
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(BackwardTimeRange.HasValue && (retrievedProperties == null || retrievedProperties.Contains("backwardTimeRange")))
+            {
+                ret.Add("backwardTimeRange", "<backwardTimeRange>" + BackwardTimeRange + "</backwardTimeRange>");
+            }
             if(DeviceFamilyIds != null && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyIds")))
             {
                 ret.Add("deviceFamilyIds", "<deviceFamilyIds>" + EscapeXml(DeviceFamilyIds) + "</deviceFamilyIds>");
@@ -10807,13 +10815,13 @@ namespace WebAPI.Models.Notification
             {
                 ret.Add("enabled", "<enabled>" + Enabled.ToString().ToLower() + "</enabled>");
             }
+            if(ForwardTimeRange.HasValue && (retrievedProperties == null || retrievedProperties.Contains("forwardTimeRange")))
+            {
+                ret.Add("forwardTimeRange", "<forwardTimeRange>" + ForwardTimeRange + "</forwardTimeRange>");
+            }
             if(LiveAssetIds != null && (retrievedProperties == null || retrievedProperties.Contains("liveAssetIds")))
             {
                 ret.Add("liveAssetIds", "<liveAssetIds>" + EscapeXml(LiveAssetIds) + "</liveAssetIds>");
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("timeRange")))
-            {
-                ret.Add("timeRange", "<timeRange>" + TimeRange + "</timeRange>");
             }
             return ret;
         }
@@ -14925,6 +14933,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("protectFromIngest", "\"protectFromIngest\": " + ProtectFromIngest.ToString().ToLower());
             }
+            if(SuppressedOrder.HasValue && (retrievedProperties == null || retrievedProperties.Contains("suppressedOrder")))
+            {
+                ret.Add("suppressedOrder", "\"suppressedOrder\": " + SuppressedOrder);
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
                 ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
@@ -14974,6 +14986,10 @@ namespace WebAPI.Models.Catalog
             if(ProtectFromIngest.HasValue && (retrievedProperties == null || retrievedProperties.Contains("protectFromIngest")))
             {
                 ret.Add("protectFromIngest", "<protectFromIngest>" + ProtectFromIngest.ToString().ToLower() + "</protectFromIngest>");
+            }
+            if(SuppressedOrder.HasValue && (retrievedProperties == null || retrievedProperties.Contains("suppressedOrder")))
+            {
+                ret.Add("suppressedOrder", "<suppressedOrder>" + SuppressedOrder + "</suppressedOrder>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
@@ -15228,6 +15244,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("groupOrderBy", "\"groupOrderBy\": " + "\"" + Enum.GetName(typeof(KalturaGroupByOrder), GroupByOrder) + "\"");
             }
+            if(GroupingOptionEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("groupingOptionEqual")))
+            {
+                ret.Add("groupingOptionEqual", "\"groupingOptionEqual\": " + "\"" + Enum.GetName(typeof(KalturaGroupingOption), GroupingOptionEqual) + "\"");
+            }
             if(Ksql != null && (retrievedProperties == null || retrievedProperties.Contains("kSql")))
             {
                 ret.Add("kSql", "\"kSql\": " + "\"" + EscapeJson(Ksql) + "\"");
@@ -15254,6 +15274,10 @@ namespace WebAPI.Models.Catalog
             if(GroupByOrder.HasValue && (retrievedProperties == null || retrievedProperties.Contains("groupOrderBy")))
             {
                 ret.Add("groupOrderBy", "<groupOrderBy>" + "" + Enum.GetName(typeof(KalturaGroupByOrder), GroupByOrder) + "" + "</groupOrderBy>");
+            }
+            if(GroupingOptionEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("groupingOptionEqual")))
+            {
+                ret.Add("groupingOptionEqual", "<groupingOptionEqual>" + "" + Enum.GetName(typeof(KalturaGroupingOption), GroupingOptionEqual) + "" + "</groupingOptionEqual>");
             }
             if(Ksql != null && (retrievedProperties == null || retrievedProperties.Contains("kSql")))
             {
@@ -15788,6 +15812,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("parentId", "\"parentId\": " + ParentId);
             }
+            if(ReferenceId != null && (retrievedProperties == null || retrievedProperties.Contains("referenceId")))
+            {
+                ret.Add("referenceId", "\"referenceId\": " + "\"" + EscapeJson(ReferenceId) + "\"");
+            }
             if(StartDateInSeconds.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateInSeconds")))
             {
                 ret.Add("startDateInSeconds", "\"startDateInSeconds\": " + StartDateInSeconds);
@@ -15855,6 +15883,10 @@ namespace WebAPI.Models.Catalog
             if((retrievedProperties == null || retrievedProperties.Contains("parentId")))
             {
                 ret.Add("parentId", "<parentId>" + ParentId + "</parentId>");
+            }
+            if(ReferenceId != null && (retrievedProperties == null || retrievedProperties.Contains("referenceId")))
+            {
+                ret.Add("referenceId", "<referenceId>" + EscapeXml(ReferenceId) + "</referenceId>");
             }
             if(StartDateInSeconds.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateInSeconds")))
             {
@@ -16122,6 +16154,10 @@ namespace WebAPI.Models.Catalog
                     ret.Add("name", propertyValue);
                 }
             }
+            if(ReferenceId != null && (retrievedProperties == null || retrievedProperties.Contains("referenceId")))
+            {
+                ret.Add("referenceId", "\"referenceId\": " + "\"" + EscapeJson(ReferenceId) + "\"");
+            }
             if(StartDateInSeconds.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateInSeconds")))
             {
                 ret.Add("startDateInSeconds", "\"startDateInSeconds\": " + StartDateInSeconds);
@@ -16187,6 +16223,10 @@ namespace WebAPI.Models.Catalog
             if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
                 ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
+            }
+            if(ReferenceId != null && (retrievedProperties == null || retrievedProperties.Contains("referenceId")))
+            {
+                ret.Add("referenceId", "<referenceId>" + EscapeXml(ReferenceId) + "</referenceId>");
             }
             if(StartDateInSeconds.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateInSeconds")))
             {
@@ -38656,10 +38696,6 @@ namespace WebAPI.Models.CanaryDeployment
                 propertyValue = "{" + String.Join(", ", RoutingConfiguration.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
                 ret.Add("routingConfiguration", "\"routingConfiguration\": " + propertyValue);
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("shouldProduceInvalidationEventsToKafka")))
-            {
-                ret.Add("shouldProduceInvalidationEventsToKafka", "\"shouldProduceInvalidationEventsToKafka\": " + ShouldProduceInvalidationEventsToKafka.ToString().ToLower());
-            }
             return ret;
         }
         
@@ -38688,10 +38724,6 @@ namespace WebAPI.Models.CanaryDeployment
             {
                 propertyValue = RoutingConfiguration.Count > 0 ? "<item>" + String.Join("</item><item>", RoutingConfiguration.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
                 ret.Add("routingConfiguration", "<routingConfiguration>" + propertyValue + "</routingConfiguration>");
-            }
-            if((retrievedProperties == null || retrievedProperties.Contains("shouldProduceInvalidationEventsToKafka")))
-            {
-                ret.Add("shouldProduceInvalidationEventsToKafka", "<shouldProduceInvalidationEventsToKafka>" + ShouldProduceInvalidationEventsToKafka.ToString().ToLower() + "</shouldProduceInvalidationEventsToKafka>");
             }
             return ret;
         }

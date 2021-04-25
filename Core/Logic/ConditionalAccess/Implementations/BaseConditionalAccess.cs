@@ -10437,48 +10437,45 @@ namespace Core.ConditionalAccess
                 {
                     int billingCycle = cancelSubscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle;
 
-                    DomainEntitlements domainEntitlements = null;
-                    if (Utils.TryGetDomainEntitlementsFromCache(m_nGroupID, domainId, null, ref domainEntitlements))
-                    {
-                        bool deleteDomainUnifiedBillingCycle = false;
-                        // get all household with base subscription
-                        if (domainEntitlements.DomainBundleEntitlements != null && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions != null
-                            && domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Count() > 0)
-                        {
-                            List<long> subscriptionCodes = domainEntitlements.DomainBundleEntitlements.EntitledSubscriptions.Where(x => int.Parse(x.Key) != assetId).Select(x => long.Parse(x.Key)).ToList();
+                    bool deleteDomainUnifiedBillingCycle = false;
 
-                            if (subscriptionCodes != null && subscriptionCodes.Count > 0) // need to check if any subscription with the same cycle
+                    DomainBundles domainBundles = Utils.GetDomainBundles(m_nGroupID, domainId);
+                    if (domainBundles?.EntitledSubscriptions?.Count > 0)
+                    {
+                        List<long> subscriptionCodes = domainBundles.EntitledSubscriptions.Where(x => int.Parse(x.Key) != assetId).Select(x => long.Parse(x.Key)).ToList();
+
+                        if (subscriptionCodes != null && subscriptionCodes.Count > 0) // need to check if any subscription with the same cycle
+                        {
+                            Subscription[] subscriptionList = Utils.GetSubscriptionsDataWithCaching(subscriptionCodes, m_nGroupID);
+                            if (subscriptionList != null && subscriptionList.Count() > 0)
                             {
-                                Subscription[] subscriptionList = Utils.GetSubscriptionsDataWithCaching(subscriptionCodes, m_nGroupID);
-                                if (subscriptionList != null && subscriptionList.Count() > 0)
-                                {
-                                    UnifiedBillingCycle unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle(domainId, (long)billingCycle);
-                                    if (subscriptionList.Where(x => x.m_MultiSubscriptionUsageModule != null && x.m_MultiSubscriptionUsageModule.Count() > 0 &&
-                                        x.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == billingCycle).Count() == 0) // no more subscription with this cycle
-                                    {
-                                        deleteDomainUnifiedBillingCycle = true;
-                                    }
-                                }
-                                else // no subscription left
+                                UnifiedBillingCycle unifiedBillingCycle = UnifiedBillingCycleManager.GetDomainUnifiedBillingCycle(domainId, (long)billingCycle);
+                                if (subscriptionList.Where(x => x.m_MultiSubscriptionUsageModule != null && x.m_MultiSubscriptionUsageModule.Count() > 0 &&
+                                    x.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle == billingCycle).Count() == 0) // no more subscription with this cycle
                                 {
                                     deleteDomainUnifiedBillingCycle = true;
                                 }
                             }
-                            else
+                            else // no subscription left
                             {
                                 deleteDomainUnifiedBillingCycle = true;
                             }
                         }
-                        else // no more subscription (at all)
+                        else
                         {
                             deleteDomainUnifiedBillingCycle = true;
                         }
-
-                        if (deleteDomainUnifiedBillingCycle)
-                        {
-                            UnifiedBillingCycleManager.DeleteDomainUnifiedBillingCycle(domainId, billingCycle);
-                        }
                     }
+                    else
+                    {
+                        deleteDomainUnifiedBillingCycle = true;
+                    }
+
+                    if (deleteDomainUnifiedBillingCycle)
+                    {
+                        UnifiedBillingCycleManager.DeleteDomainUnifiedBillingCycle(domainId, billingCycle);
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -15721,7 +15718,7 @@ namespace Core.ConditionalAccess
                             RecordingsManager.UpdateIndex(task.GroupId, recording.Id, eAction.Delete);
                             RecordingsManager.UpdateCouchbase(task.GroupId, recording.EpgId, recording.Id, true);
                         }
-                        else
+                        else if (task.OldRecordingDuration == 0) 
                         {
                             RecordingsManager.Instance.DeleteRecording(task.GroupId, recording, true, false, domainIds.ToList());
                         }

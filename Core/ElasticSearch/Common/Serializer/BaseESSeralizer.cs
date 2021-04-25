@@ -14,6 +14,7 @@ namespace ElasticSearch.Common
         protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
         protected static readonly string META_BOOL_SUFFIX = "_BOOL";
         protected static readonly string META_DATE_PREFIX = "date";
+        public const string META_SUPPRESSED = "suppressed";
 
         protected bool shouldLowerCase = true;
 
@@ -28,7 +29,7 @@ namespace ElasticSearch.Common
             recordBuilder.AppendFormat("\"media_id\": {0}, \"group_id\": {1}, \"media_type_id\": {2}, \"wp_type_id\": {3}, \"is_active\": {4}, " +
                 "\"device_rule_id\": {5}, \"like_counter\": {6}, \"views\": {7}, \"rating\": {8}, \"votes\": {9}, \"start_date\": \"{10}\", " +
                 "\"end_date\": \"{11}\", \"final_date\": \"{12}\", \"create_date\": \"{13}\", \"update_date\": \"{14}\", \"{21}\": \"{15}\", " +
-                "\"{22}\": \"{16}\", \"cache_date\": \"{17}\", \"geo_block_rule_id\": {18}, \"external_id\": \"{19}\", \"catalog_start_date\": \"{20}\", ",
+                "\"{22}\": \"{16}\", \"cache_date\": \"{17}\", \"geo_block_rule_id\": {18}, \"external_id\": \"{19}\", \"catalog_start_date\": \"{20}\", \"suppressed\": \"{23}\",",
                 media.m_nMediaID, media.m_nGroupID, media.m_nMediaTypeID, media.m_nWPTypeID, media.m_nIsActive,
                 media.m_nDeviceRuleId, media.m_nLikeCounter, media.m_nViews, media.m_dRating, media.m_nVotes, media.m_sStartDate,
                 media.m_sEndDate, media.m_sFinalEndDate, media.m_sCreateDate, media.m_sUpdateDate, Common.Utils.ReplaceDocumentReservedCharacters(media.m_sName, shouldLowerCase),
@@ -37,7 +38,8 @@ namespace ElasticSearch.Common
                 // {21}
                 AddSuffix("name", suffix),
                 // {22}
-                AddSuffix("description", suffix)
+                AddSuffix("description", suffix),
+                media.suppressed
                 );
 
             #region add media file types
@@ -106,7 +108,7 @@ namespace ElasticSearch.Common
                         if (!string.IsNullOrWhiteSpace(sMetaValue))
                         {
 
-                            metaNameValues.Add(string.Format(" \"{0}\": \"{1}\"", 
+                            metaNameValues.Add(string.Format(" \"{0}\": \"{1}\"",
                                 AddSuffix(sMetaName.ToLower(), suffix),
                                 Common.Utils.ReplaceDocumentReservedCharacters(sMetaValue, shouldLowerCase)));
                         }
@@ -146,7 +148,7 @@ namespace ElasticSearch.Common
                     {
                         string sJoinedTagVals = string.Join(",", lTagValues);
                         tagNameValues.Add(string.Format(" \"{0}\": [ {1} ]",
-                            AddSuffix(sTagName.ToLower(), suffix), 
+                            AddSuffix(sTagName.ToLower(), suffix),
                             sJoinedTagVals));
                     }
                 }
@@ -280,7 +282,7 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap,  List<string> groupTags, 
+        public virtual string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags,
             HashSet<string> metasToPad,
             MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers)
         {
@@ -501,7 +503,7 @@ namespace ElasticSearch.Common
             if (groupTags.Count > 0)
             {
                 HashSet<string> mappedTags = new HashSet<string>();
-                
+
                 foreach (string tagName in groupTags)
                 {
                     if (!string.IsNullOrEmpty(tagName))
@@ -673,12 +675,12 @@ namespace ElasticSearch.Common
                     break;
                 case ApiObjects.MetaType.Number:
                     esFieldType = eESFieldType.DOUBLE;
-                    sNullValue = "0.0";                    
+                    sNullValue = "0.0";
                     break;
                 case ApiObjects.MetaType.Bool:
                     esFieldType = eESFieldType.INTEGER;
                     sNullValue = "0";
-                    break;                                       
+                    break;
                 case ApiObjects.MetaType.DateTime:
                     esFieldType = eESFieldType.DATE;
                     break;
@@ -689,7 +691,7 @@ namespace ElasticSearch.Common
             }
         }
 
-        public virtual string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> lTags, 
+        public virtual string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> lTags,
             HashSet<string> metasToPad,
             MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers, string mappingName, bool shouldAddRouting)
         {
@@ -1014,7 +1016,7 @@ namespace ElasticSearch.Common
             sRecord.AppendFormat("\"epg_id\": {0}, \"group_id\": {1}, \"epg_channel_id\": {2}, \"is_active\": {3}, \"start_date\": \"{4}\", \"end_date\": \"{5}\"," +
                 " \"{13}\": \"{6}\", \"{14}\": \"{7}\", \"cache_date\": \"{8}\", \"create_date\": \"{9}\", \"update_date\": \"{10}\"," +
                 "\"search_end_date\": \"{11}\", \"crid\": \"{12}\", \"epg_identifier\" : \"{15}\", \"external_id\": \"{16}\", \"document_id\" : \"{17}\", \"is_auto_fill\" : {18}," +
-                "\"enable_cdvr\" : {19}, \"enable_catchup\" : {20},",
+                "\"enable_cdvr\" : {19}, \"enable_catchup\" : {20}, \"suppressed\" : \"{21}\",",
                 oEpg.EpgID, doesGroupUsesTemplates ? oEpg.ParentGroupID : oEpg.GroupID, oEpg.ChannelID, (oEpg.IsActive) ? 1 : 0, oEpg.StartDate.ToString("yyyyMMddHHmmss"),
                 oEpg.EndDate.ToString("yyyyMMddHHmmss"), Common.Utils.ReplaceDocumentReservedCharacters(name, shouldLowerCase),
                 Common.Utils.ReplaceDocumentReservedCharacters(description, shouldLowerCase), /* cache_date*/ DateTime.UtcNow.ToString("yyyyMMddHHmmss"),
@@ -1030,11 +1032,13 @@ namespace ElasticSearch.Common
                 // {17}
                 oEpg.DocumentId,
                 // {18}
-                oEpg.IsAutoFill? 1 : 0,
+                oEpg.IsAutoFill ? 1 : 0,
                 // {19}
                 oEpg.EnableCDVR,
                 // {20}
-                oEpg.EnableCatchUp
+                oEpg.EnableCatchUp,
+                // {21}
+                oEpg.Suppressed ?? ""
                 );
 
             // Add this field only if it has a value

@@ -47,5 +47,13 @@ namespace ApiObjects.SearchObjects
             get;
             set;
         }
+
+        [JsonProperty()]
+        [DataMember]
+        public bool isGroupingOptionInclude
+        {
+            get;
+            set;
+        }
     }
 }

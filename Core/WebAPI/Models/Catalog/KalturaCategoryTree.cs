@@ -119,5 +119,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "virtualAssetId", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public long? VirtualAssetId { get; set; }
+
+        /// <summary>
+        /// Category reference identifier
+        /// </summary>
+        [DataMember(Name = "referenceId")]
+        [JsonProperty("referenceId")]
+        [XmlElement(ElementName = "referenceId", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public string ReferenceId { get; set; }
     }
 }

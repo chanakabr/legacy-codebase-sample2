@@ -112,7 +112,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<KalturaEpgNotificationSettings, EpgNotificationSettings>()
                 .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
-                .ForMember(dest => dest.TimeRange, opt => opt.ResolveUsing(src => src.TimeRange == 0 ? 24 : src.TimeRange))
+                .ForMember(dest => dest.BackwardTimeRange, opt => opt.ResolveUsing(src => src.BackwardTimeRange ?? 24))
+                .ForMember(dest => dest.ForwardTimeRange, opt => opt.ResolveUsing(src => src.ForwardTimeRange ?? 24))
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.ResolveUsing(src => src.DeviceFamilyIds
                     .GetItemsIn<int>(out var failed, true)
                     .ThrowIfFailed(failed, () => new ClientException((int)StatusCode.InvalidArgumentValue, "invalid value in deviceFamilyIds"))))
@@ -122,7 +123,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 ;
             cfg.CreateMap<EpgNotificationSettings, KalturaEpgNotificationSettings>()
                 .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
-                .ForMember(dest => dest.TimeRange, opt => opt.MapFrom(src => src.TimeRange))
+                .ForMember(dest => dest.BackwardTimeRange, opt => opt.MapFrom(src => src.BackwardTimeRange))
+                .ForMember(dest => dest.ForwardTimeRange, opt => opt.MapFrom(src => src.ForwardTimeRange))
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.ResolveUsing(src => string.Join(",", src.DeviceFamilyIds)))
                 .ForMember(dest => dest.LiveAssetIds, opt => opt.ResolveUsing(src => string.Join(",", src.LiveAssetIds)))
                 ;

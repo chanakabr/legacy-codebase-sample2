@@ -132,6 +132,8 @@ namespace ApiObjects
         [JsonProperty("is_ingest_v2")]
         public bool IsIngestV2 { get; set; }
 
+        [JsonProperty("suppressed")]
+        public string Suppressed { get; set; }
         #endregion
 
         #region Ctor

@@ -1317,7 +1317,8 @@ namespace Core.Catalog
             }
 
             // WARNING has side effect - updates queryParser.Aggregations
-            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID, unifiedSearchDefinitions.shouldAddIsActiveTerm);
+            string requestBody = queryParser.BuildSearchQueryString(unifiedSearchDefinitions.shouldIgnoreDeviceRuleID, 
+                unifiedSearchDefinitions.shouldAddIsActiveTerm, unifiedSearchDefinitions.isGroupingOptionInclude);
 
             if (!string.IsNullOrEmpty(requestBody))
             {
@@ -1506,7 +1507,7 @@ namespace Core.Catalog
             {
                 queryBuilder.SubscriptionsQuery = BuildMultipleSearchQuery(search.entitlementSearchDefinitions.subscriptionSearchObjects, parentGroupId, true);
             }            
-            var requestBody = queryBuilder.BuildSearchQueryString(search.shouldIgnoreDeviceRuleID, search.shouldAddIsActiveTerm); // WARNING has side effect - updates queryBuilder.Aggregations, used later
+            var requestBody = queryBuilder.BuildSearchQueryString(search.shouldIgnoreDeviceRuleID, search.shouldAddIsActiveTerm, search.isGroupingOptionInclude); // WARNING has side effect - updates queryBuilder.Aggregations, used later
             var url = GetUrl(search, parentGroupId);
 
             // send request
@@ -2775,7 +2776,7 @@ namespace Core.Catalog
                 queryParser.SubscriptionsQuery = boolQuery;
             }
 
-            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddIsActiveTerm);
+            string requestBody = queryParser.BuildSearchQueryString(definitions.shouldIgnoreDeviceRuleID, definitions.shouldAddIsActiveTerm, definitions.isGroupingOptionInclude);
 
             if (!string.IsNullOrEmpty(requestBody))
             {
@@ -2928,6 +2929,13 @@ namespace Core.Catalog
             if (aggregationsResult.Aggregations.ContainsKey(cardinalityKey))
             {
                 totalItems = Convert.ToInt32(aggregationsResult.Aggregations[cardinalityKey].value);
+            }
+
+            //BEO-9740
+            if (aggregationsResult.Aggregations[currentGroupBy].buckets.Any(x=>x.key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString()))
+            {
+                totalItems += aggregationsResult.Aggregations[currentGroupBy].buckets
+                    .Where(x => x.key == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString()).First().doc_count;
             }
 
             var result = new AggregationsResult()

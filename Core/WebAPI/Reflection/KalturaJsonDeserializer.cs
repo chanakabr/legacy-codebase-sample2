@@ -9931,7 +9931,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaEpgNotificationSettings
     {
-        private static RuntimeSchemePropertyAttribute TimeRangeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEpgNotificationSettings")
+        private static RuntimeSchemePropertyAttribute BackwardTimeRangeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEpgNotificationSettings")
         {
             ReadOnly = false,
             InsertOnly = false,
@@ -9941,7 +9941,19 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MaxInteger = 72,
-            MinInteger = 6,
+            MinInteger = 0,
+        };
+        private static RuntimeSchemePropertyAttribute ForwardTimeRangeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEpgNotificationSettings")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MaxInteger = 72,
+            MinInteger = 0,
         };
         public KalturaEpgNotificationSettings(Dictionary<string, object> parameters = null) : base(parameters)
         {
@@ -9961,13 +9973,21 @@ namespace WebAPI.Models.Notification
                 {
                     LiveAssetIds = (String) Convert.ChangeType(parameters["liveAssetIds"], typeof(String));
                 }
-                if (parameters.ContainsKey("timeRange") && parameters["timeRange"] != null)
+                if (parameters.ContainsKey("backwardTimeRange") && parameters["backwardTimeRange"] != null)
                 {
                     if(!isOldVersion)
                     {
-                        TimeRangeSchemaProperty.Validate("timeRange", parameters["timeRange"]);
+                        BackwardTimeRangeSchemaProperty.Validate("backwardTimeRange", parameters["backwardTimeRange"]);
                     }
-                    TimeRange = (Int32) Convert.ChangeType(parameters["timeRange"], typeof(Int32));
+                    BackwardTimeRange = (Int32) Convert.ChangeType(parameters["backwardTimeRange"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("forwardTimeRange") && parameters["forwardTimeRange"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ForwardTimeRangeSchemaProperty.Validate("forwardTimeRange", parameters["forwardTimeRange"]);
+                    }
+                    ForwardTimeRange = (Int32) Convert.ChangeType(parameters["forwardTimeRange"], typeof(Int32));
                 }
             }
         }
@@ -12664,6 +12684,17 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute SuppressedOrderSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+        };
         public KalturaAssetStructMeta(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -12729,6 +12760,14 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("isLocationTag") && parameters["isLocationTag"] != null)
                 {
                     IsLocationTag = (Boolean) Convert.ChangeType(parameters["isLocationTag"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("suppressedOrder") && parameters["suppressedOrder"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        SuppressedOrderSchemaProperty.Validate("suppressedOrder", parameters["suppressedOrder"]);
+                    }
+                    SuppressedOrder = (Int32) Convert.ChangeType(parameters["suppressedOrder"], typeof(Int32));
                 }
             }
         }
@@ -12949,6 +12988,20 @@ namespace WebAPI.Models.Catalog
                     if (!Enum.IsDefined(typeof(KalturaGroupByOrder), GroupByOrder))
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", GroupByOrder, typeof(KalturaGroupByOrder)));
+                    }
+                }
+                if (parameters.ContainsKey("groupingOptionEqual") && parameters["groupingOptionEqual"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["groupingOptionEqual"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "groupingOptionEqual");
+                    }
+
+                    GroupingOptionEqual = (KalturaGroupingOption) Enum.Parse(typeof(KalturaGroupingOption), parameters["groupingOptionEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaGroupingOption), GroupingOptionEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", GroupingOptionEqual, typeof(KalturaGroupingOption)));
                     }
                 }
             }
@@ -13522,6 +13575,10 @@ namespace WebAPI.Models.Catalog
                     }
                     VirtualAssetId = (Int64) Convert.ChangeType(parameters["virtualAssetId"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("referenceId") && parameters["referenceId"] != null)
+                {
+                    ReferenceId = (String) Convert.ChangeType(parameters["referenceId"], typeof(String));
+                }
             }
         }
     }
@@ -13675,6 +13732,16 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute ReferenceIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaCategoryTree(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -13787,6 +13854,14 @@ namespace WebAPI.Models.Catalog
                         VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
                     }
                     VirtualAssetId = (Int64) Convert.ChangeType(parameters["virtualAssetId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("referenceId") && parameters["referenceId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ReferenceIdSchemaProperty.Validate("referenceId", parameters["referenceId"]);
+                    }
+                    ReferenceId = (String) Convert.ChangeType(parameters["referenceId"], typeof(String));
                 }
             }
         }
@@ -31123,10 +31198,6 @@ namespace WebAPI.Models.CanaryDeployment
                     {
                         MigrationEvents = (KalturaCanaryDeploymentMigrationEvents) Deserializer.deserialize(typeof(KalturaCanaryDeploymentMigrationEvents), (Dictionary<string, object>) parameters["migrationEvents"]);
                     }
-                }
-                if (parameters.ContainsKey("shouldProduceInvalidationEventsToKafka") && parameters["shouldProduceInvalidationEventsToKafka"] != null)
-                {
-                    ShouldProduceInvalidationEventsToKafka = (Boolean) Convert.ChangeType(parameters["shouldProduceInvalidationEventsToKafka"], typeof(Boolean));
                 }
             }
         }

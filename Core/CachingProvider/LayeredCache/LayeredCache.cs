@@ -1526,7 +1526,7 @@ namespace CachingProvider.LayeredCache
                         return;
                     }
                 }
-                
+
                 var invalidationEvent = new CacheInvalidationEvent(key, InvalidationEventsTopic);
                 if (invalidationEvent != null)
                 {

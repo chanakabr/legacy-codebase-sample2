@@ -166,7 +166,9 @@ namespace Core.Catalog
         {
             "media_type_id",
             "name",
-            "crid"
+            "crid",
+            "suppressed",
+            "linear_media_id"
         };
 
         private static readonly HashSet<string> predefinedAssetTypes = new HashSet<string>()
@@ -8599,8 +8601,9 @@ namespace Core.Catalog
 
             Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
 
-            #endregion
+            definitions.isGroupingOptionInclude = request.searchGroupBy != null && request.searchGroupBy.isGroupingOptionInclude;
 
+            #endregion
 
             return definitions;
         }

@@ -416,6 +416,29 @@ namespace Core.Recordings
 
                             DateTime nextCheck = DateTime.UtcNow.AddMinutes(MINUTES_RETRY_INTERVAL);
 
+                            if (string.IsNullOrEmpty(currentRecording.ExternalRecordingId))
+                            {
+                                ///BEO-9708
+                                log.Debug($"GetRecordingStatus: (BEO-9708) ExternalRecordingId is empty! recordingId:{recordingId}");
+
+                                if (timeSpan.TotalMinutes < MINUTES_ALLOWED_DIFFERENCE)
+                                {
+                                    ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
+                                    RetryTaskAfterProgramEnded(groupId, currentRecording, nextCheck, eRecordingTask.GetStatusAfterProgramEnded);
+                                }
+                                else
+                                {
+                                    log.Debug($"GetRecordingStatus: (BEO-9708) ExternalRecordingId is empty! set to Failed. recordingId:{recordingId}");
+                                    currentRecording.RecordingStatus = TstvRecordingStatus.Failed;
+                                    currentRecording.Status.Set(new Status((int)eResponseStatus.Error, "no ExternalRecordingId"));
+                                    ConditionalAccess.Utils.UpdateRecording(currentRecording, groupId, 1, 1, null);
+                                    UpdateIndex(groupId, recordingId, eAction.Update);
+                                }
+
+                                currentRecording.Status.Code = (int)eResponseStatus.OK;
+                                return currentRecording;
+                            }
+
                             int adapterId = ConditionalAccessDAL.GetTimeShiftedTVAdapterId(groupId);
 
                             var adapterController = AdapterControllers.CDVR.CdvrAdapterController.GetInstance();
@@ -684,7 +707,7 @@ namespace Core.Recordings
         {
             GenericCeleryQueue queue = new GenericCeleryQueue();
             DateTime utcNow = DateTime.UtcNow;
-            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, taskId, recording.Id, 0) { ETA = utcNow };
+            ApiObjects.QueueObjects.RecordingModificationData data = new ApiObjects.QueueObjects.RecordingModificationData(groupId, taskId, recording.Id, 0, oldRecordingLength) { ETA = utcNow };
             bool queueExpiredRecordingResult = queue.Enqueue(data, string.Format(ROUTING_KEY_MODIFIED_RECORDING, groupId));
             if (!queueExpiredRecordingResult)
             {

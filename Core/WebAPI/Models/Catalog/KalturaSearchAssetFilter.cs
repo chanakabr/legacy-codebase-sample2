@@ -31,7 +31,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("idIn")]
         [XmlElement(ElementName = "idIn", IsNullable = true)]
         [Deprecated("5.0.1.0")]
-        public string IdIn { get; set; }       
+        public string IdIn { get; set; }
 
         internal List<int> getTypeIn()
         {
@@ -84,10 +84,10 @@ namespace WebAPI.Models.Catalog
             var userId = contextData.UserId.ToString();
             int domainId = (int)(contextData.DomainId ?? 0);
             bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
-            
+
             var response = ClientsManager.CatalogClient().SearchAssets(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(), pager.PageSize, this.Ksql,
                 this.OrderBy, this.getTypeIn(), this.getEpgChannelIdIn(), contextData.ManagementData, this.DynamicOrderBy,
-                this.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, this.GroupByOrder);
+                this.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, this.GroupByOrder, false, this.GroupingOptionEqual ?? KalturaGroupingOption.Omit);
 
             return response;
         }

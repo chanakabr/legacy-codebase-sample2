@@ -154,7 +154,7 @@ namespace ApiLogic.Users.Services
             else
             {
                 var key = GetDomainDeviceUsageDateKey(UDID);
-                var deviceLoginTime = UtilsDal.GetObjectFromCB<long?>(_couchbaseBucket, key, true);
+                var deviceLoginTime = UtilsDal.GetObjectFromCB<long?>(_couchbaseBucket, key);
                 if (!deviceLoginTime.HasValue)
                 {
                     _logger.Debug($"Could not fetch device ([{UDID}]) login record groupId:[{groupId}]]");

@@ -35,8 +35,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<CanaryDeploymentConfiguration, KalturaCanaryDeploymentConfiguration>()
                 .ForMember(dest => dest.DataOwnerShip, opt => opt.MapFrom(src => src.DataOwnership))
                 .ForMember(dest => dest.MigrationEvents, opt => opt.MapFrom(src => src.MigrationEvents))
-                .ForMember(dest => dest.RoutingConfiguration, opt => opt.ResolveUsing(src => ConvertRoutingConfiguration(src.RoutingConfiguration)))
-                .ForMember(dest => dest.ShouldProduceInvalidationEventsToKafka, opt => opt.MapFrom(src => src.ShouldProduceInvalidationEventsToKafka));
+                .ForMember(dest => dest.RoutingConfiguration, opt => opt.ResolveUsing(src => ConvertRoutingConfiguration(src.RoutingConfiguration)));
         }
 
         private static SerializableDictionary<string, KalturaStringValue> ConvertRoutingConfiguration(Dictionary<string, CanaryDeploymentRoutingService> routingConfiguration)

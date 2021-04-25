@@ -51,11 +51,9 @@ namespace ApiObjects
             this.NamesInOtherLanguages = new List<LanguageContainer>(namesInOtherLanguages);
             this.SystemName = systemName;
             this.Type = type;
-            this.Features = features != null ? new HashSet<string>(features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            
+            this.Features = features != null ? new HashSet<string>(features, StringComparer.OrdinalIgnoreCase) : new HashSet<string>(StringComparer.OrdinalIgnoreCase);            
             this.SearchRelated = this.Features.Contains(SEARCH_RELATED);
             this.IsInterest = this.Features.Contains(USER_INTEREST);
-
             this.IsPredefined = isPredefined;
             this.HelpText = helpText;
             this.ParentId = parentId;
@@ -86,7 +84,7 @@ namespace ApiObjects
             this.HelpText = topicToCopy.HelpText;
             this.ParentId = topicToCopy.ParentId;
             this.CreateDate = topicToCopy.CreateDate;
-            this.UpdateDate = topicToCopy.UpdateDate;            
+            this.UpdateDate = topicToCopy.UpdateDate;       
         }
 
         public string GetCommaSeparatedFeatures(HashSet<string> existingFeatures = null)

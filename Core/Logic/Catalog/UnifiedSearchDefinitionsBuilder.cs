@@ -22,8 +22,10 @@ namespace Core.Catalog
         private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
         {
             "media_type_id",
-            "name"
-             ,"crid"
+            "name",
+            "crid",
+            "suppressed",
+            "linear_media_id"
         };
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
@@ -322,7 +324,8 @@ namespace Core.Catalog
                         definitions.specificAssets[specificAsset.Key].Add(specificAsset.Value.ToString());
                     }
                 }
-
+                
+                definitions.isGroupingOptionInclude = request.isGroupingOptionInclude;
                 #endregion
 
                 #region Get Recordings
@@ -399,6 +402,8 @@ namespace Core.Catalog
                 #region Group By
 
                 Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
+
+                definitions.isGroupingOptionInclude = request.searchGroupBy != null && request.searchGroupBy.isGroupingOptionInclude;
 
                 #endregion
 

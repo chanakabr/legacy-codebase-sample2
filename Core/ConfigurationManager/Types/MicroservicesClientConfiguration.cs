@@ -43,7 +43,6 @@ namespace ConfigurationManager.Types
             "(.*)(_InvalidatePartnerRoles)",
             "(.*)(_InvalidateHouseholdDevice_)(.*)"
         };
-
         public BaseValue<bool> ShouldProduceInvalidationEventsToKafka = new BaseValue<bool>("should_produce_invalidation_events_to_kafka", false);
         public BaseValue<List<string>> InvalidationEventsMatchRules = new BaseValue<List<string>>("invalidation_events_match_rules", defaultInvalidationEventsMatchRules);
         public BaseValue<string> InvalidationEventsTopic = new BaseValue<string>("invalidation_events_topic", "PHOENIX_CACHE_INVALIDATIONS");

@@ -821,7 +821,8 @@ namespace DAL
                 Enabled = epgSettings.Enabled,
                 DeviceFamilyIds = epgSettings.DeviceFamilyIds,
                 LiveAssetIds = epgSettings.LiveAssetIds,
-                TimeRange = epgSettings.TimeRange
+                BackwardTimeRange = epgSettings.BackwardTimeRange,
+                ForwardTimeRange = epgSettings.ForwardTimeRange
             });
         }
 
@@ -835,8 +836,9 @@ namespace DAL
                 Enabled = dto.Enabled,
                 DeviceFamilyIds = dto.DeviceFamilyIds,
                 LiveAssetIds = dto.LiveAssetIds,
-                TimeRange = dto.TimeRange
-            };            
+                BackwardTimeRange = dto.BackwardTimeRange,
+                ForwardTimeRange = dto.ForwardTimeRange
+            };
         }
 
         public static DataRow GetNotificationSettings(int groupID, int userID)
@@ -3031,7 +3033,7 @@ namespace DAL
         public static TopicNotification GetTopicNotificationCB(long topicNotificationId)
         {
             string key = GetTopicNotificationKey(topicNotificationId);
-            return UtilsDal.GetObjectFromCB<TopicNotification>(eCouchbaseBucket.OTT_APPS, key, true);
+            return UtilsDal.GetObjectFromCB<TopicNotification>(eCouchbaseBucket.OTT_APPS, key);
         }
 
         public static List<TopicNotification> GetTopicsNotificationsCB(List<long> topicNotificationIds)
@@ -3123,7 +3125,7 @@ namespace DAL
         public static TopicNotificationMessage GetTopicNotificationMessageCB(long topicNotificationMeesageId)
         {
             string key = GetTopicNotificationMessageKey(topicNotificationMeesageId);
-            return UtilsDal.GetObjectFromCB<TopicNotificationMessage>(eCouchbaseBucket.OTT_APPS, key, true);
+            return UtilsDal.GetObjectFromCB<TopicNotificationMessage>(eCouchbaseBucket.OTT_APPS, key);
         }
 
         public static List<TopicNotificationMessage> GetTopicNotificationMessagesCB(List<long> topicNotificationMeesageIds)

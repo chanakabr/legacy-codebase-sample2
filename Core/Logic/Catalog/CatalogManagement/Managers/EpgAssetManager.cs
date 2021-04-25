@@ -35,27 +35,27 @@ namespace Core.Catalog.CatalogManagement
         private const string CRID_META_NAME = "CRID";
         private const string START_DATE_META_NAME = "Program Start";
         private const string END_DATE_META_NAME = "Program End";
-        private const string NAME_META_SYSTEM_NAME = "Name";
-        private const string DESCRIPTION_META_SYSTEM_NAME = "Description";
-        private const string START_DATE_META_SYSTEM_NAME = "StartDate";
-        private const string END_DATE_META_SYSTEM_NAME = "EndDate";
-        private const string SERIES_NAME_META_SYSTEM_NAME = "SeriesName";
+        public const string NAME_META_SYSTEM_NAME = "Name";
+        public const string DESCRIPTION_META_SYSTEM_NAME = "Description";
+        public const string START_DATE_META_SYSTEM_NAME = "StartDate";
+        public const string END_DATE_META_SYSTEM_NAME = "EndDate";
+        public const string SERIES_NAME_META_SYSTEM_NAME = "SeriesName";
         private const string SERIES_NAME_META_NAME = "Series Name";
-        private const string SERIES_ID_META_SYSTEM_NAME = "SeriesID";
+        public const string SERIES_ID_META_SYSTEM_NAME = "SeriesID";
         private const string SERIES_ID_META_NAME = "Series ID";
-        private const string EPISODE_NUMBER_META_SYSTEM_NAME = "EpisodeNumber";
+        public const string EPISODE_NUMBER_META_SYSTEM_NAME = "EpisodeNumber";
         private const string EPISODE_NUMBER_META_NAME = "Episode Number";
-        private const string SEASON_NUMBER_META_SYSTEM_NAME = "SeasonNumber";
+        public const string SEASON_NUMBER_META_SYSTEM_NAME = "SeasonNumber";
         private const string SEASON_NUMBER_META_NAME = "Season Number";
-        private const string PARENTAL_RATING_META_SYSTEM_NAME = "ParentalRating";
+        public const string PARENTAL_RATING_META_SYSTEM_NAME = "ParentalRating";
         private const string PARENTAL_RATING_META_NAME = "Parental Rating";
-        private const string GENRE_META_SYSTEM_NAME = "Genre";
-        private const string CRID_META_SYSTEM_NAME = "Crid";
-        private const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
+        public const string GENRE_META_SYSTEM_NAME = "Genre";
+        public const string CRID_META_SYSTEM_NAME = "Crid";
+        public const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
         private static readonly int MaxDescriptionSize = 1024;
         private static readonly int MaxNameSize = 255;
 
-        internal static readonly Dictionary<string, string> BasicProgramMetasSystemNameToName = new Dictionary<string, string>()
+        public static readonly Dictionary<string, string> BasicProgramMetasSystemNameToName = new Dictionary<string, string>()
         {
             { NAME_META_SYSTEM_NAME, NAME_META_SYSTEM_NAME },
             { DESCRIPTION_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME },

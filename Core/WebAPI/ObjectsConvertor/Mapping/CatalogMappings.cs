@@ -824,7 +824,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.IsInherited, opt => opt.MapFrom(src => src.IsInherited))
-                .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag));
+                .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag))
+                .ForMember(dest => dest.SuppressedOrder, opt => opt.MapFrom(src => src.SuppressedOrder))
+                ;
 
             // KalturaAssetStructMeta to AssetStructMeta
             cfg.CreateMap<KalturaAssetStructMeta, AssetStructMeta>()
@@ -836,7 +838,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                .ForMember(dest => dest.IsInherited, opt => opt.MapFrom(src => src.IsInherited))
-               .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag));
+               .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag))
+               .ForMember(dest => dest.SuppressedOrder, opt => opt.MapFrom(src => src.SuppressedOrder))
+               ;
 
             #endregion
 
@@ -1187,7 +1191,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
               .ForMember(dest => dest.TimeSlot, opt => opt.ResolveUsing(src => ConvertToTimeSlot(src.StartDateInSeconds, src.EndDateInSeconds, src.NullableProperties)))
               .ForMember(dest => dest.VersionId, opt => opt.MapFrom(src => src.VersionId))
-              .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
+              .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
+              .ForMember(dest => dest.ReferenceId, opt => opt.MapFrom(src => src.ReferenceId));
 
             cfg.CreateMap<ApiLogic.Catalog.CategoryItem, KalturaCategoryItem>()
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
@@ -1202,7 +1207,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.StartDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.StartDateInSeconds))
                .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds))
                .ForMember(dest => dest.VersionId, opt => opt.MapFrom(src => src.VersionId))
-               .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
+               .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
+               .ForMember(dest => dest.ReferenceId, opt => opt.MapFrom(src => src.ReferenceId));
 
             cfg.CreateMap<UnifiedChannelType, KalturaChannelType>()
                 .ConvertUsing(type =>
@@ -1263,7 +1269,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.EndDateInSeconds, opt => opt.MapFrom(src => src.TimeSlot.EndDateInSeconds))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.VersionId, opt => opt.MapFrom(src => src.VersionId))
-                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
+                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId))
+                .ForMember(dest => dest.ReferenceId, opt => opt.MapFrom(src => src.ReferenceId));
 
             cfg.CreateMap<KalturaCategoryItemFilter, ApiLogic.Catalog.CategoryItemFilter>()
                 .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderObj(src.OrderBy)));
@@ -1436,7 +1443,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.DefaultDate, opt => opt.MapFrom(src => src.DefaultDate))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate));
-               
+
             cfg.CreateMap<CategoryVersionState, KalturaCategoryVersionState>()
                 .ConvertUsing(type =>
                 {
@@ -1453,7 +1460,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     }
                 });
 
-           
+
             cfg.CreateMap<KalturaCategoryVersionFilter, CategoryVersionFilter>()
                 .ForMember(dest => dest.OrderBy, opt => opt.MapFrom(src => CatalogConvertor.ConvertOrderToOrderBy(src.OrderBy)));
 

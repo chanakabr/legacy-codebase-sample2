@@ -453,7 +453,15 @@ namespace WebAPI.Clients
                     {
                         if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
                         {
-                            assetsBaseDataList.Add(aggregationResult.topHits[0]);
+                            if (aggregationResult.value == ElasticSearch.Searcher.ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
+                            {
+                                //take all hits from 'missing' bucket
+                                assetsBaseDataList.AddRange(aggregationResult.topHits);
+                            }
+                            else
+                            {
+                                assetsBaseDataList.Add(aggregationResult.topHits[0]);
+                            }
                         }
                     }
 
@@ -548,7 +556,8 @@ namespace WebAPI.Clients
 
         [Obsolete]
         public KalturaAssetInfoListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
-                                                            string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId, List<KalturaCatalogWith> with, bool excludeWatched)
+                                                            string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId,
+                                                            List<KalturaCatalogWith> with, bool excludeWatched)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -732,7 +741,9 @@ namespace WebAPI.Clients
 
         public KalturaAssetListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
-            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null, bool ignoreEndDate = false)
+            List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null,
+            bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null, bool ignoreEndDate = false,
+            KalturaGroupingOption groupByType = KalturaGroupingOption.Omit)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -816,7 +827,8 @@ namespace WebAPI.Clients
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
                 isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
-                shouldIgnoreEndDate = ignoreEndDate
+                shouldIgnoreEndDate = ignoreEndDate,
+                isGroupingOptionInclude = GenericExtensionMethods.ConvertEnumsById<KalturaGroupingOption, GroupingOption>(groupByType) == GroupingOption.Include
             };
 
             if (groupBy != null && groupBy.Count > 0)
@@ -824,7 +836,7 @@ namespace WebAPI.Clients
                 request.searchGroupBy = new SearchAggregationGroupBy()
                 {
                     groupBy = groupBy,
-                    distinctGroup = groupBy[0], // mabye will send string.empty - and Backend will fill it if nessecery
+                    distinctGroup = groupBy[0], // maybe will send string.empty - and Backend will fill it if necessary
                     topHitsCount = 1,
                     groupByOrder = aggregationOrder
                 };
@@ -2692,7 +2704,8 @@ namespace WebAPI.Clients
 
         internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
                                                             KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
-                                                            KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, List<string> groupByValues = null)
+                                                            KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, List<string> groupByValues = null,
+                                                            bool allowIncludedGroupBy = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2743,7 +2756,8 @@ namespace WebAPI.Clients
                 {
                     groupBy = groupByValues,
                     distinctGroup = groupByValues[0], // mabye will send string.empty - and Backend will fill it if nessecery
-                    topHitsCount = 1
+                    topHitsCount = 1,
+                    isGroupingOptionInclude = allowIncludedGroupBy
                 };
             }
 
