@@ -65,9 +65,9 @@ namespace ODBCWrapper
 
         ~DataSetQuery() { }
 
-        public virtual System.Data.DataTable Execute(string sVirtualTableName, bool bForceQuery)
+        public virtual System.Data.DataTable Execute(string sVirtualTableName, bool bForceQuery, bool forceReadOnly = false)
         {
-            return ExecuteQuery(m_sOraStr.ToString(), sVirtualTableName, bForceQuery);
+            return ExecuteQuery(m_sOraStr.ToString(), sVirtualTableName, bForceQuery, forceReadOnly);
         }
 
         public override bool Execute()
@@ -84,7 +84,7 @@ namespace ODBCWrapper
             m_sOraStr = new System.Text.StringBuilder(oraStr);
         }
 
-        protected virtual System.Data.DataTable ExecuteQuery(string oraStr, string sVirtualTableName, bool bForceQuery)
+        protected virtual System.Data.DataTable ExecuteQuery(string oraStr, string sVirtualTableName, bool bForceQuery, bool forceReadOnly = false)
         {
             if (bForceQuery)
             {
@@ -118,7 +118,7 @@ namespace ODBCWrapper
                     Utils.UseWritable = !shouldRouteToSlave;
                 }
 
-                string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+                string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, (m_bIsWritable || Utils.UseWritable) && !forceReadOnly);
                 if (sConn == "")
                 {
                     log.ErrorFormat("Empty connection string. could not run query. m_sOraStr: {0}", m_sOraStr != null ? m_sOraStr.ToString() : string.Empty);

@@ -263,7 +263,7 @@ namespace TVinciShared
                 selectQuery += "and";
                 selectQuery += ODBCWrapper.Parameter.NEW_PARAM("session_id", "<>", HttpContext.Current.Session.GetSessionID().ToString());
             }
-            if (selectQuery.Execute("query", true) != null)
+            if (selectQuery.Execute("query", true, true) != null)
             {
                 Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                 if (nCount > 0)
@@ -285,11 +285,11 @@ namespace TVinciShared
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("logout", "=", 2);
             updateQuery += "where ";
             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("account_id", "=", nAcctID);
-            updateQuery += "and id not in (select id from admin_login where ";
-            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("session_id", "=", HttpContext.Current.Session.GetSessionID().ToString());
-            updateQuery += ")";
+            updateQuery += "and logout <> 2 and ";
+            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("session_id", "<>", HttpContext.Current.Session.GetSessionID().ToString());
             updateQuery.Execute();
             updateQuery.Finish();
+
             updateQuery = null;
         }
 
@@ -663,7 +663,7 @@ namespace TVinciShared
             selectQuery1 += "select GETDATE() as current_t,ID,LAST_ACTION_DATE from admin_login where ";
             selectQuery1 += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nMaxID);
 
-            if (selectQuery1.Execute("query", true) != null)
+            if (selectQuery1.Execute("query", true, true) != null)
             {
                 Int32 nCount = selectQuery1.Table("query").DefaultView.Count;
                 if (nCount > 0)
@@ -720,7 +720,7 @@ namespace TVinciShared
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", nGroupID);
                     selectQuery += "and";
                     selectQuery += ODBCWrapper.Parameter.NEW_PARAM("RTRIM(LTRIM(LOWER(IP)))", "=", sIP.ToString().ToLower());
-                    if (selectQuery.Execute("query", true) != null)
+                    if (selectQuery.Execute("query", true, true) != null)
                     {
                         Int32 nCount = selectQuery.Table("query").DefaultView.Count;
                         if (nCount > 0)

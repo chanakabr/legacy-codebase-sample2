@@ -100,47 +100,93 @@ public partial class adm_users_list : System.Web.UI.Page
         Int32 nGroupID = LoginManager.GetLoginGroupID();
         theTable.SetConnectionKey("users_connection");
 
-        theTable += "select top(10000) ";
-        theTable += "u.is_active,u.id as id,u.id as 'User ID',u.status,u.fail_count,u.Password,u.USERNAME as 'Username',u.FIRST_NAME as 'First Name',u.LAST_NAME as 'Last Name',";
-        theTable += "u.EMAIL_ADD as 'Email Address',u.REG_AFF as 'Affiliate',u.HANDLING_STATUS as 'Open Ticket',lcs.description as 'State',ut.ID as 'User Type ID',ut.description as 'User Type'";
-        theTable += "from ";
-        theTable += "users u (nolock) ";
-        theTable += "inner join lu_content_status lcs (nolock)";
-        theTable += "on u.status = lcs.id and u.status<>2";
-        theTable += "left join users_types ut(nolock) on u.User_Type = ut.ID and u.group_id = ut.group_id and ut.is_active = 1 and ut.status = 1 ";
-        theTable += "where  ";
+        ODBCWrapper.DataSetSelectQuery countQuery = new ODBCWrapper.DataSetSelectQuery();
+        countQuery.SetConnectionKey("users_connection");
+
+        theTable += "select ";
+        countQuery += "select count(*) as count";
+
+        theTable += "u.is_active,u.id as id,u.id as 'User ID',u.status,u.fail_count,u.Password,u.USERNAME as 'Username',u.FIRST_NAME as 'First Name',u.LAST_NAME as 'Last Name'," +
+        "u.EMAIL_ADD as 'Email Address',u.REG_AFF as 'Affiliate',u.HANDLING_STATUS as 'Open Ticket', 'Active' as 'State',ut.ID as 'User Type ID',ut.description as 'User Type'";
+        string queryPart = 
+        "from " +
+        "users u WITH (nolock) " +
+        "left join users_types ut WITH (nolock) on u.User_Type = ut.ID and u.group_id = ut.group_id and ut.is_active = 1 and ut.status = 1 " +
+        "where ";
+        theTable += queryPart;
+        countQuery += queryPart;
 
         theTable += ODBCWrapper.Parameter.NEW_PARAM("u.group_id", "=", nGroupID);
+        countQuery += ODBCWrapper.Parameter.NEW_PARAM("u.group_id", "=", nGroupID);
 
-        theTable += " and		u.USERNAME NOT LIKE '%{Household}%' ";
+        queryPart = " and	u.status<>2 and	u.USERNAME NOT LIKE '%{Household}%' ";
+        theTable += queryPart;
+        countQuery += queryPart;
 
         if (Session["search_free_ul"] != null && Session["search_free_ul"].ToString() != "")
         {
             string sLike = "like(N'%" + Session["search_free_ul"].ToString() + "%')";
-            theTable += " and (u.USERNAME " + sLike + " or u.FIRST_NAME " + sLike + " or u.LAST_NAME " + sLike + " or u.EMAIL_ADD " + sLike + ")";
+            queryPart = " and (u.USERNAME " + sLike + " or u.FIRST_NAME " + sLike + " or u.LAST_NAME " + sLike + " or u.EMAIL_ADD " + sLike + ")";
+            theTable += queryPart;
+            countQuery += queryPart;
         }
 
         if (Session["search_only_open_tickets"] != null && Session["search_only_open_tickets"].ToString() != "" && Session["search_only_open_tickets"].ToString() != "-1")
         {
             theTable += " and ";
+            countQuery += " and ";
             theTable += ODBCWrapper.Parameter.NEW_PARAM("u.HANDLING_STATUS", "=", int.Parse(Session["search_only_open_tickets"].ToString()));
+            countQuery += ODBCWrapper.Parameter.NEW_PARAM("u.HANDLING_STATUS", "=", int.Parse(Session["search_only_open_tickets"].ToString()));
         }
+
         if (Session["domain_id"] != null && Session["domain_id"].ToString() != "")
         {
             Int32 nDomainId = int.Parse(Session["domain_id"].ToString());
-            theTable += " and ";
-            theTable += "u.id in (select ud.user_id from users_domains as ud where ";
+            queryPart = " and u.id in (select ud.user_id from users_domains as ud where ";
+            theTable += queryPart;
+            countQuery += queryPart;
+
             theTable += ODBCWrapper.Parameter.NEW_PARAM("ud.domain_id", "=", nDomainId);
-            theTable += "and ud.status=1 and ud.is_active=1)";
+            countQuery += ODBCWrapper.Parameter.NEW_PARAM("ud.domain_id", "=", nDomainId);
+
+            queryPart = "and ud.status=1 and ud.is_active=1)";
+            theTable += queryPart;
+            countQuery += queryPart;
         }
 
         if (sOrderBy != "")
         {
-            theTable += " order by ";
-            theTable += sOrderBy;
+            queryPart = $" order by {sOrderBy}";
+            theTable += queryPart;
         }
         else
-            theTable += " order by id desc";
+        {
+            queryPart = " order by u.id desc";
+            theTable += queryPart;
+        }
+
+        theTable.SetShouldForceReadOnly(true);
+
+        try
+        {
+            var dt = countQuery.Execute("query", true, true);
+
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            {
+                theTable.SetQueryCount(Convert.ToInt32(dt.Rows[0]["count"]));
+            }
+        }
+        catch (Exception ex)
+        {
+            
+        }
+
+        //
+        //
+        //
+        //
+        //
+
         theTable.AddHiddenField("ID");
         theTable.AddHiddenField("status");
         theTable.AddHiddenField("fail_count");
@@ -325,8 +371,7 @@ public partial class adm_users_list : System.Web.UI.Page
         DBTableWebEditor theTable = new DBTableWebEditor(true, true, bNewButton, "", "adm_table_header", "adm_table_cell", "adm_table_alt_cell", "adm_table_link", "adm_table_pager", "adm_table", sOldOrderBy, 50);
         theTable.SetConnectionKey("users_connection");
         FillTheTableEditor(ref theTable, sOrderBy);
-
-
+                
         string sTable = theTable.GetPageHTML(int.Parse(sPageNum), sOrderBy);
 
         theTable.Finish();

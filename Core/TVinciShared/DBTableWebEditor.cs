@@ -223,6 +223,7 @@ namespace TVinciShared
         protected int m_nIgnoreDeleteId;
         protected int m_nIgnoreActiveId;
         protected string m_sPage;
+        protected bool shouldForceReadOnlyQuery = false;
 
         protected System.Collections.Generic.Dictionary<string, bool> stringColumns;
 
@@ -386,6 +387,10 @@ namespace TVinciShared
             m_sNewStr = sList;
         }
 
+        public void SetShouldForceReadOnly(bool newValue)
+        {
+            this.shouldForceReadOnlyQuery = newValue;
+        }
         public DBTableWebEditor(bool bPrintButton,
             bool bExcellButton,
             bool bNewButton,
@@ -881,7 +886,7 @@ namespace TVinciShared
             if (m_theDataTable == null)
             {
                 m_theQuery.SetConnectionKey(m_sConnectionKey);
-                if (m_theQuery.Execute("query", true) == null)
+                if (m_theQuery.Execute("query", true, shouldForceReadOnlyQuery) == null)
                     return "";
                 m_theDataTable = m_theQuery.Table("query");
             }
