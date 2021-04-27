@@ -606,6 +606,11 @@ namespace CachingProvider.LayeredCache
             return "db_procedures_routing";
         }
 
+        public static string GetDbPrimarySecondaryRoutingKey()
+        {
+            return "db_primary_secondary_routing";
+        }
+
         public static string GetDbQueryRoutingKey()
         {
             return "db_query_routing";

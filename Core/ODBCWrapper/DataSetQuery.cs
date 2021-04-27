@@ -15,6 +15,8 @@ namespace ODBCWrapper
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        private string queryStringForRouting = string.Empty;
+
         protected DataSetQuery()
         {
             m_myDataSet = new System.Data.DataSet();
@@ -112,13 +114,20 @@ namespace ODBCWrapper
             System.Data.DataTable dCached = SelectCacher.GetCachedDataTable(sCachStr, m_nCachedSec);
             if (dCached == null)
             {
+                queryStringForRouting = oraStr;
+
                 bool shouldRouteToSlave = QueryRoutingDefinitions.Instance.ShouldQueryRouteToSlave(oraStr);
                 if (shouldRouteToSlave)
                 {
-                    Utils.UseWritable = !shouldRouteToSlave;
+                    // update the static thread variable - only if we don't use traffic handler
+                    if (!ApplicationConfiguration.Current.SqlTrafficConfiguration.ShouldUseTrafficHandler.Value)
+                    {
+                        Utils.UseWritable = !shouldRouteToSlave;
+                    }
                 }
+                
+                string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, (m_bIsWritable || Utils.UseWritable) && !forceReadOnly, this);
 
-                string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, (m_bIsWritable || Utils.UseWritable) && !forceReadOnly);
                 if (sConn == "")
                 {
                     log.ErrorFormat("Empty connection string. could not run query. m_sOraStr: {0}", m_sOraStr != null ? m_sOraStr.ToString() : string.Empty);
@@ -180,6 +189,52 @@ namespace ODBCWrapper
             }
             return m_myDataSet.Tables[sVirtualTableName];
 
+        }
+
+        public override bool ShouldRouteToPrimary()
+        {
+            bool result = true;
+
+            if (ApplicationConfiguration.Current.SqlTrafficConfiguration.ShouldUseTrafficHandler.Value)
+            {
+                if (ShouldForceSecondary)
+                {
+                    result = false;
+                }
+                else
+                {
+                    DbPrimarySecondaryRouting routing = Utils.GetDbPrimarySecondaryRouting();
+
+                    if (routing != null && !string.IsNullOrEmpty(queryStringForRouting))
+                    {
+                        string queryKey = queryStringForRouting.Replace(" ", string.Empty).ToLower();
+
+                        if (routing.QueryNameToShouldRouteToPrimaryMapping.ContainsKey(queryKey))
+                        {
+                            result = routing.QueryNameToShouldRouteToPrimaryMapping[queryKey];
+                        }
+                    }
+                }
+            }
+            else
+            {
+                bool shouldQueryRouteToSlave = QueryRoutingDefinitions.Instance.ShouldQueryRouteToSlave(queryStringForRouting);
+                result = !shouldQueryRouteToSlave;
+            }
+
+            return result;
+        }
+
+        public override string GetName()
+        {
+            if (queryStringForRouting != null && queryStringForRouting.Length > 0)
+            {
+                return $"Query: {queryStringForRouting}";
+            }
+            else
+            {
+                return $"Query: N/A";
+            }
         }
 
         protected override void Clean()

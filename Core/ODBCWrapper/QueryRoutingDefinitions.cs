@@ -1,4 +1,5 @@
 ﻿using CachingProvider.LayeredCache;
+using ConfigurationManager;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -17,11 +18,11 @@ namespace ODBCWrapper
         private static object locker = new object();
         private static QueryRoutingDefinitions instance = null;
 
-        private static readonly string STORED_PROCEDURE_NAME = "usp_get_db_AdHocQueries_routing ";
+        private static readonly string STORED_PROCEDURE_NAME = "usp_get_db_AdHocQueries_routing";
 
         #region Members
 
-        public Dictionary<string, bool> definitions;
+        public Dictionary<string, bool> queryNameToShouldRouteToSecondaryMapping;
 
         #endregion
 
@@ -48,12 +49,12 @@ namespace ODBCWrapper
 
         public QueryRoutingDefinitions()
         {
-            definitions = new Dictionary<string, bool>();
+            queryNameToShouldRouteToSecondaryMapping = new Dictionary<string, bool>();
 
             SqlCommand command = new SqlCommand();
 
             bool success = LayeredCache.Instance.Get<Dictionary<string, bool>>(LayeredCacheKeys.GetDbQueryRoutingKey(),
-                ref definitions, GetDefinitions, new Dictionary<string, object>(), 0, LayeredCacheConfigNames.QUERIES_ROUTING_CONFIG_NAME, new List<string>()
+                ref queryNameToShouldRouteToSecondaryMapping, GetDefinitions, new Dictionary<string, object>(), 0, LayeredCacheConfigNames.QUERIES_ROUTING_CONFIG_NAME, new List<string>()
                 { LayeredCacheKeys.GetQueriesRoutingInvalidationKey() });
         }
 
@@ -64,7 +65,10 @@ namespace ODBCWrapper
             Tuple<Dictionary<string, bool>, bool> result = null;
             Dictionary<string, bool> definitions = new Dictionary<string, bool>();
 
-            StoredProcedure storedProcedure = new StoredProcedure(STORED_PROCEDURE_NAME, true);
+            StoredProcedure storedProcedure = new StoredProcedure(STORED_PROCEDURE_NAME, true)
+            {
+                ShouldForcePrimary = true
+            };
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
 
             DataTable table = storedProcedure.Execute();
@@ -93,11 +97,17 @@ namespace ODBCWrapper
         {
             bool result = false;
 
-            string queryKey = query.Replace(" ", string.Empty).ToLower();
-
-            if (definitions != null && definitions.ContainsKey(queryKey))
+            if (!ApplicationConfiguration.Current.SqlTrafficConfiguration.ShouldUseTrafficHandler.Value)
             {
-                result = definitions[queryKey];
+                string queryKey = query.Replace(" ", string.Empty).ToLower();
+
+                if (queryNameToShouldRouteToSecondaryMapping != null)
+                {
+                    if (queryNameToShouldRouteToSecondaryMapping.ContainsKey(queryKey))
+                    {
+                        result = queryNameToShouldRouteToSecondaryMapping[queryKey];
+                    }
+                }
             }
 
             return result;

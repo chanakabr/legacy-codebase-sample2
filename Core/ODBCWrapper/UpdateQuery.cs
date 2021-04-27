@@ -1,4 +1,9 @@
 using System;
+using System.Reflection;
+using System.Web;
+using CachingProvider.LayeredCache;
+using ConfigurationManager;
+using KLogMonitor;
 
 namespace ODBCWrapper
 {
@@ -7,6 +12,8 @@ namespace ODBCWrapper
     /// </summary>
     public class UpdateQuery : DirectQuery
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public UpdateQuery(string sTableName)
         {
             m_sOraStr = new System.Text.StringBuilder("update ").Append(sTableName).Append(" set ");

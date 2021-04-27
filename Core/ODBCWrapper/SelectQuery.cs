@@ -2,6 +2,7 @@ using System;
 using System.Data.SqlClient;
 using System.Reflection;
 using System.Web;
+using ConfigurationManager;
 using KLogMonitor;
 
 namespace ODBCWrapper
@@ -133,10 +134,14 @@ namespace ODBCWrapper
             bool shouldRouteToSlave = QueryRoutingDefinitions.Instance.ShouldQueryRouteToSlave(m_sOraStr.ToString());
             if (shouldRouteToSlave)
             {
-                Utils.UseWritable = !shouldRouteToSlave;
+                // update the static thread variable - only if we don't use traffic handler
+                if (!ApplicationConfiguration.Current.SqlTrafficConfiguration.ShouldUseTrafficHandler.Value)
+                {
+                    Utils.UseWritable = !shouldRouteToSlave;
+                }
             }
 
-            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable, this);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sOraStr: {0}", m_sOraStr != null ? m_sOraStr.ToString() : string.Empty);
@@ -171,6 +176,58 @@ namespace ODBCWrapper
                 }
             }
             return bRet;
+        }
+        public override bool ShouldRouteToPrimary()
+        {
+            bool result = true;
+
+            if (m_sOraStr == null || m_sOraStr.Length == 0)
+            {
+                return result;
+            }
+
+            string oraStr = m_sOraStr.ToString();
+
+            if (ApplicationConfiguration.Current.SqlTrafficConfiguration.ShouldUseTrafficHandler.Value)
+            {
+                if (ShouldForceSecondary)
+                {
+                    result = false;
+                }
+                else
+                {
+                    DbPrimarySecondaryRouting routing = Utils.GetDbPrimarySecondaryRouting();
+
+                    if (routing != null && !string.IsNullOrEmpty(oraStr))
+                    {
+                        string queryKey = oraStr.Replace(" ", string.Empty).ToLower();
+
+                        if (routing.QueryNameToShouldRouteToPrimaryMapping.ContainsKey(queryKey))
+                        {
+                            result = routing.QueryNameToShouldRouteToPrimaryMapping[queryKey];
+                        }
+                    }
+                }
+            }
+            else
+            {
+                bool shouldQueryRouteToSlave = QueryRoutingDefinitions.Instance.ShouldQueryRouteToSlave(oraStr);
+                result = !shouldQueryRouteToSlave;
+            }
+
+            return result;
+        }
+
+        public override string GetName()
+        {
+            if (m_sOraStr != null && m_sOraStr.Length > 0)
+            {
+                return $"Query: {m_sOraStr}";
+            }
+            else
+            {
+                return $"Query: N/A";
+            }
         }
 
         public static SelectQuery operator +(SelectQuery p, object sOraStr)

@@ -14,7 +14,7 @@ namespace HealthCheck
         {
             try
             {
-                string _connectionString = ODBCWrapper.Connection.GetConnectionString("MAIN_CONNECTION_STRING", false);
+                string _connectionString = ODBCWrapper.Connection.GetConnectionString("MAIN_CONNECTION_STRING", false, null);
 
                 using (var connection = new SqlConnection(_connectionString))
                 {

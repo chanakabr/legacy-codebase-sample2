@@ -64,7 +64,10 @@ namespace ODBCWrapper
             Tuple<Dictionary<string, int>, bool> result = null;
             Dictionary<string, int> definitions = new Dictionary<string, int>();
 
-            StoredProcedure storedProcedure = new StoredProcedure(STORED_PROCEDURE_NAME, true);
+            StoredProcedure storedProcedure = new StoredProcedure(STORED_PROCEDURE_NAME, true)
+            {
+                ShouldForcePrimary = true
+            };
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
 
             DataTable table = storedProcedure.Execute();

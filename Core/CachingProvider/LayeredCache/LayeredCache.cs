@@ -14,6 +14,7 @@ using EventBus.Kafka;
 using EventBus.Abstraction;
 using System.ServiceModel.Channels;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace CachingProvider.LayeredCache
 {
@@ -41,6 +42,7 @@ namespace CachingProvider.LayeredCache
         public const string IS_READ_ACTION = "IsReadAction";
         public const string CURRENT_REQUEST_LAYERED_CACHE = "CurrentRequestLayeredCache";
         public const string DATABASE_ERROR_DURING_SESSION = "DATABASE_ERROR_DURING_SESSION";
+        public const string CONTEXT_KEY_SHOULD_ROUTE_DB_TO_SECONDARY = "ShouldRouteDbToSecondary";
         private const string REQUEST_TAGS = "request_tags";
         private const string REQUEST_TAGS_PARTNER_ROLE = "partner_role";
 
@@ -117,18 +119,6 @@ namespace CachingProvider.LayeredCache
 
         #region Public Methods
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="key"></param>
-        /// <param name="genericParameter"></param>
-        /// <param name="fillObjectMethod"></param>
-        /// <param name="funcParameters"></param>
-        /// <param name="groupId"></param>
-        /// <param name="layeredCacheConfigName"></param>
-        /// <param name="inValidationKeys"></param>
-        /// <returns></returns>
         public bool Get<T>(string key, ref T genericParameter, Func<Dictionary<string, object>, Tuple<T, bool>> fillObjectMethod, Dictionary<string, object> funcParameters,
                             int groupId, string layeredCacheConfigName, List<string> inValidationKeys = null, bool shouldUseAutoNameTypeHandling = false)
         {
@@ -345,7 +335,8 @@ namespace CachingProvider.LayeredCache
             long result = -1;
             try
             {
-                TryGetMaxInValidationKeysDate(layeredCacheConfigName, groupId, new List<string>() { invalidationKey }, out result);
+                long m;
+                TryGetMaxInValidationKeysDate(layeredCacheConfigName, groupId, new List<string>() { invalidationKey }, out result, out m);
             }
             catch (Exception ex)
             {
@@ -797,17 +788,28 @@ namespace CachingProvider.LayeredCache
             insertToCacheConfig = new List<LayeredCacheConfig>();
             try
             {
+                long maxExternalInvalidationDate = 0;
+                bool hasMaxInvalidationDate = false;
+
                 if (ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig))
                 {
                     long maxInValidationDate = 0;
-                    bool hasMaxInvalidationDate = false;
+
                     foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
                     {
                         if (TryGetFromICachingService<T>(key, ref tupleResult, cacheConfig, groupId, shouldUseAutoNameTypeHandling))
                         {
                             if (!hasMaxInvalidationDate)
                             {
-                                hasMaxInvalidationDate = TryGetMaxInValidationKeysDate(layeredCacheConfigName, groupId, inValidationKeys, out maxInValidationDate);
+                                long currentMaxExternalInvalidationDate = 0;
+
+                                hasMaxInvalidationDate = TryGetMaxInValidationKeysDate(layeredCacheConfigName, groupId, inValidationKeys, out maxInValidationDate, out currentMaxExternalInvalidationDate);
+
+                                if (currentMaxExternalInvalidationDate > maxExternalInvalidationDate)
+                                {
+                                    maxExternalInvalidationDate = currentMaxExternalInvalidationDate;
+                                }
+
                                 if (!hasMaxInvalidationDate)
                                 {
                                     log.ErrorFormat("Error getting inValidationKeysMaxDate for key: {0}, layeredCacheConfigName: {1}, groupId: {2}, invalidationKeys: {3}",
@@ -829,9 +831,17 @@ namespace CachingProvider.LayeredCache
                         insertToCacheConfig.Add(cacheConfig);
                     }
                 }
+
                 if (!result && fillObjectMethod != null)
                 {
+                    bool initialStateWasRoutedToSecondary = checkShouldRouteDBToSecondary(key, layeredCacheConfigName, groupId, 
+                        hasMaxInvalidationDate, maxExternalInvalidationDate,
+                        inValidationKeys, null);
+
                     Tuple<T, bool> tuple = fillObjectMethod(funcParameters);
+
+                    resetThreadSpecificRouting(key, initialStateWasRoutedToSecondary);
+
                     if (tuple != null)
                     {
                         tupleResult = new Tuple<T, long>(tuple.Item1, Utils.GetUtcUnixTimestampNow());
@@ -847,7 +857,6 @@ namespace CachingProvider.LayeredCache
                     }
                 }
             }
-
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed TryGetFromCacheByConfig with key {0}, LayeredCacheTypes {1}, MethodName {2} and funcParameters {3}", key, GetLayeredCacheConfigTypesForLog(layeredCacheConfig),
@@ -871,18 +880,29 @@ namespace CachingProvider.LayeredCache
                 HashSet<string> keysToGet = new HashSet<string>(KeyToOriginalValueMap.Keys);
                 Dictionary<string, Tuple<T, long>> resultsToAdd = new Dictionary<string, Tuple<T, long>>();
                 tupleResults = new Dictionary<string, Tuple<T, long>>();
+                long maxExternalInvalidationDate = 0;
+                bool hasMaxInvalidationDates = false;
+
                 var shouldGoToCache = ShouldGoToCache(layeredCacheConfigName, groupId, ref layeredCacheConfig);
+
                 if (shouldGoToCache)
                 {
                     Dictionary<string, long> inValidationKeysMaxDateMapping = null;
-                    bool hasMaxInvalidationDates = false;
+
                     foreach (LayeredCacheConfig cacheConfig in layeredCacheConfig)
                     {
                         if (TryGetValuesFromICachingService<T>(keysToGet.ToList(), ref resultsToAdd, cacheConfig, groupId, shouldUseAutoNameTypeHandling) && resultsToAdd != null && resultsToAdd.Count > 0)
                         {
                             if (!hasMaxInvalidationDates)
                             {
-                                hasMaxInvalidationDates = TryGetInValidationKeysMaxDateMapping(layeredCacheConfigName, groupId, inValidationKeysMap, ref inValidationKeysMaxDateMapping);
+                                long currentMaxExternalInvalidationDate = 0;
+                                hasMaxInvalidationDates = TryGetInValidationKeysMaxDateMapping(layeredCacheConfigName, groupId, inValidationKeysMap, ref inValidationKeysMaxDateMapping, out currentMaxExternalInvalidationDate);
+
+                                if (currentMaxExternalInvalidationDate > maxExternalInvalidationDate)
+                                {
+                                    maxExternalInvalidationDate = currentMaxExternalInvalidationDate;
+                                }
+
                                 if (!hasMaxInvalidationDates)
                                 {
                                     log.ErrorFormat("Error getting inValidationKeysMaxDateMapping for keys: {0}, layeredCacheConfigName: {1}, groupId: {2}",
@@ -952,7 +972,13 @@ namespace CachingProvider.LayeredCache
                         }
                     }
 
+                    bool initialState = checkShouldRouteDBToSecondary(keysToGet.ElementAt(0), layeredCacheConfigName, groupId, hasMaxInvalidationDates, maxExternalInvalidationDate, 
+                        null, inValidationKeysMap);
+
                     Tuple<Dictionary<string, T>, bool> tuple = fillObjectsMethod(funcParameters);
+
+                    resetThreadSpecificRouting(keysToGet.ElementAt(0), initialState);
+
                     if (tuple != null)
                     {
                         result = tuple.Item2;
@@ -1049,10 +1075,13 @@ namespace CachingProvider.LayeredCache
             return res;
         }
 
-        private bool TryGetMaxInValidationKeysDate(string layeredCacheConfigName, int groupId, List<string> keys, out long MaxInValidationDate)
+        private bool TryGetMaxInValidationKeysDate(string layeredCacheConfigName, int groupId, List<string> keys, out long MaxInValidationDate, out long maxExternalInvalidationDate,
+            bool shouldGetExternalInvalidationKeyDate = false)
         {
             bool res = false;
-            MaxInValidationDate = 0;            
+            MaxInValidationDate = 0;
+            maxExternalInvalidationDate = 0;
+
             try
             {
                 if (keys == null || keys.Count == 0)
@@ -1064,12 +1093,16 @@ namespace CachingProvider.LayeredCache
                 Dictionary<string, long> currentRequestResultMap = null;
                 Dictionary<string, long> compeleteResultMap = new Dictionary<string, long>();
                 HashSet<string> keysToGet = new HashSet<string>(keys);
-                if (TryGetInvalidationKeysFromCurrentRequest(keysToGet, ref currentRequestResultMap))
-                {                    
-                    foreach (KeyValuePair<string, long> pair in currentRequestResultMap)
+
+                if (!shouldGetExternalInvalidationKeyDate)
+                {
+                    if (TryGetInvalidationKeysFromCurrentRequest(keysToGet, ref currentRequestResultMap))
                     {
-                        keysToGet.Remove(pair.Key);
-                        compeleteResultMap.Add(pair.Key, pair.Value);
+                        foreach (KeyValuePair<string, long> pair in currentRequestResultMap)
+                        {
+                            keysToGet.Remove(pair.Key);
+                            compeleteResultMap.Add(pair.Key, pair.Value);
+                        }
                     }
                 }
 
@@ -1081,24 +1114,36 @@ namespace CachingProvider.LayeredCache
                     }
 
                     Dictionary<LayeredCacheConfig, List<string>> insertToCacheConfig = new Dictionary<LayeredCacheConfig, List<string>>();
+
                     foreach (LayeredCacheConfig cacheConfig in invalidationKeyCacheConfig)
                     {
+                        bool notInMemoryInvalidationKey = cacheConfig.Type != LayeredCacheType.InMemoryCache;
+
+                        // if we want only external invalidation keys and this config is in memory - skip it
+                        if (!notInMemoryInvalidationKey && shouldGetExternalInvalidationKeyDate)
+                        {
+                            continue;
+                        }
+
                         ILayeredCacheService cache = cacheConfig.GetILayeredCachingService();
+
                         if (cache != null)
                         {
-                            IDictionary<string, long> resultMap = null;                            
+                            IDictionary<string, long> resultMap = null;
                             bool getSuccess = cache.GetValues<long>(keysToGet.ToList(), ref resultMap, null, true);
                             if (getSuccess && resultMap != null)
                             {
-                                bool shouldSearchKeyInResult = cacheConfig.Type == LayeredCacheType.CbCache || cacheConfig.Type == LayeredCacheType.CbMemCache || cacheConfig.Type == LayeredCacheType.Redis;
                                 foreach (string keyToGet in keys)
                                 {
                                     bool keyExistsInResult = resultMap.ContainsKey(keyToGet);
-                                    if (keyExistsInResult || shouldSearchKeyInResult)
+
+                                    if (keyExistsInResult || notInMemoryInvalidationKey)
                                     {
                                         // in case invalidation key value wasn't found on CB, we know it was never set and we can put the value 0
-                                        compeleteResultMap[keyToGet] = keyExistsInResult ? resultMap[keyToGet] : 0;
+                                        long invalidationKeyValue = keyExistsInResult ? resultMap[keyToGet] : 0;
+                                        compeleteResultMap[keyToGet] = invalidationKeyValue;
                                         keysToGet.Remove(keyToGet);
+                                        maxExternalInvalidationDate = Math.Max(maxExternalInvalidationDate, invalidationKeyValue);
                                     }
                                     else
                                     {
@@ -1126,10 +1171,14 @@ namespace CachingProvider.LayeredCache
                             }
                         }
 
-                        InsertInvalidationKeysToCurrentRequest(compeleteResultMap);
+                        if (!shouldGetExternalInvalidationKeyDate)
+                        {
+                            InsertInvalidationKeysToCurrentRequest(compeleteResultMap);
+                        }
                     }
 
-                    if (insertToCacheConfig != null && insertToCacheConfig.Count > 0 && compeleteResultMap?.Count > 0)
+                    if (!shouldGetExternalInvalidationKeyDate &&
+                        insertToCacheConfig != null && insertToCacheConfig.Count > 0 && compeleteResultMap?.Count > 0)
                     {
                         foreach (KeyValuePair<LayeredCacheConfig, List<string>> pair in insertToCacheConfig)
                         {
@@ -1148,7 +1197,7 @@ namespace CachingProvider.LayeredCache
                             }
                         }
                     }
-                }                
+                }   
 
                 if (compeleteResultMap?.Count > 0)
                 {
@@ -1166,9 +1215,15 @@ namespace CachingProvider.LayeredCache
             return res;
         }
 
-        private bool TryGetInValidationKeysMaxDateMapping(string layeredCacheConfigName, int groupId, Dictionary<string, List<string>> keyMappings, ref Dictionary<string, long> inValidationKeysMaxDateMapping)
+        private bool TryGetInValidationKeysMaxDateMapping(string layeredCacheConfigName, 
+            int groupId, 
+            Dictionary<string, List<string>> keyMappings, 
+            ref Dictionary<string, long> inValidationKeysMaxDateMapping, 
+            out long maxExternalInvalidationDate)
         {
             bool res = true;
+            maxExternalInvalidationDate = 0;
+
             try
             {
                 if (keyMappings == null || keyMappings.Count == 0)
@@ -1180,7 +1235,7 @@ namespace CachingProvider.LayeredCache
                 foreach (KeyValuePair<string, List<string>> pair in keyMappings)
                 {
                     long maxInvalidationKeyDate = 0;
-                    if (TryGetMaxInValidationKeysDate(layeredCacheConfigName, groupId, pair.Value, out maxInvalidationKeyDate))
+                    if (TryGetMaxInValidationKeysDate(layeredCacheConfigName, groupId, pair.Value, out maxInvalidationKeyDate, out maxExternalInvalidationDate))
                     {
                         inValidationKeysMaxDateMapping.Add(pair.Key, maxInvalidationKeyDate);
                     }
@@ -1330,6 +1385,101 @@ namespace CachingProvider.LayeredCache
             }
 
             return layeredCacheConfig?.Count > 0;
+        }
+
+        // TODO: remove key, it's only for debugging purposes
+        private bool checkShouldRouteDBToSecondary(string key,
+            string layeredCacheConfigName, int groupId,
+            bool hasMaximumExternalInvalidationDate, long maxExternalInvalidationDate,
+            List<string> invalidationKeys = null, Dictionary<string, List<string>> invalidationKeysMap = null)
+        {
+            bool previousStateWasRoutedToSecondary = false;
+
+            // not configured - nothing to do
+            if (!ApplicationConfiguration.Current.SqlTrafficConfiguration.ShouldUseTrafficHandler.Value)
+            {
+                return previousStateWasRoutedToSecondary;
+            }
+
+            // either we don't have an http context
+            // or if we do but we already decided that we should route to secondary - remember that previous state was routing to secondary
+            if (HttpContext.Current == null || HttpContext.Current.Items == null || 
+                Convert.ToBoolean(HttpContext.Current.Items[CONTEXT_KEY_SHOULD_ROUTE_DB_TO_SECONDARY]) ||
+                Convert.ToBoolean(HttpContext.Current.Items[GetCurrentThreadDbRoutingContextKey()]))
+            {
+                previousStateWasRoutedToSecondary = true;
+            }
+
+            // #4: MaxInvalidationKeyStalnessInSeconds (default 3) that tells us 
+            // if one of the current object invalidation keys changed in that time period we have to fetch the data from master 
+            // (Assuming we are going to the SQL and not fetching from cache)
+            // check CB (last layer) invalidation keys and fetch the max value to compare with #4 and update the request context to master if required
+
+            var nowTimeStamp = Utils.GetUtcUnixTimestampNow();
+
+            //// no invaldidation keys at all - don't take a risk and use primary
+            //if ((invalidationKeys == null || invalidationKeys.Count == 0) &&
+            //    (invalidationKeysMap == null || invalidationKeysMap.Count == 0))
+            //{
+            //    log.Debug($"Sql Traffic Handler for key {key}: no invalidation keys at all, so now routing next DB queries on this thread ({Thread.CurrentThread.ManagedThreadId}) to primary.");
+            //    HttpContext.Current.Items[GetCurrentThreadDbRoutingContextKey()] = true;
+            //    return previousState;
+            //}
+
+            // if function was not provided with max external invalidation date, find it now
+            if (!hasMaximumExternalInvalidationDate)
+            {
+                List<string> invalidationKeysToCheck = invalidationKeys;
+
+                // if we have invalidation keys mapping and not list - let's flatten the dictionary to a list
+                if (invalidationKeysToCheck == null && invalidationKeysMap != null)
+                {
+                    invalidationKeysToCheck = new List<string>();
+
+                    foreach (var invalidationKeysList in invalidationKeysMap.Values)
+                    {
+                        invalidationKeysToCheck.AddRange(invalidationKeysList);
+                    }
+                }
+
+                if (invalidationKeysToCheck != null)
+                {
+                    // avoid duplications
+                    invalidationKeysToCheck = invalidationKeysToCheck.Distinct().ToList();
+
+                    long maxInvalidationKeyDate;
+                    TryGetMaxInValidationKeysDate(layeredCacheConfigName, groupId, invalidationKeysToCheck,
+                        out maxInvalidationKeyDate, out maxExternalInvalidationDate, true);
+                }
+            }
+
+            if ((nowTimeStamp - maxExternalInvalidationDate) >= ApplicationConfiguration.Current.SqlTrafficConfiguration.MaxInvalidationKeyStalenessInSeconds.Value)
+            {
+                log.Debug($"Sql Traffic Handler for key {key}: maxExternalInvalidationDate is {maxExternalInvalidationDate} and now is {nowTimeStamp}. " + 
+                    $"Difference is larger than config value, so now routing next DB queries on this thread ({Thread.CurrentThread.ManagedThreadId}) to secondary.");
+                HttpContext.Current.Items[GetCurrentThreadDbRoutingContextKey()] = true;
+            }
+
+            return previousStateWasRoutedToSecondary;
+        }
+
+        // TODO: remove key, it's only for debugging purposes
+        private void resetThreadSpecificRouting(string key, bool previousStateShouldRouteToSecondary)
+        {
+            // only reset if we previously routed requests to primary
+            if (!previousStateShouldRouteToSecondary && ApplicationConfiguration.Current.SqlTrafficConfiguration.ShouldUseTrafficHandler.Value && 
+                HttpContext.Current != null && HttpContext.Current.Items != null &&
+                HttpContext.Current.Items.ContainsKey(GetCurrentThreadDbRoutingContextKey()))
+            {
+                log.Debug($"Sql Traffic Handler for key {key}: Resetting this thread ({Thread.CurrentThread.ManagedThreadId}) to primary.");
+
+                HttpContext.Current.Items.Remove(GetCurrentThreadDbRoutingContextKey());
+            }
+        }
+
+        public static string GetCurrentThreadDbRoutingContextKey()
+        {
+            return $"ShouldRouteDbToSecondary_{Thread.CurrentThread.ManagedThreadId}";
         }
 
         // TODO duplicate with RequestContextUtils.IsPartnerRequest

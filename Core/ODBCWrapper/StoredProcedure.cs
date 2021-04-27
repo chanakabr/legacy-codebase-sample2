@@ -6,13 +6,27 @@ using System.Data.SqlClient;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using CachingProvider.LayeredCache;
+using ConfigurationManager;
+using System.Linq;
 
 namespace ODBCWrapper
 {
-    public class StoredProcedure
+    public class StoredProcedure : IRoutable
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected string dbName;
+
+        public bool ShouldForcePrimary
+        {
+            get;
+            set;
+        }
+        public bool ShouldForceSecondary
+        {
+            get;
+            set;
+        }
 
         public StoredProcedure(string sProcedureName, bool isVersionless = false)
         {
@@ -294,13 +308,16 @@ namespace ODBCWrapper
                 AddParameter(command, item);
             }
             string sConn = string.Empty;
+
+            bool isRoutedToPrimary = m_bIsWritable || Utils.UseWritable;
             if (shouldGoToSlave)
             {
-                sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, false);
+                sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, false, this);
+                isRoutedToPrimary = false;
             }
             else
             {
-                sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+                sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, isRoutedToPrimary, this);
             }
 
             if (sConn == "")
@@ -318,7 +335,8 @@ namespace ODBCWrapper
                     command.Connection = con;
 
                     SqlQueryInfo queryInfo = Utils.GetSqlDataMonitor(command);
-                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (m_bIsWritable || Utils.UseWritable).ToString() })
+                    using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_DATABASE, null, null, null, null) { 
+                        Database = queryInfo.Database, QueryType = queryInfo.QueryType, Table = queryInfo.Table, IsWritable = (isRoutedToPrimary).ToString() })
                     {
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
@@ -366,11 +384,11 @@ namespace ODBCWrapper
             string sConn = string.Empty;
             if (shouldGoToSlave)
             {
-                sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, false);
+                sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, false, this);
             }
             else
             {
-                sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+                sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable, this);
             }
             if (sConn == "")
             {
@@ -454,7 +472,7 @@ namespace ODBCWrapper
             sqlReturnedValueParam.Direction = ParameterDirection.ReturnValue;
             command.Parameters.Add(sqlReturnedValueParam);
 
-            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable, this);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
@@ -515,7 +533,7 @@ namespace ODBCWrapper
             sqlReturnedValueParam.Direction = ParameterDirection.ReturnValue;
             command.Parameters.Add(sqlReturnedValueParam);
 
-            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable, this);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
@@ -569,7 +587,7 @@ namespace ODBCWrapper
                 AddParameter(command, item);
             }
 
-            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable, this);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
@@ -635,7 +653,7 @@ namespace ODBCWrapper
                     command.Parameters.Add(new SqlParameter(item, m_Parameters[item]));
                 }
             }
-            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable, this);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
@@ -707,7 +725,7 @@ namespace ODBCWrapper
             sqlReturnedValueParam.Direction = ParameterDirection.ReturnValue;
             command.Parameters.Add(sqlReturnedValueParam);
 
-            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(m_sConnectionKey, m_bIsWritable || Utils.UseWritable, this);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
@@ -810,6 +828,60 @@ namespace ODBCWrapper
             }
 
             return table;
+        }
+
+        public bool ShouldRouteToPrimary()
+        {
+            bool shouldRouteToPrimary = true;
+
+            if (ApplicationConfiguration.Current.SqlTrafficConfiguration.ShouldUseTrafficHandler.Value)
+            {
+                if (ShouldForcePrimary)
+                {
+                    shouldRouteToPrimary = true;
+                }
+                else if (ShouldForceSecondary)
+                {
+                    shouldRouteToPrimary = false;
+                }
+                else
+                {
+                    DbPrimarySecondaryRouting routing = Utils.GetDbPrimarySecondaryRouting();
+
+                    if (routing != null)
+                    {
+                        if (!string.IsNullOrEmpty(procedureName) && routing.QueryNameToShouldRouteToPrimaryMapping.ContainsKey(procedureName.ToLower()))
+                        {
+                            shouldRouteToPrimary = routing.QueryNameToShouldRouteToPrimaryMapping[procedureName];
+                        }
+                    }
+                }
+            }
+            else
+            {
+                shouldRouteToPrimary = false;
+
+                DbProceduresRouting dbSpRouting = Utils.GetDbProceduresRouting();
+                if (dbSpRouting != null)
+                {
+                    if (!string.IsNullOrEmpty(procedureName) && dbSpRouting.ProceduresMapping.ContainsKey(procedureName))
+                    {
+                        ProcedureRoutingInfo procedureRoutingInfo = dbSpRouting.ProceduresMapping[procedureName];
+
+                        if (!procedureRoutingInfo.VersionsToExclude.Contains(Utils.dBVersionPrefix.ToLower()))
+                        {
+                            shouldRouteToPrimary = procedureRoutingInfo.IsWritable;
+                        }
+                    }
+                }
+            }
+
+            return shouldRouteToPrimary;
+        }
+
+        public string GetName()
+        {
+            return $"SP: {procedureName}";
         }
     }
 }

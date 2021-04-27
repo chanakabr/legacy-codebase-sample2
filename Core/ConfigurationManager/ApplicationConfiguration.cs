@@ -104,6 +104,7 @@ namespace ConfigurationManager
         public SocialFeedQueueConfiguration SocialFeedQueueConfiguration = new SocialFeedQueueConfiguration();
         public ExportConfiguration ExportConfiguration = new ExportConfiguration();
         public CDVRAdapterConfiguration CDVRAdapterConfiguration = new CDVRAdapterConfiguration();
+        public SqlTrafficConfiguration SqlTrafficConfiguration = new SqlTrafficConfiguration();
         public UserPINDigitsConfiguration UserPINDigitsConfiguration = new UserPINDigitsConfiguration();
         public EngagementsConfiguration EngagementsConfiguration = new EngagementsConfiguration();
         public CatalogLogicConfiguration CatalogLogicConfiguration = new CatalogLogicConfiguration();

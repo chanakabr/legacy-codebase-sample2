@@ -11,7 +11,7 @@ namespace ODBCWrapper
     /// <summary>
     /// Summary description for Query.
     /// </summary>
-    public abstract class Query
+    public abstract class Query : IRoutable
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected static Int32 m_nLongQueryTime = 0;
@@ -22,6 +22,13 @@ namespace ODBCWrapper
         protected string m_sConnectionKey;
         protected string dbName;
         protected bool m_bIsWritable;
+
+        public bool ShouldForceSecondary
+        {
+            get;
+            set;
+        }
+
         public static Int32 GetSequence(string sSeqName)
         {
             Int32 nRet = -1;
@@ -234,6 +241,23 @@ namespace ODBCWrapper
         protected virtual void Clean()
         {
             m_sOraStr = new System.Text.StringBuilder();
+        }
+
+        public virtual bool ShouldRouteToPrimary()
+        {
+            return true;
+        }
+
+        public virtual string GetName()
+        {
+            if (m_sOraStr != null && m_sOraStr.Length > 0)
+            {
+                return $"Query: {m_sOraStr}";
+            }
+            else
+            {
+                return $"Query: N/A";
+            }
         }
 
         ~Query()

@@ -63,6 +63,7 @@
 		public const string SocialFeedQueueConfiguration = "social_feed_queue_configuration";
 		public const string ExportConfiguration = "export";
 		public const string CDVRAdapterConfiguration = "cdvr_adapter_configuration";
+		public const string SqlTrafficConfiguration = "sql_traffic_configuration";
 		public const string UserPINDigitsConfiguration = "user_pin_digits_configuration";
 		public const string EngagementsConfiguration = "engagements_configuration";
 		public const string CatalogLogicConfiguration = "catalog_logic_configuration";

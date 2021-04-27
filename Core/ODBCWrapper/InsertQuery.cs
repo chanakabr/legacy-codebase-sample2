@@ -1,8 +1,11 @@
+using CachingProvider.LayeredCache;
 using KLogMonitor;
 using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Reflection;
+using System.Web;
+using ConfigurationManager;
 
 namespace ODBCWrapper
 {
@@ -18,7 +21,7 @@ namespace ODBCWrapper
         {
         }
 
-        public InsertQuery(string sTableName)
+        public InsertQuery(string sTableName) : this()
         {
             SetTable(sTableName);
             m_bIsWritable = true;
@@ -45,7 +48,7 @@ namespace ODBCWrapper
             if (dtData != null && dtData.Rows.Count > 0)
             {
                 int numRows = dtData.Rows.Count;
-                string connString = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+                string connString = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable, this);
 
                 using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connString, sqlBulkCopyOptions)
                 {
@@ -101,7 +104,7 @@ namespace ODBCWrapper
             m_sOraStr.Append(")");
             oraStr = m_sOraStr.ToString();
             int_Execute();
-            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable, this);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sOraStr: {0}", m_sOraStr != null ? m_sOraStr.ToString() : string.Empty);
@@ -146,7 +149,7 @@ namespace ODBCWrapper
             m_sOraStr.Append(")");
             oraStr = m_sOraStr.ToString();
             int_Execute();
-            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable);
+            string sConn = ODBCWrapper.Connection.GetConnectionString(dbName, m_sConnectionKey, m_bIsWritable || Utils.UseWritable, this);
             if (sConn == "")
             {
                 log.ErrorFormat("Empty connection string. could not run query. m_sOraStr: {0}", m_sOraStr != null ? m_sOraStr.ToString() : string.Empty);

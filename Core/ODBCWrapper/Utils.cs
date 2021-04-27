@@ -18,6 +18,7 @@ namespace ODBCWrapper
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
         private const string DB_SP_ROUTING_KEY = "db_sp_routing";
+        private const string DB_PRIMARY_SECONDARY_ROUTING_KEY = "db_primary_secondary_routing";
         private const int DB_SP_ROUTING_EXPIRY_HOURS = 24;        
         private const string REGEX_TABLE_NAME = @"\bjoin\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bfrom\s+(?<Retrieve>[a-zA-Z\._\d]+)\b|\bupdate\s+(?<Update>[a-zA-Z\._\d]+)\b|\binsert\s+(?:\binto\b)?\s+(?<Insert>[a-zA-Z\._\d]+)\b|\btruncate\s+table\s+(?<Delete>[a-zA-Z\._\d]+)\b|\bdelete\s+(?:\bfrom\b)?\s+(?<Delete>[a-zA-Z\._\d]+)\b";
         public static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1);
@@ -989,7 +990,12 @@ namespace ODBCWrapper
             //m_bIsWritable || m_bUseWritable
             if (!useWriteable)
             {
-                Utils.UseWritable = ReadWriteLock(sKey, oValue, executer, isWritable);
+                // update the static thread variable - only if we don't use traffic handler
+                if (!ApplicationConfiguration.Current.SqlTrafficConfiguration.ShouldUseTrafficHandler.Value)
+                {
+                    bool readWriteLockResult = ReadWriteLock(sKey, oValue, executer, isWritable);
+                    Utils.UseWritable = readWriteLockResult;
+                }
             }
 
             DbProceduresRouting dbSpRouting = GetDbProceduresRouting();
@@ -1005,7 +1011,10 @@ namespace ODBCWrapper
                     }
                     else
                     {
-                        Utils.UseWritable = procedureRoutingInfo.IsWritable;
+                        if (!ApplicationConfiguration.Current.SqlTrafficConfiguration.ShouldUseTrafficHandler.Value)
+                        {
+                            Utils.UseWritable = procedureRoutingInfo.IsWritable;
+                        }
                     }                    
                 }
             }
@@ -1151,7 +1160,31 @@ namespace ODBCWrapper
 
             return dbProceduresRouting;
 
-        }        
+        }
+
+        public static DbPrimarySecondaryRouting GetDbPrimarySecondaryRouting()
+        {
+            DbPrimarySecondaryRouting result = null;
+
+            LayeredCache.Instance.Get<DbPrimarySecondaryRouting>(
+                LayeredCacheKeys.GetDbPrimarySecondaryRoutingKey(),
+                ref result,
+                InitializeDbPrimarySecondaryRouting, new Dictionary<string, object>(),
+                // group id - irrelevent
+                0,
+                LayeredCacheConfigNames.PROCEDURES_ROUTING_CONFIG_NAME,
+                // invalidation keys
+                new List<string>() { 
+                    LayeredCacheKeys.GetProceduresRoutingInvalidationKey(),
+                    LayeredCacheKeys.GetQueriesRoutingInvalidationKey() });
+
+            if (result == null)
+            {
+                log.Error("DB primary secondary routing is null");
+            }
+
+            return result;
+        }
 
         public static bool RemoveDatabaseStoredProcedureRouting()
         {            
@@ -1205,7 +1238,59 @@ namespace ODBCWrapper
 
             return result;
         }
-        
+
+        private static Tuple<DbPrimarySecondaryRouting, bool> InitializeDbPrimarySecondaryRouting(Dictionary<string, object> funcParams)
+        {
+            bool success = false;
+            DbPrimarySecondaryRouting routing = new DbPrimarySecondaryRouting();
+
+            try
+            {
+                DataSetSelectQuery selectQuery = new DataSetSelectQuery();
+                selectQuery += "SELECT NAME, SHOULD_ROUTE_TO_PRIMARY FROM db_should_route_to_primary WITH(NOLOCK)";
+                selectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+
+                if (selectQuery.Execute("query", true) != null)
+                {
+                    var dataTable = selectQuery.Table("query");
+
+                    if (dataTable != null && dataTable.Rows != null)
+                    {
+                        if (dataTable.Rows.Count > 0)
+                        {
+                            foreach (DataRow dataRow in dataTable.Rows)
+                            {
+                                string name = ExtractString(dataRow, "NAME");
+
+                                if (!string.IsNullOrEmpty(name))
+                                {
+                                    name = name.ToLower();
+                                    bool shouldRouteToPrimary = ExtractBoolean(dataRow, "should_route_to_primary");
+                                    routing.QueryNameToShouldRouteToPrimaryMapping[name] = shouldRouteToPrimary;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            log.Debug($"Sql Traffic Handler: db_primary_secondary_routing query returned no rows.");
+                        }
+                    }
+                }
+
+                selectQuery.Finish();
+
+                success = true;
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed InitializeDbPrimarySecondaryRouting from DB", ex);
+                success = false;
+                routing = null;
+            }
+
+            return new Tuple<DbPrimarySecondaryRouting, bool>(routing, success);
+        }
+
         public static DateTime ConvertToUtc(DateTime time, string timezone)
         {
             DateTime unspecifiedKindTime = new DateTime(time.Year, time.Month, time.Day, time.Hour,
