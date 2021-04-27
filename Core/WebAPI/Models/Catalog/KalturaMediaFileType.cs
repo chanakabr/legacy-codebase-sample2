@@ -184,6 +184,7 @@ namespace WebAPI.Models.Catalog
         APPLE_HTTP = 0,
         MPEG_DASH = 1,
         URL = 2,
-        SMOOTH_STREAMING = 3
+        SMOOTH_STREAMING = 3,
+        MULTICAST = 4
     }
 }

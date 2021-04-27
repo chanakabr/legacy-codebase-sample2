@@ -7865,6 +7865,7 @@ namespace Core.ConditionalAccess
                                                                         { "assetType", assetType } }, groupId, LayeredCacheConfigNames.MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME,
                                                                         new List<string>() { LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId) });
 
+            allMediafiles = allMediafiles ?? new List<MediaFile>();
             // We're using check for IsOPC to apply security concerns, once we get rid of TVM parent/child groups, this logic will be moved to stored procedure.
             allMediafiles = ValidateMediaFilesUponSecurity(allMediafiles, groupId);
             

@@ -20,7 +20,7 @@ namespace WebAPI.Models.ConditionalAccess
         public string MediaProtocol { get; set; }
 
         /// <summary>
-        /// Playback streamer type: applehttp, mpegdash, url, smothstreaming, none
+        /// Playback streamer type: applehttp, mpegdash, url, smothstreaming, multicast, none
         /// </summary>
         [DataMember(Name = "streamerType")]
         [JsonProperty("streamerType")]

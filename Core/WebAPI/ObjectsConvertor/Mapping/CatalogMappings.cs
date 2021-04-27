@@ -1591,6 +1591,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                 case StreamerType.url:
                     return KalturaMediaFileStreamerType.URL;
+                
+                case StreamerType.multicast:
+                    return KalturaMediaFileStreamerType.MULTICAST;
 
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown streamer type");
@@ -1620,6 +1623,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                 case KalturaMediaFileStreamerType.URL:
                     return StreamerType.url;
+                
+                case KalturaMediaFileStreamerType.MULTICAST:
+                    return StreamerType.multicast;
 
                 default:
                     throw new ClientException((int)StatusCode.Error, "Unknown streamer type");
