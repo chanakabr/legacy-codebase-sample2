@@ -1130,9 +1130,7 @@ namespace APILogic
             switch (assetType)
             {
                 case eBulkExportDataType.VOD:
-                    {
-                        filter = string.Format("(and {0} asset_type='media')", filter);
-                    }
+                    filter = string.Format("(and {0} asset_type='media')", filter);
                     break;
                 case eBulkExportDataType.EPG:
                     filter = string.Format("(and {0} asset_type='epg')", filter);
@@ -1144,9 +1142,15 @@ namespace APILogic
             }
 
             var pages = PagesCount(MaxExportSize, MaxPageSize);
+            List<long> searchIds = null;
             foreach (var pageIndex in Enumerable.Range(0, pages))
             {
-                var searchIds = SearchAssetIds(pageIndex, MaxPageSize, groupId, filter);
+                if (pageIndex != 0)
+                {
+                    filter = MutateFilterForExport(filter, assetType, searchIds.Last());
+                }
+                
+                searchIds = SearchAssetIds(MaxPageSize, groupId, filter);
                 if (searchIds.Count == 0)
                 {
                     break;
@@ -1158,7 +1162,23 @@ namespace APILogic
             return ids;
         }
 
-        private static List<long> SearchAssetIds(int pageIndex, int pageSize, int groupId, string filter)
+        private static string MutateFilterForExport(string filter, eBulkExportDataType assetType, long assetId)
+        {
+            var identifier = "";
+            switch (assetType)
+            {
+                case eBulkExportDataType.VOD:
+                    identifier = "media_id";
+                    break;
+                case eBulkExportDataType.EPG:
+                    identifier = "epg_id";
+                    break;
+            }
+            
+            return $"{filter.Remove(filter.Length - 1, 1)} {identifier} < '{assetId}')";
+        }
+
+        private static List<long> SearchAssetIds(int pageSize, int groupId, string filter)
         {
             var result = new List<long>();
             UnifiedSearchRequest request = new UnifiedSearchRequest()
@@ -1172,7 +1192,6 @@ namespace APILogic
                 shouldIgnoreDeviceRuleID = true,
                 order = new ApiObjects.SearchObjects.OrderObj(),
                 isAllowedToViewInactiveAssets = false,
-                m_nPageIndex = pageIndex,
                 m_nPageSize = pageSize,
             };
 
