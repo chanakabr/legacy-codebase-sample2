@@ -113,7 +113,7 @@ namespace WebAPI.Utils
                 }
                 catch (ClientException ex)
                 {
-                    if (!ks.OriginalUserId.IsNullOrEmpty() || !RequestContextUtils.IsPartnerRequest())
+                    if (!ks.OriginalUserId.IsNullOrEmpty() || !RequestContextUtils.Instance.IsPartnerRequest())
                     {
                         log.Error($"GetHouseholdIDByKS: got ClientException for GetDomainByUser. userId = {ks.UserId} ex ={ex}");
                     }
