@@ -6142,6 +6142,30 @@ namespace DAL
             }
         }
 
+        public static bool UpdateLinearChannelRegions(int groupId, long linearChannelId, IReadOnlyCollection<RegionChannelNumber> regionChannelNumbers, long userId)
+        {
+            try
+            {
+                var regionChannelNumbersParameter = regionChannelNumbers.Select(x => new KeyValuePair<int, int>(x.RegionId, x.ChannelNumber)).ToList();
+
+                var sp = new StoredProcedure("Update_LinearChannelRegions");
+                sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+                sp.AddParameter("@GroupId", groupId);
+                sp.AddParameter("@LinearChannelId", linearChannelId);
+                sp.AddKeyValueListParameter("@RegionChannelNumbers", regionChannelNumbersParameter, "idKey", "value");
+                sp.AddParameter("@UpdaterId", userId);
+
+                return sp.ExecuteReturnValue<int>() > 0;
+            }
+            catch (Exception e)
+            {
+                var regionChannelNumbersString = string.Join(",", regionChannelNumbers.Select(x => $"{{{x.RegionId}:{x.ChannelNumber}}}"));
+                log.Error($"Error while {nameof(UpdateLinearChannelRegions)} in DB. {nameof(groupId)}:{groupId}, {nameof(userId)}:{userId}, {nameof(linearChannelId)}:{linearChannelId}, {nameof(regionChannelNumbers)}:{regionChannelNumbersString}.", e);
+
+                throw;
+            }
+        }
+
         public static bool SaveEventNotificationActionIdCB(int groupId, EventNotificationAction eventNotificationAction)
         {
             if (eventNotificationAction != null)

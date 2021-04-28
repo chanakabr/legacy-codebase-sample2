@@ -1721,6 +1721,9 @@ namespace WebAPI.Reflection
                 case "KalturaRegionalChannel":
                     return new KalturaRegionalChannel(parameters);
                     
+                case "KalturaRegionChannelNumber":
+                    return new KalturaRegionChannelNumber(parameters);
+                    
                 case "KalturaRegionFilter":
                     return new KalturaRegionFilter(parameters);
                     
@@ -21988,6 +21991,23 @@ namespace WebAPI.Models.API
                 if (parameters.ContainsKey("linearChannelId") && parameters["linearChannelId"] != null)
                 {
                     LinearChannelId = (Int32) Convert.ChangeType(parameters["linearChannelId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("channelNumber") && parameters["channelNumber"] != null)
+                {
+                    ChannelNumber = (Int32) Convert.ChangeType(parameters["channelNumber"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaRegionChannelNumber
+    {
+        public KalturaRegionChannelNumber(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("regionId") && parameters["regionId"] != null)
+                {
+                    RegionId = (Int32) Convert.ChangeType(parameters["regionId"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("channelNumber") && parameters["channelNumber"] != null)
                 {

@@ -27068,6 +27068,52 @@ namespace WebAPI.Models.API
             return ret;
         }
     }
+    public partial class KalturaRegionChannelNumber
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("channelNumber")))
+            {
+                ret.Add("channelNumber", "\"channelNumber\": " + ChannelNumber);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("regionId")))
+            {
+                ret.Add("regionId", "\"regionId\": " + RegionId);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("channelNumber")))
+            {
+                ret.Add("channelNumber", "<channelNumber>" + ChannelNumber + "</channelNumber>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("regionId")))
+            {
+                ret.Add("regionId", "<regionId>" + RegionId + "</regionId>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaRegionFilter
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)

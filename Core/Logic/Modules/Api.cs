@@ -2615,6 +2615,11 @@ namespace Core.Api
             return ApiLogic.Api.Managers.RegionManager.GetRegions(groupId, filter, pageIndex, pageSize);
         }
 
+        public static Status BulkUpdateRegions(int groupId, long userId, long linearChannelId, IReadOnlyCollection<RegionChannelNumber> regionChannelNumbers)
+        {
+            return RegionManager.BulkUpdateRegions(groupId, userId, linearChannelId, regionChannelNumbers);
+        }
+
         public static Status UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
         {
             return VirtualAssetPartnerConfigManager.Instance.UpdateObjectVirtualAssetPartnerConfiguration(groupId, partnerConfigToUpdate);

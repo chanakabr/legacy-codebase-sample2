@@ -6038,6 +6038,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaRegionChannelNumber":
+                    switch(property.Name)
+                    {
+                        case "ChannelNumber":
+                            return "channelNumber";
+                        case "RegionId":
+                            return "regionId";
+                    }
+                    break;
+                    
                 case "KalturaRegionFilter":
                     switch(property.Name)
                     {
@@ -10824,6 +10834,14 @@ namespace WebAPI.Reflection
                         case "add":
                             RolesManager.ValidateActionPermitted("region", "add", false);
                             return RegionController.Add((KalturaRegion) methodParams[0]);
+                            
+                        case "linearchannelbulkadd":
+                            RolesManager.ValidateActionPermitted("region", "linearchannelbulkadd", false);
+                            return RegionController.BulkAddLinearChannel((long) methodParams[0], (List<KalturaRegionChannelNumber>) methodParams[1]);
+                            
+                        case "linearchannelbulkdelete":
+                            RolesManager.ValidateActionPermitted("region", "linearchannelbulkdelete", false);
+                            return RegionController.BulkDeleteLinearChannel((long) methodParams[0], (string) methodParams[1]);
                             
                         case "delete":
                             RolesManager.ValidateActionPermitted("region", "delete", false);
@@ -18827,6 +18845,30 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRegion),
+                            });
+                            return ret;
+                            
+                        case "linearchannelbulkadd":
+                            ret.Add("linearChannelId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("regionChannelNumbers", new MethodParam(){
+                                NewName = newParamName,
+                                IsList = true,
+                                GenericType = typeof(KalturaRegionChannelNumber),
+                                Type = typeof(List<KalturaRegionChannelNumber>),
+                            });
+                            return ret;
+                            
+                        case "linearchannelbulkdelete":
+                            ret.Add("linearChannelId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("regionIds", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
                             });
                             return ret;
                             

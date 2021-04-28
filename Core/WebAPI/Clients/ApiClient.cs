@@ -4404,6 +4404,16 @@ namespace WebAPI.Clients
             ClientUtils.GetResponseStatusFromWS(deleteRegionFunc);
         }
 
+        internal bool BulkUpdateRegions(int groupId, long userId, long linearChannelId, IReadOnlyCollection<KalturaRegionChannelNumber> regionChannelNumbers)
+        {
+            var mappedRegionChannelNumbers = Mapper.Map<List<RegionChannelNumber>>(regionChannelNumbers);
+
+            Func<Status> updateFunc = () => Core.Api.Module.BulkUpdateRegions(groupId, userId, linearChannelId, mappedRegionChannelNumbers);
+            var response = ClientUtils.GetResponseStatusFromWS(updateFunc);
+
+            return response;
+        }
+
         internal bool UpdateObjectVirtualAssetPartnerConfiguration(int groupId, KalturaObjectVirtualAssetPartnerConfig partnerConfig)
         {
             Func<ObjectVirtualAssetPartnerConfig, Status> UpdateConfigFunc = (ObjectVirtualAssetPartnerConfig partnerConfigToUpdate) =>

@@ -4,7 +4,6 @@ using CachingProvider.LayeredCache;
 using Core.Api;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
-using Core.GroupManagers;
 using DAL;
 using KLogMonitor;
 using System;
@@ -12,6 +11,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using ApiLogic.Api.Validators;
 using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace ApiLogic.Api.Managers
@@ -19,6 +19,7 @@ namespace ApiLogic.Api.Managers
     public class RegionManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly IRegionValidator _regionValidator = new RegionValidator();
 
         internal static Status DeleteRegion(int groupId, int id, long userId)
         {
@@ -61,7 +62,7 @@ namespace ApiLogic.Api.Managers
                 if (!ApiDAL.DeleteRegion(groupId, id, userId))
                 {
                     log.Error($"Error while trying to delete region. groupId:{groupId}, id:{id}");
-                    return new Status((int)eResponseStatus.Error); ;
+                    return new Status((int)eResponseStatus.Error);
                 }
 
                 InvalidateRegions(groupId);
@@ -69,7 +70,7 @@ namespace ApiLogic.Api.Managers
             catch (Exception exc)
             {
                 log.Error($"DeleteRegion Failed. regionId {id}, groupId: {groupId}. ex: {exc}");
-                return new Status((int)eResponseStatus.Error); ;
+                return new Status((int)eResponseStatus.Error);
             }
 
             return new Status((int)eResponseStatus.OK);
@@ -77,98 +78,22 @@ namespace ApiLogic.Api.Managers
 
         internal static GenericResponse<Region> UpdateRegion(int groupId, Region regionToUpdate, long userId)
         {
-            GenericResponse<Region> response = new GenericResponse<Region>();
+            var response = new GenericResponse<Region>();
 
             try
             {
-                Region region = GetRegion(groupId, regionToUpdate.id);
-                if (region == null)
+                var region = GetRegion(groupId, regionToUpdate.id);
+
+                var validationStatus = _regionValidator.IsValidToUpdate(groupId, regionToUpdate);
+                if (!validationStatus.IsOkStatusCode())
                 {
-                    log.ErrorFormat("Region wasn't found. groupId:{0}, id:{1}", groupId, regionToUpdate.id);
-                    response.SetStatus((int)eResponseStatus.RegionNotFound, "Region was not found");
+                    response.SetStatus(validationStatus);
                     return response;
-                }
-
-                if (!string.IsNullOrEmpty(regionToUpdate.externalId) && regionToUpdate.externalId != region.externalId)
-                {
-                    RegionFilter filter = new RegionFilter() { ExternalIds = new List<string>() { regionToUpdate.externalId } };
-                    var regions = GetRegions(groupId, filter);
-                    if (regions != null && regions.HasObjects())
-                    {
-                        log.ErrorFormat("Region external ID already exists. groupId:{0}, externalId:{1}", groupId, region.externalId);
-                        response.SetStatus((int)eResponseStatus.ExternalIdAlreadyExists, "Region external ID already exists");
-                        return response;
-                    }
-                }
-
-                if (regionToUpdate.parentId > 0 && region.parentId == 0)
-                {
-                    RegionFilter filterParent = new RegionFilter() { ParentId = region.id };
-                    var subRegions = GetRegions(groupId, filterParent);
-                    if (subRegions != null && subRegions.HasObjects())
-                    {
-                        log.ErrorFormat("Sub region cannot be parent region. groupId:{0}, regionId:{1}", groupId, region.id);
-                        response.SetStatus((int)eResponseStatus.RegionCannotBeParent, "Sub region cannot be parent");
-                        return response;
-                    }
-                }
-
-                Region parentRegion = null;
-                if (regionToUpdate.parentId != 0 && regionToUpdate.parentId != region.parentId)
-                {
-                    parentRegion = GetRegion(groupId, regionToUpdate.parentId);
-                    if (parentRegion == null)
-                    {
-                        log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, regionToUpdate.parentId);
-                        response.SetStatus((int)eResponseStatus.RegionNotFound, "Parent region was not found");
-                        return response;
-                    }
-
-                    if (parentRegion.parentId != 0)
-                    {
-                        log.ErrorFormat("Parent region cannot be parent. groupId:{0}, id:{1}", groupId, regionToUpdate.parentId);
-                        response.SetStatus((int)eResponseStatus.RegionCannotBeParent, "Parent region cannot be sub region");
-                        return response;
-                    }
-                }
-
-                if (regionToUpdate.parentId == 0 && region.parentId > 0)
-                {
-                    RegionFilter filter = new RegionFilter() { ParentId = region.parentId };
-                    var regions = GetRegions(groupId, filter);
-                    if (regions != null && regions.HasObjects())
-                    {
-                        log.Error($"Cannot set region to sub region. groupId {groupId}.regionId {region.id} region.parentId  {region.parentId }");
-                        response.SetStatus((int)eResponseStatus.Error, "Cannot set region to sub region");
-                        return response;
-                    }
-                }
-
-                if (regionToUpdate.linearChannels?.Count > 0)
-                {
-                    if (parentRegion == null && regionToUpdate.parentId != 0)
-                    {
-                        // parent region need for validate channels
-                        parentRegion = GetRegion(groupId, regionToUpdate.parentId);
-                        if (parentRegion == null)
-                        {
-                            log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, regionToUpdate.parentId);
-                            response.SetStatus((int)eResponseStatus.RegionNotFound, "Parent region was not found");
-                            return response;
-                        }
-                    }
-
-                    var status = ValidateLinearChannels(groupId, regionToUpdate, parentRegion);
-                    if (!status.IsOkStatusCode())
-                    {
-                        response.Status.Set(status);
-                        return response;
-                    }
                 }
 
                 if (!ApiDAL.UpdateRegion(groupId, regionToUpdate, userId))
                 {
-                    log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, region.id);
+                    log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, regionToUpdate.id);
                     response.SetStatus(eResponseStatus.Error);
                     return response;
                 }
@@ -177,8 +102,7 @@ namespace ApiLogic.Api.Managers
 
                 if (regionToUpdate.linearChannels?.Count > 0 || region.linearChannels?.Count > 0)
                 {
-                    List<long> assetsToIndex = null;
-
+                    List<long> assetsToIndex;
                     if (regionToUpdate.linearChannels?.Count > 0 && region.linearChannels?.Count > 0)
                     {
                         assetsToIndex = GetLinearChannelsDiff(region.linearChannels, regionToUpdate.linearChannels);
@@ -189,26 +113,23 @@ namespace ApiLogic.Api.Managers
                     }
                     else
                     {
-                        assetsToIndex = region.linearChannels.Select(lc => long.Parse(lc.key)).ToList();
+                        assetsToIndex = region.linearChannels?.Select(lc => long.Parse(lc.key)).ToList();
                     }
 
                     if (assetsToIndex?.Count > 0)
                     {
-                        CatalogLogic.UpdateIndex(assetsToIndex, groupId, eAction.Update);
-                        foreach (var asset in assetsToIndex)
-                        {
-                            UpdateProgramsRegions(groupId, asset);
-                        }
+                        UpdateIndex(groupId, assetsToIndex);
                     }
                 }
 
-                if (parentRegion != null)
+                if (regionToUpdate.parentId > 0)
                 {
                     if (regionToUpdate.linearChannels == null)
                     {
-                        regionToUpdate.linearChannels = new List<ApiObjects.KeyValuePair>();
+                        regionToUpdate.linearChannels = new List<KeyValuePair>();
                     }
 
+                    var parentRegion = GetRegion(groupId, regionToUpdate.parentId);
                     regionToUpdate.linearChannels.AddRange(parentRegion.linearChannels);
                 }
             }
@@ -242,54 +163,18 @@ namespace ApiLogic.Api.Managers
 
         internal static GenericResponse<Region> AddRegion(int groupId, Region region, long userId)
         {
-            GenericResponse<Region> response = new GenericResponse<Region>();
+            var response = new GenericResponse<Region>();
 
             try
             {
-                if (!string.IsNullOrEmpty(region.externalId))
+                var validationStatus = _regionValidator.IsValidToAdd(groupId, region);
+                if (!validationStatus.IsOkStatusCode())
                 {
-                    RegionFilter filter = new RegionFilter() { ExternalIds = new List<string>() { region.externalId } };
-                    var regions = GetRegions(groupId, filter);
-                    if (regions != null && regions.HasObjects())
-                    {
-                        log.ErrorFormat("Region external ID already exists. groupId:{0}, externalId:{1}", groupId, region.externalId);
-                        response.SetStatus((int)eResponseStatus.ExternalIdAlreadyExists, "Region external ID already exists");
-                        return response;
-                    }
-                }
-
-                Region parentRegion = null;
-                if (region.parentId != 0)
-                {
-                    parentRegion = GetRegion(groupId, region.parentId);
-                    if (parentRegion == null)
-                    {
-                        log.ErrorFormat("Parent region wasn't found. groupId:{0}, id:{1}", groupId, region.parentId);
-                        response.SetStatus((int)eResponseStatus.RegionNotFound, "Parent region was not found");
-                        return response;
-                    }
-
-                    if (parentRegion.parentId != 0)
-                    {
-                        log.ErrorFormat("Parent region cannot be parent. groupId:{0}, id:{1}", groupId, region.parentId);
-                        response.SetStatus((int)eResponseStatus.RegionCannotBeParent, "Parent region cannot be parent");
-                        return response;
-
-                    }
-                }
-
-                if (region.linearChannels?.Count > 0)
-                {
-                    var status = ValidateLinearChannels(groupId, region, parentRegion);
-                    if (!status.IsOkStatusCode())
-                    {
-                        response.SetStatus(status);
-                        return response;
-                    }
+                    response.SetStatus(validationStatus);
+                    return response;
                 }
 
                 region.id = ApiDAL.AddRegion(groupId, region, userId);
-
                 if (region.id == 0)
                 {
                     log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, region.id);
@@ -301,17 +186,13 @@ namespace ApiLogic.Api.Managers
 
                 if (region.linearChannels?.Count > 0)
                 {
-                    var assets = region.linearChannels.Select(lc => long.Parse(lc.key)).ToList();
-                    CatalogLogic.UpdateIndex(assets, groupId, eAction.Update);
-
-                    foreach (var asset in assets)
-                    {
-                        UpdateProgramsRegions(groupId, asset);
-                    }
+                    var assetIds = region.linearChannels.Select(lc => long.Parse(lc.key)).ToList();
+                    UpdateIndex(groupId, assetIds);
                 }
 
-                if (parentRegion != null)
+                if (region.parentId > 0)
                 {
+                    var parentRegion = GetRegion(groupId, region.parentId);
                     if (region.linearChannels == null)
                     {
                         region.linearChannels = parentRegion.linearChannels;
@@ -548,16 +429,23 @@ namespace ApiLogic.Api.Managers
 
                         foreach (var item in result.Objects)
                         {
-                            if (item.parentId > 0 && !filter.ExclusiveLcn)
+                            if (item.parentId > 0 && regionsCache.Regions.ContainsKey(item.parentId))
                             {
                                 if (item.linearChannels == null)
                                 {
-                                    item.linearChannels = new List<ApiObjects.KeyValuePair>();
+                                    item.linearChannels = new List<KeyValuePair>();
                                 }
-
-                                if (regionsCache.Regions.ContainsKey(item.parentId))
+                                
+                                if (filter.ExclusiveLcn)
                                 {
-                                    item.linearChannels.AddRange(regionsCache.Regions[item.parentId].linearChannels);
+                                    var parentChannelIds = regionsCache.Regions[item.parentId].linearChannels.Select(x => x.key);
+                                    item.linearChannels = item.linearChannels.Where(x => !parentChannelIds.Contains(x.key)).ToList();
+                                }
+                                else
+                                {
+                                    var currentChannelIds = item.linearChannels.Select(x => x.key);
+                                    var missingChannels = regionsCache.Regions[item.parentId].linearChannels.Where(x => !currentChannelIds.Contains(x.key));
+                                    item.linearChannels.AddRange(missingChannels);
                                 }
                             }
                         }
@@ -698,29 +586,17 @@ namespace ApiLogic.Api.Managers
             return new Tuple<RegionsCache, bool>(regionsCache, regionsCache != null);
         }
 
-        private static List<long> GetLinearChannelsDiff(List<KeyValuePair> originalLinearChannels, List<KeyValuePair> linearChannels)
+        private static List<long> GetLinearChannelsDiff(IEnumerable<KeyValuePair> newLinearChannels, IEnumerable<KeyValuePair> existingLinearChannels)
         {
-            Dictionary<long, int> linearChannelsDic = new Dictionary<long, int>();
-            foreach (var originalLinearChannel in originalLinearChannels)
-            {
-                linearChannelsDic.Add(long.Parse(originalLinearChannel.key), 1);
-            }
+            var existingIds = existingLinearChannels.Select(x => x.key).ToList();
+            var newIds = newLinearChannels.Select(x => x.key).ToList();
 
-            foreach (var linearChannel in linearChannels)
-            {
-                var mediaId = long.Parse(linearChannel.key);
+            var diffIds = existingIds.Except(newIds)
+                .Concat(newIds.Except(existingIds))
+                .Select(long.Parse)
+                .ToList();
 
-                if (linearChannelsDic.ContainsKey(mediaId))
-                {
-                    linearChannelsDic[mediaId] = 2;
-                }
-                else
-                {
-                    linearChannelsDic.Add(mediaId, 1);
-                }
-            }
-
-            return linearChannelsDic.Where(x => x.Value == 1).Select(y => y.Key).ToList();
+            return diffIds;
         }
 
         private static Status ValidateLinearChannels(int groupId, Region region, Region parentRegion)
@@ -801,21 +677,6 @@ namespace ApiLogic.Api.Managers
             return result;
         }
 
-        private static bool UpdateProgramsRegions(int groupId, long linearChannel)
-        {
-            bool result = false;
-
-            string ksql = string.Format("(and linear_media_id='{0}')", linearChannel);
-
-            var res = api.SearchAssets(groupId, ksql, 0, 0, true, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
-            if (res?.Length > 0)
-            {
-                result = CatalogLogic.UpdateEpgIndex(res.Select(x => long.Parse(x.AssetId)).ToList(), groupId, eAction.Update, null, false);
-            }
-
-            return result;
-        }
-
         internal static GenericListResponse<Region> GetDefaultRegion(int groupId)
         {
             GenericListResponse<Region> result = new GenericListResponse<Region>();
@@ -843,6 +704,67 @@ namespace ApiLogic.Api.Managers
             }
 
             return result;
+        }
+
+        internal static Status BulkUpdateRegions(int groupId, long userId, long linearChannelId, IReadOnlyCollection<RegionChannelNumber> regionChannelNumbers)
+        {
+            try
+            {
+                var validationResult = _regionValidator.IsValidToBulkUpdate(groupId, linearChannelId, regionChannelNumbers);
+                if (!validationResult.IsOkStatusCode())
+                {
+                    return validationResult;
+                }
+
+                var dbUpdateResult = ApiDAL.UpdateLinearChannelRegions(groupId, linearChannelId, regionChannelNumbers, userId);
+                if (!dbUpdateResult)
+                {
+                    log.Error("Error while trying to update linear channel in multiple regions.");
+                    return new Status(eResponseStatus.Error);
+                }
+
+                InvalidateRegions(groupId);
+
+                UpdateIndex(groupId, linearChannelId);
+
+                return Status.Ok;
+            }
+            catch (Exception e)
+            {
+                log.Error($"{nameof(BulkUpdateRegions)} failed.", e);
+
+                return Status.Error;
+            }
+        }
+
+        private static void UpdateIndex(int groupId, IEnumerable<long> linearChannelIds)
+        {
+            foreach (var linearChannelId in linearChannelIds)
+            {
+                UpdateIndex(groupId, linearChannelId);
+            }
+        }
+
+        private static void UpdateIndex(int groupId, long linearChannelId)
+        {
+            var epgKsql = $"(and linear_media_id='{linearChannelId}')";
+            var epgResult = api.SearchAssets(groupId, epgKsql, 0, 0, true, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
+
+            var result = CatalogLogic.UpdateIndex(new List<long> { linearChannelId }, groupId, eAction.Update);
+            if (!result)
+            {
+                log.Error($"Index update failed. {nameof(groupId)}:{groupId}, {nameof(linearChannelId)}:{linearChannelId}");
+            }
+
+            if (epgResult?.Length > 0)
+            {
+                var epgIds = epgResult.Select(x => long.Parse(x.AssetId)).ToList();
+                result = CatalogLogic.UpdateEpgIndex(epgIds, groupId, eAction.Update, null, false);
+                if (!result)
+                {
+                    log.Error($"Index update failed. {nameof(groupId)}:{groupId}, {nameof(epgIds)}:{string.Join(",", epgIds)}");
+                }
+            }
         }
     }
 }
