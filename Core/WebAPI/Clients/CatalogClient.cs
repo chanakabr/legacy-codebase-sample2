@@ -435,7 +435,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse GetAssetFromUnifiedSearchResponse(int groupId, UnifiedSearchResponse searchResponse, BaseRequest request, bool isAllowedToViewInactiveAssets,
-                                                                            bool managementData = false, KalturaBaseResponseProfile responseProfile = null)
+                                                                            bool managementData = false, KalturaBaseResponseProfile responseProfile = null, bool isPersonalListSearch = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
             bool doesGroupUsesTemplates = Utils.Utils.DoesGroupUsesTemplates(groupId);
@@ -445,7 +445,7 @@ namespace WebAPI.Clients
             {
                 if (doesGroupUsesTemplates)
                 {
-                    // TODO this is duplciate. we have the same logic in 'else' inside CatalogUtils.GetAssets
+                    // TODO this is duplicate. we have the same logic in 'else' inside CatalogUtils.GetAssets
 
                     List<BaseObject> assetsBaseDataList = new List<BaseObject>();
 
@@ -463,6 +463,14 @@ namespace WebAPI.Clients
                                 assetsBaseDataList.Add(aggregationResult.topHits[0]);
                             }
                         }
+                    }
+
+                    if (isPersonalListSearch && assetsBaseDataList.Count > 0)
+                    {
+                        //BEO-9985 - Limit buckets by pagination size limit when using group by
+                        assetsBaseDataList =
+                            assetsBaseDataList
+                            .Skip(request.m_nPageIndex * request.m_nPageSize)?.Take(request.m_nPageSize).ToList();
                     }
 
                     result = GetAssetsForOPCAccount(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
@@ -558,6 +566,7 @@ namespace WebAPI.Clients
         public KalturaAssetInfoListResponse SearchAssets(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
                                                             string filter, KalturaOrder? orderBy, List<int> assetTypes, string requestId,
                                                             List<KalturaCatalogWith> with, bool excludeWatched)
+
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -743,7 +752,7 @@ namespace WebAPI.Clients
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
             List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null,
             bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null, bool ignoreEndDate = false,
-            KalturaGroupingOption groupByType = KalturaGroupingOption.Omit)
+            KalturaGroupingOption groupByType = KalturaGroupingOption.Omit, bool isPersonalListSearch = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -856,7 +865,8 @@ namespace WebAPI.Clients
                 throw new ClientException(searchResponse.status);
             }
 
-            result = GetAssetFromUnifiedSearchResponse(groupId, searchResponse, request, isAllowedToViewInactiveAssets, managementData, responseProfile);
+            result = GetAssetFromUnifiedSearchResponse(groupId, searchResponse, request, isAllowedToViewInactiveAssets, 
+                managementData, responseProfile, isPersonalListSearch);
 
             return result;
         }
@@ -4102,7 +4112,7 @@ namespace WebAPI.Clients
 
                 response = ClientsManager.CatalogClient().SearchAssets(groupId, userID, domainId, udid, language, pageIndex, pageSize, ksqlFilter.ToString(),
                         orderBy, null, null, false, dynamicOrderBy,
-                        groupBy, responseProfile);
+                        groupBy, responseProfile, false, null, false, KalturaGroupingOption.Omit, true);
             }
 
             return response;
