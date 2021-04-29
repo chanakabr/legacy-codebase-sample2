@@ -604,8 +604,18 @@ namespace Core.Catalog.Request
                         }
                         else
                         {
-                            CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, this.m_oMediaPlayRequestData.m_nLoc, fileDuration, mediaPlayAction,
+                            bool updateFollowMe = true; //BEO-9883
+                            if (isReportingMode)
+                            {
+                                var currDevicePlayData = CatalogDAL.GetDevicePlayData(m_oMediaPlayRequestData.m_sUDID);
+                                updateFollowMe = currDevicePlayData != null && currDevicePlayData.AssetAction != MediaPlayActions.PAUSE.ToString();
+                            }
+
+                            if (updateFollowMe)
+                            {
+                                CatalogLogic.UpdateFollowMe(devicePlayData, this.m_nGroupID, this.m_oMediaPlayRequestData.m_nLoc, fileDuration, mediaPlayAction,
                                                         ttl, this.m_oMediaPlayRequestData.IsReportingMode, (int)assetType, false, false);
+                            }
                         }
 
                         break;
