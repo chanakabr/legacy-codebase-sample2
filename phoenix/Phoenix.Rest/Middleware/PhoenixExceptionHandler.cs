@@ -26,6 +26,8 @@ namespace Phoenix.Rest.Middleware
 
         private readonly IResponseFromatterProvider _FormatterProvider;
 
+        public const string INTERNAL_ERROR_CODE = "INTERNAL_ERROR_CODE";
+
         public PhoenixExceptionHandler(IResponseFromatterProvider formatterProvider)
         {
             _FormatterProvider = formatterProvider;
@@ -62,6 +64,7 @@ namespace Phoenix.Rest.Middleware
                 Result = content,
             };
 
+            context.Items[INTERNAL_ERROR_CODE] = code;
 
             // get proper response formatter but make sure errors should be only xml or json ...
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);

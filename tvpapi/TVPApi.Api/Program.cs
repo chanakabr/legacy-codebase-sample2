@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ConfigurationManager;
+using Core.Metrics;
 using Core.Middleware;
 using KLogMonitor;
 using Microsoft.AspNetCore;
@@ -17,6 +18,8 @@ namespace TVPApi.Web
     {
         public static async Task Main(string[] args)
         {
+            Metrics.CollectDefault();
+            
             var apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
             var defaultLogDir = $@"/var/log/tvpapi/{apiVersion}";
             KLogMonitor.KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);

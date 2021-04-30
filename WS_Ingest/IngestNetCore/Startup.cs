@@ -14,6 +14,7 @@ using Core.Middleware;
 using System.Reflection;
 using HealthCheck;
 using ConfigurationManager;
+using Core.Metrics.Web;
 
 namespace IngetsNetCore
 {
@@ -33,12 +34,15 @@ namespace IngetsNetCore
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseRouting();
             app.UseHealthCheck("/health");
 
             // see explanation inside class regarding BOM
             app.UseBomKiller();
 			app.UseKloggerSessionIdBuilder();
             app.UseRequestLogger();
+
+            app.AddPrometheus();
 
             BasicHttpBinding ingestBinding = new BasicHttpBinding() { ReaderQuotas = new System.Xml.XmlDictionaryReaderQuotas() { MaxStringContentLength = int.MaxValue } };
             app.UseSoapEndpoint<IService>("/Service.svc", ingestBinding, SoapSerializer.DataContractSerializer, caseInsensitivePath: true);

@@ -12,6 +12,7 @@ using System.ServiceModel;
 using WebAPI.WebServices;
 using WS_Notification;
 using System.ServiceModel.Channels;
+using Core.Metrics.Web;
 
 namespace Phoenix.WebServices
 {
@@ -54,6 +55,7 @@ namespace Phoenix.WebServices
 
             var customBinding = new CustomBinding(bindingElements);
 
+            app.AddPrometheus();
 
             app.UseSoapEndpoint<WS_Catalog.Iservice>("/ws_catalog_service.svc",
                 customBinding, SoapSerializer.DataContractSerializer, caseInsensitivePath: true);

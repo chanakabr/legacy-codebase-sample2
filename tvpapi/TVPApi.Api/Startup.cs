@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TVPApi.Web.Middleware;
 using Core.Middleware;
 using System.Reflection;
+using Core.Metrics.Web;
 using HealthCheck;
 
 namespace TVPApi.Web
@@ -33,9 +34,13 @@ namespace TVPApi.Web
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseRouting();
+            
             Tvinci.Data.Loaders.CatalogRequestManager.SignatureKey = ApplicationConfiguration.Current.WebServicesConfiguration.Catalog.SignatureKey.Value;
 
             app.UseHealthCheck("/health");
+            
+            app.AddPrometheus();
 
             app.MapEndpoint("Gateways/JsonPostGW.aspx", apiApp =>
             {
@@ -52,7 +57,6 @@ namespace TVPApi.Web
                     var currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
                     return ctx.Response.WriteAsync("{\"result\":\"" + currentVersion + "\"}");
                 });
-
             });
 
             app.Use(async (context, next) =>

@@ -1,22 +1,12 @@
 ﻿using KLogMonitor;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Phoenix.Context;
 using Phoenix.Rest.Services;
-using System;
-using System.Linq;
-using System.Net;
 using System.Reflection;
-using System.Threading.Tasks;
-using WebAPI.App_Start;
 using WebAPI.Filters;
-using Microsoft.AspNetCore.ConcurrencyLimiter;
 using Core.Middleware;
 using HealthCheck;
-using System.Collections.Generic;
-using ConfigurationManager;
+using Phoenix.Rest.Middleware.Metrics;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -50,6 +40,7 @@ namespace Phoenix.Rest.Middleware
             app.UseRequestResponseLogger();
             app.UseHealthCheck("/api_v3/service/system/action/health");
             app.UseCoreConcurrencyLimiter();
+            app.UseHttpPrometheusMetrics();
             app.UseApiExceptionHandler();
             app.UseKloggerSessionIdBuilder();
             app.UseRequestLogger();
@@ -59,7 +50,6 @@ namespace Phoenix.Rest.Middleware
 
             return app;
         }
-
     }
 }
 

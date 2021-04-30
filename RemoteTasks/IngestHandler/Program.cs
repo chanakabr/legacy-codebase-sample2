@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using ApiObjects;
+using Core.Metrics;
 using EventBus.RabbitMQ;
 using Microsoft.Extensions.Hosting;
 using TvinciCache;
@@ -11,6 +12,8 @@ namespace EPGTransformationHandler
     {
         public static async Task Main(string[] args)
         {
+            Metrics.CollectDefaultAndStartServer();
+            
             var builder = new HostBuilder()
                 .ConfigureMappings()
                 .ConfigureEventNotificationsConfig()

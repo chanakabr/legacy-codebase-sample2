@@ -35,6 +35,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\..\Core\Core.Metrics.Web\Core.Metrics.Web.csproj" />
+    <ProjectReference Include="..\..\Core\Core.Metrics\Core.Metrics.csproj" />
     <ProjectReference Include="..\..\Core\Core.Middleware\Core.Middleware.csproj" />
     <ProjectReference Include="..\..\Core\HealthCheck\HealthCheck.csproj" />
     <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />

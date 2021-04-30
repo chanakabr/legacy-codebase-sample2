@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ConfigurationManager;
+using Core.Metrics;
 using KLogMonitor;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -16,6 +17,8 @@ namespace Phoenix.WebServices
     {
         public static async Task Main(string[] args)
         {
+            Metrics.CollectDefault();
+            
             string apiVersion = System.Configuration.ConfigurationManager.AppSettings.Get("apiVersion");
             var defaultLogDir = $@"C:\log\phoenix-webservices\{apiVersion}";
             KLogger.InitLogger("log4net.config", KLogEnums.AppType.WS, defaultLogDir);

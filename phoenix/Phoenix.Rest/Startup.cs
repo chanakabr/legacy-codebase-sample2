@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Core.Metrics.Web;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Phoenix.Rest.Middleware;
+using Prometheus;
 
 namespace Phoenix.Rest
 {
@@ -34,6 +36,8 @@ namespace Phoenix.Rest
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseRouting();
+            
             // support multiple prefix slashes
             app.MapWhen(context =>
             {
@@ -46,6 +50,8 @@ namespace Phoenix.Rest
 
             // support file server
             app.UsePhoenixLocalFileSystem();
+            
+            app.AddPrometheus();
 
             // WRITE NEW ENDPOINTS ABOVE THIS LINE TO AVOID GETTING 404 AND NOT KNOWING WHY IT DOESN'T WORK
             app.Use(async (context, next) =>
