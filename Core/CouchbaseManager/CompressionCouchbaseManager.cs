@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using CouchbaseManager.Compression;
+using CouchbaseManager.Extensions;
 using CouchbaseManager.Models;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -103,26 +104,37 @@ namespace CouchbaseManager
 
             try
             {
-                var parsedObject = JObject.Parse(serializedResult);
-                var isSuccess = parsedObject.TryGetValue(InternalCouchbaseRecord<T>.HeadersPropertyName, out var headers);
-                if (!isSuccess)
+                var parsedToken = JToken.Parse(serializedResult);
+                if (parsedToken.IsObject())
                 {
-                    return DeserializeObject<T>(serializedResult, settings);
-                }
+                    var parsedObject = parsedToken as JObject;
+                    if (parsedObject == null)
+                    {
+                        status = eResultStatus.ERROR;
+                        Log.ErrorFormat($"Failed to deserialize object, key = {key}");
+                        return default;
+                    }
+                    
+                    var isSuccess = parsedObject.TryGetValue(InternalCouchbaseRecord<T>.HeadersPropertyName, out var headers);
+                    if (!isSuccess)
+                    {
+                        return DeserializeObject<T>(serializedResult, settings);
+                    }
 
-                var compression = (int?)headers[Headers.CompressionPropertyName];
-                if (!compression.HasValue)
-                {
-                    status = eResultStatus.ERROR;
-                    Log.ErrorFormat($"Missing parameter for Compression property, key = {key}");
-                    return default;
+                    var compression = (int?)headers[Headers.CompressionPropertyName];
+                    if (!compression.HasValue)
+                    {
+                        status = eResultStatus.ERROR;
+                        Log.ErrorFormat($"Missing parameter for Compression property, key = {key}");
+                        return default;
+                    }
+                
+                    if (compression.GetValueOrDefault() != (int)Compression.Compression.None)
+                    {
+                        return HandleCompressedObject<T>(key, (Compression.Compression)compression, out status, settings, parsedObject);
+                    }
                 }
                 
-                if (compression.GetValueOrDefault() != (int)Compression.Compression.None)
-                {
-                    return HandleCompressedObject<T>(key, (Compression.Compression)compression, out status, settings, parsedObject);
-                }
-
                 return DeserializeObject<T>(serializedResult, settings);
             }
             catch (Exception ex)
