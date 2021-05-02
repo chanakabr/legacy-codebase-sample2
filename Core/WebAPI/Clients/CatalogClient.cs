@@ -3115,7 +3115,6 @@ namespace WebAPI.Clients
                 scheduledRecordingAssetType = CatalogMappings.ConvertKalturaScheduledRecordingAssetType(scheduledRecordingType),
                 startDate = startDateToFilter.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(startDateToFilter.Value) : new DateTime?(),
                 endDate = endDateToFilter.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(endDateToFilter.Value) : new DateTime?()
-
             };
 
             // fire request
@@ -3136,6 +3135,13 @@ namespace WebAPI.Clients
             {
                 // get base objects list
                 List<BaseObject> assetsBaseDataList = scheduledRecordingResponse.searchResults.Select(x => x as BaseObject).ToList();
+                
+                //BEO-9994, pagination if from aggs and has pagination
+                if (pageSize.HasValue && scheduledRecordingResponse.aggregationResults != null 
+                    && scheduledRecordingResponse.aggregationResults.Count > 0 && assetsBaseDataList != null && assetsBaseDataList.Count != 0)
+                {
+                    assetsBaseDataList = assetsBaseDataList.Skip(pageSize.Value * pageIndex)?.Take(pageSize.Value).ToList();
+                }
 
                 // get assets from catalog/cache
                 result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request);
