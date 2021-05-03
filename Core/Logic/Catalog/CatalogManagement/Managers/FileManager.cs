@@ -736,6 +736,13 @@ namespace Core.Catalog.CatalogManagement
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
                 {
+                    string errorMsg = string.Empty;
+                    ImporterImpl.SetPolicyToFile(assetFileToUpdate.OutputProtecationLevel, groupId, assetFileToUpdate.ExternalId, ref errorMsg);
+                    if (!string.IsNullOrEmpty(errorMsg))
+                    {
+                        log.ErrorFormat("Failed to SetPolicyToFile for assetId: {0}, groupId: {1} after UpdateMediaFile with error message: {2}", result.Object.AssetId, groupId, errorMsg);
+                    }
+
                     if (!isFromIngest)
                     {
                         // UpdateIndex
