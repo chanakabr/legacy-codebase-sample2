@@ -347,6 +347,16 @@ namespace DAL
             return spCancelDomainRecording.ExecuteReturnValue<bool>();
         }
 
+        public static bool CancelDomainRecordings(IEnumerable<long> domainRecordingIds, DomainRecordingStatus recordingState)
+        {
+            var sp = new StoredProcedure("CancelDomainMultiRecordings");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddIDListParameter("@RecordIDs", domainRecordingIds.ToList(), "ID");
+            sp.AddParameter("@RecordingState", (int)recordingState);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
+
         public static DataTable GetExistingDomainRecordingsByRecordingID(int groupID, long recordID, RecordingType? type = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetExistingDomainRecordingsByRecordingID");

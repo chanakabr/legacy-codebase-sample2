@@ -21,6 +21,7 @@ using TVinciShared;
 using ApiLogic.ConditionalAccess.Modules;
 using WebAPI.Models.Notification;
 using ApiObjects.Notification;
+using ApiObjects.Response;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -679,6 +680,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
              .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
              .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
              .ForMember(dest => dest.Date, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.Date)));
+
+            cfg.CreateMap<ActionResult, KalturaActionResult>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Result, opt => opt.MapFrom(src => src.Result))
+                .AfterMap((src, dest) => dest.Result.Args = dest.Result.Args.Any() ? dest.Result.Args : null);
         }
 
         internal static eTransactionType? ConvertKalturaTransactionType(KalturaTransactionType? businessModuleTypeEqual)

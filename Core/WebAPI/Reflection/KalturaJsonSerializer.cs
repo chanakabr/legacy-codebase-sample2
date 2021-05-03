@@ -10,8 +10,8 @@ using TVinciShared;
 using WebAPI.Utils;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
-using WebAPI.Models.MultiRequest;
 using WebAPI.Models.General;
+using WebAPI.Models.MultiRequest;
 using WebAPI.Models.Notifications;
 using WebAPI.Models.Notification;
 using WebAPI.App_Start;
@@ -6706,172 +6706,56 @@ namespace WebAPI.Models.Social
     }
 }
 
-namespace WebAPI.Models.MultiRequest
-{
-    public partial class KalturaAggregatedPropertySkipCondition
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if((retrievedProperties == null || retrievedProperties.Contains("aggregationType")))
-            {
-                ret.Add("aggregationType", "\"aggregationType\": " + "\"" + Enum.GetName(typeof(KalturaAggregationType), AggregationType) + "\"");
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if((retrievedProperties == null || retrievedProperties.Contains("aggregationType")))
-            {
-                ret.Add("aggregationType", "<aggregationType>" + "" + Enum.GetName(typeof(KalturaAggregationType), AggregationType) + "" + "</aggregationType>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaPropertySkipCondition
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if((retrievedProperties == null || retrievedProperties.Contains("operator")))
-            {
-                ret.Add("operator", "\"operator\": " + "\"" + Enum.GetName(typeof(KalturaSkipOperators), Operator) + "\"");
-            }
-            if(PropertyPath != null && (retrievedProperties == null || retrievedProperties.Contains("propertyPath")))
-            {
-                ret.Add("propertyPath", "\"propertyPath\": " + "\"" + EscapeJson(PropertyPath) + "\"");
-            }
-            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
-            {
-                ret.Add("value", "\"value\": " + "\"" + EscapeJson(Value) + "\"");
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if((retrievedProperties == null || retrievedProperties.Contains("operator")))
-            {
-                ret.Add("operator", "<operator>" + "" + Enum.GetName(typeof(KalturaSkipOperators), Operator) + "" + "</operator>");
-            }
-            if(PropertyPath != null && (retrievedProperties == null || retrievedProperties.Contains("propertyPath")))
-            {
-                ret.Add("propertyPath", "<propertyPath>" + EscapeXml(PropertyPath) + "</propertyPath>");
-            }
-            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
-            {
-                ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
-            }
-            return ret;
-        }
-    }
-    public partial class KalturaSkipCondition
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            return ret;
-        }
-    }
-    public partial class KalturaSkipOnErrorCondition
-    {
-        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
-            string propertyValue = null;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if((retrievedProperties == null || retrievedProperties.Contains("condition")))
-            {
-                ret.Add("condition", "\"condition\": " + "\"" + Enum.GetName(typeof(KalturaSkipOptions), Condition) + "\"");
-            }
-            return ret;
-        }
-        
-        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
-        {
-            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
-            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
-            string propertyValue;
-            IEnumerable<string> retrievedProperties = null;
-            if (responseProfile)
-            {
-                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
-            }
-
-            if((retrievedProperties == null || retrievedProperties.Contains("condition")))
-            {
-                ret.Add("condition", "<condition>" + "" + Enum.GetName(typeof(KalturaSkipOptions), Condition) + "" + "</condition>");
-            }
-            return ret;
-        }
-    }
-}
-
 namespace WebAPI.Models.General
 {
+    public partial class KalturaActionResult
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + Id);
+            }
+            if(Result != null && (retrievedProperties == null || retrievedProperties.Contains("result")))
+            {
+                propertyValue = Result.ToJson(currentVersion, omitObsolete);
+                ret.Add("result", "\"result\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + Id + "</id>");
+            }
+            if(Result != null && (retrievedProperties == null || retrievedProperties.Contains("result")))
+            {
+                propertyValue = Result.ToXml(currentVersion, omitObsolete);
+                ret.Add("result", "<result>" + propertyValue + "</result>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaAggregationCountFilter
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -9056,6 +8940,170 @@ namespace WebAPI.Models.General
             if(description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
             {
                 ret.Add("description", "<description>" + EscapeXml(description) + "</description>");
+            }
+            return ret;
+        }
+    }
+}
+
+namespace WebAPI.Models.MultiRequest
+{
+    public partial class KalturaAggregatedPropertySkipCondition
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("aggregationType")))
+            {
+                ret.Add("aggregationType", "\"aggregationType\": " + "\"" + Enum.GetName(typeof(KalturaAggregationType), AggregationType) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("aggregationType")))
+            {
+                ret.Add("aggregationType", "<aggregationType>" + "" + Enum.GetName(typeof(KalturaAggregationType), AggregationType) + "" + "</aggregationType>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaPropertySkipCondition
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("operator")))
+            {
+                ret.Add("operator", "\"operator\": " + "\"" + Enum.GetName(typeof(KalturaSkipOperators), Operator) + "\"");
+            }
+            if(PropertyPath != null && (retrievedProperties == null || retrievedProperties.Contains("propertyPath")))
+            {
+                ret.Add("propertyPath", "\"propertyPath\": " + "\"" + EscapeJson(PropertyPath) + "\"");
+            }
+            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            {
+                ret.Add("value", "\"value\": " + "\"" + EscapeJson(Value) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("operator")))
+            {
+                ret.Add("operator", "<operator>" + "" + Enum.GetName(typeof(KalturaSkipOperators), Operator) + "" + "</operator>");
+            }
+            if(PropertyPath != null && (retrievedProperties == null || retrievedProperties.Contains("propertyPath")))
+            {
+                ret.Add("propertyPath", "<propertyPath>" + EscapeXml(PropertyPath) + "</propertyPath>");
+            }
+            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            {
+                ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaSkipCondition
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
+    public partial class KalturaSkipOnErrorCondition
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("condition")))
+            {
+                ret.Add("condition", "\"condition\": " + "\"" + Enum.GetName(typeof(KalturaSkipOptions), Condition) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("condition")))
+            {
+                ret.Add("condition", "<condition>" + "" + Enum.GetName(typeof(KalturaSkipOptions), Condition) + "" + "</condition>");
             }
             return ret;
         }

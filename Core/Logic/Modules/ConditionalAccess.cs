@@ -2443,6 +2443,20 @@ namespace Core.ConditionalAccess
             }
         }
 
+        public static GenericListResponse<ActionResult> DeleteRecordings(int groupId, long domainId, long[] recordingIds, long userId)
+        {
+            BaseConditionalAccess t = null;
+            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
+            if (t != null)
+            {
+                var response = t.CancelOrDeleteRecordings(domainId, recordingIds, TstvRecordingStatus.Deleted, userId, true);
+                var actionResultList = response.Objects?.Select(x => new ActionResult(x.Id, x.Status)).ToList();
+
+                return new GenericListResponse<ActionResult>(response.Status, actionResultList);
+            }
+
+            return new GenericListResponse<ActionResult>(Status.Error, null);
+        }
 
         public static ApiObjects.TimeShiftedTv.SeriesRecording CancelSeriesRecord(int groupID, string userId, long domainId, long recordingId, long epgId, long seasonNumber)
         {

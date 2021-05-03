@@ -235,8 +235,6 @@ namespace WebAPI.Controllers
         /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043 </remarks>
         [Action("delete")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.UserNotInDomain)]
-        [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.RecordingNotFound)]
@@ -251,6 +249,56 @@ namespace WebAPI.Controllers
                 string userId = KS.GetFromRequest().UserId;
                 // call client                
                 response = ClientsManager.ConditionalAccessClient().DeleteRecord(groupId, userId, id);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Delete list of user's recordings. Recording can be deleted only in status Recorded.
+        /// Possible error codes for each recording: RecordingNotFound = 3039, RecordingStatusNotValid = 3043, Error = 1
+        /// </summary>
+        /// <param name="recordingIds">Recording identifiers. Up to 40 private copies and up to 100 shared copies can be deleted withing a call.</param>
+        /// <returns>List of recordings with result of action in status.</returns>
+        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024, RecordingIdsExceededLimit=3086.
+        /// RecordingNotFound = 3039 and RecordingStatusNotValid = 3043 indicates that the recording with particular Id can not be deleted.</remarks>
+        [Action("bulkdelete")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.RecordingIdsExceededLimit)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public static List<KalturaActionResult> BulkDelete(string recordingIds)
+        {
+            List<KalturaActionResult> response = null;
+            try
+            {
+                if (string.IsNullOrEmpty(recordingIds))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, nameof(recordingIds));
+                }
+
+                var ids = new HashSet<long>();
+                foreach (var value in recordingIds.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (long.TryParse(value, out var recordingId))
+                    {
+                        ids.Add(recordingId);
+                    }
+                    else
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, nameof(recordingIds));
+                    }
+                }
+
+                var groupId = KS.GetFromRequest().GroupId;
+                var userId = Utils.Utils.GetUserIdFromKs();
+
+                response = ClientsManager.ConditionalAccessClient().DeleteRecordings(groupId, userId, ids.ToArray());
             }
             catch (ClientException ex)
             {

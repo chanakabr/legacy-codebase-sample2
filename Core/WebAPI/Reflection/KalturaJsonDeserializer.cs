@@ -11,8 +11,8 @@ using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
-using WebAPI.Models.MultiRequest;
 using WebAPI.Models.General;
+using WebAPI.Models.MultiRequest;
 using WebAPI.Models.Notifications;
 using WebAPI.Models.Notification;
 using WebAPI.Models.Catalog;
@@ -52,6 +52,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaActionPermissionItem":
                     return new KalturaActionPermissionItem(parameters);
+                    
+                case "KalturaActionResult":
+                    return new KalturaActionResult(parameters);
                     
                 case "KalturaAdsContext":
                     return new KalturaAdsContext(parameters);
@@ -7446,95 +7449,62 @@ namespace WebAPI.Models.Social
     }
 }
 
-namespace WebAPI.Models.MultiRequest
-{
-    public partial class KalturaAggregatedPropertySkipCondition
-    {
-        public KalturaAggregatedPropertySkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("aggregationType") && parameters["aggregationType"] != null)
-                {
-                    if(string.IsNullOrEmpty(parameters["aggregationType"].ToString()))
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "aggregationType");
-                    }
-
-                    AggregationType = (KalturaAggregationType) Enum.Parse(typeof(KalturaAggregationType), parameters["aggregationType"].ToString(), true);
-
-                    if (!Enum.IsDefined(typeof(KalturaAggregationType), AggregationType))
-                    {
-                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AggregationType, typeof(KalturaAggregationType)));
-                    }
-                }
-            }
-        }
-    }
-    public partial class KalturaPropertySkipCondition
-    {
-        public KalturaPropertySkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("propertyPath") && parameters["propertyPath"] != null)
-                {
-                    PropertyPath = (String) Convert.ChangeType(parameters["propertyPath"], typeof(String));
-                }
-                if (parameters.ContainsKey("operator") && parameters["operator"] != null)
-                {
-                    if(string.IsNullOrEmpty(parameters["operator"].ToString()))
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "operator");
-                    }
-
-                    Operator = (KalturaSkipOperators) Enum.Parse(typeof(KalturaSkipOperators), parameters["operator"].ToString(), true);
-
-                    if (!Enum.IsDefined(typeof(KalturaSkipOperators), Operator))
-                    {
-                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Operator, typeof(KalturaSkipOperators)));
-                    }
-                }
-                if (parameters.ContainsKey("value") && parameters["value"] != null)
-                {
-                    Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
-                }
-            }
-        }
-    }
-    public partial class KalturaSkipCondition
-    {
-        public KalturaSkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-        }
-    }
-    public partial class KalturaSkipOnErrorCondition
-    {
-        public KalturaSkipOnErrorCondition(Dictionary<string, object> parameters = null) : base(parameters)
-        {
-            if (parameters != null)
-            {
-                if (parameters.ContainsKey("condition") && parameters["condition"] != null)
-                {
-                    if(string.IsNullOrEmpty(parameters["condition"].ToString()))
-                    {
-                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "condition");
-                    }
-
-                    Condition = (KalturaSkipOptions) Enum.Parse(typeof(KalturaSkipOptions), parameters["condition"].ToString(), true);
-
-                    if (!Enum.IsDefined(typeof(KalturaSkipOptions), Condition))
-                    {
-                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Condition, typeof(KalturaSkipOptions)));
-                    }
-                }
-            }
-        }
-    }
-}
-
 namespace WebAPI.Models.General
 {
+    public partial class KalturaActionResult
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaActionResult")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ResultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaActionResult")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaActionResult(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("result") && parameters["result"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ResultSchemaProperty.Validate("result", parameters["result"]);
+                    }
+                    if (parameters["result"] is JObject)
+                    {
+                        Result = (KalturaMessage) Deserializer.deserialize(typeof(KalturaMessage), ((JObject) parameters["result"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["result"] is IDictionary)
+                    {
+                        Result = (KalturaMessage) Deserializer.deserialize(typeof(KalturaMessage), (Dictionary<string, object>) parameters["result"]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaAggregationCountFilter
     {
         public KalturaAggregationCountFilter(Dictionary<string, object> parameters = null) : base(parameters)
@@ -8740,6 +8710,93 @@ namespace WebAPI.Models.General
                 if (parameters.ContainsKey("description") && parameters["description"] != null)
                 {
                     description = (String) Convert.ChangeType(parameters["description"], typeof(String));
+                }
+            }
+        }
+    }
+}
+
+namespace WebAPI.Models.MultiRequest
+{
+    public partial class KalturaAggregatedPropertySkipCondition
+    {
+        public KalturaAggregatedPropertySkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("aggregationType") && parameters["aggregationType"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["aggregationType"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "aggregationType");
+                    }
+
+                    AggregationType = (KalturaAggregationType) Enum.Parse(typeof(KalturaAggregationType), parameters["aggregationType"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaAggregationType), AggregationType))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", AggregationType, typeof(KalturaAggregationType)));
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaPropertySkipCondition
+    {
+        public KalturaPropertySkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("propertyPath") && parameters["propertyPath"] != null)
+                {
+                    PropertyPath = (String) Convert.ChangeType(parameters["propertyPath"], typeof(String));
+                }
+                if (parameters.ContainsKey("operator") && parameters["operator"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["operator"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "operator");
+                    }
+
+                    Operator = (KalturaSkipOperators) Enum.Parse(typeof(KalturaSkipOperators), parameters["operator"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSkipOperators), Operator))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Operator, typeof(KalturaSkipOperators)));
+                    }
+                }
+                if (parameters.ContainsKey("value") && parameters["value"] != null)
+                {
+                    Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaSkipCondition
+    {
+        public KalturaSkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaSkipOnErrorCondition
+    {
+        public KalturaSkipOnErrorCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("condition") && parameters["condition"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["condition"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "condition");
+                    }
+
+                    Condition = (KalturaSkipOptions) Enum.Parse(typeof(KalturaSkipOptions), parameters["condition"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSkipOptions), Condition))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Condition, typeof(KalturaSkipOptions)));
+                    }
                 }
             }
         }

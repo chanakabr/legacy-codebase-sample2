@@ -6110,7 +6110,7 @@ namespace Core.ConditionalAccess
             return DomainRecordingIdToRecordingMap;
         }
 
-        internal static Recording ValidateRecordID(int groupID, long domainID, long domainRecordingID, bool shouldFilterViewableRecordingsOnly = true)
+        internal static Recording ValidateRecordID(int groupID, long domainID, long domainRecordingID, bool shouldFilterViewableRecordingsOnly = true, Dictionary<long, Recording> domainRecordingIdToRecordingMap = null)
         {
             Recording recording = new Recording()
             {
@@ -6119,9 +6119,9 @@ namespace Core.ConditionalAccess
 
             try
             {
-                Dictionary<long, Recording> DomainRecordingIdToRecordingMap = Utils.GetDomainRecordingIdsToRecordingsMap(groupID, domainID, new List<long>() { domainRecordingID }, shouldFilterViewableRecordingsOnly);
-                if (DomainRecordingIdToRecordingMap == null || DomainRecordingIdToRecordingMap.Count == 0 ||
-                    !DomainRecordingIdToRecordingMap.ContainsKey(domainRecordingID) || DomainRecordingIdToRecordingMap[domainRecordingID].RecordingStatus == TstvRecordingStatus.Deleted)
+                domainRecordingIdToRecordingMap = domainRecordingIdToRecordingMap ?? Utils.GetDomainRecordingIdsToRecordingsMap(groupID, domainID, new List<long>() { domainRecordingID }, shouldFilterViewableRecordingsOnly);
+                if (domainRecordingIdToRecordingMap == null || domainRecordingIdToRecordingMap.Count == 0 ||
+                    !domainRecordingIdToRecordingMap.ContainsKey(domainRecordingID) || domainRecordingIdToRecordingMap[domainRecordingID].RecordingStatus == TstvRecordingStatus.Deleted)
                 {
                     log.DebugFormat("No valid recording was returned from Utils.GetDomainRecordingIdsToRecordingsMap");
                     recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingNotFound, eResponseStatus.RecordingNotFound.ToString());
@@ -6129,7 +6129,7 @@ namespace Core.ConditionalAccess
                     return recording;
                 }
 
-                recording = DomainRecordingIdToRecordingMap[domainRecordingID];
+                recording = domainRecordingIdToRecordingMap[domainRecordingID];
             }
             catch (Exception ex)
             {
@@ -6147,6 +6147,7 @@ namespace Core.ConditionalAccess
 
             return recording;
         }
+
 
         internal static SeriesRecording ValidateSeriesRecordID(int groupId, long domainId, long domainSeriesRecordingId)
         {

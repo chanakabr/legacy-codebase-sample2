@@ -14,8 +14,8 @@ using WebAPI.Models.MultiRequest;
 using TVinciShared;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
-using WebAPI.Models.MultiRequest;
 using WebAPI.Models.General;
+using WebAPI.Models.MultiRequest;
 using WebAPI.Models.Notifications;
 using WebAPI.Models.Notification;
 using WebAPI.App_Start;
@@ -63,6 +63,16 @@ namespace WebAPI.Reflection
                             return "network";
                         case "Privacy":
                             return "privacy";
+                    }
+                    break;
+                    
+                case "KalturaActionResult":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "Result":
+                            return "result";
                     }
                     break;
                     
@@ -10801,6 +10811,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("recording", "add", false);
                             return RecordingController.Add((KalturaRecording) methodParams[0]);
                             
+                        case "bulkdelete":
+                            RolesManager.ValidateActionPermitted("recording", "bulkdelete", false);
+                            return RecordingController.BulkDelete((string) methodParams[0]);
+                            
                         case "cancel":
                             RolesManager.ValidateActionPermitted("recording", "cancel", false);
                             return RecordingController.Cancel((long) methodParams[0]);
@@ -18774,6 +18788,13 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaRecording),
+                            });
+                            return ret;
+                            
+                        case "bulkdelete":
+                            ret.Add("recordingIds", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
                             });
                             return ret;
                             

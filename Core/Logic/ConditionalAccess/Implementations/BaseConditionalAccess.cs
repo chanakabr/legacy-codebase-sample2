@@ -13896,132 +13896,228 @@ namespace Core.ConditionalAccess
             {
             }
         }
+        
+        #region Delete Recording
 
         public Recording CancelOrDeleteRecord(string userId, long domainId, long domainRecordingId, TstvRecordingStatus tstvRecordingStatus, bool shouldValidateUserAndDomain = true)
         {
-            Recording recording = new Recording();
+            var result = CancelOrDeleteRecordings(domainId, new[] { domainRecordingId }, tstvRecordingStatus, long.Parse(userId), shouldValidateUserAndDomain);
+            if (result.IsOkStatusCode())
+            {
+                return result.Objects.FirstOrDefault();
+            }
+            else
+            {
+                return new Recording
+                {
+                    Status = result.Status
+                };
+            }
+        }
+
+        public GenericListResponse<Recording> CancelOrDeleteRecordings(long domainId, long[] domainRecordingIds, TstvRecordingStatus tstvRecordingStatus, long userId, bool validateUserAndDomain)
+        {
+            var response = new GenericListResponse<Recording>();
             try
             {
-                bool res = false;
-                if (shouldValidateUserAndDomain)
-                {
-                    Domain domain;
-                    ApiObjects.Response.Status validationStatus = Utils.ValidateUserAndDomain(m_nGroupID, userId, ref domainId, out domain);
-
-                    if (validationStatus.Code != (int)eResponseStatus.OK)
-                    {
-                        log.DebugFormat("User or Domain not valid, DomainID: {0}, UserID: {1}", domainId, userId);
-                        recording.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
-                        return recording;
-                    }
-                }
-                // user is OK - see if user sign to recordID
-                recording = Utils.ValidateRecordID(m_nGroupID, domainId, domainRecordingId);
-                if (recording.Status.Code != (int)eResponseStatus.OK)
-                {
-                    log.DebugFormat("recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording != null ? recording.ToString() : string.Empty);
-                    return recording;
-                }
-                List<TstvRecordingStatus> RecordingStatus = new List<TstvRecordingStatus>();
-                DomainRecordingStatus? domainStatus = Utils.ConvertToDomainRecordingStatus(tstvRecordingStatus);
-                bool shouldCancel = false;
-                switch (tstvRecordingStatus)
-                {
-                    case TstvRecordingStatus.Canceled:
-                    case TstvRecordingStatus.SeriesCancel:
-                        RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
-                        shouldCancel = true;
-                        break;
-                    case TstvRecordingStatus.Deleted:
-                        RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded };
-                        break;
-                    case TstvRecordingStatus.SeriesDelete:
-                        RecordingStatus = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recorded, TstvRecordingStatus.Recording };
-                        break;
-                    default:
-                        break;
-                }
-
-                if (!Utils.IsValidRecordingStatus(recording.RecordingStatus, RecordingStatus))
-                {
-                    log.DebugFormat("CancelOrDeleteRecord - domainRecordingId: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainRecordingId, domainId, userId, recording.ToString());
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
-                    recording.Id = domainRecordingId;
-                    return recording;
-                }
-                else
-                {
-                    bool isPrivateCopy = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value;
-                    if (isPrivateCopy)
-                    {
-                        recording.Status = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording, true, false, new List<long>() { domainId });
-                        if (recording.Status.Code != (int)eResponseStatus.OK)
-                        {
-                            recording.Id = domainRecordingId;
-                            return recording;
-                        }
-                    }
-
-                    if (shouldCancel)
-                    {
-                        res = RecordingsDAL.CancelDomainRecording(domainRecordingId, domainStatus.Value);  // delete recording id from domain
-                        log.DebugFormat("canceled domainRecordingId: {0} with result: {1}", domainRecordingId, res);
-                    }
-                    else
-                    {
-                        res = RecordingsDAL.DeleteDomainRecording(domainRecordingId, domainStatus.Value);
-                        log.DebugFormat("deleted domainRecordingId: {0} with result: {1}", domainRecordingId, res);
-                    }
-                }
-
-                if (res)
-                {
-                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
-
-                    if (TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS))
-                    {
-                        recording.Status = RecordingsManager.Instance.CacnelOrDeleteExternalRecording(m_nGroupID, recording.Id, recording.EpgId, tstvRecordingStatus == TstvRecordingStatus.Deleted);
-                    }
-                    else
-                    {
-                        ContextData contextData = new ContextData();
-                        Task async = Task.Run(() =>
-                        {
-                            contextData.Load();
-                            if (!CompleteDomainSeriesRecordings((long)domainId))
-                            {
-                                log.ErrorFormat("Failed CompleteHouseholdSeriesRecordings after CancelOrDeleteRecord: domainId: {0}", domainId);
-                            }
-                        });
-
-                        recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                    }
-
-                    recording.RecordingStatus = tstvRecordingStatus;
-                }
-                else
-                {
-                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete");
-                    recording.Id = domainRecordingId;
-                    log.ErrorFormat("fail to perform cancel or delete recordingId = {0}, domainRecordingId = {1}, tstvRecordingStatus = {2}", recording.Id, domainRecordingId, tstvRecordingStatus.ToString());
-                }
-
-                recording.Id = domainRecordingId;
+                response = TryCancelOrDeleteRecordings(domainId, domainRecordingIds, tstvRecordingStatus, userId, validateUserAndDomain);
             }
             catch (Exception ex)
             {
-                StringBuilder sb = new StringBuilder("Exception at CancelOrDeleteRecord. ");
-                sb.Append(String.Concat("userId: ", userId));
-                sb.Append(String.Concat(", recordID: ", domainRecordingId));
-                sb.Append(String.Concat(", Ex Msg: ", ex.Message));
-                sb.Append(String.Concat(", Ex Type: ", ex.GetType().Name));
-                sb.Append(String.Concat(", Stack Trace: ", ex.StackTrace));
+                var messageBuilder = new StringBuilder($"Exception at {nameof(CancelOrDeleteRecordings)}: ");
+                messageBuilder.Append($"{nameof(userId)}:{userId}, {nameof(domainId)}:{domainId}, {nameof(domainRecordingIds)}:[{string.Join(",", domainRecordingIds)}], {nameof(tstvRecordingStatus)}:{tstvRecordingStatus}, {nameof(validateUserAndDomain)}:{validateUserAndDomain}");
+                messageBuilder.Append($", Ex Msg: {ex.Message}");
+                messageBuilder.Append($", Ex Type: {ex.GetType().Name}");
+                messageBuilder.Append($", Stack Trace: {ex.StackTrace}");
 
-                log.Error(sb.ToString(), ex);
+                log.Error(messageBuilder.ToString(), ex);
             }
-            return recording;
+
+            return response;
         }
 
+        public GenericListResponse<Recording> TryCancelOrDeleteRecordings(long domainId, long[] domainRecordingIds, TstvRecordingStatus tstvRecordingStatus, long userId, bool validateUserAndDomain)
+        {
+            var timeShiftedSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+            var isPrivateCopyEnabled = timeShiftedSettings.IsPrivateCopyEnabled.HasValue && timeShiftedSettings.IsPrivateCopyEnabled.Value;
+
+            var validateStatus = PreValidateRecordingsBeforeDelete(ref domainId, userId, validateUserAndDomain, isPrivateCopyEnabled, domainRecordingIds);
+            if (!validateStatus.IsOkStatusCode())
+            {
+                return new GenericListResponse<Recording>(validateStatus, null);
+            }
+
+            var recordings = GetRecordingsToDelete(domainId, domainRecordingIds, tstvRecordingStatus);
+
+            if (isPrivateCopyEnabled)
+            {
+                foreach (var recording in recordings.Where(x => x.Status.IsOkStatusCode()))
+                {
+                    recording.Status = RecordingsManager.Instance.DeleteRecording(m_nGroupID, recording, true, false, new List<long> { domainId });
+                }
+            }
+
+            var validRecordingIds = recordings.Where(x => x.Status.IsOkStatusCode()).Select(x => x.Id).ToArray();
+            if (validRecordingIds.Length > 0)
+            {
+                var deleteResult = DeleteDbRecordings(validRecordingIds, tstvRecordingStatus);
+                if (deleteResult)
+                {
+                    PostDeleteDbRecordingsAction(domainId, recordings, tstvRecordingStatus);
+                }
+                else
+                {
+                    return new GenericListResponse<Recording>(new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete"), null);
+                }
+            }
+
+            return new GenericListResponse<Recording>(ApiObjects.Response.Status.Ok, recordings.Select(x => new Recording(x)).ToList());
+        }
+
+        private ApiObjects.Response.Status PreValidateRecordingsBeforeDelete(ref long domainId, long userId, bool validateUserAndDomain, bool isPrivateCopyEnabled, IReadOnlyCollection<long> domainRecordingIds)
+        {
+            const int maxSharedCopy = 100;
+            const int maxPrivateCopy = 40;
+            if (!isPrivateCopyEnabled && domainRecordingIds.Count > maxSharedCopy)
+            {
+                var message = $"Too many recording ids ({domainRecordingIds.Count}) were received. Max count of shared copies is {maxSharedCopy}.";
+                log.Debug(message);
+
+                return new ApiObjects.Response.Status(eResponseStatus.RecordingIdsExceededLimit, message);
+            }
+
+            if (isPrivateCopyEnabled && domainRecordingIds.Count > maxPrivateCopy)
+            {
+                var message = $"Too many recording ids ({domainRecordingIds.Count}) were received. Max count of private copies is {maxPrivateCopy}.";
+                log.Debug(message);
+
+                return new ApiObjects.Response.Status(eResponseStatus.RecordingIdsExceededLimit, message);
+            }
+
+            if (validateUserAndDomain)
+            {
+                var status = Utils.ValidateUserAndDomain(m_nGroupID, userId.ToString(), ref domainId, out _);
+                if (!status.IsOkStatusCode())
+                {
+                    log.Debug($"User or Domain not valid. {nameof(m_nGroupID)}:{m_nGroupID}, {nameof(userId)}:{userId}, {nameof(domainId)}:{domainId}.");
+
+                    return status;
+                }
+            }
+
+            return ApiObjects.Response.Status.Ok;
+        }
+
+        private IReadOnlyCollection<DomainRecording> GetRecordingsToDelete(long domainId, IEnumerable<long> domainRecordingIds, TstvRecordingStatus tstvRecordingStatus)
+        {
+            var recordingStatus = GetTstvRecordingStatusList(tstvRecordingStatus);
+            var recordings = new List<DomainRecording>();
+
+            var domainRecordingIdToRecordingMap = Utils.GetDomainRecordingIdsToRecordingsMap(m_nGroupID, domainId, domainRecordingIds.ToList());
+
+            foreach (var domainRecordingId in domainRecordingIds)
+            {
+                var recording = Utils.ValidateRecordID(m_nGroupID, domainId, domainRecordingId, true, domainRecordingIdToRecordingMap);
+                if (!recording.Status.IsOkStatusCode())
+                {
+                    log.Debug($"recording.Status is not valid. {nameof(m_nGroupID)}:{m_nGroupID}, {nameof(domainId)}:{domainId}, {nameof(domainRecordingId)}:{domainRecordingId}, {nameof(recording)}:{recording}.");
+                }
+                else if (!Utils.IsValidRecordingStatus(recording.RecordingStatus, recordingStatus))
+                {
+                    log.DebugFormat($"recording.RecordingStatus {recording.RecordingStatus} is not valid. Expected statuses: [{string.Join(",", recordingStatus)}].");
+                    recording.Status = new ApiObjects.Response.Status((int)eResponseStatus.RecordingStatusNotValid, recording.RecordingStatus.ToString());
+                }
+
+                var domainRecording = new DomainRecording(domainRecordingId, recording);
+                recordings.Add(domainRecording);
+            }
+
+            return recordings;
+        }
+
+        public List<TstvRecordingStatus> GetTstvRecordingStatusList(TstvRecordingStatus tstvRecordingStatus)
+        {
+            if (tstvRecordingStatus == TstvRecordingStatus.Canceled || tstvRecordingStatus == TstvRecordingStatus.SeriesCancel)
+            {
+                return new List<TstvRecordingStatus> { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled };
+            }
+
+            if (tstvRecordingStatus == TstvRecordingStatus.Deleted)
+            {
+                return new List<TstvRecordingStatus> { TstvRecordingStatus.Recorded };
+            }
+
+            if (tstvRecordingStatus == TstvRecordingStatus.SeriesDelete)
+            {
+                return new List<TstvRecordingStatus> { TstvRecordingStatus.Recorded, TstvRecordingStatus.Recording };
+            }
+
+            return new List<TstvRecordingStatus>();
+        }
+
+        private bool DeleteDbRecordings(long[] domainRecordingIds, TstvRecordingStatus tstvRecordingStatus)
+        {
+            bool deleteResult;
+
+            var domainStatus = Utils.ConvertToDomainRecordingStatus(tstvRecordingStatus);
+            var shouldCancel = tstvRecordingStatus == TstvRecordingStatus.Canceled || tstvRecordingStatus == TstvRecordingStatus.SeriesCancel;
+            if (shouldCancel)
+            {
+                deleteResult = RecordingsDAL.CancelDomainRecordings(domainRecordingIds, domainStatus.Value); // delete recording id from domain
+                log.Debug($"{nameof(RecordingsDAL.CancelDomainRecordings)} {nameof(domainRecordingIds)}:[{string.Join(",", domainRecordingIds)}] with result: {deleteResult}.");
+            }
+            else
+            {
+                deleteResult = RecordingsDAL.DeleteDomainRecording(domainRecordingIds.ToList(), domainStatus.Value);
+                log.Debug($"{nameof(RecordingsDAL.DeleteDomainRecording)} {nameof(domainRecordingIds)}:[{string.Join(",", domainRecordingIds)}] with result: {deleteResult}.");
+            }
+
+            return deleteResult;
+        }
+
+        private void PostDeleteDbRecordingsAction(long domainId, IEnumerable<DomainRecording> recordings, TstvRecordingStatus tstvRecordingStatus)
+        {
+            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
+
+            var hasExternalRecordings = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS);
+            if (hasExternalRecordings)
+            {
+                foreach (var recording in recordings.Where(x => x.Status.IsOkStatusCode()))
+                {
+                    recording.Status = hasExternalRecordings
+                        ? RecordingsManager.Instance.CacnelOrDeleteExternalRecording(m_nGroupID, recording.RecordingId, recording.EpgId, tstvRecordingStatus == TstvRecordingStatus.Deleted)
+                        : ApiObjects.Response.Status.Ok;
+                    recording.RecordingStatus = tstvRecordingStatus;
+                }
+            }
+            else
+            {
+                var contextData = new ContextData();
+                Task.Run(() =>
+                {
+                    contextData.Load();
+                    if (!CompleteDomainSeriesRecordings(domainId))
+                    {
+                        log.Error($"Failed {nameof(CompleteDomainSeriesRecordings)} in {nameof(PostDeleteDbRecordingsAction)}: {nameof(domainId)}:{domainId}");
+                    }
+                });
+            }
+        }
+
+        private class DomainRecording : Recording
+        {
+            public DomainRecording(long domainRecordingId, Recording recording)
+                : base(recording)
+            {
+                RecordingId = recording.Id;
+                Id = domainRecordingId;
+            }
+
+            public long RecordingId { get; }
+        }
+
+        #endregion
+        
         public Recording QueryRecords(string userID, long epgId, ref long domainID, RecordingType recordingType, bool shouldCheckCatchup, bool shouldCheckQuota = false, EPGChannelProgrammeObject epg = null)
         {
             Recording recording = new Recording() { EpgId = epgId };

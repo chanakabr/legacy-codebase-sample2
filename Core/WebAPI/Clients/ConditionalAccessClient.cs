@@ -1598,6 +1598,14 @@ namespace WebAPI.Clients
             return recording;
         }
 
+        internal List<KalturaActionResult> DeleteRecordings(int groupId, long userId, long[] recordingIds)
+        {
+            Func<GenericListResponse<ActionResult>> deleteRecordingsFunc = () => Core.ConditionalAccess.Module.DeleteRecordings(groupId, 0, recordingIds, userId);
+            var response = ClientUtils.GetResponseListFromWS<KalturaActionResult, ActionResult>(deleteRecordingsFunc);
+
+            return response.Objects;
+        }
+    
         internal KalturaRecording ProtectRecord(int groupId, string userID, long recordingID)
         {
             KalturaRecording recording = null;
