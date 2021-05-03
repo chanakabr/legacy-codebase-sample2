@@ -348,7 +348,7 @@ namespace ApiLogic.Api.Managers
             return result;
         }
 
-        internal static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter, int pageIndex = 0, int pageSize = 0)
+        public static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter, int pageIndex = 0, int pageSize = 0)
         {
             GenericListResponse<Region> result = new GenericListResponse<Region>();
 

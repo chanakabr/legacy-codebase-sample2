@@ -1,10 +1,14 @@
-﻿using Newtonsoft.Json;
+﻿using ApiLogic.Api.Managers;
+using ApiObjects;
+using ApiObjects.Response;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -13,7 +17,7 @@ namespace WebAPI.Models.API
 {
     public abstract partial class KalturaBaseRegionFilter : KalturaFilter<KalturaRegionOrderBy>
     {
-        internal abstract KalturaRegionListResponse GetRegions(int groupId, KalturaFilterPager pager);
+        internal abstract KalturaRegionListResponse GetRegions(int groupId, KalturaFilterPager pager, KalturaBaseResponseProfile responseProfile = null);
         internal abstract void Validate();
 
         public override KalturaRegionOrderBy GetDefaultOrderByValue()
@@ -100,15 +104,40 @@ namespace WebAPI.Models.API
             return list;
         }
 
-        internal override KalturaRegionListResponse GetRegions(int groupId, KalturaFilterPager pager)
+        internal override KalturaRegionListResponse GetRegions(int groupId, KalturaFilterPager pager, KalturaBaseResponseProfile responseProfile = null)
         {
-            return ClientsManager.ApiClient().GetRegions(groupId, this, pager.getPageIndex(), pager.getPageSize());
+            RegionFilter wsFilter = AutoMapper.Mapper.Map<RegionFilter>(this);
+
+            Func<GenericListResponse<Region>> getListFunc = () =>
+                             RegionManager.GetRegions(groupId, wsFilter, pager.getPageIndex(), pager.getPageSize());
+
+            KalturaGenericListResponse<KalturaRegion> response =
+                ClientUtils.GetResponseListFromWS<KalturaRegion, Region>(getListFunc);
+
+            KalturaRegionListResponse result = new KalturaRegionListResponse
+            {
+                Regions = response.Objects,
+                TotalCount = response.TotalCount
+            };
+
+            if (response.TotalCount == 0 && responseProfile != null && responseProfile is KalturaDetachedResponseProfile detachedResponseProfile)
+            {
+                var profile = detachedResponseProfile.RelatedProfiles?.FirstOrDefault(x => x.Filter is KalturaAddDefaultIfEmptyResponseProfile);
+
+                if (profile != null)
+                {
+                    KalturaDefaultRegionFilter filter = new KalturaDefaultRegionFilter();
+                    return filter.GetRegions(groupId, pager);
+                }
+            }
+
+            return result;
         }
     }
 
     public partial class KalturaDefaultRegionFilter : KalturaBaseRegionFilter
     {
-        internal override KalturaRegionListResponse GetRegions(int groupId, KalturaFilterPager pager)
+        internal override KalturaRegionListResponse GetRegions(int groupId, KalturaFilterPager pager, KalturaBaseResponseProfile responseProfile = null)
         {
             var response = ClientsManager.ApiClient().GetDefaultRegion(groupId);
             if (response?.Regions?.Count > 0)
@@ -123,5 +152,23 @@ namespace WebAPI.Models.API
         internal override void Validate()
         {
         }
+    }
+
+
+    /// <summary>
+    /// Kaltura add default if empty ResponseProfile Filter
+    /// </summary>
+    [SchemeBase(typeof(KalturaRelatedObjectFilter))]
+    public partial class KalturaAddDefaultIfEmptyResponseProfile : KalturaFilter<KalturaAddDefaultIfEmptyResponseProfileOrderBy>, KalturaRelatedObjectFilter
+    {
+        public override KalturaAddDefaultIfEmptyResponseProfileOrderBy GetDefaultOrderByValue()
+        {
+            return KalturaAddDefaultIfEmptyResponseProfileOrderBy.NONE;
+        }
+    }
+
+    public enum KalturaAddDefaultIfEmptyResponseProfileOrderBy
+    {
+        NONE
     }
 }
