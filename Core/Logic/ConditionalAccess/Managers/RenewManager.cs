@@ -1747,25 +1747,6 @@ namespace Core.ConditionalAccess
                 return response;
             }
 
-            renewDetails.RecurringData = ConditionalAccessDAL.GetRecurringRenewDetails(renewDetails.PurchaseId);
-            if (renewDetails.RecurringData == null)
-            {
-                var couponCode = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "coupon_code");
-                renewDetails.RecurringData = EntitlementManager.InitializeRecurringRenewDetails(groupId, subscriptionRenealDataRow, renewDetails.PurchaseId, subscription, renewDetails.BillingGuid, couponCode);
-            }
-
-            renewDetails.PaymentNumber = Utils.CalcPaymentNumber(renewDetails.NumOfPayments, renewDetails.PaymentNumber, renewDetails.RecurringData.IsPurchasedWithPreviewModule);
-            if (renewDetails.NumOfPayments > 0 && renewDetails.PaymentNumber > renewDetails.NumOfPayments)
-            {
-                // Subscription ended
-                log.ErrorFormat("GetEntitlementNextRenewal: Subscription ended. numOfPayments={0}, paymentNumber={1}", renewDetails.NumOfPayments, renewDetails.PaymentNumber);
-                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                return response;
-            }
-
-            // calculate payment number
-            renewDetails.PaymentNumber++;
-
             if (!SetCustomDataForRenewDetails(groupId, renewDetails, out bool isDummy, out XmlNode theRequest))
             {
                 return response;
@@ -1794,6 +1775,33 @@ namespace Core.ConditionalAccess
 
                 return response;
             }
+
+            var renewDetailsRow = ConditionalAccessDAL.Get_RenewDetails(groupId, purchaseId, renewDetails.BillingGuid);
+            if (renewDetailsRow != null)
+            {
+                renewDetails.PaymentNumber = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "PAYMENT_NUMBER");
+                renewDetails.NumOfPayments = ODBCWrapper.Utils.GetIntSafeVal(renewDetailsRow, "number_of_payments");
+            }
+
+            renewDetails.RecurringData = ConditionalAccessDAL.GetRecurringRenewDetails(purchaseId);
+            if (renewDetails.RecurringData == null)
+            {
+                var couponCode = ODBCWrapper.Utils.ExtractString(subscriptionRenealDataRow, "coupon_code");
+                renewDetails.RecurringData = EntitlementManager.InitializeRecurringRenewDetails(groupId, subscriptionRenealDataRow, renewDetails.PurchaseId, subscription, renewDetails.BillingGuid, couponCode);
+            }
+
+            renewDetails.PaymentNumber = Utils.CalcPaymentNumber(renewDetails.NumOfPayments, renewDetails.PaymentNumber, renewDetails.RecurringData.IsPurchasedWithPreviewModule);
+
+            if (renewDetails.NumOfPayments > 0 && renewDetails.PaymentNumber > renewDetails.NumOfPayments)
+            {
+                // Subscription ended
+                log.ErrorFormat("GetEntitlementNextRenewal: Subscription ended. numOfPayments={0}, paymentNumber={1}", renewDetails.NumOfPayments, renewDetails.PaymentNumber);
+                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
+                return response;
+            }
+
+            // calculate payment number
+            renewDetails.PaymentNumber++;
 
             bool ignoreUnifiedBillingCycle = false;
 
