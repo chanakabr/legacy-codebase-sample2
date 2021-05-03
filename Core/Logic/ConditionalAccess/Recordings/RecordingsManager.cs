@@ -1024,7 +1024,7 @@ namespace Core.Recordings
                 // Schedule a message to check status 1 minute after recording of program is supposed to be over
                 if (shouldInsertRecording)
                 {
-                    DateTime checkTime = endDate.AddMinutes(1);
+                    DateTime checkTime = DateTime.UtcNow > endDate ? DateTime.UtcNow.AddMinutes(1) : endDate.AddMinutes(1);
                     eRecordingTask task = eRecordingTask.GetStatusAfterProgramEnded;
                     EnqueueMessage(groupId, programId, recording.Id, startDate, checkTime, task);
                     recording.Status = null;
@@ -1047,11 +1047,13 @@ namespace Core.Recordings
                 recording.Status = new Status((int)eResponseStatus.OK);
                 Recording copyRecording = new Recording(recording);
 
-                // Async - call adapter. Main flow is done                
+                // Async - call adapter. Main flow is done
+                ContextData contextData = new ContextData();
                 Task async = Task.Run(() =>
                 {
+                    contextData.Load();
                     CallAdapterRecord(groupId, programId.ToString(), epgChannelID, startDate, endDate, copyRecording,
-                        domainIds, out HashSet<long> failedDomainIds, recordingContext);
+                    domainIds, out HashSet<long> failedDomainIds, recordingContext);
 
                     if (failedDomainIds?.Count > 0)
                     {
@@ -1342,6 +1344,7 @@ namespace Core.Recordings
                     else
                     {
                         currentRecording.RecordingStatus = TstvRecordingStatus.Scheduled;
+
                         currentRecording.RecordingStatus = GetTstvRecordingStatus(currentRecording.EpgStartDate, currentRecording.EpgEndDate, currentRecording.RecordingStatus);
                         currentRecording.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 

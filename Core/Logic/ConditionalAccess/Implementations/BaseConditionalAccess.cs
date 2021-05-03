@@ -16304,6 +16304,10 @@ namespace Core.ConditionalAccess
                             userRecordingCrids.Add(crid);
                             log.DebugFormat("successfully recorded epgId = {0}, domainId = {1}, new recordingId = {2}", epgId, domainId, userRecording.Id);
                         }
+                        else
+                        {
+                            log.DebugFormat("BEO-9610: Can't record {0}", userRecording != null ? userRecording.ToString() : "null" );
+                        }
                     }
                 }
 

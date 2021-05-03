@@ -5472,7 +5472,8 @@ namespace Core.ConditionalAccess
             return result;
         }
 
-        internal static TstvRecordingStatus? ConvertToTstvRecordingStatus(RecordingInternalStatus recordingInternalStatus, DateTime epgStartDate, DateTime epgEndDate)
+        internal static TstvRecordingStatus? ConvertToTstvRecordingStatus(RecordingInternalStatus recordingInternalStatus, DateTime epgStartDate, DateTime epgEndDate,
+            DateTime? createDate = null)
         {
             TstvRecordingStatus? recordingStatus = null;
             switch (recordingInternalStatus)
@@ -5490,7 +5491,11 @@ namespace Core.ConditionalAccess
                     /* Unlike RecordingInternalStatus.OK we don't check the epg end date because
                      * we won't return recorded since the adapter call is async, so if the program
                      * already started it doesn't matter if it finished or not we will return recording */
-                    if (epgStartDate < DateTime.UtcNow)
+                    if (epgEndDate < DateTime.UtcNow && (!createDate.HasValue || createDate.Value.AddMinutes(2) < DateTime.UtcNow))
+                    {
+                        recordingStatus = TstvRecordingStatus.Failed;
+                    }
+                    else if (epgStartDate < DateTime.UtcNow)
                     {
                         recordingStatus = TstvRecordingStatus.Recording;
                     }
@@ -6308,7 +6313,7 @@ namespace Core.ConditionalAccess
                 // if the domain recording status was 1 now recordingStatus is OK and we need to get recordingStatus from recordings and not domains table
                 else if (recordingStatus.Value == TstvRecordingStatus.OK)
                 {
-                    recordingStatus = ConvertToTstvRecordingStatus(recordingInternalStatus, epgStartDate, epgEndDate);
+                    recordingStatus = ConvertToTstvRecordingStatus(recordingInternalStatus, epgStartDate, epgEndDate, createDate);
                     if (!recordingStatus.HasValue)
                     {
                         log.ErrorFormat(
@@ -6572,7 +6577,8 @@ namespace Core.ConditionalAccess
                     return recording;
                 }
 
-                TstvRecordingStatus? recordingStatus = ConvertToTstvRecordingStatus(recordingInternalStatus, epgStartDate, epgEndDate);
+                TstvRecordingStatus? recordingStatus = ConvertToTstvRecordingStatus(recordingInternalStatus, epgStartDate, epgEndDate, createDate);
+
                 if (!recordingStatus.HasValue)
                 {
                     log.ErrorFormat("Failed Convert RecordingInternalStatus: {0} to TstvRecordingStatus for recordingID: {1}", recordingInternalStatus, id);
@@ -7228,6 +7234,12 @@ namespace Core.ConditionalAccess
             {
                 viewableUntilDate = recording.EpgEndDate.AddDays(recordingLifetime.Value);
                 recording.ViewableUntilDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(viewableUntilDate.Value);
+
+                if (!string.IsNullOrEmpty(recording.ExternalRecordingId) && status.HasValue && status.Value == RecordingInternalStatus.Waiting)
+                {
+                    status = null;
+                }
+
                 return RecordingsDAL.UpdateRecording(recording, groupId, rowStatus, isActive, status, viewableUntilDate);
             }
 

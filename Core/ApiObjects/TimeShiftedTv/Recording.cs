@@ -62,7 +62,7 @@ namespace ApiObjects.TimeShiftedTv
             this.EpgId = record.EpgId;
             this.ChannelId = record.ChannelId;
             this.RecordingStatus = record.RecordingStatus;
-            this.ExternalRecordingId = string.IsNullOrEmpty(record.ExternalRecordingId) ? string.Empty : string.Copy(record.ExternalRecordingId);
+            this.ExternalRecordingId = record.ExternalRecordingId ?? string.Empty;
             this.EpgStartDate = record.EpgStartDate;
             this.EpgEndDate = record.EpgEndDate;
             this.Type = record.Type;
