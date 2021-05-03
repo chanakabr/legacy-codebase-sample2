@@ -726,7 +726,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PluralName, opt => opt.MapFrom(src => src.PluralName))
                 .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
                 .ForMember(dest => dest.ConnectingMetaId, opt => opt.MapFrom(src => src.ConnectingMetaId))
-                .ForMember(dest => dest.ConnectedParentMetaId, opt => opt.MapFrom(src => src.ConnectedParentMetaId));
+                .ForMember(dest => dest.ConnectedParentMetaId, opt => opt.MapFrom(src => src.ConnectedParentMetaId))
+                .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => WebAPI.Utils.Utils.ConvertToSerializableDictionary(src.DynamicData)))
+                .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null);
 
             // KalturaAssetStruct to AssetStruct
             cfg.CreateMap<KalturaAssetStruct, AssetStruct>()
@@ -743,7 +745,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.PluralName, opt => opt.MapFrom(src => src.PluralName))
                 .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
                 .ForMember(dest => dest.ConnectingMetaId, opt => opt.MapFrom(src => src.ConnectingMetaId))
-                .ForMember(dest => dest.ConnectedParentMetaId, opt => opt.MapFrom(src => src.ConnectedParentMetaId));
+                .ForMember(dest => dest.ConnectedParentMetaId, opt => opt.MapFrom(src => src.ConnectedParentMetaId))
+                .ForMember(dest => dest.DynamicData, opt => opt.ResolveUsing(src => src.DynamicData?.ToDictionary(x => x.Key, x => x.Value?.value)))
+                .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null);
 
             // MediaFileType to KalturaMediaFileType
             cfg.CreateMap<MediaFileType, KalturaMediaFileType>()

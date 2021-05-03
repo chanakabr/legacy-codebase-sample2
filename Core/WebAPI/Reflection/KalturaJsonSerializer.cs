@@ -14737,6 +14737,11 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("createDate", "\"createDate\": " + CreateDate);
             }
+            if(DynamicData != null && (retrievedProperties == null || retrievedProperties.Contains("dynamicData")))
+            {
+                propertyValue = "{" + String.Join(", ", DynamicData.Select(pair => "\"" + pair.Key + "\": " + pair.Value.ToJson(currentVersion, omitObsolete))) + "}";
+                ret.Add("dynamicData", "\"dynamicData\": " + propertyValue);
+            }
             if(Features != null && (retrievedProperties == null || retrievedProperties.Contains("features")))
             {
                 ret.Add("features", "\"features\": " + "\"" + EscapeJson(Features) + "\"");
@@ -14802,6 +14807,11 @@ namespace WebAPI.Models.Catalog
             if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
             {
                 ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            }
+            if(DynamicData != null && (retrievedProperties == null || retrievedProperties.Contains("dynamicData")))
+            {
+                propertyValue = DynamicData.Count > 0 ? "<item>" + String.Join("</item><item>", DynamicData.Select(pair => "<itemKey>" + pair.Key + "</itemKey>" + pair.Value.ToXml(currentVersion, omitObsolete))) + "</item>" : "";
+                ret.Add("dynamicData", "<dynamicData>" + propertyValue + "</dynamicData>");
             }
             if(Features != null && (retrievedProperties == null || retrievedProperties.Contains("features")))
             {

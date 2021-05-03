@@ -69,6 +69,7 @@ namespace Core.Catalog
         public long? ParentId { get; set; }
         public long? ConnectingMetaId { get; set; }
         public long? ConnectedParentMetaId { get; set; }
+        public List<KeyValuePair<string, string>> DynamicData;
         public string PluralName { get; set; }
         
         // currently used only for internal use for migration and migrated accounts
@@ -116,6 +117,7 @@ namespace Core.Catalog
             this.ConnectingMetaId = 0;
             this.ConnectedParentMetaId = 0;
             this.PluralName = string.Empty;
+            this.DynamicData = null;
         }
 
         public AssetStruct(AssetStruct assetStructToCopy)
@@ -240,6 +242,7 @@ namespace Core.Catalog
             this.PluralName = assetStructToCopy.PluralName;
             this.IsProgramAssetStruct = assetStructToCopy.IsProgramAssetStruct;
             this.IsLinearAssetStruct = assetStructToCopy.IsLinearAssetStruct;
+            this.DynamicData = assetStructToCopy.DynamicData;
         }
 
         #region IExcelStructure

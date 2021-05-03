@@ -12606,6 +12606,13 @@ namespace WebAPI.Models.Catalog
                 {
                     ConnectedParentMetaId = (Int64) Convert.ChangeType(parameters["connectedParentMetaId"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
+                {
+                    if (parameters["dynamicData"] is JObject)
+                    {
+                        DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
+                    }
+                }
             }
         }
     }

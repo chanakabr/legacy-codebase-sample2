@@ -4718,7 +4718,8 @@ namespace Tvinci.Core.DAL
 
         public static DataSet InsertAssetStruct(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName,
                                                 List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined, long userId, string features,
-                                                long? connectingMetaId, long? connectedParentMetaId, string pluralName, long? parentId, bool isProgramStruct)
+                                                long? connectingMetaId, long? connectedParentMetaId, string pluralName, long? parentId, bool isProgramStruct,
+                                                List<KeyValuePair<string, string>> dynamicData = null)
         {
             StoredProcedure sp = new StoredProcedure("InsertAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4737,13 +4738,16 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@PluralName", pluralName);
             sp.AddParameter("@ParentId", parentId);
             sp.AddParameter("@IsProgramStruct", isProgramStruct ? 1 : 0);
+            sp.AddParameter("@DynamicData", (dynamicData != null && dynamicData.Count != 0) ? JsonConvert.SerializeObject(dynamicData): null);
 
             return sp.ExecuteDataSet();
+
         }
 
         public static DataSet UpdateAssetStruct(int groupId, long id, string name, bool shouldUpdateOtherNames, List<KeyValuePair<string, string>> namesInOtherLanguages,
-                                                string systemName, bool shouldUpdateMetaIds, List<KeyValuePair<long, int>> metaIdsToPriority, long userId,
-                                                string features, long? connectingMetaId, long? connectedParentMetaId, string pluralName, long? parentId)
+                                                string systemName, bool shouldUpdateMetaIds, List<KeyValuePair<long, int>> metaIdsToPriority,
+                                                long userId, string features, long? connectingMetaId, long? connectedParentMetaId, string pluralName,
+                                                long? parentId, List<KeyValuePair<string, string>> dynamicData)
         {
             StoredProcedure sp = new StoredProcedure("UpdateAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4761,6 +4765,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ConnectedParentMetaId", connectedParentMetaId);
             sp.AddParameter("@PluralName", pluralName);
             sp.AddParameter("@ParentId", parentId);
+            sp.AddParameter("@DynamicData", (dynamicData != null && dynamicData.Count != 0) ? JsonConvert.SerializeObject(dynamicData) : null);
 
             return sp.ExecuteDataSet();
         }

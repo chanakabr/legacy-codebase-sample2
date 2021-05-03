@@ -130,7 +130,7 @@ namespace WebAPI.Controllers
                     assetStruct.Name.Validate("multilingualName");
                 }
             }
-
+             
             if (assetStruct.SystemName != null &&  assetStruct.SystemName.Trim() == string.Empty)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");

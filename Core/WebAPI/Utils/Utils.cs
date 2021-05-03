@@ -300,6 +300,28 @@ namespace WebAPI.Utils
             return result;
         }
 
+        internal static SerializableDictionary<string, KalturaStringValue> ConvertToSerializableDictionary(List<KeyValuePair<string, string>> dictionary)
+        {
+            var result = new SerializableDictionary<string, KalturaStringValue>();
+
+            if (dictionary != null)
+            {
+                foreach (var pair in dictionary)
+                {
+                    if (!result.ContainsKey(pair.Key))
+                    {
+                        result.Add(pair.Key, new KalturaStringValue { value = pair.Value });
+                    }
+                    else
+                    {
+                        throw new ClientException((int)StatusCode.ArgumentsDuplicate, $"key {pair.Key} already exists in sent dictionary");
+                    }
+                }
+            }
+
+            return result;
+        }
+
         public static IEnumerable<string> GetOnDemandResponseProfileProperties()
         {
             Models.General.KalturaBaseResponseProfile responseProfile = Utils.GetResponseProfileFromRequest();

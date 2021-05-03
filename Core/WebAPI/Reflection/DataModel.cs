@@ -723,6 +723,8 @@ namespace WebAPI.Reflection
                             return "connectingMetaId";
                         case "CreateDate":
                             return "createDate";
+                        case "DynamicData":
+                            return "dynamicData";
                         case "Features":
                             return "features";
                         case "Id":

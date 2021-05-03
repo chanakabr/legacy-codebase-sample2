@@ -116,6 +116,15 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "connectedParentMetaId", IsNullable = true)]
         public long? ConnectedParentMetaId { get; set; }
 
+        /// <summary>
+        /// Dynamic data
+        /// </summary>
+        [DataMember(Name = "dynamicData")]
+        [JsonProperty("dynamicData")]
+        [XmlArray(ElementName = "dynamicData", IsNullable = true)]
+        [XmlArrayItem("item")]
+        public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
+
         public ExcelStructure GetExcelStructure(int groupId)
         {
             var excelStructure = ClientManagers.Client.ClientsManager.CatalogClient().GetExcelStructure(groupId, this);
@@ -156,6 +165,17 @@ namespace WebAPI.Models.Catalog
                 }
             }
 
+            if (DynamicData!= null)
+            {
+                foreach (var data in DynamicData)
+                {
+                    if (data.Value.value == null)
+                    {
+                        DynamicData.Remove(data.Key);
+                    }
+                }
+            }
+            
             return true;
         }
 

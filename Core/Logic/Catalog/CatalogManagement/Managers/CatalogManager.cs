@@ -198,7 +198,9 @@ namespace Core.Catalog.CatalogManagement
                         ConnectedParentMetaId = ODBCWrapper.Utils.GetLongSafeVal(dr, "CONNECTED_PARENT_META_ID"),
                         PluralName = ODBCWrapper.Utils.GetSafeStr(dr, "PLURAL_NAME"),
                         IsProgramAssetStruct = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_PROGRAM") == 1,
-                        IsLinearAssetStruct = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_LINEAR") == 1
+                        IsLinearAssetStruct = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_LINEAR") == 1 , 
+                        DynamicData = ODBCWrapper.Utils.GetSafeStr(dr["dynamic_data"]) == null ? null : 
+                        JsonConvert.DeserializeObject<List<KeyValuePair<string, string>>>(ODBCWrapper.Utils.GetSafeStr(dr["dynamic_data"]))
                     };
                 }
             }
@@ -1417,7 +1419,7 @@ namespace Core.Catalog.CatalogManagement
 
                 DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, languageCodeToName, assetStructToadd.SystemName, metaIdsToPriority,
                                                           assetStructToadd.IsPredefined, userId, assetStructToadd.GetCommaSeparatedFeatures(), assetStructToadd.ConnectingMetaId,
-                                                          assetStructToadd.ConnectedParentMetaId, assetStructToadd.PluralName, assetStructToadd.ParentId, isProgramStruct);
+                                                          assetStructToadd.ConnectedParentMetaId, assetStructToadd.PluralName, assetStructToadd.ParentId, isProgramStruct, assetStructToadd.DynamicData);
                 result = CreateAssetStructResponseFromDataSet(ds, metaIdsToPriority);
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
             }
@@ -1593,10 +1595,15 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
+                if(assetStructToUpdate.DynamicData == null)
+                {
+                    assetStructToUpdate.DynamicData = catalogGroupCache.AssetStructsMapById[id].DynamicData;
+                }
+
                 DataSet ds = CatalogDAL.UpdateAssetStruct(groupId, id, assetStructToUpdate.Name, shouldUpdateOtherNames, languageCodeToName, assetStructToUpdate.SystemName,
                                                           shouldUpdateMetaIds, metaIdsToPriority, userId, assetStructToUpdate.GetCommaSeparatedFeatures(),
                                                           assetStructToUpdate.ConnectingMetaId, assetStructToUpdate.ConnectedParentMetaId, assetStructToUpdate.PluralName,
-                                                          assetStructToUpdate.ParentId);
+                                                          assetStructToUpdate.ParentId, assetStructToUpdate.DynamicData);
 
                 // For backward compatibility
                 if (isProgramStruct)
