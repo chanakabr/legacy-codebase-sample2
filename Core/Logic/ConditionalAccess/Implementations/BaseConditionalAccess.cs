@@ -14092,6 +14092,11 @@ namespace Core.ConditionalAccess
             }
             else
             {
+                foreach (var recording in recordings.Where(x => x.Status.IsOkStatusCode()))
+                {
+                    recording.RecordingStatus = tstvRecordingStatus;
+                }
+
                 var contextData = new ContextData();
                 Task.Run(() =>
                 {
