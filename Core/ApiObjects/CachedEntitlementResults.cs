@@ -16,11 +16,12 @@ namespace ApiObjects
         public eTransactionType TransactionType { get; set; }
         public DateTime? EntitlementStartDate { get; set; }
         public DateTime? EntitlementEndDate { get; set; }
+        public bool IsLivePlayback { get; set; }
 
         public CachedEntitlementResults() { }
 
         public CachedEntitlementResults(int viewLifeCycle, int fullLifeCycle, DateTime lastUseDate, bool isFree, bool isOfflinePlayback,
-                                        eTransactionType transactionType, DateTime? entitlementStartDate = null, DateTime? entitlementEndDate = null)
+                                        eTransactionType transactionType, DateTime? entitlementStartDate = null, DateTime? entitlementEndDate = null, bool isLive = false)
         {
             ViewLifeCycle = viewLifeCycle;
             FullLifeCycle = fullLifeCycle;
@@ -30,6 +31,7 @@ namespace ApiObjects
             TransactionType = transactionType;
             EntitlementStartDate = entitlementStartDate;
             EntitlementEndDate = entitlementEndDate;
+            IsLivePlayback = isLive;
         }
 
         public override string ToString()

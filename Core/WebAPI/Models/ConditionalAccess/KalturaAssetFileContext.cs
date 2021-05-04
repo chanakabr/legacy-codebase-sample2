@@ -34,6 +34,15 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "isOfflinePlayBack")]
         [SchemeProperty(ReadOnly = true)]
         public bool IsOfflinePlayBack { get; set; }
+
+        /// <summary>
+        /// Is Live PlayBack
+        /// </summary>
+        [DataMember(Name = "isLivePlayBack")]
+        [JsonProperty("isLivePlayBack")]
+        [XmlElement(ElementName = "isLivePlayBack")]
+        [SchemeProperty(ReadOnly = true)]
+        public bool IsLivePlayBack { get; set; }
     }
 
     public enum KalturaContextType

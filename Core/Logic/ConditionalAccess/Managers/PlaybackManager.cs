@@ -389,7 +389,14 @@ namespace Core.ConditionalAccess
                                         // HandlePlayUses + DevicePlayData
                                         if (domainId > 0)
                                         {
-                                            HandlePlayUsesAndDevicePlayData(cas, userId, domainId, (int)file.Id, ip, udid, filePrice, concurrencyResponse != null ? concurrencyResponse.Data : null);
+                                            bool isLive = false;
+                                            if (assetType == eAssetTypes.MEDIA && Utils.IsOpc(groupId))
+                                            {
+                                                string epgChannelId = APILogic.Api.Managers.EpgManager.GetEpgChannelId((int)mediaId, groupId);
+                                                isLive = !string.IsNullOrEmpty(epgChannelId);
+                                            }
+
+                                            HandlePlayUsesAndDevicePlayData(cas, userId, domainId, (int)file.Id, ip, udid, filePrice, concurrencyResponse != null ? concurrencyResponse.Data : null, isLive);
                                         }
                                     }
                                 }
@@ -486,7 +493,7 @@ namespace Core.ConditionalAccess
         }
 
         private static void HandlePlayUsesAndDevicePlayData(BaseConditionalAccess cas, string userId, long domainId, int fileId, string ip, string udid, 
-            MediaFileItemPricesContainer filePrice, ApiObjects.MediaMarks.DevicePlayData devicePlayData)
+            MediaFileItemPricesContainer filePrice, ApiObjects.MediaMarks.DevicePlayData devicePlayData, bool isLive)
         {
             
             if (Utils.IsItemPurchased(filePrice))
@@ -499,7 +506,7 @@ namespace Core.ConditionalAccess
             {
                 bool res = Utils.InsertOrSetCachedEntitlementResults(domainId, fileId,
                         new CachedEntitlementResults(0, 0, DateTime.UtcNow, true, false,
-                        eTransactionType.PPV, null, filePrice.m_oItemPrices[0].m_dtEndDate));
+                        eTransactionType.PPV, null, filePrice.m_oItemPrices[0].m_dtEndDate, isLive));
             }
 
             if (devicePlayData != null)
@@ -630,8 +637,15 @@ namespace Core.ConditionalAccess
 
                 if (response.Status.Code == (int)eResponseStatus.OK && domainId > 0)
                 {
+                    bool isLive = false;
+                    if (assetType == eAssetTypes.MEDIA)
+                    {
+                        string epgChannelId = APILogic.Api.Managers.EpgManager.GetEpgChannelId((int)mediaId, groupId);
+                        isLive = !string.IsNullOrEmpty(epgChannelId);
+                    }
+
                     // HandlePlayUses
-                    HandlePlayUsesAndDevicePlayData(cas, userId, domainId, (int)file.Id, ip, udid, price, playbackContextResponse.ConcurrencyData);
+                    HandlePlayUsesAndDevicePlayData(cas, userId, domainId, (int)file.Id, ip, udid, price, playbackContextResponse.ConcurrencyData, isLive);
                 }
             }
             catch (Exception ex)

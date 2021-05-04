@@ -12,6 +12,7 @@ namespace Core.ConditionalAccess
         private string m_sFullLifeCycle;
         private string m_sViewLifeCycle;
         private bool m_bIsOfflinePlayBack;
+        private bool IsLive;
 
         #endregion
 
@@ -50,6 +51,18 @@ namespace Core.ConditionalAccess
             set
             {
                 this.m_bIsOfflinePlayBack = value;
+            }
+        }
+
+        public bool IsLivePlayBack
+        {
+            get
+            {
+                return (IsLive);
+            }
+            set
+            {
+                this.IsLive = value;
             }
         }
 
