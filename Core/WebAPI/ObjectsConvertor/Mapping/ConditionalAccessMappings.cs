@@ -594,13 +594,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaAssetFileContext, EntitlementResponse>()
               .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.ViewLifeCycle))
               .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.FullLifeCycle))
-            .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
+              .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack))
+              .ForMember(dest => dest.IsLivePlayBack, opt => opt.MapFrom(src => src.IsLivePlayBack));
 
             // EntitlementResponse to KalturaAssetFileContext
             cfg.CreateMap<EntitlementResponse, KalturaAssetFileContext>()
               .ForMember(dest => dest.ViewLifeCycle, opt => opt.MapFrom(src => src.ViewLifeCycle))
               .ForMember(dest => dest.FullLifeCycle, opt => opt.MapFrom(src => src.FullLifeCycle))
-            .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack));
+              .ForMember(dest => dest.IsOfflinePlayBack, opt => opt.MapFrom(src => src.IsOfflinePlayBack))
+              .ForMember(dest => dest.IsLivePlayBack, opt => opt.MapFrom(src => src.IsLivePlayBack));
 
             cfg.CreateMap<BusinessModuleDetails, KalturaBusinessModuleDetails>()
               .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))

@@ -2422,6 +2422,16 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute IsLivePlayBackSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFileContext")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaAssetFileContext(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -2451,6 +2461,14 @@ namespace WebAPI.Models.ConditionalAccess
                         IsOfflinePlayBackSchemaProperty.Validate("isOfflinePlayBack", parameters["isOfflinePlayBack"]);
                     }
                     IsOfflinePlayBack = (Boolean) Convert.ChangeType(parameters["isOfflinePlayBack"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("isLivePlayBack") && parameters["isLivePlayBack"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IsLivePlayBackSchemaProperty.Validate("isLivePlayBack", parameters["isLivePlayBack"]);
+                    }
+                    IsLivePlayBack = (Boolean) Convert.ChangeType(parameters["isLivePlayBack"], typeof(Boolean));
                 }
             }
         }

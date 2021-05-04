@@ -37,6 +37,7 @@ namespace Core.ConditionalAccess
             string strViewLifeCycle = TimeSpan.Zero.ToString();
             string strFullLifeCycle = TimeSpan.Zero.ToString();
             bool isOfflinePlayback = false;
+            bool IsLivePlayBack = false;
             bool shouldCheckEntitlement = false;
             int domainId = 0;
 
@@ -123,8 +124,6 @@ namespace Core.ConditionalAccess
 
                     if (shouldCheckEntitlement)
                     {
-                        List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(userId, groupId, ref domainId);
-
                         if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value && !isRecording)
                         {
                             CachedEntitlementResults cachedEntitlementResults = Utils.GetCachedEntitlementResults(domainId, mediaFileId);
@@ -167,6 +166,7 @@ namespace Core.ConditionalAccess
                                     response.FullLifeCycle = fullLifeCycleLeft.ToString();
                                 }
 
+                                response.IsLivePlayBack = cachedEntitlementResults.IsLivePlayback;
                                 return response;
                             }
                         }
@@ -219,6 +219,8 @@ namespace Core.ConditionalAccess
                                 string sPricingPassword = string.Empty;
 
                                 Utils.GetWSCredentials(groupId, eWSModules.PRICING, ref sPricingUsername, ref sPricingPassword);
+
+                                List<int> lstUsersIds = Utils.GetAllUsersDomainBySiteGUID(userId, groupId, ref domainId);
 
                                 // Get latest use (watch/download) of the media file. If there was one, continue.
                                 if (ConditionalAccessDAL.Get_LatestMediaFilesUse(lstUsersIds, lstRelatedMediaFiles, ref sPPVMCode, ref bIsOfflineStatus, ref dtNow,
@@ -302,6 +304,18 @@ namespace Core.ConditionalAccess
                                     strViewLifeCycle = tsViewLeftSpan.ToString();
                                 }
                             }
+
+                            //BEO-9987
+                            if (!isRecording && Utils.IsOpc(groupId))
+                            {
+                                var mapper = Utils.GetMediaMapper(groupId, new int[] { mediaFileId });
+                                if (mapper?.Length > 0)
+                                {
+                                    string epgChannelId = APILogic.Api.Managers.EpgManager.GetEpgChannelId(mapper[0].m_nMediaID, groupId);
+                                    IsLivePlayBack = !string.IsNullOrEmpty(epgChannelId);
+                                }
+                            }
+                            
                         }
                     }
 
@@ -328,6 +342,7 @@ namespace Core.ConditionalAccess
             response.ViewLifeCycle = strViewLifeCycle;
             response.FullLifeCycle = strFullLifeCycle;
             response.IsOfflinePlayBack = isOfflinePlayback;
+            response.IsLivePlayBack = IsLivePlayBack;
 
             return (response);
         }

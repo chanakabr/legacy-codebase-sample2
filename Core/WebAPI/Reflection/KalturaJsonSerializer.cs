@@ -363,6 +363,10 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("fullLifeCycle", "\"fullLifeCycle\": " + "\"" + EscapeJson(FullLifeCycle) + "\"");
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("isLivePlayBack")))
+            {
+                ret.Add("isLivePlayBack", "\"isLivePlayBack\": " + IsLivePlayBack.ToString().ToLower());
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("isOfflinePlayBack")))
             {
                 ret.Add("isOfflinePlayBack", "\"isOfflinePlayBack\": " + IsOfflinePlayBack.ToString().ToLower());
@@ -388,6 +392,10 @@ namespace WebAPI.Models.ConditionalAccess
             if(FullLifeCycle != null && (retrievedProperties == null || retrievedProperties.Contains("fullLifeCycle")))
             {
                 ret.Add("fullLifeCycle", "<fullLifeCycle>" + EscapeXml(FullLifeCycle) + "</fullLifeCycle>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("isLivePlayBack")))
+            {
+                ret.Add("isLivePlayBack", "<isLivePlayBack>" + IsLivePlayBack.ToString().ToLower() + "</isLivePlayBack>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("isOfflinePlayBack")))
             {

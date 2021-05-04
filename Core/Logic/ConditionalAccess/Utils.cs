@@ -7919,6 +7919,11 @@ namespace Core.ConditionalAccess
             return allMediafiles.Where(m => m.GroupId == groupId).ToList();
         }
 
+        public static bool IsOpc(int groupId)
+        {
+            return GroupSettingsManager.IsOpc(groupId);
+        }
+
         internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain, string udid,
             out long mediaId, out Recording recording, out EPGChannelProgrammeObject program)
         {

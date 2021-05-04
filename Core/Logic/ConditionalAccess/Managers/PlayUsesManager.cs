@@ -26,7 +26,7 @@ namespace Core.ConditionalAccess
         /// Handle Play Uses
         /// </summary>
         public static void HandlePlayUses(BaseConditionalAccess cas, MediaFileItemPricesContainer price, string userId, Int32 mediaFileId, string ip,
-                                    string countryCode, string languageCode, string udid, string couponCode, long domainId, int groupId)
+                                    string countryCode, string languageCode, string udid, string couponCode, long domainId, int groupId, bool isLive = false)
         {
             if (price == null || price.m_oItemPrices == null || price.m_oItemPrices.Length == 0)
             {
@@ -50,17 +50,20 @@ namespace Core.ConditionalAccess
             ContextData contextData = new ContextData();
             if (IsPurchasedAsPurePPV(itemPriceContainer))
             {
-                HandlePpvPlayUses(userId, mediaFileId, countryCode, languageCode, udid, domainId, groupId, itemPriceContainer, mediaId, releventCollectionID, nRelPP, tasks, contextData);
+                HandlePpvPlayUses(userId, mediaFileId, countryCode, languageCode, udid, domainId, groupId, itemPriceContainer, mediaId, releventCollectionID, 
+                    nRelPP, tasks, contextData, isLive);
             }
             else
             {
                 if (IsPurchasedAsPartOfSub(itemPriceContainer))
                 {
-                    HandleSubscriptionPlayUses(userId, mediaFileId, countryCode, languageCode, udid, domainId, groupId, itemPriceContainer, mediaId, releventCollectionID, nRelPP, tasks, contextData);
+                    HandleSubscriptionPlayUses(userId, mediaFileId, countryCode, languageCode, udid, domainId, groupId, itemPriceContainer, mediaId, releventCollectionID, 
+                        nRelPP, tasks, contextData, isLive);
                 }
                 else
                 {
-                    HandleCollectionPlayUses(userId, mediaFileId, countryCode, languageCode, udid, domainId, groupId, itemPriceContainer, mediaId, releventCollectionID, nRelPP, tasks, contextData);
+                    HandleCollectionPlayUses(userId, mediaFileId, countryCode, languageCode, udid, domainId, groupId, itemPriceContainer, mediaId, releventCollectionID, 
+                        nRelPP, tasks, contextData, isLive);
                 }
 
                 if (tasks != null && tasks.Count > 0)
@@ -70,12 +73,14 @@ namespace Core.ConditionalAccess
             }
         }
 
-        private static void HandlePpvPlayUses(string userId, Int32 mediaFileId, string countryCode, string languageCode, string udid, long domainId, int groupId, ItemPriceContainer itemPriceContainer, int mediaId, int releventCollectionID, Int32 nRelPP, List<Task> tasks, ContextData contextData)
+        private static void HandlePpvPlayUses(string userId, Int32 mediaFileId, string countryCode, string languageCode, string udid, 
+            long domainId, int groupId, ItemPriceContainer itemPriceContainer, int mediaId, int releventCollectionID, Int32 nRelPP, 
+            List<Task> tasks, ContextData contextData, bool isLive)
         {
             string sPPVMCd = itemPriceContainer.m_sPPVModuleCode;
 
             bool isCreditDownloaded = PPV_DoesCreditNeedToDownloaded(sPPVMCd, null, null, countryCode, languageCode, udid, Utils.GetRelatedMediaFiles(itemPriceContainer, mediaFileId),
-                                                                        domainId, mediaFileId, groupId, mediaId, Utils.GetStartDate(itemPriceContainer), Utils.GetEndDate(itemPriceContainer));
+                                                                        domainId, mediaFileId, groupId, mediaId, Utils.GetStartDate(itemPriceContainer), Utils.GetEndDate(itemPriceContainer), isLive);
             if (isCreditDownloaded)
             {
                 if (ConditionalAccessDAL.Insert_NewPPVUse(groupId, mediaFileId, itemPriceContainer.m_sPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID))
@@ -123,7 +128,8 @@ namespace Core.ConditionalAccess
             }
         }
 
-        private static void HandleSubscriptionPlayUses(string userId, Int32 mediaFileId, string countryCode, string languageCode, string udid, long domainId, int groupId, ItemPriceContainer itemPriceContainer, int mediaId, int releventCollectionID, Int32 nRelPP, List<Task> tasks, ContextData contextData)
+        private static void HandleSubscriptionPlayUses(string userId, Int32 mediaFileId, string countryCode, string languageCode, string udid, long domainId, int groupId, 
+            ItemPriceContainer itemPriceContainer, int mediaId, int releventCollectionID, Int32 nRelPP, List<Task> tasks, ContextData contextData, bool isLive)
         {
             int numOfUses = 0;
             bool setPurchaseInvalidationKey = false;
@@ -181,7 +187,7 @@ namespace Core.ConditionalAccess
 
             bool isPpvCreditDownloaded = PPV_DoesCreditNeedToDownloaded(modifiedPPVModuleCode, itemPriceContainer.m_relevantSub, null, countryCode, languageCode, udid,
                                                                         Utils.GetRelatedMediaFiles(itemPriceContainer, mediaFileId), domainId, mediaFileId, groupId, mediaId,
-                                                                        Utils.GetStartDate(itemPriceContainer), Utils.GetEndDate(itemPriceContainer));
+                                                                        Utils.GetStartDate(itemPriceContainer), Utils.GetEndDate(itemPriceContainer), isLive);
             if (isPpvCreditDownloaded)
             {
                 if (ConditionalAccessDAL.Insert_NewPPVUse(groupId, mediaFileId, modifiedPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID))
@@ -227,7 +233,7 @@ namespace Core.ConditionalAccess
         }
 
         private static void HandleCollectionPlayUses(string userId, Int32 mediaFileId, string countryCode, string languageCode, string udid, long domainId, int groupId, 
-            ItemPriceContainer itemPriceContainer, int mediaId, int releventCollectionID, Int32 nRelPP, List<Task> tasks, ContextData contextData)
+            ItemPriceContainer itemPriceContainer, int mediaId, int releventCollectionID, Int32 nRelPP, List<Task> tasks, ContextData contextData, bool isLive)
         {
             int numOfUses = 0;
             bool setPurchaseInvalidationKey = false;
@@ -288,7 +294,7 @@ namespace Core.ConditionalAccess
 
             bool isPpvCreditDownloaded = PPV_DoesCreditNeedToDownloaded(modifiedPPVModuleCode, null, itemPriceContainer.m_relevantCol, countryCode, languageCode, udid,
                                                                         Utils.GetRelatedMediaFiles(itemPriceContainer, mediaFileId), domainId, mediaFileId, groupId, mediaId,
-                                                                        Utils.GetStartDate(itemPriceContainer), Utils.GetEndDate(itemPriceContainer));
+                                                                        Utils.GetStartDate(itemPriceContainer), Utils.GetEndDate(itemPriceContainer), isLive);
             if (isPpvCreditDownloaded)
             {
                 if (ConditionalAccessDAL.Insert_NewPPVUse(groupId, mediaFileId, modifiedPPVModuleCode, userId, countryCode, languageCode, udid, nRelPP, releventCollectionID))
@@ -433,7 +439,7 @@ namespace Core.ConditionalAccess
         }
 
         private static bool PPV_DoesCreditNeedToDownloaded(string productCode, Subscription subscription, Collection collection, string countryCode, string languageCode, string udid,
-                                                            List<int> mediaFileIDs, long domainId, int mediaFileId, int groupId, int mediaId, DateTime? startDate, DateTime? endDate)
+                                                            List<int> mediaFileIDs, long domainId, int mediaFileId, int groupId, int mediaId, DateTime? startDate, DateTime? endDate, bool isLive)
         {
             bool isCreditDownloaded = false;
             Int32 nViewLifeCycle = 0;
@@ -506,7 +512,7 @@ namespace Core.ConditionalAccess
             {
                 // update lastUseWithCredit value according to nIsCreditDownloaded
                 lastUseWithCredit = isCreditDownloaded ? DateTime.UtcNow : lastUseWithCredit;
-                CachedEntitlementResults cachedEntitlementResults = new CachedEntitlementResults(nViewLifeCycle, fullLifeCycle, lastUseWithCredit.Value, false, isOfflinePlayback, transactionType, startDate, endDate);
+                CachedEntitlementResults cachedEntitlementResults = new CachedEntitlementResults(nViewLifeCycle, fullLifeCycle, lastUseWithCredit.Value, false, isOfflinePlayback, transactionType, startDate, endDate, isLive);
                 if (!Utils.InsertOrSetCachedEntitlementResults(domainId, mediaFileId, cachedEntitlementResults))
                 {
                     log.DebugFormat("Failed to insert CachedEntitlementResults: {0}, domainId: {1}, mediaFileId: {2}", cachedEntitlementResults.ToString(), domainId, mediaFileId);

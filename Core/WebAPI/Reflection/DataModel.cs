@@ -411,6 +411,8 @@ namespace WebAPI.Reflection
                     {
                         case "FullLifeCycle":
                             return "fullLifeCycle";
+                        case "IsLivePlayBack":
+                            return "isLivePlayBack";
                         case "IsOfflinePlayBack":
                             return "isOfflinePlayBack";
                         case "ViewLifeCycle":
