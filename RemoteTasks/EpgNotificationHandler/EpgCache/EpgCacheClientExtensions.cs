@@ -15,7 +15,7 @@ namespace EpgNotificationHandler.EpgCache
             
             services.AddSingleton(p =>
                 new Epgcache.EpgcacheClient(GrpcCommon.CreateChannel(epgCacheConfig.Address.Value,
-                    epgCacheConfig.CertFilePath.Value)));
+                    epgCacheConfig.CertFilePath.Value, epgCacheConfig.RetryCount.Value)));
             // TODO https://anthonygiretti.com/2020/03/31/grpc-asp-net-core-3-1-resiliency-with-polly/
             services.AddScoped<IAsyncPolicy>(p => PolicyHandler.WaitAndRetry());
             services.AddScoped<IEpgCacheClient, EpgCacheClient>();

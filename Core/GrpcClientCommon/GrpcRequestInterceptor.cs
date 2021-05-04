@@ -2,25 +2,57 @@
 using Grpc.Core.Interceptors;
 using KLogMonitor;
 using System;
+using System.Reflection;
+using Polly;
+using Polly.Retry;
 
 namespace GrpcClientCommon
 {
-    public class TracingInterceptor : Interceptor
+    public class GrpcRequestInterceptor : Interceptor
     {
+        private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private RetryPolicy _grpcRetryPolicy;
+
+        public GrpcRequestInterceptor(int retryCount)
+        {
+            // Catch only transient errors that can be retried
+            _grpcRetryPolicy = RetryPolicy
+                .Handle<RpcException>(ex => ex.StatusCode == StatusCode.Unavailable || ex.StatusCode == StatusCode.DeadlineExceeded)
+                .Retry(retryCount, (ex, attempt) =>
+                {
+                    _logger.Warn($"Error while calling grpc, retry [{attempt}/{retryCount}]", ex);
+                    _logger.Warn($"");
+                });
+        }
+
         public override TResponse BlockingUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, BlockingUnaryCallContinuation<TRequest, TResponse> continuation)
         {
             var newContext = GetNewContext(context);
             using var tracer = NewTracer(newContext);
-            return base.BlockingUnaryCall(request, newContext, continuation);
+
+            var resp = default(TResponse);
+            _grpcRetryPolicy.Execute(() =>
+            {
+                resp = base.BlockingUnaryCall(request, newContext, continuation);
+            });
+
+            return resp;
         }
 
         public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(TRequest request, ClientInterceptorContext<TRequest, TResponse> context, AsyncUnaryCallContinuation<TRequest, TResponse> continuation)
         {
             var newContext = GetNewContext(context);
             using var tracer = NewTracer(newContext);
-            return base.AsyncUnaryCall(request, newContext, continuation);
+
+            var resp = default(AsyncUnaryCall<TResponse>);
+            _grpcRetryPolicy.Execute(() =>
+            {
+                resp = base.AsyncUnaryCall(request, newContext, continuation);
+            });
+
+            return resp;
         }
-        
+
         private static ClientInterceptorContext<TRequest, TResponse> GetNewContext<TRequest, TResponse>(ClientInterceptorContext<TRequest, TResponse> context)
             where TRequest : class
             where TResponse : class
@@ -45,13 +77,15 @@ namespace GrpcClientCommon
     {
         private const string REQUEST_ID_HEADER_KEY = "x-kaltura-session-id";
         private readonly KMonitor _monitor;
-       
+
         public RequestTracer(ClientInterceptorContext<TRequest, TResponse> context)
         {
             var requestId = KLogger.GetRequestId();
             var groupId = KLogger.GetGroupId() ?? string.Empty;
-            _monitor = new KMonitor(Events.eEvent.EVENT_GRPC, groupId, context.Method.Name, requestId)
+            _monitor = new KMonitor(Events.eEvent.EVENT_GRPC, groupId)
             {
+                UniqueID = requestId,
+                Table = context.Method.Name,
                 Database = context.Host
             };
             context.Options.Headers.Add(REQUEST_ID_HEADER_KEY, requestId);

@@ -19,6 +19,7 @@ namespace ConfigurationManager.Types
         public override string[] TcmPath => new string[] { TcmObjectKeys.MicroservicesClientConfiguration, TcmKey };
         public BaseValue<string> Address = new BaseValue<string>("address", "");
         public BaseValue<string> CertFilePath = new BaseValue<string>("cert_file_path", "");
+        public BaseValue<int> RetryCount = new BaseValue<int>("retry_count", 2);
     }
     
     public class EpgCacheServiceConfiguration : BaseConfig<EpgCacheServiceConfiguration>
@@ -27,6 +28,7 @@ namespace ConfigurationManager.Types
         public override string[] TcmPath => new [] { TcmObjectKeys.MicroservicesClientConfiguration, TcmKey };
         public BaseValue<string> Address = new BaseValue<string>("address", "");
         public BaseValue<string> CertFilePath = new BaseValue<string>("cert_file_path", "");
+        public BaseValue<int> RetryCount = new BaseValue<int>("retry_count", 2);
     }
 
     public class MicroServicesLayeredCacheConfiguration : BaseConfig<MicroServicesLayeredCacheConfiguration>
