@@ -43,16 +43,17 @@ namespace AuthenticationGrpcClientWrapper
 
         private AuthenticationClient(string address, string certFilePath)
         {
-            _Client = new Authentication.AuthenticationClient(GrpcCommon.CreateChannel(address, certFilePath));
+            var retryCount = ApplicationConfiguration.Current.MicroservicesClientConfiguration.Authentication.RetryCount.Value;
+            _Client = new Authentication.AuthenticationClient(GrpcCommon.CreateChannel(address, certFilePath, retryCount));
         }
 
         public UserLoginHistory GetUserLoginHistory(int partnerId, int userId)
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "GetUserLoginHistory"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"userId:{userId}";
+                    mon.Table = $"GetUserLoginHistory > userId:{userId}";
                     return _Client.GetUserLoginHistory(new UserLoginHistoryRequest
                     {
                         PartnerId = partnerId,
@@ -71,14 +72,13 @@ namespace AuthenticationGrpcClientWrapper
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(),
-                    "RecordUserSuccessfulLogin"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"userId:{userId}";
+                    mon.Table = $"RecordUserSuccessfulLogin > userId:{userId}";
                     _Client.RecordUserSuccessfulLogin(new RecordUserSuccessfulLoginRequest
                     {
-                        PartnerId = (long)partnerId,
-                        UserId = (long)userId
+                        PartnerId = (long) partnerId,
+                        UserId = (long) userId
                     });
                 }
 
@@ -95,13 +95,13 @@ namespace AuthenticationGrpcClientWrapper
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "RecordUserFailedLogin"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"userId:{userId}";
+                    mon.Table = $"RecordUserFailedLogin > userId:{userId}";
                     _Client.RecordUserFailedLogin(new RecordUserFailedLoginRequest
                     {
-                        PartnerId = (long)partnerId,
-                        UserId = (long)userId
+                        PartnerId = (long) partnerId,
+                        UserId = (long) userId
                     });
                 }
 
@@ -118,13 +118,13 @@ namespace AuthenticationGrpcClientWrapper
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "ResetUserFailedLoginCount"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"userId:{userId}";
+                    mon.Table = $"ResetUserFailedLoginCount > userId:{userId}";
                     _Client.ResetUserFailedLoginCount(new ResetUserFailedLoginCountRequest
                     {
-                        PartnerId = (long)partnerId,
-                        UserId = (long)userId
+                        PartnerId = (long) partnerId,
+                        UserId = (long) userId
                     });
                 }
 
@@ -141,12 +141,12 @@ namespace AuthenticationGrpcClientWrapper
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "RecordDeviceSuccessfulLogin"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"udid:{udid}";
+                    mon.Table = $"RecordDeviceSuccessfulLogin > udid:{udid}";
                     _Client.RecordDeviceSuccessfulLogin(new RecordDeviceSuccessfulLoginRequest
                     {
-                        PartnerId = (long)partnerId,
+                        PartnerId = (long) partnerId,
                         UDID = udid
                     });
                 }
@@ -159,16 +159,17 @@ namespace AuthenticationGrpcClientWrapper
                 return false;
             }
         }
+
         public bool DeleteDomainDeviceUsageDate(int partnerId, string udid)
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "DeleteDomainDeviceUsageDate"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"udid:{udid}";
+                    mon.Table = $"DeleteDomainDeviceUsageDate > udid:{udid}";
                     _Client.DeleteDeviceLoginHistory(new DeleteDeviceLoginHistoryRequest()
                     {
-                        PartnerId = (long)partnerId,
+                        PartnerId = (long) partnerId,
                         UDID = udid
                     });
                 }
@@ -186,9 +187,9 @@ namespace AuthenticationGrpcClientWrapper
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "GenerateRefreshToken"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"ks:{ks}";
+                    mon.Table = $"GenerateRefreshToken > ks:{ks}";
                     var refreshTokenInfo = _Client.GenerateRefreshToken(new GenerateRefreshTokenRequest
                     {
                         PartnerId = partnerId,
@@ -210,9 +211,9 @@ namespace AuthenticationGrpcClientWrapper
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "RecordDeviceFailedLogin"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"udids:{string.Join(",", udids)}";
+                    mon.Table = $"RecordDeviceFailedLogin > udids:{string.Join(",", udids)}";
                     var request = new ListDevicesLoginHistoryRequest();
                     request.PartnerId = partnerId;
                     request.UDIDs.AddRange(udids);
@@ -231,9 +232,9 @@ namespace AuthenticationGrpcClientWrapper
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "ListSSOAdapterProfiles"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"partnerId:{partnerId}";
+                    mon.Table = $"ListSSOAdapterProfiles > partnerId:{partnerId}";
                     return _Client.ListSSOAdapterProfiles(new ListSSOAdapterProfilesRequest
                     {
                         PartnerId = partnerId,
@@ -245,38 +246,39 @@ namespace AuthenticationGrpcClientWrapper
                 _Logger.Error("Error while calling ListSSOAdapterProfiles Auth GRPC service", e);
                 return null;
             }
-        }   
+        }
 
         public bool ValidateKs(string ks, long ksPartnerId)
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, ksPartnerId.ToString(), "ValidateKs"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, ksPartnerId.ToString()))
                 {
-                    mon.Table = $"Ks:{ks}";
+                    mon.Table = $"ValidateKs > Ks:{ks}";
                     //Grpc call to validate ks                    
-                    return _Client.GetKSRevocationStatus(new KSRevocationStatusRequest{ KS = ks, PartnerId = ksPartnerId }).KSValid;
+                    return _Client.GetKSRevocationStatus(new KSRevocationStatusRequest {KS = ks, PartnerId = ksPartnerId}).KSValid;
                 }
             }
             catch (Exception e)
             {
-                _Logger.Error("Error while calling ValidateKS GRPC service", e);                
+                _Logger.Error("Error while calling ValidateKS GRPC service", e);
                 return false;
             }
         }
 
 
-        public bool RevokeUserSession(long partnerId,long userId)
+        public bool RevokeUserSession(long partnerId, long userId)
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "RevokeUserSession"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"PartnerId:{partnerId}";
-                    _Client.RevokeUserSession(new RevokeUserSessionRequest {                         
-                        PartnerId=partnerId,
-                        UserId=  userId 
-                    });                                        
+                    mon.Table = $"RevokeUserSession > PartnerId:{partnerId}";
+                    _Client.RevokeUserSession(new RevokeUserSessionRequest
+                    {
+                        PartnerId = partnerId,
+                        UserId = userId
+                    });
                 }
             }
             catch (Exception e)
@@ -284,21 +286,22 @@ namespace AuthenticationGrpcClientWrapper
                 _Logger.Error("Error while calling RevokeUserSession GRPC service", e);
                 return false;
             }
+
             return true;
         }
 
-        public bool RevokeUserDeviceSession(long partnerId, long userId,string udid)
+        public bool RevokeUserDeviceSession(long partnerId, long userId, string udid)
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "RevokeUserDeviceSession"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"PartnerId:{partnerId}";
+                    mon.Table = $"RevokeUserDeviceSession > PartnerId:{partnerId}";
                     _Client.RevokeUserDeviceSession(new RevokeUserDeviceSessionRequest
                     {
-                       PartnerId=partnerId,
-                       UserId=userId,
-                       Udid= udid                                           
+                        PartnerId = partnerId,
+                        UserId = userId,
+                        Udid = udid
                     });
                 }
             }
@@ -307,18 +310,18 @@ namespace AuthenticationGrpcClientWrapper
                 _Logger.Error("Error while calling RevokeUserDeviceSession GRPC service", e);
                 return false;
             }
+
             return true;
         }
-
 
 
         public string GenerateDeviceLoginPin(int partnerId, string udid, long brandId)
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "GenerateDeviceLoginPin"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"partnerId:{partnerId}";
+                    mon.Table = $"GenerateDeviceLoginPin > partnerId:{partnerId}";
                     var grpcResponse = _Client.GenerateDeviceLoginPin(new GenerateDeviceLoginPinRequest()
                     {
                         PartnerId = partnerId,
@@ -340,9 +343,9 @@ namespace AuthenticationGrpcClientWrapper
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "DeviceLoginWithPin"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"partnerId:{partnerId}";
+                    mon.Table = $"DeviceLoginWithPin > partnerId:{partnerId}";
                     var grpcResponse = _Client.DeviceLoginWithPin(new DeviceLoginWithPinRequest()
                     {
                         PartnerId = partnerId,
@@ -364,9 +367,9 @@ namespace AuthenticationGrpcClientWrapper
         {
             try
             {
-                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString(), "GetDeviceLoginPin"))
+                using (var mon = new KMonitor(Events.eEvent.EVENT_GRPC, partnerId.ToString()))
                 {
-                    mon.Table = $"partnerId:{partnerId}";
+                    mon.Table = $"GetDeviceLoginPin > partnerId:{partnerId}";
                     var grpcResponse = _Client.GetDeviceLoginPin(new GetDeviceLoginPinRequest()
                     {
                         PartnerId = partnerId,

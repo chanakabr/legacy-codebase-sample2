@@ -10,13 +10,13 @@ namespace GrpcClientCommon
     {
         private static readonly KLogger Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
-        public static CallInvoker CreateChannel(string address, string certFilePath)
+        public static CallInvoker CreateChannel(string address, string certFilePath, int retryCount)
         {
             Logger.Debug($"initializing GRPC client for address: [{address}], certFilePath:[{certFilePath}]");
             var credentials = GetSslCredentials(certFilePath);
 
             var channel = new Channel(address, credentials)
-                .Intercept(new TracingInterceptor());
+                .Intercept(new GrpcRequestInterceptor(retryCount));
             return channel;
         }
 

@@ -29,7 +29,10 @@ using AuthenticationGrpcClientWrapper;
 using CachingProvider.LayeredCache;
 using CachingProvider;
 using EventBus.Kafka;
+using Grpc.Core;
 using AppToken = WebAPI.Managers.Models.AppToken;
+using Status = ApiObjects.Response.Status;
+using StatusCode = Grpc.Core.StatusCode;
 
 namespace WebAPI.Managers
 {
@@ -834,10 +837,12 @@ namespace WebAPI.Managers
                     invalidationKeys.Add(invKey);
                 }
 
-                bool isCacheResultRetrived = LayeredCache.Instance.Get<bool>(key, ref isKSValid, GetKsValidationResult, new Dictionary<string, object>() { { "ks", ks.ToString() }, { "ksPartnerId", (long)ks.GroupId } },
+                var isSuccess = LayeredCache.Instance.Get<bool>(key, ref isKSValid, GetKsValidationResult, new Dictionary<string, object>() { { "ks", ks.ToString() }, { "ksPartnerId", (long)ks.GroupId } },
                                                         ks.GroupId, LayeredCacheConfigNames.GET_KS_VALIDATION, invalidationKeys);
 
-                return isCacheResultRetrived && isKSValid;
+                
+                
+                return isSuccess && isKSValid;
             }
 
             return ValidateKSLegacy(ks);
@@ -902,24 +907,36 @@ namespace WebAPI.Managers
             var authClient = AuthenticationClient.GetClientFromTCM();
             var validationResult = false;
 
-
             try
             {
                 if (funcParams != null && funcParams.ContainsKey("ks"))
                 {
                     var ks = funcParams["ks"] != null ? funcParams["ks"] as string : string.Empty;
-                    var ksPartnerId = funcParams["ksPartnerId"] != null ? (long)(funcParams["ksPartnerId"]): 0L;
+                    var ksPartnerId = funcParams["ksPartnerId"] != null ? (long) (funcParams["ksPartnerId"]) : 0L;
 
                     string ksValidationKey = LayeredCacheKeys.GetKsValidationResultKey(ks);
-                    var isValid = authClient.ValidateKs(ks,ksPartnerId);
+                    var isValid = authClient.ValidateKs(ks, ksPartnerId);
                     validationResult = isValid;
                     res = true;
 
                 }
             }
+            catch (RpcException rpcEx)
+            {
+                log.Error(string.Format("GetKsValidationResultKey failed params : {0}", string.Join(";", funcParams.Values)), rpcEx);
+                if (rpcEx.StatusCode == StatusCode.Unavailable)
+                {
+                    // only if we could not reach the Auth MS service we will fall back with a valid ks so that this will not hinder 
+                    // system usability
+                    // also important! do not cache this result so that next time we validate KS we will retry.
+                    HttpContext.Current.Items[LayeredCache.DATABASE_ERROR_DURING_SESSION] = true;
+                    return Tuple.Create(true, true);
+                }
+                
+            }
             catch (Exception ex)
             {
-                log.Error(string.Format("GetKsValidationResultKey failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.Error(string.Format("GetKsValidationResultKey failed params : {0}", string.Join(";", funcParams.Values)), ex);
             }
 
             return new Tuple<bool, bool>(validationResult, res);
