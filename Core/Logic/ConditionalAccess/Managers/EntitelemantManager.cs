@@ -126,48 +126,58 @@ namespace Core.ConditionalAccess
                     {
                         if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value && !isRecording)
                         {
-                            CachedEntitlementResults cachedEntitlementResults = Utils.GetCachedEntitlementResults(domainId, mediaFileId);
-                            if (cachedEntitlementResults != null)
+                            if (domainId == 0)
                             {
-                                if (cachedEntitlementResults.IsFree)
+                                long householdId = 0;
+                                ResponseStatus validateStatus = Utils.ValidateUser(groupId, userId, ref householdId);
+                                domainId = (int)householdId;
+                            }
+                            
+                            if (domainId > 0)
+                            {
+                                CachedEntitlementResults cachedEntitlementResults = Utils.GetCachedEntitlementResults(domainId, mediaFileId);
+                                if (cachedEntitlementResults != null)
                                 {
-                                    Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle, cachedEntitlementResults.EntitlementEndDate);
-                                    response.ViewLifeCycle = strViewLifeCycle;
-                                    response.FullLifeCycle = strFullLifeCycle;
+                                    if (cachedEntitlementResults.IsFree)
+                                    {
+                                        Utils.GetFreeItemLeftLifeCycle(groupId, ref strViewLifeCycle, ref strFullLifeCycle, cachedEntitlementResults.EntitlementEndDate);
+                                        response.ViewLifeCycle = strViewLifeCycle;
+                                        response.FullLifeCycle = strFullLifeCycle;
+                                    }
+                                    else
+                                    {
+                                        DateTime now = DateTime.UtcNow;
+                                        response.IsOfflinePlayBack = cachedEntitlementResults.IsOfflinePlayback;
+                                        DateTime viewEndDate = Utils.GetEndDateTime(cachedEntitlementResults.CreditDownloadedDate, cachedEntitlementResults.ViewLifeCycle);
+                                        TimeSpan viewLifeCycleLeft = viewEndDate.Subtract(now);
+                                        if (viewLifeCycleLeft.TotalSeconds < 0)
+                                        {
+                                            viewLifeCycleLeft = new TimeSpan();
+                                        }
+
+                                        TimeSpan fullLifeCycleLeft = new TimeSpan();
+                                        if (cachedEntitlementResults.TransactionType != eTransactionType.PPV && cachedEntitlementResults.EntitlementEndDate.HasValue)
+                                        {
+                                            fullLifeCycleLeft = cachedEntitlementResults.EntitlementEndDate.Value.Subtract(now);
+                                        }
+                                        else if (cachedEntitlementResults.TransactionType == eTransactionType.PPV && cachedEntitlementResults.FullLifeCycle > 0 && cachedEntitlementResults.EntitlementStartDate.HasValue)
+                                        {
+                                            DateTime endDate = Utils.GetEndDateTime(cachedEntitlementResults.EntitlementStartDate.Value, cachedEntitlementResults.FullLifeCycle);
+                                            fullLifeCycleLeft = endDate.Subtract(now);
+                                        }
+
+                                        if (fullLifeCycleLeft.TotalMilliseconds < 0)
+                                        {
+                                            fullLifeCycleLeft = new TimeSpan();
+                                        }
+
+                                        response.ViewLifeCycle = viewLifeCycleLeft.TotalMilliseconds > fullLifeCycleLeft.TotalMilliseconds ? fullLifeCycleLeft.ToString() : viewLifeCycleLeft.ToString();
+                                        response.FullLifeCycle = fullLifeCycleLeft.ToString();
+                                    }
+
+                                    response.IsLivePlayBack = cachedEntitlementResults.IsLivePlayback;
+                                    return response;
                                 }
-                                else
-                                {
-                                    DateTime now = DateTime.UtcNow;
-                                    response.IsOfflinePlayBack = cachedEntitlementResults.IsOfflinePlayback;
-                                    DateTime viewEndDate = Utils.GetEndDateTime(cachedEntitlementResults.CreditDownloadedDate, cachedEntitlementResults.ViewLifeCycle);
-                                    TimeSpan viewLifeCycleLeft = viewEndDate.Subtract(now);
-                                    if (viewLifeCycleLeft.TotalSeconds < 0)
-                                    {
-                                        viewLifeCycleLeft = new TimeSpan();
-                                    }
-
-                                    TimeSpan fullLifeCycleLeft = new TimeSpan();
-                                    if (cachedEntitlementResults.TransactionType != eTransactionType.PPV && cachedEntitlementResults.EntitlementEndDate.HasValue)
-                                    {
-                                        fullLifeCycleLeft = cachedEntitlementResults.EntitlementEndDate.Value.Subtract(now);
-                                    }
-                                    else if (cachedEntitlementResults.TransactionType == eTransactionType.PPV && cachedEntitlementResults.FullLifeCycle > 0 && cachedEntitlementResults.EntitlementStartDate.HasValue)
-                                    {
-                                        DateTime endDate = Utils.GetEndDateTime(cachedEntitlementResults.EntitlementStartDate.Value, cachedEntitlementResults.FullLifeCycle);
-                                        fullLifeCycleLeft = endDate.Subtract(now);
-                                    }
-
-                                    if (fullLifeCycleLeft.TotalMilliseconds < 0)
-                                    {
-                                        fullLifeCycleLeft = new TimeSpan();
-                                    }
-
-                                    response.ViewLifeCycle = viewLifeCycleLeft.TotalMilliseconds > fullLifeCycleLeft.TotalMilliseconds ? fullLifeCycleLeft.ToString() : viewLifeCycleLeft.ToString();
-                                    response.FullLifeCycle = fullLifeCycleLeft.ToString();
-                                }
-
-                                response.IsLivePlayBack = cachedEntitlementResults.IsLivePlayback;
-                                return response;
                             }
                         }
 

@@ -498,7 +498,7 @@ namespace Core.ConditionalAccess
             
             if (Utils.IsItemPurchased(filePrice))
             {
-                PlayUsesManager.HandlePlayUses(cas, filePrice, userId, fileId, ip, string.Empty, string.Empty, udid, string.Empty, domainId, cas.m_nGroupID);
+                PlayUsesManager.HandlePlayUses(cas, filePrice, userId, fileId, ip, string.Empty, string.Empty, udid, string.Empty, domainId, cas.m_nGroupID, isLive);
             }
             // item must be free otherwise we wouldn't get this far
             else if (ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.ShouldUseCache.Value
