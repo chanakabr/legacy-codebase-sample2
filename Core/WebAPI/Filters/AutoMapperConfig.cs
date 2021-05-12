@@ -38,7 +38,6 @@ namespace WebAPI.Filters
             CanaryDeploymentMapping.RegisterMappings(cfg);
 
             Mapper.Initialize(cfg);
-
         }
     }
 }

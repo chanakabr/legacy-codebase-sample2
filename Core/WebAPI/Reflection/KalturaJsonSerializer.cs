@@ -35660,6 +35660,202 @@ namespace WebAPI.Models.Users
             return ret;
         }
     }
+    public partial class KalturaPartner
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "\"createDate\": " + CreateDate);
+            }
+            if(Id.HasValue && (retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + Id);
+            }
+            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", "\"name\": " + "\"" + EscapeJson(Name) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            }
+            if(Id.HasValue && (retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + Id + "</id>");
+            }
+            if(Name != null && (retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", "<name>" + EscapeXml(Name) + "</name>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaPartnerFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaPartnerListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Partners != null)
+            {
+                propertyValue = "[" + String.Join(", ", Partners.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Partners != null)
+            {
+                propertyValue = Partners.Count > 0 ? "<item>" + String.Join("</item><item>", Partners.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaPartnerSetup
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(AdminPassword != null && (retrievedProperties == null || retrievedProperties.Contains("adminPassword")))
+            {
+                ret.Add("adminPassword", "\"adminPassword\": " + "\"" + EscapeJson(AdminPassword) + "\"");
+            }
+            if(AdminUsername != null && (retrievedProperties == null || retrievedProperties.Contains("adminUsername")))
+            {
+                ret.Add("adminUsername", "\"adminUsername\": " + "\"" + EscapeJson(AdminUsername) + "\"");
+            }
+            if(BasePartnerConfiguration != null && (retrievedProperties == null || retrievedProperties.Contains("basePartnerConfiguration")))
+            {
+                propertyValue = BasePartnerConfiguration.ToJson(currentVersion, omitObsolete);
+                ret.Add("basePartnerConfiguration", "\"basePartnerConfiguration\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(AdminPassword != null && (retrievedProperties == null || retrievedProperties.Contains("adminPassword")))
+            {
+                ret.Add("adminPassword", "<adminPassword>" + EscapeXml(AdminPassword) + "</adminPassword>");
+            }
+            if(AdminUsername != null && (retrievedProperties == null || retrievedProperties.Contains("adminUsername")))
+            {
+                ret.Add("adminUsername", "<adminUsername>" + EscapeXml(AdminUsername) + "</adminUsername>");
+            }
+            if(BasePartnerConfiguration != null && (retrievedProperties == null || retrievedProperties.Contains("basePartnerConfiguration")))
+            {
+                propertyValue = BasePartnerConfiguration.ToXml(currentVersion, omitObsolete);
+                ret.Add("basePartnerConfiguration", "<basePartnerConfiguration>" + propertyValue + "</basePartnerConfiguration>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaPasswordPolicy
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -36574,6 +36770,92 @@ namespace WebAPI.Models.Users
 
 namespace WebAPI.Models.Partner
 {
+    public partial class KalturaBasePartnerConfiguration
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("anonymousKSExpirationSeconds")))
+            {
+                ret.Add("anonymousKSExpirationSeconds", "\"anonymousKSExpirationSeconds\": " + AnonymousKSExpirationSeconds);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("appTokenMaxExpirySeconds")))
+            {
+                ret.Add("appTokenMaxExpirySeconds", "\"appTokenMaxExpirySeconds\": " + AppTokenMaxExpirySeconds);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("appTokenSessionMaxDurationSeconds")))
+            {
+                ret.Add("appTokenSessionMaxDurationSeconds", "\"appTokenSessionMaxDurationSeconds\": " + AppTokenSessionMaxDurationSeconds);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("apptokenUserValidationDisabled")))
+            {
+                ret.Add("apptokenUserValidationDisabled", "\"apptokenUserValidationDisabled\": " + ApptokenUserValidationDisabled.ToString().ToLower());
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("ksExpirationSeconds")))
+            {
+                ret.Add("ksExpirationSeconds", "\"ksExpirationSeconds\": " + KsExpirationSeconds);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("refreshExpirationForPinLoginSeconds")))
+            {
+                ret.Add("refreshExpirationForPinLoginSeconds", "\"refreshExpirationForPinLoginSeconds\": " + RefreshExpirationForPinLoginSeconds);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("uploadTokenExpirySeconds")))
+            {
+                ret.Add("uploadTokenExpirySeconds", "\"uploadTokenExpirySeconds\": " + UploadTokenExpirySeconds);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("anonymousKSExpirationSeconds")))
+            {
+                ret.Add("anonymousKSExpirationSeconds", "<anonymousKSExpirationSeconds>" + AnonymousKSExpirationSeconds + "</anonymousKSExpirationSeconds>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("appTokenMaxExpirySeconds")))
+            {
+                ret.Add("appTokenMaxExpirySeconds", "<appTokenMaxExpirySeconds>" + AppTokenMaxExpirySeconds + "</appTokenMaxExpirySeconds>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("appTokenSessionMaxDurationSeconds")))
+            {
+                ret.Add("appTokenSessionMaxDurationSeconds", "<appTokenSessionMaxDurationSeconds>" + AppTokenSessionMaxDurationSeconds + "</appTokenSessionMaxDurationSeconds>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("apptokenUserValidationDisabled")))
+            {
+                ret.Add("apptokenUserValidationDisabled", "<apptokenUserValidationDisabled>" + ApptokenUserValidationDisabled.ToString().ToLower() + "</apptokenUserValidationDisabled>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("ksExpirationSeconds")))
+            {
+                ret.Add("ksExpirationSeconds", "<ksExpirationSeconds>" + KsExpirationSeconds + "</ksExpirationSeconds>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("refreshExpirationForPinLoginSeconds")))
+            {
+                ret.Add("refreshExpirationForPinLoginSeconds", "<refreshExpirationForPinLoginSeconds>" + RefreshExpirationForPinLoginSeconds + "</refreshExpirationForPinLoginSeconds>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("uploadTokenExpirySeconds")))
+            {
+                ret.Add("uploadTokenExpirySeconds", "<uploadTokenExpirySeconds>" + UploadTokenExpirySeconds + "</uploadTokenExpirySeconds>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaBillingPartnerConfig
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)

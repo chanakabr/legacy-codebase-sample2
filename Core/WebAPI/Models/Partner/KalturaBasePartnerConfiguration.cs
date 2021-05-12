@@ -1,0 +1,80 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
+
+namespace WebAPI.Models.Partner
+{
+    public partial class KalturaBasePartnerConfiguration : KalturaPartnerConfiguration
+    {
+        protected override KalturaPartnerConfigurationType ConfigurationType { get { return KalturaPartnerConfigurationType.Base; } }
+
+        /// <summary>
+        /// KSExpirationSeconds
+        /// </summary>
+        [DataMember(Name = "ksExpirationSeconds")]
+        [JsonProperty("ksExpirationSeconds")]
+        [XmlElement(ElementName = "ksExpirationSeconds")]
+        [SchemeProperty(MinLong = 1)]
+        public long KsExpirationSeconds { get; set; }
+
+        /// <summary>
+        /// AppTokenSessionMaxDurationSeconds
+        /// </summary>
+        [DataMember(Name = "appTokenSessionMaxDurationSeconds")]
+        [JsonProperty("appTokenSessionMaxDurationSeconds")]
+        [XmlElement(ElementName = "appTokenSessionMaxDurationSeconds")]
+        [SchemeProperty(MinInteger = 1)]
+        public int AppTokenSessionMaxDurationSeconds { get; set; }
+
+        /// <summary>
+        /// AnonymousKSExpirationSeconds
+        /// </summary>
+        [DataMember(Name = "anonymousKSExpirationSeconds")]
+        [JsonProperty("anonymousKSExpirationSeconds")]
+        [XmlElement(ElementName = "anonymousKSExpirationSeconds")]
+        [SchemeProperty(MinLong = 1)]
+        public long AnonymousKSExpirationSeconds { get; set; }
+
+        /// <summary>
+        /// RefreshExpirationForPinLoginSeconds
+        /// </summary>
+        [DataMember(Name = "refreshExpirationForPinLoginSeconds")]
+        [JsonProperty("refreshExpirationForPinLoginSeconds")]
+        [XmlElement(ElementName = "refreshExpirationForPinLoginSeconds")]
+        [SchemeProperty(MinLong = 1)]
+        public long RefreshExpirationForPinLoginSeconds { get; set; }
+
+        /// <summary>
+        /// AppTokenMaxExpirySeconds
+        /// </summary>
+        [DataMember(Name = "appTokenMaxExpirySeconds")]
+        [JsonProperty("appTokenMaxExpirySeconds")]
+        [XmlElement(ElementName = "appTokenMaxExpirySeconds")]
+        [SchemeProperty(MinInteger = 1)]
+        public int AppTokenMaxExpirySeconds { get; set; } 
+
+        /// <summary>
+        /// uploadTokenExpirySeconds
+        /// </summary>
+        [DataMember(Name = "uploadTokenExpirySeconds")]
+        [JsonProperty("uploadTokenExpirySeconds")]
+        [XmlElement(ElementName = "uploadTokenExpirySeconds")]
+        [SchemeProperty(MinInteger = 1)]
+        public int UploadTokenExpirySeconds { get; set; }
+
+        /// <summary>
+        /// apptokenUserValidationDisabled
+        /// </summary>
+        [DataMember(Name = "apptokenUserValidationDisabled")]
+        [JsonProperty("apptokenUserValidationDisabled")]
+        [XmlElement(ElementName = "apptokenUserValidationDisabled")]
+        public bool ApptokenUserValidationDisabled { get; set; }
+
+        internal override bool Update(int groupId)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

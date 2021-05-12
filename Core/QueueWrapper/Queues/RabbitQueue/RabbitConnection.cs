@@ -1,13 +1,8 @@
 ﻿using QueueWrapper.Queues;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Text;
 using System.Threading;
 using KLogMonitor;
@@ -17,7 +12,13 @@ using System.Collections.Concurrent;
 
 namespace QueueWrapper
 {
-    public class RabbitConnection : IDisposable
+    public interface IRabbitConnection
+    {
+        bool AddRoutingKeyToQueue(RabbitConfigurationData configuration);
+        bool InitializeRabbitInstance(RabbitConfigurationData configuration, QueueAction action, ref int retryCount, out IConnection connection);
+    }
+
+    public class RabbitConnection : IDisposable, IRabbitConnection
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -534,6 +535,40 @@ namespace QueueWrapper
             return result;
         }
 
+        public bool AddRoutingKeyToQueue(RabbitConfigurationData configuration)
+        {
+            if (!IsQueueExist(configuration))
+            {
+                log.Error("AddRoutingKeyToQueue: Error, queue not exists!");
+                return false;
+            }
+
+            try
+            {
+                int retryCount = 0;
+                if (GetInstance(configuration, QueueAction.Ack, ref retryCount, out var connection) && connection != null)
+                {
+                    var model = GetModel(configuration.Host, connection);
+                    QueueDeclareOk res = model.QueueDeclare(configuration.QueueName, true, false, false, null);
+                    model.QueueBind(configuration.QueueName, "scheduled_tasks", configuration.RoutingKey);
+
+                    return res != null && res.QueueName == configuration.QueueName;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                log.Error("AddRoutingKeyToQueue: Error - " + ex);
+                return false;
+            }
+        }
+
+        public bool InitializeRabbitInstance(RabbitConfigurationData configuration, QueueAction action, ref int retryCount, out IConnection connection)
+        {
+            return GetInstance(configuration, action, ref retryCount, out connection);
+        }
+
         #endregion
 
         #region Private Methods
@@ -548,7 +583,7 @@ namespace QueueWrapper
             {
                 return false;
             }
-            
+
             if (!connectionDictionary.ContainsKey(configuration.Host))
             {
                 bool createdNew = false;
@@ -571,7 +606,7 @@ namespace QueueWrapper
                             {
                                 HostName = configuration.Host,
                                 Password = configuration.Password,
-                                UserName = configuration.Username, 
+                                UserName = configuration.Username,
                             };
 
                             int port;

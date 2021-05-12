@@ -1,56 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using WebAPI.ClientManagers.Client;
+﻿using ApiObjects.Response;
 using AutoMapper;
-using WebAPI.Exceptions;
-using System.Reflection;
-using KLogMonitor;
-using WebAPI.Managers.Models;
-using ConfigurationManager;
 using CachingProvider.LayeredCache;
+using DAL;
+using DAL.DTO;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using System.Threading;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Models.Partner;
 
 namespace WebAPI.ClientManagers
 {
     public class GroupsManager
     {
-        private const string CB_SECTION_NAME = "groups";
+        public static GroupsManager Instance => Lazy.Value;
         
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static string groupKeyFormat;
+        private static readonly KLogger Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly Lazy<GroupsManager> Lazy = new Lazy<GroupsManager>(() =>
+            new GroupsManager(LayeredCache.Instance,
+                              GroupBaseConfigurationRepository.Instance),
+            LazyThreadSafetyMode.PublicationOnly);
 
-        private static object syncObj;
-        private static ReaderWriterLockSlim syncLock;
+        private readonly ILayeredCache _layeredCache;
+        private readonly IGroupBaseConfigurationRepository _baseConfigurationRepository;
 
-        private static GroupsManager instance = null;
-
-        private GroupsManager()
+        public GroupsManager(ILayeredCache layeredCache, IGroupBaseConfigurationRepository baseConfigurationRepository)
         {
-            try
-            {
-                groupKeyFormat = ApplicationConfiguration.Current.GroupsManagerConfiguration.KeyFormat.Value;
-                syncObj = new object();
-                syncLock = new ReaderWriterLockSlim();
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error while initiating groups manager", ex);
-                throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Groups cache");
-            }
+            _layeredCache = layeredCache;
+            _baseConfigurationRepository = baseConfigurationRepository;
         }
 
-        public static Group GetGroup(int groupId)
+        public Group GetGroup(int groupId)
         {
-            if (instance == null)
-            {
-                instance = new GroupsManager();
-            }
-
             Group group = null;
-            var groupKey = string.Format(groupKeyFormat, groupId);
+            var groupKey = _baseConfigurationRepository.GetGroupConfigKey(groupId);
             var invalidationKey = LayeredCacheKeys.PhoenixGroupsManagerInvalidationKey(groupId);
             
-            if (!LayeredCache.Instance.Get(groupKey, 
+            if (!_layeredCache.Get(groupKey, 
                                            ref group, 
                                            BuildGroup,
                                            new Dictionary<string, object>() { { "groupId", groupId } }, 
@@ -58,14 +47,84 @@ namespace WebAPI.ClientManagers
                                            LayeredCacheConfigNames.PHOENIX_GROUPS_MANAGER_CACHE_CONFIG_NAME,
                                            new List<string>() { invalidationKey }))
             {
-                log.ErrorFormat("Failed building Phoenix group object for groupId: {0}", groupId);
+                Log.ErrorFormat("Failed building Phoenix group object for groupId: {0}", groupId);
                 throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
             }
             
             return group;
         }
 
-        private static Tuple<Group, bool> BuildGroup(Dictionary<string, object> funcParams)
+        public Status AddBaseConfiguration(int groupId, Group group)
+        {
+            Status response = new Status(eResponseStatus.Error);
+            group.SetDefaultValues();
+
+            try
+            {
+                var groupDto = Mapper.Map<GroupDTO>(group);
+                if (!_baseConfigurationRepository.SaveConfig(groupId, groupDto))
+                {
+                    Log.Error($"Error while add Group. groupId: {groupId}.");
+                    return response;
+                }
+
+                response.Set(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Unable to add base config. groupId:{groupId}.", ex);
+            }
+
+            return response;
+        }
+
+        // will be used later, when rollback or partner-delete will be implemented
+        public Status DeleteBaseConfiguration(int groupId)
+        {
+            Status response = new Status(eResponseStatus.Error);
+
+            try
+            {
+                var group = GetGroup(groupId);
+                if (group == null)
+                {
+                    response.Set(eResponseStatus.Error, $"group {groupId} does not exist");
+                    return response;
+                }
+
+                if (!_baseConfigurationRepository.DeleteConfig(groupId))
+                {
+                    Log.Error($"Unable to delete base config. groupId: {groupId}.");
+                    return response;
+                }
+
+                SetInvalidationKeys(groupId);
+                response.Set(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                response.Set(eResponseStatus.Error);
+                Log.Error($"An Exception was occurred in DeleteGroup. groupId:{groupId}.", ex);
+            }
+
+            return response;
+        }
+
+        public KalturaPartnerConfigurationListResponse GetBaseConfiguration(int groupId)
+        {
+            var result = new KalturaPartnerConfigurationListResponse();
+            var group = GetGroup(groupId);
+
+            if (group != null)
+            {
+                result.Objects = new List<KalturaPartnerConfiguration>() { Mapper.Map<KalturaBasePartnerConfiguration>(group) };
+                result.TotalCount = 1;
+            }
+
+            return result;
+        }
+
+        private Tuple<Group, bool> BuildGroup(Dictionary<string, object> funcParams)
         {
             bool result = false;
             Group group = null;
@@ -75,10 +134,11 @@ namespace WebAPI.ClientManagers
                 int? groupId = funcParams["groupId"] as int?;
                 if (groupId.HasValue && groupId.Value > 0)
                 {
-                    group = createNewInstance(groupId.Value);
+                    var groupDTO = _baseConfigurationRepository.GetConfig(groupId.Value);
 
-                    if (group != null)
+                    if (groupDTO != null)
                     {
+                        group = Mapper.Map<Group>(groupDTO);
                         result = true;
                     }
                 }
@@ -87,109 +147,13 @@ namespace WebAPI.ClientManagers
             return new Tuple<Group, bool>(group, result);
         }
 
-        private static Group createNewInstance(int groupId)
+        private void SetInvalidationKeys(int groupId)
         {
-            Group group = null;
-
-            // if the group is not default group - get configuration from CB and languages
-            if (groupId != 0)
+            var invalidationKey = LayeredCacheKeys.PhoenixGroupsManagerInvalidationKey(groupId);
+            if (!_layeredCache.SetInvalidationKey(invalidationKey))
             {
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_COUCHBASE) { Database = CB_SECTION_NAME, QueryType = KLogEnums.eDBQueryType.SELECT })
-                {
-                    CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
-                    group = cbManager.Get<Group>(string.Format(groupKeyFormat, groupId), true);
-                }
-
-                if (group == null)
-                {
-                    log.Warn("failed to get group cache on createNewInstance method");
-                    throw new Exception();
-                }
+                Log.Error($"Failed to set invalidation key for Group key: {invalidationKey}.");
             }
-            else
-            {
-                group = new Group();
-            }
-
-            return group;
         }
-
-        //public static Group GetGroup(int groupId, HttpContext context = null)
-        //{
-        //    if (instance == null)
-        //        instance = new GroupsManager();
-
-        //    string groupKey = string.Format(groupKeyFormat, groupId);
-        //    Group tempGroup = null;
-
-        //    if ((context == null && HttpContext.Current.Cache.Get(groupKey) == null) || (context != null && context.Cache.Get(groupKey) == null))
-        //    {
-        //        if (syncLock.TryEnterWriteLock(10000))
-        //        {
-        //            try
-        //            {
-        //                if ((context == null && HttpContext.Current.Cache.Get(groupKey) == null) || (context != null && context.Cache.Get(groupKey) == null))
-        //                {
-        //                    Group group = createNewInstance(groupId);
-
-        //                    if (group != null)
-        //                    {
-        //                        if (context == null)
-        //                        {
-        //                            HttpContext.Current.Cache.Add(groupKey, group, null, DateTime.UtcNow.AddSeconds(groupCacheTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
-        //                        }
-        //                        else
-        //                        {
-        //                            context.Cache.Add(groupKey, group, null, DateTime.UtcNow.AddSeconds(groupCacheTtlSeconds), System.Web.Caching.Cache.NoSlidingExpiration, System.Web.Caching.CacheItemPriority.Default, null);
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}, exception: {2}", groupKey, groupId, ex);
-        //                throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
-        //            }
-        //            finally
-        //            {
-        //                syncLock.ExitWriteLock();
-        //            }
-        //        }
-        //    }
-
-        //    // If item already exist
-        //    if (syncLock.TryEnterReadLock(10000))
-        //    {
-        //        try
-        //        {
-        //            object res = null;
-
-        //            if (context == null)
-        //            {
-        //                res = HttpContext.Current.Cache.Get(groupKey);
-        //            }
-        //            else
-        //            {
-        //                res = context.Cache.Get(groupKey);
-        //            }
-
-        //            if (res != null && res is Group)
-        //            {
-        //                tempGroup = res as Group;
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            log.ErrorFormat("Error while trying to get group from cache. group key: {0}, group ID: {1}, exception {2}", groupKey, groupId, ex);
-        //            throw new InternalServerErrorException(InternalServerErrorException.MISSING_CONFIGURATION, "Partner");
-        //        }
-        //        finally
-        //        {
-        //            syncLock.ExitReadLock();
-        //        }
-        //    }
-
-        //    return tempGroup;
-        //}        
     }
 }

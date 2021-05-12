@@ -20,6 +20,9 @@ using System.Threading;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
 using ApiObjects.SearchObjects;
 using CouchbaseManager.Compression;
+using DAL.DTO;
+using CategoryItemDTO = DAL.DTO.CategoryItemDTO;
+using LanguageContainerDTO = DAL.DTO.LanguageContainerDTO;
 
 namespace Tvinci.Core.DAL
 {

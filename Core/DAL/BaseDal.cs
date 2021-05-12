@@ -6,6 +6,7 @@ using System.Data;
 
 namespace Tvinci.Core.DAL
 {
+    // TODO not Base, not abstract
     public abstract class BaseDal
     {
         internal static readonly DateTime FICTIVE_DATE = new DateTime(2000, 1, 1); // must match the fictive end date

@@ -20,17 +20,13 @@ namespace ApiLogic.Tests.Partner
     [TestFixture]
     public class CatalogPartnerConfigManagerTests
     {
-        delegate void MockGetFromCache(string key, ref CatalogPartnerConfig genericParameter, Func<Dictionary<string, object>, Tuple<CatalogPartnerConfig, bool>> fillObjectMethod,
-                                       Dictionary<string, object> funcParameters, int groupId, string layeredCacheConfigName, List<string> inValidationKeys = null,
-                                       bool shouldUseAutoNameTypeHandling = false);
-
         [TestCaseSource(nameof(UpdateTestCases))]
         public void CheckUpdate(CatalogPartnerConfig existCatalogPartnerConfig)
         {
             Fixture fixture = new Fixture();
             var objectToUpdate = fixture.Create<CatalogPartnerConfig>();
 
-            var layeredCacheMock = GetLayeredCacheMock(existCatalogPartnerConfig, true, true);
+            var layeredCacheMock = LayeredCacheHelper.GetLayeredCacheMock(existCatalogPartnerConfig, true, true);
 
             var categoryCacheMock = new Mock<ICategoryCache>();
             var treeListResponse = new GenericListResponse<CategoryVersion>(Status.Ok, new List<CategoryVersion>() { fixture.Create<CategoryVersion>() });
@@ -72,7 +68,7 @@ namespace ApiLogic.Tests.Partner
         {
             Fixture fixture = new Fixture();
 
-            var layeredCacheMock = GetLayeredCacheMock(fixture.Create<CatalogPartnerConfig>(), true, false);
+            var layeredCacheMock = LayeredCacheHelper.GetLayeredCacheMock(fixture.Create<CatalogPartnerConfig>(), true, false);
 
             var categoryCacheMock = new Mock<ICategoryCache>();
             var defaultTree = objectToUpdate.CategoryManagement.DefaultCategoryTree.Value;
@@ -193,7 +189,7 @@ namespace ApiLogic.Tests.Partner
         {
             var fixture = new Fixture();
             var repositoryMock = Mock.Of<ICatalogPartnerRepository>();
-            var layeredCacheMock = GetLayeredCacheMock(catalogPartnerConfig, cacheWork, false);
+            var layeredCacheMock = LayeredCacheHelper.GetLayeredCacheMock(catalogPartnerConfig, cacheWork, false);
             var categoryCacheMock = Mock.Of<ICategoryCache>();
             var deviceFamilyManagerMock = Mock.Of<IDeviceFamilyManager>();
             CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock, layeredCacheMock.Object, categoryCacheMock, deviceFamilyManagerMock);
@@ -216,7 +212,7 @@ namespace ApiLogic.Tests.Partner
         [TestCaseSource(nameof(GetCategoryVersionTreeIdTestCases))]
         public void CheckGetCategoryVersionTreeId(CatalogPartnerConfig catalogPartnerConfig, long expectedTreeId, int deviceFamilyId)
         {
-            var layeredCacheMock = GetLayeredCacheMock(catalogPartnerConfig, true, false);
+            var layeredCacheMock = LayeredCacheHelper.GetLayeredCacheMock(catalogPartnerConfig, true, false);
 
             var deviceFamilyManagerMock = new Mock<IDeviceFamilyManager>();
             deviceFamilyManagerMock.Setup(x => x.GetDeviceFamilyIdByUdid(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string>()))
@@ -263,39 +259,6 @@ namespace ApiLogic.Tests.Partner
             }
             var treeId4 = config4.CategoryManagement.DefaultCategoryTree.Value;
             yield return new TestCaseData(config4, treeId4, deviceFamilyId4).SetName("GetCategoryVersionTreeId_DefaultTree");
-        }
-
-        private Mock<ILayeredCache> GetLayeredCacheMock(CatalogPartnerConfig catalogPartnerConfig, bool cacheWork, bool setInvalidationKey)
-        {
-            var layeredCacheMock = new Mock<ILayeredCache>();
-            layeredCacheMock.Setup(x => x.Get(It.IsAny<string>(),
-                                             ref It.Ref<CatalogPartnerConfig>.IsAny,
-                                             It.IsAny<Func<Dictionary<string, object>, Tuple<CatalogPartnerConfig, bool>>>(),
-                                             It.IsAny<Dictionary<string, object>>(),
-                                             It.IsAny<int>(),
-                                             It.IsAny<string>(),
-                                             It.IsAny<List<string>>(),
-                                             It.IsAny<bool>()))
-                           .Callback(new MockGetFromCache((string key,
-                                                          ref CatalogPartnerConfig genericParameter,
-                                                          Func<Dictionary<string, object>, Tuple<CatalogPartnerConfig, bool>> fillObjectMethod,
-                                                          Dictionary<string, object> funcParameters,
-                                                          int groupId,
-                                                          string layeredCacheConfigName,
-                                                          List<string> inValidationKeys,
-                                                          bool shouldUseAutoNameTypeHandling) =>
-                           {
-                               genericParameter = catalogPartnerConfig;
-                           }))
-                          .Returns(cacheWork);
-
-            if (setInvalidationKey)
-            {
-                layeredCacheMock.Setup(x => x.SetInvalidationKey(It.IsAny<string>(), null))
-                            .Returns(true);
-            }
-            
-            return layeredCacheMock;
         }
     }
 }

@@ -19,7 +19,8 @@ namespace WebAPI.Models.Partner
         Payment,
         Catalog,
         Security,
-        Opc
+        Opc,
+        Base
     }
 
     /// <summary>

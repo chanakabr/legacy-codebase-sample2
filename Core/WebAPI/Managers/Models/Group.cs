@@ -8,6 +8,13 @@ namespace WebAPI.Managers.Models
     [Serializable]
     public class Group
     {
+        private const string TOKEN_KEY_FORMAT = "token_{0}";
+        private const string APP_TOKEN_KEY_FORMAT = "app_token_{0}";
+        private const string USER_SESSIONS_KEY_FORMAT = "sessions_{0}";
+        private const string REVOKED_KS_KEY_FORMAT = "r_ks_{0}";
+        private const string UPLOAD_TOKEN_KEY_FORMAT = "upload_token_{0}";
+        private const string REVOKED_SESSION_KEY_FORMAT = "r_session_{0}";
+
         [DataMember(Name = "user_secret")]
         [JsonProperty(PropertyName = "user_secret")]
         public string UserSecret { get; set; }
@@ -16,7 +23,7 @@ namespace WebAPI.Managers.Models
         public string UserSecretFallback { get; set; }
 
         [JsonProperty(PropertyName = "user_secret_fallback_expiry_epoch")]
-        public long UserSecretFallbackExpiryEpoch { get; set; }
+        public long UserSecretFallbackExpiryEpoch { get; set; } 
 
         [JsonProperty(PropertyName = "admin_secret")]
         public string AdminSecret { get; set; }
@@ -144,5 +151,33 @@ namespace WebAPI.Managers.Models
         [JsonProperty("apptoken_user_validation_disabled")]
         public bool ApptokenUserValidationDisabled { get; set; }
 
+        internal void SetDefaultValues()
+        {
+            this.UserSecret = Guid.NewGuid().ToString().Replace("-", "");
+            this.UseStartDate = true;
+            this.GetOnlyActiveAssets = true;
+            this.ShouldSupportSingleLogin = false;
+            this.TokenKeyFormat = TOKEN_KEY_FORMAT;
+            this.RefreshTokenExpirationSeconds = 1728000;
+            this.IsRefreshTokenExtendable = false;
+            this.IsSwitchingUsersAllowed = true;
+            this.AppTokenKeyFormat = APP_TOKEN_KEY_FORMAT;
+            this.UserSessionsKeyFormat = USER_SESSIONS_KEY_FORMAT;
+            this.RevokedKsKeyFormat = REVOKED_KS_KEY_FORMAT;
+            this.UploadTokenKeyFormat = UPLOAD_TOKEN_KEY_FORMAT;
+            this.RevokedSessionKeyFormat = REVOKED_SESSION_KEY_FORMAT;
+            this.IsRefreshTokenEnabled = false;
+            this.ShouldCheckDeviceInDomain = true;
+            this.EnforceGroupsSecret = false;
+
+            if (this.AppTokenSessionMaxDurationSeconds > this.KSExpirationSeconds)
+            {
+                this.RevokedKsMaxTtlSeconds = this.AppTokenSessionMaxDurationSeconds;
+            }
+            else
+            {
+                this.RevokedKsMaxTtlSeconds = (int)this.KSExpirationSeconds;
+            }
+        }
     }
 }

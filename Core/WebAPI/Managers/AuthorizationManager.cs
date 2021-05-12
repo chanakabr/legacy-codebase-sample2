@@ -223,7 +223,7 @@ namespace WebAPI.Managers
         private static Group GetGroupConfiguration(int groupId)
         {
             // get group configurations
-            Group groupConfig = GroupsManager.GetGroup(groupId);
+            Group groupConfig = GroupsManager.Instance.GetGroup(groupId);
             if (groupConfig == null)
             {
                 log.ErrorFormat("GetGroupConfiguration: group configuration was not found for groupId = {0}", groupId);
@@ -526,7 +526,7 @@ namespace WebAPI.Managers
 
             // 1. generate id for the appToken
             appToken.Id = Utils.Utils.Generate32LengthGuid();
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             if (string.IsNullOrEmpty(group.AppTokenKeyFormat) || group.AppTokenSessionMaxDurationSeconds == 0 || group.AppTokenMaxExpirySeconds == 0)
             {
@@ -616,7 +616,7 @@ namespace WebAPI.Managers
         {
             KalturaAppToken response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
             var cbAppToken = cbManager.Get<AppToken>(appTokenCbKey, true);
@@ -634,7 +634,7 @@ namespace WebAPI.Managers
         internal static bool DeleteAppToken(string id, int groupId)
         {
             bool response = false;
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
             string appTokenCbKey = string.Format(group.AppTokenKeyFormat, id);
 
             var appToken = GetAppToken(id, groupId);
@@ -696,7 +696,7 @@ namespace WebAPI.Managers
         {
             if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
             {
-                Group group = GroupsManager.GetGroup(ks.GroupId);
+                Group group = GroupsManager.Instance.GetGroup(ks.GroupId);
                 int revokedKsMaxTtlSeconds = GetRevokedKsMaxTtlSeconds(group);
                 string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
                 var payload = KSUtils.ExtractKSPayload();
@@ -783,7 +783,7 @@ namespace WebAPI.Managers
 
         internal static bool RevokeSessions(int groupId, string userId)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             if (!UpdateUsersSessionsRevocationTime(groupId, group, userId, string.Empty, DateUtils.GetUtcUnixTimestampNow(), 0, true))
             {
@@ -850,7 +850,7 @@ namespace WebAPI.Managers
 
         private static bool ValidateKSLegacy(KS ks)
         {
-            Group group = GroupsManager.GetGroup(ks.GroupId);
+            Group group = GroupsManager.Instance.GetGroup(ks.GroupId);
 
             if (!string.IsNullOrEmpty(ks.UserId) && ks.UserId != "0")
             {
@@ -947,7 +947,7 @@ namespace WebAPI.Managers
 
         public static bool ValidateKsSignature(KS ks)
         {
-            var group = GroupsManager.GetGroup(ks.GroupId);
+            var group = GroupsManager.Instance.GetGroup(ks.GroupId);
             var signature = KSUtils.ExtractKSPayload(ks).Signature;
             var groupSecrets = ApplicationConfiguration.Current.RequestParserConfiguration.KsSecrets;
 
@@ -1032,7 +1032,7 @@ namespace WebAPI.Managers
                 if (householdUserIds == null || householdUserIds.Count == 0)
                     return;
 
-                Group group = GroupsManager.GetGroup(groupId);
+                Group group = GroupsManager.Instance.GetGroup(groupId);
                 long utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
                 long maxSessionDuration = utcNow + Math.Max(group.AppTokenSessionMaxDurationSeconds, group.KSExpirationSeconds);
                 bool revokeAll = string.IsNullOrEmpty(udid) ? true : false;
@@ -1053,7 +1053,7 @@ namespace WebAPI.Managers
 
         internal static KalturaLoginSession GenerateOvpSession(int groupId)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             if (string.IsNullOrEmpty(group.MediaPrepAccountSecret) || group.MediaPrepAccountId == 0)
             {

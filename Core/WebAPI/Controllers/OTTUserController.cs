@@ -141,7 +141,7 @@ namespace WebAPI.Controllers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "username or password");
             }
 
-            Group group = GroupsManager.GetGroup(partnerId);
+            Group group = GroupsManager.Instance.GetGroup(partnerId);
             try
             {
                 // call client

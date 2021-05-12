@@ -85,7 +85,7 @@ namespace WebAPI.Models.ConditionalAccess
                 .Select(x => new UnifiedSearchResult() { AssetId = x.AssetId.ToString(), AssetType = eAssetTypes.EPG }));
             searchResponse.m_nTotalItems = searchResponse.searchResults.Count;
 
-            var group = GroupsManager.GetGroup(contextData.GroupId);
+            var group = GroupsManager.Instance.GetGroup(contextData.GroupId);
             var request = new UnifiedSearchRequest()
             {
                 m_oFilter = new Filter()

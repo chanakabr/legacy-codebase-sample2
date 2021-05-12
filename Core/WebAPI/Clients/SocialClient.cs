@@ -393,7 +393,7 @@ namespace WebAPI.Clients
         {
             WebAPI.Models.Users.KalturaOTTUser user = null;
             FBSignin response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             try
             {

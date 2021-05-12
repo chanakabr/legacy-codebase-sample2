@@ -1,4 +1,5 @@
-﻿using QueueWrapper.Enums;
+﻿using ConfigurationManager;
+using QueueWrapper.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace QueueWrapper
             switch (type)
             {
                 case QueueType.RabbitQueue:
-                    queue = new RabbitQueue();
+                    queue = new RabbitQueue(ApplicationConfiguration.Current);
                     break;
                 default:
                     break;

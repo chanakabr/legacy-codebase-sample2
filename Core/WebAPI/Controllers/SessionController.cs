@@ -115,7 +115,7 @@ namespace WebAPI.Controllers
                 // switch notification users
                 var payload = KSUtils.ExtractKSPayload();
                 ClientsManager.UsersClient().SwitchUsers(groupId, ks.UserId, userIdToSwitch, payload.UDID);
-                Group group = GroupsManager.GetGroup(groupId);
+                Group group = GroupsManager.Instance.GetGroup(groupId);
                 loginSession = AuthorizationManager.SwitchUser(userIdToSwitch, groupId, payload, ks.Privileges, group);
                 AuthorizationManager.LogOut(ks);
             }

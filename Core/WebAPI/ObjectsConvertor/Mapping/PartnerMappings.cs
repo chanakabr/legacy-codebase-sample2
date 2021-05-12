@@ -8,6 +8,9 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Partner;
 using WebAPI.Models.General;
+using WebAPI.Models.Users;
+using TVinciShared;
+using DAL.DTO;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -250,7 +253,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
                .ForMember(dest => dest.PaymentGatewayId, opt => opt.MapFrom(src => src.PaymentGatewayId))
-               .ForMember(dest => dest.IgnorePartialBilling, opt => opt.MapFrom(src => src.IgnorePartialBilling));
+               .ForMember(dest => dest.IgnorePartialBilling, opt => opt.MapFrom(src => src.IgnorePartialBilling)); 
 
             cfg.CreateMap<KalturaDuration, Duration>()
               .ForMember(dest => dest.Unit, opt => opt.MapFrom(src => src.Unit))
@@ -318,6 +321,48 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<CategoryManagement, KalturaCategoryManagement>()
                 .ForMember(dest => dest.DefaultCategoryTreeId, opt => opt.MapFrom(src => src.DefaultCategoryTree))
                 .ForMember(dest => dest.DeviceFamilyToCategoryTree, opt => opt.MapFrom(src => src.DeviceFamilyToCategoryTree != null ? src.DeviceFamilyToCategoryTree.ToDictionary(k => k.Key, v => v.Value) : null));
+
+            cfg.CreateMap<KalturaBasePartnerConfiguration, Group>()
+              .ForMember(dest => dest.KSExpirationSeconds, opt => opt.MapFrom(src => src.KsExpirationSeconds))
+              .ForMember(dest => dest.AppTokenSessionMaxDurationSeconds, opt => opt.MapFrom(src => src.AppTokenSessionMaxDurationSeconds))
+              .ForMember(dest => dest.AnonymousKSExpirationSeconds, opt => opt.MapFrom(src => src.AnonymousKSExpirationSeconds))
+              .ForMember(dest => dest.RefreshExpirationForPinLoginSeconds, opt => opt.MapFrom(src => src.RefreshExpirationForPinLoginSeconds))
+              .ForMember(dest => dest.AppTokenMaxExpirySeconds, opt => opt.MapFrom(src => src.AppTokenMaxExpirySeconds))
+              .ForMember(dest => dest.UploadTokenExpirySeconds, opt => opt.MapFrom(src => src.UploadTokenExpirySeconds))
+              .ForMember(dest => dest.ApptokenUserValidationDisabled, opt => opt.MapFrom(src => src.ApptokenUserValidationDisabled));
+
+            cfg.CreateMap<Group, KalturaBasePartnerConfiguration>()
+              .ForMember(dest => dest.KsExpirationSeconds, opt => opt.MapFrom(src => src.KSExpirationSeconds))
+              .ForMember(dest => dest.AppTokenSessionMaxDurationSeconds, opt => opt.MapFrom(src => src.AppTokenSessionMaxDurationSeconds))
+              .ForMember(dest => dest.AnonymousKSExpirationSeconds, opt => opt.MapFrom(src => src.AnonymousKSExpirationSeconds))
+              .ForMember(dest => dest.RefreshExpirationForPinLoginSeconds, opt => opt.MapFrom(src => src.RefreshExpirationForPinLoginSeconds))
+              .ForMember(dest => dest.AppTokenMaxExpirySeconds, opt => opt.MapFrom(src => src.AppTokenMaxExpirySeconds))
+              .ForMember(dest => dest.UploadTokenExpirySeconds, opt => opt.MapFrom(src => src.UploadTokenExpirySeconds))
+              .ForMember(dest => dest.ApptokenUserValidationDisabled, opt => opt.MapFrom(src => src.ApptokenUserValidationDisabled));
+
+            // PartnerSetup to KalturaPartnerSetup
+            cfg.CreateMap<Partner, KalturaPartner>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate.ToUtcUnixTimestampSeconds()))
+                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate.ToUtcUnixTimestampSeconds()));
+
+            cfg.CreateMap<KalturaPartner, Partner>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
+
+            cfg.CreateMap<KalturaPartnerSetup, PartnerSetup>()
+                .ForMember(dest => dest.AdminUsername, opt => opt.MapFrom(src => src.AdminUsername))
+                .ForMember(dest => dest.AdminPassword, opt => opt.MapFrom(src => src.AdminPassword));
+
+            RegisterDTOMappings(cfg);
+        }
+
+        // We tried making a DTO Automapper but because Group.cs is in a different assembly than the ApiLogic we ran into issues
+        private static void RegisterDTOMappings(MapperConfigurationExpression cfg) 
+        {
+            cfg.CreateMap<Group, GroupDTO>();
+            cfg.CreateMap<GroupDTO, Group>();
         }
 
         private static KalturaRollingDevicePolicy ConvertRollingDevicePolicy(

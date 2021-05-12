@@ -1,5 +1,6 @@
 ﻿using ApiObjects.Response;
 using System;
+using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -61,6 +62,10 @@ namespace WebAPI.Controllers
                 else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.Opc)
                 {
                     response = ClientsManager.ApiClient().GetOpcPartnerConfiguration(groupId);
+                }
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.Base)
+                {
+                    response = GroupsManager.Instance.GetBaseConfiguration(groupId);
                 }
                 else
                 {

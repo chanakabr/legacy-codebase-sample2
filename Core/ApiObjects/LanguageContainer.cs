@@ -87,10 +87,4 @@ namespace ApiObjects
             return lc.GetHashCode();
         }
     }
-
-    public class LanguageContainerDTO
-    {
-        public string Value { get; set; }
-        public int LanguageId { get; set; }
-    }
 }

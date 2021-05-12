@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ApiObjects.Catalog
+namespace DAL.DTO
 {
     public class CategoryItemDTO
     {

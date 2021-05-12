@@ -2,24 +2,30 @@
 using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ConfigurationManager
 {
-    public class ApplicationConfiguration : BaseConfig<ApplicationConfiguration>
+    public interface IApplicationConfiguration
+    {
+        RabbitConfiguration RabbitConfiguration { get; }
+        GroupsManagerConfiguration GroupsManagerConfiguration { get; }
+    }
+    [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
+    // BaseConfig.IterateOverClassFields goes over public fields(not properties, not private fields) with reflection and set values to them
+    // But also we want to mock ApplicationConfiguration
+    // TODO change from public fields to properties at least we could mock them
+    public class ApplicationConfiguration : BaseConfig<ApplicationConfiguration>, IApplicationConfiguration
     {
         public override string TcmKey => null;
         public override string[] TcmPath => null;
-
-
-        static ApplicationConfiguration()
-        {
-        }
 
         private ApplicationConfiguration()
         {
         }
 
-        public static ApplicationConfiguration Current { get; } = new ApplicationConfiguration();
+        private static readonly Lazy<ApplicationConfiguration> LazyInstance = new Lazy<ApplicationConfiguration>(() => new ApplicationConfiguration(), System.Threading.LazyThreadSafetyMode.PublicationOnly);
+        public static ApplicationConfiguration Current => LazyInstance.Value;
 
         public BaseValue<string> ExcludeTemplatesImplementation = new BaseValue<string>("EXCLUDE_TEMPLATES_IMPLEMENTATION", "203");
         public BaseValue<string> UDRMUrl = new BaseValue<string>("UDRM_URL", TcmObjectKeys.Stub, true);
@@ -83,7 +89,8 @@ namespace ConfigurationManager
         public ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration = new ElasticSearchHandlerConfiguration();
         public AnnouncementManagerConfiguration AnnouncementManagerConfiguration = new AnnouncementManagerConfiguration();
         public MailerConfiguration MailerConfiguration = new MailerConfiguration();
-        public GroupsManagerConfiguration GroupsManagerConfiguration = new GroupsManagerConfiguration();
+        public GroupsManagerConfiguration _groupsManagerConfiguration = new GroupsManagerConfiguration();
+        public GroupsManagerConfiguration GroupsManagerConfiguration => _groupsManagerConfiguration;
         public RequestParserConfiguration RequestParserConfiguration = new RequestParserConfiguration();
         public OTTUserControllerConfiguration OTTUserControllerConfiguration = new OTTUserControllerConfiguration();
         public EPGIngestV2Configuration EPGIngestV2Configuration = new EPGIngestV2Configuration();
@@ -110,7 +117,8 @@ namespace ConfigurationManager
         public CatalogLogicConfiguration CatalogLogicConfiguration = new CatalogLogicConfiguration();
         public LayeredCacheConfigurationValidation LayeredCacheConfigurationValidation = new LayeredCacheConfigurationValidation();
         public EventConsumersConfiguration EventConsumersConfiguration = new EventConsumersConfiguration();
-        public RabbitConfiguration RabbitConfiguration = new RabbitConfiguration();
+        public RabbitConfiguration _rabbitConfiguration = new RabbitConfiguration();
+        public RabbitConfiguration RabbitConfiguration => _rabbitConfiguration;
         public WSCacheConfiguration WSCacheConfiguration = new WSCacheConfiguration();
         public TVPApiConfiguration TVPApiConfiguration = new TVPApiConfiguration();
         public BaseCacheConfiguration BaseCacheConfiguration = new BaseCacheConfiguration();

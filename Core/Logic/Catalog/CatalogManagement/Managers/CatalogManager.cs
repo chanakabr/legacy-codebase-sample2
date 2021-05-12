@@ -74,27 +74,41 @@ namespace Core.Catalog.CatalogManagement
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue && groupId.Value > 0)
                     {
+                        // TODO remove when regression tests will be fixed
+                        if (!GroupSettingsManager.IsOpc(groupId.Value))
+                        {
+                            return new Tuple<CatalogGroupCache, bool>(null, false);
+                        }
+                        
                         List<LanguageObj> languages = CatalogDAL.GetGroupLanguages(groupId.Value);
                         // return false if no languages were found or not only 1 default language found
-                        if (languages == null || languages.Count == 0 || languages.Where(x => x.IsDefault).Count() != 1)
+                        if (languages == null || (languages.Count > 0 && languages.Where(x => x.IsDefault).Count() != 1))
                         {
-                            return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, false);
+                            return new Tuple<CatalogGroupCache, bool>(null, false);
                         }
 
                         DataSet topicsDs = CatalogDAL.GetTopicsByGroupId(groupId.Value);
                         List<Topic> topics = CreateTopicListFromDataSet(topicsDs);
-                        // return false if no topics are found on group
-                        if (topics == null || topics.Count == 0)
+                        // return false if topics is null
+                        if (topics == null)
                         {
-                            return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, false);
+                            return new Tuple<CatalogGroupCache, bool>(null, false);
                         }
+
+                        // TODO uncomment when regression tests will be fixed
+                        // // non-opc accounts don't have topics and don't have CatalogGroupCache at all
+                        // // check together with topics, in order not to check IsOpc(call to DB) when no need
+                        // if (topics.Count == 0 && !GroupSettingsManager.IsOpc(groupId.Value))
+                        // {
+                        //     return new Tuple<CatalogGroupCache, bool>(null, false);
+                        // }
 
                         DataSet assetStructsDs = CatalogDAL.GetAssetStructsByGroupId(groupId.Value);
                         List<AssetStruct> assetStructs = CreateAssetStructListFromDataSet(assetStructsDs);
-                        // return false if no asset structs are found on group
-                        if (assetStructs == null || assetStructs.Count == 0)
+                        // return false if asset is null
+                        if (assetStructs == null)
                         {
-                            return new Tuple<CatalogGroupCache, bool>(catalogGroupCache, false);
+                            return new Tuple<CatalogGroupCache, bool>(null, false);
                         }
 
                         catalogGroupCache = new CatalogGroupCache(groupId.Value, languages, assetStructs, topics);
@@ -1220,7 +1234,7 @@ namespace Core.Catalog.CatalogManagement
 
         public bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache)
         {
-            bool result = false;
+            bool result = true;
             catalogGroupCache = null;
             try
             {
@@ -1229,13 +1243,13 @@ namespace Core.Catalog.CatalogManagement
                     LayeredCacheConfigNames.GET_CATALOG_GROUP_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetCatalogGroupCacheInvalidationKey(groupId) }))
                 {
                     log.ErrorFormat("Failed getting CatalogGroupCache from LayeredCache, groupId: {0}", groupId);
+                    result = false; 
                 }
-
-                result = catalogGroupCache.IsValid();
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed TryGetCatalogGroupCache with groupId: {0}", groupId), ex);
+                result = false;
             }
 
             return result;
@@ -1361,6 +1375,11 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                if(assetStructToadd.Features?.Count >0 && assetStructToadd.Features.Contains("isProgramStruct"))
+                {
+                    isProgramStruct = true;
+                }
+
                 // validate basic metas     
                 if (!isProgramStruct)
                 {
@@ -1397,6 +1416,17 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
+                Dictionary<FieldTypes, Dictionary<string, int>> mappingFields = null;
+                List<KeyValuePair<long, string>> epgMetaIdsToValue = null;
+                List<KeyValuePair<long, string>> epgTagIdsToValue = null;
+
+                if (isProgramStruct)
+                {                   
+                    mappingFields = EpgAssetManager.GetMappingFields(groupId);
+                    epgMetaIdsToValue = new List<KeyValuePair<long, string>>();
+                    epgTagIdsToValue = new List<KeyValuePair<long, string>>();
+                }
+
                 List<KeyValuePair<long, int>> metaIdsToPriority = new List<KeyValuePair<long, int>>();
                 if (assetStructToadd.MetaIds != null && assetStructToadd.MetaIds.Count > 0)
                 {
@@ -1405,6 +1435,32 @@ namespace Core.Catalog.CatalogManagement
                     {
                         metaIdsToPriority.Add(new KeyValuePair<long, int>(metaId, priority));
                         priority++;
+
+                        if (isProgramStruct)
+                        {
+                            var topic = catalogGroupCache.TopicsMapById[metaId];
+                            if (!EpgAssetManager.TopicsInBasicProgramTable.Contains(topic.SystemName))
+                            {
+                                if (topic.Type == MetaType.Tag)
+                                {
+                                    long epgTagId = 0;
+                                    if (mappingFields[FieldTypes.Tag].ContainsKey(topic.SystemName.ToLower()))
+                                    {
+                                        epgTagId = mappingFields[FieldTypes.Tag][topic.SystemName.ToLower()];
+                                    }
+                                    epgTagIdsToValue.Add(new KeyValuePair<long, string>(epgTagId, topic.SystemName));
+                                }
+                                else
+                                {
+                                    long epgMetaId = 0;
+                                    if (mappingFields[FieldTypes.Meta].ContainsKey(topic.SystemName.ToLower()))
+                                    {
+                                        epgMetaId = mappingFields[FieldTypes.Meta][topic.SystemName.ToLower()];
+                                    }
+                                    epgMetaIdsToValue.Add(new KeyValuePair<long, string>(epgMetaId, topic.SystemName));
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -1415,12 +1471,27 @@ namespace Core.Catalog.CatalogManagement
                     {
                         languageCodeToName.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
                     }
-                }
+                }               
 
                 DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, languageCodeToName, assetStructToadd.SystemName, metaIdsToPriority,
-                                                          assetStructToadd.IsPredefined, userId, assetStructToadd.GetCommaSeparatedFeatures(), assetStructToadd.ConnectingMetaId,
+                                                      assetStructToadd.IsPredefined, userId, assetStructToadd.GetCommaSeparatedFeatures(), assetStructToadd.ConnectingMetaId,
                                                           assetStructToadd.ConnectedParentMetaId, assetStructToadd.PluralName, assetStructToadd.ParentId, isProgramStruct, assetStructToadd.DynamicData);
                 result = CreateAssetStructResponseFromDataSet(ds, metaIdsToPriority);
+
+                // For backward compatibility
+                if (isProgramStruct)
+                {
+                    if (epgMetaIdsToValue.Count > 0 && !CatalogDAL.UpdateEpgAssetStructMetas(groupId, epgMetaIdsToValue, userId))
+                    {
+                        log.ErrorFormat("UpdateEpgAssetStructMetas faild for groupId: {0}, epgMetaIdsToValue: {1}.", groupId, string.Join(",", epgMetaIdsToValue));
+                    }
+
+                    if (epgTagIdsToValue.Count > 0 && !CatalogDAL.UpdateEpgAssetStructTags(groupId, epgTagIdsToValue, userId))
+                    {
+                        log.ErrorFormat("UpdateEpgAssetStructTags faild for groupId: {0}, epgTagIdsToValue: {1}.", groupId, string.Join(",", epgTagIdsToValue));
+                    }
+                }
+
                 InvalidateCatalogGroupCache(groupId, result.Status, true, result.Object);
             }
             catch (Exception ex)

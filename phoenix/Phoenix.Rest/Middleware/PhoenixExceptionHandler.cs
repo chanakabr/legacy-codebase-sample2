@@ -40,20 +40,25 @@ namespace Phoenix.Rest.Middleware
             KLogger.SetRequestId(ctx.SessionId);
             int code;
             string message;
-            string stackTrace;
             KalturaApiExceptionArg[] args;
+
             if (ex is ApiException apiEx)
             {
                 code = apiEx.Code;
                 message = apiEx.Message;
-                stackTrace = apiEx.StackTrace;
                 args = apiEx.Args;
+            }
+            else if (ex is ClientException clientEx)
+            {
+                var apiFromClientEx = new ApiException(clientEx);
+                code = apiFromClientEx.Code;
+                message = apiFromClientEx.Message;
+                args = apiFromClientEx.Args;
             }
             else
             {
                 code = (int)StatusCode.Error;
                 message = "Unknown error";
-                stackTrace = ex.StackTrace;
                 args = null;
             }
 
@@ -65,7 +70,6 @@ namespace Phoenix.Rest.Middleware
             };
 
             context.Items[INTERNAL_ERROR_CODE] = code;
-
             // get proper response formatter but make sure errors should be only xml or json ...
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
 

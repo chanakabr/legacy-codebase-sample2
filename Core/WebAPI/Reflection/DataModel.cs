@@ -890,6 +890,26 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaBasePartnerConfiguration":
+                    switch(property.Name)
+                    {
+                        case "AnonymousKSExpirationSeconds":
+                            return "anonymousKSExpirationSeconds";
+                        case "AppTokenMaxExpirySeconds":
+                            return "appTokenMaxExpirySeconds";
+                        case "AppTokenSessionMaxDurationSeconds":
+                            return "appTokenSessionMaxDurationSeconds";
+                        case "ApptokenUserValidationDisabled":
+                            return "apptokenUserValidationDisabled";
+                        case "KsExpirationSeconds":
+                            return "ksExpirationSeconds";
+                        case "RefreshExpirationForPinLoginSeconds":
+                            return "refreshExpirationForPinLoginSeconds";
+                        case "UploadTokenExpirySeconds":
+                            return "uploadTokenExpirySeconds";
+                    }
+                    break;
+                    
                 case "KalturaBaseSearchAssetFilter":
                     switch(property.Name)
                     {
@@ -4892,6 +4912,20 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPartner":
+                    switch(property.Name)
+                    {
+                        case "CreateDate":
+                            return "createDate";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                        case "UpdateDate":
+                            return "updateDate";
+                    }
+                    break;
+                    
                 case "KalturaPartnerConfigurationFilter":
                     switch(property.Name)
                     {
@@ -4905,6 +4939,34 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaPartnerFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
+                case "KalturaPartnerListResponse":
+                    switch(property.Name)
+                    {
+                        case "Partners":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaPartnerSetup":
+                    switch(property.Name)
+                    {
+                        case "AdminPassword":
+                            return "adminPassword";
+                        case "AdminUsername":
+                            return "adminUsername";
+                        case "BasePartnerConfiguration":
+                            return "basePartnerConfiguration";
                     }
                     break;
                     
@@ -10255,9 +10317,17 @@ namespace WebAPI.Reflection
                 case "partner":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("partner", "add", false);
+                            return PartnerController.Add((KalturaPartner) methodParams[0], (KalturaPartnerSetup) methodParams[1]);
+                            
                         case "externallogin":
                             RolesManager.ValidateActionPermitted("partner", "externalLogin", false);
                             return PartnerController.ExternalLogin();
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("partner", "list", false);
+                            return PartnerController.List((KalturaPartnerFilter) methodParams[0]);
                             
                     }
                     break;
@@ -17700,7 +17770,30 @@ namespace WebAPI.Reflection
                 case "partner":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("partner", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPartner),
+                            });
+                            ret.Add("partnerSetup", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPartnerSetup),
+                            });
+                            return ret;
+                            
                         case "externallogin":
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPartnerFilter),
+                            });
                             return ret;
                             
                     }

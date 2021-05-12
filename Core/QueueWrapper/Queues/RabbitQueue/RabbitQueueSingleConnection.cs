@@ -45,7 +45,7 @@ namespace QueueWrapper
             return bResult;
         }
 
-        protected override RabbitConfigurationData CreateRabbitConfigurationData()
+        public override RabbitConfigurationData CreateRabbitConfigurationData()
         {
             RabbitConfigurationData config = base.CreateRabbitConfigurationData();
 

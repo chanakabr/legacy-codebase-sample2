@@ -36,7 +36,8 @@ namespace CouchbaseManager
         MEDIA_HITS = 14,
         MEMCACHED = 15,
         OTT_APPS = 16,
-        NGINX = 17
+        NGINX = 17,
+        GROUPS = 18
     }
 
     public enum eResultStatus

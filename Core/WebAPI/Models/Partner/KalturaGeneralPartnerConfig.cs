@@ -31,6 +31,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "mainLanguage")]
         [JsonProperty("mainLanguage")]
         [XmlElement(ElementName = "mainLanguage")]
+        [SchemeProperty(IsNullable = true)]
         public int? MainLanguage { get; set; }
 
         /// <summary>
@@ -47,6 +48,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "deleteMediaPolicy")]
         [JsonProperty("deleteMediaPolicy")]
         [XmlElement(ElementName = "deleteMediaPolicy")]
+        [SchemeProperty(IsNullable = true)]
         public KalturaDeleteMediaPolicy? DeleteMediaPolicy { get; set; }
 
         /// <summary>
@@ -55,6 +57,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "mainCurrency")]
         [JsonProperty("mainCurrency")]
         [XmlElement(ElementName = "mainCurrency")]
+        [SchemeProperty(IsNullable = true)]
         public int? MainCurrency { get; set; }
 
         /// <summary>
@@ -72,6 +75,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "downgradePolicy")]
         [JsonProperty("downgradePolicy")]
         [XmlElement(ElementName = "downgradePolicy")]
+        [SchemeProperty(IsNullable = true)]
         public KalturaDowngradePolicy? DowngradePolicy { get; set; }
 
         /// <summary>
@@ -96,6 +100,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "householdLimitationModule")]
         [JsonProperty("householdLimitationModule")]
         [XmlElement(ElementName = "householdLimitationModule")]
+        [SchemeProperty(IsNullable = true)]
         public int? HouseholdLimitationModule { get; set; }
 
         /// <summary>
@@ -104,6 +109,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "enableRegionFiltering")]
         [JsonProperty("enableRegionFiltering")]
         [XmlElement(ElementName = "enableRegionFiltering")]
+        [SchemeProperty(IsNullable = true)]
         public bool? EnableRegionFiltering { get; set; }
 
         /// <summary>
@@ -112,6 +118,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "defaultRegion")]
         [JsonProperty("defaultRegion")]
         [XmlElement(ElementName = "defaultRegion")]
+        [SchemeProperty(IsNullable = true)]
         public int? DefaultRegion { get; set; }
 
         /// <summary>
@@ -120,6 +127,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "rollingDeviceData")]
         [JsonProperty("rollingDeviceData")]
         [XmlElement(ElementName = "rollingDeviceData")]
+        [SchemeProperty(IsNullable = true)]
         public KalturaRollingDeviceRemovalData RollingDeviceRemovalData { get; set; }
 
         /// <summary>
@@ -128,7 +136,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "finishedPercentThreshold")]
         [JsonProperty("finishedPercentThreshold")]
         [XmlElement(ElementName = "finishedPercentThreshold")]
-        [SchemeProperty(MinInteger = 90, MaxInteger = 99)]
+        [SchemeProperty(MinInteger = 90, MaxInteger = 99, IsNullable = true)]
         public int? FinishedPercentThreshold { get; set; }
 
         /// <summary>

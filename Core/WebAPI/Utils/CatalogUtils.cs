@@ -77,7 +77,7 @@ namespace WebAPI.Utils
             if ((missingMediaIds != null && missingMediaIds.Count > 0) || (missingEpgIds != null && missingEpgIds.Count > 0))
             {
                 // get group configuration 
-                Group group = GroupsManager.GetGroup(request.m_nGroupID);
+                Group group = GroupsManager.Instance.GetGroup(request.m_nGroupID);
 
                 List<long> epgIds = new List<long>();
 

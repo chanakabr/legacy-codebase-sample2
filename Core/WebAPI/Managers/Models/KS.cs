@@ -439,7 +439,7 @@ namespace WebAPI.Managers.Models
                 throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
             }
 
-            Group group = WebAPI.ClientManagers.GroupsManager.GetGroup(groupId);
+            Group group = WebAPI.ClientManagers.GroupsManager.Instance.GetGroup(groupId);
             string adminSecret = group.UserSecret;
 
             // build KS

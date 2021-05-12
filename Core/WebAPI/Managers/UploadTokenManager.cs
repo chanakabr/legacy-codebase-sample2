@@ -26,7 +26,7 @@ namespace WebAPI.Managers
 
         internal static KalturaUploadToken AddUploadToken(int groupId)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
             string UploadTokenKeyFormat = UPLOAD_TOKEN_KEY_FORMAT;
             int UploadTokenExpirySeconds = 86400;
             if (!string.IsNullOrEmpty(group.UploadTokenKeyFormat))
@@ -53,7 +53,7 @@ namespace WebAPI.Managers
 
         internal static UploadToken GetUploadToken(string id, int groupId)
         {
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             string UploadTokenKeyFormat = UPLOAD_TOKEN_KEY_FORMAT;
             if (!string.IsNullOrEmpty(group.UploadTokenKeyFormat))
@@ -105,7 +105,7 @@ namespace WebAPI.Managers
             cbUploadToken.FileUrl = saveFileResponse.Object;
             cbUploadToken.Status = KalturaUploadTokenStatus.FULL_UPLOAD;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             string UploadTokenKeyFormat = UPLOAD_TOKEN_KEY_FORMAT;
             int UploadTokenExpirySeconds = 86400;

@@ -123,7 +123,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "parentId")]
         [JsonProperty("parentId")]
         [XmlElement(ElementName = "parentId", IsNullable = true)]
-        [SchemeProperty (MinLong = 1)]
+        [SchemeProperty (MinLong = 1, IsNullable = true)]
         public string ParentId{ get; set; }
 
         /// <summary>

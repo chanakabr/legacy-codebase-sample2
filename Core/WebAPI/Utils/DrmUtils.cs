@@ -27,7 +27,7 @@ namespace WebAPI.Utils
             string response = null;
 
             KS ks = KS.GetFromRequest();
-            Group group = GroupsManager.GetGroup(ks.GroupId);
+            Group group = GroupsManager.Instance.GetGroup(ks.GroupId);
 
             CencCustomData customData = new CencCustomData()
             {
@@ -50,7 +50,7 @@ namespace WebAPI.Utils
             string response = null;
 
             KS ks = KS.GetFromRequest();
-            Group group = GroupsManager.GetGroup(ks.GroupId);
+            Group group = GroupsManager.Instance.GetGroup(ks.GroupId);
 
             response = string.Concat(group.AccountPrivateKey, customDataString);
 
@@ -165,7 +165,7 @@ namespace WebAPI.Utils
                             assetType == KalturaAssetType.recording ? KalturaContextType.recording :
                             KalturaContextType.none);
 
-                        Group group = GroupsManager.GetGroup(ks.GroupId);
+                        Group group = GroupsManager.Instance.GetGroup(ks.GroupId);
 
                         foreach (var scheme in schemes)
                         {

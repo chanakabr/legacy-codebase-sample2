@@ -97,7 +97,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "parentId")]
         [JsonProperty("parentId")]
         [XmlElement(ElementName = "parentId", IsNullable = true)]
-        [SchemeProperty(MinInteger = 0)]
+        [SchemeProperty(MinInteger = 0, IsNullable = true)]
         public long? ParentId { get; set; }
 
         /// <summary>
@@ -106,6 +106,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "connectingMetaId")]
         [JsonProperty("connectingMetaId")]
         [XmlElement(ElementName = "connectingMetaId", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public long? ConnectingMetaId { get; set; }
 
         /// <summary>
@@ -114,6 +115,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "connectedParentMetaId")]
         [JsonProperty("connectedParentMetaId")]
         [XmlElement(ElementName = "connectedParentMetaId", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public long? ConnectedParentMetaId { get; set; }
 
         /// <summary>

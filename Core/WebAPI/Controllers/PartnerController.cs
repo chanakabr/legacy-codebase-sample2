@@ -1,28 +1,21 @@
-﻿using ApiObjects.Response;
-using KLogMonitor;
+﻿using ApiObjects;
+using ApiObjects.Response;
+using ApiObjects.User;
+using Core.GroupManagers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Web;
-using System.Web.Http;
-using WebAPI.ClientManagers.Client;
-using WebAPI.Exceptions;
+using WebAPI.ClientManagers;
+using WebAPI.Clients;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models;
-using WebAPI.Models.Partner;
+using WebAPI.Models.General;
 using WebAPI.Models.Users;
-using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
     [Service("partner")]
     public class PartnerController : IKalturaController
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         /// <summary>
         /// Returns a login session for external system (like OVP)
         /// </summary>
@@ -30,22 +23,57 @@ namespace WebAPI.Controllers
         [Action("externalLogin")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
-        static public KalturaLoginSession ExternalLogin()
+        public static KalturaLoginSession ExternalLogin()
         {
-            KalturaLoginSession response = null;
             int groupId = KS.GetFromRequest().GroupId;
-            
-            try
-            {
-                response = AuthorizationManager.GenerateOvpSession(groupId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
+            var response = AuthorizationManager.GenerateOvpSession(groupId);
             return response;
         }
-    }
 
+        /// <summary>
+        /// Add a partner with default user
+        /// </summary>
+        /// <param name="partner">partner</param>
+        /// <param name="partnerSetup">mandatory parameters to create partner</param>
+        /// <returns></returns>
+        [Action("add")]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [ApiAuthorize]
+        public static KalturaPartner Add(KalturaPartner partner, KalturaPartnerSetup partnerSetup)
+        {
+            partner.ValidateForAdd();
+            partnerSetup.ValidateForAdd();
+
+            var userId = KS.GetFromRequest().UserId.ParseUserId();
+            var partnerBol = AutoMapper.Mapper.Map<Partner>(partner);
+            var partnerSetupBol = AutoMapper.Mapper.Map<PartnerSetup>(partnerSetup);
+
+            Func<GenericResponse<Partner>> addPartnerFunc = () =>
+                PartnerManager.Instance.AddPartner(partnerBol, partnerSetupBol, userId);
+
+            var result = ClientUtils.GetResponseFromWS<KalturaPartner, Partner>(addPartnerFunc);
+            Func<Group, Status> addGroupFunc = (Group group) => GroupsManager.Instance.AddBaseConfiguration(result.Id.Value, group);
+            ClientUtils.GetResponseStatusFromWS(addGroupFunc, partnerSetup.BasePartnerConfiguration);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Internal API !!! Returns the list of active Partners
+        /// </summary>
+        /// <param name="filter">Filter</param>
+        /// <returns></returns>
+        [Action("list")]
+        [ApiAuthorize]
+        public static KalturaPartnerListResponse List(KalturaPartnerFilter filter = null)
+        {
+            var response = ClientUtils.GetResponseListFromWS<KalturaPartner, Partner>(() =>
+                PartnerManager.Instance.GetPartners(filter?.GetIdIn()));
+
+            var result = new KalturaPartnerListResponse {Partners = response.Objects, TotalCount = response.TotalCount};
+            return result;
+        }
+
+        // TODO - DELETE\ROLLBACK
+    }
 }

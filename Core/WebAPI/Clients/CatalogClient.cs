@@ -583,7 +583,7 @@ namespace WebAPI.Clients
             }
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             UnifiedSearchRequest request = new UnifiedSearchRequest()
@@ -661,7 +661,7 @@ namespace WebAPI.Clients
             OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
@@ -759,7 +759,7 @@ namespace WebAPI.Clients
             OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
@@ -879,7 +879,7 @@ namespace WebAPI.Clients
             OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy);
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
@@ -1015,7 +1015,7 @@ namespace WebAPI.Clients
             }
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             UnifiedSearchRequest request = new UnifiedSearchRequest()
@@ -1086,7 +1086,7 @@ namespace WebAPI.Clients
             finalResults.Objects = new List<KalturaAssetHistory>();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
@@ -1153,7 +1153,7 @@ namespace WebAPI.Clients
             KalturaWatchHistoryAssetWrapper finalResults = new KalturaWatchHistoryAssetWrapper();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             WatchHistoryRequest request = new WatchHistoryRequest()
@@ -1263,7 +1263,7 @@ namespace WebAPI.Clients
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             MediaRelatedRequest request = new MediaRelatedRequest()
@@ -1304,7 +1304,7 @@ namespace WebAPI.Clients
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // convert order by
             OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);
@@ -1357,7 +1357,7 @@ namespace WebAPI.Clients
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // convert order by
             OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);
@@ -1441,7 +1441,7 @@ namespace WebAPI.Clients
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             MediaRelatedExternalRequest request = new MediaRelatedExternalRequest()
@@ -1483,7 +1483,7 @@ namespace WebAPI.Clients
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             MediaSearchExternalRequest request = new MediaSearchExternalRequest()
@@ -1538,7 +1538,7 @@ namespace WebAPI.Clients
             }
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             ChannelRequestMultiFiltering request = new ChannelRequestMultiFiltering()
@@ -1603,7 +1603,7 @@ namespace WebAPI.Clients
             }
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             InternalChannelRequest request = new InternalChannelRequest()
@@ -1676,7 +1676,7 @@ namespace WebAPI.Clients
             int domainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId);
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             MediaUpdateDateRequest request = new MediaUpdateDateRequest()
@@ -1725,7 +1725,7 @@ namespace WebAPI.Clients
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             MediaUpdateDateRequest request = new MediaUpdateDateRequest()
@@ -1806,7 +1806,7 @@ namespace WebAPI.Clients
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             EpgProgramDetailsRequest request = new EpgProgramDetailsRequest()
@@ -1856,7 +1856,7 @@ namespace WebAPI.Clients
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             EpgProgramDetailsRequest request = new EpgProgramDetailsRequest()
@@ -1905,7 +1905,7 @@ namespace WebAPI.Clients
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             EPGProgramsByProgramsIdentefierRequest request = new EPGProgramsByProgramsIdentefierRequest()
@@ -1956,7 +1956,7 @@ namespace WebAPI.Clients
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             EPGProgramsByProgramsIdentefierRequest request = new EPGProgramsByProgramsIdentefierRequest()
@@ -2027,7 +2027,7 @@ namespace WebAPI.Clients
             List<KalturaEPGChannelAssets> result = new List<KalturaEPGChannelAssets>();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             EpgRequest request = new EpgRequest()
@@ -2294,7 +2294,7 @@ namespace WebAPI.Clients
             }
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             ExternalChannelRequest request = new ExternalChannelRequest()
@@ -2456,7 +2456,7 @@ namespace WebAPI.Clients
             filter += ")";
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             UnifiedSearchRequest request = new UnifiedSearchRequest()
@@ -2542,7 +2542,7 @@ namespace WebAPI.Clients
             OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             ExternalChannelRequest request = new ExternalChannelRequest()
@@ -2618,7 +2618,7 @@ namespace WebAPI.Clients
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             MediaRelatedExternalRequest request = new MediaRelatedExternalRequest()
@@ -2661,7 +2661,7 @@ namespace WebAPI.Clients
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             MediaSearchExternalRequest request = new MediaSearchExternalRequest()
@@ -2732,7 +2732,7 @@ namespace WebAPI.Clients
 
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             InternalChannelRequest request = new InternalChannelRequest()
@@ -2812,7 +2812,7 @@ namespace WebAPI.Clients
             }
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
 
             // build failover cache key
@@ -2905,7 +2905,7 @@ namespace WebAPI.Clients
             }
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             BundleAssetsRequest request = new BundleAssetsRequest()
@@ -2949,7 +2949,7 @@ namespace WebAPI.Clients
             KalturaAssetCommentListResponse result = new KalturaAssetCommentListResponse();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
             // Create catalog order object
             OrderObj order = new OrderObj();
             if (orderBy == null)
@@ -3021,7 +3021,7 @@ namespace WebAPI.Clients
             KalturaAssetComment result = new KalturaAssetComment();
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             AssetCommentAddRequest request = new AssetCommentAddRequest()
@@ -3089,7 +3089,7 @@ namespace WebAPI.Clients
             }
 
             // get group configuration 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             // build request
             ScheduledRecordingsRequest request = new ScheduledRecordingsRequest()

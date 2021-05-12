@@ -271,7 +271,7 @@ namespace WebAPI.Clients
         {
             ApiObjects.Response.Status response = null;
 
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             if (!group.IsSwitchingUsersAllowed)
             {
@@ -840,7 +840,7 @@ namespace WebAPI.Clients
         public bool SignOut(int groupId, int userId, string ip, string deviceId, KS ks, SerializableDictionary<string, KalturaStringValue> adapterData)
         {
             UserResponseObject response = null;
-            Group group = GroupsManager.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
 
             try
             {

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+﻿using ConfigurationManager;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using QueueWrapper;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace HealthCheck
     {
         public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
         {
-            RabbitQueue queue = new RabbitQueue();
+            RabbitQueue queue = new RabbitQueue(ApplicationConfiguration.Current);
             bool isHealthy = queue.HealthCheck();
 
             if (isHealthy)
