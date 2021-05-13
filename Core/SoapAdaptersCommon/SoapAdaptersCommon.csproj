@@ -29,9 +29,12 @@
     <PackageReference Include="SoapCore" Version="1.0.0" />
     <ProjectReference Include="..\Core.Middleware\Core.Middleware.csproj" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.28.0" />
-    <PackageReference Include="Google.Protobuf" Version="3.11.4" />
     <PackageReference Include="Grpc.Net.Client" Version="2.28.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.28.1" />
+    <PackageReference Include="Google.Protobuf" Version="3.17.0" />
+    <!--    Remove tools because we should generate proto files using custom ott-protoc "with null strings fix" -->
+<!--    https://kaltura.atlassian.net/browse/GEN-1535-->
+<!--    https://kaltura.atlassian.net/browse/GEN-1388-->
+<!--    <PackageReference Include="Grpc.Tools" Version="2.28.1" />-->
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
@@ -45,10 +48,14 @@
     
   </ItemGroup>
 
-  <ItemGroup>
-    <Protobuf Include="GrpcAdapters\Proto\ssoadapter.proto">
-      <GrpcService>SSOAdapter</GrpcService>
-    </Protobuf>
-  </ItemGroup>
+<!--    Remove tools because we should generate proto files using custom ott-protoc "with null strings fix" -->
+<!--    https://kaltura.atlassian.net/browse/GEN-1535-->
+<!--    https://kaltura.atlassian.net/browse/GEN-1388-->
+<!--  <ItemGroup>-->
+<!--    <Protobuf Include="GrpcAdapters\Proto\ssoadapter.proto">-->
+<!--      <GrpcService>SSOAdapter</GrpcService>-->
+<!--      <Generator>MSBuild:Compile</Generator>-->
+<!--    </Protobuf>-->
+<!--  </ItemGroup>-->
 
 </Project>
