@@ -1,6 +1,5 @@
 ﻿using CachingProvider;
 using CachingProvider.LayeredCache;
-using ConfigurationManager;
 using KLogMonitor;
 using System;
 using System.Collections.Concurrent;
@@ -8,8 +7,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
+using ApiLogic.Users;
 
 namespace Core.Users.Cache
 {
@@ -17,6 +16,7 @@ namespace Core.Users.Cache
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static object locker = new object();
+        private static readonly IDomainLimitationModuleRepository dlmRepository = new DomainLimitationModuleRepository();
 
         #region inner cache - call WSCache
         private static bool Add(string key, object obj)
@@ -687,7 +687,7 @@ namespace Core.Users.Cache
                 {
                     int? groupId = funcParams["groupId"] as int?;
                     int? dlmId = funcParams["dlmId"] as int?;
-                    dlm = DomainFactory.GetDLM(groupId.Value, dlmId.Value);
+                    dlm = dlmRepository.Get(groupId.Value, dlmId.Value);
                     res = dlm != null;
                 }
             }

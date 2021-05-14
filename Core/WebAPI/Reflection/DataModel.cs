@@ -9476,6 +9476,14 @@ namespace WebAPI.Reflection
                 case "householdlimitations":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("householdLimitations", "add", false);
+                            return HouseholdLimitationsController.Add((KalturaHouseholdLimitations) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("householdLimitations", "delete", false);
+                            return HouseholdLimitationsController.Delete((int) methodParams[0]);
+                            
                         case "get":
                             RolesManager.ValidateActionPermitted("householdLimitations", "get", false);
                             return HouseholdLimitationsController.Get((int) methodParams[0]);
@@ -16053,6 +16061,21 @@ namespace WebAPI.Reflection
                 case "householdlimitations":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("householdLimitations", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdLimitations),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("householdLimitationsId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
                         case "get":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,

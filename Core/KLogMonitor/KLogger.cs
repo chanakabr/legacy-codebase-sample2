@@ -67,19 +67,20 @@ namespace KLogMonitor
         public KLogger(string className, string separateLoggerName = null) : this(separateLoggerName ?? className) { }
 
         public KLogger(string className)
+            : this(LogManager.GetLogger(GetLoggerRepository().Name, className), className)
         {
-            var repo = GetLoggerRepository();
-            _Logger = LogManager.GetLogger(repo.Name, className);
+        }
+
+        public KLogger(ILog log, string className)
+        {
+            _Logger = log;
             Server = Environment.MachineName;
             ClassName = className;
             LoggerName = string.Empty;
 
             LogContextData[Constants.CLASS_NAME] = className;
-
-            string server = !string.IsNullOrWhiteSpace(Server) ? Server : "null";
-            LogContextData[Constants.SERVER] = server;
+            LogContextData[Constants.SERVER] = !string.IsNullOrWhiteSpace(Server) ? Server : "null";
         }
-
 
 
         #region Initialization and configuration

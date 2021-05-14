@@ -19,7 +19,6 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        [SchemeProperty(ReadOnly = true)]
         public long? Id { get; set; }
 
         /// <summary>
@@ -28,6 +27,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
+        [SchemeProperty(ReadOnly = true)]
         public string Name { get; set; }
 
         /// <summary>
@@ -50,7 +50,6 @@ namespace WebAPI.Models.Domains
         [Obsolete]
         public int? ConcurrentLimit { get; set; }
     }
-
 
     /// <summary>
     /// Device family details

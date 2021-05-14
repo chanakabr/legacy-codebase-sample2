@@ -12,26 +12,46 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using ApiLogic.Api.Managers;
+using ApiLogic.Users;
 using ApiLogic.Users.Services;
 using KeyValuePair = ApiObjects.KeyValuePair;
 using ApiObjects.Base;
 using ApiLogic.Users.Security;
-using ApiLogic.Api.Managers;
+using log4net;
 
 namespace Core.Users
 {
-    public abstract class BaseDomain
+    public interface IBaseDomain
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private const string DEFAULT_SUSPENDED_ROLE = "DefaultSuspendedRole";
+        GenericResponse<LimitationsManager> AddDLM(int groupId, LimitationsManager limitationsManager, long userId);
+        ApiObjects.Response.Status DeleteDLM(int groupId, int dlmId, long userId);
+    }
+    
+    public abstract class BaseDomain : IBaseDomain
+    {
+        private readonly IDomainLimitationModuleRepository _dlmRepository;
+        private readonly KLogger log;
 
         protected int m_nGroupID;
 
-        protected BaseDomain() { }
-        public BaseDomain(int nGroupID)
+        protected BaseDomain()
+            : this(0)
+        {
+        }
+
+        protected BaseDomain(int nGroupID)
         {
             m_nGroupID = nGroupID;
+            _dlmRepository = new DomainLimitationModuleRepository();
+            log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        }
 
+        protected BaseDomain(int groupId, IDomainLimitationModuleRepository dlmRepository, ILog log)
+        {
+            m_nGroupID = groupId;
+            _dlmRepository = dlmRepository;
+            this.log = new KLogger(log, MethodBase.GetCurrentMethod().DeclaringType.ToString());
         }
 
         #region Public Abstract
@@ -1521,7 +1541,7 @@ namespace Core.Users
         }
 
 
-        private static bool UsersFullListFromDomain(int nDomainID, Domain oDomain, List<int> users)
+        private bool UsersFullListFromDomain(int nDomainID, Domain oDomain, List<int> users)
         {
             try
             {
@@ -1555,7 +1575,7 @@ namespace Core.Users
             }
             catch (Exception ex)
             {
-                log.Error("UsersFullListFromDomain - " + string.Format("Couldn't get domain {0}, ex = {1}", nDomainID, ex.Message), ex);
+                log.Error($"UsersFullListFromDomain - Couldn't get domain {nDomainID}, ex = {ex.Message}", ex);
                 return false;
             }
         }
@@ -1628,6 +1648,33 @@ namespace Core.Users
                 oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return oChangeDLMObj;
             }
+        }
+
+        public GenericResponse<LimitationsManager> AddDLM(int groupId, LimitationsManager limitationsManager, long userId)
+        {
+            var response = new GenericResponse<LimitationsManager>();
+            try
+            {
+                limitationsManager = _dlmRepository.Add(
+                    groupId,
+                    limitationsManager.Concurrency,
+                    limitationsManager.Frequency,
+                    limitationsManager.Quantity,
+                    limitationsManager.DomainLimitName,
+                    limitationsManager.UserFrequency,
+                    limitationsManager.nUserLimit,
+                    limitationsManager.lDeviceFamilyLimitations.ToArray(),
+                    userId);
+                response = limitationsManager != null
+                    ? new GenericResponse<LimitationsManager>(ApiObjects.Response.Status.Ok, limitationsManager)
+                    : new GenericResponse<LimitationsManager>(new ApiObjects.Response.Status((int)eResponseStatus.Error, "DLM not created"));
+            }
+            catch (Exception e)
+            {
+                log.Error($"{nameof(AddDLM)} - failed {nameof(groupId)}={groupId}, {nameof(userId)}={userId}, exception: {e.Message}", e);
+            }
+
+            return response;
         }
 
         public DLMResponse GetDLM(int nDlmID, int nGroupID)
@@ -2404,23 +2451,17 @@ namespace Core.Users
 
         private List<LimitationsManager> GetLimitationsManagerList(int groupId)
         {
-            List<LimitationsManager> limitationsManagerList = null;
-            List<int> limitationsManagerIds = null;
-            DLMResponse response = null;
-
-            DataTable dt = DomainDal.GetGroupsDeviceLimitationModules(groupId);
-            limitationsManagerIds = GetGroupsDeviceLimitationModuleIds(dt);
-
+            var limitationsManagerIds = _dlmRepository.GetDomainLimitationModuleIds(groupId);
             if (limitationsManagerIds == null)
             {
-                return limitationsManagerList;
+                return null;
             }
 
-            limitationsManagerList = new List<LimitationsManager>();
+            var limitationsManagerList = new List<LimitationsManager>();
             foreach (var id in limitationsManagerIds)
             {
-                response = GetDLM(id, groupId);
-                if (response != null && response.resp != null && response.resp.Code == (int)eResponseStatus.OK)
+                var response = GetDLM(id, groupId);
+                if (response?.resp != null && response.resp.Code == (int)eResponseStatus.OK)
                 {
                     limitationsManagerList.Add(response.dlm);
                 }
@@ -2429,16 +2470,24 @@ namespace Core.Users
             return limitationsManagerList;
         }
 
-        private List<int> GetGroupsDeviceLimitationModuleIds(DataTable dt)
+        public ApiObjects.Response.Status DeleteDLM(int groupId, int dlmId, long userId)
         {
-            List<int> response = null;
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            var response = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
+            try
             {
-                response = new List<int>();
-                foreach (DataRow row in dt.Rows)
+                var result = _dlmRepository.Delete(dlmId, userId);
+                if (result)
                 {
-                    response.Add(ODBCWrapper.Utils.GetIntSafeVal(row, "ID"));
+                    response = RemoveDLM(dlmId);
                 }
+                else
+                {
+                    response.Set((int)eResponseStatus.DlmNotExist, eResponseStatus.DlmNotExist.ToString());
+                }
+            }
+            catch (Exception e)
+            {
+                log.Error($"Failed to delete DLM. {nameof(userId)}:{userId}, {nameof(groupId)}:{groupId}, {nameof(dlmId)}:{dlmId}. Message: {e.Message}", e);
             }
 
             return response;

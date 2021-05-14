@@ -27,7 +27,6 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
-        [SchemeProperty(ReadOnly = true)]
         public string Name { get; set; }
 
         /// <summary>
@@ -36,7 +35,6 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "concurrentLimit")]
         [JsonProperty("concurrentLimit")]
         [XmlElement(ElementName = "concurrentLimit")]
-        [SchemeProperty(ReadOnly = true)]
         [OldStandardProperty("concurrent_limit")]
         public int? ConcurrentLimit { get; set; }
 
@@ -46,7 +44,6 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "deviceLimit")]
         [JsonProperty("deviceLimit")]
         [XmlElement(ElementName = "deviceLimit")]
-        [SchemeProperty(ReadOnly = true)]
         [OldStandardProperty("device_limit")]
         public int? DeviceLimit { get; set; }
 
@@ -56,7 +53,6 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "deviceFrequency")]
         [JsonProperty("deviceFrequency")]
         [XmlElement(ElementName = "deviceFrequency")]
-        [SchemeProperty(ReadOnly = true)]
         [OldStandardProperty("device_frequency")]
         public int? DeviceFrequency { get; set; }
 
@@ -76,7 +72,6 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "userFrequency")]
         [JsonProperty("userFrequency")]
         [XmlElement(ElementName = "userFrequency")]
-        [SchemeProperty(ReadOnly = true)]
         [OldStandardProperty("user_frequency")]
         public int? UserFrequency { get; set; }
 
@@ -106,7 +101,6 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "usersLimit")]
         [JsonProperty("usersLimit")]
         [XmlElement(ElementName = "usersLimit")]
-        [SchemeProperty(ReadOnly = true)]
         [OldStandardProperty("users_limit")]
         public int? UsersLimit { get; set; }
 
@@ -117,7 +111,6 @@ namespace WebAPI.Models.Domains
         [JsonProperty("deviceFamiliesLimitations")]
         [XmlArray(ElementName = "deviceFamiliesLimitations", IsNullable = true)]
         [XmlArrayItem("item")]
-        [SchemeProperty(ReadOnly = true)]
         [OldStandardProperty("device_families_limitations")]
         public List<KalturaHouseholdDeviceFamilyLimitations> DeviceFamiliesLimitations { get; set; }
 

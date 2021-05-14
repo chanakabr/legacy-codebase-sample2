@@ -5,13 +5,26 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Web;
+using ApiLogic.Users;
 using ApiObjects.MediaMarks;
 using ApiObjects.Base;
+using Status = ApiObjects.Response.Status;
 
 namespace Core.Domains
 {
     public class Module
     {
+        private readonly IBaseDomainFactory _baseDomainFactory;
+
+        public Module()
+            : this(new BaseDomainFactory())
+        {
+        }
+
+        public Module(IBaseDomainFactory baseDomainFactory)
+        {
+            _baseDomainFactory = baseDomainFactory;
+        }
 
         public static DomainStatusResponse AddDomain(int nGroupID, string sDomainName, string sDomainDescription, Int32 nMasterUserGuid, int? regionId)
         {
@@ -735,6 +748,15 @@ namespace Core.Domains
             return oChangeDLMObj;
         }
 
+        public GenericResponse<LimitationsManager> AddDLM(int groupId, LimitationsManager limitationsManager, long userId)
+        {
+            var baseDomain = _baseDomainFactory.GetBaseImpl(groupId);
+            var response = baseDomain != null
+                ? baseDomain.AddDLM(groupId, limitationsManager, userId)
+                : new GenericResponse<LimitationsManager>();
+
+            return response;
+        }
 
         public static DLMResponse GetDLM(int nGroupID, int nDlmID)
         {
@@ -1034,6 +1056,16 @@ namespace Core.Domains
             {
                 response = t.GetDLMList(groupId);
             }
+
+            return response;
+        }
+
+        public Status DeleteDLM(int groupId, int dlmId, long userId)
+        {
+            var baseDomain = _baseDomainFactory.GetBaseImpl(groupId);
+            var response = baseDomain != null
+                ? baseDomain.DeleteDLM(groupId, dlmId, userId)
+                : Status.Error;
 
             return response;
         }

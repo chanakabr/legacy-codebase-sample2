@@ -562,6 +562,15 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaHouseholdLimitations AddDomainLimitationModule(int groupId, KalturaHouseholdLimitations householdLimitations, long userId)
+        {
+            var limitationManager = Mapper.Map<LimitationsManager>(householdLimitations);
+            Func<GenericResponse<LimitationsManager>> addDlmFunc = () => new Core.Domains.Module().AddDLM(groupId, limitationManager, userId);
+            var response = ClientUtils.GetResponseFromWS<KalturaHouseholdLimitations, LimitationsManager>(addDlmFunc);
+
+            return response;
+        }
+
         internal KalturaHouseholdLimitations GetDomainLimitationModule(int groupId, int dlmId)
         {
             KalturaHouseholdLimitations result;
@@ -1430,6 +1439,14 @@ namespace WebAPI.Clients
             result.TotalCount = response.TotalCount;
 
             return result;
+        }
+
+        public bool DeleteDomainLimitationModule(int groupId, int householdLimitationsId, long userId)
+        {
+            Func<ApiObjects.Response.Status> deleteDlmFunc = () => new Core.Domains.Module().DeleteDLM(groupId, householdLimitationsId, userId);
+            var response = ClientUtils.GetResponseStatusFromWS(deleteDlmFunc);
+
+            return response;
         }
 
         internal KalturaHouseholdListResponse GetDomains(ContextData contextData, KalturaHouseholdFilter kalturaHouseholdFilter)

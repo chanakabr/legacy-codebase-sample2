@@ -1,12 +1,6 @@
-﻿using DAL;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using KLogMonitor;
 using System.Reflection;
-using Core.Catalog.CatalogManagement;
 
 namespace Core.Users
 {
@@ -183,103 +177,6 @@ namespace Core.Users
             }
 
             return resDomain;
-        }
-
-        internal static LimitationsManager GetDLM(int nGroupID, int nDomainLimitID)
-        {
-            LimitationsManager oLimitationsManager = null;
-            try
-            {
-                DataSet ds = DomainDal.Get_GroupLimitsAndDeviceFamilies(nGroupID, nDomainLimitID);
-                if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
-                {
-
-                    #region GroupLevel + DLM Level
-                    if (ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0 &&
-                        ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
-                    {
-                        oLimitationsManager = new LimitationsManager();
-
-                        DataRow drGroup = ds.Tables[0].Rows[0];
-                        DataRow drDLM = ds.Tables[1].Rows[0];
-                        if (drGroup != null && drDLM != null)
-                        {
-                            oLimitationsManager.domianLimitID = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "ID");
-                            oLimitationsManager.DomainLimitName = ODBCWrapper.Utils.GetSafeStr(drDLM, "NAME");
-                            int nConcurrencyGroupLevel = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "GROUP_CONCURRENT_MAX_LIMIT");
-                            oLimitationsManager.npvrQuotaInSecs = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "npvr_quota_in_seconds");
-                            int nConcurrencyDomainLevel = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "CONCURRENT_MAX_LIMIT");
-                            oLimitationsManager.Frequency = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "freq_period_id");
-                            oLimitationsManager.FrequencyDescription = Utils.GetMinPeriodDescription(oLimitationsManager.Frequency);
-                            oLimitationsManager.Quantity = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "DEVICE_MAX_LIMIT");
-                            oLimitationsManager.nUserLimit = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "USER_MAX_LIMIT");
-                            oLimitationsManager.UserFrequency = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "user_freq_period_id");
-                            oLimitationsManager.UserFrequencyDescrition = Utils.GetMinPeriodDescription(oLimitationsManager.UserFrequency);
-
-                            oLimitationsManager.SetConcurrency(nConcurrencyDomainLevel, nConcurrencyGroupLevel);
-                        }
-                    }
-                    #endregion
-
-                    #region DeviceFamily
-                    if (oLimitationsManager != null && ds.Tables.Count >= 4)
-                    {
-                        DataTable dt = ds.Tables[2];
-                        DataTable dtSpecificLimits = ds.Tables[3];
-                        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                        {
-                            oLimitationsManager.lDeviceFamilyLimitations = new List<DeviceFamilyLimitations>();
-                            DeviceFamilyLimitations dfl = new DeviceFamilyLimitations();
-                            foreach (DataRow dr in dt.Rows)
-                            {
-                                dfl = new DeviceFamilyLimitations();
-                                dfl.deviceFamily = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
-                                dfl.deviceFamilyName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME");
-                                dfl.concurrency = -1;
-                                dfl.quantity = -1;
-                                dfl.Frequency = -1;
-
-                                DataRow[] drSpecific = dtSpecificLimits.Select("device_family_id = " + dfl.deviceFamily);
-                                foreach (DataRow drItem in drSpecific)
-                                {
-                                    string sLimitationType = ODBCWrapper.Utils.GetSafeStr(drItem, "description");
-                                    int nLimitationValue = ODBCWrapper.Utils.GetIntSafeVal(drItem, "value", -1);
-
-                                    if (dfl.deviceFamily > 0 && nLimitationValue > -1 && sLimitationType.Length > 0)
-                                    {
-                                        if (sLimitationType.ToLower() == "concurrency")
-                                        {
-                                            dfl.concurrency = nLimitationValue;
-                                        }
-                                        else if (sLimitationType.ToLower() == "quantity")
-                                        {
-                                            dfl.quantity = nLimitationValue;
-                                        }
-                                        else if (sLimitationType.ToLower() == "frequency")
-                                        {
-                                            dfl.Frequency = nLimitationValue;
-                                        }
-                                    }
-                                }
-                                // if concurency / quntity is -1 take the value from the group itself.
-                                if (dfl.concurrency == -1)
-                                    dfl.concurrency = oLimitationsManager.Concurrency;
-                                if (dfl.quantity == -1)
-                                    dfl.quantity = oLimitationsManager.Quantity;
-
-                                oLimitationsManager.lDeviceFamilyLimitations.Add(dfl);
-                            }
-                        }
-                    }
-                    #endregion
-                }
-
-                return oLimitationsManager;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
         }
 
         public static void InitializeDLM(Domain domain)

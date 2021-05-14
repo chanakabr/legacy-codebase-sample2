@@ -1,6 +1,5 @@
 ﻿using ApiObjects;
 using ApiObjects.DRM;
-using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
 using ODBCWrapper;
@@ -10,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using System.Threading;
+using CouchbaseManager;
 using Tvinci.Core.DAL;
 
 namespace DAL
@@ -1888,16 +1888,6 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
-        public static DataSet Get_GroupLimitsAndDeviceFamilies(int nGroupID, int nDomainLimitID)
-        {
-            StoredProcedure sp = new StoredProcedure("Get_GroupLimitsAndDeviceFamilies");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupID", nGroupID);
-            sp.AddParameter("@DomainLimitID", nDomainLimitID);
-            DataSet ds = sp.ExecuteDataSet();
-            return ds;
-        }
-
         public static List<string> SetUsersStatus(List<int> users, int nUserToDelete, int status, int isActive, int domainID)
         {
             List<string> usersChange = new List<string>();
@@ -2435,14 +2425,6 @@ namespace DAL
                 brandId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "device_brand_id");
             }
             return brandId;
-        }
-
-        public static DataTable GetGroupsDeviceLimitationModules(int groupId)
-        {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_groupsDeviceLimitationModules");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
-            return sp.Execute();
         }
 
         public static bool IsRegionInUse(int groupId, int regionId)

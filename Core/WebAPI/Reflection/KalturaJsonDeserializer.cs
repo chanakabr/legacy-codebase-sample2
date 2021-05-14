@@ -32436,7 +32436,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaDeviceFamilyBase
     {
-        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceFamilyBase")
+        private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceFamilyBase")
         {
             ReadOnly = true,
             InsertOnly = false,
@@ -32454,14 +32454,14 @@ namespace WebAPI.Models.Domains
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
                     Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        NameSchemaProperty.Validate("name", parameters["name"]);
+                    }
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("deviceLimit") && parameters["deviceLimit"] != null)
@@ -33617,57 +33617,7 @@ namespace WebAPI.Models.Domains
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        private static RuntimeSchemePropertyAttribute ConcurrentLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        private static RuntimeSchemePropertyAttribute DeviceLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        private static RuntimeSchemePropertyAttribute DeviceFrequencySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         private static RuntimeSchemePropertyAttribute DeviceFrequencyDescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        private static RuntimeSchemePropertyAttribute UserFrequencySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
             ReadOnly = true,
             InsertOnly = false,
@@ -33697,26 +33647,6 @@ namespace WebAPI.Models.Domains
             MaxLength = -1,
             MinLength = -1,
         };
-        private static RuntimeSchemePropertyAttribute UsersLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        private static RuntimeSchemePropertyAttribute DeviceFamiliesLimitationsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
-        {
-            ReadOnly = true,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         public KalturaHouseholdLimitations(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -33733,58 +33663,30 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("name") && parameters["name"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        NameSchemaProperty.Validate("name", parameters["name"]);
-                    }
                     Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
                 }
                 if (parameters.ContainsKey("concurrentLimit") && parameters["concurrentLimit"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConcurrentLimitSchemaProperty.Validate("concurrentLimit", parameters["concurrentLimit"]);
-                    }
                     ConcurrentLimit = (Int32) Convert.ChangeType(parameters["concurrentLimit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("concurrent_limit") && parameters["concurrent_limit"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        ConcurrentLimitSchemaProperty.Validate("concurrent_limit", parameters["concurrent_limit"]);
-                    }
                     ConcurrentLimit = (Int32) Convert.ChangeType(parameters["concurrent_limit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("deviceLimit") && parameters["deviceLimit"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceLimitSchemaProperty.Validate("deviceLimit", parameters["deviceLimit"]);
-                    }
                     DeviceLimit = (Int32) Convert.ChangeType(parameters["deviceLimit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("device_limit") && parameters["device_limit"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceLimitSchemaProperty.Validate("device_limit", parameters["device_limit"]);
-                    }
                     DeviceLimit = (Int32) Convert.ChangeType(parameters["device_limit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("deviceFrequency") && parameters["deviceFrequency"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceFrequencySchemaProperty.Validate("deviceFrequency", parameters["deviceFrequency"]);
-                    }
                     DeviceFrequency = (Int32) Convert.ChangeType(parameters["deviceFrequency"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("device_frequency") && parameters["device_frequency"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceFrequencySchemaProperty.Validate("device_frequency", parameters["device_frequency"]);
-                    }
                     DeviceFrequency = (Int32) Convert.ChangeType(parameters["device_frequency"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("deviceFrequencyDescription") && parameters["deviceFrequencyDescription"] != null)
@@ -33805,18 +33707,10 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("userFrequency") && parameters["userFrequency"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserFrequencySchemaProperty.Validate("userFrequency", parameters["userFrequency"]);
-                    }
                     UserFrequency = (Int32) Convert.ChangeType(parameters["userFrequency"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("user_frequency") && parameters["user_frequency"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        UserFrequencySchemaProperty.Validate("user_frequency", parameters["user_frequency"]);
-                    }
                     UserFrequency = (Int32) Convert.ChangeType(parameters["user_frequency"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("userFrequencyDescription") && parameters["userFrequencyDescription"] != null)
@@ -33853,26 +33747,14 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("usersLimit") && parameters["usersLimit"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UsersLimitSchemaProperty.Validate("usersLimit", parameters["usersLimit"]);
-                    }
                     UsersLimit = (Int32) Convert.ChangeType(parameters["usersLimit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("users_limit") && parameters["users_limit"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        UsersLimitSchemaProperty.Validate("users_limit", parameters["users_limit"]);
-                    }
                     UsersLimit = (Int32) Convert.ChangeType(parameters["users_limit"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("deviceFamiliesLimitations") && parameters["deviceFamiliesLimitations"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceFamiliesLimitationsSchemaProperty.Validate("deviceFamiliesLimitations", parameters["deviceFamiliesLimitations"]);
-                    }
                     if (parameters["deviceFamiliesLimitations"] is JArray)
                     {
                         DeviceFamiliesLimitations = buildList<KalturaHouseholdDeviceFamilyLimitations>(typeof(KalturaHouseholdDeviceFamilyLimitations), (JArray) parameters["deviceFamiliesLimitations"]);
@@ -33884,10 +33766,6 @@ namespace WebAPI.Models.Domains
                 }
                 if (parameters.ContainsKey("device_families_limitations") && parameters["device_families_limitations"] != null && isOldVersion)
                 {
-                    if(!isOldVersion)
-                    {
-                        DeviceFamiliesLimitationsSchemaProperty.Validate("device_families_limitations", parameters["device_families_limitations"]);
-                    }
                     if (parameters["device_families_limitations"] is JArray)
                     {
                         DeviceFamiliesLimitations = buildList<KalturaHouseholdDeviceFamilyLimitations>(typeof(KalturaHouseholdDeviceFamilyLimitations), (JArray) parameters["device_families_limitations"]);
