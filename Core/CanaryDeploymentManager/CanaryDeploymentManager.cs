@@ -374,8 +374,9 @@ namespace ApiLogic.CanaryDeployment
         {            
             CanaryDeploymentConfiguration cdc = GetCanaryDeploymentConfiguration(groupId);
             bool isRoutingToPhoenixRestProxy = routingService == CanaryDeploymentRoutingService.PhoenixRestProxy;
+
             // continue only if we are setting routing back to Phoenix or if it's valid to be routed to phoenix rest proxy
-            Status validateStatus = ValidateRoutinActionBeSentToPhoenixRestProxy(cdc, routingAction, isRoutingToPhoenixRestProxy);
+            Status validateStatus = ValidateRoutingAction(cdc, routingAction, routingService);
             if (validateStatus.Code != (int)eResponseStatus.OK)
             {
                 return validateStatus;
@@ -422,6 +423,9 @@ namespace ApiLogic.CanaryDeployment
                 case CanaryDeploymentRoutingAction.AnonymousLogin:
                     apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.AnonymousLoginRouting);
                     break;
+                case CanaryDeploymentRoutingAction.MultiRequestController:
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.MultiRequestController);
+                    break;
                 default:
                     break;
             }
@@ -442,10 +446,25 @@ namespace ApiLogic.CanaryDeployment
             return res;
         }
 
-        private Status ValidateRoutinActionBeSentToPhoenixRestProxy(CanaryDeploymentConfiguration cdc, CanaryDeploymentRoutingAction routingAction, bool isRoutingToPhoenixRestProxy)
+        private Status ValidateRoutingAction(CanaryDeploymentConfiguration cdc,
+            CanaryDeploymentRoutingAction routingAction, 
+            CanaryDeploymentRoutingService routingService)
         {
             Status res = new Status(eResponseStatus.Error, "Failed validating routing action can be sent to phoenix proxy");
             Status okStatus = new Status(eResponseStatus.OK);
+
+            //multi request cannot be used with phoenix rest proxy service routing
+            if (routingAction == CanaryDeploymentRoutingAction.MultiRequestController && routingService == CanaryDeploymentRoutingService.PhoenixRestProxy)
+            {
+                return  new Status(eResponseStatus.FailedToSetRouteAppTokenController, "Routing service PhoenixRestProxy is not allowed on MultiRequestConrtoller");
+            }
+
+            //only multirequest routing action can be used with multirequest routing service
+            if (routingAction != CanaryDeploymentRoutingAction.MultiRequestController && routingService == CanaryDeploymentRoutingService.MultiRequestMicroService)
+            {
+                return new Status(eResponseStatus.FailedToSetRouteAppTokenController, "Routing serive PhoenixRestProxy is not allowed on MultirRequestConrtoller");
+            }
+                                   
             switch (routingAction)
             {
                 case CanaryDeploymentRoutingAction.AppTokenController:

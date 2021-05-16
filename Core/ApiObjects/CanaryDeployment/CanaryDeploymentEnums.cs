@@ -5,10 +5,20 @@ namespace ApiObjects.CanaryDeployment
     public static class CanaryDeploymentRoutingActionLists
     {
 
-        public static readonly List<CanaryDeploymentRoutingAction> AllRoutingActions = new List<CanaryDeploymentRoutingAction>() { CanaryDeploymentRoutingAction.AppTokenController, CanaryDeploymentRoutingAction.UserLoginPinController,
-                                                                                                                                    CanaryDeploymentRoutingAction.SsoAdapterProfileController, CanaryDeploymentRoutingAction.SessionController,
-                                                                                                                                    CanaryDeploymentRoutingAction.HouseHoldDevicePinActions, CanaryDeploymentRoutingAction.RefreshToken,
-                                                                                                                                    CanaryDeploymentRoutingAction.Login, CanaryDeploymentRoutingAction.Logout, CanaryDeploymentRoutingAction.AnonymousLogin};
+        public static readonly List<CanaryDeploymentRoutingAction> AllRoutingActions =
+            new List<CanaryDeploymentRoutingAction>() {
+                CanaryDeploymentRoutingAction.AppTokenController, 
+                CanaryDeploymentRoutingAction.UserLoginPinController,
+                CanaryDeploymentRoutingAction.SsoAdapterProfileController,
+                CanaryDeploymentRoutingAction.SessionController,
+                CanaryDeploymentRoutingAction.HouseHoldDevicePinActions, 
+                CanaryDeploymentRoutingAction.RefreshToken,
+                CanaryDeploymentRoutingAction.Login, 
+                CanaryDeploymentRoutingAction.Logout, 
+                CanaryDeploymentRoutingAction.AnonymousLogin,
+                CanaryDeploymentRoutingAction.MultiRequestController};
+
+
         public static readonly List<string> AppTokenControllerRouting = new List<string>() { "appToken/action/add", "appToken/action/delete", "appToken/action/get", "appToken/action/startSession" };
         public static readonly List<string> UserLoginPinControllerRouting = new List<string>() { "ottuser/action/loginWithPin", "userLoginPin/action/add", "userLoginPin/action/delete", "userLoginPin/action/deleteAll", "userLoginPin/action/update" };
         public static readonly List<string> SsoAdapterProfileControllerRouting = new List<string>() { "ssoAdapterProfile/action/add", "ssoAdapterProfile/action/delete", "ssoAdapterProfile/action/generateSharedSecret", "ssoAdapterProfile/action/update", "ssoAdapterProfile/action/list" };
@@ -18,13 +28,15 @@ namespace ApiObjects.CanaryDeployment
         public static readonly List<string> LoginRouting = new List<string>() { "ottuser/action/login" };
         public static readonly List<string> LogoutRouting = new List<string>() { "ottuser/action/logout" };
         public static readonly List<string> AnonymousLoginRouting = new List<string>() { "ottuser/action/anonymousLogin" };        
+        public static readonly List<string> MultiRequestController = new List<string>() { "multirequest","multirequest/action/do" };
 
     }    
 
     public enum CanaryDeploymentRoutingService
     {
         Phoenix = 0,
-        PhoenixRestProxy = 1
+        PhoenixRestProxy = 1,       
+        MultiRequestMicroService = 2
     }
 
     public enum CanaryDeploymentRoutingAction
@@ -38,6 +50,7 @@ namespace ApiObjects.CanaryDeployment
         Login = 6, // ottuser/action/login
         Logout = 7, // ottuser/action/logout
         AnonymousLogin = 8, // ottuser/action/anonymousLogin        
+        MultiRequestController = 9, // multirequest/  + multirequest/action/do
     }
 
     public enum CanaryDeploymentMigrationEvent
