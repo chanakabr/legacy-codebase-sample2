@@ -2365,6 +2365,9 @@ namespace Core.ConditionalAccess
                 case DurationUnit.Days:
                     dRet = dRet.AddDays(mulFactor * duration.Value);
                     break;
+                case DurationUnit.Weeks:
+                    dRet = dRet.AddDays(mulFactor * duration.Value * 7);
+                    break;
                 case DurationUnit.Months:
                     dRet = dRet.AddMonths(mulFactor * (int)duration.Value);
                     break;
