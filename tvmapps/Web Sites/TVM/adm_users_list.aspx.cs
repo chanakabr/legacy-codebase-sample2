@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using KLogMonitor;
 using TVinciShared;
 using System.Data;
 
@@ -11,6 +13,7 @@ public partial class adm_users_list : System.Web.UI.Page
 {
     protected string m_sMenu;
     protected string m_sSubMenu;
+    private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
     static public bool IsTvinciImpl()
     {
@@ -111,6 +114,8 @@ public partial class adm_users_list : System.Web.UI.Page
         string queryPart = 
         "from " +
         "users u WITH (nolock) " +
+        "inner join lu_content_status lcs (nolock) " +
+        "on u.status = lcs.id and u.status<>2 " +
         "left join users_types ut WITH (nolock) on u.User_Type = ut.ID and u.group_id = ut.group_id and ut.is_active = 1 and ut.status = 1 " +
         "where ";
         theTable += queryPart;
@@ -119,7 +124,7 @@ public partial class adm_users_list : System.Web.UI.Page
         theTable += ODBCWrapper.Parameter.NEW_PARAM("u.group_id", "=", nGroupID);
         countQuery += ODBCWrapper.Parameter.NEW_PARAM("u.group_id", "=", nGroupID);
 
-        queryPart = " and	u.status<>2 and	u.USERNAME NOT LIKE '%{Household}%' ";
+        queryPart = " and u.USERNAME NOT LIKE '%{Household}%' ";
         theTable += queryPart;
         countQuery += queryPart;
 
@@ -178,7 +183,9 @@ public partial class adm_users_list : System.Web.UI.Page
         }
         catch (Exception ex)
         {
-            
+            log.Error("Users count query failed, setting default query count to 10000 instead", ex);
+            // set query count to 10000 as default if count query was not successful since the query used to be top(10000)
+            theTable.SetQueryCount(10000);
         }
 
         //
