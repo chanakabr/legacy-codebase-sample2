@@ -1428,7 +1428,14 @@ namespace Core.ConditionalAccess
                     {
                         fullPrice.FinalPrice = finalPrice;
                         fullPrice.PriceReason = theReason;
-                        fullPrice.SubscriptionCycle = CalcSubscriptionCycle(groupId, subscription, domainId);
+                        var subscriptionCycle = CalcSubscriptionCycle(groupId, subscription, domainId);
+
+                        //BEO-9091
+                        if (subscriptionCycle != null && 
+                            subscription.m_oPreviewModule.m_tsFullLifeCycle <= subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle)
+                        {
+                            fullPrice.SubscriptionCycle = subscriptionCycle;
+                        }
 
                         //search for campaign
                         if (string.IsNullOrEmpty(couponCode))
