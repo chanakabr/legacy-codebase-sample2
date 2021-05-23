@@ -800,6 +800,11 @@ namespace CachingProvider.LayeredCache
             return string.Format($"{partnerId}_CanaryDeploymentConfiguration");
         }
 
+        public static string GetDomainSubscriptionPurchaseKey(long domainId, string subscriptionId)
+        {
+            return $"domain_subcription_purchase_{domainId}_{subscriptionId}";
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix

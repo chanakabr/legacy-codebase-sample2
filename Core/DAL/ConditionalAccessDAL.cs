@@ -66,7 +66,7 @@ namespace DAL
             }
 
             return sCoGuid;
-        }       
+        }
 
         public static bool InsertPPVPurchase(int nGroupID, string sSubCode, int nMediaFileID, string sSiteGUID, double dPrice, string sCurrency, int nNumOfUses, string sCustomData, int transactionID,
                                              string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, int maxNumOfUses, int nIsActive, int nStatus, DateTime? dtEndDate, int domainId)
@@ -1080,7 +1080,7 @@ namespace DAL
             sp.AddParameter("@SiteGuid", sSiteGuid);
             sp.AddParameter("@AssetID", assetID);
             sp.AddParameter("@DomainID", domainID);
-            sp.AddParameter("@SubscriptionPurchaseStatus", subscriptionPurchaseStatus);            
+            sp.AddParameter("@SubscriptionPurchaseStatus", subscriptionPurchaseStatus);
             sp.AddParameter("@id", subscriptionPurchaseId);
 
             return sp.ExecuteReturnValue<bool>();
@@ -1959,6 +1959,21 @@ namespace DAL
             }
 
             return (dtUserPurchases);
+        }
+
+        public static DataTable Get_DomainSubscriptionPurchases(int groupId, string subscriptionCode, long domainId)
+        {
+            DataTable result = null;
+
+            StoredProcedure storedProcedure = new StoredProcedure("Get_DomainSubscriptionPurchases");
+            storedProcedure.SetConnectionKey("CA_CONNECTION_STRING");
+            storedProcedure.AddParameter("@SubscriptionCode", subscriptionCode);
+            storedProcedure.AddParameter("@DomainID", domainId);
+            storedProcedure.AddParameter("@GroupID", groupId);
+
+            result = storedProcedure.Execute();
+
+            return result;
         }
 
         public static long Get_LastDomainDLM(int groupID, long domainID)

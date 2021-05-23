@@ -1777,29 +1777,28 @@ namespace Core.ConditionalAccess
                     }
 
                     response = api.HandleBlockingSegment<SegmentBlockCancelSubscriptionAction>(this.m_nGroupID, userId, udid, userIp, (int)domain.Id, ObjectVirtualAssetInfoType.Subscription, subscriptionToCancel.m_sObjectCode);
+
                     if (!response.IsOkStatusCode())
                     {
                         return response;
                     }
 
-                    int[] userIds = domain.m_UsersIDs.ToArray();
-
-                    DataRow drUserPurchase = GetSubscriptionPurchaseRow(subscriptionCode, userIds, domainId);
+                    var domainSubscriptionPurchase = GetDomainSubscriptionPurchasesFromCache(subscriptionCode, domainId);
 
                     // If all of the users didn't purchase this subscription
-                    if (drUserPurchase == null)
+                    if (domainSubscriptionPurchase == null || domainSubscriptionPurchase.PurchaseId == 0)
                     {
                         response.Code = (int)eResponseStatus.InvalidPurchase;
                         response.Message = "Subscription is not permitted for this domain";
                     }
                     else
                     {
-                        int purchaseID = ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "ID");
-                        int nIsRecurringStatus = ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "IS_RECURRING_STATUS");
-                        string sPurchasingSiteGuid = ODBCWrapper.Utils.ExtractValue<string>(drUserPurchase, "SITE_USER_GUID");
+                        long purchaseID = domainSubscriptionPurchase.PurchaseId;
+                        bool isRecurringStatus = domainSubscriptionPurchase.IsRecurringStatus;
+                        long purchasingUserId = domainSubscriptionPurchase.PurchasingUserId;
 
                         // If the subscription is not recurring already
-                        if (nIsRecurringStatus != 1)
+                        if (!isRecurringStatus)
                         {
                             response.Code = (int)eResponseStatus.SubscriptionNotRenewable;
                             response.Message = "Subscription already does not renew";
@@ -1818,13 +1817,14 @@ namespace Core.ConditionalAccess
                                 }
                             }
 
+                            string purchasingSiteGuid = purchasingUserId.ToString();
                             // Try to cancel subscription
 
                             SubscriptionPurchase subscriptionPurchase = new SubscriptionPurchase(m_nGroupID)
                             {
                                 purchaseId = purchaseID,
                                 productId = subscriptionCode,
-                                siteGuid = sPurchasingSiteGuid,
+                                siteGuid = purchasingSiteGuid,
                                 status = SubscriptionPurchaseStatus.Cancel,
                                 UpdateFromCancelRenewal = true
                             };
@@ -1833,7 +1833,9 @@ namespace Core.ConditionalAccess
 
                             if (cancelResult)
                             {
-                                int unifiedPaymentId = ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "unified_process_id"); //BEO-9166
+                                // BEO-9166
+                                long unifiedPaymentId = domainSubscriptionPurchase.UnifiedProcessId;
+                                
                                 if (unifiedPaymentId > 0)
                                 {
                                     DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseUnifiedForRenewal(m_nGroupID, domainId, unifiedPaymentId);
@@ -1850,14 +1852,16 @@ namespace Core.ConditionalAccess
                                 }
 
                                 // site guid of purchasing user
-                                WriteToUserLog(sPurchasingSiteGuid,
+                                WriteToUserLog(purchasingSiteGuid,
                                     String.Concat("Sub ID: ", subscriptionCode, " with Purchase ID: ",
-                                    ODBCWrapper.Utils.ExtractInteger(drUserPurchase, "ID"), " has been canceled."));
+                                    domainSubscriptionPurchase.PurchaseId, " has been canceled."));
 
                                 response.Code = (int)eResponseStatus.OK;
                                 response.Message = "Subscription renewal cancelled";
 
-                                DateTime dtServiceEndDate = ODBCWrapper.Utils.ExtractDateTime(drUserPurchase, "END_DATE");
+                                DateTime dtServiceEndDate = domainSubscriptionPurchase.EndDate.HasValue ?
+                                    domainSubscriptionPurchase.EndDate.Value :
+                                    DateTime.MaxValue;
 
                                 // Fire event that action occurred
                                 Dictionary<string, object> dicData = new Dictionary<string, object>()
@@ -1878,7 +1882,7 @@ namespace Core.ConditionalAccess
                                 // Enqueue event for when subscription will eventually end, for notification
                                 long endDateUnix = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(dtServiceEndDate);
 
-                                RenewManager.EnqueueSubscriptionEndsMessage(this.m_nGroupID, sPurchasingSiteGuid, purchaseID, endDateUnix);
+                                RenewManager.EnqueueSubscriptionEndsMessage(this.m_nGroupID, purchasingSiteGuid, purchaseID, endDateUnix);
                             }
                             else
                             {
@@ -1984,6 +1988,107 @@ namespace Core.ConditionalAccess
             }
 
             return (drUserPurchase);
+        }
+
+        private DomainSubscriptionPurchase GetDomainSubscriptionPurchasesFromCache(string subscriptionCode, long domainId)
+        {
+            DomainSubscriptionPurchase result = null;
+
+            string cacheKey = LayeredCacheKeys.GetDomainSubscriptionPurchaseKey(domainId, subscriptionCode);
+            List<string> invalidationKeys =
+                new List<string>()
+                {
+                    LayeredCacheKeys.GetDomainEntitlementInvalidationKey(m_nGroupID, domainId)
+                };
+
+            bool cacheResult = LayeredCache.Instance.Get(cacheKey,
+                                                    ref result,
+                                                    GetDomainSubscriptionPurchases,
+                                                    new Dictionary<string, object>() {
+                                                        { "subscriptionCode", subscriptionCode },
+                                                        { "domainId", domainId },
+                                                    },
+                                                    m_nGroupID,
+                                                    LayeredCacheConfigNames.GET_DOMAIN_SUBSCRIPTION_PURCHASE,
+                                                    invalidationKeys);
+
+            if (!cacheResult)
+            {
+                log.Error($"Failed getting domain subscription purchase from layered cache for domain {domainId}");
+            }
+            
+            return result;
+        }
+
+        private Tuple<DomainSubscriptionPurchase, bool> GetDomainSubscriptionPurchases(Dictionary<string, object> funcParams)
+        {
+            var domainSubscriptionPurchase = new DomainSubscriptionPurchase();
+            bool success = false;
+
+            if (funcParams != null && funcParams.ContainsKey("subscriptionCode") && funcParams.ContainsKey("domainId"))
+            {
+                try
+                {
+                    string subscriptionCode = Convert.ToString(funcParams["subscriptionCode"]);
+                    long domainId = Convert.ToInt64(funcParams["domainId"]);
+
+                    DateTime now = DateTime.UtcNow;
+                    DataTable table = ConditionalAccessDAL.Get_DomainSubscriptionPurchases(m_nGroupID, subscriptionCode, domainId);
+
+                    if (table != null && table.Rows != null && table.Rows.Count > 0)
+                    {
+                        foreach (DataRow dr in table.Rows)
+                        {
+                            long unifiedProcessId = ODBCWrapper.Utils.ExtractValue<long>(dr, "unified_process_id");
+                            long purchaseId = ODBCWrapper.Utils.ExtractValue<long>(dr, "ID");
+                            bool isRecurringStatus = ODBCWrapper.Utils.ExtractBoolean(dr, "IS_RECURRING_STATUS");
+                            long purchasingUserId = ODBCWrapper.Utils.ExtractValue<long>(dr, "SITE_USER_GUID");
+                            DateTime? endDate = ODBCWrapper.Utils.ExtractNullableDateTime(dr, "END_DATE");
+                            DateTime startDate = ODBCWrapper.Utils.ExtractDateTime(dr, "START_DATE");
+                            int numberOfUses = ODBCWrapper.Utils.ExtractInteger(dr, "num_of_uses");
+                            int maxNumberOfUses = ODBCWrapper.Utils.ExtractInteger(dr, "max_num_of_uses");
+                            int subscriptionStatus = ODBCWrapper.Utils.ExtractInteger(dr, "subscription_status");
+
+                            /*
+		                      AND sp.[START_DATE] < @sysdate 
+		                      AND ( sp.max_num_of_uses > sp.num_of_uses 
+				                    OR sp.max_num_of_uses = 0 ) 
+		                      AND ( sp.end_date IS NULL 
+				                    OR sp.end_date > @sysdate 
+				                    OR (sp.IS_RECURRING_STATUS = 1 AND sp.subscription_status = 7)) --suspended subscription 
+                             */
+
+                            if ((startDate < now) &&
+                                (maxNumberOfUses > numberOfUses || numberOfUses == 0) &&
+                                (!endDate.HasValue ||
+                                endDate.Value > now ||
+                                // suspended subscription
+                                (isRecurringStatus && subscriptionStatus == 7)))
+                            {
+                                domainSubscriptionPurchase = new DomainSubscriptionPurchase()
+                                {
+                                    PurchaseId = purchaseId,
+                                    IsRecurringStatus = isRecurringStatus,
+                                    UnifiedProcessId = unifiedProcessId,
+                                    PurchasingUserId = purchasingUserId,
+                                    EndDate = endDate
+                                };
+
+                                break;
+                            }
+                        }
+                    }
+
+                    success = true;
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Error when getting domain subcsription purchase for these params: domain " +
+                        $"{funcParams["domainId"]} subscription code {funcParams["subscriptionCode"]}", ex);
+                }
+            }
+
+            return new Tuple<DomainSubscriptionPurchase, bool>(domainSubscriptionPurchase, success);
         }
 
         /// <summary>
