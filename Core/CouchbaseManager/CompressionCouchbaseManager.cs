@@ -55,7 +55,7 @@ namespace CouchbaseManager
                     return Set(record.Key, internalRecord, record.Expiration, record.Version);
                 }
                 default:
-                    Log.ErrorFormat(THIS_TYPE_OF_COMPRESSION_ISNOT_SUPPORTED_CURRENTLY);
+                    Log.Error(THIS_TYPE_OF_COMPRESSION_ISNOT_SUPPORTED_CURRENTLY);
                     throw new NotImplementedException(THIS_TYPE_OF_COMPRESSION_ISNOT_SUPPORTED_CURRENTLY);
             }
         }
@@ -90,7 +90,7 @@ namespace CouchbaseManager
 
         public T Get<T>(string key, out eResultStatus status, JsonSerializerSettings settings = null)
         {
-            return this.GetWithVersion<T>(key, out _, out status, settings);
+            return GetWithVersion<T>(key, out _, out status, settings);
         }
 
         public T GetWithVersion<T>(string key, out ulong version, out eResultStatus status, JsonSerializerSettings settings = null)
@@ -111,7 +111,7 @@ namespace CouchbaseManager
                     if (parsedObject == null)
                     {
                         status = eResultStatus.ERROR;
-                        Log.ErrorFormat($"Failed to deserialize object, key = {key}");
+                        Log.Error($"Failed to deserialize object, key = {key}");
                         return default;
                     }
                     
@@ -125,7 +125,7 @@ namespace CouchbaseManager
                     if (!compression.HasValue)
                     {
                         status = eResultStatus.ERROR;
-                        Log.ErrorFormat($"Missing parameter for Compression property, key = {key}");
+                        Log.Error($"Missing parameter for Compression property, key = {key}");
                         return default;
                     }
                 
@@ -139,7 +139,7 @@ namespace CouchbaseManager
             }
             catch (Exception ex)
             {
-                Log.ErrorFormat($"{nameof(CompressionCouchbaseManager)} - Failed Get on key = {0}, ex = {1}", key, ex);
+                Log.Error($"{nameof(CompressionCouchbaseManager)} - Failed Get on key = {key}", ex);
             }
 
             return default;
@@ -163,7 +163,7 @@ namespace CouchbaseManager
         {
             if (!CompressionStrategies.TryGetValue(compression, out var decompressFunc))
             {
-                Log.ErrorFormat($"There is no compression strategy for compression - {compression.ToString()}");
+                Log.Error($"There is no compression strategy for compression - {compression.ToString()}");
                 status = eResultStatus.ERROR;
                 return default;
             }
@@ -171,7 +171,7 @@ namespace CouchbaseManager
             if (!parsedObject.TryGetValue(nameof(InternalCouchbaseRecord<object>.Content), out var contentToken))
             {
                 status = eResultStatus.ERROR;
-                Log.ErrorFormat($"Incorrect structure of compressed object in Couchbase, key = {key}");
+                Log.Error($"Incorrect structure of compressed object in Couchbase, key = {key}");
                 return default;
             }
             
