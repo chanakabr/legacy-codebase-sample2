@@ -10,6 +10,6 @@ namespace CouchbaseManager
         
         T Get<T>(string key, out eResultStatus status, JsonSerializerSettings settings = null);
         
-        T GetWithVersion<T>(string key, out ulong version, out eResultStatus status, JsonSerializerSettings settings = null);
+        T GetWithVersion<T>(string key, out ulong version, out eResultStatus status, bool asJson = false);
     }
 }

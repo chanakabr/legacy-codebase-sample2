@@ -56,6 +56,9 @@ namespace ApiObjects.SearchObjects
         public bool shouldUseStartDateForMedia;
         [JsonProperty()]
         [DataMember]
+        public bool shouldUseCatalogStartDateForMedia;
+        [JsonProperty()]
+        [DataMember]
         public bool shouldIgnoreDeviceRuleID = false;
         [JsonProperty()]
         [DataMember]

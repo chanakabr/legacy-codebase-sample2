@@ -3135,9 +3135,9 @@ namespace WebAPI.Clients
             {
                 // get base objects list
                 List<BaseObject> assetsBaseDataList = scheduledRecordingResponse.searchResults.Select(x => x as BaseObject).ToList();
-                
+
                 //BEO-9994, pagination if from aggs and has pagination
-                if (pageSize.HasValue && scheduledRecordingResponse.aggregationResults != null 
+                if (pageSize.HasValue && scheduledRecordingResponse.aggregationResults != null
                     && scheduledRecordingResponse.aggregationResults.Count > 0 && assetsBaseDataList != null && assetsBaseDataList.Count != 0)
                 {
                     assetsBaseDataList = assetsBaseDataList.Skip(pageSize.Value * pageIndex)?.Take(pageSize.Value).ToList();

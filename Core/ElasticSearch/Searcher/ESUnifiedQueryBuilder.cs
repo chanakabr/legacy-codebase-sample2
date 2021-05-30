@@ -2942,7 +2942,7 @@ namespace ElasticSearch.Searcher
 
             if (this.SearchDefinitions.shouldUseStartDateForMedia)
             {
-                mediaStartDateRange.Key = "start_date";
+                mediaStartDateRange.Key = this.SearchDefinitions.shouldUseCatalogStartDateForMedia ? "catalog_start_date" : "start_date";
                 string minimumDateString = DateTime.MinValue.ToString("yyyyMMddHHmmss");
                 mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, minimumDateString));
                 mediaStartDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, nowDateString));

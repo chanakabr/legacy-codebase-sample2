@@ -1,6 +1,5 @@
 ﻿using ApiObjects;
 using ApiObjects.Epg;
-using ConfigurationManager;
 using CouchbaseManager;
 using DAL;
 using KLogMonitor;
@@ -17,7 +16,6 @@ namespace Tvinci.Core.DAL
     public class EpgDal : BaseDal
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly double EXPIRY_DATE = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
         private const int RETRY_LIMIT = 5;
 
         public static DataTable GetEpgScheduleDataTable(int? topRowsNumber, int groupID, DateTime? fromUTCDay, DateTime? toUTCDay, int epgChannelID)
@@ -808,7 +806,14 @@ namespace Tvinci.Core.DAL
             return dt;
         }
 
-        public static bool SaveEpgCB(string documentId, EpgCB epgCB)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="documentId"></param>
+        /// <param name="epgCB"></param>
+        /// <param name="expirationRetriever">There should be used interface in constructor, due to lack of dependency injection, this is our inversion of control (lambda func).</param>
+        /// <returns></returns>
+        public static bool SaveEpgCB(string documentId, EpgCB epgCB, Func<EpgCB, uint> expirationRetriever)
         {
             bool bRes = false;
 
@@ -820,7 +825,7 @@ namespace Tvinci.Core.DAL
             try
             {
                 var cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
-                uint expiration = (uint)(epgCB.EndDate.AddDays(EXPIRY_DATE) - DateTime.UtcNow).TotalSeconds;
+                uint expiration = expirationRetriever(epgCB);
 
                 for (int i = 0; i < 3 && !bRes; i++)
                 {
@@ -836,7 +841,7 @@ namespace Tvinci.Core.DAL
             catch (Exception ex)
             {
                 log.Error("SaveEpgCB - " + string.Format("Exception, EpgID={0}, EpgIdentifier={1}, ChannelID={2}, ex={3} , ST: {4}",
-                   epgCB.EpgID, epgCB.EpgIdentifier, epgCB.ChannelID, ex.Message, ex.StackTrace), ex);
+                    epgCB.EpgID, epgCB.EpgIdentifier, epgCB.ChannelID, ex.Message, ex.StackTrace), ex);
             }
 
             return bRes;

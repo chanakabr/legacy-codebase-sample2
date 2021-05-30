@@ -40,7 +40,9 @@ namespace Phoenix.Rest.Middleware
             app.UseRequestResponseLogger();
             app.UseHealthCheck("/api_v3/service/system/action/health");
             app.UseCoreConcurrencyLimiter();
+            
             app.UseHttpPrometheusMetrics();
+            
             app.UseApiExceptionHandler();
             app.UseKloggerSessionIdBuilder();
             app.UseRequestLogger();
@@ -52,4 +54,3 @@ namespace Phoenix.Rest.Middleware
         }
     }
 }
-

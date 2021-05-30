@@ -15,6 +15,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using ApiLogic.Api.Managers;
 using ApiLogic.Catalog.CatalogManagement.Helpers;
+using ElasticSearch.Utilities;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
@@ -208,7 +209,7 @@ namespace Core.Catalog.CatalogManagement
                 var epgTags = GetEpgTags(epgAssetToAdd.Tags, allNames, defaultLanguageCode);
 
                 // insert epgCb to CB in all languages
-                SaveEpgCbToCB(epgCbToAdd, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, true);
+                SaveEpgCbToCB(groupId, epgCbToAdd, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, true);
 
                 bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)newEpgId }, true);
                 if (!indexingResult)
@@ -345,7 +346,7 @@ namespace Core.Catalog.CatalogManagement
                 UpdateEpgImages(groupId, oldEpgAsset, epgCBToUpdate);
 
                 // update epgCb in CB for all languages
-                SaveEpgCbToCB(epgCBToUpdate, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, false);
+                SaveEpgCbToCB(groupId, epgCBToUpdate, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, false);
 
                 // delete index, if EPG moved to another day
                 var indexAddAction = false;
@@ -648,15 +649,20 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, EpgAsset>, bool>(epgAssets, res);
         }
 
-        private static void SaveEpgCbToCB(EpgCB epgCB, string defaultLanguageCode,
-                                          Dictionary<string, string> allNames,
-                                          Dictionary<string, string> allDescriptions,
-                                          Dictionary<string, Dictionary<string, List<string>>> epgMetas,
-                                          Dictionary<string, Dictionary<string, List<string>>> epgTags,
-                                          bool isAddAction)
+        private static void SaveEpgCbToCB(
+            int groupId,
+            EpgCB epg,
+            string defaultLanguageCode,
+            Dictionary<string, string> allNames,
+            Dictionary<string, string> allDescriptions,
+            Dictionary<string, Dictionary<string, List<string>>> epgMetas,
+            Dictionary<string, Dictionary<string, List<string>>> epgTags,
+            bool isAddAction)
         {
+            var programs = new List<(string docId, EpgCB epg)>();
             foreach (var currLang in allNames)
             {
+                var epgCB = new EpgCB(epg);
                 epgCB.Language = currLang.Key;
                 epgCB.Name = currLang.Value;
 
@@ -679,9 +685,15 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, epgCB.Language, defaultLanguageCode, isAddAction);
-                if (!EpgDal.SaveEpgCB(docId, epgCB))
+                programs.Add((docId, epgCB));
+            }
+
+            IndexManager.GetLinearChannelValues(programs.Select(p => p.epg).ToList(), groupId, _ => {});
+            foreach (var program in programs)
+            {
+                if (!EpgDal.SaveEpgCB(program.docId, program.epg, cb => TtlService.Instance.GetEpgCouchbaseTtlSeconds(cb)))
                 {
-                    log.ErrorFormat("Failed to SaveEpgCbToCB for epgId: {0}, languageCode: {1} in EpgAssetManager", epgCB.EpgID, currLang.Key);
+                    log.ErrorFormat("Failed to SaveEpgCbToCB for epgId: {0}, languageCode: {1} in EpgAssetManager", program.epg.EpgID, program.epg.Language);
                 }
             }
         }
@@ -1675,7 +1687,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 var docId = GetEpgCBKey(epgCB.ParentGroupID, (long)epgCB.EpgID, epgCB.Language, defaultLanguageCode);
-                if (!EpgDal.SaveEpgCB(docId, epgCB))
+                if (!EpgDal.SaveEpgCB(docId, epgCB, cb => TtlService.Instance.GetEpgCouchbaseTtlSeconds(cb)))
                 {
                     log.ErrorFormat("RemoveTopicsFromProgramEpgCB - Failed to SaveEpgCB for epgId: {0}.", epgCB.EpgID);
                 }
@@ -1739,7 +1751,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                if (EpgDal.SaveEpgCB(docId, program))
+                if (EpgDal.SaveEpgCB(docId, program, cb => TtlService.Instance.GetEpgCouchbaseTtlSeconds(cb)))
                 {
                     EpgNotificationManager.Instance().ChannelWasUpdated(
                         KLogger.GetRequestId(),

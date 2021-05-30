@@ -1154,6 +1154,19 @@ namespace ElasticSearch.Common
                 analyzer = PHRASE_STARTS_WITH_ANALYZER
             });
 
+            if (!string.IsNullOrEmpty(defaultAutocompleteIndexAnalyzer) && !string.IsNullOrEmpty(defaultAutocompleteSearchAnalyzer))
+            {
+                cridProperty.fields.Add(new BasicMappingPropertyV2()
+                {
+                    name = "autocomplete",
+                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    null_value = "",
+                    index = eMappingIndex.analyzed,
+                    search_analyzer = defaultAutocompleteSearchAnalyzer,
+                    analyzer = defaultAutocompleteIndexAnalyzer
+                });
+            }
+
             mappingObj.AddProperty(cridProperty);
 
             ElasticSearch.Common.FieldsMappingPropertyV2 externalId = new FieldsMappingPropertyV2()

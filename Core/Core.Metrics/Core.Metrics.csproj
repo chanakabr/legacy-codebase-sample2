@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="prometheus-net.DotNetRuntime" Version="3.4.1" />
+      <PackageReference Include="prometheus-net.DotNetRuntime" Version="4.1.0" />
     </ItemGroup>
 
 </Project>

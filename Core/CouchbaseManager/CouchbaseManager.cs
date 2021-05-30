@@ -542,8 +542,19 @@ namespace CouchbaseManager
                 DateTime truncDateTimeUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                 result = (uint)(expirationDate - truncDateTimeUtc).TotalSeconds;
             }
-
+            
             return result;
+        }
+        
+        /// <summary>
+        /// See http://docs.couchbase.com/developer/dev-guide-3.0/doc-expiration.html
+        /// This method except seconds as input, but returns MILLISECONDS. Should be used everywhere where <see cref="Document{T}"/> property Expiry used.
+        /// </summary>
+        /// <param name="expiration"></param>
+        /// <returns></returns>
+        private static uint FixExpirationTimeMilliseconds(uint expiration)
+        {
+            return FixExpirationTime(expiration) * 1000;
         }
 
         #endregion
@@ -788,7 +799,7 @@ namespace CouchbaseManager
 
             try
             {
-                values.ForEach(v => v.Expiry = FixExpirationTime(v.Expiry));
+                values.ForEach(v => v.Expiry = FixExpirationTimeMilliseconds(v.Expiry));
                 var bucket = ClusterHelper.GetBucket(bucketName);
                 string cbDescription = string.Format("bucket: {0}; keyCount: {1};", bucketName, values.Count);
                 using (var km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })

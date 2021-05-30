@@ -26,6 +26,11 @@ namespace CouchbaseManager
                 { Compression.Compression.Gzip, bytes => bytes.Decompress() }
             };
 
+        private static readonly JsonSerializerSettings DefaultJsonSerializerSettings = new JsonSerializerSettings
+        {
+            TypeNameHandling = TypeNameHandling.Auto
+        };
+
         public CompressionCouchbaseManager(CouchbaseManager manager)
         {
             _manager = manager;
@@ -93,6 +98,11 @@ namespace CouchbaseManager
             return GetWithVersion<T>(key, out _, out status, settings);
         }
 
+        public T GetWithVersion<T>(string key, out ulong version, out eResultStatus status, bool asJson)
+        {
+            return this.GetWithVersion<T>(key, out version, out status);
+        }
+
         public T GetWithVersion<T>(string key, out ulong version, out eResultStatus status, JsonSerializerSettings settings = null)
         {
             status = eResultStatus.ERROR;
@@ -147,11 +157,7 @@ namespace CouchbaseManager
 
         private static T DeserializeObject<T>(string serializedResult, JsonSerializerSettings settings = null)
         {
-            return JsonConvert.DeserializeObject<T>(serializedResult,
-                settings ?? new JsonSerializerSettings
-                {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+            return JsonConvert.DeserializeObject<T>(serializedResult, settings ?? DefaultJsonSerializerSettings);
         }
 
         private static T HandleCompressedObject<T>(

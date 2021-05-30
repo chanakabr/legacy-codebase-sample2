@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Prometheus;
 
@@ -8,10 +9,13 @@ namespace Core.Metrics.Web
     {
         public static void AddPrometheus(this IApplicationBuilder app)
         {
-            app.UseEndpoints(endpoints =>
+            if (MetricsHelper.IsMetricsEnabled())
             {
-                endpoints.MapMetrics();
-            });
+                app.UseEndpoints(endpoints =>
+                {
+                    endpoints.MapMetrics();
+                });   
+            }
         }
 
         /// <summary>
@@ -20,7 +24,24 @@ namespace Core.Metrics.Web
         /// </summary>
         public static void MapPrometheusMetrics(this IEndpointRouteBuilder endpointRouteBuilder)
         {
-            endpointRouteBuilder.MapMetrics();
+            if (MetricsHelper.IsMetricsEnabled())
+            {
+                endpointRouteBuilder.MapMetrics();   
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="app"></param>
+        /// <param name="registry"></param>
+        /// <typeparam name="T">Once we starting use asynchronous method, we should add generic constraint to verify that <see cref="T"/> is of type <see cref="IMiddleware"/></typeparam>
+        public static void UsePrometheusMetricsMiddleware<T>(this IApplicationBuilder app, CollectorRegistry registry = null)
+        {
+            if (MetricsHelper.IsMetricsEnabled())
+            {
+                app.UseMiddleware<T>(registry ?? Prometheus.Metrics.DefaultRegistry);
+            }
         }
     }
 }

@@ -37,7 +37,7 @@ namespace Phoenix.Rest
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseRouting();
-            
+
             // support multiple prefix slashes
             app.MapWhen(context =>
             {

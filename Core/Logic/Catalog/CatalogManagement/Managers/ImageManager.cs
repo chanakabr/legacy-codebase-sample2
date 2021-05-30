@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using ElasticSearch.Utilities;
 using Tvinci.Core.DAL;
 
 namespace Core.Catalog.CatalogManagement
@@ -29,14 +30,16 @@ namespace Core.Catalog.CatalogManagement
 
     public class ImageManager : IImageManager
     {
+        private readonly ITtlService _ttlService;
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly Lazy<ImageManager> lazy = new Lazy<ImageManager>(() => new ImageManager(), LazyThreadSafetyMode.PublicationOnly);
+        private static readonly Lazy<ImageManager> lazy = new Lazy<ImageManager>(() => new ImageManager(TtlService.Instance), LazyThreadSafetyMode.PublicationOnly);
 
         public static ImageManager Instance { get { return lazy.Value; } }
 
-        private ImageManager()
+        private ImageManager(ITtlService ttlService)
         {
+            _ttlService = ttlService;
         }
 
         #region Private Methods
@@ -885,7 +888,7 @@ namespace Core.Catalog.CatalogManagement
                                 var pic = program.pictures.Where(x => x.IsProgramImage && x.PicID == image.ReferenceId).FirstOrDefault();
                                 if (pic != null && program.pictures.Remove(pic))
                                 {
-                                    if (!EpgDal.SaveEpgCB(docId, program))
+                                    if (!EpgDal.SaveEpgCB(docId, program, cb => _ttlService.GetEpgCouchbaseTtlSeconds(cb)))
                                     {
                                         log.ErrorFormat("Error while update epgCB at DeleteImage. groupId: {0}, imageId:{1}, user: {2}", groupId, id, userId);
                                     }

@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using ApiLogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
 using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ApiLogic.Api.Validators
 {
@@ -242,6 +242,7 @@ namespace ApiLogic.Api.Validators
             }
 
             var linearChannels = new HashSet<string>();
+            var lcns = new HashSet<string>();
             foreach (var item in regionToValidate.linearChannels)
             {
                 if (!int.TryParse(item.key, out _))
@@ -259,7 +260,13 @@ namespace ApiLogic.Api.Validators
                     validationStatus = new Status(eResponseStatus.DuplicateRegionChannel, $"Channel ID, {item.key}: the channel or its LCN already appears in this bouquet or one of its subbouquets.");
                 }
 
+                if (lcns.Contains(item.value))
+                {
+                    validationStatus = new Status(eResponseStatus.DuplicateRegionChannel, $"Channel ID, {item.key}: the channel or its LCN already appears in this bouquet or one of its subbouquets.");
+                }
+
                 linearChannels.Add(item.key);
+                lcns.Add(item.value);
             }
 
             return validationStatus.IsOkStatusCode();

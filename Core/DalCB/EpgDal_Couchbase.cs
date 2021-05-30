@@ -88,7 +88,7 @@ namespace DalCB
             return bRes;
         }
 
-        public async Task<bool> InsertPrograms(List<EpgCB> objects, int expiryDatleDeltaInDays)
+        public async Task<bool> InsertPrograms(List<EpgCB> objects, Func<EpgCB, uint> expirationRetriever)
         {
             bool bRes = false;
 
@@ -100,7 +100,7 @@ namespace DalCB
                     {
                         Id = o.DocumentId,
                         Content = o,
-                        Expiry = (uint)ODBCWrapper.Utils.DateTimeToUtcUnixTimestampSeconds(o.EndDate.AddDays(expiryDatleDeltaInDays)),
+                        Expiry = expirationRetriever(o),
                     }).Cast<IDocument<EpgCB>>().ToList();
 
                     var results = await cbManager.MultiSet(documents, allowPartial: false);

@@ -13,6 +13,7 @@ using ApiObjects;
 using ApiObjects.Catalog;
 using Core.Catalog.Cache;
 using Core.GroupManagers;
+using ElasticSearch.Utilities;
 using Tvinci.Core.DAL;
 using ESUtils = ElasticSearch.Common.Utils;
 
@@ -30,7 +31,6 @@ namespace IngestHandler.Common
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        internal static readonly int EXPIRY_DATE_DELTA = (ApplicationConfiguration.Current.EPGDocumentExpiry.Value > 0) ? ApplicationConfiguration.Current.EPGDocumentExpiry.Value : 7;
         private static readonly int DEFAULT_CATCHUP_DAYS = 7;
         private const string LOCK_KEY_DATE_FORMAT = "yyyyMMdd";
 
@@ -74,7 +74,7 @@ namespace IngestHandler.Common
             {
                 var epgCbObjectToInsert = programsToAdd.SelectMany(p => p.EpgCbObjects).ToList();
                 SetSearchEndDate(epgCbObjectToInsert, groupId);
-                insertResult = await dal.InsertPrograms(epgCbObjectToInsert, EXPIRY_DATE_DELTA);
+                insertResult = await dal.InsertPrograms(epgCbObjectToInsert, cb => TtlService.Instance.GetEpgCouchbaseTtlSeconds(cb));
             });
 
             if (!insertResult)

@@ -105,7 +105,8 @@ namespace Core.Catalog
                 }
 
                 // in case operator is searching we override the existing value
-                definitions.shouldUseStartDateForMedia = !request.isAllowedToViewInactiveAssets;                
+                definitions.shouldUseStartDateForMedia = !request.isAllowedToViewInactiveAssets;
+                definitions.shouldUseCatalogStartDateForMedia = doesGroupUsesTemplates;
                 definitions.shouldIgnoreEndDate = request.isAllowedToViewInactiveAssets || request.shouldIgnoreEndDate;
 
                 OrderObj order = new OrderObj();
