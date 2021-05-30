@@ -23,6 +23,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
         static public KalturaAssetFilePpvListResponse List(KalturaAssetFilePpvFilter filter)
         {
             KalturaAssetFilePpvListResponse response = null;

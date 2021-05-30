@@ -509,8 +509,6 @@ namespace WebAPI.Clients
         {
             PaymentGatewayChargeIDResponse response = null;
 
-            
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
@@ -882,7 +880,6 @@ namespace WebAPI.Clients
         internal bool SetPaymentMethodHouseholdPaymentGateway(int groupId, int paymentGatewayId, string userID, long householdId, int paymentMethodId)
         {
             Status response = null;
-            
 
             try
             {

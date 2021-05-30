@@ -84,6 +84,15 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.InvalidPurchase)]
         [Throws(eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending)]
+        [Throws(StatusCode.HouseholdForbidden)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.SubscriptionCancellationIsBlocked)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayExternalVerification)]
+        [Throws(eResponseStatus.PaymentGatewayNotValid)]
+        [Throws(eResponseStatus.ContentAlreadyConsumed)]
+        [Throws(eResponseStatus.ActionBlocked)]
+        [Throws(eResponseStatus.CancelationWindowPeriodExpired)]
         static public bool ForceCancel(int assetId, KalturaTransactionType productType)
         {
             bool response = false;
@@ -214,6 +223,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         static public KalturaEntitlementListResponse List(KalturaEntitlementFilter filter, KalturaFilterPager pager = null)
         {
             KalturaEntitlementListResponse response = new KalturaEntitlementListResponse();
@@ -348,6 +358,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NoMediaRelatedToFile)]
         [Throws(eResponseStatus.InvalidUser)]
         [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
+        [Throws(eResponseStatus.ServiceAlreadyExists)]
+        [Throws(eResponseStatus.DlmExist)]
         static public bool Grant(int productId, KalturaTransactionType productType, bool history, int contentId = 0)
         {
             bool response = false;

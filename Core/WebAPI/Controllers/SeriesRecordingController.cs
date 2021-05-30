@@ -278,6 +278,11 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AccountSeriesRecordingNotEnabled)]
         [Throws(eResponseStatus.AlreadyRecordedAsSeriesOrSeason)]
         [Throws(eResponseStatus.InvalidAssetId)]
+        [Throws(eResponseStatus.ProgramNotInRecordingScheduleWindow)]
+        [Throws(eResponseStatus.AccountCatchUpNotEnabled)]
+        [Throws(eResponseStatus.ProgramCatchUpNotEnabled)]
+        [Throws(eResponseStatus.CatchUpBufferLimitation)]
+        [Throws(eResponseStatus.ExceededQuota)]
         static public KalturaSeriesRecording Add(KalturaSeriesRecording recording)
         {
             KalturaSeriesRecording response = null;

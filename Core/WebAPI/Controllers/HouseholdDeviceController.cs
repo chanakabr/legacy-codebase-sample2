@@ -112,6 +112,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
         [Throws(eResponseStatus.NoUsersInDomain)]
+        [Throws(eResponseStatus.DeviceTypeNotAllowed)]
+        [Throws(eResponseStatus.ExternalIdAlreadyExists)]
         public static KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
         {
             device.Validate();
@@ -195,6 +197,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
         [Throws(eResponseStatus.AdapterNotExists)]
         [Throws(eResponseStatus.AdapterAppFailure)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
         static public KalturaHouseholdDevice Get(string udid = null)
         {
             KalturaHouseholdDevice device = null;

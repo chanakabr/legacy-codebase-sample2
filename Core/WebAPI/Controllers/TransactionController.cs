@@ -168,6 +168,13 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MissingBasePackage)]
         [Throws(eResponseStatus.PurchasePendingFailed)]
         [Throws(eResponseStatus.PendingEntitlement)]
+        [Throws(eResponseStatus.InvalidContentId)]
+        [Throws(eResponseStatus.NoMediaRelatedToFile)]
+        [Throws(eResponseStatus.PaymentGatewaySuspended)]
+        [Throws(eResponseStatus.ActionBlocked)]
+        [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
+        [Throws(eResponseStatus.PurchasePassedEntitlementFailed)]
+        [Throws(eResponseStatus.PurchaseFailed)]
         static public KalturaTransaction Purchase(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();

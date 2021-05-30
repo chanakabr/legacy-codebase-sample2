@@ -26,9 +26,11 @@ namespace WebAPI.Controllers
         [Action("serveByDevice")]     
         [SchemeServeAttribute]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(StatusCode.MissingConfiguration)]
         [Throws(eResponseStatus.IllegalQueryParams)]
-        [Throws(eResponseStatus.Registered)]
         [Throws(eResponseStatus.VersionNotFound)]
+        [Throws(eResponseStatus.Forbidden)]
+        [Throws(eResponseStatus.IllegalPostData)]
         static public KalturaStringRenderer ServeByDevice(string applicationName, string clientVersion, string platform, string udid, string tag, int partnerId = 0)
         {
             string response = null;

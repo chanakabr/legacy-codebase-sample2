@@ -177,6 +177,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.HouseholdUserFailed)]
         [Throws(eResponseStatus.RegionDoesNotExist)]
+        [Throws(eResponseStatus.DomainAlreadyExists)]
+        [Throws(eResponseStatus.UserExistsInOtherDomains)]
         static public KalturaHousehold Add(KalturaHousehold household)
         {
             KalturaHousehold response = null;

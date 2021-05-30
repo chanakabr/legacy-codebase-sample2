@@ -116,6 +116,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AlreadyRecordedAsSeriesOrSeason)]
         [Throws(eResponseStatus.InvalidAssetId)]
         [Throws(eResponseStatus.InvalidParameters)]
+        [Throws(StatusCode.ArgumentCannotBeEmpty)]
         static public KalturaRecording Add(KalturaRecording recording)
         {
             KalturaRecording response = null;

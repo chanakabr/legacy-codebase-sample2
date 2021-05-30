@@ -68,6 +68,11 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
         [Throws(eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod)]
         [Throws(eResponseStatus.PaymentGatewayNotSupportPaymentMethod)]
+        [Throws(eResponseStatus.PaymentMethodIdRequired)]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.HouseholdUserFailed)]
         static public bool SetAsDefault(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
@@ -245,6 +250,14 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
         [Throws(eResponseStatus.ErrorSavingPaymentGatewayHouseholdPaymentMethod)]
         [Throws(eResponseStatus.PaymentGatewayNotSupportPaymentMethod)]
+        [Throws(eResponseStatus.PaymentMethodIdRequired)]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
+        [Throws(eResponseStatus.PaymentMethodExternalIdRequired)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentMethodNotExist)]
+        [Throws(eResponseStatus.PaymentMethodAlreadySetToHouseholdPaymentGateway)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.HouseholdUserFailed)]
         static public KalturaHouseholdPaymentMethod Add(KalturaHouseholdPaymentMethod householdPaymentMethod)
         {
             KalturaHouseholdPaymentMethod response = null;

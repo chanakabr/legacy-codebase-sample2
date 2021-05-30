@@ -68,6 +68,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ErrorSavingPaymentGatewayHousehold)]
         [Throws(eResponseStatus.ChargeIdAlreadySetToHouseholdPaymentGateway)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.HouseholdUserFailed)]
         static public bool SetChargeID(string paymentGatewayExternalId, string chargeId)
         {
             bool response = false;
@@ -104,6 +106,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ChargeIdNotSetToHousehold)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.HouseholdUserFailed)]
         static public string GetChargeID(string paymentGatewayExternalId)
         {
             string chargeId = string.Empty;

@@ -276,6 +276,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserExists)]
         [Throws(eResponseStatus.ExternalIdAlreadyExists)]
         [Throws(eResponseStatus.UserExternalError)]
+        [Throws(eResponseStatus.RoleDoesNotExists)]
         [SchemeArgument("password", MaxLength = 128)]
         static public KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)
         {
@@ -639,6 +640,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserExists)]
         [Throws(eResponseStatus.ExternalIdAlreadyExists)]
+        [Throws(eResponseStatus.RoleDoesNotExists)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [SchemeArgument("id", RequiresPermission = true)]
         static public KalturaOTTUser Update(KalturaOTTUser user, string id = null)
         {

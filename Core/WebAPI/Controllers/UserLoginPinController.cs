@@ -27,6 +27,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.InvalidParameters)]
+        [Throws(eResponseStatus.LoginViaPinNotAllowed)]
+        [Throws(eResponseStatus.MissingSecurityParameter)]
         static public KalturaUserLoginPin Add(string secret = null, int? pinUsages = null, int? pinDuration = null)
         {
             KalturaUserLoginPin response = null;

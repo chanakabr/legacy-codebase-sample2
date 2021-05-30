@@ -95,6 +95,8 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PARENTID_NOT_EXIST = new ClientExceptionType(eResponseStatus.ParentIdNotExist, "ParentId Not Exist");
         public static ClientExceptionType USER_FAVORITE_NOT_DELETED = new ClientExceptionType(eResponseStatus.UserFavoriteNotDeleted, "User Favorite Not Deleted");
         public static ClientExceptionType USER_SELF_DELETE_NOT_PERMITTED = new ClientExceptionType(eResponseStatus.UserSelfDeleteNotPermitted, "User Self Delete Not Permitted", "Self deletion is not permitted.");
+        public static ClientExceptionType USER_EXTERNAL_ERROR = new ClientExceptionType(eResponseStatus.UserExternalError, "User External Error", "User External Error.");
+        public static ClientExceptionType ActionBlocked = new ClientExceptionType(eResponseStatus.ActionBlocked, "Blocked by segment", "Blocked by segment.");
 
         #endregion
 
@@ -156,6 +158,13 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CAMPAIGN_ALREADY_APPLIED = new ClientExceptionType(eResponseStatus.CampaignIsAlreadyAppliedForSubscription, "Campaign is already applied for subscription", "Campaign is already applied for subscription");
         public static ClientExceptionType PURCHASE_PENDING_FAILED = new ClientExceptionType(eResponseStatus.PurchasePendingFailed, "");
         public static ClientExceptionType PENDING_ENTITELMENT = new ClientExceptionType(eResponseStatus.PendingEntitlement, "", "Entitlement is pending");
+        public static ClientExceptionType INVALID_CONTENT_ID = new ClientExceptionType(eResponseStatus.InvalidContentId, "Illegal content ID", "Illegal content ID");
+        public static ClientExceptionType CAN_ONLY_BE_ENTITLED_TO_ONE_SUBSCRIPTION_PER_SUBSCRIPTIONSET = new ClientExceptionType(eResponseStatus.CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet, "Can only be entitled to one subscription per subscriptionSet, please use Upgrade or Downgrade", "Can only be entitled to one subscription per subscriptionSet, please use Upgrade or Downgrade");
+        public static ClientExceptionType SUBSCRIPTION_NOT_ALLOWED_FOR_USER_TYPE = new ClientExceptionType(eResponseStatus.SubscriptionNotAllowedForUserType, "Subscription is not allowed for user type", "Subscription is not allowed for user type");
+        public static ClientExceptionType MISSING_BASE_PACKAGE = new ClientExceptionType(eResponseStatus.MissingBasePackage, "Missing base package", "Missing base package");
+        public static ClientExceptionType SUBSCRIPTION_SET_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.SubscriptionSetDoesNotExist, "The subscriptionSet does not exist", "The subscriptionSet does not exist");
+        public static ClientExceptionType PURCHASE_PASSED_ENTITLEMENT_FAILED = new ClientExceptionType(eResponseStatus.PurchasePassedEntitlementFailed, "purchase passed but entitlement failed", "purchase passed but entitlement failed");
+        public static ClientExceptionType PURCHASE_FAILED = new ClientExceptionType(eResponseStatus.PurchaseFailed, "purchase failed", "purchase failed");
 
         #endregion
 
@@ -267,7 +276,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType DUPLICATE_REGION_CHANNEL = new ClientExceptionType(eResponseStatus.DuplicateRegionChannel, "", "The channel already in region channels list");
         public static ClientExceptionType PARENT_ALREADY_CONTAINS_CHANNEL = new ClientExceptionType(eResponseStatus.ParentAlreadyContainsChannel, "", "Parent region already contains channel");
         public static ClientExceptionType START_DATE_SHOULD_BE_LESS_THAN_END_DATE = new ClientExceptionType(eResponseStatus.StartDateShouldBeLessThanEndDate, "StartDate should be less than EndDate");
-
+        //public static ClientExceptionType DeviceTypeNotAllowed= new ClientExceptionType(eResponseStatus.DeviceTypeNotAllowed, "DeviceTypeNotAllowed");
         #endregion
 
         #region Api 5000 - 5999
@@ -386,6 +395,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PAYMENT_METHOD_ALREADY_SET_TO_Domain_PAYMENT_GATEWAY = new ClientExceptionType(eResponseStatus.PaymentMethodAlreadySetToHouseholdPaymentGateway, "Payment Method Already Set To Domain Payment Gateway", "A payment method was already set for the household Payment Gateway.");
         public static ClientExceptionType PAYMENT_METHOD_NAME_REQUIRED = new ClientExceptionType(eResponseStatus.PaymentMethodNameRequired, "Payment Method Name Required", "The mandatory payment method name field is missing in the request.");
         public static ClientExceptionType PAYMENT_GATEWAY_NOT_SUPPORT_PAYMENT_METHOD = new ClientExceptionType(eResponseStatus.PaymentGatewayNotSupportPaymentMethod, "Payment Gateway Not Support Payment Method", "The Payment Gateway doesn't support this payment method.");
+        public static ClientExceptionType PAYMENT_GATEWAY_SUSPENDED = new ClientExceptionType(eResponseStatus.PaymentGatewaySuspended, "Payment gateway suspended to this householdId", "Payment gateway suspended to this householdId.");
 
         #endregion
 
@@ -476,6 +486,175 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType NO_INGEsT_PROFILE_TO_INSERT = new ClientExceptionType(eResponseStatus.NoIngestProfileToInsert, "No Ingest Profile found to insert");
         public static ClientExceptionType EPG_PROGRAM_LANG_NOT_EXISTS = new ClientExceptionType(eResponseStatus.EPGLanguageNotFound, "EPG Program required language not found ", "The EPG program does not have the required language or the required default language as a fallback option");
 
+        #endregion
+
+
+        #region else
+        //public static ClientExceptionType ERROR = new ClientExceptionType(eResponseStatus.Error, "Error"); 
+        public static ClientExceptionType DLM_EXIST = new ClientExceptionType(eResponseStatus.DlmExist, "DlmExist");
+        public static ClientExceptionType MASTER_USER_NOT_FOUND = new ClientExceptionType(eResponseStatus.MasterUserNotFound, "MasterUserNotFound");
+        public static ClientExceptionType PASSWORD_POLICY_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.PasswordPolicyDoesNotExist, "PasswordPolicyDoesNotExist");
+        public static ClientExceptionType PASSWORD_POLICY_VIOLATION = new ClientExceptionType(eResponseStatus.PasswordPolicyViolation, "PasswordPolicyViolation");
+        public static ClientExceptionType PASSWORD_EXPIRED = new ClientExceptionType(eResponseStatus.PasswordExpired, "PasswordExpired");
+        public static ClientExceptionType PASSWORD_CANNOT_BE_REUSED = new ClientExceptionType(eResponseStatus.PasswordCannotBeReused, "PasswordCannotBeReused");
+        public static ClientExceptionType INVALID_PASSWORD_COMPLEXITY = new ClientExceptionType(eResponseStatus.InvalidPasswordComplexity, "InvalidPasswordComplexity");
+        public static ClientExceptionType INTERNAL_CONNECTION_ISSUE = new ClientExceptionType(eResponseStatus.InternalConnectionIssue, "InternalConnectionIssue");
+        
+        public static ClientExceptionType GENERATE_NEW_LOGIN_PIN = new ClientExceptionType(eResponseStatus.GenerateNewLoginPIN, "GenerateNewLoginPIN");
+        public static ClientExceptionType NOT_ACTIVATED = new ClientExceptionType(eResponseStatus.NotActivated, "NotActivated");
+        public static ClientExceptionType USER_INTEREST_NOT_EXIST = new ClientExceptionType(eResponseStatus.UserInterestNotExist, "UserInterestNotExist");
+        public static ClientExceptionType USER_INTEREST_ALREADY_EXIST = new ClientExceptionType(eResponseStatus.UserInterestAlreadyExist, "UserInterestAlreadyExist");
+        public static ClientExceptionType NO_USER_INTEREST_TO_INSERT = new ClientExceptionType(eResponseStatus.NoUserInterestToInsert, "NoUserInterestToInsert");
+        public static ClientExceptionType META_ID_REQUIRED = new ClientExceptionType(eResponseStatus.MetaIdRequired, "MetaIdRequired");
+        public static ClientExceptionType META_VALUE_REQUIRED = new ClientExceptionType(eResponseStatus.MetaValueRequired, "MetaValueRequired");
+        public static ClientExceptionType TOPIC_NOT_FOUND = new ClientExceptionType(eResponseStatus.TopicNotFound, "TopicNotFound");
+        public static ClientExceptionType PARENT_DUPLICATE_ASSOCIATION = new ClientExceptionType(eResponseStatus.ParentDuplicateAssociation, "ParentDuplicateAssociation");
+        public static ClientExceptionType META_NOT_A_USER_INTEREST = new ClientExceptionType(eResponseStatus.MetaNotAUserinterest, "MetaNotAUserinterest");
+        public static ClientExceptionType PARENT_ID_NOT_A_USER_INTEREST = new ClientExceptionType(eResponseStatus.ParentIdNotAUserInterest, "ParentIdNotAUserInterest");
+        public static ClientExceptionType PARENT_ASSET_TYPE_DIFFRENT_FROM_META = new ClientExceptionType(eResponseStatus.ParentAssetTypeDiffrentFromMeta, "ParentAssetTypeDiffrentFromMeta");
+        public static ClientExceptionType META_NOT_FOUND = new ClientExceptionType(eResponseStatus.MetaNotFound, "MetaNotFound");
+        public static ClientExceptionType META_NOT_BELONG_TO_PARTNER = new ClientExceptionType(eResponseStatus.MetaNotBelongtoPartner, "MetaNotBelongtoPartner");
+        public static ClientExceptionType WRONG_META_NAME = new ClientExceptionType(eResponseStatus.WrongMetaName, "WrongMetaName");
+        public static ClientExceptionType PARENT_PARNER_DIFFRENT_FROM_META_PARTNER = new ClientExceptionType(eResponseStatus.ParentParnerDiffrentFromMetaPartner, "ParentParnerDiffrentFromMetaPartner");
+        public static ClientExceptionType PARTNER_TOPIC_INTEREST_IS_MISSING = new ClientExceptionType(eResponseStatus.PartnerTopicInterestIsMissing, "PartnerTopicInterestIsMissing");
+        public static ClientExceptionType PARENT_TOPIC_IS_REQUIRED = new ClientExceptionType(eResponseStatus.ParentTopicIsRequired, "ParentTopicIsRequired");
+        public static ClientExceptionType PARENT_TOPIC_SHOULD_NOT_HAVE_VALUE = new ClientExceptionType(eResponseStatus.ParentTopicShouldNotHaveValue, "ParentTopicShouldNotHaveValue");
+        public static ClientExceptionType PARENT_TOPIC_META_ID_NOT_EQUAL_TO_META_PARENT_META_ID = new ClientExceptionType(eResponseStatus.ParentTopicMetaIdNotEqualToMetaParentMetaID, "ParentTopicMetaIdNotEqualToMetaParentMetaID");
+        public static ClientExceptionType PARENT_TOPIC_VALUE_IS_MISSING = new ClientExceptionType(eResponseStatus.ParentTopicValueIsMissing, "ParentTopicValueIsMissing");
+        public static ClientExceptionType SSO_ADAPTER_NOT_EXIST = new ClientExceptionType(eResponseStatus.SSOAdapterNotExist, "SSOAdapterNotExist");
+        public static ClientExceptionType NO_SSO_ADAPATER_TO_INSERT = new ClientExceptionType(eResponseStatus.NoSSOAdapaterToInsert, "NoSSOAdapaterToInsert");
+        public static ClientExceptionType SSO_ADAPTER_ID_REQUIRED = new ClientExceptionType(eResponseStatus.SSOAdapterIdRequired, "SSOAdapterIdRequired");
+        
+        public static ClientExceptionType SERVICE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.ServiceAlreadyExists, "ServiceAlreadyExists");
+        public static ClientExceptionType NO_FILES_FOUND = new ClientExceptionType(eResponseStatus.NoFilesFound, "NoFilesFound");
+        public static ClientExceptionType COMPENSATION_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.CompensationAlreadyExists, "CompensationAlreadyExists");
+        public static ClientExceptionType COMPENSATION_NOT_FOUND = new ClientExceptionType(eResponseStatus.CompensationNotFound, "CompensationNotFound");
+        public static ClientExceptionType COUPON_PROMOTION_DATE_EXPIRED = new ClientExceptionType(eResponseStatus.CouponPromotionDateExpired, "CouponPromotionDateExpired");
+        public static ClientExceptionType COUPON_PROMOTION_DATE_NOT_STARTED = new ClientExceptionType(eResponseStatus.CouponPromotionDateNotStarted, "CouponPromotionDateNotStarted");
+        public static ClientExceptionType SUBSCRIPTION_ALREADY_BELONGS_TO_ANOTHER_SUBSCRIPTION_SET = new ClientExceptionType(eResponseStatus.SubscriptionAlreadyBelongsToAnotherSubscriptionSet, "SubscriptionAlreadyBelongsToAnotherSubscriptionSet");
+        //public static ClientExceptionType CAN_ONLY_BEEN_TITLED_TO_ONE_SUBSCRIPTION_PER_SUBSCRIPTION_SET = new ClientExceptionType(eResponseStatus.CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet, "CanOnlyBeEntitledToOneSubscriptionPerSubscriptionSet");
+        public static ClientExceptionType CAN_ONLY_UPGRADE_OR_DOWNGRADE_RECURRING_SUBSCRIPTION_IN_THE_SAME_SUBSCRIPTION_SET = new ClientExceptionType(eResponseStatus.CanOnlyUpgradeOrDowngradeRecurringSubscriptionInTheSameSubscriptionSet, "CanOnlyUpgradeOrDowngradeRecurringSubscriptionInTheSameSubscriptionSet");
+        public static ClientExceptionType CAN_ONLY_UPGRADE_SUBSCRIPTION_WITH_HIGHER_PRIORITY = new ClientExceptionType(eResponseStatus.CanOnlyUpgradeSubscriptionWithHigherPriority, "CanOnlyUpgradeSubscriptionWithHigherPriority");
+        public static ClientExceptionType CAN_ONLY_DOWNGRADE_SUBSCRIPTION_WITH_LOWERP_RIORITY = new ClientExceptionType(eResponseStatus.CanOnlyDowngradeSubscriptionWithLowerPriority, "CanOnlyDowngradeSubscriptionWithLowerPriority");
+        public static ClientExceptionType CAN_ONLY_UPGRADE_OR_DOWNGRADE_SUBSCRIPTION_ONCE = new ClientExceptionType(eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce, "CanOnlyUpgradeOrDowngradeSubscriptionOnce");
+        public static ClientExceptionType CAN_ONLY_UPGRADE_SUBSCRIPTION_WITH_THE_SAME_CURRENCY_AS_CURRENT_SUBSCRIPTION = new ClientExceptionType(eResponseStatus.CanOnlyUpgradeSubscriptionWithTheSameCurrencyAsCurrentSubscription, "CanOnlyUpgradeSubscriptionWithTheSameCurrencyAsCurrentSubscription");
+        public static ClientExceptionType SCHEDULED_SUBSCRIPTION_NOT_FOUND = new ClientExceptionType(eResponseStatus.ScheduledSubscriptionNotFound, "ScheduledSubscriptionNotFound");
+        public static ClientExceptionType CAN_NOT_CANCEL_SUBSCRIPTION_WHILE_DOWNGRADE_IS_PENDING = new ClientExceptionType(eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending, "CanNotCancelSubscriptionWhileDowngradeIsPending");
+        public static ClientExceptionType CAN_NOT_CANCEL_SUBSCRIPTION_RENEWAL_WHILE_DOWNGRADE_IS_PENDING = new ClientExceptionType(eResponseStatus.CanNotCancelSubscriptionRenewalWhileDowngradeIsPending, "CanNotCancelSubscriptionRenewalWhileDowngradeIsPending");
+        public static ClientExceptionType BASE_SUBSCRIPTION_ALREADY_BELONGS_TO_ANOTHER_SUBSCRIPTION_SET = new ClientExceptionType(eResponseStatus.BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet, "BaseSubscriptionAlreadyBelongsToAnotherSubscriptionSet");
+        public static ClientExceptionType WRONG_SUBSCRIPTION_TYPE = new ClientExceptionType(eResponseStatus.WrongSubscriptionType, "WrongSubscriptionType");
+        public static ClientExceptionType INVALID_PRODUCT_TYPE = new ClientExceptionType(eResponseStatus.InvalidProductType, "InvalidProductType");
+        public static ClientExceptionType NETWORK_RULE_BLOCK = new ClientExceptionType(eResponseStatus.NetworkRuleBlock, "NetworkRuleBlock");
+        public static ClientExceptionType RECORDING_IDS_EXCEEDED_LIMIT = new ClientExceptionType(eResponseStatus.RecordingIdsExceededLimit, "RecordingIdsExceededLimit");
+        
+        public static ClientExceptionType ELASTIC_SEARCH_RETURNED_DELETE_ITEM = new ClientExceptionType(eResponseStatus.ElasticSearchReturnedDeleteItem, "ElasticSearchReturnedDeleteItem");
+        public static ClientExceptionType ELASTIC_SEARCH_RETURNED_UNUPDATED_ITEM = new ClientExceptionType(eResponseStatus.ElasticSearchReturnedUnupdatedItem, "ElasticSearchReturnedUnupdatedItem");
+        public static ClientExceptionType MISSING_BASIC_VALUE_FOR_ASSET = new ClientExceptionType(eResponseStatus.MissingBasicValueForAsset, "MissingBasicValueForAsset");
+        public static ClientExceptionType CAN_NOT_DELETE_CONNECTING_ASSET_STRUCT_META = new ClientExceptionType(eResponseStatus.CanNotDeleteConnectingAssetStructMeta, "CanNotDeleteConnectingAssetStructMeta");
+        public static ClientExceptionType NO_PARENT_ASSOCIATED_TO_TOPIC = new ClientExceptionType(eResponseStatus.NoParentAssociatedToTopic, "NoParentAssociatedToTopic");
+        public static ClientExceptionType WRONG_PARENT_ASSOCIATION = new ClientExceptionType(eResponseStatus.WrongParentAssociation, "WrongParentAssociation");
+        public static ClientExceptionType META_DOES_NOT_BELONG_TO_PARENT_ASSET_STRUCT = new ClientExceptionType(eResponseStatus.MetaDoesNotBelongToParentAssetStruct, "MetaDoesNotBelongToParentAssetStruct");
+        public static ClientExceptionType META_IDS_DUPLICATION = new ClientExceptionType(eResponseStatus.MetaIdsDuplication, "MetaIdsDuplication");
+        public static ClientExceptionType ASSET_FILE_PPV_NOT_EXIST = new ClientExceptionType(eResponseStatus.AssetFilePPVNotExist, "AssetFilePPVNotExist");
+        public static ClientExceptionType GROUP_DOES_NOT_CONTAIN_CURRENCY = new ClientExceptionType(eResponseStatus.GroupDoesNotContainCurrency, "GroupDoesNotContainCurrency");
+        public static ClientExceptionType NO_VALUES_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoValuesToUpdate, "NoValuesToUpdate");
+        public static ClientExceptionType IMAGE_URL_REQUIRED = new ClientExceptionType(eResponseStatus.ImageUrlRequired, "ImageUrlRequired");
+        public static ClientExceptionType CATEGORY_VERSION_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.CategoryVersionDoesNotExist, "CategoryVersionDoesNotExist");
+        public static ClientExceptionType CATEGORY_VERSION_IS_NOT_DRAFT = new ClientExceptionType(eResponseStatus.CategoryVersionIsNotDraft, "CategoryVersionIsNotDraft");
+        public static ClientExceptionType CATEGORY_IS_ALREADY_ASSOCIATED_TO_VERSION = new ClientExceptionType(eResponseStatus.CategoryIsAlreadyAssociatedToVersion, "CategoryIsAlreadyAssociatedToVersion");
+        public static ClientExceptionType CATEGORY_IS_NOT_ROOT = new ClientExceptionType(eResponseStatus.CategoryIsNotRoot, "CategoryIsNotRoot");
+        public static ClientExceptionType CATEGORY_TREE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.CategoryTreeDoesNotExist, "CategoryTreeDoesNotExist");
+        public static ClientExceptionType CATEGORY_ITEM_IS_ROOT = new ClientExceptionType(eResponseStatus.CategoryItemIsRoot, "CategoryItemIsRoot");
+        public static ClientExceptionType CATEGORY_VERSION_IS_OLDER_THAN_DEFAULT = new ClientExceptionType(eResponseStatus.CategoryVersionIsOlderThanDefault, "CategoryVersionIsOlderThanDefault");
+        public static ClientExceptionType CATEGORY_IS_ALREADY_ASSOCIATED_TO_VERSION_TREE = new ClientExceptionType(eResponseStatus.CategoryIsAlreadyAssociatedToVersionTree, "CategoryIsAlreadyAssociatedToVersionTree");
+        
+        public static ClientExceptionType NO_META_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoMetaToUpdate, "NoMetaToUpdate");
+        public static ClientExceptionType NOT_A_TOPIC_INTEREST_META = new ClientExceptionType(eResponseStatus.NotaTopicInterestMeta, "NotaTopicInterestMeta");
+        public static ClientExceptionType ROLE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.RoleAlreadyExists, "RoleAlreadyExists");
+        public static ClientExceptionType NON_EXISTING_DEVICE_FAMILY_IDS = new ClientExceptionType(eResponseStatus.NonExistingDeviceFamilyIds, "NonExistingDeviceFamilyIds");
+        public static ClientExceptionType PARENTAL_RULE_NAME_ALREADY_IN_USE = new ClientExceptionType(eResponseStatus.ParentalRuleNameAlreadyInUse, "ParentalRuleNameAlreadyInUse");
+        public static ClientExceptionType PARENTAL_RULE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.ParentalRuleDoesNotExist, "ParentalRuleDoesNotExist");
+        public static ClientExceptionType CAN_NOT_DELETE_DEFAULT_PARENTAL_RULE = new ClientExceptionType(eResponseStatus.CanNotDeleteDefaultParentalRule, "CanNotDeleteDefaultParentalRule");
+        public static ClientExceptionType INVALID_LANGUAGE = new ClientExceptionType(eResponseStatus.InvalidLanguage, "InvalidLanguage");
+        public static ClientExceptionType INVALID_ARGUMENT_VALUE = new ClientExceptionType(eResponseStatus.InvalidArgumentValue, "InvalidArgumentValue");
+        public static ClientExceptionType PARTNER_CONFIGURATION_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.PartnerConfigurationDoesNotExist, "PartnerConfigurationDoesNotExist");
+        
+        public static ClientExceptionType PAYMENT_GATEWAY_EXTERNAL_VERIFICATION = new ClientExceptionType(eResponseStatus.PaymentGatewayExternalVerification, "PaymentGatewayExternalVerification");
+        
+        public static ClientExceptionType NO_USER_SOCIAL_SETTINGS_FOUND = new ClientExceptionType(eResponseStatus.NoUserSocialSettingsFound, "NoUserSocialSettingsFound");
+        public static ClientExceptionType ASSET_ALREADY_LIKED = new ClientExceptionType(eResponseStatus.AssetAlreadyLiked, "AssetAlreadyLiked");
+        public static ClientExceptionType SOCIAL_ACTION_PRIVACY_DONT_ALLOW = new ClientExceptionType(eResponseStatus.SocialActionPrivacyDontAllow, "SocialActionPrivacyDontAllow");
+        public static ClientExceptionType EMPTY_FACEBOOK_OBJECT_ID = new ClientExceptionType(eResponseStatus.EmptyFacebookObjectId, "EmptyFacebookObjectId");
+        public static ClientExceptionType UNKNOWN_ACTION = new ClientExceptionType(eResponseStatus.UnknownAction, "UnknownAction");
+        public static ClientExceptionType INVALID_ACCESS_TOKEN = new ClientExceptionType(eResponseStatus.InvalidAccessToken, "InvalidAccessToken");
+        public static ClientExceptionType INVALID_PLATFORM_REQUEST = new ClientExceptionType(eResponseStatus.InvalidPlatformRequest, "InvalidPlatformRequest");
+        public static ClientExceptionType ASSET_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.AssetDoseNotExists, "AssetDoseNotExists");
+        public static ClientExceptionType USER_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.UserDoseNotExists, "UserDoseNotExists");
+        public static ClientExceptionType NO_FACEBOOK_ACTION = new ClientExceptionType(eResponseStatus.NoFacebookAction, "NoFacebookAction");
+        //public static ClientExceptionType NOT_ALLOWED = new ClientExceptionType(eResponseStatus.NotAllowed, "NotAllowed");
+        public static ClientExceptionType ASSET_ALREADY_RATED = new ClientExceptionType(eResponseStatus.AssetAlreadyRated, "AssetAlreadyRated");
+        public static ClientExceptionType ASSET_NEVER_LIKED = new ClientExceptionType(eResponseStatus.AssetNeverLiked, "AssetNeverLiked");
+        public static ClientExceptionType SOCIAL_ACTION_ID_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.SocialActionIdDoseNotExists, "SocialActionIdDoseNotExists");
+        public static ClientExceptionType USER_EMAIL_IS_MISSING = new ClientExceptionType(eResponseStatus.UserEmailIsMissing, "UserEmailIsMissing");
+        
+        //public static ClientExceptionType URL_PLACEHOLDERS_INVALID = new ClientExceptionType(eResponseStatus.URLPlaceholdersInvalid, "URLPlaceholdersInvalid");
+        public static ClientExceptionType INVALID_REMINDER_PRE_PADDING_SEC = new ClientExceptionType(eResponseStatus.InvalidReminderPrePaddingSec, "InvalidReminderPrePaddingSec");
+        public static ClientExceptionType REMINDER_NOT_FOUND = new ClientExceptionType(eResponseStatus.ReminderNotFound, "ReminderNotFound");
+        public static ClientExceptionType USER_ALREADY_SET_REMINDER = new ClientExceptionType(eResponseStatus.UserAlreadySetReminder, "UserAlreadySetReminder");
+        public static ClientExceptionType PASSED_ASSET = new ClientExceptionType(eResponseStatus.PassedAsset, "PassedAsset");
+        public static ClientExceptionType ENGAGEMENT_ADAPTER_IDENTIFIER_REQUIRED = new ClientExceptionType(eResponseStatus.EngagementAdapterIdentifierRequired, "EngagementAdapterIdentifierRequired");
+        public static ClientExceptionType ENGAGEMENT_ADAPTER_NOT_EXIST = new ClientExceptionType(eResponseStatus.EngagementAdapterNotExist, "EngagementAdapterNotExist");
+        public static ClientExceptionType ENGAGEMENT_ADAPTER_PARAMS_REQUIRED = new ClientExceptionType(eResponseStatus.EngagementAdapterParamsRequired, "EngagementAdapterParamsRequired");
+        public static ClientExceptionType NO_ENGAGEMENT_ADAPTER_TO_INSERT = new ClientExceptionType(eResponseStatus.NoEngagementAdapterToInsert, "NoEngagementAdapterToInsert");
+        public static ClientExceptionType NO_ENGAGEMENT_ADAPTER_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoEngagementAdapterToUpdate, "NoEngagementAdapterToUpdate");
+        public static ClientExceptionType NO_ENGAGEMENT_TO_INSERT = new ClientExceptionType(eResponseStatus.NoEngagementToInsert, "NoEngagementToInsert");
+        public static ClientExceptionType ENGAGEMENT_REQUIRED = new ClientExceptionType(eResponseStatus.EngagementRequired, "EngagementRequired");
+        public static ClientExceptionType ENGAGEMENT_NOT_EXIST = new ClientExceptionType(eResponseStatus.EngagementNotExist, "EngagementNotExist");
+        public static ClientExceptionType PROVIDER_URL_REQUIRED = new ClientExceptionType(eResponseStatus.ProviderUrlRequired, "ProviderUrlRequired");
+        public static ClientExceptionType ENGAGEMENT_TIME_DIFFERENCE = new ClientExceptionType(eResponseStatus.EngagementTimeDifference, "EngagementTimeDifference");
+        public static ClientExceptionType ENGAGEMENT_ILLEGAL_SEND_TIME = new ClientExceptionType(eResponseStatus.EngagementIllegalSendTime, "EngagementIllegalSendTime");
+        public static ClientExceptionType FUTURE_SCHEDULED_ENGAGEMENT_DETECTED = new ClientExceptionType(eResponseStatus.FutureScheduledEngagementDetected, "FutureScheduledEngagementDetected");
+        public static ClientExceptionType ENGAGEMENT_TEMPLATE_NOT_FOUND = new ClientExceptionType(eResponseStatus.EngagementTemplateNotFound, "EngagementTemplateNotFound");
+        public static ClientExceptionType ENGAGEMENT_SCHEDULE_WITHOUT_ADAPTER = new ClientExceptionType(eResponseStatus.EngagementScheduleWithoutAdapter, "EngagementScheduleWithoutAdapter");
+        public static ClientExceptionType MAIL_NOTIFICATION_ADAPTER_NOT_EXIST = new ClientExceptionType(eResponseStatus.MailNotificationAdapterNotExist, "MailNotificationAdapterNotExist");
+        public static ClientExceptionType INVALID_TOKEN = new ClientExceptionType(eResponseStatus.InvalidToken, "InvalidToken");
+        public static ClientExceptionType INVALID_NOTIFICATION_SETTINGS_SETUP = new ClientExceptionType(eResponseStatus.InvalidNotificationSettingsSetup, "InvalidNotificationSettingsSetup");
+        
+        public static ClientExceptionType COUPON_CODE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.CouponCodeAlreadyExists, "CouponCodeAlreadyExists");
+        public static ClientExceptionType COUPON_GROUP_NOT_EXIST = new ClientExceptionType(eResponseStatus.CouponGroupNotExist, "CouponGroupNotExist");
+        public static ClientExceptionType COUPON_CODE_NOT_IN_THE_RIGHT_LENGTH = new ClientExceptionType(eResponseStatus.CouponCodeNotInTheRightLength, "CouponCodeNotInTheRightLength");
+        public static ClientExceptionType DISCOUNT_CODE_NOT_EXIST = new ClientExceptionType(eResponseStatus.DiscountCodeNotExist, "DiscountCodeNotExist");
+        public static ClientExceptionType CAMPAIGN_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.CampaignDoesNotExist, "CampaignDoesNotExist");
+        public static ClientExceptionType EXCEEDED_MAX_CAPACITY = new ClientExceptionType(eResponseStatus.ExceededMaxCapacity, "ExceededMaxCapacity");
+        public static ClientExceptionType CAN_DELETE_ONLY_INACTIVE_CAMPAIGN = new ClientExceptionType(eResponseStatus.CanDeleteOnlyInactiveCampaign, "CanDeleteOnlyInactiveCampaign");
+        public static ClientExceptionType DYNAMIC_LIST_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.DynamicListDoesNotExist, "DynamicListDoesNotExist");
+        public static ClientExceptionType EXCEEDED_MAX_LENGTH = new ClientExceptionType(eResponseStatus.ExceededMaxLength, "ExceededMaxLength");
+        
+        public static ClientExceptionType EPG_PROGRAM_OVERLAP_FIXED = new ClientExceptionType(eResponseStatus.EPGProgramOverlapFixed, "EPGProgramOverlapFixed");
+        
+        public static ClientExceptionType FORBIDDEN = new ClientExceptionType(eResponseStatus.Forbidden, "Forbidden");
+        public static ClientExceptionType ILLEGAL_QUERY_PARAMS = new ClientExceptionType(eResponseStatus.IllegalQueryParams, "IllegalQueryParams");
+        public static ClientExceptionType ILLEGAL_POST_DATA = new ClientExceptionType(eResponseStatus.IllegalPostData, "IllegalPostData");
+        public static ClientExceptionType NOT_EXIST = new ClientExceptionType(eResponseStatus.NotExist, "NotExist");
+        public static ClientExceptionType PARTNER_MISMATCH = new ClientExceptionType(eResponseStatus.PartnerMismatch, "PartnerMismatch");
+        public static ClientExceptionType ITEM_ALREADY_EXIST = new ClientExceptionType(eResponseStatus.ItemAlreadyExist, "ItemAlreadyExist");
+        public static ClientExceptionType REGISTERED = new ClientExceptionType(eResponseStatus.Registered, "Registered");
+        public static ClientExceptionType VERSION_NOT_FOUND = new ClientExceptionType(eResponseStatus.VersionNotFound, "VersionNotFound");
+        public static ClientExceptionType ALREADY_EXIST = new ClientExceptionType(eResponseStatus.AlreadyExist, "AlreadyExist");
+        
+        public static ClientExceptionType FAILED_TO_DELETE_GROUP_CANARY_DEPLOYMENT_CONFIGURATION = new ClientExceptionType(eResponseStatus.FailedToDeleteGroupCanaryDeploymentConfiguration, "FailedToDeleteGroupCanaryDeploymentConfiguration");
+        public static ClientExceptionType FAILED_TO_SET_ALL_GROUP_CANARY_DEPLOYMENT_MIGRATION_EVENTS_STATUS = new ClientExceptionType(eResponseStatus.FailedToSetAllGroupCanaryDeploymentMigrationEventsStatus, "FailedToSetAllGroupCanaryDeploymentMigrationEventsStatus");
+        public static ClientExceptionType FAILED_TO_ENABLE_CANARY_DEPLOYMENT_MIGRATION_EVENT = new ClientExceptionType(eResponseStatus.FailedToEnableCanaryDeploymentMigrationEvent, "FailedToEnableCanaryDeploymentMigrationEvent");
+        public static ClientExceptionType FAILED_TO_DISABLE_CANARY_DEPLOYMENT_MIGRATION_EVENT = new ClientExceptionType(eResponseStatus.FailedToDisableCanaryDeploymentMigrationEvent, "FailedToDisableCanaryDeploymentMigrationEvent");
+        public static ClientExceptionType FAILED_TO_SET_ROUTE_APP_TOKEN_CONTROLLER = new ClientExceptionType(eResponseStatus.FailedToSetRouteAppTokenController, "FailedToSetRouteAppTokenController");
+        public static ClientExceptionType FAILED_TO_SET_ROUTE_USER_LOGIN_PIN_CONTROLLER = new ClientExceptionType(eResponseStatus.FailedToSetRouteUserLoginPinController, "FailedToSetRouteUserLoginPinController");
+        public static ClientExceptionType GROUP_CANARY_DEPLOYMENT_CONFIGURATION_NOT_SET_YET = new ClientExceptionType(eResponseStatus.GroupCanaryDeploymentConfigurationNotSetYet, "GroupCanaryDeploymentConfigurationNotSetYet");
+        public static ClientExceptionType FAILED_TO_SET_ROUTE_SESSION_CONTROLLER = new ClientExceptionType(eResponseStatus.FailedToSetRouteSessionController, "FailedToSetRouteSessionController");
+        public static ClientExceptionType FAILED_TO_SET_ROUTE_HOUSEHOLD_DEVICE_PIN_ACTIONS = new ClientExceptionType(eResponseStatus.FailedToSetRouteHouseHoldDevicePinActions, "FailedToSetRouteHouseHoldDevicePinActions");
+        public static ClientExceptionType FAILED_TO_SET_ROUTE_REFRESH_TOKEN = new ClientExceptionType(eResponseStatus.FailedToSetRouteRefreshToken, "FailedToSetRouteRefreshToken");
+        public static ClientExceptionType FAILED_TO_SET_ALL_ROUTING_ACTIONS = new ClientExceptionType(eResponseStatus.FailedToSetAllRoutingActions, "FailedToSetAllRoutingActions");
+        public static ClientExceptionType CANARY_DEPLOYMENT_CONFIGURATION_IS_DISABLED_ON_THE_ENVIRONMENT = new ClientExceptionType(eResponseStatus.CanaryDeploymentConfigurationIsDisabledOnTheEnvironment, "CanaryDeploymentConfigurationIsDisabledOnTheEnvironment");
+        
         #endregion
 
         [DataMember(Name = "code")]

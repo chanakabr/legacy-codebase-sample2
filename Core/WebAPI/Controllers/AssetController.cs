@@ -146,6 +146,9 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.SyntaxError)]
+        [Throws(eResponseStatus.BadSearchRequest)]
+        [Throws(eResponseStatus.IndexMissing)]
         static public KalturaAssetListResponse List(KalturaAssetFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaAssetListResponse response = null;
@@ -187,7 +190,14 @@ namespace WebAPI.Controllers
         [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        [Throws(WebAPI.Managers.Models.StatusCode.NotFound)]
+        [Throws(StatusCode.NotFound)]
+        [Throws(StatusCode.ArgumentCannotBeEmpty)]
+        [Throws(StatusCode.ArgumentMustBeNumeric)]
+        [Throws(eResponseStatus.SyntaxError)]
+        [Throws(eResponseStatus.BadSearchRequest)]
+        [Throws(eResponseStatus.IndexMissing)]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(StatusCode.EnumValueNotSupported)]
         static public KalturaAsset Get(string id, KalturaAssetReferenceType assetReferenceType)
         {
             KalturaAsset response = null;
@@ -947,6 +957,9 @@ namespace WebAPI.Controllers
         [Action("count")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(StatusCode.ArgumentCannotBeEmpty)]
+        [Throws(eResponseStatus.SyntaxError)]
+        [Throws(eResponseStatus.BadSearchRequest)]
         static public KalturaAssetCount Count(KalturaSearchAssetFilter filter = null)
         {
             KalturaAssetCount response = null;

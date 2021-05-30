@@ -22,6 +22,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(StatusCode.MissingConfiguration)]
         static public KalturaAppToken Add(KalturaAppToken appToken)
         {
             KalturaAppToken response = null;
@@ -76,6 +77,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("delete")]
         [ApiAuthorize]
+        [Throws(StatusCode.ObjectIdNotFound)]
         static public bool Delete(string id)
         {
             bool response = false;
@@ -109,15 +111,19 @@ namespace WebAPI.Controllers
         [Action("startSession")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
+        [Throws(StatusCode.MissingConfiguration)]
+        [Throws(StatusCode.ObjectIdNotFound)]
         [Throws(StatusCode.InvalidAppTokenHash)]
         [Throws(StatusCode.NotActiveAppToken)]
         [Throws(StatusCode.ExpiredAppToken)]
         [Throws(StatusCode.InvalidArgument)]
         [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.UserNotActivated)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.DeviceNotExists)]
         [Throws(eResponseStatus.DeviceNotInDomain)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
         static public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, int? expiry = null, string udid = null)
         {

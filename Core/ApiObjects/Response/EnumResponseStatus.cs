@@ -441,13 +441,13 @@ namespace ApiObjects.Response
         PaymentMethodNotSetForHousehold = 6048,
         PaymentMethodNotExist = 6049,
         PaymentMethodIdRequired = 6050,
-        PaymentMethodExternalIdRequired = 6051,
-        ErrorSavingPaymentGatewayHouseholdPaymentMethod = 6052,
+        PaymentGatewaySuspended = 6051,
+        PaymentGatewayExternalVerification = 6052,
         PaymentMethodAlreadySetToHouseholdPaymentGateway = 6054,
         PaymentMethodNameRequired = 6055,
         PaymentGatewayNotSupportPaymentMethod = 6056,
-        PaymentGatewaySuspended = 6051,
-        PaymentGatewayExternalVerification = 6052,
+        PaymentMethodExternalIdRequired = 6057,
+        ErrorSavingPaymentGatewayHouseholdPaymentMethod = 6058,
 
         #endregion
 

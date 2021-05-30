@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.Response;
+using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -20,6 +21,14 @@ namespace WebAPI.Controllers
         [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.AccountCdvrNotEnabled)]
+        [Throws(eResponseStatus.ServiceNotAllowed)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.HouseholdUserFailed)]
         static public KalturaHouseholdQuota Get()
         {
             KalturaHouseholdQuota response = null;

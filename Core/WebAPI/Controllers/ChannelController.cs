@@ -347,6 +347,10 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.AccountIsNotOpcSupported)]
+        [Throws(eResponseStatus.ElasticSearchReturnedDeleteItem)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
+        [Throws(eResponseStatus.ChannelDoesNotExist)]
+        [Throws(eResponseStatus.ObjectNotExist)]
         static public KalturaChannelListResponse List(KalturaChannelsFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaChannelListResponse response = null;

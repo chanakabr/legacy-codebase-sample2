@@ -1482,7 +1482,6 @@ namespace WebAPI.Clients
 
             // get group ID
 
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
