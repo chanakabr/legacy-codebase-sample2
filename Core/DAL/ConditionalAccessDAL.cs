@@ -321,6 +321,7 @@ namespace DAL
                 ODBCWrapper.UpdateQuery updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
                 updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", nIsRecurring);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                 updateQuery += " WHERE ";
 
                 if (nSubscriptionPurchaseID > 0)
@@ -358,6 +359,7 @@ namespace DAL
                 updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", nIsActive);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", nStatus);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                 updateQuery += " WHERE ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nPurchaseID);
                 updateQuery += " AND ";
@@ -389,6 +391,7 @@ namespace DAL
                 updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_ACTIVE", "=", nIsActive);
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("STATUS", "=", nStatus);
+                updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow); 
                 updateQuery += " WHERE ";
                 updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nPurchaseID);
                 updateQuery += " AND ";

@@ -1166,6 +1166,7 @@ namespace Core.ConditionalAccess
 
                                             updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
                                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
+                                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                                             updateQuery += " where ";
                                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
                                             updateQuery += " and ";
@@ -1600,6 +1601,7 @@ namespace Core.ConditionalAccess
                             updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 1);
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("subscription_status", "=", 0);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                             updateQuery += " where ";
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
                             updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
@@ -2139,6 +2141,7 @@ namespace Core.ConditionalAccess
                         if (bIsRecurring == true && bRenewable == false)
                             CancelSubscription(sSiteGUID, sSubscriptionCode, nSubscriptionPurchaseID);
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("END_DATE", "=", dEndDate);
+                        updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                         updateQuery += " where ";
                         updateQuery += ODBCWrapper.Parameter.NEW_PARAM("ID", "=", nID);
                         updateQuery.Execute();
@@ -2203,13 +2206,13 @@ namespace Core.ConditionalAccess
 
                         if (theSub != null && theSub.m_nNumberOfRecPeriods != 0 && theSub.m_nNumberOfRecPeriods <= nPaymentNumber)
                         {
-                            directQuery = new ODBCWrapper.DirectQuery();
-                            directQuery.SetConnectionKey("CA_CONNECTION_STRING");
-                            directQuery += "update subscriptions_purchases set ";
-                            directQuery += "IS_RECURRING_STATUS = 0 ";
-                            directQuery += " where ";
-                            directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
-                            directQuery.Execute();
+                            updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
+                            updateQuery.SetConnectionKey("CA_CONNECTION_STRING");
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
+                            updateQuery += " where ";
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
+                            updateQuery.Execute();
 
                         }
                         else if (theSub != null)
@@ -2266,13 +2269,15 @@ namespace Core.ConditionalAccess
                             Int32 nMaxVLC = theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle;
                             WriteToUserLog(sSiteGUID, "Subscription auto renewal: " + sSubscriptionCode.ToString() + " renewed" + dPrice.ToString() + sCurrency);
                             DateTime d = (DateTime)(ODBCWrapper.Utils.GetTableSingleVal("subscriptions_purchases", "end_date", nPurchaseID, "CA_CONNECTION_STRING"));
-                            DateTime dNext = Utils.GetEndDateTime(d, nMaxVLC);
+                            DateTime dNext = Utils.GetEndDateTime(d, nMaxVLC);                          
                             directQuery1 = new ODBCWrapper.DirectQuery();
                             directQuery1.SetConnectionKey("CA_CONNECTION_STRING");
                             directQuery1 += "update subscriptions_purchases set ";
                             directQuery1 += ODBCWrapper.Parameter.NEW_PARAM("end_date", "=", dNext);
                             directQuery1 += ",";
                             directQuery1 += ODBCWrapper.Parameter.NEW_PARAM("num_of_uses", "=", 0);
+                            directQuery1 += ",";
+                            directQuery1 += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                             directQuery1 += " where ";
                             directQuery1 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                             directQuery1.Execute();
@@ -2310,16 +2315,14 @@ namespace Core.ConditionalAccess
                                 directQuery2.SetConnectionKey("CA_CONNECTION_STRING");
                                 directQuery2 += "update subscriptions_purchases set ";
                                 directQuery2 += "FAIL_COUNT = FAIL_COUNT + 1 ";
+                                directQuery2 += ",";
+                                directQuery2 += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                                 directQuery2 += " where ";
                                 directQuery2 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                                 directQuery2.Execute();
-
-
-
                             }
                         }
                     }
-
                 }
             }
             catch (Exception ex)
@@ -2423,6 +2426,8 @@ namespace Core.ConditionalAccess
                             directQuery.SetConnectionKey("CA_CONNECTION_STRING");
                             directQuery += "update subscriptions_purchases set ";
                             directQuery += "IS_RECURRING_STATUS = 0 ";
+                            directQuery += ",";
+                            directQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                             directQuery += " where ";
                             directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                             directQuery.Execute();
@@ -2569,6 +2574,8 @@ namespace Core.ConditionalAccess
                             directQuery1 += ODBCWrapper.Parameter.NEW_PARAM("end_date", "=", endDate.AddHours(6));
                             directQuery1 += ",";
                             directQuery1 += ODBCWrapper.Parameter.NEW_PARAM("num_of_uses", "=", 0);
+                            directQuery1 += ",";
+                            directQuery1 += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                             directQuery1 += " where ";
                             directQuery1 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                             directQuery1.Execute();
@@ -2629,6 +2636,8 @@ namespace Core.ConditionalAccess
                                     directQuery2.SetConnectionKey("CA_CONNECTION_STRING");
                                     directQuery2 += "update subscriptions_purchases set ";
                                     directQuery2 += "FAIL_COUNT = 10 ";
+                                    directQuery2 += ",";
+                                    directQuery2 += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                                     directQuery2 += " where ";
                                     directQuery2 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                                     directQuery2.Execute();
@@ -2640,6 +2649,8 @@ namespace Core.ConditionalAccess
                                 directQuery3.SetConnectionKey("CA_CONNECTION_STRING");
                                 directQuery3 += "update subscriptions_purchases set ";
                                 directQuery3 += "FAIL_COUNT = FAIL_COUNT + 1 ";
+                                directQuery3 += ",";
+                                directQuery3 += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow); 
                                 directQuery3 += " where ";
                                 directQuery3 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                                 directQuery3.Execute();
@@ -3108,6 +3119,8 @@ namespace Core.ConditionalAccess
                         directQuery1.SetConnectionKey("CA_CONNECTION_STRING");
                         directQuery1 += "update subscriptions_purchases set ";
                         directQuery1 += "FAIL_COUNT = FAIL_COUNT + 1 ";
+                        directQuery1 += ",";
+                        directQuery1 += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                         directQuery1 += " where ";
                         directQuery1 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                         directQuery1.Execute();
@@ -3125,6 +3138,8 @@ namespace Core.ConditionalAccess
                             directQuery2.SetConnectionKey("CA_CONNECTION_STRING");
                             directQuery2 += "update subscriptions_purchases set ";
                             directQuery2 += "IS_RECURRING_STATUS = 0 ";
+                            directQuery2 += ",";
+                            directQuery2 += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                             directQuery2 += " where ";
                             directQuery2 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                             directQuery2.Execute();
@@ -3207,6 +3222,8 @@ namespace Core.ConditionalAccess
                             directQuery3 += ODBCWrapper.Parameter.NEW_PARAM("end_date", "=", dNext);
                             directQuery3 += ",";
                             directQuery3 += ODBCWrapper.Parameter.NEW_PARAM("num_of_uses", "=", 0);
+                            directQuery3 += ",";
+                            directQuery3 += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                             directQuery3 += " where ";
                             directQuery3 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                             directQuery3.Execute();
@@ -3240,6 +3257,8 @@ namespace Core.ConditionalAccess
                                     directQuery4.SetConnectionKey("CA_CONNECTION_STRING");
                                     directQuery4 += "update subscriptions_purchases set ";
                                     directQuery4 += "FAIL_COUNT = 10 ";
+                                    directQuery4 += ",";
+                                    directQuery4 += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                                     directQuery4 += " where ";
                                     directQuery4 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                                     directQuery4.Execute();
@@ -3251,6 +3270,8 @@ namespace Core.ConditionalAccess
                                 directQuery5.SetConnectionKey("CA_CONNECTION_STRING");
                                 directQuery5 += "update subscriptions_purchases set ";
                                 directQuery5 += "FAIL_COUNT = FAIL_COUNT + 1 ";
+                                directQuery5 += ",";
+                                directQuery5 += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                                 directQuery5 += " where ";
                                 directQuery5 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                                 directQuery5.Execute();
@@ -3463,6 +3484,8 @@ namespace Core.ConditionalAccess
                     directQuery.SetConnectionKey("CA_CONNECTION_STRING");
                     directQuery += "update subscriptions_purchases set ";
                     directQuery += "IS_RECURRING_STATUS = 0 ";
+                    directQuery += ",";
+                    directQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                     directQuery += " where ";
                     directQuery += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                     directQuery.Execute();
@@ -5099,6 +5122,7 @@ namespace Core.ConditionalAccess
                             SplitRefference(ret.m_sStatusDescription, ref nMediaFileID, ref sSubCode, ref sPPVCode);
                             updateQuery = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
+                            updateQuery += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                             updateQuery += " where ";
                             updateQuery += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
                             updateQuery += " and ";
@@ -8742,6 +8766,7 @@ namespace Core.ConditionalAccess
 
                                         updateQuery1 = new ODBCWrapper.UpdateQuery("subscriptions_purchases");
                                         updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("IS_RECURRING_STATUS", "=", 0);
+                                        updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                                         updateQuery1 += " where ";
                                         updateQuery1 += ODBCWrapper.Parameter.NEW_PARAM("GROUP_ID", "=", m_nGroupID);
                                         updateQuery1 += " and ";
