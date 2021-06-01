@@ -7265,6 +7265,7 @@ namespace Core.Catalog
             if (request.m_oFilter != null)
             {
                 definitions.shouldUseStartDateForMedia = request.m_oFilter.m_bUseStartDate;
+                definitions.shouldUseCatalogStartDateForMedia = doesGroupUsesTemplates;
                 definitions.shouldUseFinalEndDate = request.m_oFilter.m_bUseFinalDate;
                 definitions.userTypeID = request.m_oFilter.m_nUserTypeID;
             }
@@ -8154,6 +8155,7 @@ namespace Core.Catalog
 
             // in case operator is searching we override the existing value
             definitions.shouldUseStartDateForMedia = !request.isAllowedToViewInactiveAssets;
+            definitions.shouldUseCatalogStartDateForMedia = doesGroupUsesTemplates;
             definitions.shouldIgnoreEndDate = request.isAllowedToViewInactiveAssets;
 
             #endregion
