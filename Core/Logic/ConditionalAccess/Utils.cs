@@ -5882,7 +5882,7 @@ namespace Core.ConditionalAccess
 
         internal static CDNAdapterResponse GetRelevantCDN(int groupId, int fileStreamingCompanyId, ApiObjects.eAssetTypes assetType, ref bool isDefaultAdapter)
         {
-            CDNAdapterResponse adapterResponse = null;
+            CDNAdapterResponse adapterResponse = new CDNAdapterResponse();
 
             try
             {
@@ -5900,23 +5900,21 @@ namespace Core.ConditionalAccess
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("GetLicensedLink: failed calling WS API. groupId = {0}", groupId, ex);
-                adapterResponse.Status.Code = (int)eResponseStatus.Error;
-                adapterResponse.Status.Message = "Error";
+                log.Error($"GetRelevantCDN. groupId={groupId}, fileStreamingCompanyId={fileStreamingCompanyId}, assetType={assetType}.", ex);
+                adapterResponse.Status = ApiObjects.Response.Status.Error;
                 return adapterResponse;
             }
 
-            if (adapterResponse == null || adapterResponse.Status == null)
+            if (adapterResponse.Status == null)
             {
-                log.ErrorFormat("GetLicensedLink: failed to get adapter response from WS API. groupId = {0}, adapterId = {1}", fileStreamingCompanyId, groupId);
-                adapterResponse.Status.Code = (int)eResponseStatus.Error;
-                adapterResponse.Status.Message = "Error";
+                log.Error($"GetRelevantCDN: failed to get adapter. groupId={groupId}, fileStreamingCompanyId={fileStreamingCompanyId}, assetType={assetType}.");
+                adapterResponse.Status = ApiObjects.Response.Status.Error;
                 return adapterResponse;
             }
-            if (adapterResponse.Status.Code != (int)eResponseStatus.OK)
+
+            if (!adapterResponse.Status.IsOkStatusCode())
             {
-                log.DebugFormat("GetLicensedLink: got error adapter response from WS API. groupId = {0}, adapterId = {1}, status.code = {2}, status.message = {3}",
-                    fileStreamingCompanyId, groupId, adapterResponse.Status.Code, adapterResponse.Status.Message);
+                log.Debug($"GetRelevantCDN: failed to get adater. groupId={groupId}, fileStreamingCompanyId={fileStreamingCompanyId}, assetType={assetType}, status.Code={adapterResponse.Status.Code}, status.Message={adapterResponse.Status.Message}.");
             }
 
             return adapterResponse;

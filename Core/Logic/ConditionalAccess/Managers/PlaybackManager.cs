@@ -369,7 +369,7 @@ namespace Core.ConditionalAccess
                                 (PlayManifestResponse urlAdapterResponse, PlayManifestResponse altUrlAdapterResponse) urlAdapterResponse = (null, null);
                                 if (!isExternalRecordingIgnoreMode)
                                 {
-                                    urlAdapterResponse = RetrievePlayManifestAdapterResponses(cas, groupId, userId, assetId, assetType, context, ip, udid, file, isDefaultAdapter, program, recording);   
+                                    urlAdapterResponse = RetrievePlayManifestAdapterResponses(cas, groupId, userId, assetType, context, ip, udid, file, isDefaultAdapter, program, recording);
                                 }
 
                                 if (response.Status.Code == (int)eResponseStatus.OK)
@@ -442,7 +442,6 @@ namespace Core.ConditionalAccess
             BaseConditionalAccess cas,
             int groupId,
             string userId,
-            string assetId,
             eAssetTypes assetType,
             PlayContextType context,
             string ip,
@@ -452,15 +451,18 @@ namespace Core.ConditionalAccess
             EPGChannelProgrammeObject program,
             Recording recording)
         {
-            return (urlAdapterResponse: RetrievePlayManifestAdapterResponse(cas, groupId, userId, assetId, assetType, context, ip, udid, file, isDefaultAdapter, program, recording), 
-                    altUrlAdapterResponse: RetrievePlayManifestAdapterResponse(cas, groupId, userId, assetId, assetType, context, ip, udid, file, isDefaultAdapter, program, recording, true));
+            var urlAdapterResponse = RetrievePlayManifestAdapterResponse(cas, groupId, userId, assetType, context, ip, udid, file, isDefaultAdapter, program, recording);
+            var altUrlAdapterResponse = string.IsNullOrEmpty(file.AltUrl)
+                ? null
+                : RetrievePlayManifestAdapterResponse(cas, groupId, userId, assetType, context, ip, udid, file, isDefaultAdapter, program, recording, true);
+            
+            return (urlAdapterResponse, altUrlAdapterResponse);
         }
 
         private static PlayManifestResponse RetrievePlayManifestAdapterResponse(
             BaseConditionalAccess cas,
             int groupId,
             string userId,
-            string assetId,
             eAssetTypes assetType,
             PlayContextType context,
             string ip,

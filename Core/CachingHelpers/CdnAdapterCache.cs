@@ -79,7 +79,7 @@ namespace CachingHelpers
             bool cacheResult = LayeredCache.Instance.Get<CDNPartnerSettings>(key, ref settings, Utils.GetCdnSettings, new Dictionary<string, object>() { { "groupId", groupId } },
                 groupId, LayeredCacheConfigNames.GROUP_CDN_SETTINGS_LAYERED_CACHE_CONFIG_NAME);
 
-            if (cacheResult && settings != null)
+            if (!cacheResult)
             {
                 log.ErrorFormat("Failed GetCdnAdapterSettings, groupId: {0}", groupId); 
             }

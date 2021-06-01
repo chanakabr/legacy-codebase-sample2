@@ -9429,6 +9429,10 @@ namespace Core.Api
                         response.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
+                else
+                {
+                    response.Status = new ApiObjects.Response.Status(eResponseStatus.CDNPartnerSettingsNotFound);
+                }
             }
             catch (Exception ex)
             {
