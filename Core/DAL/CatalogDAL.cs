@@ -2734,6 +2734,35 @@ namespace Tvinci.Core.DAL
         }
 
         /// <summary>
+        /// Delete linear media from all related regions
+        /// </summary>
+        /// <returns>List of region ids that were affected</returns>
+        public static List<int> DeleteChannelFromRegions(int groupId, long userId, long assetId)
+        {
+            StoredProcedure sp = new StoredProcedure("Delete_ChannelFromRegions");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@userId", userId);
+            sp.AddParameter("@mediaId", assetId);
+
+            DataSet ds = sp.ExecuteDataSet();
+            var regionIds = new List<int>();
+            // Simple null checks
+            if (ds != null && ds.Tables != null && ds.Tables.Count > 0 &&
+                ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            {
+                DataTable dt = ds.Tables[0];
+
+                foreach (DataRow dr in dt.Rows)
+                {
+                    regionIds.Add(Utils.ExtractValue<int>(dr, "REGION_ID"));
+                }
+            }
+
+            return regionIds;
+        }
+
+        /// <summary>
         /// For a given group and regions, get all linear channels EPG_IDENTIFIER that match them
         /// </summary>
         /// <param name="groupId"></param>

@@ -2490,6 +2490,11 @@ namespace Core.Catalog.CatalogManagement
                             DeleteChannel(groupId, userId, currentAsset, assetStruct);
                         }
                     }
+
+                    if (assetStruct.IsLinearAssetStruct)
+                    {
+                        DeleteChannelFromRegions(groupId, userId, currentAsset);
+                    }
                 }
 
                 // Delete Index
@@ -2505,6 +2510,17 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        private static void DeleteChannelFromRegions(int groupId, long userId, MediaAsset currentAsset)
+        {
+            var affectedRegions = CatalogDAL.DeleteChannelFromRegions(groupId, userId, currentAsset.Id);
+            if (affectedRegions.Count == 0)
+                return;
+
+            log.Debug($"GroupId: {groupId}, Affected regions from linear asset: {currentAsset.Id} " +
+                $"delete: {string.Join(",", affectedRegions)}");
+            RegionManager.InvalidateRegions(groupId);
         }
 
         private static int GetTotalAmountOfDistinctAssets(List<BaseObject> assets)
