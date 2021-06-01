@@ -1148,6 +1148,17 @@ namespace Core.Users
             }
         }
 
+        public static ApiObjects.Response.Status DeleteUserDynamicData(int groupId, long userId, string key)
+        {
+            BaseUsers t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            var response = t != null
+                ? t.DeleteUserDynamicData(userId, key)
+                : ApiObjects.Response.Status.Error;
+
+            return response;
+        }
+
         public static UserGroupRuleResponse CheckParentalPINToken(int nGroupID, string sToken)
         {
             BaseUsers t = null;

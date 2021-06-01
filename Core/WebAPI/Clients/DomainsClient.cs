@@ -1466,5 +1466,21 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal KalturaDynamicData UpsertDeviceDynamicData(int groupId, string udid, string key, KalturaStringValue value)
+        {
+            Func<GenericResponse<ApiObjects.KeyValuePair>> upsertDataFunc = () => Core.Domains.Module.UpsertDeviceDynamicData(groupId, udid, new ApiObjects.KeyValuePair(key, value.value));
+            var response = ClientUtils.GetResponseFromWS<KalturaDynamicData, ApiObjects.KeyValuePair>(upsertDataFunc);
+
+            return response;
+        }
+
+        internal bool DeleteDeviceDynamicData(int groupId, string udid, string key)
+        {
+            Func<ApiObjects.Response.Status> deleteDataFunc = () => Core.Domains.Module.DeleteDeviceDynamicData(groupId, udid, key);
+            var response = ClientUtils.GetResponseStatusFromWS(deleteDataFunc);
+
+            return response;
+        }
     }
 }

@@ -1,12 +1,12 @@
 ﻿using ApiObjects.Response;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ApiLogic.CanaryDeployment;
 using ApiObjects.CanaryDeployment;
 using ApiObjects.DataMigrationEvents;
 using Core.Users.Cache;
 using EventBus.Kafka;
-using ConfigurationManager;
 
 namespace Core.Users
 {
@@ -101,34 +101,13 @@ namespace Core.Users
             // domain should be remove from the cache 
             if (isSetSucceeded)
             {
-                status = new ApiObjects.Response.Status((int)eResponseStatus.OK, "OK");
-                Core.Users.BaseDomain baseDomain = null;
-                Utils.GetBaseImpl(ref baseDomain, nGroupID);
+                RemoveDomainFromCache(m_nGroupID, sDeviceUDID);
 
-                if (baseDomain != null)
-                {
-                    List<Domain> domains = baseDomain.GetDeviceDomains(sDeviceUDID);
-                    if (domains != null && domains.Count > 0)
-                    {
-                        DomainsCache oDomainCache = DomainsCache.Instance();
-                        foreach (var domain in domains)
-                        {
-                            oDomainCache.RemoveDomain(nGroupID, domain.m_nDomainID);
-
-                        }
-                    }
-                }
+                status = ApiObjects.Response.Status.Ok;
             }
             else
             {
-                if (device != null)
-                {
-                    status = Utils.ConvertDeviceStateToResponseObject(device.m_state);
-                }
-                else
-                {
-                    status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "Error");
-                }
+                status = Utils.ConvertDeviceStateToResponseObject(device.m_state);
             }
 
             return status;
@@ -162,42 +141,24 @@ namespace Core.Users
                 return ret;
             }
 
-            dDevice.Name = string.IsNullOrEmpty(dDevice.Name) ? device.m_deviceName : dDevice.Name;
             bool isSetSucceeded = device.SetDeviceInfo(dDevice, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
 
             // in case set device Succeeded
             // domain should be remove from the cache 
             if (isSetSucceeded)
             {
+                RemoveDomainFromCache(m_nGroupID, dDevice.Udid);
+
                 ret.m_oDeviceResponseStatus = DeviceResponseStatus.OK;
                 ret.m_oDevice = device;
-
-                Core.Users.BaseDomain baseDomain = null;
-                Utils.GetBaseImpl(ref baseDomain, nGroupID);
-
-                if (baseDomain != null)
-                {
-                    List<Domain> domains = baseDomain.GetDeviceDomains(dDevice.Udid);
-                    if (domains != null && domains.Count > 0)
-                    {
-                        DomainsCache oDomainCache = DomainsCache.Instance();
-                        foreach (var domain in domains)
-                        {
-                            oDomainCache.RemoveDomain(m_nGroupID, domain.m_nDomainID);
-                        }
-                    }
-                }
             }
             else
             {
                 ret.m_oDeviceResponseStatus = DeviceResponseStatus.Error;
-                if (device != null)
+                ret.m_oDevice = device;
+                if (device.m_state == DeviceState.NotExists)
                 {
-                    ret.m_oDevice = device;
-                    if (device.m_state == DeviceState.NotExists)
-                    {
-                        ret.m_oDeviceResponseStatus = DeviceResponseStatus.DeviceNotExists;
-                    }
+                    ret.m_oDeviceResponseStatus = DeviceResponseStatus.DeviceNotExists;
                 }
             }
 
@@ -243,6 +204,136 @@ namespace Core.Users
                 }
             }
             return ret;
+        }
+
+        public override GenericResponse<ApiObjects.KeyValuePair> UpsertDeviceDynamicData(string udid, ApiObjects.KeyValuePair value)
+        {
+            GenericResponse<ApiObjects.KeyValuePair> response;
+
+            var device = new Device(m_nGroupID);
+            var deviceInitialized = device.Initialize(udid);
+            if (deviceInitialized)
+            {
+                var newDynamicData = device.DynamicData ?? new List<ApiObjects.KeyValuePair>();
+                var existingItem = newDynamicData.FirstOrDefault(x => x.key == value.key);
+                if (existingItem == null)
+                {
+                    newDynamicData.Add(value);
+                }
+                else
+                {
+                    existingItem.value = value.value;
+                }
+
+                var validateStatus = ValidateDynamicData(newDynamicData);
+                if (validateStatus.IsOkStatusCode())
+                {
+                    var domainDevice = new DomainDevice { DynamicData = newDynamicData };
+                    var saveResult = device.Save(-1, 1, domainDevice);
+                    if (saveResult > 0)
+                    {
+                        RemoveDomainFromCache(m_nGroupID, udid);
+                        
+                        response = new GenericResponse<ApiObjects.KeyValuePair>(ApiObjects.Response.Status.Ok, value);
+                    }
+                    else
+                    {
+                        var status = Utils.ConvertDeviceStateToResponseObject(device.m_state);
+                        response = new GenericResponse<ApiObjects.KeyValuePair>(status);
+                    }
+                }
+                else
+                {
+                    response = new GenericResponse<ApiObjects.KeyValuePair>(validateStatus);
+                }
+            }
+            else
+            {
+                response = new GenericResponse<ApiObjects.KeyValuePair>(eResponseStatus.DeviceNotExists);
+            }
+
+            return response;
+        }
+
+        public override ApiObjects.Response.Status DeleteDeviceDynamicData(string udid, string key)
+        {
+            ApiObjects.Response.Status response;
+
+            var device = new Device(m_nGroupID);
+            var deviceInitialized = device.Initialize(udid);
+            if (deviceInitialized)
+            {
+                var existingItem = device.DynamicData?.FirstOrDefault(x => x.key == key);
+                if (existingItem == null)
+                {
+                    response = new ApiObjects.Response.Status(eResponseStatus.ItemNotFound, $"Dynamic data with key {key} was not found.");
+                }
+                else
+                {
+                    var newDynamicData = device.DynamicData.Where(x => x != existingItem).ToList();
+                    var domainDevice = new DomainDevice { DynamicData = newDynamicData };
+                    var saveResult = device.Save(-1, 1, domainDevice);
+                    if (saveResult > 0)
+                    {
+                        RemoveDomainFromCache(m_nGroupID, udid);
+
+                        response = ApiObjects.Response.Status.Ok;
+                    }
+                    else
+                    {
+                        response = Utils.ConvertDeviceStateToResponseObject(device.m_state);
+                    }
+                }
+            }
+            else
+            {
+                response = new ApiObjects.Response.Status(eResponseStatus.DeviceNotExists);
+            }
+
+            return response;
+        }
+
+        private ApiObjects.Response.Status ValidateDynamicData(IReadOnlyCollection<ApiObjects.KeyValuePair> dynamicData)
+        {
+            const int maxKeyValues = 5; // numbers from BEO-8671
+            const int maxKeyLength = 128;
+            const int maxValueLength = 255;
+
+            if (dynamicData.Count > maxKeyValues)
+            {
+                return new ApiObjects.Response.Status(eResponseStatus.ExceededMaxCapacity, $"The maximum count of items in dynamic data is {maxKeyValues}.");
+            }
+
+            foreach (var item in dynamicData)
+            {
+                if (item.key.Length > maxKeyLength)
+                {
+                    return new ApiObjects.Response.Status(eResponseStatus.ExceededMaxLength, $"The maximum length of {nameof(item.key)} is {maxKeyLength}.");
+                }
+
+                if (item.value?.Length > maxValueLength)
+                {
+                    return new ApiObjects.Response.Status(eResponseStatus.ExceededMaxLength, $"The maximum length of {nameof(item.value)} is {maxValueLength}.");
+                }
+            }
+
+            return ApiObjects.Response.Status.Ok;
+        }
+
+        private void RemoveDomainFromCache(int groupId, string udid)
+        {
+            BaseDomain baseDomain = null;
+            Utils.GetBaseImpl(ref baseDomain, groupId);
+
+            var domains = baseDomain?.GetDeviceDomains(udid);
+            if (domains != null && domains.Count > 0)
+            {
+                var domainCache = DomainsCache.Instance();
+                foreach (var domain in domains)
+                {
+                    domainCache.RemoveDomain(groupId, domain.m_nDomainID);
+                }
+            }
         }
     }
 }

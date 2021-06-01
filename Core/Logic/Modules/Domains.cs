@@ -1082,5 +1082,27 @@ namespace Core.Domains
 
             return response;
         }
+
+        public static GenericResponse<ApiObjects.KeyValuePair> UpsertDeviceDynamicData(int groupId, string udid, ApiObjects.KeyValuePair value)
+        {
+            BaseDevice t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            var response = t != null
+                ? t.UpsertDeviceDynamicData(udid, value)
+                : new GenericResponse<ApiObjects.KeyValuePair>();
+
+            return response;
+        }
+
+        public static ApiObjects.Response.Status DeleteDeviceDynamicData(int groupId, string udid, string key)
+        {
+            BaseDevice t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            var response = t != null
+                ? t.DeleteDeviceDynamicData(udid, key)
+                : ApiObjects.Response.Status.Error;
+
+            return response;
+        }
     }
 }

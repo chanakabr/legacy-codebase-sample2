@@ -160,7 +160,11 @@ namespace Core.Users
         public long Save(int isActive, int status = 1, DomainDevice device = null, bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
         {
             if (device == null)
+            {
                 device = new DomainDevice();
+            }
+
+            m_deviceName = string.IsNullOrEmpty(device.Name) ? m_deviceName : device.Name;
 
             return Save(isActive, status, device.DeviceId, device.MacAddress, device.ExternalId, device.Model, device.ManufacturerId, device.Manufacturer, device.DynamicData, allowNullExternalId, allowNullMacAddress, allowNullDynamicData);
         }
@@ -220,7 +224,6 @@ namespace Core.Users
         public bool SetDeviceInfo(DomainDevice device, bool allowNullExternalId = false, bool allowNullMacAddress = false, bool allowNullDynamicData = false)
         {
             bool res = false;
-            m_deviceName = device.Name;
 
             log.Debug($"SetDeviceInfo: DomainDevice: {JsonConvert.SerializeObject(device)}, device: {this.ToString()} " +
                 $"m_state: {m_state}");

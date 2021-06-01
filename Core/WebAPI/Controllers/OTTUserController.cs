@@ -280,6 +280,8 @@ namespace WebAPI.Controllers
         [SchemeArgument("password", MaxLength = 128)]
         static public KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)
         {
+            KalturaOttUserDynamicDataValidator.Validate(user.DynamicData);
+
             KalturaOTTUser response = null;
 
             if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(password))
@@ -645,6 +647,8 @@ namespace WebAPI.Controllers
         [SchemeArgument("id", RequiresPermission = true)]
         static public KalturaOTTUser Update(KalturaOTTUser user, string id = null)
         {
+            KalturaOttUserDynamicDataValidator.Validate(user.DynamicData);
+
             KalturaOTTUser response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
@@ -1003,18 +1007,21 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update user dynamic data
+        /// Update user dynamic data. If it is needed to update several items, use a multi-request to avoid race conditions.
+        /// This API endpoint will deprecated soon. Please use UpsertDynamicData instead of it.
         /// </summary>
-        /// <param name="key">Type of dynamicData </param>
-        /// <param name="value">Value of dynamicData </param>
-        /// <param name="userId">User identifier</param>
+        /// <param name="key">Type of dynamicData. Max length of key is 50 characters.</param>
+        /// <param name="value">Value of dynamicData. Max length of value is 512 characters.</param>
         /// <returns></returns>
+        /// <remarks>Possible status codes: ArgumentMaxLengthCrossed = 500045.</remarks>
         [Action("updateDynamicData")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        static public KalturaOTTUserDynamicData UpdateDynamicData(string key, KalturaStringValue value)
+        public static KalturaOTTUserDynamicData UpdateDynamicData(string key, KalturaStringValue value)
         {
+            KalturaOttUserDynamicDataValidator.Validate(key, value);
+
             KalturaOTTUserDynamicData response = null;
 
             int groupId = KS.GetFromRequest().GroupId;
@@ -1032,6 +1039,64 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
+            return response;
+        }
+
+        /// <summary>
+        /// Adds or updates dynamic data item for a user. If it is needed to update several items, use a multi-request to avoid race conditions.
+        /// </summary>
+        /// <param name="key">Key of dynamic data item. Max length of key is 50 characters.</param>
+        /// <param name="value">Value of dynamic data item. Max length of value is 512 characters.</param>
+        /// <returns>Added or updated dynamic data item.</returns>
+        /// <remarks>Possible status codes: ArgumentMaxLengthCrossed = 500045.</remarks>
+        [Action("upsertDynamicData")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public static KalturaDynamicData UpsertDynamicData(string key, KalturaStringValue value)
+        {
+            KalturaOttUserDynamicDataValidator.Validate(key, value);
+
+            var groupId = KS.GetFromRequest().GroupId;
+
+            KalturaDynamicData response = null;
+            try
+            {
+                var ottUserDynamicData = ClientsManager.UsersClient().SetUserDynamicData(groupId, KS.GetFromRequest().UserId, key, value);
+                response = new KalturaDynamicData(ottUserDynamicData.Key, ottUserDynamicData.Value);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Deletes dynamic data item for a user.
+        /// </summary>
+        /// <param name="key">Key of dynamic data item.</param>
+        /// <returns>True if dynamic data item has been successfully deleted. Otherwise see possible error codes.</returns>
+        /// <remarks>Possible status codes: ItemNotFound = 2032.</remarks>
+        [Action("deleteDynamicData")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.ItemNotFound)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public static bool DeleteDynamicData(string key)
+        {
+            var groupId = KS.GetFromRequest().GroupId;
+            var userId = Utils.Utils.GetUserIdFromKs();
+
+            var response = false;
+            try
+            {
+                response = ClientsManager.UsersClient().DeleteUserDynamicData(groupId, userId, key);
+            }
+            catch (ClientException e)
+            {
+                ErrorUtils.HandleClientException(e);
+            }
+
             return response;
         }
     }

@@ -1411,6 +1411,14 @@ namespace WebAPI.Clients
             return response;
         }
 
+        internal bool DeleteUserDynamicData(int groupId, long userId, string key)
+        {
+            Func<ApiObjects.Response.Status> deleteDataFunc = () => Core.Users.Module.DeleteUserDynamicData(groupId, userId, key);
+            var response = ClientUtils.GetResponseStatusFromWS(deleteDataFunc);
+
+            return response;
+        }
+
         internal List<KalturaSSOAdapterProfile> GetSSOAdapters(int groupId)
         {
             var response = new SSOAdaptersResponse();

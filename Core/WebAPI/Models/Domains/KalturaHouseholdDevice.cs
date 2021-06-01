@@ -183,10 +183,6 @@ namespace WebAPI.Models.Domains
 
     public static class KalturaHouseholdDeviceValidator
     {
-        private const int MaxKeyValues = 5; // numbers from BEO-8671
-        private const int MaxKeyLength = 128;
-        private const int MaxValueLength = 255;
-
         public static void Validate(this KalturaHouseholdDevice device)
         {
             if (device.Udid.IsNullOrEmptyOrWhiteSpace())
@@ -194,7 +190,7 @@ namespace WebAPI.Models.Domains
                 throw new BadRequestException(ARGUMENT_CANNOT_BE_EMPTY, "udid");
             }
 
-            device.DynamicData.Validate(MaxKeyValues, MaxKeyLength, MaxValueLength);
+            device.DynamicData.Validate();
         }
     }
 }

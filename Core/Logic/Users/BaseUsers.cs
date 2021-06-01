@@ -617,6 +617,34 @@ namespace Core.Users
             return true;
         }
 
+        public ApiObjects.Response.Status DeleteUserDynamicData(long userId, string key)
+        {
+            var userResponse = GetUserData(userId.ToString(), false);
+            if (userResponse.m_RespStatus != ResponseStatus.OK || userResponse.m_user?.m_oDynamicData == null || userResponse.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+            {
+                return ApiObjects.Response.Status.Error;
+            }
+
+            userResponse.m_user.m_oDynamicData.m_sUserData = userResponse.m_user.m_oDynamicData.m_sUserData ?? new UserDynamicDataContainer[0];
+
+            var startLength = userResponse.m_user.m_oDynamicData.m_sUserData.Length;
+            userResponse.m_user.m_oDynamicData.m_sUserData = userResponse.m_user.m_oDynamicData.m_sUserData
+                .Where(x => !x.m_sDataType.Equals(key, StringComparison.InvariantCultureIgnoreCase))
+                .ToArray();
+            var endLength = userResponse.m_user.m_oDynamicData.m_sUserData.Length;
+
+            if (startLength != endLength)
+            {
+                userResponse.m_user.UpdateDynamicData(userResponse.m_user.m_oDynamicData, m_nGroupID);
+            }
+            else
+            {
+                return new ApiObjects.Response.Status(eResponseStatus.ItemNotFound, $"Dynamic data with key {key} was not found.");
+            }
+
+            return ApiObjects.Response.Status.Ok;
+        }
+
         private List<UserType> GetUserTypesList(DataTable dtUserTypes)
         {
             List<UserType> userTypesList = new List<UserType>();

@@ -10,8 +10,8 @@ using ApiObjects.Pricing;
 using ApiObjects;
 using WebAPI.Models.API;
 using System.Linq;
-using System;
-using System.Collections.Generic;
+using WebAPI.Models.General;
+using WebAPI.Models.Users;
 
 namespace WebAPI.Mapping.ObjectsConvertor
 {
@@ -53,6 +53,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID))
                 .AfterMap((src, dest) => dest.DynamicData = src.DynamicData != null ? dest.DynamicData : null)
                 ;
+
+            cfg.CreateMap<KeyValuePair, KalturaDynamicData>()
+                .ConvertUsing(src => new KalturaDynamicData(src.key, new KalturaStringValue { value = src.value }));
 
             //HomeNetwork
             cfg.CreateMap<HomeNetwork, KalturaHomeNetwork>()

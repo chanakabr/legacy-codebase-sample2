@@ -2584,6 +2584,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDynamicData":
+                    switch(property.Name)
+                    {
+                        case "Key":
+                            return "key";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
                 case "KalturaDynamicList":
                     switch(property.Name)
                     {
@@ -9434,6 +9444,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("householdDevice", "delete", false);
                             return HouseholdDeviceController.Delete((string) methodParams[0]);
                             
+                        case "deletedynamicdata":
+                            RolesManager.ValidateActionPermitted("householdDevice", "deleteDynamicData", false);
+                            return HouseholdDeviceController.DeleteDynamicData((string) methodParams[0], (string) methodParams[1]);
+                            
                         case "generatepin":
                             RolesManager.ValidateActionPermitted("householdDevice", "generatePin", false);
                             return HouseholdDeviceController.GeneratePin((string) methodParams[0], (int) methodParams[1]);
@@ -9469,6 +9483,10 @@ namespace WebAPI.Reflection
                         case "updatestatus":
                             RolesManager.ValidateActionPermitted("householdDevice", "updateStatus", false);
                             return HouseholdDeviceController.UpdateStatus((string) methodParams[0], (KalturaDeviceStatus) methodParams[1]);
+                            
+                        case "upsertdynamicdata":
+                            RolesManager.ValidateActionPermitted("householdDevice", "upsertDynamicData", false);
+                            return HouseholdDeviceController.UpsertDynamicData((string) methodParams[0], (string) methodParams[1], (KalturaStringValue) methodParams[2]);
                             
                     }
                     break;
@@ -10123,6 +10141,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("ottUser", "delete", false);
                             return OttUserController.Delete();
                             
+                        case "deletedynamicdata":
+                            RolesManager.ValidateActionPermitted("ottUser", "deleteDynamicData", false);
+                            return OttUserController.DeleteDynamicData((string) methodParams[0]);
+                            
                         case "facebooklogin":
                             return OttUserController.FacebookLogin((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
                             
@@ -10218,6 +10240,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("ottUser", "updatePassword", true);
                             OttUserController.updatePassword((int) methodParams[0], (string) methodParams[1]);
                             return null;
+                            
+                        case "upsertdynamicdata":
+                            RolesManager.ValidateActionPermitted("ottUser", "upsertDynamicData", false);
+                            return OttUserController.UpsertDynamicData((string) methodParams[0], (KalturaStringValue) methodParams[1]);
                             
                         case "validatetoken":
                             return OttUserController.validateToken((int) methodParams[0], (string) methodParams[1]);
@@ -15952,6 +15978,17 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "deletedynamicdata":
+                            ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("key", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
                         case "generatepin":
                             ret.Add("udid", new MethodParam(){
                                 NewName = newParamName,
@@ -16052,6 +16089,22 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsEnum = true,
                                 Type = typeof(KalturaDeviceStatus),
+                            });
+                            return ret;
+                            
+                        case "upsertdynamicdata":
+                            ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("key", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("value", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaStringValue),
                             });
                             return ret;
                             
@@ -17319,6 +17372,13 @@ namespace WebAPI.Reflection
                         case "delete":
                             return ret;
                             
+                        case "deletedynamicdata":
+                            ret.Add("key", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            return ret;
+                            
                         case "facebooklogin":
                             ret.Add("partnerId", new MethodParam(){
                                 NewName = newParamName,
@@ -17601,6 +17661,18 @@ namespace WebAPI.Reflection
                             ret.Add("password", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(string),
+                            });
+                            return ret;
+                            
+                        case "upsertdynamicdata":
+                            ret.Add("key", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("value", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaStringValue),
                             });
                             return ret;
                             

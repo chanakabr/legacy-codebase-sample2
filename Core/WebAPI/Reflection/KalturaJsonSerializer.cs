@@ -34762,6 +34762,54 @@ namespace WebAPI.Models.Users
             return ret;
         }
     }
+    public partial class KalturaDynamicData
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Key != null && (retrievedProperties == null || retrievedProperties.Contains("key")))
+            {
+                ret.Add("key", "\"key\": " + "\"" + EscapeJson(Key) + "\"");
+            }
+            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            {
+                propertyValue = Value.ToJson(currentVersion, omitObsolete);
+                ret.Add("value", "\"value\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Key != null && (retrievedProperties == null || retrievedProperties.Contains("key")))
+            {
+                ret.Add("key", "<key>" + EscapeXml(Key) + "</key>");
+            }
+            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            {
+                propertyValue = Value.ToXml(currentVersion, omitObsolete);
+                ret.Add("value", "<value>" + propertyValue + "</value>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaFavorite
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)

@@ -2,7 +2,6 @@
 using ApiObjects.Base;
 using ApiObjects.Response;
 using System;
-using System.Linq;
 using ApiObjects.User;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
@@ -11,6 +10,7 @@ using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.Domains;
+using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
 
@@ -522,6 +522,94 @@ namespace WebAPI.Controllers
                 LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, response.getHouseholdID(), udid, response.GetRoleIds()),
                 User = response
             };
+        }
+
+        /// <summary>
+        /// Adds or updates dynamic data item for device with identifier udid. If it is needed to update several items, use a multi-request to avoid race conditions.
+        /// </summary>
+        /// <param name="udid">Unique identifier of device.</param>
+        /// <param name="key">Key of dynamic data item. Max length of key is 125 characters.</param>
+        /// <param name="value">Value of dynamic data item. Max length of value is 255 characters.</param>
+        /// <returns>Added or updated dynamic data item.</returns>
+        /// <remarks>Possible status codes: ServiceForbidden = 500004, ArgumentCannotBeEmpty = 50027, ArgumentMaxLengthCrossed = 500045, DeviceNotExists = 1019, ExceededMaxCapacity = 9028.</remarks>
+        [Action("upsertDynamicData")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.DeviceNotExists)]
+        [Throws(eResponseStatus.ExceededMaxCapacity)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public static KalturaDynamicData UpsertDynamicData(string udid, string key, KalturaStringValue value)
+        {
+            if (string.IsNullOrWhiteSpace(udid))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, nameof(udid));
+            }
+            KalturaDeviceDynamicDataValidator.Validate(key, value);
+
+            var groupId = KS.GetFromRequest().GroupId;
+
+            KalturaDynamicData response = null;
+            try
+            {
+                if (!RequestContextUtils.Instance.IsPartnerRequest())
+                {
+                    var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                    if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
+                    {
+                        throw new UnauthorizedException(BadRequestException.SERVICE_FORBIDDEN);
+                    }
+                }
+                
+                response = ClientsManager.DomainsClient().UpsertDeviceDynamicData(groupId, udid, key, value);
+            }
+            catch (ClientException e)
+            {
+                ErrorUtils.HandleClientException(e);
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Deletes dynamic data item with key <see cref="key"/> for device with identifier <see cref="udid"/>.
+        /// </summary>
+        /// <param name="udid">Unique identifier of device.</param>
+        /// <param name="key">Key of dynamic data item.</param>
+        /// <returns>True if dynamic data item has been successfully deleted. Otherwise see possible error codes.</returns>
+        /// <remarks>Possible status codes: ServiceForbidden = 500004, ArgumentCannotBeEmpty = 50027, DeviceNotExists = 1019, ItemNotFound = 2032.</remarks>
+        [Action("deleteDynamicData")]
+        [ApiAuthorize]
+        [Throws((eResponseStatus.DeviceNotExists))]
+        [Throws(eResponseStatus.ItemNotFound)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public static bool DeleteDynamicData(string udid, string key)
+        {
+            if (string.IsNullOrWhiteSpace(udid))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, nameof(udid));
+            }
+
+            var groupId = KS.GetFromRequest().GroupId;
+
+            var response = false;
+            try
+            {
+                if (!RequestContextUtils.Instance.IsPartnerRequest())
+                {
+                    var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
+                    if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
+                    {
+                        throw new UnauthorizedException(BadRequestException.SERVICE_FORBIDDEN);
+                    }
+                }
+
+                response = ClientsManager.DomainsClient().DeleteDeviceDynamicData(groupId, udid, key);
+            }
+            catch (ClientException e)
+            {
+                ErrorUtils.HandleClientException(e);
+            }
+
+            return response;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ApiObjects;
+using ApiObjects.Response;
 
 namespace Core.Users
 {
@@ -27,5 +28,7 @@ namespace Core.Users
             bool allowNullDynamicData = false);
 
         public abstract DeviceResponseObject GetDeviceInfo(int nGroupID, string sID, bool bIsUDID);
+        public abstract GenericResponse<ApiObjects.KeyValuePair> UpsertDeviceDynamicData(string udid, KeyValuePair value);
+        public abstract ApiObjects.Response.Status DeleteDeviceDynamicData(string udid, string key);
     }
 }

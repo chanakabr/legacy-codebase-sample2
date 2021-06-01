@@ -830,6 +830,9 @@ namespace WebAPI.Reflection
                 case "KalturaDynamicChannel":
                     return new KalturaDynamicChannel(parameters);
                     
+                case "KalturaDynamicData":
+                    return new KalturaDynamicData(parameters);
+                    
                 case "KalturaDynamicList":
                     return new KalturaDynamicList(parameters);
                     
@@ -28118,6 +28121,30 @@ namespace WebAPI.Models.Users
     {
         public KalturaDeviceReferenceDataListResponse(Dictionary<string, object> parameters = null) : base(parameters)
         {
+        }
+    }
+    public partial class KalturaDynamicData
+    {
+        public KalturaDynamicData(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("key") && parameters["key"] != null)
+                {
+                    Key = (String) Convert.ChangeType(parameters["key"], typeof(String));
+                }
+                if (parameters.ContainsKey("value") && parameters["value"] != null)
+                {
+                    if (parameters["value"] is JObject)
+                    {
+                        Value = (KalturaValue) Deserializer.deserialize(typeof(KalturaValue), ((JObject) parameters["value"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["value"] is IDictionary)
+                    {
+                        Value = (KalturaValue) Deserializer.deserialize(typeof(KalturaValue), (Dictionary<string, object>) parameters["value"]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaFavorite
