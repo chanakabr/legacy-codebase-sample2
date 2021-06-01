@@ -305,8 +305,17 @@ namespace WebAPI.Clients
                     }
                     else
                     {
+                        var useFinal = false;
+                        if (!opcAccount)
+                        {
+                            var groupManager = new GroupsCacheManager.GroupManager();
+                            var group = groupManager.GetGroup(groupId);
+
+                            useFinal = !group.isGeoAvailabilityWindowingEnabled;
+                        }
+
                         assetListResponse = SearchAssets(groupId, siteGuid, domainId, udid, language, 0, 1,
-                            $"(and asset_type='media' media_id = '{id}')", KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false, null, null, null, false, null, true);
+                            $"(and asset_type='media' media_id = '{id}')", KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false, null, null, null, false, null, true, KalturaGroupingOption.Omit, false, useFinal);
                     }
 
                     if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
@@ -752,14 +761,14 @@ namespace WebAPI.Clients
             string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null,
             List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null,
             bool isAllowedToViewInactiveAssets = false, KalturaGroupByOrder? groupByOrder = null, bool ignoreEndDate = false,
-            KalturaGroupingOption groupByType = KalturaGroupingOption.Omit, bool isPersonalListSearch = false)
+            KalturaGroupingOption groupByType = KalturaGroupingOption.Omit, bool isPersonalListSearch = false, bool useFinal = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
             OrderObj order = CatalogConvertor.ConvertOrderToOrderObj(orderBy, assetOrder);
 
             // get group configuration 
-            Group group = GroupsManager.Instance.GetGroup(groupId);
+            var group = GroupsManager.Instance.GetGroup(groupId);
 
             // build failover cache key
             StringBuilder key = new StringBuilder();
@@ -823,7 +832,8 @@ namespace WebAPI.Clients
                     m_sDeviceId = udid,
                     m_nLanguage = Utils.Utils.GetLanguageId(groupId, language),
                     m_bUseStartDate = group.UseStartDate,
-                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets
+                    m_bOnlyActiveMedia = group.GetOnlyActiveAssets,
+                    m_bUseFinalDate = useFinal
                 },
                 m_sUserIP = Utils.Utils.GetClientIP(),
                 m_nGroupID = groupId,
@@ -836,7 +846,7 @@ namespace WebAPI.Clients
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
                 isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
-                shouldIgnoreEndDate = ignoreEndDate,
+                shouldIgnoreEndDate = ignoreEndDate && !useFinal,
                 isGroupingOptionInclude = GenericExtensionMethods.ConvertEnumsById<KalturaGroupingOption, GroupingOption>(groupByType) == GroupingOption.Include
             };
 
