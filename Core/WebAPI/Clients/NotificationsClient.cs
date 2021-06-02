@@ -700,8 +700,6 @@ namespace WebAPI.Clients
             MessageTemplateResponse response = null;
             KalturaMessageTemplate result = null;
 
-
-
             try
             {
                 MessageTemplate apiFollowTemplate = null;

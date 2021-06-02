@@ -29,6 +29,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "kSql")]
         [JsonProperty("kSql")]
         [XmlElement(ElementName = "kSql", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public string Ksql
         {
             get;
@@ -43,6 +44,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "assetTypes")]
         [XmlArray(ElementName = "assetTypes", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(IsNullable = true)]
         [OnlyNewStandard]
         public List<KalturaIntegerValue> AssetTypes { get; set; }
 
@@ -52,8 +54,9 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "groupBy")]
         [JsonProperty("groupBy")]
         [XmlElement(ElementName = "groupBy", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         [OnlyNewStandard]
-        public KalturaAssetGroupBy GroupBy
+        public KalturaAssetGroupBy GroupBy 
         {
             get;
             set;

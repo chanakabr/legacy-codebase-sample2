@@ -73,9 +73,9 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "images")]
         [JsonProperty(PropertyName = "images")]
-        [XmlArray(ElementName = "images", IsNullable = true)]
-        [XmlArrayItem("item")]
+        [XmlArray(ElementName = "images", IsNullable = true)] 
         [SchemeProperty(ReadOnly = true)]
+        [XmlArrayItem("item")]
         [Deprecated(OPC_MERGE_VERSION)]
         public List<KalturaMediaImage> Images { get; set; }
 
@@ -122,6 +122,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public bool? IsActive
         {
             get;
@@ -161,6 +162,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "orderBy")]
         [JsonProperty("orderBy")]
         [XmlElement(ElementName = "orderBy", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaChannelOrder OrderBy { get; set; }
 
         /// <summary>
@@ -197,7 +199,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "assetUserRuleId")]
         [JsonProperty("assetUserRuleId")]
         [XmlElement(ElementName = "assetUserRuleId")]        
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, IsNullable = true)]
         public long? AssetUserRuleId { get; set; }
 
         /// <summary>

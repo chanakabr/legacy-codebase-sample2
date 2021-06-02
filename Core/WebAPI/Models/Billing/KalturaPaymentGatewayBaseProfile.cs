@@ -37,6 +37,7 @@ namespace WebAPI.Models.Billing
         [JsonProperty("isDefault")]
         [XmlElement(ElementName = "isDefault")]
         [OldStandardProperty("is_default")]
+        [SchemeProperty(IsNullable = true)]
         public bool? IsDefault { get; set; }
 
         /// <summary>
@@ -45,6 +46,7 @@ namespace WebAPI.Models.Billing
         [DataMember(Name = "selectedBy")]
         [JsonProperty("selectedBy")]
         [XmlElement(ElementName = "selectedBy", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         [OldStandardProperty("selected_by")]
         public KalturaHouseholdPaymentGatewaySelectedBy? selectedBy { get; set; }
 

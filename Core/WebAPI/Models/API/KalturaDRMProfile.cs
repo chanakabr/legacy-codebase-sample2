@@ -34,6 +34,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
+        [SchemeProperty(IsNullable = true)]
         public bool? IsActive { get; set; }
 
         /// <summary>
@@ -50,6 +51,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "settings")]
         [JsonProperty("settings")]
         [XmlElement("settings", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public string Settings { get; set; }
 
         /// <summary>

@@ -56,6 +56,7 @@ namespace WebAPI.Models.API
         [JsonProperty("mediaTag")]
         [XmlElement(ElementName = "mediaTag")]
         [OldStandardProperty("media_tag")]
+        [SchemeProperty(IsNullable = true)]
         public int? mediaTagTypeId { get; set; }
 
         /// <summary>
@@ -65,6 +66,7 @@ namespace WebAPI.Models.API
         [JsonProperty("epgTag")]
         [XmlElement(ElementName = "epgTag")]
         [OldStandardProperty("epg_tag")]
+        [SchemeProperty(IsNullable = true)]
         public int? epgTagTypeId { get; set; }
 
         /// <summary>
@@ -74,6 +76,7 @@ namespace WebAPI.Models.API
         [JsonProperty("blockAnonymousAccess")]
         [XmlElement(ElementName = "blockAnonymousAccess")]
         [OldStandardProperty("block_anonymous_access")]
+        [SchemeProperty(IsNullable = true)]
         public bool? blockAnonymousAccess { get; set; }
 
         /// <summary>
@@ -83,6 +86,7 @@ namespace WebAPI.Models.API
         [JsonProperty("ruleType")]
         [XmlElement(ElementName = "ruleType")]
         [OldStandardProperty("rule_type")]
+        [SchemeProperty(IsNullable = true)]
         public KalturaParentalRuleType? ruleType { get; set; }
 
         /// <summary>
@@ -92,6 +96,7 @@ namespace WebAPI.Models.API
         [JsonProperty("mediaTagValues")]
         [XmlArray(ElementName = "mediaTagValues", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(IsNullable = true)]
         [OldStandardProperty("media_tag_values")]
         public List<KalturaStringValue> mediaTagValues { get; set; }
 
@@ -102,6 +107,7 @@ namespace WebAPI.Models.API
         [JsonProperty("epgTagValues")]
         [XmlArray(ElementName = "epgTagValues", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(IsNullable = true)]
         [OldStandardProperty("epg_tag_values")]
         public List<KalturaStringValue> epgTagValues { get; set; }
 

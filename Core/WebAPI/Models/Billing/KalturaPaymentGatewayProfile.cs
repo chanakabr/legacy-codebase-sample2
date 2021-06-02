@@ -19,6 +19,7 @@ namespace WebAPI.Models.Billing
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
         [OldStandardProperty("is_active")]
+        [SchemeProperty(IsNullable = true)]
         public int? IsActive { get; set; }
 
         /// <summary>
@@ -64,6 +65,7 @@ namespace WebAPI.Models.Billing
         [JsonProperty("paymentGatewaySettings")]
         [XmlElement(ElementName = "paymentGatewaySettings", IsNullable = true)]
         [OldStandardProperty("payment_gateway_settings")]
+        [SchemeProperty(IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> Settings { get; set; }
 
         /// <summary>
@@ -82,6 +84,7 @@ namespace WebAPI.Models.Billing
         [JsonProperty("pendingInterval")]
         [XmlElement(ElementName = "pendingInterval")]
         [OldStandardProperty("pending_interval")]
+        [SchemeProperty(IsNullable = true)]
         public int? PendingInterval { get; set; }
 
         /// <summary>
@@ -91,6 +94,7 @@ namespace WebAPI.Models.Billing
         [JsonProperty("pendingRetries")]
         [XmlElement(ElementName = "pendingRetries")]
         [OldStandardProperty("pending_retries")]
+        [SchemeProperty(IsNullable = true)]
         public int? PendingRetries { get; set; }
 
         /// <summary>
@@ -109,6 +113,7 @@ namespace WebAPI.Models.Billing
         [JsonProperty("renewIntervalMinutes")]
         [XmlElement(ElementName = "renewIntervalMinutes")]
         [OldStandardProperty("renew_interval_minutes")]
+        [SchemeProperty(IsNullable = true)]
         public int? RenewIntervalMinutes { get; set; }
 
         /// <summary>
@@ -118,6 +123,7 @@ namespace WebAPI.Models.Billing
         [JsonProperty("renewStartMinutes")]
         [XmlElement(ElementName = "renewStartMinutes")]
         [OldStandardProperty("renew_start_minutes")]
+        [SchemeProperty(IsNullable = true)]
         public int? RenewStartMinutes { get; set; }
 
         /// <summary>

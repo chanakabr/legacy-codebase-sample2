@@ -46,6 +46,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("startDate")]
         [XmlElement(ElementName = "startDate", IsNullable = true)]
         [OldStandardProperty("start_date")]
+        [SchemeProperty(IsNullable = true)]
         public long? StartDate { get; set; }
 
         /// <summary>
@@ -55,6 +56,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("endDate")]
         [XmlElement(ElementName = "endDate", IsNullable = true)]
         [OldStandardProperty("end_date")]
+        [SchemeProperty(IsNullable = true)]
         public long? EndDate { get; set; }
 
         /// <summary>
@@ -74,7 +76,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("maxUsesNumberOnRenewableSub")]
         [XmlElement(ElementName = "maxUsesNumberOnRenewableSub", IsNullable = true)]
         [OldStandardProperty("max_uses_number_on_renewable_sub")]
-        [SchemeProperty(MinInteger = 0)]
+        [SchemeProperty(MinInteger = 0, IsNullable = true)]
         public int? MaxUsesNumberOnRenewableSub { get; set; }
 
 
@@ -84,6 +86,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "couponGroupType")]
         [JsonProperty("couponGroupType")]
         [XmlElement(ElementName = "couponGroupType", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaCouponGroupType? CouponGroupType { get; set; }
 
         /// <summary>

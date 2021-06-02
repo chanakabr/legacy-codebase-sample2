@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -33,6 +34,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "price")]
         [JsonProperty("price")]
         [XmlElement(ElementName = "price", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaPriceDetails Price { get; set; }
 
         /// <summary>
@@ -42,6 +44,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("fileTypes")]
         [XmlArray(ElementName = "fileTypes", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(IsNullable = true)]
         public List<KalturaIntegerValue> FileTypes { get; set; }
 
         /// <summary>
@@ -50,6 +53,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "discountModule")]
         [JsonProperty("discountModule")]
         [XmlElement(ElementName = "discountModule", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaDiscountModule DiscountModule { get; set; }
 
         /// <summary>
@@ -58,6 +62,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "couponsGroup")]
         [JsonProperty("couponsGroup")]
         [XmlElement(ElementName = "couponsGroup", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaCouponsGroup CouponsGroup { get; set; }
 
         /// <summary>
@@ -67,6 +72,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("descriptions")]
         [XmlArray(ElementName = "descriptions", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(IsNullable = true)]
         public List<KalturaTranslationToken> Descriptions { get; set; } // TODO: change to object
 
         /// <summary>
@@ -83,6 +89,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "isSubscriptionOnly")]
         [JsonProperty("isSubscriptionOnly")]
         [XmlElement(ElementName = "isSubscriptionOnly", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public bool? IsSubscriptionOnly { get; set; }
 
         /// <summary>
@@ -91,6 +98,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "firstDeviceLimitation")]
         [JsonProperty("firstDeviceLimitation")]
         [XmlElement(ElementName = "firstDeviceLimitation", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public bool? FirstDeviceLimitation { get; set; }
 
         /// <summary>
@@ -99,6 +107,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "usageModule")]
         [JsonProperty("usageModule")]
         [XmlElement(ElementName = "usageModule", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaUsageModule UsageModule { get; set; }
     }
 }

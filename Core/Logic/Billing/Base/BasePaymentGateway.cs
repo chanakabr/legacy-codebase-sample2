@@ -629,12 +629,6 @@ namespace Core.Billing
                     return response;
                 }
 
-                if (string.IsNullOrEmpty(paymentGateway.ExternalIdentifier))
-                {
-                    response.Status = new Status((int)eResponseStatus.ExternalIdentifierRequired, EXTERNAL_IDENTIFIER_REQUIRED);
-                    return response;
-                }
-
                 var status = paymentGateway.ValidateRetries();
                 if(!status.IsOkStatusCode())
                 {
