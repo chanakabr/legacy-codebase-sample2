@@ -2521,5 +2521,13 @@ namespace WebAPI.Clients
             Func<Status> applyCouponFunc = () => Core.ConditionalAccess.Module.ApplyCoupon(groupId, domainId, userId, purchaseId, couponCode);
             ClientUtils.GetResponseStatusFromWS(applyCouponFunc);
         }
+
+        internal KalturaSeriesRecording RebookCanceledRecordByEpgId(int groupId, long userId, long domainId, long epgId)
+        {
+            Func<GenericResponse<SeriesRecording>> rebookFunc = () => Core.ConditionalAccess.Module.RebookCanceledRecordingByEpgId(groupId, userId, domainId, epgId);
+            var result = ClientUtils.GetResponseFromWS<KalturaSeriesRecording, SeriesRecording>(rebookFunc);
+
+            return result;
+        }
     }
 }
