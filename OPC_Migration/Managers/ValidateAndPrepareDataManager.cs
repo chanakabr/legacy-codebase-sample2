@@ -1490,6 +1490,7 @@ namespace OPC_Migration
                                 bool hasMediaTypes = true;
                                 if (channel.m_nMediaType == null || channel.m_nMediaType.Count == 0)
                                 {
+                                    // if the channel does not have any filter we add it's "group" media types because we merged to a single group id
                                     if (groupIdToMediaTypeIdsMap.ContainsKey(channel.m_nGroupID))
                                     {
                                         channel.m_nMediaType = new List<int>(groupIdToMediaTypeIdsMap[channel.m_nGroupID]);
@@ -1508,7 +1509,9 @@ namespace OPC_Migration
                                     foreach (ApiObjects.SearchObjects.SearchValue searchValue in channel.m_lChannelTags)
                                     {
                                         if (!string.IsNullOrEmpty(searchValue.m_sKey) && searchValue.m_lValue != null && searchValue.m_lValue.Count > 0)
-                                        {                                            
+                                        {
+                                            // added inner cut with to the ksql query
+                                            sb.AppendFormat("({0} ", searchValue.m_eInnerCutWith.ToString().ToLower());
                                             foreach (string value in searchValue.m_lValue)
                                             {
                                                 if (!string.IsNullOrEmpty(value))
@@ -1521,6 +1524,8 @@ namespace OPC_Migration
                                                     }
                                                 }
                                             }
+                                            
+                                            sb.Append(")");
                                         }
                                     }
 
