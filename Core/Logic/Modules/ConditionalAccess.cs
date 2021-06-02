@@ -2475,6 +2475,7 @@ namespace Core.ConditionalAccess
             }
         }
 
+
         public static ApiObjects.TimeShiftedTv.SeriesRecording DeleteSeriesRecord(int groupID, string userId, long domainId, long recordingId, long epgId, long seasonNumber)
         {
             BaseConditionalAccess t = null;
@@ -3375,17 +3376,6 @@ namespace Core.ConditionalAccess
             BaseConditionalAccess ba = null;
             Utils.GetBaseConditionalAccessImpl(ref ba, groupId);
             return ba.ApplyCoupon(domainId, userId, purchaseId, couponCode);
-        }
-
-        public static GenericResponse<SeriesRecording> RebookCanceledRecordingByEpgId(int groupId, long userId, long domainId, long epgId)
-        {
-            BaseConditionalAccess t = null;
-            Utils.GetBaseConditionalAccessImpl(ref t, groupId);
-            var response = t != null
-                ? t.RebookCanceledRecordingByEpgId(userId, domainId, epgId)
-                : new GenericResponse<SeriesRecording>();
-
-            return response;
         }
     }
 }

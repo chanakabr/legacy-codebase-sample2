@@ -307,41 +307,5 @@ namespace WebAPI.Controllers
             }
             return response;
         }
-
-        /// <summary>
-        /// Enable EPG recording that was canceled as part of series
-        /// </summary>
-        /// <param name="epgId">EPG program identifies</param>
-        /// <returns></returns>
-        /// <remarks>Possible status codes: UserSuspended = 2001, UserWithNoDomain = 2024,
-        /// RecordingNotFound = 3039, RecordingStatusNotValid = 3043, SeriesRecordingNotFound = 3048, EpgIdNotPartOfSeries = 3049.</remarks>
-        [Action("rebookCanceledByEpgId")]
-        [ApiAuthorize]
-        [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [SchemeArgument("epgId", MinLong = 1)]
-        [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserWithNoDomain)]
-        [Throws(eResponseStatus.RecordingNotFound)]
-        [Throws(eResponseStatus.RecordingStatusNotValid)]
-        [Throws(eResponseStatus.SeriesRecordingNotFound)]
-        [Throws(eResponseStatus.EpgIdNotPartOfSeries)]
-        public static KalturaSeriesRecording RebookCanceledByEpgId(long epgId)
-        {
-            KalturaSeriesRecording response = null;
-            try
-            {
-                var groupId = KS.GetFromRequest().GroupId;
-                var userId = Utils.Utils.GetUserIdFromKs();
-                var domainId = HouseholdUtils.GetHouseholdIDByKS(groupId);
-
-                response = ClientsManager.ConditionalAccessClient().RebookCanceledRecordByEpgId(groupId, userId, domainId, epgId);
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
-        }
     }
 }
