@@ -328,7 +328,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType REGION_NOT_FOUND = new ClientExceptionType(eResponseStatus.RegionNotFound, "Region was not found", "Region was not found");
         public static ClientExceptionType REGION_CANNOT_BE_PARENT = new ClientExceptionType(eResponseStatus.RegionCannotBeParent, "Region cannot be parent", "Region cannot be parent");
         public static ClientExceptionType DEFAULT_REGION_CANNOT_BE_DELETED = new ClientExceptionType(eResponseStatus.DefaultRegionCannotBeDeleted, "Default region cannot be deleted", "Default region cannot be deleted");
-        public static ClientExceptionType CANNOT_DELETE_REGION_IN_USE = new ClientExceptionType(eResponseStatus.CannotDeleteRegionInUse, "Region in use cannot be deleted", "Region in use cannot be deleted");
+        public static ClientExceptionType CANNOT_DELETE_REGION_IN_USE = new ClientExceptionType(eResponseStatus.CannotDeleteRegionInUse, "Region in use by household and cannot be deleted", "Region in use by household and cannot be deleted");
         public static ClientExceptionType FILE_EXCEEDED_MAX_SIZE = new ClientExceptionType(eResponseStatus.FileExceededMaxSize, "File Exceeded Max Size", "File Exceeded Max Size");
         public static ClientExceptionType FILE_EXTENSION_NOT_SUPPORTED = new ClientExceptionType(eResponseStatus.FileExtensionNotSupported, "File Extension Not Supported", "File Extension Not Supported");
         public static ClientExceptionType FILE_MIME_DIFFERENT_THAN_EXPECTED = new ClientExceptionType(eResponseStatus.FileMimeDifferentThanExpected, "File Mime Different Than Expected", "File Mime Different Than Expected");
@@ -490,7 +490,7 @@ namespace WebAPI.Exceptions
 
 
         #region else
-        //public static ClientExceptionType ERROR = new ClientExceptionType(eResponseStatus.Error, "Error"); 
+        //public static ClientExceptionType ERROR = new ClientExceptionType(eResponseStatus.Error, "Error");
         public static ClientExceptionType DLM_EXIST = new ClientExceptionType(eResponseStatus.DlmExist, "DlmExist");
         public static ClientExceptionType MASTER_USER_NOT_FOUND = new ClientExceptionType(eResponseStatus.MasterUserNotFound, "MasterUserNotFound");
         public static ClientExceptionType PASSWORD_POLICY_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.PasswordPolicyDoesNotExist, "PasswordPolicyDoesNotExist");
@@ -499,7 +499,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PASSWORD_CANNOT_BE_REUSED = new ClientExceptionType(eResponseStatus.PasswordCannotBeReused, "PasswordCannotBeReused");
         public static ClientExceptionType INVALID_PASSWORD_COMPLEXITY = new ClientExceptionType(eResponseStatus.InvalidPasswordComplexity, "InvalidPasswordComplexity");
         public static ClientExceptionType INTERNAL_CONNECTION_ISSUE = new ClientExceptionType(eResponseStatus.InternalConnectionIssue, "InternalConnectionIssue");
-        
+
         public static ClientExceptionType GENERATE_NEW_LOGIN_PIN = new ClientExceptionType(eResponseStatus.GenerateNewLoginPIN, "GenerateNewLoginPIN");
         public static ClientExceptionType NOT_ACTIVATED = new ClientExceptionType(eResponseStatus.NotActivated, "NotActivated");
         public static ClientExceptionType USER_INTEREST_NOT_EXIST = new ClientExceptionType(eResponseStatus.UserInterestNotExist, "UserInterestNotExist");
@@ -524,7 +524,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType SSO_ADAPTER_NOT_EXIST = new ClientExceptionType(eResponseStatus.SSOAdapterNotExist, "SSOAdapterNotExist");
         public static ClientExceptionType NO_SSO_ADAPATER_TO_INSERT = new ClientExceptionType(eResponseStatus.NoSSOAdapaterToInsert, "NoSSOAdapaterToInsert");
         public static ClientExceptionType SSO_ADAPTER_ID_REQUIRED = new ClientExceptionType(eResponseStatus.SSOAdapterIdRequired, "SSOAdapterIdRequired");
-        
+
         public static ClientExceptionType SERVICE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.ServiceAlreadyExists, "ServiceAlreadyExists");
         public static ClientExceptionType NO_FILES_FOUND = new ClientExceptionType(eResponseStatus.NoFilesFound, "NoFilesFound");
         public static ClientExceptionType COMPENSATION_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.CompensationAlreadyExists, "CompensationAlreadyExists");
@@ -546,7 +546,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType INVALID_PRODUCT_TYPE = new ClientExceptionType(eResponseStatus.InvalidProductType, "InvalidProductType");
         public static ClientExceptionType NETWORK_RULE_BLOCK = new ClientExceptionType(eResponseStatus.NetworkRuleBlock, "NetworkRuleBlock");
         public static ClientExceptionType RECORDING_IDS_EXCEEDED_LIMIT = new ClientExceptionType(eResponseStatus.RecordingIdsExceededLimit, "RecordingIdsExceededLimit");
-        
+
         public static ClientExceptionType ELASTIC_SEARCH_RETURNED_DELETE_ITEM = new ClientExceptionType(eResponseStatus.ElasticSearchReturnedDeleteItem, "ElasticSearchReturnedDeleteItem");
         public static ClientExceptionType ELASTIC_SEARCH_RETURNED_UNUPDATED_ITEM = new ClientExceptionType(eResponseStatus.ElasticSearchReturnedUnupdatedItem, "ElasticSearchReturnedUnupdatedItem");
         public static ClientExceptionType MISSING_BASIC_VALUE_FOR_ASSET = new ClientExceptionType(eResponseStatus.MissingBasicValueForAsset, "MissingBasicValueForAsset");
@@ -567,7 +567,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CATEGORY_ITEM_IS_ROOT = new ClientExceptionType(eResponseStatus.CategoryItemIsRoot, "CategoryItemIsRoot");
         public static ClientExceptionType CATEGORY_VERSION_IS_OLDER_THAN_DEFAULT = new ClientExceptionType(eResponseStatus.CategoryVersionIsOlderThanDefault, "CategoryVersionIsOlderThanDefault");
         public static ClientExceptionType CATEGORY_IS_ALREADY_ASSOCIATED_TO_VERSION_TREE = new ClientExceptionType(eResponseStatus.CategoryIsAlreadyAssociatedToVersionTree, "CategoryIsAlreadyAssociatedToVersionTree");
-        
+
         public static ClientExceptionType NO_META_TO_UPDATE = new ClientExceptionType(eResponseStatus.NoMetaToUpdate, "NoMetaToUpdate");
         public static ClientExceptionType NOT_A_TOPIC_INTEREST_META = new ClientExceptionType(eResponseStatus.NotaTopicInterestMeta, "NotaTopicInterestMeta");
         public static ClientExceptionType ROLE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.RoleAlreadyExists, "RoleAlreadyExists");
@@ -578,9 +578,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType INVALID_LANGUAGE = new ClientExceptionType(eResponseStatus.InvalidLanguage, "InvalidLanguage");
         public static ClientExceptionType INVALID_ARGUMENT_VALUE = new ClientExceptionType(eResponseStatus.InvalidArgumentValue, "InvalidArgumentValue");
         public static ClientExceptionType PARTNER_CONFIGURATION_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.PartnerConfigurationDoesNotExist, "PartnerConfigurationDoesNotExist");
-        
+
         public static ClientExceptionType PAYMENT_GATEWAY_EXTERNAL_VERIFICATION = new ClientExceptionType(eResponseStatus.PaymentGatewayExternalVerification, "PaymentGatewayExternalVerification");
-        
+
         public static ClientExceptionType NO_USER_SOCIAL_SETTINGS_FOUND = new ClientExceptionType(eResponseStatus.NoUserSocialSettingsFound, "NoUserSocialSettingsFound");
         public static ClientExceptionType ASSET_ALREADY_LIKED = new ClientExceptionType(eResponseStatus.AssetAlreadyLiked, "AssetAlreadyLiked");
         public static ClientExceptionType SOCIAL_ACTION_PRIVACY_DONT_ALLOW = new ClientExceptionType(eResponseStatus.SocialActionPrivacyDontAllow, "SocialActionPrivacyDontAllow");
@@ -596,7 +596,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ASSET_NEVER_LIKED = new ClientExceptionType(eResponseStatus.AssetNeverLiked, "AssetNeverLiked");
         public static ClientExceptionType SOCIAL_ACTION_ID_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.SocialActionIdDoseNotExists, "SocialActionIdDoseNotExists");
         public static ClientExceptionType USER_EMAIL_IS_MISSING = new ClientExceptionType(eResponseStatus.UserEmailIsMissing, "UserEmailIsMissing");
-        
+
         //public static ClientExceptionType URL_PLACEHOLDERS_INVALID = new ClientExceptionType(eResponseStatus.URLPlaceholdersInvalid, "URLPlaceholdersInvalid");
         public static ClientExceptionType INVALID_REMINDER_PRE_PADDING_SEC = new ClientExceptionType(eResponseStatus.InvalidReminderPrePaddingSec, "InvalidReminderPrePaddingSec");
         public static ClientExceptionType REMINDER_NOT_FOUND = new ClientExceptionType(eResponseStatus.ReminderNotFound, "ReminderNotFound");
@@ -619,7 +619,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType MAIL_NOTIFICATION_ADAPTER_NOT_EXIST = new ClientExceptionType(eResponseStatus.MailNotificationAdapterNotExist, "MailNotificationAdapterNotExist");
         public static ClientExceptionType INVALID_TOKEN = new ClientExceptionType(eResponseStatus.InvalidToken, "InvalidToken");
         public static ClientExceptionType INVALID_NOTIFICATION_SETTINGS_SETUP = new ClientExceptionType(eResponseStatus.InvalidNotificationSettingsSetup, "InvalidNotificationSettingsSetup");
-        
+
         public static ClientExceptionType COUPON_CODE_ALREADY_EXISTS = new ClientExceptionType(eResponseStatus.CouponCodeAlreadyExists, "CouponCodeAlreadyExists");
         public static ClientExceptionType COUPON_GROUP_NOT_EXIST = new ClientExceptionType(eResponseStatus.CouponGroupNotExist, "CouponGroupNotExist");
         public static ClientExceptionType COUPON_CODE_NOT_IN_THE_RIGHT_LENGTH = new ClientExceptionType(eResponseStatus.CouponCodeNotInTheRightLength, "CouponCodeNotInTheRightLength");
@@ -629,9 +629,9 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType CAN_DELETE_ONLY_INACTIVE_CAMPAIGN = new ClientExceptionType(eResponseStatus.CanDeleteOnlyInactiveCampaign, "CanDeleteOnlyInactiveCampaign");
         public static ClientExceptionType DYNAMIC_LIST_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.DynamicListDoesNotExist, "DynamicListDoesNotExist");
         public static ClientExceptionType EXCEEDED_MAX_LENGTH = new ClientExceptionType(eResponseStatus.ExceededMaxLength, "ExceededMaxLength");
-        
+
         public static ClientExceptionType EPG_PROGRAM_OVERLAP_FIXED = new ClientExceptionType(eResponseStatus.EPGProgramOverlapFixed, "EPGProgramOverlapFixed");
-        
+
         public static ClientExceptionType FORBIDDEN = new ClientExceptionType(eResponseStatus.Forbidden, "Forbidden");
         public static ClientExceptionType ILLEGAL_QUERY_PARAMS = new ClientExceptionType(eResponseStatus.IllegalQueryParams, "IllegalQueryParams");
         public static ClientExceptionType ILLEGAL_POST_DATA = new ClientExceptionType(eResponseStatus.IllegalPostData, "IllegalPostData");
@@ -641,7 +641,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType REGISTERED = new ClientExceptionType(eResponseStatus.Registered, "Registered");
         public static ClientExceptionType VERSION_NOT_FOUND = new ClientExceptionType(eResponseStatus.VersionNotFound, "VersionNotFound");
         public static ClientExceptionType ALREADY_EXIST = new ClientExceptionType(eResponseStatus.AlreadyExist, "AlreadyExist");
-        
+
         public static ClientExceptionType FAILED_TO_DELETE_GROUP_CANARY_DEPLOYMENT_CONFIGURATION = new ClientExceptionType(eResponseStatus.FailedToDeleteGroupCanaryDeploymentConfiguration, "FailedToDeleteGroupCanaryDeploymentConfiguration");
         public static ClientExceptionType FAILED_TO_SET_ALL_GROUP_CANARY_DEPLOYMENT_MIGRATION_EVENTS_STATUS = new ClientExceptionType(eResponseStatus.FailedToSetAllGroupCanaryDeploymentMigrationEventsStatus, "FailedToSetAllGroupCanaryDeploymentMigrationEventsStatus");
         public static ClientExceptionType FAILED_TO_ENABLE_CANARY_DEPLOYMENT_MIGRATION_EVENT = new ClientExceptionType(eResponseStatus.FailedToEnableCanaryDeploymentMigrationEvent, "FailedToEnableCanaryDeploymentMigrationEvent");
@@ -654,7 +654,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType FAILED_TO_SET_ROUTE_REFRESH_TOKEN = new ClientExceptionType(eResponseStatus.FailedToSetRouteRefreshToken, "FailedToSetRouteRefreshToken");
         public static ClientExceptionType FAILED_TO_SET_ALL_ROUTING_ACTIONS = new ClientExceptionType(eResponseStatus.FailedToSetAllRoutingActions, "FailedToSetAllRoutingActions");
         public static ClientExceptionType CANARY_DEPLOYMENT_CONFIGURATION_IS_DISABLED_ON_THE_ENVIRONMENT = new ClientExceptionType(eResponseStatus.CanaryDeploymentConfigurationIsDisabledOnTheEnvironment, "CanaryDeploymentConfigurationIsDisabledOnTheEnvironment");
-        
+
         #endregion
 
         [DataMember(Name = "code")]
