@@ -23,7 +23,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "dynamicOrderBy")]
         [JsonProperty("dynamicOrderBy")]
-        [XmlElement(ElementName = "dynamicOrderBy", IsNullable = true)]        
+        [XmlElement(ElementName = "dynamicOrderBy", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaDynamicOrderBy DynamicOrderBy { get; set; }
 
         /// <summary>
@@ -32,6 +33,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "orderBy")]
         [JsonProperty("orderBy")]
         [XmlElement(ElementName = "orderBy", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaChannelOrderBy? orderBy { get; set; }
 
         /// <summary>
@@ -40,7 +42,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "period")]
         [JsonProperty(PropertyName = "period")]
         [XmlElement(ElementName = "period", IsNullable = true)]
-        [SchemeProperty(MinLong = 1)]
+        [SchemeProperty(MinLong = 1, IsNullable = true)]
         public int? SlidingWindowPeriod { get; set; }
 
         internal void Validate(Type type)

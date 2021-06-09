@@ -35,7 +35,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "ingestReferencePath")]
         [JsonProperty(PropertyName = "ingestReferencePath")]
         [XmlElement(ElementName = "ingestReferencePath")]
-        [SchemeProperty(MaxLength = 255)]
+        [SchemeProperty(MaxLength = 255, IsNullable = true)]
         public string IngestReferencePath { get; set; }
 
         /// <summary>
@@ -44,6 +44,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "protectFromIngest")]
         [JsonProperty(PropertyName = "protectFromIngest")]
         [XmlElement(ElementName = "protectFromIngest", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public bool? ProtectFromIngest { get; set; }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "defaultIngestValue")]
         [JsonProperty(PropertyName = "defaultIngestValue")]
         [XmlElement(ElementName = "defaultIngestValue")]
-        [SchemeProperty(MaxLength = 4000)]
+        [SchemeProperty(MaxLength = 4000, IsNullable = true)]
         public string DefaultIngestValue { get; set; }
 
         /// <summary>
@@ -78,7 +79,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "isInherited")]
         [JsonProperty(PropertyName = "isInherited")]
-        [XmlElement(ElementName = "isInherited", IsNullable = true)]        
+        [XmlElement(ElementName = "isInherited", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public bool? IsInherited { get; set; }
 
         /// <summary>
@@ -87,6 +89,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "isLocationTag")]
         [JsonProperty(PropertyName = "isLocationTag")]
         [XmlElement(ElementName = "isLocationTag", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public bool? IsLocationTag { get; set; }
 
         /// <summary>
@@ -95,7 +98,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "suppressedOrder")]
         [JsonProperty(PropertyName = "suppressedOrder")]
         [XmlElement(ElementName = "suppressedOrder", IsNullable = true)]
-        [SchemeProperty(MinInteger = 0)]
+        [SchemeProperty(MinInteger = 0, IsNullable = true)]
         public int? SuppressedOrder { get; set; }
     }
 }

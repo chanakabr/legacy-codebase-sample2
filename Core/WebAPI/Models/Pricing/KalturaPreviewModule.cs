@@ -35,6 +35,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("lifeCycle")]
         [XmlElement(ElementName = "lifeCycle")]
         [OldStandardProperty("life_cycle")]
+        [SchemeProperty(IsNullable = true)]
         public int? LifeCycle { get; set; }
 
         /// <summary>
@@ -44,6 +45,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("nonRenewablePeriod")]
         [XmlElement(ElementName = "nonRenewablePeriod")]
         [OldStandardProperty("non_renewable_period")]
+        [SchemeProperty(IsNullable = true)]
         public int? NonRenewablePeriod { get; set; }
 
         

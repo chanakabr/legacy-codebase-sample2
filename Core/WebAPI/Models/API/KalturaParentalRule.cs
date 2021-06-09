@@ -47,6 +47,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "order")]
         [JsonProperty("order")]
         [XmlElement(ElementName = "order")]
+        [SchemeProperty(IsNullable = true)]
         public int? order { get; set; }
 
         /// <summary>
@@ -136,6 +137,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public bool? IsActive { get; set; }
 
         /// <summary>

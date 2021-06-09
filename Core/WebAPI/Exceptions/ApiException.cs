@@ -576,7 +576,6 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType PARENTAL_RULE_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.ParentalRuleDoesNotExist, "ParentalRuleDoesNotExist");
         public static ClientExceptionType CAN_NOT_DELETE_DEFAULT_PARENTAL_RULE = new ClientExceptionType(eResponseStatus.CanNotDeleteDefaultParentalRule, "CanNotDeleteDefaultParentalRule");
         public static ClientExceptionType INVALID_LANGUAGE = new ClientExceptionType(eResponseStatus.InvalidLanguage, "InvalidLanguage");
-        public static ClientExceptionType INVALID_ARGUMENT_VALUE = new ClientExceptionType(eResponseStatus.InvalidArgumentValue, "InvalidArgumentValue");
         public static ClientExceptionType PARTNER_CONFIGURATION_DOES_NOT_EXIST = new ClientExceptionType(eResponseStatus.PartnerConfigurationDoesNotExist, "PartnerConfigurationDoesNotExist");
         
         public static ClientExceptionType PAYMENT_GATEWAY_EXTERNAL_VERIFICATION = new ClientExceptionType(eResponseStatus.PaymentGatewayExternalVerification, "PaymentGatewayExternalVerification");

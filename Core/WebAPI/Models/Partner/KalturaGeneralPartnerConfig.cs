@@ -145,6 +145,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "suspensionProfileInheritanceType")]
         [JsonProperty("suspensionProfileInheritanceType")]
         [XmlElement(ElementName = "suspensionProfileInheritanceType")]
+        [SchemeProperty(IsNullable = true)]
         public KalturaSuspensionProfileInheritanceType? SuspensionProfileInheritanceType { get; set; }
 
         internal List<int> GetSecondaryLanguagesIds()

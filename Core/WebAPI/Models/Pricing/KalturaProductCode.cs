@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Pricing
@@ -16,6 +17,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "inappProvider")]
         [JsonProperty("inappProvider")]
         [XmlElement(ElementName = "inappProvider", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public string InappProvider { get; set; }
 
         /// <summary>
@@ -24,6 +26,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "code")]
         [JsonProperty("code")]
         [XmlElement(ElementName = "code", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public string Code { get; set; }
     }
 }

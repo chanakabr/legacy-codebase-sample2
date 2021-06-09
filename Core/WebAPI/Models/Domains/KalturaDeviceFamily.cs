@@ -19,6 +19,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
+        [SchemeProperty(IsNullable = true)]
         public long? Id { get; set; }
 
         /// <summary>
@@ -78,6 +79,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "frequency")]
         [JsonProperty("frequency")]
         [XmlElement(ElementName = "frequency")]
+        [SchemeProperty(IsNullable = true)]
         public int? Frequency { get; set; }
 
         /// <summary>
@@ -86,6 +88,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "deviceLimit")]
         [JsonProperty("deviceLimit")]
         [XmlElement(ElementName = "deviceLimit")]
+        [SchemeProperty(IsNullable = true)]
         [OldStandardProperty("device_limit")]
         public int? DeviceLimit { get; set; }
 
@@ -95,6 +98,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "concurrentLimit")]
         [JsonProperty("concurrentLimit")]
         [XmlElement(ElementName = "concurrentLimit")]
+        [SchemeProperty(IsNullable = true)]
         [OldStandardProperty("concurrent_limit")]
         public int? ConcurrentLimit { get; set; }
     }

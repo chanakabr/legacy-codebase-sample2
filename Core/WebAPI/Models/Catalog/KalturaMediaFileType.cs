@@ -47,6 +47,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "status")]
         [JsonProperty("status")]
         [XmlElement(ElementName = "status")]
+        [SchemeProperty(IsNullable = true)]
         public bool? Status { get; set; }
 
         /// <summary>
@@ -73,7 +74,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "isTrailer")]
         [JsonProperty(PropertyName = "isTrailer")]
         [XmlElement(ElementName = "isTrailer")]
-        [SchemeProperty(InsertOnly = true)]
+        [SchemeProperty(InsertOnly = true, IsNullable = true)]
         public bool? IsTrailer { get; set; }
 
         /// <summary>
@@ -99,7 +100,8 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "quality")]
         [JsonProperty("quality")]
-        [XmlElement(ElementName = "quality", IsNullable = true)]        
+        [XmlElement(ElementName = "quality", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaMediaFileTypeQuality? Quality { get; set; }
 
         /// <summary>
@@ -108,7 +110,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "videoCodecs")]
         [JsonProperty("videoCodecs")]
         [XmlElement(ElementName = "videoCodecs", IsNullable = true)]
-        [SchemeProperty(MaxLength = 100)]
+        [SchemeProperty(MaxLength = 100, IsNullable = true)]
         public string VideoCodecs { get; set; }
 
         /// <summary>
@@ -117,7 +119,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "audioCodecs")]
         [JsonProperty("audioCodecs")]
         [XmlElement(ElementName = "audioCodecs", IsNullable = true)]
-        [SchemeProperty(MaxLength = 100)]
+        [SchemeProperty(MaxLength = 100, IsNullable = true)]
         public string AudioCodecs { get; set; }
 
         public void validateForInsert()

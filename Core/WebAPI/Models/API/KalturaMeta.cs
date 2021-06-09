@@ -71,7 +71,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "dataType")]
         [JsonProperty("dataType")]
         [XmlElement(ElementName = "dataType", IsNullable = true)]
-        [SchemeProperty(InsertOnly = true)]
+        [SchemeProperty(InsertOnly = true, IsNullable = true)]
         public KalturaMetaDataType? DataType { get; set; }
 
         /// <summary>
@@ -80,6 +80,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "multipleValue")]
         [JsonProperty("multipleValue")]
         [XmlElement(ElementName = "multipleValue", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public bool? MultipleValue { get; set; }
 
         /// <summary>
@@ -88,7 +89,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "isProtected")]
         [JsonProperty("isProtected")]
         [XmlElement(ElementName = "isProtected", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, InsertOnly = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, InsertOnly = true, IsNullable = true)]
         public bool? IsProtected { get; set; }
 
         /// <summary>
@@ -97,7 +98,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "helpText")]
         [JsonProperty("helpText")]
         [XmlElement(ElementName = "helpText", IsNullable = true)]
-        [SchemeProperty(MaxLength = 800)]
+        [SchemeProperty(MaxLength = 800, IsNullable = true)]
         public string HelpText { get; set; }
 
         /// <summary>
@@ -115,6 +116,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "features")]
         [JsonProperty("features")]
         [XmlElement(ElementName = "features", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public string Features { get; set; }
 
         /// <summary>
@@ -159,6 +161,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "dynamicData")]
         [JsonProperty("dynamicData")]
         [XmlArray(ElementName = "dynamicData", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         [XmlArrayItem("item")]
         public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
 

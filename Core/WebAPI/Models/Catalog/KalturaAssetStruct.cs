@@ -46,7 +46,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "isProtected")]
         [JsonProperty("isProtected")]
         [XmlElement(ElementName = "isProtected", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE, IsNullable = true)]
         public bool? IsProtected { get; set; }
 
         /// <summary>
@@ -89,6 +89,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "pluralName")]
         [JsonProperty("pluralName")]
         [XmlElement(ElementName = "pluralName", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public string PluralName { get; set; }
 
         /// <summary>
@@ -124,6 +125,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "dynamicData")]
         [JsonProperty("dynamicData")]
         [XmlArray(ElementName = "dynamicData", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         [XmlArrayItem("item")]
         public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
 

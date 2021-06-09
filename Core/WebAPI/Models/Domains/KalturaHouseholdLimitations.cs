@@ -35,6 +35,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "concurrentLimit")]
         [JsonProperty("concurrentLimit")]
         [XmlElement(ElementName = "concurrentLimit")]
+        [SchemeProperty(IsNullable = true)]
         [OldStandardProperty("concurrent_limit")]
         public int? ConcurrentLimit { get; set; }
 
@@ -44,6 +45,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "deviceLimit")]
         [JsonProperty("deviceLimit")]
         [XmlElement(ElementName = "deviceLimit")]
+        [SchemeProperty(IsNullable = true)]
         [OldStandardProperty("device_limit")]
         public int? DeviceLimit { get; set; }
 
@@ -53,6 +55,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "deviceFrequency")]
         [JsonProperty("deviceFrequency")]
         [XmlElement(ElementName = "deviceFrequency")]
+        [SchemeProperty(IsNullable = true)]
         [OldStandardProperty("device_frequency")]
         public int? DeviceFrequency { get; set; }
 
@@ -72,6 +75,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "userFrequency")]
         [JsonProperty("userFrequency")]
         [XmlElement(ElementName = "userFrequency")]
+        [SchemeProperty(IsNullable = true)]
         [OldStandardProperty("user_frequency")]
         public int? UserFrequency { get; set; }
 
@@ -101,6 +105,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "usersLimit")]
         [JsonProperty("usersLimit")]
         [XmlElement(ElementName = "usersLimit")]
+        [SchemeProperty(IsNullable = true)]
         [OldStandardProperty("users_limit")]
         public int? UsersLimit { get; set; }
 
@@ -110,6 +115,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "deviceFamiliesLimitations")]
         [JsonProperty("deviceFamiliesLimitations")]
         [XmlArray(ElementName = "deviceFamiliesLimitations", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         [XmlArrayItem("item")]
         [OldStandardProperty("device_families_limitations")]
         public List<KalturaHouseholdDeviceFamilyLimitations> DeviceFamiliesLimitations { get; set; }

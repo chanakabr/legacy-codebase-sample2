@@ -19,6 +19,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string Name { get; set; }
 
@@ -28,6 +29,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "orderBy")]
         [JsonProperty("orderBy")]
         [XmlElement(ElementName = "orderBy", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public KalturaMetaTagOrderBy? OrderBy { get; set; }
     }

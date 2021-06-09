@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Partner
@@ -14,6 +15,7 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "rollingDeviceRemovalPolicy")]
         [JsonProperty("rollingDeviceRemovalPolicy")]
         [XmlElement(ElementName = "rollingDeviceRemovalPolicy")]
+        [SchemeProperty(IsNullable = true)]
         public KalturaRollingDevicePolicy? RollingDeviceRemovalPolicy { get; set; }
 
         /// <summary>

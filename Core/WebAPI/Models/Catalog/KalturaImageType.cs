@@ -66,7 +66,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "defaultImageId")]
         [JsonProperty(PropertyName = "defaultImageId")]
         [XmlElement(ElementName = "defaultImageId", IsNullable = true)]
-        [SchemeProperty(MinLong = 1)]
+        [SchemeProperty(MinLong = 1, IsNullable = true)]
         public long? DefaultImageId { get; set; }
     }
 
