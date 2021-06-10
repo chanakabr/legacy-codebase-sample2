@@ -25,7 +25,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "assetStructIdEqual")]
         [JsonProperty("assetStructIdEqual")]
         [XmlElement(ElementName = "assetStructIdEqual", IsNullable = true)]
-        [SchemeProperty(MinLong = 0)]
+        [SchemeProperty(MinLong = 0, IsNullable = true)]
         public long? AssetStructIdEqual { get; set; }
         
         /// <summary>
@@ -34,7 +34,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "metaIdEqual")]
         [JsonProperty("metaIdEqual")]
         [XmlElement(ElementName = "metaIdEqual", IsNullable = true)]
-        [SchemeProperty(MinLong = 1)]
+        [SchemeProperty(MinLong = 1, IsNullable = true)]
         public long? MetaIdEqual { get; set; }
         
         public override KalturaAssetStructMetaOrderBy GetDefaultOrderByValue()
