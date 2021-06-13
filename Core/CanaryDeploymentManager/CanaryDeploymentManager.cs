@@ -327,7 +327,7 @@ namespace ApiLogic.CanaryDeployment
                     shouldCheckIfGroupKeyExists = funcParams["shouldCheckIfGroupKeyExists"] as bool?;
                     if (groupId.HasValue && groupId.Value >= 0 && shouldCheckIfGroupKeyExists.HasValue)
                     {
-                        if (shouldCheckIfGroupKeyExists.Value && _cbManager.IsKeyExists(GetCanaryConfigurationKey(groupId.Value)))
+                        if (!shouldCheckIfGroupKeyExists.Value ||  (shouldCheckIfGroupKeyExists.Value && _cbManager.IsKeyExists(GetCanaryConfigurationKey(groupId.Value))))
                         {
                             // don't check if key exists again in GetCanaryDeploymentConfiguration method
                             cdc = GetCanaryDeploymentConfiguration(groupId.Value, false);
