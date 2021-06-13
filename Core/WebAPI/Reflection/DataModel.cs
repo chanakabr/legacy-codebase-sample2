@@ -11107,6 +11107,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("seriesRecording", "list", false);
                             return SeriesRecordingController.List((KalturaSeriesRecordingFilter) methodParams[0]);
                             
+                        case "rebookcanceledbyepgid":
+                            RolesManager.ValidateActionPermitted("seriesRecording", "rebookCanceledByEpgId", false);
+                            return SeriesRecordingController.RebookCanceledByEpgId((long) methodParams[0]);
+                            
                     }
                     break;
                     
@@ -19396,6 +19400,19 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSeriesRecordingFilter),
+                            });
+                            return ret;
+                            
+                        case "rebookcanceledbyepgid":
+                            ret.Add("epgId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("epgId", "seriesRecording", "rebookCanceledByEpgId") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
                             });
                             return ret;
                             

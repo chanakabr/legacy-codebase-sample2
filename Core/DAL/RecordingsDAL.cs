@@ -1520,5 +1520,14 @@ namespace DAL
             DataTable dt = sp.Execute();
             return dt;
         }
+
+        public static bool RebookCanceledDomainRecording(long domainRecordingId)
+        {
+            var sp = new StoredProcedure("RebookCanceledDomainRecording");
+            sp.SetConnectionKey(RECORDING_CONNECTION);
+            sp.AddParameter("@DomainRecordingID", domainRecordingId);
+
+            return sp.ExecuteReturnValue<bool>();
+        }
     }
 }
