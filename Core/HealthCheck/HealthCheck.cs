@@ -23,7 +23,7 @@ namespace HealthCheck
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static void AddHealthCheckService(this IServiceCollection services, List<HealthCheckDefinition> definitions)
+        public static IHealthChecksBuilder AddHealthCheckService(this IServiceCollection services, List<HealthCheckDefinition> definitions)
         {
             var healthCheckBuilder = services.AddHealthChecks();
             services.AddHttpClient();
@@ -75,6 +75,8 @@ namespace HealthCheck
                         break;
                 }
             }
+
+            return healthCheckBuilder;
         }
 
         public static void UseHealthCheck(this IApplicationBuilder app, string path)
@@ -85,9 +87,9 @@ namespace HealthCheck
             app.UseHealthChecks(path, options);
         }
 
-        public static void AddKalturaHealthCheckService(this IServiceCollection services)
+        public static IHealthChecksBuilder AddKalturaHealthCheckService(this IServiceCollection services)
         {
-            services.AddHealthCheckService(ApplicationConfiguration.Current.HealthCheckConfiguration.Value);
+            return services.AddHealthCheckService(ApplicationConfiguration.Current.HealthCheckConfiguration.Value);
         }
 
         private static Task WriteResponse(HttpContext context, HealthReport result)
