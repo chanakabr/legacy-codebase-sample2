@@ -5968,7 +5968,7 @@ namespace Tvinci.Core.DAL
                 log.Debug($"SaveBulkUploadResultsCB > updated from status {currentBulkUpload.Status}, calculated bulkUpload.Status:[{bulkUpload.Status}]");
 
                 actualStatusThatWasUpdated = bulkUpload.Status;
-            });
+            }, compress: true);
 
             updatedStatus = actualStatusThatWasUpdated;
 
