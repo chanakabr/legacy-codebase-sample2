@@ -8414,9 +8414,13 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setAllMigrationEventsStatus", false);
                             return CanaryDeploymentConfigurationController.SetAllMigrationEventsStatus((int) methodParams[0], (bool) methodParams[1]);
                             
-                        case "setallroutingactions":
-                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setAllRoutingActions", false);
-                            return CanaryDeploymentConfigurationController.SetAllRoutingActions((int) methodParams[0], (KalturaCanaryDeploymentRoutingService) methodParams[1]);
+                        case "setallroutingactionstoms":
+                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setAllRoutingActionsToMs", false);
+                            return CanaryDeploymentConfigurationController.SetAllRoutingActionsToMs((int) methodParams[0]);
+                            
+                        case "setallroutingactionstophoenix":
+                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setAllRoutingActionsToPhoenix", false);
+                            return CanaryDeploymentConfigurationController.SetAllRoutingActionsToPhoenix((int) methodParams[0]);
                             
                         case "setmigrationeventstatus":
                             RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setMigrationEventStatus", false);
@@ -13842,15 +13846,17 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
-                        case "setallroutingactions":
+                        case "setallroutingactionstoms":
                             ret.Add("groupId", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(int),
                             });
-                            ret.Add("routingService", new MethodParam(){
+                            return ret;
+                            
+                        case "setallroutingactionstophoenix":
+                            ret.Add("groupId", new MethodParam(){
                                 NewName = newParamName,
-                                IsEnum = true,
-                                Type = typeof(KalturaCanaryDeploymentRoutingService),
+                                Type = typeof(int),
                             });
                             return ret;
                             

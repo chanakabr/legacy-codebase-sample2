@@ -114,20 +114,19 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// set all routing actions for groupId
+        /// set all routing actions for groupId to MS
         /// </summary>
         /// <param name="groupId">groupId</param>
-        /// <param name="routingService">routingService</param>
         /// <returns></returns>
         [ApiAuthorize]
-        [Action("setAllRoutingActions", isInternal: true)]
+        [Action("setAllRoutingActionsToMs", isInternal: true)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        static public bool SetAllRoutingActions(int groupId, KalturaCanaryDeploymentRoutingService routingService)
+        public static bool SetAllRoutingActionsToMs(int groupId)
         {
             bool res = false;
             try
             {
-                res = ClientsManager.CanaryDeploymentClient().SetAllRoutingActions(groupId, routingService);
+                res = ClientsManager.CanaryDeploymentClient().SetAllRoutingActionsToMs(groupId, true);
             }
             catch (ClientException ex)
             {
@@ -136,6 +135,29 @@ namespace WebAPI.Controllers
 
             return res;
         }
+        
+        /// <summary>
+        /// set all routing actions for groupId to phoenix
+        /// </summary>
+        /// <param name="groupId">groupId</param>
+        /// <returns></returns>
+        [ApiAuthorize]
+        [Action("setAllRoutingActionsToPhoenix", isInternal: true)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        public static bool SetAllRoutingActionsToPhoenix(int groupId)
+        {
+            bool res = false;
+            try
+            {
+                res = ClientsManager.CanaryDeploymentClient().SetAllRoutingActionsToMs(groupId, false);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return res;
+        }        
 
         /// <summary>
         /// delete canary deployment configuration

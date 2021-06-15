@@ -55,12 +55,11 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(setRoutingAction);
         }
 
-        internal bool SetAllRoutingActions(int groupId, KalturaCanaryDeploymentRoutingService routingService)
+        internal bool SetAllRoutingActionsToMs(int groupId, bool enableMs)
         {
-            CanaryDeploymentRoutingService canaryDeploymentRoutingService = CanaryDeploymentMapping.ConvertRoutingService(routingService);
-            Func<Status> setAllRoutingActions = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().SetAllRoutingActions(groupId, canaryDeploymentRoutingService);
+            Func<Status> setAllRoutingActionsToMs = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().SetAllRoutingActionsToMs(groupId, enableMs);
 
-            return ClientUtils.GetResponseStatusFromWS(setAllRoutingActions);
+            return ClientUtils.GetResponseStatusFromWS(setAllRoutingActionsToMs);
         }
 
         internal bool DeleteCanaryDeploymentConfiguration(int groupId)

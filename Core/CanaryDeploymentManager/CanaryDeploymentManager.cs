@@ -16,7 +16,7 @@ namespace ApiLogic.CanaryDeployment
         GenericResponse<CanaryDeploymentConfiguration> GetGroupConfiguration(int groupId);
         Status DeleteGroupConfiguration(int groupId);
         Status SetRoutingAction(int groupId, CanaryDeploymentRoutingAction routingAction, CanaryDeploymentRoutingService routingService);
-        Status SetAllRoutingActions(int groupId, CanaryDeploymentRoutingService routingService);       
+        Status SetAllRoutingActionsToMs(int groupId, bool enableMs);       
         Status SetAllMigrationEventsStatus(int groupId, bool status);
         Status EnableMigrationEvent(int groupId, CanaryDeploymentMigrationEvent migrationEvent);
         Status DisableMigrationEvent(int groupId, CanaryDeploymentMigrationEvent migrationEvent);
@@ -119,13 +119,17 @@ namespace ApiLogic.CanaryDeployment
             return res;
         }
 
-        public Status SetAllRoutingActions(int groupId, CanaryDeploymentRoutingService routingService)
+        public Status SetAllRoutingActionsToMs(int groupId, bool enableMs)
         {
-            Status res = new Status(eResponseStatus.FailedToSetAllRoutingActions, $"Failed To set all canary deployment routing actions to {routingService} for groupId {groupId}");
+            Status res = new Status(eResponseStatus.FailedToSetAllRoutingActions, $"Failed To set all canary deployment routing actions with enableMs set to {enableMs} for groupId {groupId}");
             try
             {
-                foreach (CanaryDeploymentRoutingAction routingAction in CanaryDeploymentRoutingActionLists.AllRoutingActions)
+                foreach (CanaryDeploymentRoutingAction routingAction in CanaryDeploymentRoutingActionLists.RoutingActionsToMsRoutingService.Keys)
                 {
+                    // if enableMs is true take routingService from RoutingActionsToMsRoutingService, otherwise set to phoenix
+                    CanaryDeploymentRoutingService routingService = enableMs
+                        ? CanaryDeploymentRoutingActionLists.RoutingActionsToMsRoutingService[routingAction]
+                        : CanaryDeploymentRoutingService.Phoenix;
                     res = ValidateAndSetRoutingAction(groupId, routingAction, routingService);
                     if (res.Code != (int)eResponseStatus.OK)
                     {
@@ -138,7 +142,7 @@ namespace ApiLogic.CanaryDeployment
             }
             catch (Exception ex)
             {
-                log.Error($"Failed To set all canary deployment routing actions to {routingService} for groupId {groupId}", ex);
+                log.Error($"Failed To set all canary deployment routing actions with enableMs set to {enableMs} for groupId {groupId}", ex);
             }
 
             return res;
@@ -374,8 +378,9 @@ namespace ApiLogic.CanaryDeployment
         {            
             CanaryDeploymentConfiguration cdc = GetCanaryDeploymentConfiguration(groupId);
             bool isRoutingToPhoenixRestProxy = routingService == CanaryDeploymentRoutingService.PhoenixRestProxy;
+
             // continue only if we are setting routing back to Phoenix or if it's valid to be routed to phoenix rest proxy
-            Status validateStatus = ValidateRoutinActionBeSentToPhoenixRestProxy(cdc, routingAction, isRoutingToPhoenixRestProxy);
+            Status validateStatus = ValidateRoutingAction(cdc, routingAction, routingService);
             if (validateStatus.Code != (int)eResponseStatus.OK)
             {
                 return validateStatus;
@@ -422,6 +427,9 @@ namespace ApiLogic.CanaryDeployment
                 case CanaryDeploymentRoutingAction.AnonymousLogin:
                     apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.AnonymousLoginRouting);
                     break;
+                case CanaryDeploymentRoutingAction.MultiRequestController:
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.MultiRequestController);
+                    break;
                 default:
                     break;
             }
@@ -442,10 +450,25 @@ namespace ApiLogic.CanaryDeployment
             return res;
         }
 
-        private Status ValidateRoutinActionBeSentToPhoenixRestProxy(CanaryDeploymentConfiguration cdc, CanaryDeploymentRoutingAction routingAction, bool isRoutingToPhoenixRestProxy)
+        private Status ValidateRoutingAction(CanaryDeploymentConfiguration cdc,
+            CanaryDeploymentRoutingAction routingAction, 
+            CanaryDeploymentRoutingService routingService)
         {
             Status res = new Status(eResponseStatus.Error, "Failed validating routing action can be sent to phoenix proxy");
             Status okStatus = new Status(eResponseStatus.OK);
+
+            //multi request action can not be routed to phoenix rest proxy service
+            if (routingAction == CanaryDeploymentRoutingAction.MultiRequestController && routingService == CanaryDeploymentRoutingService.PhoenixRestProxy)
+            {
+                return  new Status(eResponseStatus.FailedToSetAllRoutingActions, "MultiRequestAction can not be routed to Phoenix Rest Proxy");
+            }
+
+            //multi request action can only be routed to multi request MS
+            if (routingAction != CanaryDeploymentRoutingAction.MultiRequestController && routingService == CanaryDeploymentRoutingService.MultiRequestMicroService)
+            {
+                return new Status(eResponseStatus.FailedToSetAllRoutingActions, $"action {routingAction} can not be routed to MultiRequest MS");
+            }
+                                   
             switch (routingAction)
             {
                 case CanaryDeploymentRoutingAction.AppTokenController:
@@ -473,6 +496,9 @@ namespace ApiLogic.CanaryDeployment
                 // all actions that don't require migration events can continue                              
                 case CanaryDeploymentRoutingAction.Logout:
                 case CanaryDeploymentRoutingAction.SsoAdapterProfileController:
+                    res = okStatus;
+                    break;
+                case CanaryDeploymentRoutingAction.MultiRequestController:
                     res = okStatus;
                     break;
                 default:

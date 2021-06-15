@@ -89,7 +89,7 @@ namespace ApiLogic.CanaryDeployment
             return defaultResponseStatus;
         }
 
-        public Status SetAllRoutingActions(int groupId, CanaryDeploymentRoutingService routingService)
+        public Status SetAllRoutingActionsToMs(int groupId, bool enableMs)
         {
             return defaultResponseStatus;
         }
