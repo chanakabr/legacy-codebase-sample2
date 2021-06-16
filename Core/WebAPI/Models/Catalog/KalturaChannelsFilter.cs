@@ -138,6 +138,8 @@ namespace WebAPI.Models.Catalog
         NAME_ASC,
         NAME_DESC,
         CREATE_DATE_ASC,
-        CREATE_DATE_DESC
+        CREATE_DATE_DESC,
+        UPDATE_DATE_ASC,
+        UPDATE_DATE_DESC
     }
 }

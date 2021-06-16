@@ -17,7 +17,7 @@ namespace ElasticSearch.Common
         public static readonly string ES_STATS_TYPE = "stats";
         public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
         public static readonly string ES_DATEONLY_FORMAT = "yyyyMMdd";
-        public static readonly string ES_PERCOLATOR_TYPE = ".percolator";       
+        public static readonly string ES_PERCOLATOR_TYPE = ".percolator";
 
         public static string GetTcmValue(string sKey)
         {
@@ -50,7 +50,7 @@ namespace ElasticSearch.Common
            {"\n", " "},
            {"\r", " "},
            {"\t", " "},
-           {"\f", " "}, 
+           {"\f", " "},
            {"\b", " "},
            {"+", "\\+"},
            {"-", "\\\\-"},
@@ -350,30 +350,30 @@ namespace ElasticSearch.Common
             switch (assetType)
             {
                 case ApiObjects.eAssetTypes.MEDIA:
-                {
-                    assetIdField = AddPrefixToFieldName("media_id", fieldNamePrefix);
-                    break;
-                }
+                    {
+                        assetIdField = AddPrefixToFieldName("media_id", fieldNamePrefix);
+                        break;
+                    }
                 case ApiObjects.eAssetTypes.EPG:
-                {
-                    assetIdField = AddPrefixToFieldName("epg_id", fieldNamePrefix);
-                    break;
-                }
+                    {
+                        assetIdField = AddPrefixToFieldName("epg_id", fieldNamePrefix);
+                        break;
+                    }
                 case ApiObjects.eAssetTypes.NPVR:
-                {
-                    assetIdField = AddPrefixToFieldName("recording_id", fieldNamePrefix);
-                    break;
-                }
+                    {
+                        assetIdField = AddPrefixToFieldName("recording_id", fieldNamePrefix);
+                        break;
+                    }
                 default:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
             }
 
             string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
             string index = ((tempToken = item.SelectToken("_index")) == null ? string.Empty : (string)tempToken);
             double score = ((tempToken = item.SelectToken("_score")) == null ? 0 : Convert.ToDouble(tempToken.Value<double?>()));
-            
+
             int assetId = 0;
             int groupId = 0;
             string name = string.Empty;
@@ -412,6 +412,10 @@ namespace ElasticSearch.Common
             startDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("start_date", fieldNamePrefix));
             mediaTypeId = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, AddPrefixToFieldName("media_type_id", fieldNamePrefix));
             epgIdentifier = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(item, AddPrefixToFieldName("epg_identifier", fieldNamePrefix));
+
+            if (string.IsNullOrEmpty(epgIdentifier))
+                epgIdentifier = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(item, AddPrefixToFieldName("epg_id", fieldNamePrefix));
+
             endDate = ElasticSearch.Common.Utils.ExtractDateFromToken(item, AddPrefixToFieldName("end_date", fieldNamePrefix));
 
             var newDocument = new ElasticSearchApi.ESAssetDocument()

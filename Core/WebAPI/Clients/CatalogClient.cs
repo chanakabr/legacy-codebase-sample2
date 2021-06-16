@@ -3683,6 +3683,18 @@ namespace WebAPI.Clients
                         orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }
+                case KalturaChannelsOrderBy.UPDATE_DATE_ASC:
+                    {
+                        orderBy = ChannelOrderBy.UpdateDate;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.UPDATE_DATE_DESC:
+                    {
+                        orderBy = ChannelOrderBy.UpdateDate;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                        break;
+                    }
                 default:
                     break;
             }
@@ -4045,6 +4057,18 @@ namespace WebAPI.Clients
                 case KalturaChannelsOrderBy.CREATE_DATE_DESC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.UPDATE_DATE_ASC:
+                    {
+                        orderBy = ChannelOrderBy.UpdateDate;
+                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
+                        break;
+                    }
+                case KalturaChannelsOrderBy.UPDATE_DATE_DESC:
+                    {
+                        orderBy = ChannelOrderBy.UpdateDate;
                         orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
                         break;
                     }

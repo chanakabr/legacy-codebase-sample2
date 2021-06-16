@@ -872,14 +872,19 @@ namespace WebAPI.Managers
                 {
                     var ksData = KSUtils.ExtractKSPayload(ks);
 
+                    var sessionAlive = ksData.CreateDate >= usersSessions.UserRevocation;
+
+                    var hasSessionWithUdid = !string.IsNullOrEmpty(ksData.UDID) && usersSessions.UserWithUdidRevocations.ContainsKey(ksData.UDID);
+                    var sessionWithUdidAlive = hasSessionWithUdid && ksData.CreateDate >= usersSessions.UserWithUdidRevocations[ksData.UDID];
+
                     if (usersSessions.UserRevocation > 0)
                     {
-                        return ksData.CreateDate >= usersSessions.UserRevocation;
+                        return sessionAlive && (!hasSessionWithUdid || sessionWithUdidAlive);
                     }
 
-                    if (!string.IsNullOrEmpty(ksData.UDID) && usersSessions.UserWithUdidRevocations.ContainsKey(ksData.UDID))
+                    if (hasSessionWithUdid)
                     {
-                        return ksData.CreateDate >= usersSessions.UserWithUdidRevocations[ksData.UDID];
+                        return sessionWithUdidAlive;
                     }
                 }
             }

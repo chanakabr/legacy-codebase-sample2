@@ -227,7 +227,9 @@ namespace ApiObjects.SearchObjects
         [EnumMember]
         NONE = 101,
         [EnumMember]
-        RECOMMENDATION = -13
+        RECOMMENDATION = -13,
+        [EnumMember]
+        UPDATE_DATE = -14
 
         /*
     [EnumMember]

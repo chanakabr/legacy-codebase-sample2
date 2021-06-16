@@ -5,9 +5,11 @@ using ApiObjects.CouchbaseWrapperObjects;
 using ApiObjects.Epg;
 using ApiObjects.MediaMarks;
 using ApiObjects.PlayCycle;
+using ApiObjects.SearchObjects;
 using ConfigurationManager;
 using CouchbaseManager;
 using DAL;
+using DAL.DTO;
 using KLogMonitor;
 using Newtonsoft.Json;
 using ODBCWrapper;
@@ -18,9 +20,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using static ApiObjects.CouchbaseWrapperObjects.CBChannelMetaData;
-using ApiObjects.SearchObjects;
-using CouchbaseManager.Compression;
-using DAL.DTO;
 using CategoryItemDTO = DAL.DTO.CategoryItemDTO;
 using LanguageContainerDTO = DAL.DTO.LanguageContainerDTO;
 
@@ -6853,6 +6852,15 @@ namespace Tvinci.Core.DAL
             }
 
             return result;
+        }
+
+        public static DataTable GetMissingTags(int groupId, System.Xml.XmlDocument tagsXmlDoc)
+        {
+            StoredProcedure sp = new StoredProcedure("GetMissingTags");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@GroupId", groupId);
+            sp.AddParameter("@TagsXml", tagsXmlDoc != null ? tagsXmlDoc.InnerXml : string.Empty);
+            return sp.Execute();
         }
     }
 }

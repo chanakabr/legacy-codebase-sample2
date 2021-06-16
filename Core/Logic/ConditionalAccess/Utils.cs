@@ -6861,7 +6861,7 @@ namespace Core.ConditionalAccess
             return epgFieldMappings;
         }
 
-        public List<ExtendedSearchResult> SearchSeriesRecordings(int groupID, List<string> excludedCrids, List<DomainSeriesRecording> series, SearchSeriesRecordingsTimeOptions SearchSeriesRecordingsTimeOption)
+        public List<ExtendedSearchResult> SearchSeriesRecordings(int groupID, List<string> excludedCrids, List<DomainSeriesRecording> series, SearchSeriesRecordingsTimeOptions SearchSeriesRecordingsTimeOption, bool limitPageSize = false)
         {
             List<ExtendedSearchResult> recordings = null;
 
@@ -6893,8 +6893,15 @@ namespace Core.ConditionalAccess
                 }
 
                 ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4})", seriesId, serie.SeriesId, serie.EpgChannelId, season, seasonsToExclude.ToString());
-
             }
+
+            var order = new ApiObjects.SearchObjects.OrderObj()
+            {
+                m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
+                m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
+            };
+
+            var pageSize = 0;
 
             switch (SearchSeriesRecordingsTimeOption)
             {
@@ -6908,6 +6915,18 @@ namespace Core.ConditionalAccess
                             DateTime dateTime = DateTime.UtcNow.AddDays(-1 * tstvSettings.RecordingLifetimePeriod.Value);
                             long minDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(dateTime);
                             recordingLifetime = $"end_date > '{minDate}'";
+                        }
+                        
+                        //BEO - BEO-10020: order by, limit top 200 (TCM value)
+                        if (limitPageSize)
+                        {
+                            order = new ApiObjects.SearchObjects.OrderObj()
+                            {
+                                m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
+                                m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                            };
+                        
+                            pageSize = ApplicationConfiguration.Current.CatalogLogicConfiguration.SearchPastSeriesRecordingsPageSize.Value;
                         }
 
                         ksql.AppendFormat($") start_date < '0' {recordingLifetime})");
@@ -6931,14 +6950,10 @@ namespace Core.ConditionalAccess
                     m_nGroupID = groupID,
                     m_dServerTime = DateTime.UtcNow,
                     m_nPageIndex = 0,
-                    m_nPageSize = 0,
+                    m_nPageSize = pageSize,
                     assetTypes = new List<int> { 1 },
                     filterQuery = ksql.ToString(),
-                    order = new ApiObjects.SearchObjects.OrderObj()
-                    {
-                        m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
-                        m_eOrderDir = ApiObjects.SearchObjects.OrderDir.ASC
-                    },
+                    order = order,
                     m_oFilter = new Filter()
                     {
                         m_bOnlyActiveMedia = true

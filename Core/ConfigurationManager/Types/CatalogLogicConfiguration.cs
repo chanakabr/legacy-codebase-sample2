@@ -14,6 +14,7 @@ namespace ConfigurationManager
         public BaseValue<string> WatchHistoryStaleMode = new BaseValue<string>("watch_history_stale_mode", "false", false, "ViewStaleState enum. Possible values are: None, False, Ok, UpdateAfter");
         public BaseValue<string> GroupsWithIUserTypeSeperatedBySemiColon = new BaseValue<string>("GroupIDsWithIUserTypeSeperatedBySemiColon", "0");
         public BaseValue<bool> ShouldUseFirstPlayRateManager = new BaseValue<bool>("use_first_play_rate_manager", false);
+        public BaseValue<int> SearchPastSeriesRecordingsPageSize = new BaseValue<int>("search_past_series_recordings_page_size", 200);
 
         public override string TcmKey => TcmObjectKeys.CatalogLogicConfiguration;
 

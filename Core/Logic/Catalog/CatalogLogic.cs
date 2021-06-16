@@ -2345,6 +2345,10 @@ namespace Core.Catalog
                         case ApiObjects.SearchObjects.OrderBy.RELATED:
                             oSearchOrderObj.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.RELATED;
                             break;
+                        case ApiObjects.SearchObjects.OrderBy.UPDATE_DATE:
+                            oSearchOrderObj.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.UPDATE_DATE;
+                            oSearchOrderObj.m_sOrderValue = oOrderObj.m_sOrderValue;
+                            break;
                         default:
                             oSearchOrderObj.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE;
                             break;

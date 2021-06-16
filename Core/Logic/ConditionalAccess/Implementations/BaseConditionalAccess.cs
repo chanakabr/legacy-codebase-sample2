@@ -14231,7 +14231,7 @@ namespace Core.ConditionalAccess
                 Task.Run(() =>
                 {
                     contextData.Load();
-                    if (!CompleteDomainSeriesRecordings(domainId))
+                    if (!CompleteDomainSeriesRecordings(domainId, true))
                     {
                         log.Error($"Failed {nameof(CompleteDomainSeriesRecordings)} in {nameof(PostDeleteDbRecordingsAction)}: {nameof(domainId)}:{domainId}");
                     }
@@ -16124,7 +16124,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public bool CompleteDomainSeriesRecordings(long domainId)
+        public bool CompleteDomainSeriesRecordings(long domainId, bool limitPageSize = false)
         {
             bool response = true;
             try
@@ -16185,7 +16185,7 @@ namespace Core.ConditionalAccess
 
                 relevantRecordingsForRecord =
                     Utils.Instance.SearchSeriesRecordings(m_nGroupID,
-                    excludedCrids.ToList(), series, SearchSeriesRecordingsTimeOptions.past);
+                    excludedCrids.ToList(), series, SearchSeriesRecordingsTimeOptions.past, limitPageSize);
 
                 if (relevantRecordingsForRecord == null)
                 {

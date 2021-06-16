@@ -1575,6 +1575,7 @@ namespace Core.Catalog
                 {
                     foreach (var hit in aggregation.hits.hits)
                     {
+                        hit.extraReturnFields = hit.extraReturnFields ?? new Dictionary<string, string>();
                         var unifiedSearchResult = CreateUnifiedSearchResultFromESDocument(definitions, hit);
 
                         result[hit] = unifiedSearchResult;
@@ -1666,6 +1667,10 @@ namespace Core.Catalog
                         if (doc.extraReturnFields.ContainsKey("epg_id"))
                         {
                             epgId = doc.extraReturnFields["epg_id"];
+                        }
+                        else if (!string.IsNullOrEmpty(doc.epg_identifier))
+                        {
+                            epgId = doc.epg_identifier;
                         }
 
                         result = new RecordingSearchResult()
@@ -3619,6 +3624,11 @@ namespace Core.Catalog
                 case ChannelOrderBy.CreateDate:
                     {
                         orderValue = "create_date";
+                        break;
+                    }
+                case ChannelOrderBy.UpdateDate:
+                    {
+                        orderValue = "update_date";
                         break;
                     }
                 case ChannelOrderBy.Id:

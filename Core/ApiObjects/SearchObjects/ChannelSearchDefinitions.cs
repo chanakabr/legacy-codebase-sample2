@@ -20,6 +20,7 @@ namespace ApiObjects.SearchObjects
     {
         Name,
         CreateDate,
-        Id
+        Id,
+        UpdateDate
     }
 }
