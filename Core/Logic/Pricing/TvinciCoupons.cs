@@ -386,7 +386,7 @@ namespace Core.Pricing
                 if (discountCode.HasValue)
                 {
                     // check that discount code exists 
-                    bool isDiscountCodeExsits = DAL.PricingDAL.IsDiscountCodeExists(m_nGroupID, discountCode.Value);
+                    bool isDiscountCodeExsits = DAL.PricingDAL.Instance.IsDiscountCodeExists(m_nGroupID, discountCode.Value);
                     if (!isDiscountCodeExsits)
                     {
                         response.Status.Code = (int)eResponseStatus.DiscountCodeNotExist;
@@ -498,6 +498,7 @@ namespace Core.Pricing
 
                         if (groupId.HasValue)
                         {
+                            result = true;
                             DataTable dt = PricingDAL.GetGroupCouponsGroups(groupId.Value);
 
                             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
@@ -526,7 +527,6 @@ namespace Core.Pricing
 
                                     couponsGroups.Add(couponsGroup);
                                 }
-                                result = true;
                             }
                         }
                     }
@@ -606,7 +606,7 @@ namespace Core.Pricing
                 if (discountCode.HasValue)
                 {
                     // check that discount code exists 
-                    bool isDiscountCodeExsits = DAL.PricingDAL.IsDiscountCodeExists(m_nGroupID, discountCode.Value);
+                    bool isDiscountCodeExsits = DAL.PricingDAL.Instance.IsDiscountCodeExists(m_nGroupID, discountCode.Value);
                     if (!isDiscountCodeExsits)
                     {
                         response.Status.Code = (int)eResponseStatus.DiscountCodeNotExist;

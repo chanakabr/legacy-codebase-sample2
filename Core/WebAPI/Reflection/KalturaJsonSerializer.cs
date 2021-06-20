@@ -29720,6 +29720,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("endDate")))
             {
@@ -29742,6 +29743,14 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("startDate", "\"startDate\": " + StartDate);
             }
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaDiscountDetails", "WhenAlgoTimes", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("whenAlgoTimes")))
+            {
+                ret.Add("whenAlgoTimes", "\"whenAlgoTimes\": " + WhenAlgoTimes);
+            }
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaDiscountDetails", "WhenAlgoType", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("whenAlgoType")))
+            {
+                ret.Add("whenAlgoType", "\"whenAlgoType\": " + WhenAlgoType);
+            }
             return ret;
         }
         
@@ -29755,6 +29764,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("endDate")))
             {
@@ -29776,6 +29786,14 @@ namespace WebAPI.Models.Pricing
             if((retrievedProperties == null || retrievedProperties.Contains("startDate")))
             {
                 ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
+            }
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaDiscountDetails", "WhenAlgoTimes", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("whenAlgoTimes")))
+            {
+                ret.Add("whenAlgoTimes", "<whenAlgoTimes>" + WhenAlgoTimes + "</whenAlgoTimes>");
+            }
+            if((requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaDiscountDetails", "WhenAlgoType", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("whenAlgoType")))
+            {
+                ret.Add("whenAlgoType", "<whenAlgoType>" + WhenAlgoType + "</whenAlgoType>");
             }
             return ret;
         }
@@ -29879,6 +29897,10 @@ namespace WebAPI.Models.Pricing
                     ret.Add("end_date", "\"end_date\": " + EndDate);
                 }
             }
+            if(Id.HasValue && (retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + Id);
+            }
             if(Percent.HasValue && (retrievedProperties == null || retrievedProperties.Contains("percent")))
             {
                 ret.Add("percent", "\"percent\": " + Percent);
@@ -29912,6 +29934,10 @@ namespace WebAPI.Models.Pricing
                 {
                 ret.Add("end_date", "<end_date>" + EndDate + "</end_date>");
                 }
+            }
+            if(Id.HasValue && (retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + Id + "</id>");
             }
             if(Percent.HasValue && (retrievedProperties == null || retrievedProperties.Contains("percent")))
             {
@@ -30802,6 +30828,46 @@ namespace WebAPI.Models.Pricing
                 {
                 ret.Add("non_renewable_period", "<non_renewable_period>" + NonRenewablePeriod + "</non_renewable_period>");
                 }
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaPreviewModuleListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(PreviewModule != null)
+            {
+                propertyValue = "[" + String.Join(", ", PreviewModule.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(PreviewModule != null)
+            {
+                propertyValue = PreviewModule.Count > 0 ? "<item>" + String.Join("</item><item>", PreviewModule.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
         }
@@ -32726,6 +32792,46 @@ namespace WebAPI.Models.Pricing
                 {
                 ret.Add("waiver_period", "<waiver_period>" + WaiverPeriod + "</waiver_period>");
                 }
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaUsageModuleListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(UsageModules != null)
+            {
+                propertyValue = "[" + String.Join(", ", UsageModules.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(UsageModules != null)
+            {
+                propertyValue = UsageModules.Count > 0 ? "<item>" + String.Join("</item><item>", UsageModules.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
             }
             return ret;
         }

@@ -1635,41 +1635,7 @@ namespace Core.Pricing
             }
 
             return response;
-        }
-
-        public static UsageModulesResponse UpdatePricePlan(int groupId, UsageModule usageModule)
-        {
-            UsageModulesResponse response = new UsageModulesResponse()
-            {
-                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
-
-            BasePricing t = null;
-            t = Utils.GetBasePricing(groupId, "UpdatePricePlan");
-            if (t != null)
-            {
-                response = t.UpdatePricePlan(usageModule);
-            }
-
-            return response;
-        }
-
-        public static PriceDetailsResponse GetPriceCodesDataByCurrency(int groupId, List<long> priceCodeIds, string currencyCode)
-        {
-            PriceDetailsResponse response = new PriceDetailsResponse()
-            {
-                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
-
-            BasePricing t = null;
-            t = Utils.GetBasePricing(groupId, "GetPriceCodesDataByCountyAndCurrency");
-            if (t != null)
-            {
-                return t.GetPriceCodesDataByCurrency(priceCodeIds, currencyCode);
-            }
-
-            return response;
-        }
+        }   
 
         public static IdsResponse GetCollectionIdsContainingMediaFile(int groupId, int mediaId, int mediaFileID)
         {
@@ -1772,20 +1738,6 @@ namespace Core.Pricing
             {
                 response = t.AddCouponsGroup(groupId, name, startDate, endDate, maxUsesNumber, maxUsesNumberOnRenewableSub,
                     maxHouseholdUses, couponGroupType, discountCode);
-            }
-
-            return response;
-        }
-
-        public static GenericListResponse<DiscountDetails> GetDiscountsByCurrency(int groupId, List<long> discountIds, string currencyCode)
-        {
-            GenericListResponse<DiscountDetails> response = new GenericListResponse<DiscountDetails>();
-
-            BasePricing t = null;
-            t = Utils.GetBasePricing(groupId, "GetDiscountsByCurrency");
-            if (t != null)
-            {
-                return t.GetDiscountsByCurrency(discountIds, currencyCode);
             }
 
             return response;

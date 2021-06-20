@@ -13,6 +13,7 @@ using TVinciShared;
 using ApiObjects;
 using Tvinci.Core.DAL;
 using Core.Catalog;
+using ApiLogic.Api.Managers;
 
 namespace ApiLogic.Tests.Catalog
 {
@@ -56,7 +57,7 @@ namespace ApiLogic.Tests.Catalog
                            }))
                           .Returns(fixture.Create<Topic>());
 
-            var virtualAssetPartnerConfigManagerMock = Mock.Of<Api.Managers.IVirtualAssetPartnerConfigManager>();
+            var virtualAssetPartnerConfigManagerMock = Mock.Of<IVirtualAssetPartnerConfigManager>();
             var elasticsearchWrapperMock = Mock.Of<Core.Catalog.IElasticsearchWrapper>();
             var groupsCacheMock = Mock.Of<GroupsCacheManager.IGroupsCache>();
             var conditionalAccessMock = Mock.Of<Core.ConditionalAccess.IConditionalAccessUtils>();
@@ -101,7 +102,7 @@ namespace ApiLogic.Tests.Catalog
                            }))
                           .Returns(fixture.Create<Topic>());
 
-            var virtualAssetPartnerConfigManagerMock = Mock.Of<Api.Managers.IVirtualAssetPartnerConfigManager>();
+            var virtualAssetPartnerConfigManagerMock = Mock.Of<IVirtualAssetPartnerConfigManager>();
             var elasticsearchWrapperMock = Mock.Of<Core.Catalog.IElasticsearchWrapper>();
             var groupsCacheMock = Mock.Of<GroupsCacheManager.IGroupsCache>();
             var conditionalAccessMock = Mock.Of<Core.ConditionalAccess.IConditionalAccessUtils>();
@@ -142,7 +143,7 @@ namespace ApiLogic.Tests.Catalog
                           .Callback(new MockDeleteTopic((int groupId, long id, long userId) => { }))
                           .Returns(true);
 
-            var virtualAssetPartnerConfigManagerMock = new Mock<Api.Managers.IVirtualAssetPartnerConfigManager>();
+            var virtualAssetPartnerConfigManagerMock = new Mock<IVirtualAssetPartnerConfigManager>();
             virtualAssetPartnerConfigManagerMock.Setup(x => x.GetObjectVirtualAssetPartnerConfiguration(It.IsAny<int>()))
                 .Returns(new GenericListResponse<ObjectVirtualAssetPartnerConfig>() { Objects = fixture.Create<List<ObjectVirtualAssetPartnerConfig>>() });
 
@@ -294,7 +295,7 @@ namespace ApiLogic.Tests.Catalog
             .Returns(new List<Meta>());
 
             var dalMock = Mock.Of<ITopicRepository>();
-            var virtualAssetPartnerConfigManagerMock = Mock.Of<Api.Managers.IVirtualAssetPartnerConfigManager>();
+            var virtualAssetPartnerConfigManagerMock = Mock.Of<IVirtualAssetPartnerConfigManager>();
             var elasticsearchWrapperMock = Mock.Of<Core.Catalog.IElasticsearchWrapper>();
             var conditionalAccessMock = Mock.Of<Core.ConditionalAccess.IConditionalAccessUtils>();
 

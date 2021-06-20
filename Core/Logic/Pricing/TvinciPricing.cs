@@ -1038,7 +1038,7 @@ namespace Core.Pricing
                 int Id = 0;
                 if ((int)status.Code == (int)eResponseStatus.OK)
                 {
-                    Id = DAL.PricingDAL.InsertPricePlan(m_nGroupID, pricePlan, priceCodeID, fullLifeCycleID, viewLifeCycleID, discountID);
+                    Id = DAL.PricingDAL.Instance.InsertPricePlan(m_nGroupID, pricePlan, priceCodeID, fullLifeCycleID, viewLifeCycleID, discountID);
                     if (Id == 0)
                     {
                         status = new Status((int)eResponseStatus.Error, string.Format(INGEST_FAILED_ERROR_FORMAT, "insert"));
@@ -1739,7 +1739,7 @@ namespace Core.Pricing
                 Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
 
-            DataTable usageModules = PricingDAL.GetPricePlans(m_nGroupID, pricePlanIds);
+            DataTable usageModules = PricingDAL.Instance.GetPricePlans(m_nGroupID, pricePlanIds);
 
             if (usageModules != null && usageModules.Rows != null && usageModules.Rows.Count > 0)
             {
@@ -1747,192 +1747,7 @@ namespace Core.Pricing
             }
 
             return response;
-        }
-
-        public override UsageModulesResponse UpdatePricePlan(UsageModule usageModule)
-        {
-            UsageModulesResponse response = new UsageModulesResponse()
-            {
-                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
-
-            DataTable usageModules = PricingDAL.GetPricePlans(m_nGroupID, new List<long>() { usageModule.m_nObjectID });
-
-            if (usageModules == null || usageModules.Rows == null || usageModules.Rows.Count == 0)
-            {
-                response.Status = new Status((int)eResponseStatus.PricePlanDoesNotExist, "Price plan does not exist");
-                return response;
-            }
-
-            if (!PricingDAL.IsPriceCodeExistsById(m_nGroupID, usageModule.m_pricing_id))
-            {
-                response.Status = new Status((int)eResponseStatus.PriceDetailsDoesNotExist, "Price details does not exist");
-                return response;
-            }
-
-            response.UsageModules = Utils.BuildUsageModulesFromDataTable(usageModules);
-
-            if (response.UsageModules != null && response.UsageModules.Count > 0)
-            {
-                // update only price code ID
-                if (response.UsageModules[0].m_pricing_id == usageModule.m_pricing_id || PricingDAL.UpdatePricePlanAndSubscriptiopnsPriceCode(m_nGroupID, usageModule.m_nObjectID, usageModule.m_pricing_id))
-                {
-                    response.UsageModules[0].m_pricing_id = usageModule.m_pricing_id;
-                    response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                }
-            }
-
-            return response;
-        }
-
-        public override PriceDetailsResponse GetPriceCodesDataByCurrency(List<long> priceCodeIds, string currencyCode)
-        {
-            PriceDetailsResponse response = new PriceDetailsResponse()
-            {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
-            };
-
-            // get prices with specific currency 
-
-            if (!string.IsNullOrEmpty(currencyCode) && !currencyCode.Trim().Equals("*"))
-            {
-                if (!PartnerConfigurationManager.IsValidCurrencyCode(m_nGroupID, currencyCode))
-                {
-                    response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidCurrency, "Invalid currency");
-                    return response;
-                }
-            }
-
-            if (string.IsNullOrEmpty(currencyCode) && !PartnerConfigurationManager.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
-            {
-                return response;
-            }
-
-            string key = LayeredCacheKeys.GetGroupPriceCodesKey(m_nGroupID);
-
-            Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", m_nGroupID } };
-            List<PriceDetails> priceCodes = null;
-            bool res = LayeredCache.Instance.Get<List<PriceDetails>>(key, ref priceCodes, GetGroupPriceCodes, funcParams, m_nGroupID,
-                LayeredCacheConfigNames.GET_GROUP_PRICE_CODES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupPriceCodesInvalidationKey(m_nGroupID) });
-
-            if (priceCodes != null)
-            {
-                response.PriceCodes = new List<PriceDetails>();
-
-                foreach (var pc in priceCodes)
-                {
-                    // filter by IDs
-                    if (priceCodeIds != null && priceCodeIds.Count > 0 && !priceCodeIds.Contains(pc.Id))
-                        continue;
-
-                    // filter by currency 
-                    if (!currencyCode.Trim().Equals("*"))
-                    {
-                        var n = new PriceDetails(pc);
-                        n.Prices = pc.Prices != null ? pc.Prices.Where(p => p.m_oCurrency.m_sCurrencyCD3 == currencyCode).ToList() : null;
-                        response.PriceCodes.Add(n);
-                    }
-                    else
-                    {
-                        response.PriceCodes.Add(pc);
-                    }
-
-                }
-
-                response.PriceCodes.OrderBy(pc => pc.Name);
-            }
-            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-            return response;
-        }
-
-        private Tuple<List<PriceDetails>, bool> GetGroupPriceCodes(Dictionary<string, object> funcParams)
-        {
-            List<PriceDetails> priceCodes = null;
-
-            try
-            {
-                if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
-                {
-                    int? groupId = funcParams["groupId"] as int?;
-                    DataTable priceCodesDt = PricingDAL.GetPriceCodes(m_nGroupID);
-                    if (priceCodesDt != null)
-                    {
-                        priceCodes = Utils.BuildPriceCodesFromDataTable(priceCodesDt);
-                    }
-                }
-            }
-
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetGroupPriceCodes failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-
-            bool res = priceCodes != null;
-
-            return new Tuple<List<PriceDetails>, bool>(priceCodes, res);
-        }
-
-        public override GenericListResponse<DiscountDetails> GetDiscountsByCurrency(List<long> discountIds, string currencyCode)
-        {
-            GenericListResponse<DiscountDetails> response = new GenericListResponse<DiscountDetails>();
-
-            // get discounts with specific currency 
-
-            if (!string.IsNullOrEmpty(currencyCode) && !currencyCode.Trim().Equals("*"))
-            {
-                if (!PartnerConfigurationManager.IsValidCurrencyCode(m_nGroupID, currencyCode))
-                {
-                    response.SetStatus(eResponseStatus.InvalidCurrency, "Invalid currency");
-                    return response;
-                }
-            }
-
-            if (string.IsNullOrEmpty(currencyCode) && !PartnerConfigurationManager.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode))
-            {
-                return response;
-            }
-
-            string key = LayeredCacheKeys.GetDiscountsKey(m_nGroupID);
-
-            Dictionary<string, object> funcParams = new Dictionary<string, object>() { { "groupId", m_nGroupID } };
-            List<DiscountDetails> discountDetails = null;
-            bool res = LayeredCache.Instance.Get<List<DiscountDetails>>(key, ref discountDetails, GetGroupDiscounts, funcParams, m_nGroupID,
-                LayeredCacheConfigNames.GET_GROUP_DISCOUNTS_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupDiscountsInvalidationKey(m_nGroupID) });
-
-            if (discountDetails != null)
-            {
-                response.Objects = new List<DiscountDetails>();
-
-                foreach (DiscountDetails dt in discountDetails)
-                {
-                    try
-                    {
-                        DiscountDetails dd = new DiscountDetails(dt);
-                        // filter by IDs
-                        if (discountIds != null && discountIds.Count > 0 && !discountIds.Contains(dt.Id))
-                            continue;
-
-                        // filter by currency 
-                        if (!currencyCode.Trim().Equals("*"))
-                        {
-                            dd.MultiCurrencyDiscounts = dt.MultiCurrencyDiscounts != null ? new List<Discount>(dt.MultiCurrencyDiscounts.Where(p => p.m_oCurrency.m_sCurrencyCD3 == currencyCode).ToList()) : null;
-                        }
-
-                        response.Objects.Add(dd);
-                    }
-                    catch (Exception ex)
-                    {
-                        log.Error($"Error creating DiscountDetails from id: {dt.Id}", ex);
-                    }
-                }
-
-                response.Objects.OrderBy(pc => pc.Name);
-            }
-            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
-
-            return response;
-        }
+        }        
 
         private Tuple<List<DiscountDetails>, bool> GetGroupDiscounts(Dictionary<string, object> funcParams)
         {

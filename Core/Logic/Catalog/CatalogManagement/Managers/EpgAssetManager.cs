@@ -53,6 +53,7 @@ namespace Core.Catalog.CatalogManagement
         public const string GENRE_META_SYSTEM_NAME = "Genre";
         public const string CRID_META_SYSTEM_NAME = "Crid";
         public const string EXTERNAL_ID_META_SYSTEM_NAME = "ExternalID";
+        public const string STATUS_META_SYSTEM_NAME = "Status";
         private static readonly int MaxDescriptionSize = 1024;
         private static readonly int MaxNameSize = 255;
 
@@ -74,7 +75,7 @@ namespace Core.Catalog.CatalogManagement
 
         internal static readonly HashSet<string> TopicsInBasicProgramTable = new HashSet<string>()
         {
-            NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, CRID_META_SYSTEM_NAME, START_DATE_META_SYSTEM_NAME, END_DATE_META_SYSTEM_NAME
+            NAME_META_SYSTEM_NAME, DESCRIPTION_META_SYSTEM_NAME, EXTERNAL_ID_META_SYSTEM_NAME, CRID_META_SYSTEM_NAME, START_DATE_META_SYSTEM_NAME, END_DATE_META_SYSTEM_NAME, STATUS_META_SYSTEM_NAME
         };
 
         internal static readonly Dictionary<string, string> BasicMetasSystemNamesToType = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

@@ -11,17 +11,16 @@ using System.Text;
 
 namespace Core.Pricing
 {
-    /*
-    * 1. This class uses a decorator in order to wrap the BasePricing class. Understand Decorator Design Pattern before you change anything.
-    * 2. Its main functionality is to add caching mechanism to Pricing methods uses by the Conditional Access module.
-    * 3. Methods not called by CAS do not cache their results right now (September 2014).
-    * 
-    */
-    public class PricingCacheWrapper : BasePricingDecorator
+        /*
+        * 1. This class uses a decorator in order to wrap the BasePricing class. Understand Decorator Design Pattern before you change anything.
+        * 2. Its main functionality is to add caching mechanism to Pricing methods uses by the Conditional Access module.
+        * 3. Methods not called by CAS do not cache their results right now (September 2014).
+        * 
+        */
+        public class PricingCacheWrapper : BasePricingDecorator
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         protected static readonly string PRICE_DATA_CACHE_NAME = "pc_data";
-        protected static readonly string PRICING_CACHE_WRAPPER_LOG_FILE = "PricingCacheWrapper";
 
         public PricingCacheWrapper(BasePricing originalBasePricing)
             : base(originalBasePricing)
@@ -41,11 +40,7 @@ namespace Core.Pricing
                 res = originalBasePricing.GetPriceCodeData(sPC, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
                 if (res != null)
                 {
-                    if (!PricingCache.TryAddPriceCode(cacheKey, res))
-                    {
-                        PricingCache.LogCachingError("Failed to insert entry into cache. ", cacheKey, res, "GetPriceCodeData",
-                            PRICING_CACHE_WRAPPER_LOG_FILE);
-                    }
+                    PricingCache.TryAddPriceCode(cacheKey, res);
                 }
             }
 
@@ -89,9 +84,9 @@ namespace Core.Pricing
 
             string cacheKey = GetGroupPricePlansKey(m_nGroupID);
             List<UsageModule> temp = null;
-            if (!PricingCache.TryGetGroupPricePlans(cacheKey, out temp) || temp == null)
+            if (!PricingCache.Instance.TryGetGroupPricePlans(cacheKey, out temp) || temp == null)
             {
-                DataTable usageModules = PricingDAL.GetPricePlans(m_nGroupID);
+                DataTable usageModules = PricingDAL.Instance.GetPricePlans(m_nGroupID);
 
                 if (usageModules != null && usageModules.Rows != null && usageModules.Rows.Count > 0)
                 {
@@ -100,11 +95,7 @@ namespace Core.Pricing
 
                 if (response.UsageModules != null)
                 {
-                    if (!PricingCache.TryAddGroupPricePlans(cacheKey, response.UsageModules))
-                    {
-                        PricingCache.LogCachingError("Failed to insert entry into cache. ", cacheKey, response.UsageModules, "GetPricePlans",
-                            PRICING_CACHE_WRAPPER_LOG_FILE);
-                    }
+                    PricingCache.TryAddGroupPricePlans(cacheKey, response.UsageModules);
                 }
             }
             else

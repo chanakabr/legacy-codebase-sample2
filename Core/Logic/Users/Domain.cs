@@ -1833,10 +1833,10 @@ namespace Core.Users
             {
                 res = DomainResponseStatus.ExceededLimit;
 
-                if (!PartnerConfigurationManager.GetGeneralPartnerConfiguration(m_nGroupID).HasObjects())
+                if (!GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfiguration(m_nGroupID).HasObjects())
                     return res;
 
-                var generalPartnerConfig = PartnerConfigurationManager.GetGeneralPartnerConfiguration(m_nGroupID).Objects.FirstOrDefault();
+                var generalPartnerConfig = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfiguration(m_nGroupID).Objects.FirstOrDefault();
 
                 if (generalPartnerConfig?.RollingDeviceRemovalData.RollingDeviceRemovalPolicy == null ||
                     generalPartnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds.Count <= 0)

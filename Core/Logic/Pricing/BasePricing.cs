@@ -126,11 +126,6 @@ namespace Core.Pricing
             throw new NotImplementedException();
         }
 
-        public virtual GenericListResponse<DiscountDetails> GetDiscountsByCurrency(List<long> priceCodeIds, string currencyCode)
-        {
-            throw new NotImplementedException();
-        }
-
         public virtual GenericListResponse<DiscountDetails> GetValidDiscounts()
         {
             throw new NotImplementedException();

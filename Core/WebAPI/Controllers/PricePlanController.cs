@@ -1,14 +1,16 @@
-﻿using KLogMonitor;
+﻿using ApiLogic.Pricing.Handlers;
+using ApiObjects.Response;
+using Core.Pricing;
+using KLogMonitor;
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using WebAPI.ClientManagers.Client;
+using WebAPI.Clients;
 using WebAPI.Exceptions;
-using WebAPI.Models.Pricing;
-using WebAPI.Utils;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using ApiObjects.Response;
+using WebAPI.Models.General;
+using WebAPI.Models.Pricing;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -16,35 +18,37 @@ namespace WebAPI.Controllers
     public class PricePlanController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-       
+
         /// <summary>
         /// Returns a list of price plans by IDs
         /// </summary>
         /// <param name="filter">Filter request</param>
-        [Action("list")]
+        [Action("list")] 
         [ApiAuthorize]
         static public KalturaPricePlanListResponse List(KalturaPricePlanFilter filter = null)
         {
+
             int groupId = KS.GetFromRequest().GroupId;
-            
-            List<KalturaPricePlan> pricePlans = null;
+            KalturaPricePlanListResponse result = new KalturaPricePlanListResponse();
 
             try
             {
-                List<long> priceIds = null;
-                if (filter != null)
-                {
-                    priceIds = filter.GetIdIn();
-                }
+                Func<GenericListResponse<UsageModule>> getListFunc = () =>
+                   PricePlanManager.Instance.GetPricePlans(groupId, filter?.GetIdIn());
 
-                pricePlans = ClientsManager.PricingClient().GetPricePlans(groupId, priceIds);
+                KalturaGenericListResponse<KalturaPricePlan> response =
+                    ClientUtils.GetResponseListFromWS<KalturaPricePlan, UsageModule>(getListFunc);
+
+                result.PricePlans = response.Objects;
+                result.TotalCount = response.TotalCount;
+
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return new KalturaPricePlanListResponse() { PricePlans = pricePlans, TotalCount = pricePlans != null ? pricePlans.Count : 0 };
+            return result;
         }
 
         /// <summary>
@@ -58,6 +62,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PriceDetailsDoesNotExist)]
         static public KalturaPricePlan Update(long id, KalturaPricePlan pricePlan)
         {
+            KalturaPricePlan result = null;
+
             int groupId = KS.GetFromRequest().GroupId;
 
             if (id == 0)
@@ -67,14 +73,78 @@ namespace WebAPI.Controllers
 
             try
             {
-                pricePlan = ClientsManager.PricingClient().UpdatePricePlan(groupId, id, pricePlan);
+                Func<UsageModule, GenericResponse<UsageModule>> insertPriceDetailsFunc = (UsageModule pricePlanToUpdate) =>
+                        PricePlanManager.Instance.Update(groupId, (int)id, pricePlanToUpdate);
+
+                result = ClientUtils.GetResponseFromWS<KalturaPricePlan, UsageModule>(pricePlan, insertPriceDetailsFunc);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return pricePlan;
+            return result;
+        }
+
+        /// <summary>
+        /// Internal API !!! Delete PricePlan
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="id">PricePlan identifier</param>
+        [Action("delete")]
+        [ApiAuthorize]
+        [SchemeArgument("id", MinLong = 1)]
+        static public bool Delete(long id)
+        {
+            bool result = false;
+
+            var contextData = KS.GetContextData();
+
+            try
+            {
+                Func<Status> delete = () => PricePlanManager.Instance.Delete(contextData, id);
+                return ClientUtils.GetResponseStatusFromWS(delete);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Internal API !!!  Insert new PriceDetails for partner
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="pricePlan">Price plan Object</param>
+        [Action("add")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.CurrencyIsMissing)]
+        [Throws(eResponseStatus.InvalidCurrency)]
+        static public KalturaPricePlan Add(KalturaPricePlan pricePlan)
+        {
+            KalturaPricePlan result = null;
+
+            pricePlan.ValidateForAdd();
+
+            var contextData = KS.GetContextData();
+
+            try
+            {
+                Func<UsageModule, GenericResponse<UsageModule>> insertPriceDetailsFunc = (UsageModule pricePlanToInsert) =>
+                        PricePlanManager.Instance.Add(contextData, pricePlanToInsert);
+
+                result = ClientUtils.GetResponseFromWS<KalturaPricePlan, UsageModule>(pricePlan, insertPriceDetailsFunc);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
         }
     }
 }

@@ -43,7 +43,8 @@ namespace ApiLogic.Tests.GroupManagers
             partnerDal.Setup(x => x.GetPartners()).Returns(allPartners);
 
             var manager = new PartnerManager(partnerDal.Object, Mock.Of<IRabbitConnection>(),
-                Mock.Of<IApplicationConfiguration>(), Mock.Of<IUserManager>(), Mock.Of<IRabbitConfigDal>());
+                Mock.Of<IApplicationConfiguration>(), Mock.Of<IUserManager>(), Mock.Of<IRabbitConfigDal>(),
+                Mock.Of<IPartnerRepository>());
 
             var response = manager.GetPartners(null);
 
@@ -65,7 +66,8 @@ namespace ApiLogic.Tests.GroupManagers
             partnerDal.Setup(x => x.GetPartners()).Returns(allPartners);
 
             var manager = new PartnerManager(partnerDal.Object, Mock.Of<IRabbitConnection>(),
-                Mock.Of<IApplicationConfiguration>(), Mock.Of<IUserManager>(), Mock.Of<IRabbitConfigDal>());
+                Mock.Of<IApplicationConfiguration>(), Mock.Of<IUserManager>(), Mock.Of<IRabbitConfigDal>(),
+                Mock.Of<IPartnerRepository>());
 
             var response = manager.GetPartners(new List<long> {partner1.Id.Value, partner2.Id.Value});
 
@@ -78,11 +80,16 @@ namespace ApiLogic.Tests.GroupManagers
         public void CheckAddPartnerCantAddRoutingKeyToQueue()
         {
             var fixture = new Fixture();
+            var pricingDal = new Mock<IPartnerRepository>();
             var partnerDal = new Mock<IPartnerDal>();
             partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner>(0));
             partnerDal.Setup(x => x.AddPartner(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>())).Returns(1);
             partnerDal.Setup(x =>
                     x.SetupPartnerInUsersDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
+                        It.IsAny<long>()))
+                .Returns(true);
+            pricingDal.Setup(x =>
+                    x.SetupPartnerInPricingDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
                         It.IsAny<long>()))
                 .Returns(true);
 
@@ -102,7 +109,7 @@ namespace ApiLogic.Tests.GroupManagers
                 .Returns(canAddRoutingKey);
 
             var manager = new PartnerManager(partnerDal.Object, rabbitConnection.Object,
-                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object);
+                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object, pricingDal.Object);
 
             Assert.Throws<AggregateException>(() => manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
                 fixture.Create<ApiObjects.PartnerSetup>(), fixture.Create<long>()));
@@ -112,6 +119,7 @@ namespace ApiLogic.Tests.GroupManagers
         public void CheckAddGroupRabbitWithNoBindings()
         {
             var fixture = new Fixture();
+            var pricingDal = new Mock<IPartnerRepository>();
             var partnerDal = new Mock<IPartnerDal>();
             partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner>(0));
             partnerDal.Setup(x => x.AddPartner(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>())).Returns(1);
@@ -119,6 +127,10 @@ namespace ApiLogic.Tests.GroupManagers
                     x.SetupPartnerInUsersDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
                         It.IsAny<long>()))
                 .Returns(true);
+            pricingDal.Setup(x =>
+                   x.SetupPartnerInPricingDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
+                       It.IsAny<long>()))
+               .Returns(true);
 
             var userManager = new Mock<IUserManager>();
             userManager.Setup(x => x.AddAdminUser(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -129,7 +141,7 @@ namespace ApiLogic.Tests.GroupManagers
             rabbitConfigDal.Setup(x => x.GetRabbitRoutingBindings()).Returns(noBindings);
 
             var manager = new PartnerManager(partnerDal.Object, Mock.Of<IRabbitConnection>(),
-                Mock.Of<IApplicationConfiguration>(), userManager.Object, rabbitConfigDal.Object);
+                Mock.Of<IApplicationConfiguration>(), userManager.Object, rabbitConfigDal.Object, pricingDal.Object);
 
             Assert.Throws<Exception>(() => manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
                 fixture.Create<ApiObjects.PartnerSetup>(), fixture.Create<long>()));
@@ -144,7 +156,8 @@ namespace ApiLogic.Tests.GroupManagers
             var existingPartner = new ApiObjects.Partner {Id = existingId, Name = existingName}; 
             partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner>{existingPartner});
             var manager = new PartnerManager(partnerDal.Object, Mock.Of<IRabbitConnection>(),
-                Mock.Of<IApplicationConfiguration>(), Mock.Of<IUserManager>(), Mock.Of<IRabbitConfigDal>());
+                Mock.Of<IApplicationConfiguration>(), Mock.Of<IUserManager>(), Mock.Of<IRabbitConfigDal>(),
+                Mock.Of<IPartnerRepository>());
 
             var partner = new ApiObjects.Partner {Id = 1, Name = "Abc"};
             var partnerResponse = manager.AddPartner(partner,
@@ -159,6 +172,7 @@ namespace ApiLogic.Tests.GroupManagers
         {
             var fixture = new Fixture();
             const int partnerId = 3;
+            var pricingDal = new Mock<IPartnerRepository>();
             var partnerDal = new Mock<IPartnerDal>();
             partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner>(0));
             partnerDal.Setup(x => x.AddPartner(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>())).Returns(partnerId);
@@ -166,6 +180,10 @@ namespace ApiLogic.Tests.GroupManagers
                     x.SetupPartnerInUsersDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
                         It.IsAny<long>()))
                 .Returns(true);
+            pricingDal.Setup(x =>
+                   x.SetupPartnerInPricingDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
+                       It.IsAny<long>()))
+               .Returns(true);
 
             var userManager = new Mock<IUserManager>();
             userManager.Setup(x => x.AddAdminUser(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -184,7 +202,7 @@ namespace ApiLogic.Tests.GroupManagers
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
 
             var manager = new PartnerManager(partnerDal.Object, rabbitConnection.Object,
-                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object);
+                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object, pricingDal.Object);
 
             var partnerResponse = manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
                 fixture.Create<ApiObjects.PartnerSetup>(), fixture.Create<long>());

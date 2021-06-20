@@ -12,6 +12,15 @@ namespace WebAPI.Models.Pricing
     public partial class KalturaDiscountModule : KalturaOTTObject
     {
         /// <summary>
+        /// Discount module identifier
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id", IsNullable = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        public long? Id { get; set; }
+
+        /// <summary>
         /// The discount percentage
         /// </summary>
         [DataMember(Name = "percent")]

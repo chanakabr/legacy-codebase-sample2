@@ -130,11 +130,11 @@ namespace ApiLogic.Users
                     limitationsManager.npvrQuotaInSecs = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "npvr_quota_in_seconds");
                     var nConcurrencyDomainLevel = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "CONCURRENT_MAX_LIMIT");
                     limitationsManager.Frequency = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "freq_period_id");
-                    limitationsManager.FrequencyDescription = Utils.GetMinPeriodDescription(limitationsManager.Frequency);
+                    limitationsManager.FrequencyDescription = Core.Pricing.Utils.Instance.GetMinPeriodDescription(limitationsManager.Frequency);
                     limitationsManager.Quantity = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "DEVICE_MAX_LIMIT");
                     limitationsManager.nUserLimit = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "USER_MAX_LIMIT");
                     limitationsManager.UserFrequency = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "user_freq_period_id");
-                    limitationsManager.UserFrequencyDescrition = Utils.GetMinPeriodDescription(limitationsManager.UserFrequency);
+                    limitationsManager.UserFrequencyDescrition = Core.Pricing.Utils.Instance.GetMinPeriodDescription(limitationsManager.UserFrequency);
 
                     limitationsManager.SetConcurrency(nConcurrencyDomainLevel, nConcurrencyGroupLevel);
                 }

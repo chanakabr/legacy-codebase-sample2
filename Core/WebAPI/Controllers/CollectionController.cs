@@ -10,6 +10,10 @@ using WebAPI.Utils;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Managers.Scheme;
+using WebAPI.Clients;
+using Core.Pricing;
+using ApiObjects.Response;
+using ApiLogic.Pricing.Handlers;
 
 namespace WebAPI.Controllers
 {
@@ -45,33 +49,50 @@ namespace WebAPI.Controllers
                 filter.Validate();
             }
             
-
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
-
+            Func<GenericListResponse<Collection>> getListFunc;
+            KalturaGenericListResponse<KalturaCollection> result = null;
             try
             {
                 if (!string.IsNullOrEmpty(filter.CollectionIdIn))
                 {
-                    response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, filter.getCollectionIdIn(), udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                    getListFunc = () =>
+                    CollectionManager.Instance.GetCollectionsData(groupId, filter.getCollectionIdIn(), string.Empty, language, udid, pager.getPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual);
+                    result = ClientUtils.GetResponseListFromWS<KalturaCollection, Collection>(getListFunc);
                 }
                 else if (filter.MediaFileIdEqual.HasValue)
                 {
-                    List<int> collectionsIds = ClientsManager.PricingClient().GetCollectionIdsContainingMediaFile(groupId, filter.MediaFileIdEqual.Value);
-                    
+                    IdsResponse collectionsIdsresult = CollectionManager.Instance.GetCollectionIdsContainingMediaFile(groupId, 0, filter.MediaFileIdEqual.Value);
+
+                    if (collectionsIdsresult == null)
+                    {
+                        throw new ClientException(StatusCode.Error);
+                    }
+
+                    List<int> collectionsIds = collectionsIdsresult.Ids;
+
                     // get collections
                     if (collectionsIds != null && collectionsIds.Count > 0)
                     {
-                        response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, collectionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                        getListFunc = () =>
+                        CollectionManager.Instance.GetCollectionsData(groupId, collectionsIds.Select(id => id.ToString()).ToArray(), string.Empty, language, udid, pager.getPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual);
+                        result = ClientUtils.GetResponseListFromWS<KalturaCollection, Collection>(getListFunc);
                     }
                 }
                 else
                 {
-                    response.Collections = ClientsManager.PricingClient().GetCollectionsData(groupId, udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                    getListFunc = () =>
+                       CollectionManager.Instance.GetCollectionsData(groupId, string.Empty, language, udid, pager.getPageIndex(), pager.PageSize.Value, false, filter.CouponGroupIdEqual);
+                    result = ClientUtils.GetResponseListFromWS<KalturaCollection, Collection>(getListFunc);
                 }
 
-                response.TotalCount = response.Collections != null ? response.Collections.Count : 0;
+                if (result != null)
+                {
+                    response.Collections = result.Objects;
+                    response.TotalCount = result.TotalCount;
+                }
             }
             catch (ClientException ex)
             {
@@ -79,6 +100,59 @@ namespace WebAPI.Controllers
             }
 
             return response;
+        }
+
+        /// <summary>
+        /// Internal API !!! Insert new collection for partner
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="collection">collection object</param>
+        [Action("add")]
+        [ApiAuthorize]
+        static public KalturaCollection Add(KalturaCollection collection)
+        {
+            
+            KalturaCollection result = null;
+            collection.ValidateForAdd();
+            var contextData = KS.GetContextData();
+
+            Func<Collection, GenericResponse<Collection>> insertCollectionFunc = (Collection collectionToInsert) =>
+                      CollectionManager.Instance.Add(contextData, collectionToInsert);
+
+            result = ClientUtils.GetResponseFromWS<KalturaCollection, Collection>(collection, insertCollectionFunc);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Internal API !!! Delete collection 
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="id">Collection id</param>
+        [Action("delete")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.CollectionNotExist)]
+        static public bool Delete(long id)
+        {
+            bool result = false;
+
+            var contextData = KS.GetContextData();
+
+            try
+            {
+                Func<Status> delete = () => CollectionManager.Instance.Delete(contextData, id);
+
+                result = ClientUtils.GetResponseStatusFromWS(delete);
+            }
+
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
         }
     }
 }
