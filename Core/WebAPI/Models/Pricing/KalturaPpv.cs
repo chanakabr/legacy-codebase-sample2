@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -19,7 +18,6 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id")]
-        [SchemeProperty(ReadOnly = true)]
         public string Id { get; set; }
 
         /// <summary>
@@ -36,6 +34,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "price")]
         [JsonProperty("price")]
         [XmlElement(ElementName = "price", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaPriceDetails Price { get; set; }
 
         /// <summary>
@@ -54,6 +53,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "discountModule")]
         [JsonProperty("discountModule")]
         [XmlElement(ElementName = "discountModule", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaDiscountModule DiscountModule { get; set; }
 
         /// <summary>
@@ -62,6 +62,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "couponsGroup")]
         [JsonProperty("couponsGroup")]
         [XmlElement(ElementName = "couponsGroup", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaCouponsGroup CouponsGroup { get; set; }
 
         /// <summary>
@@ -106,28 +107,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "usageModule")]
         [JsonProperty("usageModule")]
         [XmlElement(ElementName = "usageModule", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaUsageModule UsageModule { get; set; }
-
-        internal void ValidateForAdd()
-        {
-            if (string.IsNullOrEmpty(Name))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-
-            if (Price == null)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "price");
-            if (!Price.Id.HasValue || Price.Id.HasValue && Price.Id.Value > 0)
-                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "price.Id", "1");
-
-            if (UsageModule == null)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "usageModule");
-            if (!UsageModule.Id.HasValue || UsageModule.Id.HasValue && Price.Id.Value > 0)
-                throw new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, "usageModule.Id", "1");
-
-            if (DiscountModule != null && DiscountModule.Id > 0)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "discountModule.Id ");
-
-            if (CouponsGroup != null && string.IsNullOrEmpty(CouponsGroup.Id))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "couponsGroup.Id");
-        }
     }
 }

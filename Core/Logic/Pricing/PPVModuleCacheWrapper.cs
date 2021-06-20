@@ -1,5 +1,4 @@
-﻿using ApiLogic.Pricing.Handlers;
-using ApiObjects.Response;
+﻿using ApiObjects.Response;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -138,16 +137,16 @@ namespace Core.Pricing
             return null;
         }
 
-        public PPVModule GetPPVModuleData(string sPPVModuleCode, bool shouldShrink = false)
+        public override PPVModule GetPPVModuleData(string sPPVModuleCode, bool shouldShrink = false)
         {
             PPVModule res = null;
             if (!string.IsNullOrEmpty(sPPVModuleCode))
             {
                 string cacheKey = GetPPVDataCacheKey(sPPVModuleCode);
                 PPVModule temp = null;
-                if (PricingCache.Instance.TryGetPPVModule(cacheKey, out temp) && temp != null)
+                if (PricingCache.TryGetPPVModule(cacheKey, out temp) && temp != null)
                     return temp;
-                res = PPVManager.Instance.GetPPVModuleData(m_nGroupID ,sPPVModuleCode, shouldShrink);
+                res = originalBasePPVModule.GetPPVModuleData(sPPVModuleCode, shouldShrink);
                 if (res != null)
                 {
                     if (!PricingCache.TryAddPPVModule(cacheKey, res))
@@ -261,14 +260,14 @@ namespace Core.Pricing
             return this.originalBasePPVModule.GetPPVModuleListForAdmin(nMediaFileID, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
         }
 
-        public List<PPVModule> GetPPVModuleList()
+        public override PPVModule[] GetPPVModuleList()
         {
-            return PPVManager.Instance.GetPPVModuleList(m_nGroupID);
+            return this.originalBasePPVModule.GetPPVModuleList();
         }
 
-        public List<PPVModule> GetPPVModuleShrinkList()
+        public override PPVModule[] GetPPVModuleShrinkList()
         {
-            return PPVManager.Instance.GetPPVModuleList(m_nGroupID, true);
+            return this.originalBasePPVModule.GetPPVModuleShrinkList();
         }
 
         #endregion

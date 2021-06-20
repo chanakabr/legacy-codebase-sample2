@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -50,22 +48,6 @@ namespace WebAPI.Models.Pricing
         [SchemeProperty(IsNullable = true)]
         public int? NonRenewablePeriod { get; set; }
 
-        public void ValidateForAdd()
-        {
-            if (string.IsNullOrWhiteSpace(Name))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-        }
-    }
-
-    public partial class KalturaPreviewModuleListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// A list of Preview Module
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaPreviewModule> PreviewModule { get; set; }
+        
     }
 }

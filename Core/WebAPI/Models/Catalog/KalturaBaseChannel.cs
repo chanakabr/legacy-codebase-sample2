@@ -17,7 +17,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         [XmlElement(ElementName = "id")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        [SchemeProperty(ReadOnly = true)]
         public long? Id { get; set; }
     }
 }

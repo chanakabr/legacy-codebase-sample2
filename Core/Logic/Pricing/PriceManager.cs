@@ -1,6 +1,6 @@
-﻿using ApiLogic.Pricing.Handlers;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using DAL;
@@ -234,6 +234,112 @@ namespace Core.Pricing
             return assetFilePPVList;
         }
 
+        public static GenericListResponse<PPVModule> GetPPVList(int groupId, int pageIndex, int pageSize)
+        {
+            GenericListResponse<PPVModule> response = new GenericListResponse<PPVModule>();
+
+            try
+            {
+                List<PPVModule> allPpvs = new List<PPVModule>();
+                string allPpvsKey = LayeredCacheKeys.GetAllPpvsKey(groupId);
+
+                if (!LayeredCache.Instance.Get<List<PPVModule>>(allPpvsKey,
+                                                                ref allPpvs,
+                                                                GetAllPpvs,
+                                                                new Dictionary<string, object>()
+                                                                {
+                                                                    { "groupId", groupId }
+                                                                },
+                                                                groupId,
+                                                                LayeredCacheConfigNames.PPV_MODULES_CACHE_CONFIG_NAME,
+                                                                new List<string>() { LayeredCacheKeys.GetPricingSettingsInvalidationKey(groupId) }))
+                {
+                    return response;
+                }
+
+                if (pageSize > 0)
+                {
+                    int skip = pageIndex * pageSize;
+
+                    if (allPpvs.Count > skip)
+                    {
+                        response.Objects = (allPpvs.Count) > (skip + pageSize) ? allPpvs.Skip(skip).Take(pageSize).ToList() : allPpvs.Skip(skip).ToList();
+                    }
+                }
+                else
+                {
+                    response.Objects = allPpvs;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.SetStatus(eResponseStatus.Error, eResponseStatus.Error.ToString());
+            }
+
+            return response;
+
+        }
+
+        private static Tuple<List<PPVModule>, bool> GetAllPpvs(Dictionary<string, object> funcParams)
+        {
+            List<PPVModule> allPpvs = new List<PPVModule>();
+
+            try
+            {
+                if (funcParams != null && funcParams.Count == 1)
+                {
+                    if (funcParams.ContainsKey("groupId"))
+                    {
+                        int? groupId = funcParams["groupId"] as int?;
+
+                        if (groupId.HasValue)
+                        {
+                            DataTable dtPPVModuleData = PricingDAL.Get_PPVModuleData(groupId.Value, null);
+
+                            if (dtPPVModuleData != null && dtPPVModuleData.Rows != null && dtPPVModuleData.Rows.Count > 0)
+                            {
+                                for (int i = 0; i < dtPPVModuleData.Rows.Count; i++)
+                                {
+                                    DataRow ppvModuleDataRow = dtPPVModuleData.Rows[i];
+                                    int nPPVModuleID = ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["ID"]);
+                                    string sPriceCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["PRICE_CODE"]);
+                                    string sUsageModuleCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["USAGE_MODULE_CODE"]);
+                                    string sDiscountModuleCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["DISCOUNT_MODULE_CODE"]);
+                                    string sCouponGroupCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["COUPON_GROUP_CODE"]);
+                                    string sName = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["NAME"]);
+                                    bool bSubOnly = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["SUBSCRIPTION_ONLY"]));
+                                    bool bIsFirstDeviceLimitation = Convert.ToBoolean(ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["FIRSTDEVICELIMITATION"]));
+                                    string productCode = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["Product_Code"]);
+                                    string adsParam = ODBCWrapper.Utils.GetSafeStr(ppvModuleDataRow["ADS_PARAM"]);
+
+                                    int adsPolicyInt = ODBCWrapper.Utils.GetIntSafeVal(ppvModuleDataRow["ADS_POLICY"]);
+                                    AdsPolicy? adsPolicy = null;
+                                    if (adsPolicyInt > 0)
+                                    {
+                                        adsPolicy = (AdsPolicy)adsPolicyInt;
+                                    }
+
+                                    PPVModule t = new PPVModule();
+                                    t.Initialize(sPriceCode, sUsageModuleCode, sDiscountModuleCode, sCouponGroupCode, null, groupId.Value, nPPVModuleID.ToString(),
+                                        bSubOnly, sName, string.Empty, string.Empty, string.Empty, null, bIsFirstDeviceLimitation, productCode, 0, adsPolicy, adsParam);
+
+                                    allPpvs.Add(t);
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                allPpvs = null;
+            }
+
+            return new Tuple<List<PPVModule>, bool>(allPpvs, allPpvs != null);
+        }
+
         private static AssetFilePpv CreateAssetFilePPV(DataRow dataRow)
         {
             AssetFilePpv assetFilePPV = new AssetFilePpv()
@@ -250,7 +356,7 @@ namespace Core.Pricing
         private static Status ValidateAssetFilePPV(int groupId, long mediaFileId, long ppvModuleId)
         {
             // validate ppvModuleId Exists               
-            bool isExist = PPVManager.Instance.IsPPVModuleExist(groupId, ppvModuleId);
+            bool isExist = IsPPVModuleExist(groupId, ppvModuleId);
             if (!isExist)
             {
                 log.ErrorFormat("Error. Unknown PPVModule: {0} for groupId: {1}", ppvModuleId, groupId);
@@ -266,7 +372,19 @@ namespace Core.Pricing
             }
 
             return new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-        }       
+        }
+
+        private static bool IsPPVModuleExist(int groupId, long ppvModuleId)
+        {
+            // check ppvModuleId  exist
+            DataTable dt = PricingDAL.Get_PPVModuleData(groupId, (int)ppvModuleId);
+            if (dt == null || dt.Rows == null || dt.Rows.Count == 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         private static bool IsMediaFileIdExist(int groupId, long mediaFileId)
         {

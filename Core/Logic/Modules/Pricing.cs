@@ -1,5 +1,4 @@
-﻿using ApiLogic.Pricing.Handlers;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
@@ -231,7 +230,7 @@ namespace Core.Pricing
             
             if (long.TryParse(userId, out nUserId))
             {
-                var res = SubscriptionManager.Instance.GetSubscriptions(nGroupID, new HashSet<long>() { long.Parse(sSubscriptionCode) },
+                var res = GetSubscriptions(nGroupID, new HashSet<long>() { long.Parse(sSubscriptionCode) },
                     string.Empty, string.Empty, string.Empty, new AssetSearchDefinition() { UserId = nUserId });
 
                 if (res != null && res.Subscriptions?.Length == 1)
@@ -333,7 +332,7 @@ namespace Core.Pricing
             }
         }
 
-        public static List<PPVModule> GetPPVModuleList(int nGroupID, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public static PPVModule[] GetPPVModuleList(int nGroupID, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             BasePPVModule t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -429,7 +428,7 @@ namespace Core.Pricing
             }
         }
 
-        public static List<PPVModule> GetPPVModuleShrinkList(int nGroupID, string sCountryCd2, string sLanguageCode3, string sDeviceName)
+        public static PPVModule[] GetPPVModuleShrinkList(int nGroupID, string sCountryCd2, string sLanguageCode3, string sDeviceName)
         {
             BasePPVModule t = null;
             Utils.GetBaseImpl(ref t, nGroupID);
@@ -701,6 +700,114 @@ namespace Core.Pricing
             {
                 return null;
             }
+        }
+
+        public static SubscriptionsResponse GetSubscriptions(int groupId, HashSet<long> subscriptionIds, string sCountryCd2, string sLanguageCode3, string sDeviceName, 
+            AssetSearchDefinition assetSearchDefinition, SubscriptionOrderBy orderBy = SubscriptionOrderBy.StartDateAsc, int pageIndex = 0, int pageSize = 30, 
+            bool shouldIgnorePaging = true, int? couponGroupIdEqual = null)
+        {
+            SubscriptionsResponse response = new SubscriptionsResponse();
+            BaseSubscription t = null;
+            Utils.GetBaseImpl(ref t, groupId);
+            if (t != null)
+            {
+                try
+                {
+                    var filter = api.Instance.GetObjectVirtualAssetObjectIds(groupId, assetSearchDefinition, ObjectVirtualAssetInfoType.Subscription, subscriptionIds, pageIndex, pageSize);
+                    if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+                    {
+                        response.Status = filter.Status;
+                        return response;
+                    }
+
+                    if (filter.ResultStatus == ObjectVirtualAssetFilterStatus.None)
+                    {
+                        response.Status = new Status((int)eResponseStatus.OK, "OK");
+                        return response;
+                    }
+
+                    if (!shouldIgnorePaging && !couponGroupIdEqual.HasValue && filter.ObjectIds?.Count > 0)
+                    {
+                        int startIndexOnList = pageIndex * pageSize;
+                        int rangeToGetFromList = (startIndexOnList + pageSize) > filter.ObjectIds.Count ? (filter.ObjectIds.Count - startIndexOnList) > 0 ? (filter.ObjectIds.Count - startIndexOnList) : 0 : pageSize;
+                        if (rangeToGetFromList > 0)
+                        {
+                            filter.ObjectIds = filter.ObjectIds.Skip(startIndexOnList).Take(rangeToGetFromList).ToList();
+                        }
+                    }
+
+                    if (filter.ObjectIds?.Count > 0)
+                    {
+                        response.Subscriptions = (new SubscriptionCacheWrapper(t)).GetSubscriptionsData(filter.ObjectIds.Select(x => x.ToString()).ToArray(), sCountryCd2, sLanguageCode3, sDeviceName, orderBy);
+
+                        if (response.Subscriptions != null && response.Subscriptions.Length > 0 && response.Subscriptions.Any() && couponGroupIdEqual.HasValue)
+                        {
+                            FilterSubscriptionsByCoupon(pageIndex, pageSize, couponGroupIdEqual, response);
+                        }
+                    }
+
+                    response.Status = new Status((int)eResponseStatus.OK, "OK");
+                }
+                catch (Exception)
+                {
+                    response.Status = new Status((int)eResponseStatus.Error, "Error");
+                }
+            }
+            else
+            {
+                response.Status = new Status((int)eResponseStatus.Error, "Error");
+            }
+            return response;
+        }
+
+        private static void FilterSubscriptionsByCoupon(int pageIndex, int pageSize, int? couponGroupIdEqual, SubscriptionsResponse response)
+        {
+            var value = couponGroupIdEqual.Value.ToString();
+            var subscriptions = new List<Subscription>();
+            var index = 0;
+            var startIndex = pageIndex * pageSize;
+            foreach (var subscription in response.Subscriptions)
+            {
+                var couponGroups = subscription.CouponsGroups;
+
+                if (couponGroups.Count > 0 || subscription.m_oCouponsGroup != null)
+                {
+                    var exists = couponGroups.Any
+                        (coupon => coupon?.m_sGroupCode?.ToString() == value
+                        && (!coupon.startDate.HasValue || coupon.startDate.Value <= DateTime.UtcNow)
+                        && (!coupon.endDate.HasValue || coupon.endDate.Value >= DateTime.UtcNow));
+
+                    if (exists || subscription.m_oCouponsGroup?.m_sGroupCode == value)
+                    {
+                        index++;
+                        if (startIndex < index)
+                        {
+                            subscriptions.Add(subscription);
+
+                            if (index > (pageIndex + 1) * pageSize)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            response.Subscriptions = subscriptions?.ToArray();
+        }
+
+        public static SubscriptionsResponse GetSubscriptions(int groupId, string language, string udid, SubscriptionOrderBy orderBy, int pageIndex, int pageSize, bool shouldIgnorePaging, int? couponGroupIdEqual = null)
+        {
+            // get group's subscriptionIds
+            var subscriptionIds = PricingCache.GetSubscriptionsIds(groupId);
+
+            if (subscriptionIds == null)
+            {
+                return null;
+            }
+
+            return GetSubscriptions(groupId, subscriptionIds, string.Empty,
+            language, udid, null, orderBy, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual);
         }
 
         public static CollectionsResponse GetCollectionsData(int nGroupID, string[] oCollCodes, string sCountryCd2, string sLanguageCode3, string sDeviceName, int pageIndex = 0, int pageSize = 30, bool shouldIgnorePaging = true, int? couponGroupIdEqual = null)
@@ -1405,7 +1512,7 @@ namespace Core.Pricing
                                 subIds.Add(item);
                             }
 
-                            SubscriptionsResponse subscriptionsResponse = SubscriptionManager.Instance.GetSubscriptions(groupId, subIds, string.Empty, string.Empty, string.Empty, null);
+                            SubscriptionsResponse subscriptionsResponse = GetSubscriptions(groupId, subIds, string.Empty, string.Empty, string.Empty, null);
                             if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions != null && subscriptionsResponse.Subscriptions.Count() > 0)
                             {
                                 foreach (Subscription sub in subscriptionsResponse.Subscriptions)
@@ -1528,7 +1635,41 @@ namespace Core.Pricing
             }
 
             return response;
-        }   
+        }
+
+        public static UsageModulesResponse UpdatePricePlan(int groupId, UsageModule usageModule)
+        {
+            UsageModulesResponse response = new UsageModulesResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            BasePricing t = null;
+            t = Utils.GetBasePricing(groupId, "UpdatePricePlan");
+            if (t != null)
+            {
+                response = t.UpdatePricePlan(usageModule);
+            }
+
+            return response;
+        }
+
+        public static PriceDetailsResponse GetPriceCodesDataByCurrency(int groupId, List<long> priceCodeIds, string currencyCode)
+        {
+            PriceDetailsResponse response = new PriceDetailsResponse()
+            {
+                Status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString())
+            };
+
+            BasePricing t = null;
+            t = Utils.GetBasePricing(groupId, "GetPriceCodesDataByCountyAndCurrency");
+            if (t != null)
+            {
+                return t.GetPriceCodesDataByCurrency(priceCodeIds, currencyCode);
+            }
+
+            return response;
+        }
 
         public static IdsResponse GetCollectionIdsContainingMediaFile(int groupId, int mediaId, int mediaFileID)
         {
@@ -1636,6 +1777,20 @@ namespace Core.Pricing
             return response;
         }
 
+        public static GenericListResponse<DiscountDetails> GetDiscountsByCurrency(int groupId, List<long> discountIds, string currencyCode)
+        {
+            GenericListResponse<DiscountDetails> response = new GenericListResponse<DiscountDetails>();
+
+            BasePricing t = null;
+            t = Utils.GetBasePricing(groupId, "GetDiscountsByCurrency");
+            if (t != null)
+            {
+                return t.GetDiscountsByCurrency(discountIds, currencyCode);
+            }
+
+            return response;
+        }
+
         public static GenericListResponse<PPVModule> GetPPVModuleList(int groupId, int? couponGroupIdEqual = null)
         {
             GenericListResponse<PPVModule> response = new GenericListResponse<PPVModule>();
@@ -1646,13 +1801,14 @@ namespace Core.Pricing
             {
                 try
                 {
-                    List<PPVModule> ppvModules = (new PPVModuleCacheWrapper(t)).GetPPVModuleList();
-                    if (ppvModules?.Count > 0)
+                    PPVModule[] ppvModules = (new PPVModuleCacheWrapper(t)).GetPPVModuleList();
+                    if (ppvModules != null && ppvModules.Length > 0)
                     {
                         if (couponGroupIdEqual.HasValue)
                         {
                             var value = couponGroupIdEqual.Value.ToString();
-                            ppvModules = ppvModules.Where(ppv => ppv.m_oCouponsGroup.m_sGroupCode == value).ToList();
+                            ppvModules = ppvModules.Where(ppv => ppv.m_oCouponsGroup.m_sGroupCode
+                            == value).ToArray();
                         }
                         if (ppvModules?.Count() > 0)
                         {

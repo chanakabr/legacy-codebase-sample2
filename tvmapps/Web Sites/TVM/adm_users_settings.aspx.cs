@@ -287,7 +287,7 @@ public partial class adm_users_settings : System.Web.UI.Page
         dt.Columns.Add("id", typeof(int));
         dt.Columns.Add("txt", typeof(string));
 
-        List<ApiObjects.DrmAdapter> drmAdapters = DAL.ApiDAL.Instance.GetDrmAdapters(LoginManager.GetLoginGroupID());
+        List<ApiObjects.DrmAdapter> drmAdapters = DAL.ApiDAL.GetDrmAdapters(LoginManager.GetLoginGroupID());
         dt.Rows.Add(0, "---");
 
         foreach (var adapter in drmAdapters)

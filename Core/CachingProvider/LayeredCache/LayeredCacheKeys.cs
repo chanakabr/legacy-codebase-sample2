@@ -486,11 +486,6 @@ namespace CachingProvider.LayeredCache
             return string.Format("discounts_groupId_{0}", groupId);
         }
 
-        public static string GetGroupDiscountCodesKey(int groupId)
-        {
-            return string.Format("discountCodes_groupId_{0}", groupId);
-        }
-
         public static string GetAllAssetRulesKey(int groupId, int conditionType, int? actionType)
         {
             if (actionType.HasValue)
@@ -1129,15 +1124,6 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupDiscountsInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyDiscounts_groupId_{0}", groupId);
-        }
-        public static string GetCollectionsIdsInvalidationKey(int groupId)
-        {
-            return string.Format("invalidationKeyCollectionsIds_groupId_{0}", groupId);
-        }
-
-        public static string GetDiscountCodeInvalidationKey(int groupId, int id)
-        {
-            return string.Format("invalidationKeyDiscountCode_groupId_{0}_id_{1}", groupId, id);
         }
 
         public static string GetEpgInvalidationKey(int groupId, long epgId)

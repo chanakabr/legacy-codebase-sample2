@@ -1,13 +1,8 @@
-﻿using ApiLogic.Pricing.Handlers;
-using ApiObjects.Pricing;
-using ApiObjects.Response;
-using Core.Pricing;
-using System;
-using WebAPI.Clients;
+﻿using System;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
 
@@ -28,19 +23,17 @@ namespace WebAPI.Controllers
         {
             KalturaPpv response = null;
 
-            int groupId = KS.GetFromRequest().GroupId;
-
             try
             {
-                Func<GenericResponse<PPVModule>> getFunc = () => PPVManager.Instance.Get(groupId, id);
-                response = ClientUtils.GetResponseFromWS<KalturaPpv, PPVModule>(getFunc);
+                int groupId = KS.GetFromRequest().GroupId;
+                // call client                
+                response = ClientsManager.PricingClient().GetPPVModuleData(groupId, id);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
-
-            return response;          
+            return response;
         }
 
         /// <summary>
@@ -51,7 +44,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public KalturaPpvListResponse List(KalturaPpvFilter filter = null)
         {
-            KalturaPpvListResponse result = new KalturaPpvListResponse();
+            KalturaPpvListResponse response = null;
 
             try
             {
@@ -60,76 +53,23 @@ namespace WebAPI.Controllers
                 if (filter == null)
                     filter = new KalturaPpvFilter();
 
-                var coreFilter = AutoMapper.Mapper.Map<PpvByIdInFilter>(filter);
-
-                Func<GenericListResponse<PPVModule>> getListFunc = () => PPVManager.Instance.GetPPVModulesData(groupId, coreFilter);
-
-                KalturaGenericListResponse<KalturaPpv> response =
-                   ClientUtils.GetResponseListFromWS < KalturaPpv, PPVModule>(getListFunc);
-
-                result.Ppvs = response.Objects;
-                result.TotalCount = response.TotalCount;
-
+                if( filter.GetIdIn().Count > 0)
+                {
+                    // call client                
+                    response = ClientsManager.PricingClient().GetPPVModulesData(groupId, filter.GetIdIn(), filter.OrderBy, filter.CouponGroupIdEqual);
+                }
+                else
+                {
+                    // call client                
+                    response = ClientsManager.PricingClient().GetPPVModulesData(groupId, filter.OrderBy, filter.CouponGroupIdEqual);
+                }
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return result;
-        }
-
-        /// <summary>
-        /// Internal API !!! Insert new ppv for partner
-        /// </summary>
-        /// <remarks>
-        /// </remarks>
-        /// <param name="ppv">ppv object</param>
-        [Action("add")]
-        [ApiAuthorize]
-        static public KalturaPpv Add(KalturaPpv ppv)
-        {
-
-            KalturaPpv result = null;
-            ppv.ValidateForAdd();
-            var contextData = KS.GetContextData();
-
-            Func<PPVModule, GenericResponse<PPVModule>> insertFunc = (PPVModule objectToInsert) =>
-                      PPVManager.Instance.Add(contextData, objectToInsert);
-
-            result = ClientUtils.GetResponseFromWS<KalturaPpv, PPVModule>(ppv, insertFunc);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Internal API !!! Delete ppv 
-        /// </summary>
-        /// <remarks>
-        /// </remarks>
-        /// <param name="id">PPV id</param>
-        [Action("delete")]
-        [ApiAuthorize]
-        [Throws(eResponseStatus.ModuleNotExists)]
-        static public bool Delete(long id)
-        {
-            bool result = false;
-
-            var contextData = KS.GetContextData();
-
-            try
-            {
-                Func<Status> delete = () => PPVManager.Instance.Delete(contextData, id);
-
-                result = ClientUtils.GetResponseStatusFromWS(delete);
-            }
-
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return result;
+            return response;
         }
     }
 }

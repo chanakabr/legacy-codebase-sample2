@@ -7,7 +7,6 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
-using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.Partner
@@ -25,7 +24,6 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "singleMultilingualMode")]
         [JsonProperty("singleMultilingualMode")]
         [XmlElement(ElementName = "singleMultilingualMode")]
-        [SchemeProperty(IsNullable = true)]
         public bool? SingleMultilingualMode { get; set; }
 
         /// <summary>
@@ -34,7 +32,6 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "categoryManagement")]
         [JsonProperty("categoryManagement")]
         [XmlElement(ElementName = "categoryManagement", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
         public KalturaCategoryManagement CategoryManagement { get; set; }
         
         /// <summary>
@@ -43,7 +40,6 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "epgMultilingualFallbackSupport")]
         [JsonProperty("epgMultilingualFallbackSupport")]
         [XmlElement(ElementName = "epgMultilingualFallbackSupport")]
-        [SchemeProperty(IsNullable = true)]
         public bool? EpgMultilingualFallbackSupport { get; set; }
 
         internal override bool Update(int groupId)
@@ -76,7 +72,6 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "defaultTreeId")]
         [JsonProperty("defaultTreeId")]
         [XmlElement(ElementName = "defaultTreeId")]
-        [SchemeProperty(IsNullable = true)]
         public long? DefaultCategoryTreeId { get; set; }
 
         /// <summary>
@@ -85,7 +80,6 @@ namespace WebAPI.Models.Partner
         [DataMember(Name = "deviceFamilyToCategoryTree")]
         [JsonProperty("deviceFamilyToCategoryTree")]
         [XmlElement(ElementName = "deviceFamilyToCategoryTree", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
         public SerializableDictionary<string, KalturaLongValue> DeviceFamilyToCategoryTree { get; set; }
 
         internal void ValidateForUpdate()

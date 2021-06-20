@@ -74,11 +74,12 @@ namespace Core.Catalog.CatalogManagement
                     int? groupId = funcParams["groupId"] as int?;
                     if (groupId.HasValue && groupId.Value > 0)
                     {
+                        // TODO remove when regression tests will be fixed
                         if (!GroupSettingsManager.IsOpc(groupId.Value))
                         {
                             return new Tuple<CatalogGroupCache, bool>(null, false);
                         }
-
+                        
                         List<LanguageObj> languages = CatalogDAL.GetGroupLanguages(groupId.Value);
                         // return false if no languages were found or not only 1 default language found
                         if (languages == null || (languages.Count > 0 && languages.Where(x => x.IsDefault).Count() != 1))
@@ -1374,7 +1375,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                if (!isProgramStruct && assetStructToadd.Features?.Count > 0 && assetStructToadd.Features.Contains("isProgramStruct"))
+                if(assetStructToadd.Features?.Count >0 && assetStructToadd.Features.Contains("isProgramStruct"))
                 {
                     isProgramStruct = true;
                 }
@@ -1438,25 +1439,25 @@ namespace Core.Catalog.CatalogManagement
                         if (isProgramStruct)
                         {
                             var topic = catalogGroupCache.TopicsMapById[metaId];
-                            if (!EpgAssetManager.TopicsInBasicProgramTable.Contains(topic.SystemName, StringComparer.OrdinalIgnoreCase))
+                            if (!EpgAssetManager.TopicsInBasicProgramTable.Contains(topic.SystemName))
                             {
-                                long topicId = 0;
-
                                 if (topic.Type == MetaType.Tag)
                                 {
-                                    if (mappingFields.ContainsKey(FieldTypes.Tag) && mappingFields[FieldTypes.Tag].ContainsKey(topic.SystemName.ToLower()))
+                                    long epgTagId = 0;
+                                    if (mappingFields[FieldTypes.Tag].ContainsKey(topic.SystemName.ToLower()))
                                     {
-                                        topicId = mappingFields[FieldTypes.Tag][topic.SystemName.ToLower()];
+                                        epgTagId = mappingFields[FieldTypes.Tag][topic.SystemName.ToLower()];
                                     }
-                                    epgTagIdsToValue.Add(new KeyValuePair<long, string>(topicId, topic.SystemName));
+                                    epgTagIdsToValue.Add(new KeyValuePair<long, string>(epgTagId, topic.SystemName));
                                 }
                                 else
                                 {
-                                    if (mappingFields.ContainsKey(FieldTypes.Meta) && mappingFields[FieldTypes.Meta].ContainsKey(topic.SystemName.ToLower()))
+                                    long epgMetaId = 0;
+                                    if (mappingFields[FieldTypes.Meta].ContainsKey(topic.SystemName.ToLower()))
                                     {
-                                        topicId = mappingFields[FieldTypes.Meta][topic.SystemName.ToLower()];
+                                        epgMetaId = mappingFields[FieldTypes.Meta][topic.SystemName.ToLower()];
                                     }
-                                    epgMetaIdsToValue.Add(new KeyValuePair<long, string>(topicId, topic.SystemName));
+                                    epgMetaIdsToValue.Add(new KeyValuePair<long, string>(epgMetaId, topic.SystemName));
                                 }
                             }
                         }
@@ -1470,14 +1471,11 @@ namespace Core.Catalog.CatalogManagement
                     {
                         languageCodeToName.Add(new KeyValuePair<string, string>(language.m_sLanguageCode3, language.m_sValue));
                     }
-                }
-
-                bool isLinear = assetStructToadd.SystemName.Equals("linear", StringComparison.OrdinalIgnoreCase); 
+                }               
 
                 DataSet ds = CatalogDAL.InsertAssetStruct(groupId, assetStructToadd.Name, languageCodeToName, assetStructToadd.SystemName, metaIdsToPriority,
                                                       assetStructToadd.IsPredefined, userId, assetStructToadd.GetCommaSeparatedFeatures(), assetStructToadd.ConnectingMetaId,
-                                                          assetStructToadd.ConnectedParentMetaId, assetStructToadd.PluralName, assetStructToadd.ParentId, isProgramStruct, 
-                                                          isLinear, assetStructToadd.DynamicData);
+                                                          assetStructToadd.ConnectedParentMetaId, assetStructToadd.PluralName, assetStructToadd.ParentId, isProgramStruct, assetStructToadd.DynamicData);
                 result = CreateAssetStructResponseFromDataSet(ds, metaIdsToPriority);
 
                 // For backward compatibility

@@ -950,7 +950,7 @@ namespace Core.Pricing
 
             if (productCodes != null && productCodes.Count > 0)
             {
-                string[] subscriptionsCodes = DAL.PricingDAL.Instance.Get_SubscriptionsFromProductCodes(productCodes.Distinct().ToList(), m_nGroupID).Keys.ToArray();
+                string[] subscriptionsCodes = DAL.PricingDAL.Get_SubscriptionsFromProductCodes(productCodes.Distinct().ToList(), m_nGroupID).Keys.ToArray();
                 if (subscriptionsCodes != null && subscriptionsCodes.Length > 0)
                 {
                     response.Subscriptions = GetSubscriptionsData(subscriptionsCodes, string.Empty, string.Empty, string.Empty, orderBy);

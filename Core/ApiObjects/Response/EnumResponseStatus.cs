@@ -560,14 +560,6 @@ namespace ApiObjects.Response
         CanDeleteOnlyInactiveCampaign = 9029,
         DynamicListDoesNotExist = 9030,
         ExceededMaxLength = 9031,
-        PriceIsMissing = 9032,
-        AmountIsMissing = 9033,
-        CurrencyIsMissing = 9034,
-        PriceCodeDoesNotExist = 9035,
-        UsageModuleDoesNotExist = 9036,
-        DrmAdapterNotExist = 9037,
-        PreviewModuleNotExist = 9038,
-        CollectionNotExist = 9039,
 
         #endregion
 

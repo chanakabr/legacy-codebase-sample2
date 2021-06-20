@@ -71,7 +71,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "dynamicData")]
         [JsonProperty("dynamicData")]
         [XmlElement(ElementName = "dynamicData", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
 
         /// <summary>
@@ -89,7 +88,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "isActive")]
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
-        [SchemeProperty(IsNullable = true)]
         public bool? IsActive { get; set; }
 
         /// <summary>
@@ -143,7 +141,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "referenceId")]
         [JsonProperty("referenceId")]
         [XmlElement(ElementName = "referenceId", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
         public string ReferenceId { get; set; }
 
         internal override ICrudHandler<CategoryItem, long> Handler

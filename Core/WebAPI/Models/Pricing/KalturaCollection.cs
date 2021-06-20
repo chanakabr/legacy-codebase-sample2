@@ -116,16 +116,6 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "priceDetailsId")]
         [SchemeProperty(MinInteger = 1)]
         public long? PriceDetailsId { get; set; }
-
-        public void ValidateForAdd()
-        {
-            if (Name == null || Name.Values.Count == 0)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-            if (UsageModule == null)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "UsageModule");
-            if (PriceDetailsId == null)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "PriceDetailsId");
-        }
     }
 
     /// <summary>

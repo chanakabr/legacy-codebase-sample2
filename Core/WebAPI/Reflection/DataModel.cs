@@ -2491,10 +2491,6 @@ namespace WebAPI.Reflection
                             return "multiCurrencyDiscount";
                         case "StartDate":
                             return "startDate";
-                        case "WhenAlgoTimes":
-                            return "whenAlgoTimes";
-                        case "WhenAlgoType":
-                            return "whenAlgoType";
                     }
                     break;
                     
@@ -2519,8 +2515,6 @@ namespace WebAPI.Reflection
                     {
                         case "EndDate":
                             return "endDate";
-                        case "Id":
-                            return "id";
                         case "Percent":
                             return "percent";
                         case "StartDate":
@@ -5642,14 +5636,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaPreviewModuleListResponse":
-                    switch(property.Name)
-                    {
-                        case "PreviewModule":
-                            return "objects";
-                    }
-                    break;
-                    
                 case "KalturaPrice":
                     switch(property.Name)
                     {
@@ -7672,14 +7658,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaUsageModuleListResponse":
-                    switch(property.Name)
-                    {
-                        case "UsageModules":
-                            return "objects";
-                    }
-                    break;
-                    
                 case "KalturaUserAssetRule":
                     switch(property.Name)
                     {
@@ -8678,14 +8656,6 @@ namespace WebAPI.Reflection
                 case "collection":
                     switch(action)
                     {
-                        case "add":
-                            RolesManager.ValidateActionPermitted("collection", "add", false);
-                            return CollectionController.Add((KalturaCollection) methodParams[0]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("collection", "delete", false);
-                            return CollectionController.Delete((long) methodParams[0]);
-                            
                         case "list":
                             RolesManager.ValidateActionPermitted("collection", "list", false);
                             return CollectionController.List((KalturaCollectionFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
@@ -8918,14 +8888,6 @@ namespace WebAPI.Reflection
                 case "discountdetails":
                     switch(action)
                     {
-                        case "add":
-                            RolesManager.ValidateActionPermitted("discountDetails", "add", false);
-                            return DiscountDetailsController.Add((KalturaDiscountDetails) methodParams[0]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("discountDetails", "delete", false);
-                            return DiscountDetailsController.Delete((long) methodParams[0]);
-                            
                         case "list":
                             RolesManager.ValidateActionPermitted("discountDetails", "list", false);
                             return DiscountDetailsController.List((KalturaDiscountDetailsFilter) methodParams[0]);
@@ -8936,14 +8898,6 @@ namespace WebAPI.Reflection
                 case "drmprofile":
                     switch(action)
                     {
-                        case "add":
-                            RolesManager.ValidateActionPermitted("drmProfile", "add", false);
-                            return DrmProfileController.Add((KalturaDrmProfile) methodParams[0]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("drmProfile", "delete", false);
-                            return DrmProfileController.Delete((long) methodParams[0]);
-                            
                         case "list":
                             RolesManager.ValidateActionPermitted("drmProfile", "list", false);
                             return DrmProfileController.List();
@@ -10791,14 +10745,6 @@ namespace WebAPI.Reflection
                 case "ppv":
                     switch(action)
                     {
-                        case "add":
-                            RolesManager.ValidateActionPermitted("ppv", "add", false);
-                            return PpvController.Add((KalturaPpv) methodParams[0]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("ppv", "delete", false);
-                            return PpvController.Delete((long) methodParams[0]);
-                            
                         case "get":
                             RolesManager.ValidateActionPermitted("ppv", "get", false);
                             return PpvController.Get((long) methodParams[0]);
@@ -10806,24 +10752,6 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("ppv", "list", false);
                             return PpvController.List((KalturaPpvFilter) methodParams[0]);
-                            
-                    }
-                    break;
-                    
-                case "previewmodule":
-                    switch(action)
-                    {
-                        case "add":
-                            RolesManager.ValidateActionPermitted("previewModule", "add", false);
-                            return PreviewModuleController.Add((KalturaPreviewModule) methodParams[0]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("previewModule", "delete", false);
-                            return PreviewModuleController.Delete((long) methodParams[0]);
-                            
-                        case "list":
-                            RolesManager.ValidateActionPermitted("previewModule", "list", false);
-                            return PreviewModuleController.List();
                             
                     }
                     break;
@@ -10841,14 +10769,6 @@ namespace WebAPI.Reflection
                 case "pricedetails":
                     switch(action)
                     {
-                        case "add":
-                            RolesManager.ValidateActionPermitted("priceDetails", "add", false);
-                            return PriceDetailsController.Add((KalturaPriceDetails) methodParams[0]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("priceDetails", "delete", false);
-                            return PriceDetailsController.Delete((long) methodParams[0]);
-                            
                         case "list":
                             RolesManager.ValidateActionPermitted("priceDetails", "list", false);
                             return PriceDetailsController.List((KalturaPriceDetailsFilter) methodParams[0]);
@@ -10859,14 +10779,6 @@ namespace WebAPI.Reflection
                 case "priceplan":
                     switch(action)
                     {
-                        case "add":
-                            RolesManager.ValidateActionPermitted("pricePlan", "add", false);
-                            return PricePlanController.Add((KalturaPricePlan) methodParams[0]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("pricePlan", "delete", false);
-                            return PricePlanController.Delete((long) methodParams[0]);
-                            
                         case "list":
                             RolesManager.ValidateActionPermitted("pricePlan", "list", false);
                             return PricePlanController.List((KalturaPricePlanFilter) methodParams[0]);
@@ -11442,14 +11354,6 @@ namespace WebAPI.Reflection
                 case "subscription":
                     switch(action)
                     {
-                        case "add":
-                            RolesManager.ValidateActionPermitted("subscription", "add", false);
-                            return SubscriptionController.Add((KalturaSubscription) methodParams[0]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("subscription", "delete", false);
-                            return SubscriptionController.Delete((long) methodParams[0]);
-                            
                         case "list":
                             if(isOldVersion)
                             {
@@ -11789,24 +11693,6 @@ namespace WebAPI.Reflection
                         case "upload":
                             RolesManager.ValidateActionPermitted("uploadToken", "upload", false);
                             return UploadTokenController.Upload((string) methodParams[0], (KalturaOTTFile) methodParams[1]);
-                            
-                    }
-                    break;
-                    
-                case "usagemodule":
-                    switch(action)
-                    {
-                        case "add":
-                            RolesManager.ValidateActionPermitted("usageModule", "add", false);
-                            return UsageModuleController.Add((KalturaUsageModule) methodParams[0]);
-                            
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("usageModule", "delete", false);
-                            return UsageModuleController.Delete((long) methodParams[0]);
-                            
-                        case "list":
-                            RolesManager.ValidateActionPermitted("usageModule", "list", false);
-                            return UsageModuleController.List();
                             
                     }
                     break;
@@ -14433,21 +14319,6 @@ namespace WebAPI.Reflection
                 case "collection":
                     switch(action)
                     {
-                        case "add":
-                            ret.Add("collection", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaCollection),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            return ret;
-                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
@@ -14866,21 +14737,6 @@ namespace WebAPI.Reflection
                 case "discountdetails":
                     switch(action)
                     {
-                        case "add":
-                            ret.Add("discountDetails", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaDiscountDetails),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            return ret;
-                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
@@ -14897,21 +14753,6 @@ namespace WebAPI.Reflection
                 case "drmprofile":
                     switch(action)
                     {
-                        case "add":
-                            ret.Add("drmProfile", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaDrmProfile),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            return ret;
-                            
                         case "list":
                             return ret;
                             
@@ -18851,21 +18692,6 @@ namespace WebAPI.Reflection
                 case "ppv":
                     switch(action)
                     {
-                        case "add":
-                            ret.Add("ppv", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaPpv),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            return ret;
-                            
                         case "get":
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
@@ -18881,30 +18707,6 @@ namespace WebAPI.Reflection
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPpvFilter),
                             });
-                            return ret;
-                            
-                    }
-                    break;
-                    
-                case "previewmodule":
-                    switch(action)
-                    {
-                        case "add":
-                            ret.Add("previewModule", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaPreviewModule),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            return ret;
-                            
-                        case "list":
                             return ret;
                             
                     }
@@ -18933,27 +18735,6 @@ namespace WebAPI.Reflection
                 case "pricedetails":
                     switch(action)
                     {
-                        case "add":
-                            ret.Add("priceDetails", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaPriceDetails),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "priceDetails", "delete") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                },
-                            });
-                            return ret;
-                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
@@ -18970,27 +18751,6 @@ namespace WebAPI.Reflection
                 case "priceplan":
                     switch(action)
                     {
-                        case "add":
-                            ret.Add("pricePlan", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaPricePlan),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "pricePlan", "delete") {
-                                    RequiresPermission = false,
-                                    MaxLength = -1,
-                                    MinLength = -1,
-                                    MinLong = 1,
-                                },
-                            });
-                            return ret;
-                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
@@ -20133,21 +19893,6 @@ namespace WebAPI.Reflection
                 case "subscription":
                     switch(action)
                     {
-                        case "add":
-                            ret.Add("subscription", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaSubscription),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            return ret;
-                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,
@@ -20938,30 +20683,6 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 Type = typeof(KalturaOTTFile),
                             });
-                            return ret;
-                            
-                    }
-                    break;
-                    
-                case "usagemodule":
-                    switch(action)
-                    {
-                        case "add":
-                            ret.Add("usageModule", new MethodParam(){
-                                NewName = newParamName,
-                                IsKalturaObject = true,
-                                Type = typeof(KalturaUsageModule),
-                            });
-                            return ret;
-                            
-                        case "delete":
-                            ret.Add("id", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(long),
-                            });
-                            return ret;
-                            
-                        case "list":
                             return ret;
                             
                     }

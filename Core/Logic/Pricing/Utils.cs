@@ -8,32 +8,15 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Caching;
-using System.Threading;
 using System.Xml;
 
 namespace Core.Pricing
 {
-    public interface IPricingUtils
+    public class Utils
     {
-        string GetMinPeriodDescription(int id);
-    }
-
-
-    public class Utils : IPricingUtils
-    {      
         private static string PRICING_CONNECTION = "PRICING_CONNECTION";
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-
-        private static readonly Lazy<Utils> lazy = new Lazy<Utils>(() => new Utils(), LazyThreadSafetyMode.PublicationOnly);
-
-        public static Utils Instance => lazy.Value;
-
-        private Utils()
-        {
-        }
 
         public static TimeSpan GetEndDateTimeSpan(Int32 nVal)
         {
@@ -1052,13 +1035,47 @@ namespace Core.Pricing
                                 m_pricing_id = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "pricing_id"),
                                 m_sVirtualName = ODBCWrapper.Utils.GetSafeStr(usageModuleRow, "NAME"),
                                 m_tsMaxUsageModuleLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "FULL_LIFE_CYCLE_MIN"),
-                                m_tsViewLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "VIEW_LIFE_CYCLE_MIN"),
-                                m_type = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "type")
-                };
+                                m_tsViewLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "VIEW_LIFE_CYCLE_MIN")
+                            };
             }
             return null;
         }
 
+        internal static List<PriceDetails> BuildPriceCodesFromDataTable(DataTable priceCodes)
+        {
+            Dictionary<long, PriceDetails> priceDetailsMap = new Dictionary<long, PriceDetails>();
+            
+            if (priceCodes != null && priceCodes.Rows != null && priceCodes.Rows.Count > 0)
+            {
+                foreach (DataRow dr in priceCodes.Rows)
+                {
+                    long id  = ODBCWrapper.Utils.GetLongSafeVal(dr, "id");
+
+                    if (!priceDetailsMap.ContainsKey(id))
+                    {
+                        PriceDetails pd = new PriceDetails()
+                        {
+                            Id = id,
+                            Name = ODBCWrapper.Utils.GetSafeStr(dr, "code"),
+                            Prices = new List<Price>()
+                        };
+                        priceDetailsMap.Add(id, pd);
+                    }
+                    Price price = new Price()
+                    {
+                        countryId = ODBCWrapper.Utils.GetIntSafeVal(dr, "country_id"),
+                        m_dPrice = ODBCWrapper.Utils.GetDoubleSafeVal(dr, "price"),
+                        m_oCurrency = new Currency()
+                    };
+
+                    price.m_oCurrency.InitializeById(ODBCWrapper.Utils.GetIntSafeVal(dr, "CURRENCY_CD"));
+
+                    priceDetailsMap[id].Prices.Add(price);
+
+                }
+            }
+            return priceDetailsMap != null ? priceDetailsMap.Values.ToList() : null;
+        }
 
         internal static List<DiscountDetails> BuildDiscountsFromDataTable(DataTable discounts)
         {
@@ -1078,9 +1095,7 @@ namespace Core.Pricing
                             Name = ODBCWrapper.Utils.GetSafeStr(dr, "code"),
                             StartDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "start_date"),
                             EndDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "end_date"),
-                            MultiCurrencyDiscounts = new List<Discount>(),
-                            WhenAlgoTimes = ODBCWrapper.Utils.GetIntSafeVal(dr, "WHENALGO_TIMES"),
-                            WhenAlgoType = (WhenAlgoType)Enum.Parse(typeof(WhenAlgoType),ODBCWrapper.Utils.GetSafeStr(dr, "WHENALGO_TYPE"))
+                            MultiCurrencyDiscounts = new List<Discount>()
                         };
                         discountsMap.Add(id, pd);
                     }
@@ -1099,33 +1114,6 @@ namespace Core.Pricing
                 }
             }
             return discountsMap != null ? discountsMap.Values.ToList() : null;
-        }
-
-        internal static List<PreviewModule> BuildPreviewModulesFromDataTable(DataTable previewModules)
-        {
-            Dictionary<long, PreviewModule> previewModulesMap = new Dictionary<long, PreviewModule>();
-
-            if (previewModules != null && previewModules.Rows != null && previewModules.Rows.Count > 0)
-            {
-                foreach (DataRow dr in previewModules.Rows)
-                {
-                    long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id");
-
-                    if (!previewModulesMap.ContainsKey(id))
-                    {
-                        PreviewModule pd = new PreviewModule()
-                        {
-                            m_nID = id,
-                            m_sName = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
-                            m_tsFullLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(dr, "FULL_LIFE_CYCLE_ID"),
-                            m_tsNonRenewPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "NON_RENEWING_PERIOD_ID")
-                        };
-                        previewModulesMap.Add(id, pd);
-                    }
-                }
-            }
-
-            return previewModulesMap != null ? previewModulesMap.Values.ToList() : null;
         }
 
         public static bool IsCouponValid(CouponDataResponse couponData)
@@ -1149,27 +1137,5 @@ namespace Core.Pricing
             }
             return result;
         }
-
-        public string GetMinPeriodDescription(int id)
-        {
-            string res = null;
-            Dictionary<string, string> minPeriods;
-            if (CachingManager.CachingManager.Exists("MinPeriods"))
-            {
-                minPeriods = CachingManager.CachingManager.GetCachedData("MinPeriods") as Dictionary<string, string>;
-            }
-            else
-            {
-                minPeriods = Tvinci.Core.DAL.CatalogDAL.GetMinPeriods();
-                if (minPeriods != null)
-                    CachingManager.CachingManager.SetCachedData("MinPeriods", minPeriods, 604800, CacheItemPriority.Default, 0, false);
-            }
-
-            if (minPeriods != null)
-                minPeriods.TryGetValue(id.ToString(), out res);
-
-            return res;
-        }
-
     }
 }

@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.Pricing;
 using System;
 using System.Collections.Generic;
 
@@ -13,8 +12,6 @@ namespace Core.Pricing
         public List<Discount> MultiCurrencyDiscounts { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public WhenAlgoType WhenAlgoType { get; set; }
-        public int WhenAlgoTimes { get; set; }
 
         public DiscountDetails()
         {
@@ -28,20 +25,6 @@ namespace Core.Pricing
             this.StartDate = ddToCopy.StartDate;
             this.EndDate = ddToCopy.EndDate;
             this.MultiCurrencyDiscounts = new List<Discount>(ddToCopy.MultiCurrencyDiscounts);
-            this.WhenAlgoType = ddToCopy.WhenAlgoType;
-            this.WhenAlgoTimes = ddToCopy.WhenAlgoTimes;
-        }
-
-        public static List<DiscountDTO> ConvertToDtos(List<Discount> MultiCurrencyDiscounts)
-        {
-            List<DiscountDTO> Discounts = new List<DiscountDTO>();
-
-            MultiCurrencyDiscounts.ForEach(discount =>
-            {
-                Discounts.Add(new DiscountDTO(discount.m_dPrice, discount.Percentage, discount.m_oCurrency.m_nCurrencyID, discount.countryId));
-            });
-
-            return Discounts;
         }
     }
 

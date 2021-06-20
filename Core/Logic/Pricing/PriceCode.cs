@@ -19,13 +19,6 @@ namespace Core.Pricing
             m_nObjectID = 0;
         }
 
-        public PriceCode(int objectID)
-        {
-            m_sCode = string.Empty;
-            m_oPrise = new Price();
-            m_nObjectID = objectID;
-        }
-
         public bool Initialize(string sC, Price p, LanguageContainer[] sD, Int32 nPriceCodeID)
         {
             m_sCode = sC;

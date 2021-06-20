@@ -683,7 +683,7 @@ namespace ApiLogic.Api.Managers
 
             try
             {
-                var generalPartnerConfig = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfiguration(groupId);
+                var generalPartnerConfig = PartnerConfigurationManager.GetGeneralPartnerConfiguration(groupId);
                 if (generalPartnerConfig.IsOkStatusCode() && generalPartnerConfig?.Objects?.Count > 0 && generalPartnerConfig.Objects[0].DefaultRegion.HasValue)
                 {
                     var defaultRegionId = generalPartnerConfig.Objects[0].DefaultRegion.Value;

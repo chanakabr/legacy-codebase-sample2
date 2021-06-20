@@ -1,7 +1,6 @@
 ﻿using WebAPI.Models.General;
 using AutoMapper.Configuration;
 using System;
-using System.Collections.Generic;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -24,7 +23,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             // KalturaIntegerValue
             cfg.CreateMap<int, KalturaIntegerValue>()
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
-       
+
             // KalturaLongValue
             cfg.CreateMap<long, KalturaLongValue>()
                 .ForMember(dest => dest.value, opt => opt.MapFrom(src => src));
@@ -49,18 +48,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 default:
                     return log4net.Core.Level.All;
             }
-        }
-
-        public static List<int> ConvertKalturaValueList(List<KalturaIntegerValue> values)
-        {
-            if (values == null)
-                return null;
-
-            List<int> list = new List<int>();
-
-            values.ForEach(v => { list.Add(v.value); });
-
-            return list;
         }
     }
 }

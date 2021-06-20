@@ -1977,6 +1977,11 @@ namespace Core.Api
             return Core.Api.api.UpdateDeviceConcurrencyPriority(groupId, deviceConcurrencyPriorityToUpdate);
         }
 
+        public static DrmAdapterListResponse GetDrmAdapters(int groupId)
+        {
+            return Core.Api.api.GetDrmAdapters(groupId);
+        }
+
         public static GenericListResponse<MediaConcurrencyRule> GetMediaConcurrencyRules(int groupId)
         {
             GenericListResponse<MediaConcurrencyRule> response = new GenericListResponse<MediaConcurrencyRule>();
@@ -2494,7 +2499,7 @@ namespace Core.Api
 
         public static Status UpdateGeneralPartnerConfig(int groupId, GeneralPartnerConfig partnerConfigToUpdate)
         {
-            return GeneralPartnerConfigManager.Instance.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate);
+            return PartnerConfigurationManager.UpdateGeneralPartnerConfig(groupId, partnerConfigToUpdate);
         }
 
         public static Status UpdateOpcPartnerConfig(int groupId, OpcPartnerConfig partnerConfigToUpdate)
@@ -2509,13 +2514,13 @@ namespace Core.Api
 
         public static GenericListResponse<GeneralPartnerConfig> GetGeneralPartnerConfiguration(int groupId)
         {
-            return GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfiguration(groupId);
+            return PartnerConfigurationManager.GetGeneralPartnerConfiguration(groupId);
         }
 
         public static LanguageResponse GetAllLanguageList(int groupId)
         {
             LanguageResponse result = new LanguageResponse();
-            result.Languages = GeneralPartnerConfigManager.Instance.GetAllLanguages(groupId);
+            result.Languages = PartnerConfigurationManager.GetAllLanguages(groupId);
             if (result.Languages == null)
             {
                 result.Status.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -2531,7 +2536,7 @@ namespace Core.Api
         public static CurrencyResponse GetCurrencyList(int groupId)
         {
             CurrencyResponse result = new CurrencyResponse();
-            result.Currencies = GeneralPartnerConfigManager.Instance.GetCurrencyList(groupId);
+            result.Currencies = PartnerConfigurationManager.GetCurrencyList(groupId);
             if (result.Currencies == null)
             {
                 result.Status.Set((int)eResponseStatus.Error, eResponseStatus.Error.ToString());

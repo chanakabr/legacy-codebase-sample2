@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -19,7 +18,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        [SchemeProperty(ReadOnly = true)]
         public int? Id { get; set; }
 
         /// <summary>
@@ -36,7 +35,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "price")]
         [JsonProperty("price")]
         [XmlElement(ElementName = "price", IsNullable = true)]
-        [SchemeProperty(ReadOnly = true)]
+        [SchemeProperty(ReadOnly=true)]
         public KalturaPrice Price { get; set; }
 
         /// <summary>
@@ -45,7 +44,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "multiCurrencyPrice")]
         [JsonProperty("multiCurrencyPrice")]
         [XmlElement(ElementName = "multiCurrencyPrice", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        [SchemeProperty(RequiresPermission=(int)RequestType.WRITE)]
         public List<KalturaPrice> MultiCurrencyPrice { get; set; }
 
         /// <summary>
@@ -56,15 +55,6 @@ namespace WebAPI.Models.Pricing
         [XmlArray(ElementName = "descriptions", IsNullable = true)]
         [XmlArrayItem("item")]
         public List<KalturaTranslationToken> Descriptions { get; set; }
-
-        public void ValidateForAdd()
-        {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-
-            if (MultiCurrencyPrice == null)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "multiCurrencyPrice");
-        }
     }
 
     public partial class KalturaPriceDetailsListResponse : KalturaListResponse

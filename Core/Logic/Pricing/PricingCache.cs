@@ -1,33 +1,19 @@
-﻿using CachingProvider.LayeredCache;
-using KLogMonitor;
+﻿using CachingProvider;
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
 using System.Text;
-using System.Threading;
+using ApiObjects;
+using KLogMonitor;
+using System.Reflection;
+using CachingProvider.LayeredCache;
+using Core.Pricing.Handlers;
 
 namespace Core.Pricing
 {
-    public interface IPricingCache
-    {
-        bool TryGetGroupPricePlans(string key, out List<UsageModule> pricePlans);
-
-        bool TryGetPPVModule(string key, out PPVModule ppv);
-
-        HashSet<long> GetSubscriptionsIds(int groupId);
-    }
-
-    public class PricingCache : IPricingCache
+    public class PricingCache
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        private static readonly Lazy<PricingCache> lazy = new Lazy<PricingCache>(() => new PricingCache(), LazyThreadSafetyMode.PublicationOnly);
-
-        public static PricingCache Instance => lazy.Value;
-        
-        private const string PRICING_CACHE_WRAPPER_LOG_FILE = "PricingCacheWrapper";
-
-        private PricingCache() { }
 
         static internal Dictionary<string, Subscription> TryGetSubscriptions(List<string> keys)
         {
@@ -151,7 +137,7 @@ namespace Core.Pricing
             return coll != null && Add(key, coll);
         }
 
-        public bool TryGetPPVModule(string key, out PPVModule ppv)
+        static internal bool TryGetPPVModule(string key, out PPVModule ppv)
         {
             bool res = false;
             PPVModule temp = Get<PPVModule>(key);
@@ -263,14 +249,7 @@ namespace Core.Pricing
 
         static internal bool TryAddPriceCode(string key, PriceCode pc)
         {
-            var result = pc != null && Add(key, pc);
-            if (!result)
-            {
-                LogCachingError("Failed to insert entry into cache. ", key, pc, "GetPriceCodeData",
-                    PRICING_CACHE_WRAPPER_LOG_FILE);
-            }
-
-            return result;
+            return pc != null && Add(key, pc);
         }
 
         static internal bool TryGetMediaFilePPVContainer(string key, out MediaFilePPVContainer mfpc)
@@ -335,7 +314,7 @@ namespace Core.Pricing
             return values;
         }
 
-        public bool TryGetGroupPricePlans(string key, out List<UsageModule> pricePlans)
+        static internal bool TryGetGroupPricePlans(string key, out List<UsageModule> pricePlans)
         {
             bool res = false;
             List<UsageModule> temp = Get<List<UsageModule>>(key);
@@ -355,14 +334,7 @@ namespace Core.Pricing
 
         static internal bool TryAddGroupPricePlans(string key, List<UsageModule> pricePlans)
         {
-            var result = pricePlans != null && Add(key, pricePlans);
-            if (!result)
-            {
-                LogCachingError("Failed to insert entry into cache. ", key, pricePlans, "GetPricePlans",
-                    PRICING_CACHE_WRAPPER_LOG_FILE);
-            }
-
-            return result;
+            return pricePlans != null && Add(key, pricePlans);
         }
 
         public static HashSet<long> GetCollectionsIds(int groupId)
@@ -373,8 +345,7 @@ namespace Core.Pricing
                 var key = GetCollectionsIdsCacheKey(groupId);
                 if (!LayeredCache.Instance.Get(key, ref response,
                     GetGroupCollectionIds, new Dictionary<string, object>() { { "groupId", groupId } },
-                groupId, LayeredCacheConfigNames.GET_GROUP_COLLECTIONS, new List<string>()
-                { LayeredCacheKeys.GetCollectionsIdsInvalidationKey(groupId) }))
+                groupId, LayeredCacheConfigNames.GET_GROUP_COLLECTIONS, null))
                 {
                     log.ErrorFormat($"GetGroupCollectionIds - Failed get data from cache. groupId: {groupId}");
                     return response;
@@ -388,7 +359,7 @@ namespace Core.Pricing
             return response;
         }
 
-        public HashSet<long> GetSubscriptionsIds(int groupId)
+        public static HashSet<long> GetSubscriptionsIds(int groupId)
         {
             var response = new HashSet<long>();
             try

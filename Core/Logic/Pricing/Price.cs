@@ -2,22 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 
 namespace Core.Pricing
 {
-    // TODO refactor: move out DB interaction from BOL object
-    public interface IPrice
-    {
-        Price InitializeByCD3(string sCurrencyCode3, double dP);
-    }
-
     [Serializable]
-    public class Price : IPrice
+    public class Price
     {
-        private static readonly Lazy<Price> lazy = new Lazy<Price>(() => new Price(), LazyThreadSafetyMode.PublicationOnly);
-        public static Price Instance { get { return lazy.Value; } }
-
         public double m_dPrice;
         public Currency m_oCurrency;
         public int countryId;
@@ -37,11 +27,10 @@ namespace Core.Pricing
 
         }
 
-        public Price InitializeByCD3(string sCurrencyCode3, double dP)
+        public void InitializeByCD3(string sCurrencyCode3, double dP)
         {
             m_oCurrency.InitializeByCode3(sCurrencyCode3);
             m_dPrice = dP;
-            return this;
         }
 
         public void InitializeByCodeID(Int32 nCurrencyID, double dP)

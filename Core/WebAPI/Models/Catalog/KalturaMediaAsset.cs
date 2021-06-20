@@ -74,7 +74,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "deviceRuleId")]
         [JsonProperty(PropertyName = "deviceRuleId")]
         [XmlElement(ElementName = "deviceRuleId", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
         public int? DeviceRuleId { get; set; }
 
         /// <summary>
@@ -93,7 +92,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "geoBlockRuleId")]
         [JsonProperty(PropertyName = "geoBlockRuleId")]
         [XmlElement(ElementName = "geoBlockRuleId", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
         public int? GeoBlockRuleId { get; set; }
 
         /// <summary>
@@ -122,7 +120,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "status")]
         [JsonProperty("status")]
         [XmlElement(ElementName = "status", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
         public bool? Status { get; set; }
 
         /// <summary>
@@ -131,7 +128,6 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "inheritancePolicy")]
         [JsonProperty("InheritancePolicy")]
         [XmlElement(ElementName = "InheritancePolicy", IsNullable = true)]
-        [SchemeProperty(IsNullable = true)]
         public KalturaAssetInheritancePolicy? InheritancePolicy { get; set; }
     }
 }

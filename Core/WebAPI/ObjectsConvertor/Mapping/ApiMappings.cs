@@ -586,18 +586,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.SystemName, opt => opt.MapFrom(src => src.ExternalIdentifier))
               .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
 
-            cfg.CreateMap<KalturaDrmProfile, DrmAdapter>()
-              .ForMember(dest => dest.ID, opt => opt.MapFrom(src => src.Id))
-              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-              .ForMember(dest => dest.AdapterUrl, opt => opt.MapFrom(src => src.AdapterUrl))
-              .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-              .ForMember(dest => dest.Settings, opt => opt.MapFrom(src => src.Settings))
-              .ForMember(dest => dest.ExternalIdentifier, opt => opt.MapFrom(src => src.SystemName))
-              .ForMember(dest => dest.SharedSecret, opt => opt.MapFrom(src => src.SharedSecret));
-
-            cfg.CreateMap<DrmAdapterListResponse, KalturaDrmProfileListResponse>()
-              .ForMember(dest => dest.Adapters, opt => opt.MapFrom(src => src.Adapters));
-
             #endregion
 
             #region AssetRule

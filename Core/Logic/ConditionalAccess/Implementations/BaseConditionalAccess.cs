@@ -2810,7 +2810,7 @@ namespace Core.ConditionalAccess
                 DiscountModule externalDisount = null;
                 if (!string.IsNullOrEmpty(renewDetails.CountryCode) &&
                     !string.IsNullOrEmpty(renewDetails.PreviousPurchaseCurrencyCode) &&
-                    GeneralPartnerConfigManager.Instance.IsValidCurrencyCode(m_nGroupID, renewDetails.PreviousPurchaseCurrencyCode))
+                    PartnerConfigurationManager.IsValidCurrencyCode(m_nGroupID, renewDetails.PreviousPurchaseCurrencyCode))
                 {
                     price = Pricing.Module.GetPriceCodeDataByCountyAndCurrency(m_nGroupID, AppUsageModule.m_pricing_id, renewDetails.CountryCode, renewDetails.PreviousPurchaseCurrencyCode);
                     if (price != null && AppUsageModule.m_ext_discount_id > 0)
@@ -6817,7 +6817,7 @@ namespace Core.ConditionalAccess
                 // Validate currencyCode if it was passed in the request
                 if (!string.IsNullOrEmpty(currencyCode))
                 {
-                    if (!GeneralPartnerConfigManager.Instance.IsValidCurrencyCode(m_nGroupID, currencyCode))
+                    if (!PartnerConfigurationManager.IsValidCurrencyCode(m_nGroupID, currencyCode))
                     {
                         foreach (int mf in mediaFilesForPurchase)
                         {
@@ -7011,7 +7011,7 @@ namespace Core.ConditionalAccess
                             string sPPVCode = GetPPVCodeForGetItemsPrices(ppvModules[j].PPVModule.m_sObjectCode, ppvModules[j].PPVModule.m_sObjectVirtualName);
                             hasValidPpv = hasValidPpv ? hasValidPpv : ppvModules[j].IsValidForPurchase;
                             // Get PPV price code according to country and currency (if exists on the request)
-                            if (!string.IsNullOrEmpty(countryCode) && (isValidCurrencyCode || GeneralPartnerConfigManager.Instance.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode)))
+                            if (!string.IsNullOrEmpty(countryCode) && (isValidCurrencyCode || PartnerConfigurationManager.GetGroupDefaultCurrency(m_nGroupID, ref currencyCode)))
                             {
                                 PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency
                                     (m_nGroupID, ppvModules[j].PPVModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);

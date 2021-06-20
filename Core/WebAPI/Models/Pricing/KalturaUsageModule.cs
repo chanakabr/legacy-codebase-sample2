@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -19,7 +17,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "id")]
         [JsonProperty("id")]
         [XmlElement(ElementName = "id", IsNullable = true)]
-        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
+        [SchemeProperty(ReadOnly = true)]
         public long? Id { get; set; }
 
         /// <summary>
@@ -28,7 +26,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
-        [SchemeProperty(InsertOnly = true)]
+        [SchemeProperty(ReadOnly = true)]
         public string Name { get; set; }
 
         /// <summary>
@@ -38,7 +36,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("maxViewsNumber")]
         [XmlElement(ElementName = "maxViewsNumber", IsNullable = true)]
         [OldStandardProperty("max_views_number")]
-        [SchemeProperty(InsertOnly = true, MinInteger = 0)]
+        [SchemeProperty(ReadOnly = true)]
         public int? MaxViewsNumber { get; set; }
 
         /// <summary>
@@ -48,7 +46,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("viewLifeCycle")]
         [XmlElement(ElementName = "viewLifeCycle", IsNullable = true)]
         [OldStandardProperty("view_life_cycle")]
-        [SchemeProperty(InsertOnly = true, MinInteger = 0)]
+        [SchemeProperty(ReadOnly = true)]
         public int? ViewLifeCycle { get; set; }
 
         /// <summary>
@@ -58,7 +56,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("fullLifeCycle")]
         [XmlElement(ElementName = "fullLifeCycle", IsNullable = true)]
         [OldStandardProperty("full_life_cycle")]
-        [SchemeProperty(InsertOnly = true, MinInteger = 0)]
+        [SchemeProperty(ReadOnly = true)]
         public int? FullLifeCycle { get; set; }
 
         /// <summary>
@@ -70,7 +68,7 @@ namespace WebAPI.Models.Pricing
         [OldStandardProperty("coupon_id")]
         [SchemeProperty(ReadOnly = true)]
         public int? CouponId { get; set; }
-
+                
         /// <summary>
         /// Time period during which the end user can waive his rights to cancel a purchase. When the time period is passed, the purchase can no longer be cancelled
         /// </summary>
@@ -100,28 +98,5 @@ namespace WebAPI.Models.Pricing
         [OldStandardProperty("is_offline_playback")]
         [SchemeProperty(ReadOnly = true)]
         public bool? IsOfflinePlayback { get; set; }
-
-        internal void ValidateForAdd()
-        {
-            if (string.IsNullOrEmpty(Name))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-
-            if (!FullLifeCycle.HasValue)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "fullLifeCycle");
-
-            if (!ViewLifeCycle.HasValue)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "viewLifeCycle");
-        }
-    }
-    public partial class KalturaUsageModuleListResponse : KalturaListResponse
-    {
-        /// <summary>
-        /// A list of usage modules
-        /// </summary>
-        [DataMember(Name = "objects")]
-        [JsonProperty("objects")]
-        [XmlArray(ElementName = "objects", IsNullable = true)]
-        [XmlArrayItem("item")]
-        public List<KalturaUsageModule> UsageModules { get; set; }
     }
 }

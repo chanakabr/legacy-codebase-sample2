@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using ApiLogic.Pricing.Handlers;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using Core.Pricing;
@@ -113,7 +112,7 @@ namespace TVPApiModule.Services
                 {
                     if (p_arrSubscriptionCodes != null && p_arrSubscriptionCodes.Length> 0)
                     {
-                        var res = SubscriptionManager.Instance.GetSubscriptions(m_groupID, new HashSet<long>(p_arrSubscriptionCodes.Select(s => long.Parse(s)).ToList()), string.Empty,
+                        var res = Core.Pricing.Module.GetSubscriptions(m_groupID, new HashSet<long>(p_arrSubscriptionCodes.Select(s => long.Parse(s)).ToList()), string.Empty,
                             string.Empty, string.Empty, null);
                         if (res != null)
                             arrSubs = res.Subscriptions;

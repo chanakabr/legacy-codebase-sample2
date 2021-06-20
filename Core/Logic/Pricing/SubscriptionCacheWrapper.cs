@@ -1,6 +1,5 @@
 ﻿using ApiObjects.Pricing;
 using ApiObjects.Response;
-using DAL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -126,7 +125,7 @@ namespace Core.Pricing
             if (productCodes != null && productCodes.Count > 0)
             {
                 Dictionary<string, Subscription> subscriptionsMapping = new Dictionary<string,Subscription>();
-                List<string> unfoundSubscriptions = PricingDAL.Instance.Get_SubscriptionsFromProductCodes(productCodes.Distinct().ToList(), originalBaseSubscription.GroupID).Keys.ToList();
+                List<string> unfoundSubscriptions = DAL.PricingDAL.Get_SubscriptionsFromProductCodes(productCodes.Distinct().ToList(), originalBaseSubscription.GroupID).Keys.ToList();
                 if (unfoundSubscriptions != null && unfoundSubscriptions.Count > 0)
                 {
                     List<string> cachedKeys = GetSubscriptionsCacheKey(unfoundSubscriptions, false, false);

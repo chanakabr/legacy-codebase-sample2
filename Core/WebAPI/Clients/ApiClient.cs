@@ -3785,6 +3785,43 @@ namespace WebAPI.Clients
             return true;
         }
 
+        internal KalturaDrmProfileListResponse GetDrmAdapters(int groupId)
+        {
+            KalturaDrmProfileListResponse result = new KalturaDrmProfileListResponse() { TotalCount = 0 };
+
+            DrmAdapterListResponse response = null;
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = Core.Api.Module.GetDrmAdapters(groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling api service. exception: {0}", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException(StatusCode.Error);
+            }
+
+            if (response.Status.Code != (int)StatusCode.OK)
+            {
+                throw new ClientException(response.Status);
+            }
+
+            if (response.Adapters.Count > 0)
+            {
+                result.TotalCount = response.Adapters.Count;
+                result.Adapters = AutoMapper.Mapper.Map<List<KalturaDrmProfile>>(response.Adapters);
+            }
+
+            return result;
+        }
+
         internal KalturaMediaConcurrencyRuleListResponse GetMediaConcurrencyRules(int groupId)
         {
             KalturaMediaConcurrencyRuleListResponse result = new KalturaMediaConcurrencyRuleListResponse();

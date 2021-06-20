@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -72,17 +71,5 @@ namespace WebAPI.Models.API
         [SchemeProperty(ReadOnly = true)]
         public string SharedSecret { get; set; }
 
-        public void ValidateForAdd()
-        {
-            if (string.IsNullOrWhiteSpace(Name))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-
-            if (string.IsNullOrWhiteSpace(AdapterUrl))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "adapterUrl");
-
-            if (string.IsNullOrWhiteSpace(SystemName))
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
-
-        }
     }
 }

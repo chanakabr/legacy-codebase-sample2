@@ -19,7 +19,7 @@ namespace ApiObjects.Pricing
             m_sName = sName;
         }
 
-        public string m_sCode { get; set; }
+        public string m_sCode;
         public string m_sName;
     }
 }
