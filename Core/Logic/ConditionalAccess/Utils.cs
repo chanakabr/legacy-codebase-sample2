@@ -8937,6 +8937,12 @@ namespace Core.ConditionalAccess
                         res = Utils.GetEndDateTime(subDuration, res);
                     }
                 }
+
+                //BEO-10088
+                if (res > sub.m_dEndDate)
+                {
+                    res = sub.m_dEndDate;
+                }
             }
 
             return res;
