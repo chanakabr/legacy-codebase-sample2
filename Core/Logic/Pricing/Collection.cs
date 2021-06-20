@@ -15,8 +15,8 @@ namespace Core.Pricing
         #region Member
         //The codes which identify which medias are relevant to the subscription (int Tvinci it is the channels)
         public BundleCodeContainer[] m_sCodes;
-        public DateTime m_dStartDate;
-        public DateTime m_dEndDate;
+        public DateTime? m_dStartDate;
+        public DateTime? m_dEndDate;
         public Int32[] m_sFileTypes;
         public PriceCode m_oCollectionPriceCode;
         public DiscountModule m_oExtDisountModule;

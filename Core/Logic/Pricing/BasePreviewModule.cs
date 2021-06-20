@@ -45,7 +45,7 @@ namespace Core.Pricing
         public virtual PreviewModule[] GetPreviewModulesArrayByGroupID(int nGroupID)
         {
             PreviewModule[] res = null;
-            DataTable dt = PricingDAL.Get_PreviewModulesByGroupID(nGroupID, true, true);
+            DataTable dt = PricingDAL.Instance.Get_PreviewModulesByGroupID(nGroupID, true, true);
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 res = new PreviewModule[dt.Rows.Count];

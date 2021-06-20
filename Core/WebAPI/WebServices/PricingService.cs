@@ -9,6 +9,8 @@ using KLogMonitor;
 using ApiObjects;
 using Core.Pricing;
 using ApiObjects.Pricing;
+using ApiLogic.Pricing.Handlers;
+
 namespace WebAPI.WebServices
 {
     public class PricingService : System.Web.Services.WebService, IPricingService
@@ -575,7 +577,8 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Pricing.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.GetPPVModuleList(nGroupID, sCountryCd2, sLanguageCode3, sDeviceName);
+                List<PPVModule> PPVModules = Core.Pricing.Module.GetPPVModuleList(nGroupID, sCountryCd2, sLanguageCode3, sDeviceName);
+                return PPVModules == null ? null : PPVModules.ToArray();
             }
             else
             {
@@ -764,7 +767,8 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Pricing.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.GetPPVModuleShrinkList(nGroupID, sCountryCd2, sLanguageCode3, sDeviceName);
+                List<PPVModule> pPVModules = Core.Pricing.Module.GetPPVModuleShrinkList(nGroupID, sCountryCd2, sLanguageCode3, sDeviceName);
+                return pPVModules == null? null : pPVModules.ToArray();
             }
             else
             {
@@ -1220,7 +1224,7 @@ namespace WebAPI.WebServices
                     }
                 }
 
-                return Core.Pricing.Module.GetSubscriptions(nGroupID, subIds, sCountryCd2, sLanguageCode3, sDeviceName, null, orderBy);
+                return SubscriptionManager.Instance.GetSubscriptions(nGroupID, subIds, sCountryCd2, sLanguageCode3, sDeviceName, null, orderBy);
             }
             else
             {

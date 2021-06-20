@@ -1,4 +1,5 @@
 ﻿using ApiLogic.Api.Managers;
+using ApiLogic.Pricing.Handlers;
 using APILogic.Api.Managers;
 using APILogic.ConditionalAccess;
 using APILogic.ConditionalAccess.Managers;
@@ -20,6 +21,7 @@ using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
+using Core.GroupManagers;
 using Core.Pricing;
 using Core.Recordings;
 using Core.Users;
@@ -39,7 +41,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Xml;
-using Core.GroupManagers;
 using TVinciShared;
 using Tvinic.GoogleAPI;
 
@@ -457,7 +458,7 @@ namespace Core.ConditionalAccess
                 }
             }
 
-            var res = Pricing.Module.GetSubscriptions(nGroupID, subIds, string.Empty, string.Empty, string.Empty, null);
+            var res = SubscriptionManager.Instance.GetSubscriptions(nGroupID, subIds, string.Empty, string.Empty, string.Empty, null);
             if (res != null)
                 return res.Subscriptions;
             return null;
@@ -1747,7 +1748,7 @@ namespace Core.ConditionalAccess
                 // Validate currencyCode if it was passed in the request
                 if (!string.IsNullOrEmpty(currencyCode))
                 {
-                    if (!PartnerConfigurationManager.IsValidCurrencyCode(groupId, currencyCode))
+                    if (!GeneralPartnerConfigManager.Instance.IsValidCurrencyCode(groupId, currencyCode))
                     {
                         theReason = PriceReason.InvalidCurrency;
                         return new Price();
@@ -1757,7 +1758,7 @@ namespace Core.ConditionalAccess
                 }
 
                 // Get price code according to country and currency (if exists on the request)
-                if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || PartnerConfigurationManager.GetGroupDefaultCurrency(groupId, ref currencyCode)))
+                if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || GeneralPartnerConfigManager.Instance.GetGroupDefaultCurrency(groupId, ref currencyCode)))
                 {
                     countryCode = Utils.GetIP2CountryCode(groupId, ip);
                     PriceCode priceCodeWithCurrency = Pricing.Module.GetPriceCodeDataByCountyAndCurrency(groupId, priceCode.m_nObjectID, countryCode, currencyCode);
@@ -2430,7 +2431,7 @@ namespace Core.ConditionalAccess
             // Validate currencyCode if it was passed in the request
             if (!string.IsNullOrEmpty(currencyCode))
             {
-                if (!PartnerConfigurationManager.IsValidCurrencyCode(nGroupID, currencyCode))
+                if (!GeneralPartnerConfigManager.Instance.IsValidCurrencyCode(nGroupID, currencyCode))
                 {
                     theReason = PriceReason.InvalidCurrency;
                     return new Price();
@@ -2477,7 +2478,7 @@ namespace Core.ConditionalAccess
             DateTime? dtEndDate = null;
             DateTime? dtDiscountEndDate = null;
 
-            if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || PartnerConfigurationManager.GetGroupDefaultCurrency(nGroupID, ref currencyCode)))
+            if (!string.IsNullOrEmpty(ip) && (isValidCurrencyCode || GeneralPartnerConfigManager.Instance.GetGroupDefaultCurrency(nGroupID, ref currencyCode)))
             {
                 countryCode = GetIP2CountryCode(nGroupID, ip);
                 PriceCode priceCodeWithCurrency = Core.Pricing.Module.GetPriceCodeDataByCountyAndCurrency(nGroupID, ppvModule.m_oPriceCode.m_nObjectID, countryCode, currencyCode);
@@ -4485,7 +4486,7 @@ namespace Core.ConditionalAccess
                         subIds.Add(long.Parse(item));
                     }
 
-                    SubscriptionsResponse subscriptionsResponse = Core.Pricing.Module.GetSubscriptions(groupId, subIds, String.Empty, String.Empty,
+                    SubscriptionsResponse subscriptionsResponse = SubscriptionManager.Instance.GetSubscriptions(groupId, subIds, String.Empty, String.Empty,
                         String.Empty, null);
 
                     if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions.Count() > 0)

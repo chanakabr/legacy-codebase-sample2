@@ -1,7 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Pricing;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -18,7 +21,6 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "percentage")]
         [JsonProperty("percentage")]
         [XmlElement(ElementName = "percentage", IsNullable = true)]
-        [SchemeProperty(ReadOnly=true)]
         public int Percentage { get; set; }
     }
 
@@ -68,6 +70,54 @@ namespace WebAPI.Models.Pricing
         [JsonProperty(PropertyName = "endDate")]
         [XmlElement(ElementName = "endDate")]
         public long EndtDate { get; set; }
+
+        /// <summary>
+        /// End date represented as epoch
+        /// </summary>
+        [DataMember(Name = "whenAlgoTimes")]
+        [JsonProperty(PropertyName = "whenAlgoTimes")]
+        [XmlElement(ElementName = "whenAlgoTimes")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ, MinInteger = 1)]
+        public int WhenAlgoTimes { get; set; }
+
+        /// <summary>
+        /// End date represented as epoch
+        /// </summary>
+        [DataMember(Name = "whenAlgoType")]
+        [JsonProperty(PropertyName = "whenAlgoType")]
+        [XmlElement(ElementName = "whenAlgoType")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
+        public int WhenAlgoType { get; set; }
+
+        public void ValidateForAdd()
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+
+            if (StartDate.Equals(0))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "startDate");
+
+            if (EndtDate.Equals(0))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "EndtDate");
+
+            if (MultiCurrencyDiscount.Count.Equals(0))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "multiCurrencyDiscount");
+
+            if (!Enum.IsDefined(typeof(WhenAlgoType), WhenAlgoType))
+                throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "WhenAlgoType", WhenAlgoType);
+
+            foreach (KalturaDiscount discount in MultiCurrencyDiscount)
+            {
+                if (string.IsNullOrWhiteSpace(discount.Currency))
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "currency"); 
+
+                if (discount.Amount > 0 && discount.Percentage > 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "amount", "Percentage");
+
+                if (discount.Amount == 0 && discount.Percentage == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "amount, Percentage");
+            }
+        }
     }
 
     public partial class KalturaDiscountDetailsListResponse : KalturaListResponse

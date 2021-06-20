@@ -1,8 +1,7 @@
-﻿using ApiLogic.Users.Managers;
+﻿using ApiLogic.Pricing.Handlers;
 using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Base;
-using ApiObjects.Response;
 using ApiObjects.Rules;
 using CachingProvider.LayeredCache;
 using Core.Api;
@@ -203,7 +202,7 @@ namespace APILogic.ConditionalAccess
 
         public bool IsMediaIncludedInSubscription(int groupId, long mediaId, HashSet<long> subscriptionIds)
         {
-            var subscriptionsChannels = Core.Pricing.Module.GetSubscriptions(groupId, subscriptionIds, string.Empty, string.Empty, string.Empty, null);
+            var subscriptionsChannels = SubscriptionManager.Instance.GetSubscriptions(groupId, subscriptionIds, string.Empty, string.Empty, string.Empty, null);
             if (subscriptionsChannels == null || subscriptionsChannels.Subscriptions == null) { return false; }
 
             HashSet<int> channelsIds = new HashSet<int>();

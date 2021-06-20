@@ -4750,7 +4750,7 @@ namespace Tvinci.Core.DAL
         public static DataSet InsertAssetStruct(int groupId, string name, List<KeyValuePair<string, string>> namesInOtherLanguages, string systemName,
                                                 List<KeyValuePair<long, int>> metaIdsToPriority, bool? isPredefined, long userId, string features,
                                                 long? connectingMetaId, long? connectedParentMetaId, string pluralName, long? parentId, bool isProgramStruct,
-                                                List<KeyValuePair<string, string>> dynamicData = null)
+                                                bool isLinear, List<KeyValuePair<string, string>> dynamicData = null)
         {
             StoredProcedure sp = new StoredProcedure("InsertAssetStruct");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -4770,6 +4770,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@ParentId", parentId);
             sp.AddParameter("@IsProgramStruct", isProgramStruct ? 1 : 0);
             sp.AddParameter("@DynamicData", (dynamicData != null && dynamicData.Count != 0) ? JsonConvert.SerializeObject(dynamicData): null);
+            sp.AddParameter("@IsLinear", isLinear ? 1 : 0);
 
             return sp.ExecuteDataSet();
 

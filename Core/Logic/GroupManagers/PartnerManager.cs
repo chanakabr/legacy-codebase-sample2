@@ -20,25 +20,31 @@ namespace Core.GroupManagers
         private const string ROUTING_PARAMETER_KEY = "partner_id";
 
         private static readonly Lazy<PartnerManager> LazyInstance = new Lazy<PartnerManager>(() => new PartnerManager(PartnerDal.Instance,
-            RabbitConnection.Instance, ApplicationConfiguration.Current, UserManager.Instance, RabbitConfigDal.Instance), LazyThreadSafetyMode.PublicationOnly);
+            RabbitConnection.Instance, ApplicationConfiguration.Current, UserManager.Instance, RabbitConfigDal.Instance, PricingDAL.Instance), LazyThreadSafetyMode.PublicationOnly);
         public static PartnerManager Instance => LazyInstance.Value;
 
         private static readonly KLogger Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private readonly IPartnerDal _partnerDal;
+        private readonly IPartnerRepository _pricingDal;
         private readonly IRabbitConnection _rabbitConnection;
         private readonly IApplicationConfiguration _applicationConfiguration;
         private readonly IUserManager _userManager;
         private readonly IRabbitConfigDal _rabbitConfigDal;
-        private static readonly List<KeyValuePair<long, long>> UsersModuleIdList = new List<KeyValuePair<long, long>>{
+        private static readonly List<KeyValuePair<long, long>> usersModuleIdList = new List<KeyValuePair<long, long>>{
             new KeyValuePair<long, long>(1, 1), new KeyValuePair<long, long>(2, 1)};
+        private static readonly List<KeyValuePair<long, long>> pricingModuleIdList = new List<KeyValuePair<long, long>>{
+            new KeyValuePair<long, long>(1, 1), new KeyValuePair<long, long>(2, 1), new KeyValuePair<long, long>(3, 1),
+        new KeyValuePair<long, long>(4, 1), new KeyValuePair<long, long>(5, 1), new KeyValuePair<long, long>(6, 1)};
 
-        public PartnerManager(IPartnerDal partnerDal, IRabbitConnection rabbitConnection, IApplicationConfiguration applicationConfiguration, IUserManager userManager, IRabbitConfigDal rabbitConfigDal)
+        public PartnerManager(IPartnerDal partnerDal, IRabbitConnection rabbitConnection, IApplicationConfiguration applicationConfiguration, 
+            IUserManager userManager, IRabbitConfigDal rabbitConfigDal, IPartnerRepository pricingDal)
         {
             _partnerDal = partnerDal;
             _rabbitConnection = rabbitConnection;
             _applicationConfiguration = applicationConfiguration;
             _userManager = userManager;
             _rabbitConfigDal = rabbitConfigDal;
+            _pricingDal = pricingDal;
         }
 
         public GenericResponse<Partner> AddPartner(Partner partner, PartnerSetup partnerSetup, long updaterId)
@@ -48,25 +54,37 @@ namespace Core.GroupManagers
             var existingPartners = GetPartners();
             if (existingPartners.HasObjects())
             {
-                if (partner.Id.HasValue)
+                if (partner.Id.HasValue && existingPartners.Objects.Exists(_ => _.Id == partner.Id.Value))
                 {
-                    if (existingPartners.Objects.Exists(_ => _.Id == partner.Id.Value)) return response;
+                    response.SetStatus(eResponseStatus.Error, $"Partner id:{partner.Id} already exist");
+                    return response;
                 }
 
-                if (existingPartners.Objects.Exists(_ => _.Name == partner.Name)) return response;
+                if (existingPartners.Objects.Exists(_ => _.Name == partner.Name))
+                {
+                    response.SetStatus(eResponseStatus.Error, $"Partner name:{partner.Name} already exist");
+                    return response;
+                }
             }
 
             var partnerId = _partnerDal.AddPartner(partner.Id, partner.Name, updaterId);
             if (partnerId <= 0) return response;
             partner.Id = partnerId;
 
-            var success = _partnerDal.SetupPartnerInUsersDb(partnerId, UsersModuleIdList, updaterId);
-            if (!success) return response; // TODO rollback?
-
+            if (!(_partnerDal.SetupPartnerInUsersDb(partnerId, usersModuleIdList, updaterId) &&
+                _pricingDal.SetupPartnerInPricingDb(partnerId, pricingModuleIdList, updaterId)))
+            {
+                response.SetStatus(eResponseStatus.Error, "Failed to create partner basic data");
+                return response; // TODO rollback?
+            }
+             
             var userId = _userManager.AddAdminUser(partnerId, partnerSetup.AdminUsername, partnerSetup.AdminPassword);
-               
-            if (userId <= 0) return response;
-
+            if (userId <= 0)
+            {
+                response.SetStatus(eResponseStatus.Error, $"Failed to add first admin user:{partnerSetup.AdminUsername} to partner");
+                return response;
+            }
+             
             // TODO - WHEN ERRORS HANDLE SOMEHOW
             CreateNewGroupRabbit(partnerId);
 

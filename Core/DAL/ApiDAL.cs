@@ -32,7 +32,20 @@ namespace DAL
         CatalogPartnerConfig GetCatalogPartnerConfig(int groupId);
     }
 
-    public class ApiDAL : ICatalogPartnerRepository, IVirtualAssetPartnerConfigRepository
+    public interface IDrmAdapterRepository
+    {
+        bool IsDrmAdapterExists(int groupId, long id);
+        bool DeleteDrmAdapter(int groupId, long id, long userId);
+        List<DrmAdapter> GetDrmAdapters(int groupID);
+        long InsertDrmAdapter(DrmAdapter drmAdapter, int groupId, long userId);
+    }
+
+    public interface IGeneralPartnerConfigRepository
+    {
+        DataSet GetGeneralPartnerConfig(int groupId);
+    }
+
+    public class ApiDAL : ICatalogPartnerRepository, IVirtualAssetPartnerConfigRepository, IDrmAdapterRepository, IGeneralPartnerConfigRepository
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
@@ -4508,7 +4521,7 @@ namespace DAL
             return adapterResponse;
         }
 
-        public static List<DrmAdapter> GetDrmAdapters(int groupID)
+        public List<DrmAdapter> GetDrmAdapters(int groupID)
         {
             List<DrmAdapter> res = new List<DrmAdapter>();
             try
@@ -4530,6 +4543,58 @@ namespace DAL
                 res = new List<DrmAdapter>();
             }
             return res;
+        }
+
+        public long InsertDrmAdapter(DrmAdapter drmAdapter, int groupId,  long userId)
+        {
+            try
+            {
+                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_DrmAdapter");
+                sp.SetConnectionKey("CONNECTION_STRING");
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@name", drmAdapter.Name);
+                sp.AddParameter("@adapterUrl", drmAdapter.AdapterUrl);
+                sp.AddParameter("@settings", drmAdapter.Settings);
+                sp.AddParameter("@externalIdentifier", drmAdapter.ExternalIdentifier);
+                sp.AddParameter("@sharedSecret", drmAdapter.SharedSecret);
+                sp.AddParameter("@updaterId", userId);
+                return sp.ExecuteReturnValue<long>();
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while InsertDrmAdapters , groupId: {groupId}, ex:{ex} ");
+                return 0;
+            }
+        }
+
+        public bool DeleteDrmAdapter(int groupId, long id, long userId)
+        {
+            try
+            {
+                var sp = new StoredProcedure("Delete_DrmAdapter");
+                sp.SetConnectionKey("CONNECTION_STRING");
+
+                sp.AddParameter("@id", id);
+                sp.AddParameter("@groupId", groupId);
+                sp.AddParameter("@updaterId", userId);
+                var result = sp.ExecuteReturnValue<int>() > 0;
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while Delete DrmAdapter, groupId: {groupId}, Id: {id}", ex);
+                return false;
+            }
+        }
+
+        public bool IsDrmAdapterExists(int groupId, long id)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Is_DrmAdapterExists");
+            sp.SetConnectionKey("CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@DrmId", id);
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
         public static int GetGroupDowngradePolicy(int groupId)

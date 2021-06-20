@@ -1,10 +1,15 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Pricing.Handlers;
+using ApiObjects;
+using ApiObjects.Pricing;
+using ApiObjects.Response;
+using Core.Pricing;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
@@ -32,6 +37,7 @@ namespace WebAPI.Controllers
         static public KalturaSubscriptionListResponse List(KalturaSubscriptionFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaSubscriptionListResponse response = new KalturaSubscriptionListResponse();
+
             bool isFilterValid = false;
 
             if (pager == null)
@@ -55,43 +61,66 @@ namespace WebAPI.Controllers
             long userId = Utils.Utils.GetUserIdFromKs();
             bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userId.ToString(), true);
             AssetSearchDefinition assetSearchDefinition = new AssetSearchDefinition() { Filter = filter.Ksql, UserId = userId, IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets };
-            
+            Func<GenericListResponse<Subscription>> getListFunc;
+            KalturaGenericListResponse<KalturaSubscription> result = null;
+
             try
             {
+                var coreFilter = AutoMapper.Mapper.Map<SubscriptionFilter>(filter);
+
                 if (filter.MediaFileIdEqual.HasValue)
                 {
                     // call client
-                    List<int> subscriptionsIds = ClientsManager.PricingClient().GetSubscriptionIDsContainingMediaFile(groupId, (int)filter.MediaFileIdEqual);
+                    Func<List<int>> getSubscriptionsIdsFunc = () => SubscriptionManager.Instance.GetSubscriptionIDsContainingMediaFile(groupId, (int)filter.MediaFileIdEqual);
+
+                    List<int> subscriptionsIds = ClientUtils.GetListIntResponseFromWS(getSubscriptionsIdsFunc);
 
                     // get subscriptions
                     if (subscriptionsIds != null && subscriptionsIds.Count > 0)
                     {
-                        response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, subscriptionsIds.Select(id => id.ToString()).ToArray(), udid, language, filter.OrderBy, assetSearchDefinition, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                        getListFunc = () =>
+                            SubscriptionManager.Instance.GetSubscriptionsData(groupId, new HashSet<long>(subscriptionsIds.Select(t => (long)t).ToList()),
+                                        udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+
+                        result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                     }
                 }
                 else if (!string.IsNullOrEmpty(filter.SubscriptionIdIn))
                 {
-                    // call client
-                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, filter.getSubscriptionIdIn(), udid, language, filter.OrderBy, assetSearchDefinition, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                    getListFunc = () =>
+                        SubscriptionManager.Instance.GetSubscriptionsData(groupId, new HashSet<long>(filter.getSubscriptionIdIn()),
+                                    udid, language, coreFilter.OrderBy, assetSearchDefinition, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+
+                    result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                 }
                 else if (!string.IsNullOrEmpty(filter.ExternalIdIn))
                 {
-                    // call client
-                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsDataByProductCodes(groupId, filter.getExternalIdIn(), filter.OrderBy);
+                    getListFunc = () =>
+                        SubscriptionManager.Instance.GetSubscriptionsByProductCodeList(groupId, filter.getExternalIdIn(), coreFilter.OrderBy);
+
+                    result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                 }
                 else if (!string.IsNullOrEmpty(filter.Ksql))
                 {
-                    // call client
-                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, null, udid, language, filter.OrderBy,
-                        assetSearchDefinition, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                    getListFunc = () =>
+                       SubscriptionManager.Instance.GetSubscriptionsData(groupId, null, udid, language, coreFilter.OrderBy, assetSearchDefinition,
+                            pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+
+                    result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                 }
                 else if (isFilterValid)
-                {                    
-                    response.Subscriptions = ClientsManager.PricingClient().GetSubscriptionsData(groupId, udid, language, filter.OrderBy, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                {
+                    getListFunc = () =>
+                      SubscriptionManager.Instance.GetSubscriptionsData(groupId, udid, language, coreFilter.OrderBy, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+
+                    result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                 }
 
-                response.TotalCount = response.Subscriptions != null ? response.Subscriptions.Count : 0;
-
+                if (result != null)
+                {
+                    response.Subscriptions = result.Objects;
+                    response.TotalCount = result.TotalCount;
+                }
             }
             catch (ClientException ex)
             {
@@ -185,5 +214,57 @@ namespace WebAPI.Controllers
             return response;
         }
 
+        /// <summary>
+        /// Internal API !!! Insert new subscription for partner
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="subscription">subscription object</param>
+        [Action("add")]
+        [ApiAuthorize]
+        static public KalturaSubscription Add(KalturaSubscription subscription)
+        {
+
+            KalturaSubscription result = null;
+            //subscription.ValidateForAdd();
+            var contextData = KS.GetContextData();
+
+            Func<Subscription, GenericResponse<Subscription>> insertSubscriptionFunc = (Subscription subscriptionToInsert) =>
+                      SubscriptionManager.Instance.Add(contextData, subscriptionToInsert);
+
+            result = ClientUtils.GetResponseFromWS<KalturaSubscription, Subscription>(subscription, insertSubscriptionFunc);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Internal API !!! Delete subscription 
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="id">Subscription id</param>
+        [Action("delete")]
+        [ApiAuthorize]
+        //[Throws(eResponseStatus.SubscriptionNotExist)]
+        static public bool Delete(long id)
+        {
+            bool result = false;
+
+            var contextData = KS.GetContextData();
+
+            try
+            {
+                Func<Status> delete = () => SubscriptionManager.Instance.Delete(contextData, id);
+
+                result = ClientUtils.GetResponseStatusFromWS(delete);
+            }
+
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
     }
 }

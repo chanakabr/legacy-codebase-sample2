@@ -478,27 +478,6 @@ namespace Core.Users
             return res;
         }
 
-        public static string GetMinPeriodDescription(int id)
-        {
-            string res = null;
-            Dictionary<string, string> minPeriods;
-            if (CachingManager.CachingManager.Exists("MinPeriods"))
-            {
-                minPeriods = CachingManager.CachingManager.GetCachedData("MinPeriods") as Dictionary<string, string>;
-            }
-            else
-            {
-                minPeriods = Tvinci.Core.DAL.CatalogDAL.GetMinPeriods();
-                if (minPeriods != null)
-                    CachingManager.CachingManager.SetCachedData("MinPeriods", minPeriods, 604800, CacheItemPriority.Default, 0, false);
-            }
-
-            if (minPeriods != null)
-                minPeriods.TryGetValue(id.ToString(), out res);
-
-            return res;
-        }
-
         static public void GetContentInfo(ref string subject, string key, Dictionary<string, string> info)
         {
             if (info.ContainsKey(key))

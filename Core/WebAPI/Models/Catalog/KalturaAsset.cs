@@ -100,6 +100,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "metas")]
         [JsonProperty(PropertyName = "metas")]
         [XmlElement("metas", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public SerializableDictionary<string, KalturaValue> Metas { get; set; }
 
         /// <summary>
@@ -108,6 +109,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "tags")]
         [JsonProperty(PropertyName = "tags")]
         [XmlElement("tags", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public SerializableDictionary<string, KalturaMultilingualStringValueArray> Tags { get; set; }
 
         /// <summary>
@@ -116,6 +118,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "relatedEntities")]
         [JsonProperty(PropertyName = "relatedEntities")]
         [XmlElement("relatedEntities", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public SerializableDictionary<string, KalturaRelatedEntityArray> RelatedEntities { get; set; }
 
         /// <summary>
@@ -124,6 +127,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "startDate")]
         [JsonProperty(PropertyName = "startDate")]
         [XmlElement(ElementName = "startDate", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public long? StartDate { get; set; }
 
         /// <summary>
@@ -132,6 +136,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "endDate")]
         [JsonProperty(PropertyName = "endDate")]
         [XmlElement(ElementName = "endDate", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public long? EndDate { get; set; }
 
         /// <summary>

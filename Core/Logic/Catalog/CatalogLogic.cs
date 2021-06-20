@@ -5538,7 +5538,7 @@ namespace Core.Catalog
             if (domainMediaMark.devices != null)
             {
                 int finishedPercentThreshold = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
-                var generalPartnerConfig = PartnerConfigurationManager.Instance.GetGeneralPartnerConfig(groupID);
+                var generalPartnerConfig = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupID);
                 if (generalPartnerConfig != null && generalPartnerConfig.FinishedPercentThreshold.HasValue)
                 {
                     finishedPercentThreshold = generalPartnerConfig.FinishedPercentThreshold.Value;
@@ -9393,7 +9393,7 @@ namespace Core.Catalog
                 var mediaMarkLogs = mediaMarkLogsDictionary.Values;
 
                 int finishedPercent = CatalogLogic.FINISHED_PERCENT_THRESHOLD;
-                var generalPartnerConfig = PartnerConfigurationManager.Instance.GetGeneralPartnerConfig(groupId);
+                var generalPartnerConfig = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId);
                 if (generalPartnerConfig != null && generalPartnerConfig.FinishedPercentThreshold.HasValue)
                 {
                     finishedPercent = generalPartnerConfig.FinishedPercentThreshold.Value;

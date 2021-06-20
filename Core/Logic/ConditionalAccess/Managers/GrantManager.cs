@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Pricing.Handlers;
+using ApiObjects;
 using ApiObjects.Billing;
 using ApiObjects.ConditionalAccess;
 using ApiObjects.Pricing;
@@ -705,7 +706,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                SubscriptionsResponse subscriptionsResponse = Pricing.Module.GetSubscriptions(groupId, subscriptionIds, string.Empty, string.Empty, string.Empty,
+                SubscriptionsResponse subscriptionsResponse = SubscriptionManager.Instance.GetSubscriptions(groupId, subscriptionIds, string.Empty, string.Empty, string.Empty,
                     new AssetSearchDefinition() { UserId = long.Parse(userId), IsAllowedToViewInactiveAssets = true });
 
                 if (subscriptionsResponse != null &&
