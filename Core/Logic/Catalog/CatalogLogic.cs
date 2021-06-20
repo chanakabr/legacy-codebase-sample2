@@ -5945,7 +5945,12 @@ namespace Core.Catalog
             if (string.IsNullOrEmpty(externalChannel.FilterExpression) && string.IsNullOrEmpty(request.filterQuery))
             {
                 searchResultsList = GetValidateRecommendationsAssets(recommendations, request.m_nGroupID);
-                totalItems = searchResultsList.Count;
+
+                if (totalItems == 0 ||
+                    (recommendations.Count != searchResultsList.Count && totalItems <= recommendations.Count)) //BEO-10244
+                {
+                    totalItems = searchResultsList.Count;
+                }
             }
             // If there is, go to ES and perform further filter
             else
@@ -6342,7 +6347,12 @@ namespace Core.Catalog
                 }
 
                 searchResultsList = GetValidateRecommendationsAssets(recommendations, request.m_nGroupID);
-                totalItems = searchResultsList.Count;
+
+                if (totalItems == 0 ||
+                    (recommendations.Count != searchResultsList.Count && totalItems <= recommendations.Count)) //BEO-10244
+                {
+                    totalItems = searchResultsList.Count;
+                }
             }
             return status;
         }
