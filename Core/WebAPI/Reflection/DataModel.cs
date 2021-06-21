@@ -10405,6 +10405,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("partner", "add", false);
                             return PartnerController.Add((KalturaPartner) methodParams[0], (KalturaPartnerSetup) methodParams[1]);
                             
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("partner", "delete", false);
+                            return PartnerController.Delete((int) methodParams[0]);
+                            
                         case "externallogin":
                             RolesManager.ValidateActionPermitted("partner", "externalLogin", false);
                             return PartnerController.ExternalLogin();
@@ -18028,6 +18032,13 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPartnerSetup),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
                             });
                             return ret;
                             

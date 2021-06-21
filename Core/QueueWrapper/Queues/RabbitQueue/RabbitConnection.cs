@@ -9,13 +9,14 @@ using KLogMonitor;
 using System.Reflection;
 using ConfigurationManager;
 using System.Collections.Concurrent;
+using QueueWrapper.Enums;
 
 namespace QueueWrapper
 {
     public interface IRabbitConnection
     {
-        bool AddRoutingKeyToQueue(RabbitConfigurationData configuration);
         bool InitializeRabbitInstance(RabbitConfigurationData configuration, QueueAction action, ref int retryCount, out IConnection connection);
+        bool IterateRoutingKeyQueue(RabbitConfigurationData configuration, RoutingKeyQueueAction action);
     }
 
     public class RabbitConnection : IDisposable, IRabbitConnection
@@ -535,11 +536,11 @@ namespace QueueWrapper
             return result;
         }
 
-        public bool AddRoutingKeyToQueue(RabbitConfigurationData configuration)
+        public bool IterateRoutingKeyQueue(RabbitConfigurationData configuration, RoutingKeyQueueAction action)
         {
             if (!IsQueueExist(configuration))
             {
-                log.Error("AddRoutingKeyToQueue: Error, queue not exists!");
+                log.Error("IterateRoutingKeyQueue: Error, queue not exists!");
                 return false;
             }
 
@@ -550,8 +551,20 @@ namespace QueueWrapper
                 {
                     var model = GetModel(configuration.Host, connection);
                     QueueDeclareOk res = model.QueueDeclare(configuration.QueueName, true, false, false, null);
-                    model.QueueBind(configuration.QueueName, "scheduled_tasks", configuration.RoutingKey);
 
+                   switch (action)
+                    {
+                        case RoutingKeyQueueAction.Bind:
+                        {
+                            model.QueueBind(configuration.QueueName, "scheduled_tasks", configuration.RoutingKey);
+                            break;
+                        }
+                        case RoutingKeyQueueAction.Unbind:
+                        {
+                            model.QueueUnbind(configuration.QueueName, "scheduled_tasks", configuration.RoutingKey);
+                            break;
+                        }
+                    }
                     return res != null && res.QueueName == configuration.QueueName;
                 }
 
@@ -559,7 +572,7 @@ namespace QueueWrapper
             }
             catch (Exception ex)
             {
-                log.Error("AddRoutingKeyToQueue: Error - " + ex);
+                log.Error("IterateRoutingKeyQueue: Error - " + ex);
                 return false;
             }
         }

@@ -74,6 +74,22 @@ namespace WebAPI.Controllers
             return result;
         }
 
-        // TODO - DELETE\ROLLBACK
+        /// <summary>
+        /// Internal API !!! Delete Partner
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="id">Partner id</param>
+        [Action("delete")]
+        [Throws(eResponseStatus.PartnerDoesNotExist)]
+        [ApiAuthorize]
+        static public bool Delete(int id)
+        {
+            var contextData = KS.GetContextData();
+            Func<Status> deleteGroupFunc = () => GroupsManager.Instance.DeleteBaseConfiguration(id);
+            Func<Status> delete = () => PartnerManager.Instance.Delete(contextData.UserId.Value, id);
+
+            return ClientUtils.GetResponseStatusFromWS(deleteGroupFunc) && ClientUtils.GetResponseStatusFromWS(delete);
+        }
     }
 }

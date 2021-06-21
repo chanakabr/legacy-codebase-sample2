@@ -568,6 +568,7 @@ namespace ApiObjects.Response
         DrmAdapterNotExist = 9037,
         PreviewModuleNotExist = 9038,
         CollectionNotExist = 9039,
+        PartnerDoesNotExist = 9040,
 
         #endregion
 

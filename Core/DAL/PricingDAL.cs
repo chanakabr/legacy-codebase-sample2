@@ -80,6 +80,7 @@ namespace DAL
     public interface IPartnerRepository
     {
         bool SetupPartnerInPricingDb(long partnerId, List<KeyValuePair<long, long>> moduleIds, long updaterId);
+        bool DeletePartnerInPricingDb(long partnerId, long updaterId);
     }
 
     public class PricingDAL : ICampaignRepository, IPriceDetailsRepository, IPricePlanRepository, IModuleManagerRepository, IDiscountDetailsRepository, IPreviewModuleRepository, ICollectionRepository, IPartnerRepository
@@ -315,6 +316,16 @@ namespace DAL
             sp.AddParameter("@groupId", partnerId);
             sp.AddParameter("@updaterId", updaterId);
             sp.AddKeyValueListParameter("@moudleIds", moduleIds, "idKey", "value");
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public bool DeletePartnerInPricingDb(long partnerId, long updaterId)
+        {
+            var sp = new StoredProcedure("Delete_GroupBasicData");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", partnerId);
+            sp.AddParameter("@updaterId", updaterId);
 
             return sp.ExecuteReturnValue<int>() > 0;
         }

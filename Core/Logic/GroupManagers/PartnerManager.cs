@@ -6,11 +6,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using ApiLogic.Users.Managers;
 using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Response;
 using ConfigurationManager;
 using DAL;
 using KLogMonitor;
 using QueueWrapper;
+using QueueWrapper.Enums;
 using QueueWrapper.Queues;
 
 namespace Core.GroupManagers
@@ -18,7 +20,6 @@ namespace Core.GroupManagers
     public class PartnerManager
     {
         private const string ROUTING_PARAMETER_KEY = "partner_id";
-
         private static readonly Lazy<PartnerManager> LazyInstance = new Lazy<PartnerManager>(() => new PartnerManager(PartnerDal.Instance,
             RabbitConnection.Instance, ApplicationConfiguration.Current, UserManager.Instance, RabbitConfigDal.Instance, PricingDAL.Instance), LazyThreadSafetyMode.PublicationOnly);
         public static PartnerManager Instance => LazyInstance.Value;
@@ -86,7 +87,7 @@ namespace Core.GroupManagers
             }
              
             // TODO - WHEN ERRORS HANDLE SOMEHOW
-            CreateNewGroupRabbit(partnerId);
+            IterateRabbitQueues(partnerId, RoutingKeyQueueAction.Bind);
 
             response.SetStatus(eResponseStatus.OK);
             response.Object = partner;
@@ -110,7 +111,42 @@ namespace Core.GroupManagers
             return new GenericListResponse<Partner>(Status.Ok, new List<Partner>(0));
         }
 
-        private void CreateNewGroupRabbit(long groupId)
+        public Status Delete(long updaterId, int id)
+        {
+            Status result = new Status();
+
+            if (!_partnerDal.IsPartnerExists(id))
+            {
+                Log.Error($"Error while Delete Partner BasicData. updaterId: {updaterId}.");
+                result.Set(eResponseStatus.PartnerDoesNotExist, $"Partner {id} does not exist");
+                return result;
+            }
+
+            IterateRabbitQueues(id, RoutingKeyQueueAction.Unbind);
+
+            if (!_pricingDal.DeletePartnerInPricingDb(id, updaterId))
+            {
+                Log.Error($"Error while delete partner pricing basicData. updaterId: {updaterId}.");
+            }
+
+            if (!_partnerDal.DeletePartnerInUsersDb(id, updaterId))
+            {
+                Log.Error($"Error while delete partner users basicData. updaterId: {updaterId}.");
+            }
+
+            if (!_partnerDal.DeletePartner(id, updaterId))
+            {
+                Log.Error($"Error while Delete Partner. updaterId: {updaterId}.");
+                result.Set(eResponseStatus.Error);
+                return result;
+            }
+
+            result.Set(eResponseStatus.OK);
+
+            return result;
+        }
+
+        private void IterateRabbitQueues(long groupId, RoutingKeyQueueAction action)
         {
             // Get Queue list and routing key
             Dictionary<string, string> rabbitRoutingKetWithQueueNameDic = _rabbitConfigDal.GetRabbitRoutingBindings();
@@ -127,7 +163,7 @@ namespace Core.GroupManagers
             if (configurationDataForInitialize == null)
             {
                 Log.Error("Error while getting queue TCM configuration");
-                throw new Exception("CreateNewGroupRabbit error");
+                throw new Exception("InitializeRabbitInstance error");
             }
 
             // Need to Initialize before so not all the parallel will try to Initialize at the same time 
@@ -149,19 +185,19 @@ namespace Core.GroupManagers
                     if (configurationData == null)
                     {
                         Log.Error("Error while getting queue TCM configuration");
-                        throw new Exception("CreateNewGroupRabbit error");
+                        throw new Exception("GetRabbitConfigurationData error");
                     }
 
                     configurationData.QueueName = queueName;
                     configurationData.RoutingKey = routingKey.Replace(ROUTING_PARAMETER_KEY, groupId.ToString()).Trim();
 
-                    if (_rabbitConnection.AddRoutingKeyToQueue(configurationData))
+                    if (_rabbitConnection.IterateRoutingKeyQueue(configurationData, action))
                     {
-                        Log.Debug($"Succeeded to add queue: {configurationData.RoutingKey}");
+                        Log.Debug($"Succeeded to iterate Rabbit queue: {configurationData.RoutingKey}");
                     }
                     else
                     {
-                        Log.Error($"Failed to add queue: {configurationData.RoutingKey}");
+                        Log.Error($"Failed to iterate Rabbit queue: {configurationData.RoutingKey}");
                         throw new Exception("CreateNewGroupRabbit error");
                     }
                 }

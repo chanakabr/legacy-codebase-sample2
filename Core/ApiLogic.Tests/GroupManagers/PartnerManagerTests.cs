@@ -14,6 +14,9 @@ using ApiLogic.Users.Managers;
 using FluentAssertions;
 using QueueWrapper.Queues;
 using RabbitMQ.Client;
+using ApiObjects.Base;
+using System.Collections;
+using QueueWrapper.Enums;
 
 namespace ApiLogic.Tests.GroupManagers
 {
@@ -33,6 +36,8 @@ namespace ApiLogic.Tests.GroupManagers
         {
             {"tasks.cdr_notification", "CDR_NOTIFICATION\\partner_id"}
         };
+
+        private readonly Dictionary<string, string> _rabbitWithoutBindings = new Dictionary<string, string>(0);
 
         [Test]
         public void CheckGetPartnersWithoutFilter()
@@ -105,7 +110,7 @@ namespace ApiLogic.Tests.GroupManagers
 
             var rabbitConnection = new Mock<IRabbitConnection>();
             const bool canAddRoutingKey = false;
-            rabbitConnection.Setup(x => x.AddRoutingKeyToQueue(It.IsAny<RabbitConfigurationData>()))
+            rabbitConnection.Setup(x => x.IterateRoutingKeyQueue(It.IsAny<RabbitConfigurationData>(), It.IsAny<RoutingKeyQueueAction>()))
                 .Returns(canAddRoutingKey);
 
             var manager = new PartnerManager(partnerDal.Object, rabbitConnection.Object,
@@ -196,7 +201,7 @@ namespace ApiLogic.Tests.GroupManagers
             applicationConfiguration.Setup(x => x.RabbitConfiguration).Returns(_rabbitConfiguration);
 
             var rabbitConnection = new Mock<IRabbitConnection>();
-            rabbitConnection.Setup(x => x.AddRoutingKeyToQueue(It.IsAny<RabbitConfigurationData>())).Returns(true);
+            rabbitConnection.Setup(x => x.IterateRoutingKeyQueue(It.IsAny<RabbitConfigurationData>(), It.IsAny<RoutingKeyQueueAction>())).Returns(true);
             int _ = 0;
             IConnection __;
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
@@ -207,10 +212,78 @@ namespace ApiLogic.Tests.GroupManagers
             var partnerResponse = manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
                 fixture.Create<ApiObjects.PartnerSetup>(), fixture.Create<long>());
             partnerResponse.HasObject().Should().BeTrue();
-            rabbitConnection.Verify(x => x.AddRoutingKeyToQueue(It.Is<RabbitConfigurationData>(
+            rabbitConnection.Verify(x => x.IterateRoutingKeyQueue(It.Is<RabbitConfigurationData>(
                 c => c.Password == "ggg" && c.Username == "admin" && c.Port == "0"
                      && c.VirtualHost == "/" && c.ExchangeType == "topic"
-                     && c.Exchange == "scheduled_tasks" && c.RoutingKey == "CDR_NOTIFICATION\\3")), Times.Once());
+                     && c.Exchange == "scheduled_tasks" && c.RoutingKey == "CDR_NOTIFICATION\\3"), It.IsAny<RoutingKeyQueueAction>()), Times.Once());
+            Verify(partnerDal);
+            Verify(userManager);
+            Verify(rabbitConfigDal);
+            Verify(applicationConfiguration);
+            Verify(rabbitConnection);
+        }
+
+        [TestCaseSource(nameof(DeleteCases))]
+        public void CheckDelete(eResponseStatus expectedCode, bool deletePartner, bool isPartnerExsits)
+        {
+            var fixture = new Fixture();
+            
+            var partnerDal = new Mock<IPartnerDal>();
+            partnerDal.Setup(x => x.DeletePartnerInUsersDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            partnerDal.Setup(x => x.IsPartnerExists(It.IsAny<int>())).Returns(isPartnerExsits);
+            partnerDal.Setup(x => x.DeletePartner(It.IsAny<int>(), It.IsAny<long>())).Returns(deletePartner);
+            var userManager = new Mock<IUserManager>();
+
+            var applicationConfiguration = new Mock<IApplicationConfiguration>();
+            applicationConfiguration.Setup(x => x.RabbitConfiguration).Returns(_rabbitConfiguration);
+
+            var rabbitConfigDal = new Mock<IRabbitConfigDal>();
+            rabbitConfigDal.Setup(x => x.GetRabbitRoutingBindings()).Returns(_rabbitBindings);
+
+            var rabbitConnection = new Mock<IRabbitConnection>();
+            rabbitConnection.Setup(x => x.IterateRoutingKeyQueue(It.IsAny<RabbitConfigurationData>(), It.IsAny<RoutingKeyQueueAction>())).Returns(true);
+            int _ = 0;
+            IConnection __;
+            rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
+
+            var manager = new PartnerManager(partnerDal.Object, rabbitConnection.Object,
+                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object);
+
+            var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
+
+            Assert.That(response.Code, Is.EqualTo((int)expectedCode));
+        }
+
+        [Test]
+        public void DeleteSuccess()
+        {
+            var fixture = new Fixture();
+
+            var partnerDal = new Mock<IPartnerDal>();
+            partnerDal.Setup(x => x.DeletePartnerInUsersDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            partnerDal.Setup(x => x.IsPartnerExists(It.IsAny<int>())).Returns(true);
+            partnerDal.Setup(x => x.DeletePartner(It.IsAny<int>(), It.IsAny<long>())).Returns(true);
+            var userManager = new Mock<IUserManager>();
+
+            var applicationConfiguration = new Mock<IApplicationConfiguration>();
+            applicationConfiguration.Setup(x => x.RabbitConfiguration).Returns(_rabbitConfiguration);
+
+            var rabbitConfigDal = new Mock<IRabbitConfigDal>();
+
+            rabbitConfigDal.Setup(x => x.GetRabbitRoutingBindings()).Returns(_rabbitBindings);
+
+            var rabbitConnection = new Mock<IRabbitConnection>();
+            rabbitConnection.Setup(x => x.IterateRoutingKeyQueue(It.IsAny<RabbitConfigurationData>(), It.IsAny<RoutingKeyQueueAction>())).Returns(true);
+            int _ = 0;
+            IConnection __;
+            rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
+
+            var manager = new PartnerManager(partnerDal.Object, rabbitConnection.Object,
+                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object);
+
+            var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
+
+            Assert.That(response.Code, Is.EqualTo((int)eResponseStatus.OK));
             Verify(partnerDal);
             Verify(userManager);
             Verify(rabbitConfigDal);
@@ -222,6 +295,12 @@ namespace ApiLogic.Tests.GroupManagers
         {
             m.VerifyAll();
             m.VerifyNoOtherCalls();
+        }
+
+        private static IEnumerable DeleteCases()
+        {
+            yield return new TestCaseData(eResponseStatus.PartnerDoesNotExist, true, false).SetName("DeletePartnerNotExist");
+            yield return new TestCaseData(eResponseStatus.Error, false, true).SetName("DeletePartnerFailed");
         }
     }
 }

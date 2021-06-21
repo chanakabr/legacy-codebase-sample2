@@ -14,6 +14,9 @@ namespace DAL
         int AddPartner(int? partnerId, string partnerName, long updaterId);
         bool SetupPartnerInUsersDb(long partnerId, List<KeyValuePair<long, long>> moduleIds, long updaterId);
         List<Partner> GetPartners();
+        bool IsPartnerExists(int partnerId);
+        bool DeletePartner(int partnerId, long updaterId);
+        bool DeletePartnerInUsersDb(long partnerId, long updaterId);
     }
 
     public class PartnerDal : IPartnerDal
@@ -52,6 +55,17 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
+        public bool DeletePartnerInUsersDb(long partnerId, long updaterId)
+        {
+            var sp = new StoredProcedure("Delete_GroupBasicData");
+            sp.SetConnectionKey(USERS_CONNECTION_STRING);
+            sp.AddParameter("@groupId", partnerId);
+            sp.AddParameter("@updaterId", updaterId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+
         public List<Partner> GetPartners()
         {
             List<Partner> returnList = new List<Partner>();
@@ -71,6 +85,25 @@ namespace DAL
             }
 
             return returnList;
+        }
+
+        public bool DeletePartner(int partnerId, long updaterId)
+        {
+            var sp = new StoredProcedure("Delete_Group");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@Id", partnerId);
+            sp.AddParameter("@updaterId", updaterId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public bool IsPartnerExists(int partnerId)
+        {
+            var sp = new StoredProcedure("Is_GroupExists");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@Id", partnerId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
     }
 }
