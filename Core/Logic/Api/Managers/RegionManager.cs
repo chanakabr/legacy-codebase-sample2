@@ -41,8 +41,8 @@ namespace ApiLogic.Api.Managers
                 // check if region in use
                 if (DomainDal.IsRegionInUse(groupId, id))
                 {
-                    log.Error($"Region in use cannot be deleted. groupId:{groupId}, id:{id}");
-                    return new Status((int)eResponseStatus.CannotDeleteRegionInUse, "Region in use cannot be deleted");
+                    log.Error($"Region in use by household and cannot be deleted. groupId:{groupId}, id:{id}");
+                    return new Status((int)eResponseStatus.CannotDeleteRegionInUse, "Region in use by household and cannot be deleted");
                 }
 
                 // TODO: what if the region is a parent??
@@ -435,7 +435,7 @@ namespace ApiLogic.Api.Managers
                                 {
                                     item.linearChannels = new List<KeyValuePair>();
                                 }
-                                
+
                                 if (filter.ExclusiveLcn)
                                 {
                                     var parentChannelIds = regionsCache.Regions[item.parentId].linearChannels.Select(x => x.key);
