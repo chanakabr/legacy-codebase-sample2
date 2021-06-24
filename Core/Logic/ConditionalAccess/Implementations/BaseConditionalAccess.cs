@@ -15227,6 +15227,12 @@ namespace Core.ConditionalAccess
                     DateTime? protectedUntilDate = null;
                     long protectedUntilEpoch = 0;
 
+                    if (string.IsNullOrEmpty(metaDataStr))
+                    {
+                        var externalRecordingToUpdate = recordingToUpdate as ExternalRecording;
+                        metaDataStr = externalRecordingToUpdate.MetaDataAsJson;
+                    } 
+
                     if (recordingToUpdate.IsProtected)
                     {
                         protectedUntilDate = DateTime.UtcNow.AddYears(100);
