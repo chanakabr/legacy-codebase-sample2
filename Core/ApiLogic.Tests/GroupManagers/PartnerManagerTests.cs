@@ -74,9 +74,9 @@ namespace ApiLogic.Tests.GroupManagers
                 Mock.Of<IApplicationConfiguration>(), Mock.Of<IUserManager>(), Mock.Of<IRabbitConfigDal>(),
                 Mock.Of<IPartnerRepository>());
 
-            var response = manager.GetPartners(new List<long> {partner1.Id.Value, partner2.Id.Value});
+            var response = manager.GetPartners(new List<long> { partner1.Id.Value, partner2.Id.Value });
 
-            response.Objects.Should().BeEquivalentTo(new List<ApiObjects.Partner> {partner1, partner2});
+            response.Objects.Should().BeEquivalentTo(new List<ApiObjects.Partner> { partner1, partner2 });
             response.Status.Should().BeEquivalentTo(Status.Ok);
             response.TotalItems.Should().Be(2);
         }
@@ -158,13 +158,13 @@ namespace ApiLogic.Tests.GroupManagers
         {
             var fixture = new Fixture();
             var partnerDal = new Mock<IPartnerDal>();
-            var existingPartner = new ApiObjects.Partner {Id = existingId, Name = existingName}; 
-            partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner>{existingPartner});
+            var existingPartner = new ApiObjects.Partner { Id = existingId, Name = existingName };
+            partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner> { existingPartner });
             var manager = new PartnerManager(partnerDal.Object, Mock.Of<IRabbitConnection>(),
                 Mock.Of<IApplicationConfiguration>(), Mock.Of<IUserManager>(), Mock.Of<IRabbitConfigDal>(),
                 Mock.Of<IPartnerRepository>());
 
-            var partner = new ApiObjects.Partner {Id = 1, Name = "Abc"};
+            var partner = new ApiObjects.Partner { Id = 1, Name = "Abc" };
             var partnerResponse = manager.AddPartner(partner,
                 fixture.Create<ApiObjects.PartnerSetup>(), fixture.Create<long>());
             partnerDal.VerifyAll();
@@ -227,7 +227,7 @@ namespace ApiLogic.Tests.GroupManagers
         public void CheckDelete(eResponseStatus expectedCode, bool deletePartner, bool isPartnerExsits)
         {
             var fixture = new Fixture();
-            
+
             var partnerDal = new Mock<IPartnerDal>();
             partnerDal.Setup(x => x.DeletePartnerInUsersDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             partnerDal.Setup(x => x.IsPartnerExists(It.IsAny<int>())).Returns(isPartnerExsits);
@@ -246,8 +246,10 @@ namespace ApiLogic.Tests.GroupManagers
             IConnection __;
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
 
+            var pricingDal = new Mock<IPartnerRepository>();
+
             var manager = new PartnerManager(partnerDal.Object, rabbitConnection.Object,
-                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object);
+                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object, pricingDal.Object);
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
 
@@ -278,8 +280,10 @@ namespace ApiLogic.Tests.GroupManagers
             IConnection __;
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
 
-            var manager = new PartnerManager(partnerDal.Object, rabbitConnection.Object,
-                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object);
+            var pricingDal = new Mock<IPartnerRepository>();
+
+            var manager = new PartnerManager(partnerDal.Object, rabbitConnection.Object, 
+                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object, pricingDal.Object);
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
 
