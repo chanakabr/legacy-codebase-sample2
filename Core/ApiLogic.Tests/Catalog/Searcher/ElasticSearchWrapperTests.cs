@@ -24,7 +24,7 @@ namespace ApiLogic.Tests.Catalog.Searcher
         [SetUp]
         public void SetUp()
         {
-            ApplicationConfiguration.Current.ElasticSearchConfiguration = new MockElasticSearchConfiguration();
+            ApplicationConfiguration.Current._elasticSearchConfiguration = new MockElasticSearchConfiguration();
         }
 
         [TestCaseSource(nameof(TestCases))]

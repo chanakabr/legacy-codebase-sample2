@@ -75,9 +75,9 @@ namespace Core.Api.Managers
 
                     if (isGeoAvailabilityWindowingEnabled)
                     {
-                        List<AssetRule> rules = pair.Value;                        
+                        List<AssetRule> rules = pair.Value;
                         log.DebugFormat("Starting to do action on {0} asset rules for groupId = {1}", rules.Count, groupId);
-                        
+
                         int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                         if (maxDegreeOfParallelism == 0)
                         {
@@ -90,12 +90,12 @@ namespace Core.Api.Managers
                         Parallel.ForEach(rules, options, (rule) =>
                         {
                             contextData.Load();
-                            assetIds.AddRange(DoActionOnRule(rule, groupId));                            
+                            assetIds.AddRange(DoActionOnRule(rule, groupId));
 
                         });
-                        
+
                         if (assetIds?.Count > 0)
-                        {                                                        
+                        {
                             List<int> distinctAssetIds = assetIds.Distinct().ToList();
                             int numberOfDistinctAssetIds = distinctAssetIds.Count;
                             assetIds = null;
@@ -1179,7 +1179,7 @@ namespace Core.Api.Managers
                                 // If there is a match, add rule to list
                                 if (assets != null && assets.Count() > 0)
                                 {
-                                    assetRules.Add(currAssetRuleWithKsql);                                    
+                                    assetRules.Add(currAssetRuleWithKsql);
                                 }
                             });
 

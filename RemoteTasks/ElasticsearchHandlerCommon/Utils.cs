@@ -18,19 +18,19 @@ namespace ElasticsearchTasksCommon
     public static class Utils
     {
         private static readonly HashSet<string> reservedUnifiedSearchStringFields = new HashSet<string>()
-		            {
-			            "name",
-			            "description",
-			            "epg_channel_id"
-		            };
+                    {
+                        "name",
+                        "description",
+                        "epg_channel_id"
+                    };
 
         private static readonly HashSet<string> reservedUnifiedSearchNumericFields = new HashSet<string>()
-		            {
-			            "like_counter",
-			            "views",
-			            "rating",
-			            "votes"
-		            };
+                    {
+                        "like_counter",
+                        "views",
+                        "rating",
+                        "votes"
+                    };
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -120,17 +120,17 @@ namespace ElasticsearchTasksCommon
                         switch (cutWith)
                         {
                             case ApiObjects.SearchObjects.CutWith.OR:
-                            {
-                                m_dOr.Add(search);
-                                break;
-                            }
+                                {
+                                    m_dOr.Add(search);
+                                    break;
+                                }
                             case ApiObjects.SearchObjects.CutWith.AND:
-                            {
-                                m_dAnd.Add(search);
-                                break;
-                            }
+                                {
+                                    m_dAnd.Add(search);
+                                    break;
+                                }
                             default:
-                            break;
+                                break;
                         }
                     }
                 }
@@ -365,7 +365,7 @@ namespace ElasticsearchTasksCommon
         }
 
         #region Channels
-        
+
         public static string GetPermittedWatchRules(int groupId)
         {
             DataTable permittedWathRulesDt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(groupId, null);
@@ -387,7 +387,7 @@ namespace ElasticsearchTasksCommon
             }
 
             return sRules;
-        }       
+        }
 
         /// <summary>
         /// Verifies that the search key is a tag or a meta of either EPG or media
@@ -488,7 +488,7 @@ namespace ElasticsearchTasksCommon
                     log.Error("Could not get group default language from cache in GetGroupMedias");
                     return dMediaTrans;
                 }
-                
+
                 ODBCWrapper.StoredProcedure groupMedias = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
                 groupMedias.SetConnectionKey("MAIN_CONNECTION_STRING");
 
@@ -509,7 +509,7 @@ namespace ElasticsearchTasksCommon
                     bool hasEpgIdentifier = dataSet.Tables[0].Columns.Contains("epg_identifier");
 
                     if (dataSet.Tables[0].Rows.Count > 0)
-                    {                     
+                    {
                         foreach (DataRow row in dataSet.Tables[0].Rows)
                         {
                             Media media = new Media();
@@ -673,7 +673,7 @@ namespace ElasticsearchTasksCommon
                         #endregion
 
                         #region - get all media tags
-                        
+
                         if (dataSet.Tables[2].Columns != null && dataSet.Tables[2].Rows != null && dataSet.Tables[2].Rows.Count > 0)
                         {
                             if (group.isTagsSingleTranslation)
@@ -838,7 +838,7 @@ namespace ElasticsearchTasksCommon
                                 if (item.Value != null)
                                 {
                                     translated.Add(item.Key);
-                                    
+
                                     foreach (var translation in item.Value.Translations)
                                     {
                                         Core.Catalog.Utils.GetTranslatedMediaTags(group, translation.TagTypeId, translation.Value, (int)item.Key, translation.LanguageId, ref dMediaTrans);
@@ -846,7 +846,7 @@ namespace ElasticsearchTasksCommon
                                 }
                             }
                         }
-                        
+
                         if (dataSet.Tables[4].Columns != null && dataSet.Tables[4].Rows != null && dataSet.Tables[4].Rows.Count > 0)
                         {
                             foreach (DataRow row in dataSet.Tables[4].Rows)
@@ -885,7 +885,7 @@ namespace ElasticsearchTasksCommon
                                 {
                                     medias[mediaId].blockedCountries.Add(countryId);
                                 }
-                            }   
+                            }
                         }
 
                         // If no allowed countries were found for this media - use 0, that indicates that the media is allowed everywhere
@@ -970,7 +970,7 @@ namespace ElasticsearchTasksCommon
             if (dataSet != null && dataSet.Tables != null && dataSet.Tables.Count > 0)
             {
                 var table = dataSet.Tables[0];
-                
+
                 foreach (DataRow row in table.Rows)
                 {
                     int id = ODBCWrapper.Utils.ExtractInteger(row, "ID");

@@ -17,7 +17,7 @@ namespace ElasticSearchHandler.IndexBuilders
 {
     public abstract class AbstractIndexBuilder
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());                
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Consts
 
@@ -95,7 +95,7 @@ namespace ElasticSearchHandler.IndexBuilders
         }
 
         #endregion
-        
+
         #region Ctor
 
         public AbstractIndexBuilder(int groupID)
@@ -114,7 +114,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         #region Protected Methods
 
-        
+
 
         protected bool DualBuild(AbstractIndexBuilder firstBuilder, AbstractIndexBuilder secondBuilder)
         {

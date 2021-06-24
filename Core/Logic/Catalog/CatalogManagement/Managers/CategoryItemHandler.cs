@@ -562,8 +562,8 @@ namespace Core.Catalog.CatalogManagement
 
             if (result.ObjectIds?.Count > 0)
             {
-                response.Objects = result.ObjectIds.Select(x => GetCategoryItem(contextData.GroupId, x)).ToList();
-
+                response.Objects = result.ObjectIds.Select(x => GetCategoryItem(contextData.GroupId, x)).Where(x => x != null).ToList();
+                
                 if (filter.IsOrderByUpdateDate)
                 {
                     if (filter.OrderBy.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.ASC)

@@ -10,7 +10,10 @@ namespace ConfigurationManager
     {
         RabbitConfiguration RabbitConfiguration { get; }
         GroupsManagerConfiguration GroupsManagerConfiguration { get; }
+        ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration { get; }
+        ElasticSearchConfiguration ElasticSearchConfiguration { get; }
     }
+
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
     // BaseConfig.IterateOverClassFields goes over public fields(not properties, not private fields) with reflection and set values to them
     // But also we want to mock ApplicationConfiguration
@@ -86,7 +89,8 @@ namespace ConfigurationManager
 
         public AuthorizationManagerConfiguration AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration();
         public FileUploadConfiguration FileUpload = new FileUploadConfiguration();
-        public ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration = new ElasticSearchHandlerConfiguration();
+        public ElasticSearchHandlerConfiguration _elasticSearchHandlerConfiguration = new ElasticSearchHandlerConfiguration();
+        public ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration => _elasticSearchHandlerConfiguration;
         public AnnouncementManagerConfiguration AnnouncementManagerConfiguration = new AnnouncementManagerConfiguration();
         public MailerConfiguration MailerConfiguration = new MailerConfiguration();
         public GroupsManagerConfiguration _groupsManagerConfiguration = new GroupsManagerConfiguration();
@@ -103,7 +107,8 @@ namespace ConfigurationManager
         public ImageUtilsConfiguration ImageUtilsConfiguration = new ImageUtilsConfiguration();
         public PushMessagesConfiguration PushMessagesConfiguration = new PushMessagesConfiguration();
         public WebServicesConfiguration WebServicesConfiguration = new WebServicesConfiguration();
-        public ElasticSearchConfiguration ElasticSearchConfiguration = new ElasticSearchConfiguration();
+        public ElasticSearchConfiguration _elasticSearchConfiguration = new ElasticSearchConfiguration();
+        public ElasticSearchConfiguration ElasticSearchConfiguration => _elasticSearchConfiguration;
         public RoleIdsConfiguration RoleIdsConfiguration = new RoleIdsConfiguration();
         public TwitterConfiguration TwitterConfiguration = new TwitterConfiguration();
         public FacebookConfiguration FacebookConfiguration = new FacebookConfiguration();

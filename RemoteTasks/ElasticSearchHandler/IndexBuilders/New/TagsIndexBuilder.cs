@@ -47,7 +47,7 @@ namespace ElasticSearchHandler.IndexBuilders
             {
                 maxResults = 100000;
             }
-            
+
             List<Topic> tags = new List<Topic>();
 
             // Check if group supports Templates

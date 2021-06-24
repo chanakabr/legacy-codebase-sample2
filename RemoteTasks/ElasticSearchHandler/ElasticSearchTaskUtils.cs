@@ -27,7 +27,7 @@ namespace ElasticSearchHandler
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static readonly int DAYS = 7;
-       
+
         public static long UnixTimeStampNow()
         {
             TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
@@ -61,7 +61,7 @@ namespace ElasticSearchHandler
 
         public static string GetNewUtilsIndexString()
         {
-            return string.Format("utils_{0}", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));        
+            return string.Format("utils_{0}", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
         }
 
         public static string GetNewIPv6IndexString()
@@ -198,7 +198,7 @@ namespace ElasticSearchHandler
                     }
                     else if (linearChannelSettings[currentElement.ChannelID.ToString()].EnableCatchUp)
                     {
-                        currentElement.SearchEndDate = 
+                        currentElement.SearchEndDate =
                             currentElement.EndDate.AddMinutes(linearChannelSettings[currentElement.ChannelID.ToString()].CatchUpBuffer);
                     }
                     else

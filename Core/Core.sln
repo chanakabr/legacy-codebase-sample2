@@ -155,6 +155,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Metrics", "Core.Metric
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Metrics.Web", "Core.Metrics.Web\Core.Metrics.Web.csproj", "{391E4B6D-B353-482E-A431-458EE0E933A0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CanaryDeploymentManager", "CanaryDeploymentManager\CanaryDeploymentManager.csproj", "{C852F888-0D04-4961-A67F-4088886D6A89}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Basic|Any CPU = Basic|Any CPU
@@ -651,6 +653,14 @@ Global
 		{391E4B6D-B353-482E-A431-458EE0E933A0}.Local|Any CPU.Build.0 = Debug|Any CPU
 		{391E4B6D-B353-482E-A431-458EE0E933A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{391E4B6D-B353-482E-A431-458EE0E933A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C852F888-0D04-4961-A67F-4088886D6A89}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{C852F888-0D04-4961-A67F-4088886D6A89}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{C852F888-0D04-4961-A67F-4088886D6A89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C852F888-0D04-4961-A67F-4088886D6A89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C852F888-0D04-4961-A67F-4088886D6A89}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{C852F888-0D04-4961-A67F-4088886D6A89}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{C852F888-0D04-4961-A67F-4088886D6A89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C852F888-0D04-4961-A67F-4088886D6A89}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

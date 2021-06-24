@@ -778,9 +778,13 @@ namespace ElasticSearch.Common
             return mappingObj.ToString();
         }
 
-        public override string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags,
-            HashSet<string> metasToPad,
-            MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers, string mappingName, bool shouldAddRouting)
+        public override string CreateEpgMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, 
+                                                List<string> groupTags,
+                                                HashSet<string> metasToPad,
+                                                MappingAnalyzers specificLanguageAnalyzers, 
+                                                MappingAnalyzers defaultLanguageAnalyzers, 
+                                                string mappingName, 
+                                                bool shouldAddRouting)
         {
             string normalIndexAnalyzer = specificLanguageAnalyzers.normalIndexAnalyzer;
             string normalSearchAnalyzer = specificLanguageAnalyzers.normalSearchAnalyzer;

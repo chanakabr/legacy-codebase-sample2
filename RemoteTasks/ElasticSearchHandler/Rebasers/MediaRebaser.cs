@@ -40,11 +40,11 @@ namespace ElasticSearchHandler
                 log.ErrorFormat("Could not load group {0} in media index rebaser", groupId);
                 return false;
             }
-            
+
             var languages = group.GetLangauges();
 
             string indexName = ElasticSearchTaskUtils.GetMediaGroupAliasStr(groupId);
-            
+
             // Get ALL media in group
             var groupMediasDictionary = ElasticsearchTasksCommon.Utils.GetRebaseMediaInformation(groupId);
 
@@ -218,7 +218,7 @@ namespace ElasticSearchHandler
             }
 
             log.DebugFormat(
-                "Rebase media index of group {0} finished. Updated documents = {1}, deleted documents = {2}, inserted documents = {3}", 
+                "Rebase media index of group {0} finished. Updated documents = {1}, deleted documents = {2}, inserted documents = {3}",
                 groupId, updatedDocuments, deletedDocuments, insertedDocuments);
 
             return result;

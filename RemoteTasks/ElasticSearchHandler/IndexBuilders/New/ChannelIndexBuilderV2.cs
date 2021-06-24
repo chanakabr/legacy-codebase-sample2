@@ -77,7 +77,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     string query = filteredQuery.ToString();
                     string searchResults = api.Search(indexName, ElasticSearch.Common.Utils.ES_PERCOLATOR_TYPE, ref query);
-                    List<string> currentChannelIds = ElasticSearch.Common.Utils.GetDocumentIds(searchResults);                    
+                    List<string> currentChannelIds = ElasticSearch.Common.Utils.GetDocumentIds(searchResults);
                     HashSet<string> channelsToRemove;
                     HashSet<int> channelIds = new HashSet<int>();
                     if (!doesGroupUsesTemplates)
@@ -191,7 +191,7 @@ namespace ElasticSearchHandler.IndexBuilders
                         GroupManager groupManager = new GroupManager();
                         groupManager.RemoveGroup(groupId);
                         groupChannels = groupManager.GetChannels(channelIds.ToList(), groupId);
-                    }                    
+                    }
 
                     ESMediaQueryBuilder mediaQueryParser = new ESMediaQueryBuilder()
                     {
@@ -303,7 +303,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             return true;
         }
-        
+
         private static void CopySearchValuesToSearchObjects(ref ApiObjects.SearchObjects.MediaSearchObj searchObject,
            ApiObjects.SearchObjects.CutWith cutWith, List<ApiObjects.SearchObjects.SearchValue> channelSearchValues)
         {
@@ -326,17 +326,17 @@ namespace ElasticSearchHandler.IndexBuilders
                         switch (cutWith)
                         {
                             case ApiObjects.SearchObjects.CutWith.OR:
-                            {
-                                m_dOr.Add(search);
-                                break;
-                            }
+                                {
+                                    m_dOr.Add(search);
+                                    break;
+                                }
                             case ApiObjects.SearchObjects.CutWith.AND:
-                            {
-                                m_dAnd.Add(search);
-                                break;
-                            }
+                                {
+                                    m_dAnd.Add(search);
+                                    break;
+                                }
                             default:
-                            break;
+                                break;
                         }
                     }
                 }

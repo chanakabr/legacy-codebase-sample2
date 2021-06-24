@@ -98,7 +98,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
 
                 #endregion
-                
+
                 #region Mapping
                 // Mapping for each language
                 foreach (ApiObjects.LanguageObj language in languages)
@@ -132,7 +132,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     string type = CHANNEL;
                     string suffix = null;
-                    
+
                     // Ask serializer to create the mapping definitions string
                     string mapping = serializer.CreateChannelMapping(indexAnalyzer, searchAnalyzer, autocompleteIndexAnalyzer, autocompleteSearchAnalyzer, suffix);
 
@@ -173,7 +173,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                     // For each channel value
                     foreach (var channel in allChannels)
-                    {   
+                    {
                         string documentType = CHANNEL;
 
                         // Serialize channel and create a bulk request for it

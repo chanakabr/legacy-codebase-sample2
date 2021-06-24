@@ -219,7 +219,7 @@ namespace Core.Catalog.CatalogManagement
                     mediaType = (assetRespone.Object as MediaAsset).MediaType.m_sTypeName;
                 }
             }
-            
+
             MediaAsset mediaAsset = new MediaAsset()
             {
                 Id = mediaId,

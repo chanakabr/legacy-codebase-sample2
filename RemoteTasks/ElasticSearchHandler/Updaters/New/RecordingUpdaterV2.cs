@@ -28,7 +28,7 @@ namespace ElasticSearchHandler.Updaters
         #region Ctor
 
         public RecordingUpdaterV2(int groupId)
-            : base (groupId)
+            : base(groupId)
         {
             epgToRecordingMapping = new Dictionary<long, long>();
         }
@@ -58,7 +58,7 @@ namespace ElasticSearchHandler.Updaters
             var recordingIds = this.IDs;
 
             // Get information about relevant recordings
-            epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMap(this.groupId, recordingIds.Select(i => (long)i).ToList());            
+            epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMap(this.groupId, recordingIds.Select(i => (long)i).ToList());
 
             // Map EPGs to original recordings,
             // Get all program IDs
@@ -70,19 +70,19 @@ namespace ElasticSearchHandler.Updaters
             {
                 case ApiObjects.eAction.Off:
                 case ApiObjects.eAction.Delete:
-                {
-                    result = DeleteEpg(epgIds);
-                }
-                break;
+                    {
+                        result = DeleteEpg(epgIds);
+                    }
+                    break;
                 case ApiObjects.eAction.On:
                 case ApiObjects.eAction.Update:
-                {
-                    result = UpdateEpg(epgIds);
-                    break;
-                }
+                    {
+                        result = UpdateEpg(epgIds);
+                        break;
+                    }
                 default:
-                result = true;
-                break;
+                    result = true;
+                    break;
             }
 
             return result;

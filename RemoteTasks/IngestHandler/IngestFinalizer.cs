@@ -53,7 +53,7 @@ namespace IngestHandler
             try
             {
                 _logger.Debug($"Starting IngestFinalizer BulkUploadId:[{_bulkUpload.Id}]");
-                
+
 
                 var dailyEpgIndexName = IndexManager.GetDailyEpgIndexName(_bulkUpload.GroupId, _dateOfProgramsToIngest);
                 var isRefreshSuccess = IndexManager.ForceRefresh(dailyEpgIndexName);
@@ -155,7 +155,7 @@ namespace IngestHandler
                 .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) => { _logger.Warn($"upsert attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex); });
         }
 
-        
+
 
         private BulkUploadJobStatus SetOkayStatusToAllResults()
         {
@@ -218,7 +218,7 @@ namespace IngestHandler
                 UpdatedEpgIds = reallyUpdated,
                 DeletedEpgIds = reallyDeleted
             };
-        }        
+        }
 
         private void UpdateRecordings(Operations operations)
         {

@@ -36,11 +36,6 @@ namespace ElasticSearch.Common
             baseUrl = ES_URL;
         }
 
-        public ElasticSearchApi(string baseUrl)
-        {
-            baseUrl = baseUrl;
-        }
-
         #endregion
 
         #region Index Actions
@@ -302,75 +297,34 @@ namespace ElasticSearch.Common
 
         #region Index definitions: Analyzers, filters, tokenizers
 
-        protected static Dictionary<string, string> dESAnalyzers = new Dictionary<string, string>();
-        protected static Dictionary<string, string> dESFilters = new Dictionary<string, string>();
-        protected static Dictionary<string, string> tokenizers = new Dictionary<string, string>();
-
         public static string GetAnalyzerDefinition(string sAnalyzerName)
         {
-            string analyzer;
-
-            if (!dESAnalyzers.TryGetValue(sAnalyzerName, out analyzer))
-            {
-
-                analyzer = Utils.GetTcmValue(sAnalyzerName);
-                if (!string.IsNullOrEmpty(analyzer))
-                    dESAnalyzers[sAnalyzerName] = analyzer;
-            }
-
-            return analyzer;
+            return ElasticSearchIndexDefinitions.Instance.GetAnalyzerDefinition(sAnalyzerName);
         }
 
         public static string GetFilterDefinition(string sFilterName)
         {
-            string filter;
-
-            if (!dESFilters.TryGetValue(sFilterName, out filter))
-            {
-                filter = Utils.GetTcmValue(sFilterName);
-                if (!string.IsNullOrEmpty(filter))
-                    dESFilters[sFilterName] = filter;
-            }
-
-            return filter;
+            return ElasticSearchIndexDefinitions.Instance.GetFilterDefinition(sFilterName);
         }
 
         public static string GetTokenizerDefinition(string tokenizerName)
         {
-            string tokenizer;
-
-            if (!tokenizers.TryGetValue(tokenizerName, out tokenizer))
-            {
-                tokenizer = Utils.GetTcmValue(tokenizerName);
-
-                if (!string.IsNullOrEmpty(tokenizer))
-                {
-                    tokenizers[tokenizerName] = tokenizer;
-                }
-            }
-
-            return tokenizer;
+            return ElasticSearchIndexDefinitions.Instance.GetTokenizerDefinition(tokenizerName);
         }
 
         public static bool AnalyzerExists(string sAnalyzerName)
         {
-            bool bResult = string.IsNullOrEmpty(GetAnalyzerDefinition(sAnalyzerName)) ? false : true;
-
-            return bResult;
+            return ElasticSearchIndexDefinitions.Instance.AnalyzerExists(sAnalyzerName);
         }
 
         public static bool FilterExists(string sFilterName)
         {
-            bool bResult = string.IsNullOrEmpty(GetFilterDefinition(sFilterName)) ? false : true;
-
-            return bResult;
+            return ElasticSearchIndexDefinitions.Instance.FilterExists(sFilterName);
         }
 
         public static bool TokenizerExists(string tokenizerName)
         {
-            bool result = string.IsNullOrEmpty(GetTokenizerDefinition(tokenizerName)) ? false : true;
-
-            return result;
+            return ElasticSearchIndexDefinitions.Instance.TokenizerExists(tokenizerName);
         }
 
         #endregion

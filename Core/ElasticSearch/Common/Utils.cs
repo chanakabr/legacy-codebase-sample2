@@ -4,22 +4,35 @@ using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using ConfigurationManager;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
 
 namespace ElasticSearch.Common
 {
-    public static class Utils
+    public interface IElasticSearchCommonUtils
+    {
+        string GetTcmValue(string sKey);
+    }
+
+    public class Utils : IElasticSearchCommonUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
+        private static readonly Lazy<Utils> LazyInstance = new Lazy<Utils>(() => new Utils(), LazyThreadSafetyMode.PublicationOnly);
+        public static Utils Instance => LazyInstance.Value;
+
+        private Utils()
+        {
+        }
 
         public static readonly string ES_STATS_TYPE = "stats";
         public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
         public static readonly string ES_DATEONLY_FORMAT = "yyyyMMdd";
         public static readonly string ES_PERCOLATOR_TYPE = ".percolator";
 
-        public static string GetTcmValue(string sKey)
+        public string GetTcmValue(string sKey)
         {
             string result = ApplicationConfiguration.Current.GetValueByKey<string>(sKey);
             if (result == null)

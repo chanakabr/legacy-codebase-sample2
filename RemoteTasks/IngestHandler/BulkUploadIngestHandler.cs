@@ -409,13 +409,13 @@ namespace IngestHandler
                 //}
             }
         }
-        
+
         private void EnsureEpgIndexExist(string dailyEpgIndexName)
         {
             // TODO it's possible to create new index with mappings and alias in one request,
             // https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-create-index.html#mappings
             // but we have huge mappings and don't know the impact on timeouts during index creation - should be tested on real environment.
-            
+
             // Limitation: it's not a transaction, we don't remove index when add-mapping failed =>
             // EPGs could be added to the index without mapping (e.g. from asset.add)
             try
@@ -453,7 +453,7 @@ namespace IngestHandler
                 return !existingMappings.Contains(mappingName);
             }).ToList();
             if (languagesToCreate.Count == 0) return;
-            
+
             _logger.Info($"{_logPrefix} creating mappings. index [{dailyEpgIndexName}], languages [{languagesToCreate.Select(_ => _.Name)}]");
 
             CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(_eventData.GroupId, out var catalogGroupCache);
@@ -461,8 +461,8 @@ namespace IngestHandler
             groupManager.RemoveGroup(_eventData.GroupId); // remove from cache
             var group = groupManager.GetGroup(_eventData.GroupId);
             var doesGroupUsesTemplates = GroupSettingsManager.DoesGroupUsesTemplates(_eventData.GroupId);
-            
-            if (!IndexManager.GetMetasAndTagsForMapping(_eventData.GroupId, doesGroupUsesTemplates, 
+
+            if (!IndexManager.GetMetasAndTagsForMapping(_eventData.GroupId, doesGroupUsesTemplates,
                 out var metas,
                 out var tags,
                 out var metasToPad,

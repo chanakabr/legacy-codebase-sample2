@@ -316,7 +316,7 @@ namespace ElasticSearchHandler.IndexBuilders
                     {
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling PopulateEpgIndex", groupId);
                         return;
-                    }          
+                    }
                 }
 
                 // Get EPG objects from CB
@@ -351,7 +351,7 @@ namespace ElasticSearchHandler.IndexBuilders
             try
             {
                 int numOfBulkRequests = 0;
-                Dictionary<int, List<ESBulkRequestObj<ulong>>> bulkRequests = 
+                Dictionary<int, List<ESBulkRequestObj<ulong>>> bulkRequests =
                     new Dictionary<int, List<ESBulkRequestObj<ulong>>>() { { numOfBulkRequests, new List<ESBulkRequestObj<ulong>>() } };
 
                 // GetLinear Channel Values 
@@ -443,13 +443,13 @@ namespace ElasticSearchHandler.IndexBuilders
                                 bulkRequests.Add(numOfBulkRequests, new List<ESBulkRequestObj<ulong>>());
                             }
 
-                            ESBulkRequestObj<ulong> bulkRequest = 
+                            ESBulkRequestObj<ulong> bulkRequest =
                                 new ESBulkRequestObj<ulong>(documentId, index, epgType, serializedEpg, eOperation.index, epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"), ttl);
                             bulkRequests[numOfBulkRequests].Add(bulkRequest);
                         }
                     }
                 }
-                
+
                 int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                 if (maxDegreeOfParallelism == 0)
                 {
@@ -461,7 +461,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 System.Net.ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
                 System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<ulong>>> failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<ulong>>>();
                 // Send request to elastic search in a different thread
-                Parallel.ForEach(bulkRequests, options,(bulkRequest, state) =>
+                Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
                 {
                     contextData.Load();
                     List<ESBulkRequestObj<ulong>> invalidResults;

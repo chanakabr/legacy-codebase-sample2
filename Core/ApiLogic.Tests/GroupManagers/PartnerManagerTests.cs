@@ -1,22 +1,23 @@
-﻿using AutoFixture;
-using NUnit.Framework;
-using System.Collections.Generic;
+﻿using ApiLogic.Users.Managers;
 using ApiObjects.Response;
-using Moq;
-using DAL;
-using Core.GroupManagers;
-using System;
-using System.Linq;
-using QueueWrapper;
+using AutoFixture;
 using ConfigurationManager;
 using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
-using ApiLogic.Users.Managers;
+using Core.Catalog.CatalogManagement;
+using Core.GroupManagers;
+using DAL;
+using ElasticSearch.Common;
 using FluentAssertions;
+using Moq;
+using NUnit.Framework;
+using QueueWrapper;
+using QueueWrapper.Enums;
 using QueueWrapper.Queues;
 using RabbitMQ.Client;
-using ApiObjects.Base;
+using System;
 using System.Collections;
-using QueueWrapper.Enums;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ApiLogic.Tests.GroupManagers
 {
@@ -47,9 +48,15 @@ namespace ApiLogic.Tests.GroupManagers
             var allPartners = fixture.CreateMany<ApiObjects.Partner>(5).ToList();
             partnerDal.Setup(x => x.GetPartners()).Returns(allPartners);
 
-            var manager = new PartnerManager(partnerDal.Object, Mock.Of<IRabbitConnection>(),
-                Mock.Of<IApplicationConfiguration>(), Mock.Of<IUserManager>(), Mock.Of<IRabbitConfigDal>(),
-                Mock.Of<IPartnerRepository>());
+            var manager = new PartnerManager(partnerDal.Object, 
+                                             Mock.Of<IRabbitConnection>(),
+                                             Mock.Of<IApplicationConfiguration>(), 
+                                             Mock.Of<IUserManager>(), 
+                                             Mock.Of<IRabbitConfigDal>(),
+                                             Mock.Of<IPartnerRepository>(), 
+                                             Mock.Of<IElasticSearchApi>(), 
+                                             new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()), 
+                                             Mock.Of<ICatalogManager>());
 
             var response = manager.GetPartners(null);
 
@@ -70,9 +77,15 @@ namespace ApiLogic.Tests.GroupManagers
             allPartners.Add(partner2);
             partnerDal.Setup(x => x.GetPartners()).Returns(allPartners);
 
-            var manager = new PartnerManager(partnerDal.Object, Mock.Of<IRabbitConnection>(),
-                Mock.Of<IApplicationConfiguration>(), Mock.Of<IUserManager>(), Mock.Of<IRabbitConfigDal>(),
-                Mock.Of<IPartnerRepository>());
+            var manager = new PartnerManager(partnerDal.Object,
+                                            Mock.Of<IRabbitConnection>(),
+                                            Mock.Of<IApplicationConfiguration>(),
+                                            Mock.Of<IUserManager>(),
+                                            Mock.Of<IRabbitConfigDal>(),
+                                            Mock.Of<IPartnerRepository>(),
+                                            Mock.Of<IElasticSearchApi>(),
+                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
+                                            Mock.Of<ICatalogManager>());
 
             var response = manager.GetPartners(new List<long> { partner1.Id.Value, partner2.Id.Value });
 
@@ -113,8 +126,15 @@ namespace ApiLogic.Tests.GroupManagers
             rabbitConnection.Setup(x => x.IterateRoutingKeyQueue(It.IsAny<RabbitConfigurationData>(), It.IsAny<RoutingKeyQueueAction>()))
                 .Returns(canAddRoutingKey);
 
-            var manager = new PartnerManager(partnerDal.Object, rabbitConnection.Object,
-                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object, pricingDal.Object);
+            var manager = new PartnerManager(partnerDal.Object,
+                                            rabbitConnection.Object,
+                                            applicationConfiguration.Object,
+                                            userManager.Object,
+                                            rabbitConfigDal.Object,
+                                            pricingDal.Object,
+                                            Mock.Of<IElasticSearchApi>(),
+                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
+                                            Mock.Of<ICatalogManager>());
 
             Assert.Throws<AggregateException>(() => manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
                 fixture.Create<ApiObjects.PartnerSetup>(), fixture.Create<long>()));
@@ -145,8 +165,15 @@ namespace ApiLogic.Tests.GroupManagers
             var noBindings = new Dictionary<string, string>(0);
             rabbitConfigDal.Setup(x => x.GetRabbitRoutingBindings()).Returns(noBindings);
 
-            var manager = new PartnerManager(partnerDal.Object, Mock.Of<IRabbitConnection>(),
-                Mock.Of<IApplicationConfiguration>(), userManager.Object, rabbitConfigDal.Object, pricingDal.Object);
+            var manager = new PartnerManager(partnerDal.Object,
+                                            Mock.Of<IRabbitConnection>(),
+                                            Mock.Of<IApplicationConfiguration>(),
+                                            userManager.Object,
+                                            rabbitConfigDal.Object,
+                                            pricingDal.Object,
+                                            Mock.Of<IElasticSearchApi>(),
+                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
+                                            Mock.Of<ICatalogManager>());
 
             Assert.Throws<Exception>(() => manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
                 fixture.Create<ApiObjects.PartnerSetup>(), fixture.Create<long>()));
@@ -160,9 +187,16 @@ namespace ApiLogic.Tests.GroupManagers
             var partnerDal = new Mock<IPartnerDal>();
             var existingPartner = new ApiObjects.Partner { Id = existingId, Name = existingName };
             partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner> { existingPartner });
-            var manager = new PartnerManager(partnerDal.Object, Mock.Of<IRabbitConnection>(),
-                Mock.Of<IApplicationConfiguration>(), Mock.Of<IUserManager>(), Mock.Of<IRabbitConfigDal>(),
-                Mock.Of<IPartnerRepository>());
+            
+            var manager = new PartnerManager(partnerDal.Object,
+                                            Mock.Of<IRabbitConnection>(),
+                                            Mock.Of<IApplicationConfiguration>(),
+                                            Mock.Of<IUserManager>(),
+                                            Mock.Of<IRabbitConfigDal>(),
+                                            Mock.Of<IPartnerRepository>(),
+                                            Mock.Of<IElasticSearchApi>(),
+                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
+                                            Mock.Of<ICatalogManager>());
 
             var partner = new ApiObjects.Partner { Id = 1, Name = "Abc" };
             var partnerResponse = manager.AddPartner(partner,
@@ -206,8 +240,15 @@ namespace ApiLogic.Tests.GroupManagers
             IConnection __;
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
 
-            var manager = new PartnerManager(partnerDal.Object, rabbitConnection.Object,
-                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object, pricingDal.Object);
+            var manager = new PartnerManager(partnerDal.Object,
+                                            rabbitConnection.Object,
+                                            applicationConfiguration.Object,
+                                            userManager.Object,
+                                            rabbitConfigDal.Object,
+                                            pricingDal.Object,
+                                            Mock.Of<IElasticSearchApi>(),
+                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
+                                            Mock.Of<ICatalogManager>());
 
             var partnerResponse = manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
                 fixture.Create<ApiObjects.PartnerSetup>(), fixture.Create<long>());
@@ -245,11 +286,19 @@ namespace ApiLogic.Tests.GroupManagers
             int _ = 0;
             IConnection __;
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
-
+            
             var pricingDal = new Mock<IPartnerRepository>();
+            pricingDal.Setup(x => x.DeletePartnerInPricingDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
 
-            var manager = new PartnerManager(partnerDal.Object, rabbitConnection.Object,
-                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object, pricingDal.Object);
+            var manager = new PartnerManager(partnerDal.Object,
+                                            rabbitConnection.Object,
+                                            applicationConfiguration.Object,
+                                            userManager.Object,
+                                            rabbitConfigDal.Object,
+                                            pricingDal.Object,
+                                            Mock.Of<IElasticSearchApi>(),
+                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
+                                            Mock.Of<ICatalogManager>());
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
 
@@ -279,11 +328,22 @@ namespace ApiLogic.Tests.GroupManagers
             int _ = 0;
             IConnection __;
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
-
+            
             var pricingDal = new Mock<IPartnerRepository>();
+            pricingDal.Setup(x =>
+                   x.SetupPartnerInPricingDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
+                       It.IsAny<long>()))
+               .Returns(true);
 
-            var manager = new PartnerManager(partnerDal.Object, rabbitConnection.Object, 
-                applicationConfiguration.Object, userManager.Object, rabbitConfigDal.Object, pricingDal.Object);
+            var manager = new PartnerManager(partnerDal.Object,
+                                            rabbitConnection.Object,
+                                            applicationConfiguration.Object,
+                                            userManager.Object,
+                                            rabbitConfigDal.Object,
+                                            pricingDal.Object,
+                                            Mock.Of<IElasticSearchApi>(),
+                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
+                                            Mock.Of<ICatalogManager>());
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
 

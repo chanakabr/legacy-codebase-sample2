@@ -125,7 +125,7 @@ namespace ElasticSearchHandler.Updaters
 
                 result &= res;
             }
-            
+
             return result;
         }
 

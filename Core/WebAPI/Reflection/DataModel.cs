@@ -10405,6 +10405,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("partner", "add", false);
                             return PartnerController.Add((KalturaPartner) methodParams[0], (KalturaPartnerSetup) methodParams[1]);
                             
+                        case "createindexes":
+                            RolesManager.ValidateActionPermitted("partner", "createIndexes", false);
+                            return PartnerController.CreateIndexes();
+                            
                         case "delete":
                             RolesManager.ValidateActionPermitted("partner", "delete", false);
                             return PartnerController.Delete((int) methodParams[0]);
@@ -18033,6 +18037,9 @@ namespace WebAPI.Reflection
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPartnerSetup),
                             });
+                            return ret;
+                            
+                        case "createindexes":
                             return ret;
                             
                         case "delete":

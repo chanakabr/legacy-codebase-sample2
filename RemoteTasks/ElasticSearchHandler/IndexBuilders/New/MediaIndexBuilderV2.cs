@@ -116,7 +116,7 @@ namespace ElasticSearchHandler.IndexBuilders
             #endregion
 
             #region create mapping            
-            
+
             MappingAnalyzers defaultMappingAnalyzers = IndexManager.GetMappingAnalyzers(defaultLanguage, VERSION);
 
             HashSet<string> metasToPad = null;
@@ -141,7 +141,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
 
                 MappingAnalyzers specificMappingAnalyzers = IndexManager.GetMappingAnalyzers(language, VERSION);
-                
+
                 // Ask serializer to create the mapping definitions string
                 string mapping = serializer.CreateMediaMapping(metas, tags, metasToPad, specificMappingAnalyzers, defaultMappingAnalyzers);
                 bool mappingResult = api.InsertMapping(newIndexName, type, mapping.ToString());
@@ -209,7 +209,7 @@ namespace ElasticSearchHandler.IndexBuilders
             }
 
             ChannelIndexBuilderV2.BuildChannelQueries(groupId, api, ref channelIds, newIndexName, out channelsToRemove, doesGroupUsesTemplates);
-            
+
             #endregion
 
             // Switch index alias + Delete old indices handling
@@ -324,7 +324,7 @@ namespace ElasticSearchHandler.IndexBuilders
                         {
                             log.Warn($"Bulk request when indexing media for partner {groupId} has invalid results. Will retry soon.");
                             // add entire failed retry requests to failedBulkRequests, will try again not in parallel (maybe ES is loaded)
-                            failedBulkRequests.Add(invalidResults);                            
+                            failedBulkRequests.Add(invalidResults);
                         }
                     });
 
@@ -342,7 +342,7 @@ namespace ElasticSearchHandler.IndexBuilders
                                 foreach (var item in invalidResults)
                                 {
                                     log.ErrorFormat(
-                                        "Error - Could not add Media to ES index, additional retry will not be attempted. GroupID={0};Type={1};ID={2};error={3};", 
+                                        "Error - Could not add Media to ES index, additional retry will not be attempted. GroupID={0};Type={1};ID={2};error={3};",
                                         groupId, MEDIA, item.docID, item.error);
                                 }
                             }

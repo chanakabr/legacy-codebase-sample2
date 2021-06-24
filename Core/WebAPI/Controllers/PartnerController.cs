@@ -5,11 +5,12 @@ using Core.GroupManagers;
 using System;
 using WebAPI.ClientManagers;
 using WebAPI.Clients;
+using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.General;
 using WebAPI.Models.Users;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -51,10 +52,17 @@ namespace WebAPI.Controllers
             Func<GenericResponse<Partner>> addPartnerFunc = () =>
                 PartnerManager.Instance.AddPartner(partnerBol, partnerSetupBol, userId);
 
-            var result = ClientUtils.GetResponseFromWS<KalturaPartner, Partner>(addPartnerFunc);
-            Func<Group, Status> addGroupFunc = (Group group) => GroupsManager.Instance.AddBaseConfiguration(result.Id.Value, group);
-            ClientUtils.GetResponseStatusFromWS(addGroupFunc, partnerSetup.BasePartnerConfiguration);
-
+            KalturaPartner result = null;
+            try
+            {
+                result = ClientUtils.GetResponseFromWS<KalturaPartner, Partner>(addPartnerFunc);
+                Func<Group, Status> addGroupFunc = (Group group) => GroupsManager.Instance.AddBaseConfiguration(result.Id.Value, group);
+                ClientUtils.GetResponseStatusFromWS(addGroupFunc, partnerSetup.BasePartnerConfiguration);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
             return result;
         }
 
@@ -67,10 +75,19 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         public static KalturaPartnerListResponse List(KalturaPartnerFilter filter = null)
         {
-            var response = ClientUtils.GetResponseListFromWS<KalturaPartner, Partner>(() =>
-                PartnerManager.Instance.GetPartners(filter?.GetIdIn()));
-
-            var result = new KalturaPartnerListResponse {Partners = response.Objects, TotalCount = response.TotalCount};
+            var result = new KalturaPartnerListResponse();
+            try
+            {
+                var response = ClientUtils.GetResponseListFromWS<KalturaPartner, Partner>(() =>
+                    PartnerManager.Instance.GetPartners(filter?.GetIdIn()));
+                result.Partners = response.Objects;
+                result.TotalCount = response.TotalCount;
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            
             return result;
         }
 
@@ -89,7 +106,39 @@ namespace WebAPI.Controllers
             Func<Status> deleteGroupFunc = () => GroupsManager.Instance.DeleteBaseConfiguration(id);
             Func<Status> delete = () => PartnerManager.Instance.Delete(contextData.UserId.Value, id);
 
-            return ClientUtils.GetResponseStatusFromWS(deleteGroupFunc) && ClientUtils.GetResponseStatusFromWS(delete);
+            var result = false;
+            try
+            {
+                result = ClientUtils.GetResponseStatusFromWS(deleteGroupFunc) && ClientUtils.GetResponseStatusFromWS(delete);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Internal API !!! create ElasticSearch indexes for partner
+        /// </summary>
+        /// <returns></returns>
+        [Action("createIndexes")]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ApiAuthorize]
+        public static bool CreateIndexes()
+        {
+            int groupId = KS.GetFromRequest().GroupId;
+            Func<Status> createIndexesFunc = () => PartnerManager.Instance.CreateIndexes(groupId);
+            var result = false;
+            try
+            {
+                result = ClientUtils.GetResponseStatusFromWS(createIndexesFunc);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+            return result;
         }
     }
 }

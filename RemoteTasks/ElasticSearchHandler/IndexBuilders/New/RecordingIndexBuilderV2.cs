@@ -20,11 +20,11 @@ namespace ElasticSearchHandler.IndexBuilders
         #region Data Members
 
         public static readonly string RECORDING = "recording";
-        
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         protected Dictionary<long, long> epgToRecordingMapping = null;
-        
+
         #endregion
 
         #region Ctor
@@ -122,7 +122,7 @@ namespace ElasticSearchHandler.IndexBuilders
         /// <param name="newIndexName"></param>
         protected override void InsertChannelsQueries(GroupsCacheManager.GroupManager groupManager, GroupsCacheManager.Group group, string newIndexName, bool doesGroupUsesTemplates)
         {
-            
+
         }
 
         protected override string GetAlias()

@@ -282,9 +282,11 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, List<string> groupTags,
-            HashSet<string> metasToPad,
-            MappingAnalyzers specificLanguageAnalyzers, MappingAnalyzers defaultLanguageAnalyzers)
+        public virtual string CreateMediaMapping(Dictionary<string, KeyValuePair<eESFieldType, string>> metasMap, 
+                                                 List<string> groupTags,
+                                                 HashSet<string> metasToPad,
+                                                 MappingAnalyzers specificLanguageAnalyzers, 
+                                                 MappingAnalyzers defaultLanguageAnalyzers)
         {
             string normalIndexAnalyzer = specificLanguageAnalyzers.normalIndexAnalyzer;
             string normalSearchAnalyzer = specificLanguageAnalyzers.normalSearchAnalyzer;

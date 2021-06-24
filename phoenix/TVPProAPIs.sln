@@ -339,9 +339,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SessionManager", "..\Core\S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI.Tests", "..\Core\WebAPI.Tests\WebAPI.Tests.csproj", "{0E9AE575-4A1B-4FC7-A98D-BC2421B23D8E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpgCacheGrpcClientWrapper", "..\Core\EpgCacheGrpcClientWrapper\EpgCacheGrpcClientWrapper.csproj", "{180E6FDF-E08F-40E0-836C-2E39F17B640F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EpgCacheGrpcClientWrapper", "..\Core\EpgCacheGrpcClientWrapper\EpgCacheGrpcClientWrapper.csproj", "{180E6FDF-E08F-40E0-836C-2E39F17B640F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CanaryDeploymentManager", "..\Core\CanaryDeploymentManager\CanaryDeploymentManager.csproj", "{16A99F59-8AA2-4274-B71F-5F2E62A655DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CanaryDeploymentManager", "..\Core\CanaryDeploymentManager\CanaryDeploymentManager.csproj", "{16A99F59-8AA2-4274-B71F-5F2E62A655DA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Metrics", "..\Core\Core.Metrics\Core.Metrics.csproj", "{6C988E24-7138-482A-9141-3A2A6019C933}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core.Metrics.Web", "..\Core\Core.Metrics.Web\Core.Metrics.Web.csproj", "{E5D972B7-BB7B-401B-9D6C-56451449C530}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1022,6 +1026,26 @@ Global
 		{16A99F59-8AA2-4274-B71F-5F2E62A655DA}.LocalRelease|Any CPU.Build.0 = Debug|Any CPU
 		{16A99F59-8AA2-4274-B71F-5F2E62A655DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16A99F59-8AA2-4274-B71F-5F2E62A655DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C988E24-7138-482A-9141-3A2A6019C933}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C988E24-7138-482A-9141-3A2A6019C933}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{6C988E24-7138-482A-9141-3A2A6019C933}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C988E24-7138-482A-9141-3A2A6019C933}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C988E24-7138-482A-9141-3A2A6019C933}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C988E24-7138-482A-9141-3A2A6019C933}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{6C988E24-7138-482A-9141-3A2A6019C933}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{6C988E24-7138-482A-9141-3A2A6019C933}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
+		{6C988E24-7138-482A-9141-3A2A6019C933}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C988E24-7138-482A-9141-3A2A6019C933}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5D972B7-BB7B-401B-9D6C-56451449C530}.Basic|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5D972B7-BB7B-401B-9D6C-56451449C530}.Basic|Any CPU.Build.0 = Debug|Any CPU
+		{E5D972B7-BB7B-401B-9D6C-56451449C530}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5D972B7-BB7B-401B-9D6C-56451449C530}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5D972B7-BB7B-401B-9D6C-56451449C530}.Local|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5D972B7-BB7B-401B-9D6C-56451449C530}.Local|Any CPU.Build.0 = Debug|Any CPU
+		{E5D972B7-BB7B-401B-9D6C-56451449C530}.LocalRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{E5D972B7-BB7B-401B-9D6C-56451449C530}.LocalRelease|Any CPU.Build.0 = Release|Any CPU
+		{E5D972B7-BB7B-401B-9D6C-56451449C530}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5D972B7-BB7B-401B-9D6C-56451449C530}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1097,7 +1121,7 @@ Global
 		{16A99F59-8AA2-4274-B71F-5F2E62A655DA} = {6BFFB0D0-FC88-4A56-881B-345E07928B3F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 		EnterpriseLibraryConfigurationToolBinariesPath = packages\Unity.2.1.505.2\lib\NET35
+		SolutionGuid = {87CBB8AB-1910-47BA-9C32-D32029488A67}
 	EndGlobalSection
 EndGlobal
