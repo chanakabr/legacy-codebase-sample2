@@ -262,7 +262,7 @@ namespace ApiLogic.CanaryDeployment
                         case CanaryDeploymentMigrationEvent.AppToken:
                             res = cdc.MigrationEvents.AppToken;
                             break;
-                        case CanaryDeploymentMigrationEvent.RefreshToken:
+                        case CanaryDeploymentMigrationEvent.RefreshSession:
                             res = cdc.MigrationEvents.RefreshToken;
                             break;
                         case CanaryDeploymentMigrationEvent.DevicePinCode:
@@ -412,9 +412,9 @@ namespace ApiLogic.CanaryDeployment
                     cdc.DataOwnership.AuthenticationMsOwnership.DeviceLoginPin = isRoutingToPhoenixRestProxy;
                     apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.HouseHoldDevicePinActionsRouting);
                     break;
-                case CanaryDeploymentRoutingAction.RefreshToken:
+                case CanaryDeploymentRoutingAction.RefreshSession:
                     cdc.DataOwnership.AuthenticationMsOwnership.RefreshToken = isRoutingToPhoenixRestProxy;
-                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.RefreshTokenRouting);
+                    apisToRoute.AddRange(CanaryDeploymentRoutingActionLists.RefreshSessionRouting);
                     break;
                 case CanaryDeploymentRoutingAction.Login:
                     cdc.DataOwnership.AuthenticationMsOwnership.UserLoginHistory = isRoutingToPhoenixRestProxy;
@@ -483,7 +483,7 @@ namespace ApiLogic.CanaryDeployment
                 case CanaryDeploymentRoutingAction.HouseHoldDevicePinActions:
                     res = cdc.MigrationEvents.DevicePinCode ? okStatus : new Status(eResponseStatus.FailedToSetRouteHouseHoldDevicePinActions, "DevicePinCode migration event has to be enabled first");
                     break;
-                case CanaryDeploymentRoutingAction.RefreshToken:
+                case CanaryDeploymentRoutingAction.RefreshSession:
                     res = cdc.MigrationEvents.RefreshToken ? okStatus : new Status(eResponseStatus.FailedToSetRouteRefreshToken, "RefreshToken migration event has to be enabled first");
                     break;              
                 case CanaryDeploymentRoutingAction.Login:
@@ -519,7 +519,7 @@ namespace ApiLogic.CanaryDeployment
                     case CanaryDeploymentMigrationEvent.AppToken:
                         cdc.MigrationEvents.AppToken = val;
                         break;
-                    case CanaryDeploymentMigrationEvent.RefreshToken:
+                    case CanaryDeploymentMigrationEvent.RefreshSession:
                         cdc.MigrationEvents.RefreshToken = val;
                         break;
                     case CanaryDeploymentMigrationEvent.DevicePinCode:

@@ -19,7 +19,7 @@ namespace WebAPI.Models.CanaryDeployment
         SSO_ADAPTER_PROFILE_CONTROLLER = 2, //  ssoAdapterProfile/action/invoke should be moved to invoke MS + ssoAdapterProfile/action/add + ssoAdapterProfile/action/delete + ssoAdapterProfile/action/generateSharedSecret + ssoAdapterProfile/action/update + ssoAdapterProfile/action/list
         SESSION_CONTROLLER = 3, // session/action/get + session/action/revoke + session/action/switchUser 
         HOUSEHOLD_DEVICE_PIN_ACTIONS = 4, // householdDevice/action/generatePin + householdDevice/action/loginWithPin + ownerShip flag for householdDevice/action/addByPin
-        REFRESHTOKEN = 5, // ottuser/action/refreshToken
+        REFRESHSESSION = 5, // ottuser/action/refreshSession
         LOGIN = 6, // ottuser/action/login
         LOGOUT = 7, // ottuser/action/logout
         ANONYMOUSLOGIN = 8, // ottuser/action/anonymousLogin
@@ -28,7 +28,7 @@ namespace WebAPI.Models.CanaryDeployment
     public enum KalturaCanaryDeploymentMigrationEvent
     {
         APPTOKEN = 0,
-        REFRESHTOKEN = 1,
+        REFRESHSESSION = 1,
         //GEN-1471- login pin live migration removed due to complexity supporting updates on usage
         //USER_PIN_CODE = 2,
         DEVICE_PIN_CODE = 3,

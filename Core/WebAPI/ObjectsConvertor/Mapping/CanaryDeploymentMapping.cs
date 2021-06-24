@@ -66,8 +66,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaCanaryDeploymentMigrationEvent.DEVICE_PIN_CODE:
                     res = CanaryDeploymentMigrationEvent.DevicePinCode;
                     break;
-                case KalturaCanaryDeploymentMigrationEvent.REFRESHTOKEN:
-                    res = CanaryDeploymentMigrationEvent.RefreshToken;
+                case KalturaCanaryDeploymentMigrationEvent.REFRESHSESSION:
+                    res = CanaryDeploymentMigrationEvent.RefreshSession;
                     break;
                 case KalturaCanaryDeploymentMigrationEvent.SESSION_REVOCATION:
                     res = CanaryDeploymentMigrationEvent.SessionRevocation;
@@ -102,8 +102,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaCanaryDeploymentRoutingAction.LOGOUT:
                     res = CanaryDeploymentRoutingAction.Logout;
                     break;
-                case KalturaCanaryDeploymentRoutingAction.REFRESHTOKEN:
-                    res = CanaryDeploymentRoutingAction.RefreshToken;
+                case KalturaCanaryDeploymentRoutingAction.REFRESHSESSION:
+                    res = CanaryDeploymentRoutingAction.RefreshSession;
                     break;
                 case KalturaCanaryDeploymentRoutingAction.SESSION_CONTROLLER:
                     res = CanaryDeploymentRoutingAction.SessionController;

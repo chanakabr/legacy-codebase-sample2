@@ -202,7 +202,7 @@ namespace WebAPI.Managers
 
         private static void SendRefreshTokenCanaryMigrationEvent(ApiToken token, uint refreshTokenExpirationSeconds)
         {
-            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(token.GroupID, CanaryDeploymentMigrationEvent.RefreshToken))
+            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(token.GroupID, CanaryDeploymentMigrationEvent.RefreshSession))
             {
                 var migrationEvent = new ApiObjects.DataMigrationEvents.RefreshToken()
                 {
