@@ -1,22 +1,21 @@
-﻿using System;
+﻿using ApiObjects;
+using KLogMonitor;
+using ODBCWrapper;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using System.Threading;
-using ApiObjects;
-using KLogMonitor;
-using ODBCWrapper;
 
 namespace DAL
 {
     public interface IPartnerDal
     {
         int AddPartner(int? partnerId, string partnerName, long updaterId);
-        bool SetupPartnerInUsersDb(long partnerId, List<KeyValuePair<long, long>> moduleIds, long updaterId);
         List<Partner> GetPartners();
+        bool SetupPartnerInDb(long partnerId, string name, long updaterId);
         bool IsPartnerExists(int partnerId);
         bool DeletePartner(int partnerId, long updaterId);
-        bool DeletePartnerInUsersDb(long partnerId, long updaterId);
     }
 
     public class PartnerDal : IPartnerDal
@@ -26,45 +25,17 @@ namespace DAL
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private const string USERS_CONNECTION_STRING = "USERS_CONNECTION_STRING";
-
         public int AddPartner(int? partnerId, string partnerName, long updaterId)
         {
-            var parameters = new Dictionary<string, object>
-            {
-                {"@id", partnerId},
-                {"@name", partnerName},
-                {"@enableTemplates", 1},
-                {"@updaterId", updaterId}
-            };
-            var newPartnerId = UtilsDal.ExecuteReturnValue<int>("Insert_Groups", parameters);
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Insert_Groups");
+            sp.AddParameter("@id", partnerId);
+            sp.AddParameter("@name", partnerName);
+            sp.AddParameter("@enableTemplates", 1);            
+            sp.AddParameter("@updaterId", updaterId);
+
+            var newPartnerId = sp.ExecuteReturnValue<int>();
             return newPartnerId;
         }
-        
-        public bool SetupPartnerInUsersDb(long partnerId, List<KeyValuePair<long, long>> moduleIds, long updaterId)
-        {
-            var sp = new StoredProcedure("Create_GroupBasicData");
-            sp.SetConnectionKey(USERS_CONNECTION_STRING);
-            sp.AddParameter("@groupId", partnerId);
-            sp.AddParameter("@updaterId", updaterId);
-            //sp.AddIDListParameter("@moudleNames", moduleNames, "STR");
-            // TODO IS_ACTIVATION_NEEDED
-            // TODO ALLOW_DELETE_USER
-            sp.AddKeyValueListParameter("@moduleIds", moduleIds, "idKey", "value");
-
-            return sp.ExecuteReturnValue<int>() > 0;
-        }
-
-        public bool DeletePartnerInUsersDb(long partnerId, long updaterId)
-        {
-            var sp = new StoredProcedure("Delete_GroupBasicData");
-            sp.SetConnectionKey(USERS_CONNECTION_STRING);
-            sp.AddParameter("@groupId", partnerId);
-            sp.AddParameter("@updaterId", updaterId);
-
-            return sp.ExecuteReturnValue<int>() > 0;
-        }
-
 
         public List<Partner> GetPartners()
         {
@@ -85,6 +56,16 @@ namespace DAL
             }
 
             return returnList;
+        }
+
+        public bool SetupPartnerInDb(long partnerId, string name, long updaterId)
+        {
+            var sp = new StoredProcedure("Create_GroupBasicData");
+            sp.AddParameter("@groupId", partnerId);
+            sp.AddParameter("@name", name);
+            sp.AddParameter("@updaterId", updaterId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
 
         public bool DeletePartner(int partnerId, long updaterId)

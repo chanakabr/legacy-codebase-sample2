@@ -4700,6 +4700,7 @@ namespace Tvinci.Core.DAL
             return UtilsDal.GetObjectFromCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
         }
 
+        
         #region New Catalog Management
 
         public static bool DoesGroupUsesTemplates(int groupId)

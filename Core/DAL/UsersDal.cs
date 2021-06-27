@@ -1,10 +1,11 @@
-﻿using ApiObjects;
+﻿using ApiLogic.CanaryDeployment;
+using ApiObjects;
 using ApiObjects.Base;
+using ApiObjects.CanaryDeployment;
 using ApiObjects.SSOAdapter;
 using AuthenticationGrpcClientWrapper;
 using ConfigurationManager;
 using CouchbaseManager;
-using Google.Protobuf.Collections;
 using KLogMonitor;
 using ODBCWrapper;
 using System;
@@ -12,15 +13,28 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using ApiLogic.CanaryDeployment;
-using ApiObjects.CanaryDeployment;
+using System.Threading;
 using Tvinci.Core.DAL;
 
 namespace DAL
 {
-    public class UsersDal : BaseDal
+    public interface IUserPartnerRepository
     {
+        bool SetupPartnerInDb(long partnerId, long updaterId);
+        bool DeletePartnerDb(long partnerId, long updaterId);
+
+    }
+
+    public class UsersDal : BaseDal, IUserPartnerRepository
+    {
+        private static readonly Lazy<UsersDal> LazyInstance = new Lazy<UsersDal>(() => new UsersDal(), LazyThreadSafetyMode.PublicationOnly);
+        public static UsersDal Instance => LazyInstance.Value;
+
+        private UsersDal()
+        {
+
+        }
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         #region Private Constants
@@ -44,6 +58,8 @@ namespace DAL
         private const string SP_GET_DEFUALT_GROUP_OPERATOR = "Get_DefaultGroupOperator";
         private const string DELETE_USER = "Delete_User";
         private const string SSO_ADAPTER_WONERSHIP_ERR_MSG = "This request is disabled on Phoenix, ownership flag of SSOAdapters is turned on and thus this action should be done on Authentication micro service, Check TCM [MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.SSOAdapterProfiles] if this is unexpected behavior";
+
+        private const string USERS_CONNECTION_STRING = "USERS_CONNECTION_STRING";
 
         #endregion
 
@@ -2790,6 +2806,28 @@ namespace DAL
                 log.Error($"InsertEncryptionKey in DB, groupId: {encryptionKey.GroupId}, ex:{ex.Message}", ex);
                 return 0;
             }
+        }
+
+        public bool SetupPartnerInDb(long partnerId, long updaterId)
+        {
+            var sp = new StoredProcedure("Create_GroupBasicData");
+            sp.SetConnectionKey(USERS_CONNECTION_STRING);
+            sp.AddParameter("@groupId", partnerId);           
+            sp.AddParameter("@updaterId", updaterId);
+            // TODO IS_ACTIVATION_NEEDED
+            // TODO ALLOW_DELETE_USER
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public bool DeletePartnerDb(long partnerId, long updaterId)
+        {
+            var sp = new StoredProcedure("Delete_GroupBasicData");
+            sp.SetConnectionKey(USERS_CONNECTION_STRING);
+            sp.AddParameter("@groupId", partnerId);
+            sp.AddParameter("@updaterId", updaterId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
     }
 }

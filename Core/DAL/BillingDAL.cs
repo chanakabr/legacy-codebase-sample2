@@ -6,11 +6,25 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
+using System.Threading;
 
 namespace DAL
 {
-    public class BillingDAL
+    public interface IBillingPartnerRepository
     {
+        bool SetupPartnerInDb(long partnerId, long updaterId);
+    }
+
+    public class BillingDAL : IBillingPartnerRepository
+    {
+        private static readonly Lazy<BillingDAL> LazyInstance = new Lazy<BillingDAL>(() => new BillingDAL(), LazyThreadSafetyMode.PublicationOnly);
+        public static BillingDAL Instance => LazyInstance.Value;
+
+        private BillingDAL()
+        {
+
+        }
+
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string BILLING_CONNECTION_STRING = "BILLING_CONNECTION_STRING";
@@ -2714,6 +2728,16 @@ namespace DAL
             }
 
             return result;
+        }
+
+        public bool SetupPartnerInDb(long partnerId, long updaterId)
+        {
+            var sp = new StoredProcedure("Create_GroupBasicData");
+            sp.SetConnectionKey(BILLING_CONNECTION_STRING);
+            sp.AddParameter("@groupId", partnerId);           
+            sp.AddParameter("@updaterId", updaterId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
     }
 }

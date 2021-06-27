@@ -52,14 +52,18 @@ namespace Core.GroupManagers
                                PricingDAL.Instance,
                                new ElasticSearchApi(),
                                ElasticSearchIndexDefinitions.Instance,
-                               CatalogManager.Instance), 
+                               CatalogManager.Instance,
+                               UsersDal.Instance, 
+                               BillingDAL.Instance, 
+                               ConditionalAccessDAL.Instance), 
             LazyThreadSafetyMode.PublicationOnly);
+
         public static PartnerManager Instance => LazyInstance.Value;
 
         private static readonly KLogger Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private readonly IPartnerDal _partnerDal;
-        private readonly IPartnerRepository _pricingDal;
+        private readonly IPricingPartnerRepository _pricingPartnerRepository;
         private readonly IRabbitConnection _rabbitConnection;
         private readonly IApplicationConfiguration _applicationConfiguration;
         private readonly IUserManager _userManager;
@@ -67,34 +71,37 @@ namespace Core.GroupManagers
         private readonly IElasticSearchApi _elasticSearchApi;
         private readonly ElasticSearchIndexDefinitions _indexDefinitions;
         private readonly ICatalogManager _catalogManager;
-
-        private static readonly List<KeyValuePair<long, long>> usersModuleIdList = new List<KeyValuePair<long, long>>{
-            new KeyValuePair<long, long>(1, 1), new KeyValuePair<long, long>(2, 1)};
-        private static readonly List<KeyValuePair<long, long>> pricingModuleIdList = new List<KeyValuePair<long, long>>{
-            new KeyValuePair<long, long>(1, 1), new KeyValuePair<long, long>(2, 1), new KeyValuePair<long, long>(3, 1),
-        new KeyValuePair<long, long>(4, 1), new KeyValuePair<long, long>(5, 1), new KeyValuePair<long, long>(6, 1)};
-
+        private readonly IUserPartnerRepository _userPartnerRepository;
+        private readonly IBillingPartnerRepository _billingPartnerRepository;
+        private readonly ICAPartnerRepository _caPartnerRepository;       
+        
         private static Dictionary<string, MappingAnalyzers> _mappingAnalyzers = new Dictionary<string, MappingAnalyzers>();
 
         public PartnerManager(IPartnerDal partnerDal, 
                               IRabbitConnection rabbitConnection, 
                               IApplicationConfiguration applicationConfiguration, 
                               IUserManager userManager, 
-                              IRabbitConfigDal rabbitConfigDal, 
-                              IPartnerRepository pricingDal,
+                              IRabbitConfigDal rabbitConfigDal,
+                              IPricingPartnerRepository pricingDal,
                               IElasticSearchApi elasticSearchApi,
                               ElasticSearchIndexDefinitions indexDefinitions,
-                              ICatalogManager catalogManager)
+                              ICatalogManager catalogManager,
+                              IUserPartnerRepository userPartnerRepository,
+                              IBillingPartnerRepository billingPartnerRepository, 
+                              ICAPartnerRepository caPartnerRepository)
         {
             _partnerDal = partnerDal;
             _rabbitConnection = rabbitConnection;
             _applicationConfiguration = applicationConfiguration;
             _userManager = userManager;
             _rabbitConfigDal = rabbitConfigDal;
-            _pricingDal = pricingDal;
+            _pricingPartnerRepository = pricingDal;
             _elasticSearchApi = elasticSearchApi;
             _indexDefinitions = indexDefinitions;
             _catalogManager = catalogManager;
+            _userPartnerRepository = userPartnerRepository;
+            _billingPartnerRepository = billingPartnerRepository;
+            _caPartnerRepository = caPartnerRepository;
         }
 
         public GenericResponse<Partner> AddPartner(Partner partner, PartnerSetup partnerSetup, long updaterId)
@@ -121,20 +128,23 @@ namespace Core.GroupManagers
             if (partnerId <= 0) return response;
             partner.Id = partnerId;
 
-            if (!(_partnerDal.SetupPartnerInUsersDb(partnerId, usersModuleIdList, updaterId) &&
-                _pricingDal.SetupPartnerInPricingDb(partnerId, pricingModuleIdList, updaterId)))
+            if (!(_userPartnerRepository.SetupPartnerInDb(partnerId, updaterId) &&
+                _partnerDal.SetupPartnerInDb(partnerId, partner.Name,  updaterId) &&
+                _pricingPartnerRepository.SetupPartnerInDb(partnerId, updaterId) &&
+                _billingPartnerRepository.SetupPartnerInDb(partnerId, updaterId) &&
+                _caPartnerRepository.SetupPartnerInDb(partnerId, updaterId)))
             {
                 response.SetStatus(eResponseStatus.Error, "Failed to create partner basic data");
                 return response; // TODO rollback?
             }
-             
+
             var userId = _userManager.AddAdminUser(partnerId, partnerSetup.AdminUsername, partnerSetup.AdminPassword);
             if (userId <= 0)
             {
                 response.SetStatus(eResponseStatus.Error, $"Failed to add first admin user:{partnerSetup.AdminUsername} to partner");
                 return response;
             }
-             
+
             // TODO - WHEN ERRORS HANDLE SOMEHOW
             IterateRabbitQueues(partnerId, RoutingKeyQueueAction.Bind);
 
@@ -153,8 +163,8 @@ namespace Core.GroupManagers
                 {
                     partners = partners.FindAll(p => partnerIds.Contains(p.Id.Value));
                 }
-                
-                return new GenericListResponse<Partner>(Status.Ok, partners) {TotalItems = partners.Count};
+
+                return new GenericListResponse<Partner>(Status.Ok, partners) { TotalItems = partners.Count };
             }
 
             return new GenericListResponse<Partner>(Status.Ok, new List<Partner>(0));
@@ -173,12 +183,12 @@ namespace Core.GroupManagers
 
             IterateRabbitQueues(id, RoutingKeyQueueAction.Unbind);
 
-            if (!_pricingDal.DeletePartnerInPricingDb(id, updaterId))
+            if (!_userPartnerRepository.DeletePartnerDb(id, updaterId))
             {
                 Log.Error($"Error while delete partner pricing basicData. updaterId: {updaterId}.");
             }
 
-            if (!_partnerDal.DeletePartnerInUsersDb(id, updaterId))
+            if (!_partnerDal.DeletePartner(id, updaterId))
             {
                 Log.Error($"Error while delete partner users basicData. updaterId: {updaterId}.");
             }

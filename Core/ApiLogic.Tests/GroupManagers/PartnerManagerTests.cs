@@ -40,76 +40,73 @@ namespace ApiLogic.Tests.GroupManagers
 
         private readonly Dictionary<string, string> _rabbitWithoutBindings = new Dictionary<string, string>(0);
 
-        [Test]
-        public void CheckGetPartnersWithoutFilter()
+
+        [TestCaseSource(nameof(ListCases))]
+        public void CheckList(List<long> partnerIds, List<ApiObjects.Partner> expectedPartners)
         {
-            var fixture = new Fixture();
             var partnerDal = new Mock<IPartnerDal>();
-            var allPartners = fixture.CreateMany<ApiObjects.Partner>(5).ToList();
-            partnerDal.Setup(x => x.GetPartners()).Returns(allPartners);
+            var allPartners = new List<int>() { 1, 2, 3, 4, 5 };
+
+            partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner>(allPartners.Select( x=> new ApiObjects.Partner() { Id = x })));
 
             var manager = new PartnerManager(partnerDal.Object, 
                                              Mock.Of<IRabbitConnection>(),
                                              Mock.Of<IApplicationConfiguration>(), 
                                              Mock.Of<IUserManager>(), 
                                              Mock.Of<IRabbitConfigDal>(),
-                                             Mock.Of<IPartnerRepository>(), 
+                                             Mock.Of<IPricingPartnerRepository>(), 
                                              Mock.Of<IElasticSearchApi>(), 
                                              new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()), 
-                                             Mock.Of<ICatalogManager>());
+                                             Mock.Of<ICatalogManager>(),
+                                             Mock.Of<IUserPartnerRepository>(), 
+                                             Mock.Of<IBillingPartnerRepository>(), 
+                                             Mock.Of<ICAPartnerRepository>());
 
-            var response = manager.GetPartners(null);
 
-            response.Objects.Should().BeEquivalentTo(allPartners);
+            var response = manager.GetPartners(partnerIds);
+
             response.Status.Should().BeEquivalentTo(Status.Ok);
-            response.TotalItems.Should().Be(allPartners.Count);
+            for (int i = 0; i < expectedPartners.Count; i++)
+            {
+                Assert.AreEqual(expectedPartners[i].Id, response.Objects[i].Id);
+
+            }
         }
 
-        [Test]
-        public void CheckGetPartnersWithFilter()
+        private static IEnumerable ListCases()
         {
-            var fixture = new Fixture();
-            var partnerDal = new Mock<IPartnerDal>();
-            var allPartners = fixture.CreateMany<ApiObjects.Partner>(5).ToList();
-            var partner1 = fixture.Create<ApiObjects.Partner>();
-            var partner2 = fixture.Create<ApiObjects.Partner>();
-            allPartners.Add(partner1);
-            allPartners.Add(partner2);
-            partnerDal.Setup(x => x.GetPartners()).Returns(allPartners);
+            var allPartners = new List<int>() { 1, 2, 3, 4, 5 };
+            var partners = new List<ApiObjects.Partner>(allPartners.Select(x => new ApiObjects.Partner() { Id = x }));
 
-            var manager = new PartnerManager(partnerDal.Object,
-                                            Mock.Of<IRabbitConnection>(),
-                                            Mock.Of<IApplicationConfiguration>(),
-                                            Mock.Of<IUserManager>(),
-                                            Mock.Of<IRabbitConfigDal>(),
-                                            Mock.Of<IPartnerRepository>(),
-                                            Mock.Of<IElasticSearchApi>(),
-                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
-                                            Mock.Of<ICatalogManager>());
+            var partialPartnersIds = new List<int>() { 1, 2, 3 };
+            var partialPartners = new List<ApiObjects.Partner>(partialPartnersIds.Select(x => new ApiObjects.Partner() { Id = x }));
 
-            var response = manager.GetPartners(new List<long> { partner1.Id.Value, partner2.Id.Value });
+            yield return new TestCaseData(null, partners).SetName("CheckNullList");
+            yield return new TestCaseData(new List<long>(), partners).SetName("CheckEmptyList");
+            yield return new TestCaseData(new List<long>() { 1, 2, 3 }, partialPartners).SetName("CheckPartialList");
+            yield return new TestCaseData(new List<long>() { 1, 2, 3, 4, 5 },  partners).SetName("CheckFullList");
+            yield return new TestCaseData(new List<long>() { 1, 2, 3, 9, 10 }, partialPartners).SetName("CheckPartialExist");
+            yield return new TestCaseData(new List<long>() { 6, 7, 8 }, new List<ApiObjects.Partner>()).SetName("ChecknoneExist");
 
-            response.Objects.Should().BeEquivalentTo(new List<ApiObjects.Partner> { partner1, partner2 });
-            response.Status.Should().BeEquivalentTo(Status.Ok);
-            response.TotalItems.Should().Be(2);
         }
 
         [Test]
         public void CheckAddPartnerCantAddRoutingKeyToQueue()
         {
             var fixture = new Fixture();
-            var pricingDal = new Mock<IPartnerRepository>();
             var partnerDal = new Mock<IPartnerDal>();
+            var pricingPartnerRepository = new Mock<IPricingPartnerRepository>();
+            var userPartnerRepository = new Mock<IUserPartnerRepository>();
+            var billingPartnerRepository = new Mock<IBillingPartnerRepository>();
+            var caPartnerRepository = new Mock<ICAPartnerRepository>();
+
             partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner>(0));
             partnerDal.Setup(x => x.AddPartner(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>())).Returns(1);
-            partnerDal.Setup(x =>
-                    x.SetupPartnerInUsersDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
-                        It.IsAny<long>()))
-                .Returns(true);
-            pricingDal.Setup(x =>
-                    x.SetupPartnerInPricingDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
-                        It.IsAny<long>()))
-                .Returns(true);
+            partnerDal.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>())).Returns(true);
+            pricingPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            userPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            billingPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            caPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
 
             var userManager = new Mock<IUserManager>();
             userManager.Setup(x => x.AddAdminUser(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -131,10 +128,14 @@ namespace ApiLogic.Tests.GroupManagers
                                             applicationConfiguration.Object,
                                             userManager.Object,
                                             rabbitConfigDal.Object,
-                                            pricingDal.Object,
+                                            pricingPartnerRepository.Object,
                                             Mock.Of<IElasticSearchApi>(),
                                             new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
-                                            Mock.Of<ICatalogManager>());
+                                            Mock.Of<ICatalogManager>(),
+                                            userPartnerRepository.Object,
+                                            billingPartnerRepository.Object, 
+                                            caPartnerRepository.Object);
+
 
             Assert.Throws<AggregateException>(() => manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
                 fixture.Create<ApiObjects.PartnerSetup>(), fixture.Create<long>()));
@@ -144,18 +145,19 @@ namespace ApiLogic.Tests.GroupManagers
         public void CheckAddGroupRabbitWithNoBindings()
         {
             var fixture = new Fixture();
-            var pricingDal = new Mock<IPartnerRepository>();
+            var pricingPartnerRepository = new Mock<IPricingPartnerRepository>();
             var partnerDal = new Mock<IPartnerDal>();
+            var userPartnerRepository = new Mock<IUserPartnerRepository>();
+            var billingPartnerRepository = new Mock<IBillingPartnerRepository>();
+            var caPartnerRepository = new Mock<ICAPartnerRepository>();
+
             partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner>(0));
             partnerDal.Setup(x => x.AddPartner(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>())).Returns(1);
-            partnerDal.Setup(x =>
-                    x.SetupPartnerInUsersDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
-                        It.IsAny<long>()))
-                .Returns(true);
-            pricingDal.Setup(x =>
-                   x.SetupPartnerInPricingDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
-                       It.IsAny<long>()))
-               .Returns(true);
+            partnerDal.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<string>(),It.IsAny<long>())).Returns(true);
+            pricingPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            userPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            billingPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            caPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
 
             var userManager = new Mock<IUserManager>();
             userManager.Setup(x => x.AddAdminUser(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -170,10 +172,13 @@ namespace ApiLogic.Tests.GroupManagers
                                             Mock.Of<IApplicationConfiguration>(),
                                             userManager.Object,
                                             rabbitConfigDal.Object,
-                                            pricingDal.Object,
+                                            pricingPartnerRepository.Object,
                                             Mock.Of<IElasticSearchApi>(),
                                             new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
-                                            Mock.Of<ICatalogManager>());
+                                            Mock.Of<ICatalogManager>(),
+                                            userPartnerRepository.Object,
+                                            billingPartnerRepository.Object,
+                                            caPartnerRepository.Object);
 
             Assert.Throws<Exception>(() => manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
                 fixture.Create<ApiObjects.PartnerSetup>(), fixture.Create<long>()));
@@ -185,18 +190,27 @@ namespace ApiLogic.Tests.GroupManagers
         {
             var fixture = new Fixture();
             var partnerDal = new Mock<IPartnerDal>();
+            var pricingPartnerRepository = new Mock<IPricingPartnerRepository>();
+            var userPartnerRepository = new Mock<IUserPartnerRepository>();
+            var billingPartnerRepository = new Mock<IBillingPartnerRepository>();
+            var caPartnerRepository = new Mock<ICAPartnerRepository>();
+
+
             var existingPartner = new ApiObjects.Partner { Id = existingId, Name = existingName };
             partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner> { existingPartner });
-            
+
             var manager = new PartnerManager(partnerDal.Object,
-                                            Mock.Of<IRabbitConnection>(),
-                                            Mock.Of<IApplicationConfiguration>(),
-                                            Mock.Of<IUserManager>(),
-                                            Mock.Of<IRabbitConfigDal>(),
-                                            Mock.Of<IPartnerRepository>(),
-                                            Mock.Of<IElasticSearchApi>(),
-                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
-                                            Mock.Of<ICatalogManager>());
+                                             Mock.Of<IRabbitConnection>(),
+                                             Mock.Of<IApplicationConfiguration>(),
+                                             Mock.Of<IUserManager>(),
+                                             Mock.Of<IRabbitConfigDal>(),
+                                             Mock.Of<IPricingPartnerRepository>(),
+                                             Mock.Of<IElasticSearchApi>(),
+                                             new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
+                                             Mock.Of<ICatalogManager>(),
+                                             Mock.Of<IUserPartnerRepository>(),
+                                             Mock.Of<IBillingPartnerRepository>(),
+                                             Mock.Of<ICAPartnerRepository>());
 
             var partner = new ApiObjects.Partner { Id = 1, Name = "Abc" };
             var partnerResponse = manager.AddPartner(partner,
@@ -211,18 +225,19 @@ namespace ApiLogic.Tests.GroupManagers
         {
             var fixture = new Fixture();
             const int partnerId = 3;
-            var pricingDal = new Mock<IPartnerRepository>();
+            var pricingPartnerRepository = new Mock<IPricingPartnerRepository>();
+            var userPartnerRepository = new Mock<IUserPartnerRepository>();
+            var billingPartnerRepository = new Mock<IBillingPartnerRepository>();
+            var caPartnerRepository = new Mock<ICAPartnerRepository>();
+
             var partnerDal = new Mock<IPartnerDal>();
             partnerDal.Setup(x => x.GetPartners()).Returns(new List<ApiObjects.Partner>(0));
             partnerDal.Setup(x => x.AddPartner(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<long>())).Returns(partnerId);
-            partnerDal.Setup(x =>
-                    x.SetupPartnerInUsersDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
-                        It.IsAny<long>()))
-                .Returns(true);
-            pricingDal.Setup(x =>
-                   x.SetupPartnerInPricingDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
-                       It.IsAny<long>()))
-               .Returns(true);
+            partnerDal.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<long>())).Returns(true);
+            pricingPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            userPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            billingPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            caPartnerRepository.Setup(x => x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
 
             var userManager = new Mock<IUserManager>();
             userManager.Setup(x => x.AddAdminUser(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -245,10 +260,14 @@ namespace ApiLogic.Tests.GroupManagers
                                             applicationConfiguration.Object,
                                             userManager.Object,
                                             rabbitConfigDal.Object,
-                                            pricingDal.Object,
+                                            pricingPartnerRepository.Object,
                                             Mock.Of<IElasticSearchApi>(),
                                             new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
-                                            Mock.Of<ICatalogManager>());
+                                            Mock.Of<ICatalogManager>(),
+                                            userPartnerRepository.Object,
+                                            billingPartnerRepository.Object, 
+                                            caPartnerRepository.Object);
+
 
             var partnerResponse = manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
                 fixture.Create<ApiObjects.PartnerSetup>(), fixture.Create<long>());
@@ -270,10 +289,15 @@ namespace ApiLogic.Tests.GroupManagers
             var fixture = new Fixture();
 
             var partnerDal = new Mock<IPartnerDal>();
-            partnerDal.Setup(x => x.DeletePartnerInUsersDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            var userDal = new Mock<IUserPartnerRepository>();
+            userDal.Setup(x => x.DeletePartnerDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             partnerDal.Setup(x => x.IsPartnerExists(It.IsAny<int>())).Returns(isPartnerExsits);
             partnerDal.Setup(x => x.DeletePartner(It.IsAny<int>(), It.IsAny<long>())).Returns(deletePartner);
             var userManager = new Mock<IUserManager>();
+            var pricingPartnerRepository = new Mock<IPricingPartnerRepository>();
+            var userPartnerRepository = new Mock<IUserPartnerRepository>();
+            var billingPartnerRepository = new Mock<IBillingPartnerRepository>();
+            var caPartnerRepository = new Mock<ICAPartnerRepository>();
 
             var applicationConfiguration = new Mock<IApplicationConfiguration>();
             applicationConfiguration.Setup(x => x.RabbitConfiguration).Returns(_rabbitConfiguration);
@@ -287,7 +311,7 @@ namespace ApiLogic.Tests.GroupManagers
             IConnection __;
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
             
-            var pricingDal = new Mock<IPartnerRepository>();
+            var pricingDal = new Mock<IPricingPartnerRepository>();
             pricingDal.Setup(x => x.DeletePartnerInPricingDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
 
             var manager = new PartnerManager(partnerDal.Object,
@@ -298,7 +322,11 @@ namespace ApiLogic.Tests.GroupManagers
                                             pricingDal.Object,
                                             Mock.Of<IElasticSearchApi>(),
                                             new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
-                                            Mock.Of<ICatalogManager>());
+                                            Mock.Of<ICatalogManager>(),
+                                            userPartnerRepository.Object,
+                                            billingPartnerRepository.Object, 
+                                            caPartnerRepository.Object);
+
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
 
@@ -311,10 +339,16 @@ namespace ApiLogic.Tests.GroupManagers
             var fixture = new Fixture();
 
             var partnerDal = new Mock<IPartnerDal>();
-            partnerDal.Setup(x => x.DeletePartnerInUsersDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            var userDal = new Mock<IUserPartnerRepository>();
+
+            userDal.Setup(x => x.DeletePartnerDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             partnerDal.Setup(x => x.IsPartnerExists(It.IsAny<int>())).Returns(true);
             partnerDal.Setup(x => x.DeletePartner(It.IsAny<int>(), It.IsAny<long>())).Returns(true);
             var userManager = new Mock<IUserManager>();
+            var pricingPartnerRepository = new Mock<IPricingPartnerRepository>();
+            var userPartnerRepository = new Mock<IUserPartnerRepository>();
+            var billingPartnerRepository = new Mock<IBillingPartnerRepository>();
+            var caPartnerRepository = new Mock<ICAPartnerRepository>();
 
             var applicationConfiguration = new Mock<IApplicationConfiguration>();
             applicationConfiguration.Setup(x => x.RabbitConfiguration).Returns(_rabbitConfiguration);
@@ -329,10 +363,9 @@ namespace ApiLogic.Tests.GroupManagers
             IConnection __;
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
             
-            var pricingDal = new Mock<IPartnerRepository>();
+            var pricingDal = new Mock<IPricingPartnerRepository>();
             pricingDal.Setup(x =>
-                   x.SetupPartnerInPricingDb(It.IsAny<long>(), It.IsAny<List<KeyValuePair<long, long>>>(),
-                       It.IsAny<long>()))
+                   x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>()))
                .Returns(true);
 
             var manager = new PartnerManager(partnerDal.Object,
@@ -343,7 +376,11 @@ namespace ApiLogic.Tests.GroupManagers
                                             pricingDal.Object,
                                             Mock.Of<IElasticSearchApi>(),
                                             new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
-                                            Mock.Of<ICatalogManager>());
+                                            Mock.Of<ICatalogManager>(),
+                                            userPartnerRepository.Object,
+                                            billingPartnerRepository.Object, 
+                                            caPartnerRepository.Object);
+
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
 

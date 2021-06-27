@@ -77,13 +77,13 @@ namespace DAL
         bool IsCollectionExists(int groupId, long id);
         bool DeleteCollection(int groupId, long id, long userId);
     }
-    public interface IPartnerRepository
+    public interface IPricingPartnerRepository
     {
-        bool SetupPartnerInPricingDb(long partnerId, List<KeyValuePair<long, long>> moduleIds, long updaterId);
+        bool SetupPartnerInDb(long partnerId, long updaterId);
         bool DeletePartnerInPricingDb(long partnerId, long updaterId);
     }
 
-    public class PricingDAL : ICampaignRepository, IPriceDetailsRepository, IPricePlanRepository, IModuleManagerRepository, IDiscountDetailsRepository, IPreviewModuleRepository, ICollectionRepository, IPartnerRepository
+    public class PricingDAL : ICampaignRepository, IPriceDetailsRepository, IPricePlanRepository, IModuleManagerRepository, IDiscountDetailsRepository, IPreviewModuleRepository, ICollectionRepository, IPricingPartnerRepository
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -309,13 +309,12 @@ namespace DAL
             return null;
         }
 
-        public bool SetupPartnerInPricingDb(long partnerId, List<KeyValuePair<long, long>> moduleIds, long updaterId)
+        public bool SetupPartnerInDb(long partnerId, long updaterId)
         {
             var sp = new StoredProcedure("Create_GroupBasicData");
             sp.SetConnectionKey("pricing_connection");
-            sp.AddParameter("@groupId", partnerId);
+            sp.AddParameter("@groupId", partnerId);          
             sp.AddParameter("@updaterId", updaterId);
-            sp.AddKeyValueListParameter("@moudleIds", moduleIds, "idKey", "value");
 
             return sp.ExecuteReturnValue<int>() > 0;
         }
@@ -2533,6 +2532,6 @@ namespace DAL
                 log.Error($"Error while Delete DiscountDetails, groupId: {groupId}, Id: {id}", ex);
                 return false;
             }
-        }
+        }        
     }
 }

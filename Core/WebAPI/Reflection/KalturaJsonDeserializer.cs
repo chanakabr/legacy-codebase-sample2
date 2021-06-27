@@ -19714,13 +19714,43 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute UnifiedChannelsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute DynamicDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IsActiveSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         private static RuntimeSchemePropertyAttribute StartDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
@@ -19731,7 +19761,7 @@ namespace WebAPI.Models.Catalog
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
@@ -19818,6 +19848,10 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("unifiedChannels") && parameters["unifiedChannels"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        UnifiedChannelsSchemaProperty.Validate("unifiedChannels", parameters["unifiedChannels"]);
+                    }
                     if (parameters["unifiedChannels"] is JArray)
                     {
                         UnifiedChannels = buildList<KalturaUnifiedChannelInfo>(typeof(KalturaUnifiedChannelInfo), (JArray) parameters["unifiedChannels"]);
@@ -19829,6 +19863,10 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("dynamicData") && parameters["dynamicData"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        DynamicDataSchemaProperty.Validate("dynamicData", parameters["dynamicData"]);
+                    }
                     if (parameters["dynamicData"] is JObject)
                     {
                         DynamicData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["dynamicData"]).ToObject<Dictionary<string, object>>());
@@ -19847,6 +19885,10 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("isActive") && parameters["isActive"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        IsActiveSchemaProperty.Validate("isActive", parameters["isActive"]);
+                    }
                     IsActive = (Boolean) Convert.ChangeType(parameters["isActive"], typeof(Boolean));
                 }
                 if (parameters.ContainsKey("startDateInSeconds") && parameters["startDateInSeconds"] != null)

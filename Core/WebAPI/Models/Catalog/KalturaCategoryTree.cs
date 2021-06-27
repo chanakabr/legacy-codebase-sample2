@@ -47,6 +47,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "unifiedChannels")]
         [XmlArray(ElementName = "unifiedChannels", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(IsNullable = true)]
         public List<KalturaUnifiedChannelInfo> UnifiedChannels { get; set; }
 
         /// <summary>
@@ -55,6 +56,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "dynamicData")]
         [JsonProperty("dynamicData")]
         [XmlElement(ElementName = "dynamicData", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> DynamicData { get; set; }
 
         /// <summary>
@@ -73,6 +75,7 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("isActive")]
         [XmlElement(ElementName = "isActive")]
         //[SchemeProperty(RequiresPermission = (int)RequestType.READ, ReadOnly = true)] //TODO: anat
+        [SchemeProperty(IsNullable = true)]
         public bool? IsActive { get; set; }
 
         /// <summary>
@@ -81,7 +84,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "startDateInSeconds")]
         [JsonProperty("startDateInSeconds")]
         [XmlElement(ElementName = "startDateInSeconds", IsNullable = true)]
-        [SchemeProperty(MinInteger = 0)]
+        [SchemeProperty(MinInteger = 0, IsNullable = true)]
         public long? StartDateInSeconds { get; set; }
 
         /// <summary>
@@ -90,7 +93,7 @@ namespace WebAPI.Models.Catalog
         [DataMember(Name = "endDateInSeconds")]
         [JsonProperty("endDateInSeconds")]
         [XmlElement(ElementName = "endDateInSeconds", IsNullable = true)]
-        [SchemeProperty(MinInteger = 0)]
+        [SchemeProperty(MinInteger = 0, IsNullable = true)]
         public long? EndDateInSeconds { get; set; }
 
         /// <summary>

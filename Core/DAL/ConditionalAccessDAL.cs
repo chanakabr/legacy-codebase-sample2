@@ -9,15 +9,29 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace DAL
 {
-    public class ConditionalAccessDAL
+    public interface ICAPartnerRepository
+    {
+        bool SetupPartnerInDb(long partnerId, long updaterId);
+    }
+
+    public class ConditionalAccessDAL : ICAPartnerRepository
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
         private static readonly uint CACHED_ENTITLEMENT_RESULTS_TTL_SEC = (uint)ApplicationConfiguration.Current.LicensedLinksCacheConfiguration.CacheTimeInSeconds.Value;
         private const string CA_CONNECTION_STRING = "CA_CONNECTION_STRING";
+
+        private static readonly Lazy<ConditionalAccessDAL> LazyInstance = new Lazy<ConditionalAccessDAL>(() => new ConditionalAccessDAL(), LazyThreadSafetyMode.PublicationOnly);
+        public static ConditionalAccessDAL Instance => LazyInstance.Value;
+
+        private ConditionalAccessDAL()
+        {
+
+        }
 
         public static DataTable Get_MediaFileByProductCode(int nGroupID, string sProductCode)
         {
@@ -3617,5 +3631,15 @@ namespace DAL
 
             return null;
         }
+
+        public bool SetupPartnerInDb(long partnerId, long updaterId)
+        {
+            var sp = new StoredProcedure("Create_GroupBasicData");
+            sp.SetConnectionKey(CA_CONNECTION_STRING);
+            sp.AddParameter("@groupId", partnerId);
+            sp.AddParameter("@updaterId", updaterId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }        
     }
 }
