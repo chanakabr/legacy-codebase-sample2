@@ -9167,7 +9167,7 @@ namespace Core.Catalog
                                 //,m_sUserIP
                             };
 
-                            TreatLeaf(request, ref filterTree, searchDefinitions, group, filterTree, new Dictionary<BooleanPhraseNode, BooleanPhrase>(), groupId);
+                            UpdateNodeTreeFields(request, ref filterTree, searchDefinitions, group, groupId); //BEO-10234
                         }
 
                         int elasticSearchPageSize = 0;
