@@ -14,6 +14,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml.Serialization;
+using ApiObjects.User;
 using TVinciShared;
 
 namespace Core.Users
@@ -638,39 +639,18 @@ namespace Core.Users
 
         protected override bool DoInsert()
         {
-            bool success = false;
-
-            UpdateUserTypeOnBasicData(this.GroupId);
-
-            int bIsFacebookImagePermitted = m_oBasicData.m_bIsFacebookImagePermitted ? 1 : 0;
-
-            string sActivationToken = this.shouldSetUserActive ? string.Empty : System.Guid.NewGuid().ToString();
-
-            int countryID = 0, stateID = 0;
-            if (m_oBasicData.m_Country != null)
+            UpdateUserTypeOnBasicData(GroupId);
+            var userInputModel = MapToUserInputModel();
+            var result = UsersDal.InsertUser(userInputModel);
+            if (result != null)
             {
-                countryID = m_oBasicData.m_Country.m_nObjecrtID;
-            }
-            if (m_oBasicData.m_State != null && countryID > 0)
-            {
-                stateID = m_oBasicData.m_State.m_nObjecrtID;
-            }
-
-            var userDataEncryptor = UserDataEncryptor.Instance();
-            var encryptionType = userDataEncryptor.GetUsernameEncryptionType(GroupId);
-            var username = userDataEncryptor.EncryptUsername(GroupId, encryptionType, m_oBasicData.m_sUserName);
-            this.userId = UsersDal.InsertUser(username, m_oBasicData.m_sPassword, m_oBasicData.m_sSalt, m_oBasicData.m_sFirstName, m_oBasicData.m_sLastName, m_oBasicData.m_sFacebookID,
-                                                  m_oBasicData.m_sFacebookImage, m_oBasicData.m_sFacebookToken, bIsFacebookImagePermitted, m_oBasicData.m_sEmail, (this.shouldSetUserActive ? 1 : 0), sActivationToken,
-                                                  m_oBasicData.m_CoGuid, m_oBasicData.m_ExternalToken, m_oBasicData.m_UserType.ID, m_oBasicData.m_sAddress, m_oBasicData.m_sCity, countryID, stateID,
-                                                  m_oBasicData.m_sZip, m_oBasicData.m_sPhone, m_oBasicData.m_sAffiliateCode, m_oBasicData.m_sTwitterToken, m_oBasicData.m_sTwitterTokenSecret, GroupId, encryptionType.HasValue);
-
-            if (this.userId > 0)
-            {
-                m_sSiteGUID = this.userId.ToString();
-
-                if (UsersDal.UpsertUserRoleIds(this.GroupId, this.userId, m_oBasicData.RoleIds))
+                userId = result.UserId;
+                m_oBasicData.CreateDate = result.CreateDate;
+                m_oBasicData.UpdateDate = result.UpdateDate;
+                m_sSiteGUID = userId.ToString();
+                if (UsersDal.UpsertUserRoleIds(GroupId, userId, m_oBasicData.RoleIds))
                 {
-                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(GroupId, this.m_sSiteGUID);
+                    var invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(GroupId, m_sSiteGUID);
                     if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
                     {
                         log.ErrorFormat("Failed to set invalidation key on DoInsert key = {0}", invalidationKey);
@@ -681,26 +661,22 @@ namespace Core.Users
                     log.ErrorFormat("User created with no role. userId = {0}", m_sSiteGUID);
                 }
 
-                success = true;
-            }
-            else
-            {
-                this.userId = -1;
-                return success;
-            }
-
-            if (m_oDynamicData != null && m_oDynamicData.m_sUserData != null)
-            {
-                m_oDynamicData.UserId = this.userId;
-                m_oDynamicData.GroupId = this.GroupId;
-                if (!m_oDynamicData.Save())
+                if (m_oDynamicData?.m_sUserData == null)
                 {
-                    this.userId = -1;
-                    return success;
+                    return true;
+                }
+
+                m_oDynamicData.UserId = userId;
+                m_oDynamicData.GroupId = GroupId;
+                if (m_oDynamicData.Save())
+                {
+                    return true;
                 }
             }
 
-            return success;
+            userId = -1;
+
+            return false;
         }
 
         protected override bool DoUpdate()
@@ -1198,7 +1174,7 @@ namespace Core.Users
         {
             initializedUser.m_oBasicData.SetPassword(password, groupId); // generate salt and encrypt password
 
-            initializedUser.SaveForUpdate(groupId, false, false, true);            
+            initializedUser.SaveForUpdate(groupId, false, false, true);
         }
 
         public static void MigratePasswordHistory(int userId, BaseEncrypter encrypter)
@@ -1311,6 +1287,44 @@ namespace Core.Users
         static public bool UpdateLoginViaStartSession(int groupId, int add, int userId, User user, bool setLoginDate = false)
         {
             return UpdateFailCount(groupId, add, userId, user, setLoginDate);
+        }
+
+        private InsertUserInputModel MapToUserInputModel()
+        {
+            var userDataEncryptor = UserDataEncryptor.Instance();
+            var encryptionType = userDataEncryptor.GetUsernameEncryptionType(GroupId);
+            var username = userDataEncryptor.EncryptUsername(GroupId, encryptionType, m_oBasicData.m_sUserName);
+            var countryId = m_oBasicData.m_Country?.m_nObjecrtID;
+
+            return new InsertUserInputModel
+            {
+                Username = username,
+                Password = m_oBasicData.m_sPassword,
+                Salt = m_oBasicData.m_sSalt,
+                FirstName = m_oBasicData.m_sFirstName,
+                LastName = m_oBasicData.m_sLastName,
+                FacebookId = m_oBasicData.m_sFacebookID,
+                FacebookImage = m_oBasicData.m_sFacebookImage,
+                FacebookToken = m_oBasicData.m_sFacebookToken,
+                Email = m_oBasicData.m_sEmail,
+                ActivateStatus = shouldSetUserActive,
+                CoGuid = m_oBasicData.m_CoGuid,
+                ExternalToken = m_oBasicData.m_ExternalToken,
+                UserTypeId = m_oBasicData.m_UserType.ID,
+                Address = m_oBasicData.m_sAddress,
+                City = m_oBasicData.m_sCity,
+                Zip = m_oBasicData.m_sZip,
+                Phone = m_oBasicData.m_sPhone,
+                AffiliateCode = m_oBasicData.m_sAffiliateCode,
+                TwitterToken = m_oBasicData.m_sTwitterToken,
+                TwitterTokenSecret = m_oBasicData.m_sTwitterTokenSecret,
+                GroupId = GroupId,
+                UsernameEncryptionEnabled = encryptionType.HasValue,
+                IsFacebookImagePermitted = m_oBasicData.m_bIsFacebookImagePermitted,
+                ActivationToken = shouldSetUserActive ? string.Empty : Guid.NewGuid().ToString(),
+                CountryId = countryId ?? default,
+                StateId = m_oBasicData.m_State != null && countryId > 0 ? m_oBasicData.m_State.m_nObjecrtID : default
+            };
         }
     }
 }

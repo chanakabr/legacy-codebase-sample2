@@ -3,10 +3,13 @@ using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
+
+[assembly:InternalsVisibleTo("WebAPI.Tests")]
 
 namespace WebAPI.Clients
 {
@@ -14,7 +17,7 @@ namespace WebAPI.Clients
     public static class ClientUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
+
         internal static U GetResponseFromWS<U, T>(U requestObject, Func<T, GenericResponse<T>> funcInWS)
             where U : KalturaOTTObject where T : class
         {
@@ -198,6 +201,30 @@ namespace WebAPI.Clients
             {
                 throw new ClientException(status);
             }
+        }
+
+        internal static T GetResponseFromWs<T>(Func<T> funcInWs) where T : class
+        {
+            T response = null;
+            try
+            {
+                using (new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = funcInWs();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while calling client service.", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException(StatusCode.Error);
+            }
+
+            return response;
         }
 
         internal static bool GetBoolResponseFromWS(Func<bool> funcInWS)

@@ -1,4 +1,9 @@
-﻿using ApiLogic.Users;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Linq;
+using System.Reflection;
+using ApiLogic.Users;
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.SSOAdapter;
@@ -6,14 +11,10 @@ using AutoMapper;
 using Core.Users;
 using KLogMonitor;
 using ObjectsConvertor.Mapping;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Reflection;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
+using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
@@ -128,46 +129,36 @@ namespace WebAPI.Clients
 
         public KalturaOTTUser SignUp(int groupId, KalturaOTTUser userData, string password)
         {
-            GenericResponse<UserResponseObject> response = null;
-
-            try
+            GenericResponse<UserResponseObject> SignUpUser()
             {
-                UserBasicData userBasicData = Mapper.Map<UserBasicData>(userData);
-                UserDynamicData userDynamicData = Mapper.Map<UserDynamicData>(userData.DynamicData);
+                var userBasicData = Mapper.Map<UserBasicData>(userData);
+                var userDynamicData = Mapper.Map<UserDynamicData>(userData.DynamicData) ?? new UserDynamicData();
 
-                if (userDynamicData == null)
-                    userDynamicData = new UserDynamicData();
-
-                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
-                {
-                    response = Core.Users.Module.SignUp(groupId, userBasicData, userDynamicData, password, userData.AffiliateCode);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while SignUp. exception: {0}", ex);
-                ErrorUtils.HandleWSException(ex);
+                return Core.Users.Module.SignUp(groupId, userBasicData, userDynamicData, password, userData.AffiliateCode);
             }
 
-            if (!response.IsOkStatusCode())
+            var signUpResponse = ClientUtils.GetResponseFromWs(SignUpUser);
+            if (!signUpResponse.IsOkStatusCode())
             {
-                if (response.Status.Code == (int)eResponseStatus.UserExternalError)
+                if (signUpResponse.Status.Code == (int)eResponseStatus.UserExternalError)
                 {
-                    throw new ClientExternalException(ApiException.EXTERNAL_ERROR, response.Status.Code, response.Status.Message, response.Object.ExternalCode, response.Object.ExternalMessage);
+                    throw new ClientExternalException(
+                        ApiException.EXTERNAL_ERROR,
+                        signUpResponse.Status.Code,
+                        signUpResponse.Status.Message,
+                        signUpResponse.Object.ExternalCode,
+                        signUpResponse.Object.ExternalMessage);
                 }
-                else
-                {
-                    throw new ClientException(response.Status);
-                }
+
+                throw new ClientException(signUpResponse.Status);
             }
 
-            if (response.Object == null)
+            if (signUpResponse.Object == null)
             {
                 throw new ClientException(StatusCode.Error);
             }
 
-            var user = Mapper.Map<KalturaOTTUser>(response.Object);
-            return user;
+            return Mapper.Map<KalturaOTTUser>(signUpResponse.Object);
         }
 
         public bool SendNewPassword(int groupId, string userName, string templateName)

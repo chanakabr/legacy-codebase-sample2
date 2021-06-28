@@ -14,6 +14,9 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using ApiLogic.CanaryDeployment;
+using ApiObjects.CanaryDeployment;
+using ApiObjects.User;
 using Tvinci.Core.DAL;
 
 namespace DAL
@@ -47,7 +50,7 @@ namespace DAL
         private const string SP_GET_USER_BASIC_DATA = "Get_UserBasicData";
         private const string SP_GET_USERS_BASIC_DATA = "Get_UsersBasicData";
         private const string SP_GET_USER_DOMAINS = "sp_GetUserDomains";
-        private const string SP_INSERT_USER = "sp_InsertUser";
+        private const string SP_INSERT_NEW_USER = "Insert_NewUser";
         private const string SP_GET_IS_ACTIVATION_NEEDED = "Get_IsActivationNeeded";
         private const string SP_GET_GROUP_USERS = "Get_GroupUsers";
         private const string SP_GET_GROUP_USERS_SEARCH_FIELDS = "Get_GroupUsersSearchFields";
@@ -287,70 +290,75 @@ namespace DAL
             return UID;
         }
 
-        public static int InsertUser(string sUserName, string sPassword, string sSalt, string sFirstName, string sLastName, string sFacebookID, string sFacebookImage, string sFacebookToken,
-                                    int nIsFacebookImagePermitted, string sEmail, int nActivateStatus, string sActivationToken, string sCoGuid, string sExternalToken, int? nUserTypeID,
-                                    string sAddress, string sCity, int countryID, int stateID, string sZip, string sPhone, string sAffiliateCode, string sTwitterToken, string sTwitterTokenSecret, 
-                                    int nGroupID, bool usernameEncryptionEnabled)
+        public static InsertUserOutputModel InsertUser(InsertUserInputModel model)
         {
-            int nInserted = 0;
-
             try
             {
-
-                ODBCWrapper.StoredProcedure spInsertUser = new ODBCWrapper.StoredProcedure(SP_INSERT_USER);
+                var spInsertUser = new StoredProcedure(SP_INSERT_NEW_USER);
                 spInsertUser.SetConnectionKey("USERS_CONNECTION_STRING");
 
-                spInsertUser.AddParameter("@username", sUserName);
-                spInsertUser.AddParameter("@password", sPassword);
-                spInsertUser.AddParameter("@salt", sSalt);
-                spInsertUser.AddParameter("@firstName", sFirstName);
-                spInsertUser.AddParameter("@lastName", sLastName);
-                spInsertUser.AddParameter("@facebookID", sFacebookID);
-                spInsertUser.AddParameter("@facebookImage", sFacebookImage);
-                spInsertUser.AddParameter("@facebookToken", sFacebookToken);
-                spInsertUser.AddParameter("@isFacebookImagePermitted", nIsFacebookImagePermitted);
-                spInsertUser.AddParameter("@email", sEmail);
-                spInsertUser.AddParameter("@activateStatus", nActivateStatus);
-                spInsertUser.AddParameter("@activationToken", sActivationToken);
+                spInsertUser.AddParameter("@username", model.Username);
+                spInsertUser.AddParameter("@password", model.Password);
+                spInsertUser.AddParameter("@salt", model.Salt);
+                spInsertUser.AddParameter("@firstName", model.FirstName);
+                spInsertUser.AddParameter("@lastName", model.LastName);
+                spInsertUser.AddParameter("@facebookID", model.FacebookId);
+                spInsertUser.AddParameter("@facebookImage", model.FacebookImage);
+                spInsertUser.AddParameter("@facebookToken", model.FacebookToken);
+                spInsertUser.AddParameter("@isFacebookImagePermitted", model.IsFacebookImagePermitted);
+                spInsertUser.AddParameter("@email", model.Email);
+                spInsertUser.AddParameter("@activateStatus", model.ActivateStatus);
+                spInsertUser.AddParameter("@activationToken", model.ActivationToken);
 
-                if (!string.IsNullOrEmpty(sCoGuid))
+                if (!string.IsNullOrEmpty(model.CoGuid))
                 {
-                    spInsertUser.AddParameter("@coGuid", sCoGuid);
+                    spInsertUser.AddParameter("@coGuid", model.CoGuid);
                 }
-                if (!string.IsNullOrEmpty(sExternalToken))
+                if (!string.IsNullOrEmpty(model.ExternalToken))
                 {
-                    spInsertUser.AddParameter("@externalToken", sExternalToken);
+                    spInsertUser.AddParameter("@externalToken", model.ExternalToken);
                 }
-                if (nUserTypeID != null)
+                if (model.UserTypeId.HasValue)
                 {
-                    spInsertUser.AddParameter("@userTypeID", nUserTypeID.Value);
+                    spInsertUser.AddParameter("@userTypeID", model.UserTypeId.Value);
                 }
-                if (usernameEncryptionEnabled)
+                if (model.UsernameEncryptionEnabled)
                 {
-                    spInsertUser.AddParameter("@usernameEncryptionEnabled", 1);
+                    spInsertUser.AddParameter("@usernameEncryptionEnabled", model.UsernameEncryptionEnabled);
                 }
 
-                spInsertUser.AddParameter("@address", sAddress);
-                spInsertUser.AddParameter("@city", sCity);
-                spInsertUser.AddParameter("@country", countryID);
-                spInsertUser.AddParameter("@state", stateID);
-                spInsertUser.AddParameter("@zip", sZip);
-                spInsertUser.AddParameter("@phone", sPhone);
-                spInsertUser.AddParameter("@affiliateCode", sAffiliateCode);
-                spInsertUser.AddParameter("@twitterToken", sTwitterToken);
-                spInsertUser.AddParameter("@twitterTokenSecret", sTwitterTokenSecret);
-                spInsertUser.AddParameter("@groupID", nGroupID);
+                spInsertUser.AddParameter("@address", model.Address);
+                spInsertUser.AddParameter("@city", model.City);
+                spInsertUser.AddParameter("@country", model.CountryId);
+                spInsertUser.AddParameter("@state", model.StateId);
+                spInsertUser.AddParameter("@zip", model.Zip);
+                spInsertUser.AddParameter("@phone", model.Phone);
+                spInsertUser.AddParameter("@affiliateCode", model.AffiliateCode);
+                spInsertUser.AddParameter("@twitterToken", model.TwitterToken);
+                spInsertUser.AddParameter("@twitterTokenSecret", model.TwitterTokenSecret);
+                spInsertUser.AddParameter("@groupID", model.GroupId);
 
-                int retVal = spInsertUser.ExecuteReturnValue<int>();
+                var resultDataset = spInsertUser.ExecuteDataSet();
+                if (resultDataset?.Tables.Count != 1 || resultDataset.Tables[0]?.Rows.Count != 1)
+                {
+                    return null;
+                }
 
-                return retVal;
+                var dataRow = resultDataset.Tables[0].Rows[0];
+
+                return new InsertUserOutputModel
+                {
+                    UserId = Utils.GetIntSafeVal(dataRow, "ID"),
+                    CreateDate = Utils.GetDateSafeVal(dataRow, "CREATE_DATE"),
+                    UpdateDate = Utils.GetDateSafeVal(dataRow, "UPDATE_DATE")
+                };
             }
             catch (Exception ex)
             {
                 HandleException(ex);
             }
 
-            return nInserted;
+            return null;
         }
 
         public static bool UpdateHitDate(int nSiteGuid, bool bLogOut = false)
@@ -714,7 +722,7 @@ namespace DAL
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="groupId"></param>
         /// <param name="userId"></param>
@@ -1268,7 +1276,7 @@ namespace DAL
             sp.AddIDListParameter("@userIDs", userIds, "id");
             sp.AddIDListParameter("@itemIDs", unavailableItemIds, "id");
             var result = sp.ExecuteReturnValue<bool>();
-            
+
             return result;
         }
 
@@ -1326,12 +1334,12 @@ namespace DAL
         /// <param name="dNow"></param>
         /// <returns>
         ///     -2 - error
-        ///     -1 - user does not exist or was removed/deactivated   
-        ///      0 - user activated 
-        ///      1 - user not activated 
+        ///     -1 - user does not exist or was removed/deactivated
+        ///      0 - user activated
+        ///      1 - user not activated
         ///      2 - user not activated by master
         ///      3 - user removed from domain
-        ///      
+        ///
         /// </returns>
         public static DALUserActivationState GetUserActivationState(int nParentGroupID, int nActivationMustHours, ref string sUserName, ref int nUserID, ref bool isGracePeriod)
         {
@@ -2027,7 +2035,7 @@ namespace DAL
                         security = (nSecurity == 1 ? true : false);
                         loginViaPin = (nLoginViaPin == 1 ? true : false);
                     }
-                    // perfect matched 
+                    // perfect matched
                     if (ds.Tables.Count > 1 && ds.Tables[1] != null && ds.Tables[1].Rows != null && ds.Tables[1].Rows.Count > 0)
                     {
                         return ds.Tables[1].Rows[0];
@@ -2812,7 +2820,7 @@ namespace DAL
         {
             var sp = new StoredProcedure("Create_GroupBasicData");
             sp.SetConnectionKey(USERS_CONNECTION_STRING);
-            sp.AddParameter("@groupId", partnerId);           
+            sp.AddParameter("@groupId", partnerId);
             sp.AddParameter("@updaterId", updaterId);
             // TODO IS_ACTIVATION_NEEDED
             // TODO ALLOW_DELETE_USER
