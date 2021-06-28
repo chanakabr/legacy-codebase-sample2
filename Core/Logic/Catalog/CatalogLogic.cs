@@ -2417,7 +2417,7 @@ namespace Core.Catalog
                 oFilter = filterRequest;
                 MediaSearchRequest oMediasRequest = new MediaSearchRequest();
                 oMediasRequest.m_nMediaTypes = new List<int>();
-                if ((nMediaTypes == null || nMediaTypes.Count == 0) && (nMediaTypes != null && nMediaTypes.Count > 0))
+                if (nMediaTypes?.Count > 0) 
                 {
                     oMediasRequest.m_nMediaTypes.AddRange(nMediaTypes);
                 }
