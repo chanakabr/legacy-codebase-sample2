@@ -192,11 +192,6 @@ namespace WebAPI.Utils
             return responseProfile != null ? responseProfile as WebAPI.Models.General.KalturaBaseResponseProfile : null;
         }
 
-        public static bool ConvertStringToDateTimeByFormat(string dateInString, string convertToFormat, out DateTime dateTime)
-        {
-            return DateTime.TryParseExact(dateInString, convertToFormat, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out dateTime);
-        }
-
         public static string GetCurrentBaseUrl()
         {
             string xForwardedProtoHeader = HttpContext.Current.Request.Headers["X-Forwarded-Proto"];

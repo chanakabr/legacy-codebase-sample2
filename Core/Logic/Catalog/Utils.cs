@@ -16,6 +16,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -1558,6 +1559,14 @@ namespace Core.Catalog
 
             return result;
         }
+
+        public static bool ConvertStringToDateTimeByFormat(string dateInString, string convertToFormat, out DateTime dateTime)
+            => DateTime.TryParseExact(
+                dateInString,
+                convertToFormat,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out dateTime);
 
         private static string GetEpgIdFromNpvrObject(BaseObject baseObject, ref RecordingType? scheduledRecordingType)
         {

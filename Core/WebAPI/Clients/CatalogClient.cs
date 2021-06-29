@@ -1989,17 +1989,18 @@ namespace WebAPI.Clients
                 duration = 0
             };
 
-            EpgProgramsResponse epgProgramResponse = null;
-
-            if (CatalogUtils.GetBaseResponse(request, out epgProgramResponse) && epgProgramResponse != null && epgProgramResponse.lEpgList != null)
+            if (CatalogUtils.GetBaseResponse(request, out EpgProgramsResponse epgProgramResponse)
+                && epgProgramResponse?.lEpgList != null)
             {
                 // get base objects list
-                DateTime updateDate;
-                List<BaseObject> assetsBaseDataList = epgProgramResponse.lEpgList.Select(x => new BaseObject()
+                var assetsBaseDataList = epgProgramResponse.lEpgList.Select(x => new BaseObject
                 {
                     AssetId = x.EPG_ID.ToString(),
                     AssetType = eAssetTypes.EPG,
-                    m_dUpdateDate = Utils.Utils.ConvertStringToDateTimeByFormat(x.UPDATE_DATE, EPG_DATETIME_FORMAT, out updateDate) ? updateDate : DateTime.MinValue
+                    m_dUpdateDate = Core.Catalog.Utils.ConvertStringToDateTimeByFormat(
+                        x.UPDATE_DATE,
+                        EPGChannelProgrammeObject.DATE_FORMAT,
+                        out var updateDate) ? updateDate : DateTime.MinValue
                 }).ToList();
 
                 // get assets from catalog/cache

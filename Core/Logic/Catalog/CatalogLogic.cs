@@ -3445,87 +3445,30 @@ namespace Core.Catalog
 
         internal static EpgProgramResponse CompleteDetailsForProgramResponse(EpgProgramDetailsRequest pRequest)
         {
-            EpgProgramResponse pResponse = new EpgProgramResponse();
-
             int nStartIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize;
             int nEndIndex = pRequest.m_nPageIndex * pRequest.m_nPageSize + pRequest.m_nPageSize;
 
-            if ((nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null && pRequest.m_lProgramsIds.Count > 0) ||
+            if ((nStartIndex == 0 && nEndIndex == 0 && pRequest.m_lProgramsIds != null &&
+                 pRequest.m_lProgramsIds.Count > 0) ||
                 nEndIndex > pRequest.m_lProgramsIds.Count)
             {
                 nEndIndex = pRequest.m_lProgramsIds.Count();
             }
 
-            //generate a list with the relevant EPG IDs (according to page size and page index)
-            List<int> lEpgIDs = new List<int>();
-            for (int i = nStartIndex; i < nEndIndex; i++)
+            if (pRequest.m_lProgramsIds == null || pRequest.m_lProgramsIds.Count == 0)
             {
-                lEpgIDs.Add(pRequest.m_lProgramsIds[i]);
+                return new EpgProgramResponse { m_lObj = new List<BaseObject>() };
             }
 
-            Group group = GroupsCache.Instance().GetGroup(pRequest.m_nGroupID);
-            LanguageObj language = null;
-            List<LanguageObj> languages = new List<LanguageObj>();
+            var languages = GetLanguages(pRequest.m_oFilter, pRequest.m_nGroupID);
+            var epgIds = pRequest.m_lProgramsIds?.Select(id => (long)id).ToList();
+            var programs = GetProgramObjects(pRequest.m_nGroupID, epgIds, languages);
 
-            if (pRequest.m_oFilter != null)
+            return new EpgProgramResponse
             {
-                if (pRequest.m_oFilter.m_nLanguage == 0)
-                {
-                    languages = group.GetLangauges();
-                }
-                else
-                {
-                    // Getting the language  from the filter request 
-                    language = group.GetLanguage(pRequest.m_oFilter.m_nLanguage);
-
-                    // in case no language was found - throw Exception
-                    if (language == null)
-                        throw new Exception(string.Format("Error while getting language: {0} for group: {1}", pRequest.m_oFilter.m_nLanguage, pRequest.m_nGroupID));
-                    else
-                        languages.Add(language);
-                }
-            }
-            else
-            {
-                // in case no language was found - return defalut language
-                languages.Add(group.GetGroupDefaultLanguage());
-            }
-
-            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(pRequest.m_nGroupID);
-            List<EPGChannelProgrammeObject> programs = epgBL.GetEpgCBsWithLanguage(lEpgIDs.Select(id => (ulong)id).ToList(), languages);
-
-            // get all linear settings about channel + group
-            GetLinearChannelSettings(pRequest.m_nGroupID, programs);
-
-            //keeping the original order and amount of items (some of the items might return as null)
-            if (pRequest.m_lProgramsIds != null && programs != null)
-            {
-                pResponse.m_nTotalItems = programs.Count;
-            }
-
-            ProgramObj oProgramObj = null;
-            List<BaseObject> lProgramObj = new List<BaseObject>();
-            EPGChannelProgrammeObject epgProg = null;
-
-            foreach (int nProgram in pRequest.m_lProgramsIds)
-            {
-                if (programs.Exists(x => x.EPG_ID == nProgram))
-                {
-                    epgProg = programs.Find(x => x.EPG_ID == nProgram);
-                    oProgramObj = new ProgramObj
-                    {
-                        m_oProgram = epgProg,
-                        AssetId = epgProg.EPG_ID.ToString()
-                    };
-
-                    bool succeedParse = DateTime.TryParse(epgProg.UPDATE_DATE, out oProgramObj.m_dUpdateDate);
-                    lProgramObj.Add(oProgramObj);
-                }
-
-            }
-            pResponse.m_lObj = lProgramObj;
-
-            return pResponse;
+                m_nTotalItems = programs.Count,
+                m_lObj = programs.Cast<BaseObject>().ToList()
+            };
         }
 
         public static void GetLinearChannelSettings(int groupID, List<EPGChannelProgrammeObject> lEpgProg)
@@ -3801,6 +3744,61 @@ namespace Core.Catalog
 
         }
 
+        private static List<LanguageObj> GetLanguages(Filter filter, int groupId)
+        {
+            var group = GroupsCache.Instance().GetGroup(groupId);
+            if (filter == null)
+            {
+                return new List<LanguageObj> { group.GetGroupDefaultLanguage() };
+            }
+
+            if (filter.m_nLanguage == 0)
+            {
+                return group.GetLangauges();
+            }
+
+            var language = group.GetLanguage(filter.m_nLanguage);
+            // in case no language was found - throw Exception
+            if (language == null)
+            {
+                throw new Exception(
+                    $"Error while getting language: {filter.m_nLanguage} for group: {group.m_nParentGroupID}");
+            }
+
+            return new List<LanguageObj> { language };
+        }
+
+        private static List<ProgramObj> GetProgramObjects(int groupId, List<long> epgIds, List<LanguageObj> languages)
+        {
+            var epgBl = EpgBL.Utils.GetInstance(groupId);
+            var basicEpgObjects = epgBl.GetEpgCBsWithLanguage(epgIds.Select(id => (ulong)id).ToList(), languages);
+            if (basicEpgObjects == null || basicEpgObjects.Count == 0)
+            {
+                return new List<ProgramObj>();
+            }
+
+            // get all linear settings about channel + group
+            GetLinearChannelSettings(groupId, basicEpgObjects);
+
+            return basicEpgObjects
+                .Where(x => epgIds.Contains(x.EPG_ID))
+                .Select(MapToProgramObj)
+                .ToList();
+        }
+
+        private static ProgramObj MapToProgramObj(EPGChannelProgrammeObject currentEpg)
+            => new ProgramObj
+            {
+                m_oProgram = currentEpg,
+                AssetId = currentEpg.EPG_ID.ToString(),
+                m_dUpdateDate = Utils.ConvertStringToDateTimeByFormat(
+                    currentEpg.UPDATE_DATE,
+                    EPGChannelProgrammeObject.DATE_FORMAT,
+                    out var convertedDate)
+                    ? convertedDate
+                    : DateTime.MinValue
+            };
+
         /*
          * We set isSortResults to true when we are unable to bring the results sorted from CB. In this case the code will verify that the
          * results are sorted.
@@ -3878,72 +3876,15 @@ namespace Core.Catalog
         /// <returns></returns>
         internal static List<ProgramObj> GetEPGProgramInformation(List<long> epgIds, int groupId, Filter filter = null)
         {
-            List<ProgramObj> epgsInformation = new List<ProgramObj>();
-
             // Don't do anything if no valid input
             if (epgIds == null || epgIds.Count == 0)
             {
-                return epgsInformation;
+                return new List<ProgramObj>();
             }
 
-            Group group = GroupsCache.Instance().GetGroup(groupId);
-            List<LanguageObj> languages = new List<LanguageObj>();
+            var languages = GetLanguages(filter, groupId);
 
-            if (filter != null)
-            {
-                if (filter.m_nLanguage == 0)
-                {
-                    languages = group.GetLangauges();
-                }
-                else
-                {
-                    // Getting the language  from the filter request 
-                    LanguageObj language = group.GetLanguage(filter.m_nLanguage);
-
-                    // in case no language was found - throw Exception
-                    if (language == null)
-                        throw new Exception(string.Format("Error while getting language: {0} for group: {1}", filter.m_nLanguage, groupId));
-                    else
-                        languages.Add(language);
-                }
-            }
-            else
-            {
-                // in case no language was found - return default language
-                languages.Add(group.GetGroupDefaultLanguage());
-            }
-
-            BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupId);
-            List<EPGChannelProgrammeObject> basicEpgObjects = epgBL.GetEpgCBsWithLanguage(epgIds.Select(id => (ulong)id).ToList(), languages);
-
-            if (basicEpgObjects != null && basicEpgObjects.Count > 0)
-            {
-                // get all linear settings about channel + group
-                GetLinearChannelSettings(groupId, basicEpgObjects);
-
-                for (int i = 0; i < basicEpgObjects.Count; i++)
-                {
-                    var currentEpg = basicEpgObjects[i];
-
-                    int tempEpgChannelID = 0;
-
-                    if (currentEpg == null || !Int32.TryParse(currentEpg.EPG_CHANNEL_ID, out tempEpgChannelID) || tempEpgChannelID < 1)
-                    {
-                        continue;
-                    }
-                    DateTime updateDate = DateTime.MinValue;
-                    DateTime.TryParse(currentEpg.UPDATE_DATE, out updateDate);
-
-                    epgsInformation.Add(new ProgramObj()
-                    {
-                        m_oProgram = currentEpg,
-                        AssetId = currentEpg.EPG_ID.ToString(),
-                        m_dUpdateDate = updateDate
-                    });
-                }
-            }
-
-            return epgsInformation;
+            return GetProgramObjects(groupId, epgIds, languages);
         }
 
         private static EpgResultsObj BuildResObjForChannel(ICollection<EPGChannelProgrammeObject> programmes, int epgChannelID, ref int totalItems)
