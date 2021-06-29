@@ -3977,7 +3977,8 @@ namespace Core.ConditionalAccess
         }
 
         // build dictionary - for each media file get one priceResonStatus mediaFilesStatus NotForPurchase, if UnKnown need to continue check that mediafile
-        internal static Dictionary<int, MediaFileStatus> ValidateMediaFiles(int[] nMediaFiles, ref Dictionary<int, string> mediaFilesProductCode, int groupId, int countryId)
+        internal static Dictionary<int, MediaFileStatus> ValidateMediaFiles(int[] nMediaFiles, ref Dictionary<int, string> mediaFilesProductCode,
+            int groupId, int countryId, bool withMediaFilesInvalidation = false)
         {
             Dictionary<int, MediaFileStatus> mediaFilesStatus = new Dictionary<int, MediaFileStatus>();
             mediaFilesProductCode = new Dictionary<int, string>();
@@ -3985,6 +3986,26 @@ namespace Core.ConditionalAccess
             {
                 string productCode = string.Empty;
                 MediaFileStatus eMediaFileStatus = MediaFileStatus.OK;
+
+                Dictionary<int, int> mapperDic = new Dictionary<int, int>();
+
+                if (withMediaFilesInvalidation)
+                {
+                    MeidaMaper[] mapper = GetMediaMapper(groupId, nMediaFiles);
+                    if (mapper != null)
+                    {
+                        foreach (var item in mapper)
+                        {
+                            if (!mapperDic.ContainsKey(item.m_nMediaFileID))
+                            {
+                                mapperDic.Add(item.m_nMediaFileID, item.m_nMediaID);
+                            }
+                        }
+                    }
+                }
+
+                Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
+                Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
 
                 //initialize all status as OK 
                 foreach (int mf in nMediaFiles)
@@ -3994,15 +4015,22 @@ namespace Core.ConditionalAccess
                         mediaFilesStatus.Add(mf, eMediaFileStatus);
                         mediaFilesProductCode.Add(mf, productCode);
                     }
+
+                    string mfKey = LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(mf, groupId);
+                    keysToOriginalValueMap.Add(mfKey, mf.ToString());
+
+                    if (mapperDic.ContainsKey(mf))
+                    {
+                        invalidationKeysMap.Add(mfKey, new List<string>() { LayeredCacheKeys.GetAssetInvalidationKey(groupId, eAssetTypes.MEDIA.ToString(), mapperDic[mf]) });
+                    }
                 }
 
                 // get basic file details from cach / DB                 
                 Dictionary<string, DataTable> fileDatatables = null;
-                Dictionary<string, string> keysToOriginalValueMap = nMediaFiles.ToDictionary(x => LayeredCacheKeys.GetFileAndMediaBasicDetailsKey(x, groupId), x => x.ToString());
 
                 // try to get from cache            
                 bool cacheResult = LayeredCache.Instance.GetValues<DataTable>(keysToOriginalValueMap, ref fileDatatables, Get_FileAndMediaBasicDetails, new Dictionary<string, object>() { { "fileIDs", nMediaFiles }, { "groupId", groupId } },
-                                                                                groupId, LayeredCacheConfigNames.VALIDATE_MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME);
+                                                                                groupId, LayeredCacheConfigNames.VALIDATE_MEDIA_FILES_LAYERED_CACHE_CONFIG_NAME, invalidationKeysMap);
 
                 long mediaId = 0;
                 int mediaFileID;

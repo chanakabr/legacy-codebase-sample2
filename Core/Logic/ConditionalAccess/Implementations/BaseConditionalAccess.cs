@@ -6783,7 +6783,8 @@ namespace Core.ConditionalAccess
         /// Get Items Prices
         /// </summary>
         public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] mediaFiles, string userId, string couponCode, bool onlyLowest, string languageCode, string udid,
-                                                                     string ip, string currencyCode = null, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE, bool isDownloadPlayContext = false)
+                                                                     string ip, string currencyCode = null, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE, 
+                                                                     bool isDownloadPlayContext = false, bool withMediaFilesInvalidation = false)
         {
             MediaFileItemPricesContainer[] ret = null;
 
@@ -6791,7 +6792,7 @@ namespace Core.ConditionalAccess
             {
                 // get details about files + media (validity about files)    
                 Dictionary<int, string> mediaFilesProductCode = new Dictionary<int, string>();
-                Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(mediaFiles, ref mediaFilesProductCode, m_nGroupID, Utils.GetIP2CountryId(m_nGroupID, ip));
+                Dictionary<int, MediaFileStatus> validMediaFiles = Utils.ValidateMediaFiles(mediaFiles, ref mediaFilesProductCode, m_nGroupID, Utils.GetIP2CountryId(m_nGroupID, ip), withMediaFilesInvalidation);
 
                 List<int> mediaFilesNotForPurchase = new List<int>();
                 List<int> mediaFilesForPurchase = new List<int>();
