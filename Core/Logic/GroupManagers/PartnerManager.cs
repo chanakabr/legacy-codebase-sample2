@@ -183,20 +183,35 @@ namespace Core.GroupManagers
 
             IterateRabbitQueues(id, RoutingKeyQueueAction.Unbind);
 
+            if (!_caPartnerRepository.DeletePartnerBasicDataDb(id, updaterId))
+            {
+                Log.Error($"Error while delete partner ConditionalAccess basicData. id: {id}, updaterId: {updaterId}.");
+            }
+
+            if (!_billingPartnerRepository.DeletePartnerBasicDataDb(id, updaterId))
+            {
+                Log.Error($"Error while delete partner billing basicData. id: {id}, updaterId: {updaterId}.");
+            }
+
+            if (!_pricingPartnerRepository.DeletePartnerBasicDataDb(id, updaterId))
+            {
+                Log.Error($"Error while delete partner pricing basicData. id: {id}, updaterId: {updaterId}.");
+            }
+
+            if (!_partnerDal.DeletePartnerBasicDataDb(id, updaterId))
+            {
+                Log.Error($"Error while delete partner tivinci basicData. id: {id}, updaterId: {updaterId}.");
+            }
+
             if (!_userPartnerRepository.DeletePartnerDb(id, updaterId))
             {
-                Log.Error($"Error while delete partner pricing basicData. updaterId: {updaterId}.");
+                Log.Error($"Error while delete partner users basicData. id: {id}, updaterId: {updaterId}.");
             }
 
             if (!_partnerDal.DeletePartner(id, updaterId))
             {
-                Log.Error($"Error while delete partner users basicData. updaterId: {updaterId}.");
-            }
-
-            if (!_partnerDal.DeletePartner(id, updaterId))
-            {
-                Log.Error($"Error while Delete Partner. updaterId: {updaterId}.");
-                result.Set(eResponseStatus.Error);
+                Log.Error($"Error while Delete Partner. id: {id},updaterId: {updaterId}.");
+                result.Set(eResponseStatus.Error, "Error while Delete Partner");
                 return result;
             }
 

@@ -80,7 +80,7 @@ namespace DAL
     public interface IPricingPartnerRepository
     {
         bool SetupPartnerInDb(long partnerId, long updaterId);
-        bool DeletePartnerInPricingDb(long partnerId, long updaterId);
+        bool DeletePartnerBasicDataDb(long partnerId, long updaterId);
     }
 
     public class PricingDAL : ICampaignRepository, IPriceDetailsRepository, IPricePlanRepository, IModuleManagerRepository, IDiscountDetailsRepository, IPreviewModuleRepository, ICollectionRepository, IPricingPartnerRepository
@@ -319,7 +319,7 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public bool DeletePartnerInPricingDb(long partnerId, long updaterId)
+        public bool DeletePartnerBasicDataDb(long partnerId, long updaterId)
         {
             var sp = new StoredProcedure("Delete_GroupBasicData");
             sp.SetConnectionKey("pricing_connection");

@@ -311,15 +311,17 @@ namespace ApiLogic.Tests.GroupManagers
             IConnection __;
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
             
-            var pricingDal = new Mock<IPricingPartnerRepository>();
-            pricingDal.Setup(x => x.DeletePartnerInPricingDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            caPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            billingPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            userPartnerRepository.Setup(x => x.DeletePartnerDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            pricingPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
 
             var manager = new PartnerManager(partnerDal.Object,
                                             rabbitConnection.Object,
                                             applicationConfiguration.Object,
                                             userManager.Object,
                                             rabbitConfigDal.Object,
-                                            pricingDal.Object,
+                                            pricingPartnerRepository.Object,
                                             Mock.Of<IElasticSearchApi>(),
                                             new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
                                             Mock.Of<ICatalogManager>(),
@@ -362,18 +364,18 @@ namespace ApiLogic.Tests.GroupManagers
             int _ = 0;
             IConnection __;
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
-            
-            var pricingDal = new Mock<IPricingPartnerRepository>();
-            pricingDal.Setup(x =>
-                   x.SetupPartnerInDb(It.IsAny<long>(), It.IsAny<long>()))
-               .Returns(true);
 
+            caPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            billingPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            userPartnerRepository.Setup(x => x.DeletePartnerDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            pricingPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            partnerDal.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             var manager = new PartnerManager(partnerDal.Object,
                                             rabbitConnection.Object,
                                             applicationConfiguration.Object,
                                             userManager.Object,
                                             rabbitConfigDal.Object,
-                                            pricingDal.Object,
+                                            pricingPartnerRepository.Object,
                                             Mock.Of<IElasticSearchApi>(),
                                             new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
                                             Mock.Of<ICatalogManager>(),
@@ -390,6 +392,10 @@ namespace ApiLogic.Tests.GroupManagers
             Verify(rabbitConfigDal);
             Verify(applicationConfiguration);
             Verify(rabbitConnection);
+            Verify(pricingPartnerRepository);
+            Verify(userPartnerRepository);
+            Verify(billingPartnerRepository);
+            Verify(caPartnerRepository);
         }
 
         private static void Verify<T>(Mock<T> m) where T : class
