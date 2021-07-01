@@ -334,7 +334,9 @@ namespace ApiLogic.CanaryDeployment
                         if (!shouldCheckIfGroupKeyExists.Value ||  (shouldCheckIfGroupKeyExists.Value && _cbManager.IsKeyExists(GetCanaryConfigurationKey(groupId.Value))))
                         {
                             // don't check if key exists again in GetCanaryDeploymentConfiguration method
-                            cdc = GetCanaryDeploymentConfiguration(groupId.Value, false);
+                            // in special case where groupId==0 we do not check if the key exists so we will ask the actual get method to do that
+                            // otherwise we already did the check so no point in doing that again
+                            cdc = GetCanaryDeploymentConfiguration(groupId.Value, groupId == 0);
                         }
                         // fall-back is to use groupId = 0
                         else
