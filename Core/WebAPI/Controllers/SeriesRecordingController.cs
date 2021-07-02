@@ -298,8 +298,13 @@ namespace WebAPI.Controllers
                     throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "KalturaSeriesRecording.type", "KalturaRecordingType.SINGLE");
                 }
 
+                if (recording.SeriesRecordingOption != null)
+                {
+                    recording.SeriesRecordingOption.Validate();
+                }
+
                 // call client
-                response = ClientsManager.ConditionalAccessClient().RecordSeasonOrSeries(groupId, userId, recording.EpgId, recording.Type);
+                response = ClientsManager.ConditionalAccessClient().RecordSeasonOrSeries(groupId, userId, recording.EpgId, recording.Type, recording.SeriesRecordingOption);
             }
             catch (ClientException ex)
             {

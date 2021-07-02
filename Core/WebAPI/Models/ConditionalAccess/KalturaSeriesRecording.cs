@@ -84,5 +84,44 @@ namespace WebAPI.Models.ConditionalAccess
         [XmlElement(ElementName = "excludedSeasons")]
         [SchemeProperty(ReadOnly=true)]
         public List<KalturaIntegerValue> ExcludedSeasons { get; set; }
+
+        /// <summary>
+        /// Series Recording Option
+        /// </summary>
+        [DataMember(Name = "seriesRecordingOption")]
+        [JsonProperty("seriesRecordingOption")]
+        [XmlElement(ElementName = "seriesRecordingOption")]
+        public KalturaSeriesRecordingOption SeriesRecordingOption { get; set; }
+    }
+
+    public partial class KalturaSeriesRecordingOption: KalturaOTTObject
+    {
+        /// <summary>
+        /// min Season Number
+        /// </summary>
+        [DataMember(Name = "minSeasonNumber")]
+        [JsonProperty("minSeasonNumber")]
+        [XmlElement(ElementName = "minSeasonNumber", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
+        public int? MinSeasonNumber { get; set; }
+
+        /// <summary>
+        /// min Season Number
+        /// </summary>
+        [DataMember(Name = "minEpisodeNumber")]
+        [JsonProperty("minEpisodeNumber")]
+        [XmlElement(ElementName = "minEpisodeNumber", IsNullable = true)]
+        [SchemeProperty(MinInteger = 0)]
+        public int? MinEpisodeNumber { get; set; }
+
+        internal void Validate()
+        {
+
+            if (MinSeasonNumber.HasValue && !MinEpisodeNumber.HasValue)
+                throw new System.Exception("Can't use minimal season without minimal episode");
+            
+            if (!MinSeasonNumber.HasValue && MinEpisodeNumber.HasValue)
+                throw new System.Exception("Can't use minimal episode without minimal season");
+        }
     }
 }

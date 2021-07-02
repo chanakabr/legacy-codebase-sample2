@@ -6603,6 +6603,8 @@ namespace WebAPI.Reflection
                             return "seasonNumber";
                         case "SeriesId":
                             return "seriesId";
+                        case "SeriesRecordingOption":
+                            return "seriesRecordingOption";
                         case "Type":
                             return "type";
                         case "UpdateDate":
@@ -6615,6 +6617,16 @@ namespace WebAPI.Reflection
                     {
                         case "Objects":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaSeriesRecordingOption":
+                    switch(property.Name)
+                    {
+                        case "MinEpisodeNumber":
+                            return "minEpisodeNumber";
+                        case "MinSeasonNumber":
+                            return "minSeasonNumber";
                     }
                     break;
                     

@@ -4522,6 +4522,11 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 ret.Add("seriesId", "\"seriesId\": " + "\"" + EscapeJson(SeriesId) + "\"");
             }
+            if(SeriesRecordingOption != null && (retrievedProperties == null || retrievedProperties.Contains("seriesRecordingOption")))
+            {
+                propertyValue = SeriesRecordingOption.ToJson(currentVersion, omitObsolete);
+                ret.Add("seriesRecordingOption", "\"seriesRecordingOption\": " + propertyValue);
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("type")))
             {
                 ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaRecordingType), Type) + "\"");
@@ -4572,6 +4577,11 @@ namespace WebAPI.Models.ConditionalAccess
             if(SeriesId != null && (retrievedProperties == null || retrievedProperties.Contains("seriesId")))
             {
                 ret.Add("seriesId", "<seriesId>" + EscapeXml(SeriesId) + "</seriesId>");
+            }
+            if(SeriesRecordingOption != null && (retrievedProperties == null || retrievedProperties.Contains("seriesRecordingOption")))
+            {
+                propertyValue = SeriesRecordingOption.ToXml(currentVersion, omitObsolete);
+                ret.Add("seriesRecordingOption", "<seriesRecordingOption>" + propertyValue + "</seriesRecordingOption>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("type")))
             {
@@ -4650,6 +4660,52 @@ namespace WebAPI.Models.ConditionalAccess
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaSeriesRecordingOption
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(MinEpisodeNumber.HasValue && (retrievedProperties == null || retrievedProperties.Contains("minEpisodeNumber")))
+            {
+                ret.Add("minEpisodeNumber", "\"minEpisodeNumber\": " + MinEpisodeNumber);
+            }
+            if(MinSeasonNumber.HasValue && (retrievedProperties == null || retrievedProperties.Contains("minSeasonNumber")))
+            {
+                ret.Add("minSeasonNumber", "\"minSeasonNumber\": " + MinSeasonNumber);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(MinEpisodeNumber.HasValue && (retrievedProperties == null || retrievedProperties.Contains("minEpisodeNumber")))
+            {
+                ret.Add("minEpisodeNumber", "<minEpisodeNumber>" + MinEpisodeNumber + "</minEpisodeNumber>");
+            }
+            if(MinSeasonNumber.HasValue && (retrievedProperties == null || retrievedProperties.Contains("minSeasonNumber")))
+            {
+                ret.Add("minSeasonNumber", "<minSeasonNumber>" + MinSeasonNumber + "</minSeasonNumber>");
             }
             return ret;
         }
@@ -37242,7 +37298,7 @@ namespace WebAPI.Models.Partner
                 propertyValue = "[" + String.Join(", ", BookmarkEventThresholds.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("bookmarkEventThresholds", "\"bookmarkEventThresholds\": " + propertyValue);
             }
-            return ret;
+            return ret; 
         }
         
         protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)

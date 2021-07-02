@@ -1904,6 +1904,9 @@ namespace WebAPI.Reflection
                 case "KalturaSeriesRecordingListResponse":
                     return new KalturaSeriesRecordingListResponse(parameters);
                     
+                case "KalturaSeriesRecordingOption":
+                    return new KalturaSeriesRecordingOption(parameters);
+                    
                 case "KalturaSeriesReminder":
                     return new KalturaSeriesReminder(parameters);
                     
@@ -6065,6 +6068,17 @@ namespace WebAPI.Models.ConditionalAccess
                         ExcludedSeasons = buildList(typeof(KalturaIntegerValue), parameters["excludedSeasons"] as object[]);
                     }
                 }
+                if (parameters.ContainsKey("seriesRecordingOption") && parameters["seriesRecordingOption"] != null)
+                {
+                    if (parameters["seriesRecordingOption"] is JObject)
+                    {
+                        SeriesRecordingOption = (KalturaSeriesRecordingOption) Deserializer.deserialize(typeof(KalturaSeriesRecordingOption), ((JObject) parameters["seriesRecordingOption"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["seriesRecordingOption"] is IDictionary)
+                    {
+                        SeriesRecordingOption = (KalturaSeriesRecordingOption) Deserializer.deserialize(typeof(KalturaSeriesRecordingOption), (Dictionary<string, object>) parameters["seriesRecordingOption"]);
+                    }
+                }
             }
         }
     }
@@ -6090,6 +6104,55 @@ namespace WebAPI.Models.ConditionalAccess
                     {
                         Objects = buildList(typeof(KalturaSeriesRecording), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaSeriesRecordingOption
+    {
+        private static RuntimeSchemePropertyAttribute MinSeasonNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesRecordingOption")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+        };
+        private static RuntimeSchemePropertyAttribute MinEpisodeNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesRecordingOption")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinInteger = 0,
+        };
+        public KalturaSeriesRecordingOption(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("minSeasonNumber") && parameters["minSeasonNumber"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        MinSeasonNumberSchemaProperty.Validate("minSeasonNumber", parameters["minSeasonNumber"]);
+                    }
+                    MinSeasonNumber = (Int32) Convert.ChangeType(parameters["minSeasonNumber"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("minEpisodeNumber") && parameters["minEpisodeNumber"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        MinEpisodeNumberSchemaProperty.Validate("minEpisodeNumber", parameters["minEpisodeNumber"]);
+                    }
+                    MinEpisodeNumber = (Int32) Convert.ChangeType(parameters["minEpisodeNumber"], typeof(Int32));
                 }
             }
         }

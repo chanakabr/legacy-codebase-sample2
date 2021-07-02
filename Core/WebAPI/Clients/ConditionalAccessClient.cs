@@ -25,6 +25,7 @@ using TVinciShared;
 using ApiObjects.Base;
 using WebAPI.Models.General;
 using WebAPI.Models.Billing;
+using ApiLogic;
 
 namespace WebAPI.Clients
 {
@@ -1759,20 +1760,22 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaSeriesRecording RecordSeasonOrSeries(int groupId, string userID, long epgID, KalturaRecordingType recordingType)
+        internal KalturaSeriesRecording RecordSeasonOrSeries(int groupId, string userID, long epgID, KalturaRecordingType recordingType,
+            KalturaSeriesRecordingOption seriesRecordingOption)
         {
             KalturaSeriesRecording recording = null;
             SeriesRecording response = null;
 
             // get group ID
-
-
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
+                    var option = Mapper.Map<SeriesRecordingOption>(seriesRecordingOption);
+
                     // fire request
-                    response = Core.ConditionalAccess.Module.RecordSeasonOrSeries(groupId, userID, epgID, ConditionalAccessMappings.ConvertKalturaRecordingType(recordingType));
+                    response = Core.ConditionalAccess.Module.RecordSeasonOrSeries(groupId, userID, epgID, 
+                        ConditionalAccessMappings.ConvertKalturaRecordingType(recordingType), option);
                 }
             }
             catch (Exception ex)

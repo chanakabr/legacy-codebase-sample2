@@ -1,5 +1,6 @@
 using AdapterControllers;
 using AdapterControllers.CDVR;
+using ApiLogic;
 using ApiLogic.Api.Managers;
 using ApiLogic.ConditionalAccess.Modules;
 using APILogic.Api.Managers;
@@ -81,7 +82,7 @@ namespace Core.ConditionalAccess
         internal const string ROUTING_KEY_MODIFIED_RECORDING = "PROCESS_MODIFIED_RECORDING\\{0}";
         internal const string ROUTING_KEY_SERIES_RECORDING_TASK = "PROCESS_SERIES_RECORDING_TASK\\{0}";
         internal const double MAX_SERVER_TIME_DIF = 5;
-        internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3; 
+        internal const int RECORDING_SCHEDULE_TASKS_ENQUEUE_RETRY_LIMIT = 3;
 
         //errors
         internal const string CONFLICTED_PARAMS = "Conflicted params";
@@ -114,7 +115,7 @@ namespace Core.ConditionalAccess
         public const string IS_ORIGINAL_BROADCAST_KEY = "isOriginalBroadcast";
         public const string IS_ORIGINAL_BROADCAST_VALUE = "true";
         public const string CAMPAIGN_CODE = "campcode";
-        public const string COMPANSATION_CODE = "compensation"; 
+        public const string COMPANSATION_CODE = "compensation";
 
         protected const int PAYMENT_GATEWAY = 1000;
 
@@ -503,7 +504,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        if (uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended 
+                        if (uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
                             && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                         {
                             ret.m_oStatus = BillingResponseStatus.UserSuspended;
@@ -821,7 +822,7 @@ namespace Core.ConditionalAccess
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cant charge an unknown user";
                         return InAppRes.m_oBillingResponse;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended 
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
                         && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                     {
                         InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.UserSuspended;
@@ -1841,7 +1842,7 @@ namespace Core.ConditionalAccess
                                 if (unifiedPaymentId > 0)
                                 {
                                     DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseUnifiedForRenewal(m_nGroupID, domainId, unifiedPaymentId);
-                                    
+
                                     if (subscriptionPurchaseDt == null || (subscriptionPurchaseDt != null && subscriptionPurchaseDt.Rows != null && subscriptionPurchaseDt.Rows.Count == 0))
                                     {
                                         //delete from db 
@@ -4087,7 +4088,7 @@ namespace Core.ConditionalAccess
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                         return ret;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended 
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
                         && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
@@ -4246,7 +4247,7 @@ namespace Core.ConditionalAccess
                         ret.m_sRecieptCode = "";
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended 
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
                         && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
@@ -5291,7 +5292,7 @@ namespace Core.ConditionalAccess
                         oResponse.m_sStatusDescription = "Cant charge an unknown user";
                         return oResponse;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended 
+                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
                         && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
                     {
                         oResponse.m_oStatus = BillingResponseStatus.UserSuspended;
@@ -10271,7 +10272,7 @@ namespace Core.ConditionalAccess
                         if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
                         {
                             // check is permitted to login because if domain suspended to cancel or force cancel it should be done via Phoenix (service_action )
-                            if (!PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID, isForce) && 
+                            if (!PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID, isForce) &&
                                 !RolesPermissionsManager.Instance.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
                             {
                                 result.Code = (int)eResponseStatus.DomainSuspended;
@@ -14027,7 +14028,7 @@ namespace Core.ConditionalAccess
             {
             }
         }
-        
+
         #region Delete Recording
 
         public Recording CancelOrDeleteRecord(string userId, long domainId, long domainRecordingId, TstvRecordingStatus tstvRecordingStatus, bool shouldValidateUserAndDomain = true)
@@ -14253,7 +14254,7 @@ namespace Core.ConditionalAccess
         }
 
         #endregion
-        
+
         public Recording QueryRecords(string userID, long epgId, ref long domainID, RecordingType recordingType, bool shouldCheckCatchup, bool shouldCheckQuota = false, EPGChannelProgrammeObject epg = null)
         {
             Recording recording = new Recording() { EpgId = epgId };
@@ -14839,7 +14840,7 @@ namespace Core.ConditionalAccess
 
         public ApiObjects.Response.Status IngestRecording(List<long> epgIds, eAction action)
         {
-            log.Debug(string.Format("IngestRecording called with epg ids: {0} and action: {1}", string.Join(",", epgIds), action));
+            log.Debug($"IngestRecording called with epg ids: {string.Join(",", epgIds)} and action: {action}");
 
             ApiObjects.Response.Status status = null;
 
@@ -15443,7 +15444,7 @@ namespace Core.ConditionalAccess
             {
                 int totalRecordingsToCleanup = 0;
                 int totalRecordingsDeleted = 0;
-                
+
                 // get first batch
                 Dictionary<long, KeyValuePair<int, Recording>> recordingsForDeletion = RecordingsDAL.GetRecordingsForCleanup(0);
 
@@ -15957,7 +15958,7 @@ namespace Core.ConditionalAccess
                             RecordingsManager.UpdateIndex(task.GroupId, recording.Id, eAction.Delete);
                             RecordingsManager.UpdateCouchbase(task.GroupId, recording.EpgId, recording.Id, true);
                         }
-                        else if (task.OldRecordingDuration == 0) 
+                        else if (task.OldRecordingDuration == 0)
                         {
                             RecordingsManager.Instance.DeleteRecording(task.GroupId, recording, true, false, domainIds.ToList());
                         }
@@ -16393,6 +16394,11 @@ namespace Core.ConditionalAccess
                     }
 
                     crid = Utils.GetStringParamFromExtendedSearchResult(epg, "crid");
+                    var _seasonNumber = Utils.GetStringParamFromExtendedSearchResult(epg, "metas.seasonnumber");
+                    var _episodeNumber = Utils.GetStringParamFromExtendedSearchResult(epg, "metas.episodenumber");
+                    log.Debug($"HandleFirstFollowerRecording: epg: {epgId}, episodeNumber: {_episodeNumber}, seasosNumber: {_seasonNumber}");
+                    int.TryParse(_episodeNumber, out int episodeNumber);
+                    int.TryParse(_seasonNumber, out int seasonNumber_);
 
                     DateTime epgPaddedStartDate = epg.StartDate.AddSeconds(-1 * paddingBeforeProgramStarts);
                     DateTime epgPaddedEndDate = epg.EndDate.AddSeconds(paddingAfterProgramEnds);
@@ -16405,6 +16411,7 @@ namespace Core.ConditionalAccess
                     }
 
                     HashSet<long> failedDomainIds;
+
                     Recording globalRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, epgChannelId, epgPaddedStartDate, epgPaddedEndDate, crid, domainIds, out failedDomainIds);
                     if (globalRecording == null || globalRecording.Status == null || globalRecording.Status.Code != (int)eResponseStatus.OK)
                     {
@@ -16433,6 +16440,18 @@ namespace Core.ConditionalAccess
                             return false;
                         }
 
+                        //BEO-9899
+                        var shouldRecord = ShouldRecord(seasonNumber_, episodeNumber, seriesRecording.SeriesRecordingOption);
+                        
+                        log.Debug($"epg: {epgId}, seasonNumber: {seasonNumber}, episodeNumber: {episodeNumber}, " +
+                            $"min: season: {seriesRecording.SeriesRecordingOption?.MinSeasonNumber} " +
+                            $"episode: {seriesRecording.SeriesRecordingOption?.MinEpisodeNumber}, shouldRecord: {shouldRecord}");
+                        if (!shouldRecord)
+                        {
+                            log.Debug($"domain: {domainId} will not record epgId: {epgId}, seasonNumber: {seasonNumber} episodeNumber: {episodeNumber}");
+                            continue;
+                        }
+
                         //if cannot record 
                         if (!VerifyCanRecord(epgId, seriesRecording.Type))
                         {
@@ -16448,7 +16467,7 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            log.DebugFormat("BEO-9610: Can't record {0}", userRecording != null ? userRecording.ToString() : "null" );
+                            log.DebugFormat("BEO-9610: Can't record {0}", userRecording != null ? userRecording.ToString() : "null");
                         }
                     }
                 }
@@ -16470,7 +16489,28 @@ namespace Core.ConditionalAccess
             return false;
         }
 
-        public SeriesRecording RecordSeasonOrSeries(string userID, long epgID, RecordingType recordingType)
+        //BEO-9899
+        public bool ShouldRecord(int seasonNumber, int episodeNumber, SeriesRecordingOption seriesRecordingOption)
+        {
+            if (seasonNumber <= 0 || episodeNumber <= 0)
+                return true;
+
+            if (seriesRecordingOption == null || seriesRecordingOption.MinSeasonNumber == 0 || seriesRecordingOption.MinEpisodeNumber == 0)
+                return true;
+
+            return IsFutureEpisode(seasonNumber, episodeNumber, seriesRecordingOption);
+        }
+
+        private bool IsFutureEpisode(int seasonNumber, int episodeNumber, SeriesRecordingOption seriesRecordingOption)
+        {
+            var result =
+                seasonNumber > seriesRecordingOption.MinSeasonNumber ||
+                seasonNumber == seriesRecordingOption.MinSeasonNumber && episodeNumber >= seriesRecordingOption.MinEpisodeNumber;
+            
+            return result;
+        }
+
+        public SeriesRecording RecordSeasonOrSeries(string userID, long epgID, RecordingType recordingType, SeriesRecordingOption recordingOption)
         {
             SeriesRecording seriesRecording = new SeriesRecording() { EpgId = epgID };
             try
@@ -16503,8 +16543,11 @@ namespace Core.ConditionalAccess
 
                 bool isSeriesFollowed = false;
                 List<long> futureSeriesRecordingIds = new List<long>();
+
                 //saves record to the database
-                seriesRecording = Utils.Instance.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isSeriesFollowed, ref futureSeriesRecordingIds, epgs[0]);
+                seriesRecording = Utils.Instance.FollowSeasonOrSeries(m_nGroupID, userID, domainID, epgID, recordingType, ref isSeriesFollowed,
+                    ref futureSeriesRecordingIds, epgs[0], recordingOption);
+
                 if (seriesRecording == null || seriesRecording.Status == null)
                 {
                     log.ErrorFormat("Failed Utils.FollowSeasonOrSeries, EpgID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", epgID, domainID, userID, seriesRecording.ToString());
@@ -17020,6 +17063,13 @@ namespace Core.ConditionalAccess
                 return result;
             }
 
+            var epgEpisodeNumber = 0;
+            if (epgFieldMappings.ContainsKey(Utils.EPISODE_NUMBER) && !int.TryParse(epgFieldMappings[Utils.EPISODE_NUMBER], out epgEpisodeNumber))
+            {
+                log.Error($"failed parsing EPISODE_NUMBER, groupId: {m_nGroupID}, epgId: {epg.EPG_ID}");
+                return result;
+            }
+
             // set max amount of concurrent tasks
             int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
             if (maxDegreeOfParallelism == 0)
@@ -17039,7 +17089,7 @@ namespace Core.ConditionalAccess
                 int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "SEASON_NUMBER", 0);
                 long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "ID", 0);
                 RecordingType recordingType = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "RECORD_TYPE");
-
+                
                 if (domainId > 0 && userId > 0)
                 {
                     //
@@ -17137,8 +17187,27 @@ namespace Core.ConditionalAccess
                     long domainId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "DOMAIN_ID", 0);
                     long userId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "USER_ID", 0);
                     int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "SEASON_NUMBER", 0);
+                    int episodeNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "EPISODE_NUMBER", 0);
                     long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "ID", 0);
                     var recordingType = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "RECORD_TYPE", 0);
+                    int? minSeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "MIN_SEASON_NUMBER", 0);
+                    int? minEpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "MIN_EPISODE_NUMBER", 0);
+
+                    var seriesRecordingOption = new SeriesRecordingOption 
+                    { 
+                        MinSeasonNumber = minSeasonNumber.Value > 0 ? minSeasonNumber : null, 
+                        MinEpisodeNumber = minEpisodeNumber.Value > 0 ? minEpisodeNumber : null
+                    };
+
+                    if (seriesRecordingOption.IsValid())
+                    {
+                        if (!ShouldRecord(seasonNumber, episodeNumber, seriesRecordingOption))
+                        {
+                            log.Debug($"Not being recorded due to seriesRecordingOption logic, seriesRecordingOption: " +
+                                $"Min episode: {seriesRecordingOption.MinEpisodeNumber}, Min season: {seriesRecordingOption.MinSeasonNumber}");
+                        }
+                    }
+
                     try
                     {
                         if (domainId > 0 && userId > 0)
@@ -17203,6 +17272,7 @@ namespace Core.ConditionalAccess
                 }
 
                 HashSet<long> failedDomainIds;
+
                 sharedRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, sharedRecording.ChannelId, sharedRecording.EpgStartDate, sharedRecording.EpgEndDate, sharedRecording.Crid,
                                                                 domains.Select(x => x.Item1).ToList(), out failedDomainIds, RecordingContext.PrivateDistribute);
 

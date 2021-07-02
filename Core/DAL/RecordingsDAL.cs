@@ -553,7 +553,8 @@ namespace DAL
         }
 
         //this is the save to domain series table
-        public static DataTable FollowSeries(int groupId, string userId, long domainID, long epgId, long epgChannelId, string seriesId, int seasonNumber, int episodeNumber, int recordType)
+        public static DataTable FollowSeries(int groupId, string userId, long domainID, long epgId, long epgChannelId, string seriesId, int seasonNumber,
+            int episodeNumber, int recordType, int? minSeasonNumber, int? minEpisodeNumber)
         {
             ODBCWrapper.StoredProcedure spFollowSeries = new ODBCWrapper.StoredProcedure("FollowSeries");
             spFollowSeries.SetConnectionKey(RECORDING_CONNECTION);
@@ -566,6 +567,8 @@ namespace DAL
             spFollowSeries.AddParameter("@SeasonNumber", seasonNumber);
             spFollowSeries.AddParameter("@EpisodeNumber", episodeNumber);
             spFollowSeries.AddParameter("@RecordType", recordType);
+            spFollowSeries.AddParameter("@MinSeasonNumber", minSeasonNumber);
+            spFollowSeries.AddParameter("@MinEpisodeNumber", minEpisodeNumber);
             DataTable dt = spFollowSeries.Execute();
 
             return dt;

@@ -15,6 +15,8 @@ namespace ApiObjects.TimeShiftedTv
         public string SeriesId { get; set; }
 
         public int SeasonNumber { get; set; }
+        
+        public int EpisodeNumber { get; set; }
 
         public long EpgId { get; set; }
 
@@ -23,6 +25,8 @@ namespace ApiObjects.TimeShiftedTv
         public long EpgChannelId { get; set; }
 
         public List<int> ExcludedSeasons { get; set; }
+
+        public SeriesRecordingOption SeriesRecordingOption { get; set; }
 
         public DomainSeriesRecording()         
         {
