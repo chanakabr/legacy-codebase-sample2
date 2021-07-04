@@ -929,6 +929,12 @@ namespace WebAPI.Reflection
                 case "KalturaEpgNotificationSettings":
                     return new KalturaEpgNotificationSettings(parameters);
                     
+                case "KalturaEventContext":
+                    return new KalturaEventContext(parameters);
+                    
+                case "KalturaEventContextAction":
+                    return new KalturaEventContextAction(parameters);
+                    
                 case "KalturaEventNotification":
                     return new KalturaEventNotification(parameters);
                     
@@ -8212,6 +8218,29 @@ namespace WebAPI.Models.General
             }
         }
     }
+    public partial class KalturaEventContext
+    {
+        public KalturaEventContext(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaEventContextAction
+    {
+        public KalturaEventContextAction(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("service") && parameters["service"] != null)
+                {
+                    Service = (String) Convert.ChangeType(parameters["service"], typeof(String));
+                }
+                if (parameters.ContainsKey("action") && parameters["action"] != null)
+                {
+                    Action = (String) Convert.ChangeType(parameters["action"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaFilterPager
     {
         public KalturaFilterPager(Dictionary<string, object> parameters = null) : base(parameters)
@@ -8521,6 +8550,16 @@ namespace WebAPI.Models.General
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute ContextSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaNotification(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -8603,6 +8642,21 @@ namespace WebAPI.Models.General
                         UdidSchemaProperty.Validate("udid", parameters["udid"]);
                     }
                     Udid = (String) Convert.ChangeType(parameters["udid"], typeof(String));
+                }
+                if (parameters.ContainsKey("context") && parameters["context"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ContextSchemaProperty.Validate("context", parameters["context"]);
+                    }
+                    if (parameters["context"] is JObject)
+                    {
+                        Context = (KalturaEventContext) Deserializer.deserialize(typeof(KalturaEventContext), ((JObject) parameters["context"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["context"] is IDictionary)
+                    {
+                        Context = (KalturaEventContext) Deserializer.deserialize(typeof(KalturaEventContext), (Dictionary<string, object>) parameters["context"]);
+                    }
                 }
             }
         }

@@ -91,6 +91,9 @@ namespace WebAPI.Controllers
                     string.IsNullOrEmpty(service_name) ? "null" : service_name,
                     string.IsNullOrEmpty(action_name) ? "null" : action_name);
 
+                HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE] = service_name;
+                HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION] = action_name;
+
                 response = DataModel.execAction(service_name, action_name, methodParams);
             }
             catch (ApiException ex)
@@ -158,6 +161,8 @@ namespace WebAPI.Controllers
 
             try
             {
+                HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE] = service_name;
+                HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION] = action_name;
                 List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestContextUtils.REQUEST_METHOD_PARAMETERS];
                 response = DataModel.execAction(service_name, action_name, methodParams);
             }

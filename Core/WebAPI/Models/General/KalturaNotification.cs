@@ -91,6 +91,16 @@ namespace WebAPI.Models.General
         [XmlElement(ElementName = "udid", IsNullable = true)]
         [SchemeProperty(ReadOnly = true)]
         public string Udid { get; internal set; }
+
+        [DataMember(Name = "context")]
+        [JsonProperty(PropertyName = "context")]
+        [XmlElement(ElementName = "context", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public KalturaEventContext Context
+        {
+            get;
+            set;
+        }
     }
 
     [Serializable]

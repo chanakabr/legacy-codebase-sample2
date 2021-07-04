@@ -7696,6 +7696,82 @@ namespace WebAPI.Models.General
             return ret;
         }
     }
+    public partial class KalturaEventContext
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
+    public partial class KalturaEventContextAction
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Action != null && (retrievedProperties == null || retrievedProperties.Contains("action")))
+            {
+                ret.Add("action", "\"action\": " + "\"" + EscapeJson(Action) + "\"");
+            }
+            if(Service != null && (retrievedProperties == null || retrievedProperties.Contains("service")))
+            {
+                ret.Add("service", "\"service\": " + "\"" + EscapeJson(Service) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Action != null && (retrievedProperties == null || retrievedProperties.Contains("action")))
+            {
+                ret.Add("action", "<action>" + EscapeXml(Action) + "</action>");
+            }
+            if(Service != null && (retrievedProperties == null || retrievedProperties.Contains("service")))
+            {
+                ret.Add("service", "<service>" + EscapeXml(Service) + "</service>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaFilter<KalturaT>
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -8281,6 +8357,11 @@ namespace WebAPI.Models.General
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Context != null && (retrievedProperties == null || retrievedProperties.Contains("context")))
+            {
+                propertyValue = Context.ToJson(currentVersion, omitObsolete);
+                ret.Add("context", "\"context\": " + propertyValue);
+            }
             if(eventObject != null && (retrievedProperties == null || retrievedProperties.Contains("object")))
             {
                 propertyValue = eventObject.ToJson(currentVersion, omitObsolete);
@@ -8336,6 +8417,11 @@ namespace WebAPI.Models.General
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Context != null && (retrievedProperties == null || retrievedProperties.Contains("context")))
+            {
+                propertyValue = Context.ToXml(currentVersion, omitObsolete);
+                ret.Add("context", "<context>" + propertyValue + "</context>");
+            }
             if(eventObject != null && (retrievedProperties == null || retrievedProperties.Contains("object")))
             {
                 propertyValue = eventObject.ToXml(currentVersion, omitObsolete);

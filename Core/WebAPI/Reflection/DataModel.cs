@@ -2974,6 +2974,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaEventContextAction":
+                    switch(property.Name)
+                    {
+                        case "Action":
+                            return "action";
+                        case "Service":
+                            return "service";
+                    }
+                    break;
+                    
                 case "KalturaEventNotification":
                     switch(property.Name)
                     {
@@ -4607,6 +4617,8 @@ namespace WebAPI.Reflection
                 case "KalturaNotification":
                     switch(property.Name)
                     {
+                        case "Context":
+                            return "context";
                         case "eventObject":
                             return "object";
                         case "SequenceId":
