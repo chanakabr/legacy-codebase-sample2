@@ -16443,7 +16443,7 @@ namespace Core.ConditionalAccess
                         //BEO-9899
                         var shouldRecord = ShouldRecord(seasonNumber_, episodeNumber, seriesRecording.SeriesRecordingOption);
                         
-                        log.Debug($"epg: {epgId}, seasonNumber: {seasonNumber}, episodeNumber: {episodeNumber}, " +
+                        log.Debug($"epg: {epgId}, seasonNumber: {seasonNumber_}, episodeNumber: {episodeNumber}, " +
                             $"min: season: {seriesRecording.SeriesRecordingOption?.MinSeasonNumber} " +
                             $"episode: {seriesRecording.SeriesRecordingOption?.MinEpisodeNumber}, shouldRecord: {shouldRecord}");
                         if (!shouldRecord)
@@ -16495,7 +16495,10 @@ namespace Core.ConditionalAccess
             if (seasonNumber <= 0 || episodeNumber <= 0)
                 return true;
 
-            if (seriesRecordingOption == null || seriesRecordingOption.MinSeasonNumber == 0 || seriesRecordingOption.MinEpisodeNumber == 0)
+            if (seriesRecordingOption == null || !seriesRecordingOption.MinSeasonNumber.HasValue || !seriesRecordingOption.MinEpisodeNumber.HasValue)
+                return true;
+
+            if (seriesRecordingOption.MinSeasonNumber.Value == 0 || seriesRecordingOption.MinEpisodeNumber.Value == 0)
                 return true;
 
             return IsFutureEpisode(seasonNumber, episodeNumber, seriesRecordingOption);
