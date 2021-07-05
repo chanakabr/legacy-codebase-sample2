@@ -326,9 +326,8 @@ namespace ApiLogic.Tests.GroupManagers
                                             new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
                                             Mock.Of<ICatalogManager>(),
                                             userPartnerRepository.Object,
-                                            billingPartnerRepository.Object, 
+                                            billingPartnerRepository.Object,
                                             caPartnerRepository.Object);
-
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
 
@@ -380,9 +379,8 @@ namespace ApiLogic.Tests.GroupManagers
                                             new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
                                             Mock.Of<ICatalogManager>(),
                                             userPartnerRepository.Object,
-                                            billingPartnerRepository.Object, 
+                                            billingPartnerRepository.Object,
                                             caPartnerRepository.Object);
-
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
 

@@ -31797,10 +31797,22 @@ namespace WebAPI.Models.Pricing
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AdsParams != null && (retrievedProperties == null || retrievedProperties.Contains("adsParam")))
+            {
+                ret.Add("adsParam", "\"adsParam\": " + "\"" + EscapeJson(AdsParams) + "\"");
+            }
+            if(AdsPolicy.HasValue && (retrievedProperties == null || retrievedProperties.Contains("adsPolicy")))
+            {
+                ret.Add("adsPolicy", "\"adsPolicy\": " + "\"" + Enum.GetName(typeof(KalturaAdsPolicy), AdsPolicy) + "\"");
+            }
             if(Channels != null && (retrievedProperties == null || retrievedProperties.Contains("channels")))
             {
                 propertyValue = "[" + String.Join(", ", Channels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("channels", "\"channels\": " + propertyValue);
+            }
+            if(ChannelsIds != null && (retrievedProperties == null || retrievedProperties.Contains("channelsIds")))
+            {
+                ret.Add("channelsIds", "\"channelsIds\": " + "\"" + EscapeJson(ChannelsIds) + "\"");
             }
             if(CouponGroups != null && (retrievedProperties == null || retrievedProperties.Contains("couponsGroups")))
             {
@@ -31863,6 +31875,10 @@ namespace WebAPI.Models.Pricing
                     ret.Add("file_types", "\"file_types\": " + propertyValue);
                 }
             }
+            if(FileTypesIds != null && (retrievedProperties == null || retrievedProperties.Contains("fileTypesIds")))
+            {
+                ret.Add("fileTypesIds", "\"fileTypesIds\": " + "\"" + EscapeJson(FileTypesIds) + "\"");
+            }
             if(GracePeriodMinutes.HasValue && (retrievedProperties == null || retrievedProperties.Contains("gracePeriodMinutes")))
             {
                 ret.Add("gracePeriodMinutes", "\"gracePeriodMinutes\": " + GracePeriodMinutes);
@@ -31882,6 +31898,14 @@ namespace WebAPI.Models.Pricing
             if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
             {
                 ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
+            }
+            if(InternalDiscountModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("internalDiscountModuleId")))
+            {
+                ret.Add("internalDiscountModuleId", "\"internalDiscountModuleId\": " + InternalDiscountModuleId);
+            }
+            if(IsActive.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isActive")))
+            {
+                ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
             }
             if((retrievedProperties == null || retrievedProperties.Contains("isCancellationBlocked")))
             {
@@ -31962,6 +31986,10 @@ namespace WebAPI.Models.Pricing
                     ret.Add("preview_module", "\"preview_module\": " + propertyValue);
                 }
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
+            {
+                ret.Add("previewModuleId", "\"previewModuleId\": " + PreviewModuleId);
+            }
             if(Price != null && (retrievedProperties == null || retrievedProperties.Contains("price")))
             {
                 propertyValue = Price.ToJson(currentVersion, omitObsolete);
@@ -32017,6 +32045,11 @@ namespace WebAPI.Models.Pricing
                     ret.Add("start_date", "\"start_date\": " + StartDate);
                 }
             }
+            if(SubscriptionCouponGroup != null && (retrievedProperties == null || retrievedProperties.Contains("subscriptionCouponGroup")))
+            {
+                propertyValue = "[" + String.Join(", ", SubscriptionCouponGroup.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("subscriptionCouponGroup", "\"subscriptionCouponGroup\": " + propertyValue);
+            }
             if(UserTypes != null && (retrievedProperties == null || retrievedProperties.Contains("userTypes")))
             {
                 propertyValue = "[" + String.Join(", ", UserTypes.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
@@ -32056,10 +32089,22 @@ namespace WebAPI.Models.Pricing
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AdsParams != null && (retrievedProperties == null || retrievedProperties.Contains("adsParam")))
+            {
+                ret.Add("adsParam", "<adsParam>" + EscapeXml(AdsParams) + "</adsParam>");
+            }
+            if(AdsPolicy.HasValue && (retrievedProperties == null || retrievedProperties.Contains("adsPolicy")))
+            {
+                ret.Add("adsPolicy", "<adsPolicy>" + "" + Enum.GetName(typeof(KalturaAdsPolicy), AdsPolicy) + "" + "</adsPolicy>");
+            }
             if(Channels != null && (retrievedProperties == null || retrievedProperties.Contains("channels")))
             {
                 propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("channels", "<channels>" + propertyValue + "</channels>");
+            }
+            if(ChannelsIds != null && (retrievedProperties == null || retrievedProperties.Contains("channelsIds")))
+            {
+                ret.Add("channelsIds", "<channelsIds>" + EscapeXml(ChannelsIds) + "</channelsIds>");
             }
             if(CouponGroups != null && (retrievedProperties == null || retrievedProperties.Contains("couponsGroups")))
             {
@@ -32118,6 +32163,10 @@ namespace WebAPI.Models.Pricing
                 ret.Add("file_types", "<file_types>" + propertyValue + "</file_types>");
                 }
             }
+            if(FileTypesIds != null && (retrievedProperties == null || retrievedProperties.Contains("fileTypesIds")))
+            {
+                ret.Add("fileTypesIds", "<fileTypesIds>" + EscapeXml(FileTypesIds) + "</fileTypesIds>");
+            }
             if(GracePeriodMinutes.HasValue && (retrievedProperties == null || retrievedProperties.Contains("gracePeriodMinutes")))
             {
                 ret.Add("gracePeriodMinutes", "<gracePeriodMinutes>" + GracePeriodMinutes + "</gracePeriodMinutes>");
@@ -32137,6 +32186,14 @@ namespace WebAPI.Models.Pricing
             if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
+            }
+            if(InternalDiscountModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("internalDiscountModuleId")))
+            {
+                ret.Add("internalDiscountModuleId", "<internalDiscountModuleId>" + InternalDiscountModuleId + "</internalDiscountModuleId>");
+            }
+            if(IsActive.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isActive")))
+            {
+                ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("isCancellationBlocked")))
             {
@@ -32213,6 +32270,10 @@ namespace WebAPI.Models.Pricing
                 ret.Add("preview_module", "<preview_module>" + propertyValue + "</preview_module>");
                 }
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("previewModuleId")))
+            {
+                ret.Add("previewModuleId", "<previewModuleId>" + PreviewModuleId + "</previewModuleId>");
+            }
             if(Price != null && (retrievedProperties == null || retrievedProperties.Contains("price")))
             {
                 propertyValue = Price.ToXml(currentVersion, omitObsolete);
@@ -32268,6 +32329,11 @@ namespace WebAPI.Models.Pricing
                 ret.Add("start_date", "<start_date>" + StartDate + "</start_date>");
                 }
             }
+            if(SubscriptionCouponGroup != null && (retrievedProperties == null || retrievedProperties.Contains("subscriptionCouponGroup")))
+            {
+                propertyValue = SubscriptionCouponGroup.Count > 0 ? "<item>" + String.Join("</item><item>", SubscriptionCouponGroup.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("subscriptionCouponGroup", "<subscriptionCouponGroup>" + propertyValue + "</subscriptionCouponGroup>");
+            }
             if(UserTypes != null && (retrievedProperties == null || retrievedProperties.Contains("userTypes")))
             {
                 propertyValue = UserTypes.Count > 0 ? "<item>" + String.Join("</item><item>", UserTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
@@ -32292,6 +32358,60 @@ namespace WebAPI.Models.Pricing
                 {
                 ret.Add("waiver_period", "<waiver_period>" + WaiverPeriod + "</waiver_period>");
                 }
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaSubscriptionCouponGroup
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + CouponGroupId);
+            }
+            if(EndDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDate")))
+            {
+                ret.Add("endDate", "\"endDate\": " + EndDate);
+            }
+            if(StartDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDate")))
+            {
+                ret.Add("startDate", "\"startDate\": " + StartDate);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + CouponGroupId + "</id>");
+            }
+            if(EndDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDate")))
+            {
+                ret.Add("endDate", "<endDate>" + EndDate + "</endDate>");
+            }
+            if(StartDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDate")))
+            {
+                ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
             }
             return ret;
         }

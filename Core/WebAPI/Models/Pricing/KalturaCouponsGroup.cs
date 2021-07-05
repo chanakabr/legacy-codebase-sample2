@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 
@@ -116,6 +117,14 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "discountId", IsNullable = true)]
         [SchemeProperty(MinInteger = 1)]
         public long? DiscountId { get; set; }
+
+        public void Validate()
+        {
+            if (StartDate.HasValue && EndDate.HasValue && StartDate > EndDate)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");
+            }
+        }
     }
 
     /// <summary>

@@ -100,12 +100,12 @@ namespace WebAPI.Models.Pricing
             return true;
         }
 
-        internal string[] getSubscriptionIdIn()
+        internal List<long> getSubscriptionIdIn()
         {
             if (string.IsNullOrEmpty(SubscriptionIdIn))
                 return null;
 
-            return SubscriptionIdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            return GetItemsIn<List<long>, long>(this.SubscriptionIdIn, "subscriptionIdIn", true);
         }
 
         internal List<string> getExternalIdIn()

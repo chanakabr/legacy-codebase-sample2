@@ -7013,8 +7013,14 @@ namespace WebAPI.Reflection
                 case "KalturaSubscription":
                     switch(property.Name)
                     {
+                        case "AdsParams":
+                            return "adsParam";
+                        case "AdsPolicy":
+                            return "adsPolicy";
                         case "Channels":
                             return "channels";
+                        case "ChannelsIds":
+                            return "channelsIds";
                         case "CouponGroups":
                             return "couponsGroups";
                         case "CouponsGroup":
@@ -7033,12 +7039,18 @@ namespace WebAPI.Reflection
                             return "externalId";
                         case "FileTypes":
                             return "fileTypes";
+                        case "FileTypesIds":
+                            return "fileTypesIds";
                         case "GracePeriodMinutes":
                             return "gracePeriodMinutes";
                         case "HouseholdLimitationsId":
                             return "householdLimitationsId";
                         case "Id":
                             return "id";
+                        case "InternalDiscountModuleId":
+                            return "internalDiscountModuleId";
+                        case "IsActive":
+                            return "isActive";
                         case "IsCancellationBlocked":
                             return "isCancellationBlocked";
                         case "IsInfiniteRenewal":
@@ -7061,6 +7073,8 @@ namespace WebAPI.Reflection
                             return "preSaleDate";
                         case "PreviewModule":
                             return "previewModule";
+                        case "PreviewModuleId":
+                            return "previewModuleId";
                         case "Price":
                             return "price";
                         case "PricePlanIds":
@@ -7077,6 +7091,8 @@ namespace WebAPI.Reflection
                             return "renewalsNumber";
                         case "StartDate":
                             return "startDate";
+                        case "SubscriptionCouponGroup":
+                            return "subscriptionCouponGroup";
                         case "UserTypes":
                             return "userTypes";
                         case "ViewLifeCycle":
@@ -7091,6 +7107,18 @@ namespace WebAPI.Reflection
                     {
                         case "IdIn":
                             return "idIn";
+                    }
+                    break;
+                    
+                case "KalturaSubscriptionCouponGroup":
+                    switch(property.Name)
+                    {
+                        case "CouponGroupId":
+                            return "id";
+                        case "EndDate":
+                            return "endDate";
+                        case "StartDate":
+                            return "startDate";
                     }
                     break;
                     
@@ -11466,6 +11494,14 @@ namespace WebAPI.Reflection
                 case "subscription":
                     switch(action)
                     {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("subscription", "add", false);
+                            return SubscriptionController.Add((KalturaSubscription) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("subscription", "delete", false);
+                            return SubscriptionController.Delete((long) methodParams[0]);
+                            
                         case "list":
                             if(isOldVersion)
                             {
@@ -20144,6 +20180,21 @@ namespace WebAPI.Reflection
                 case "subscription":
                     switch(action)
                     {
+                        case "add":
+                            ret.Add("subscription", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSubscription),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
                         case "list":
                             ret.Add("filter", new MethodParam(){
                                 NewName = newParamName,

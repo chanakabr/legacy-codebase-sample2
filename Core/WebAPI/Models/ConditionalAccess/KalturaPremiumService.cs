@@ -18,8 +18,8 @@ namespace WebAPI.Models.ConditionalAccess
         /// </summary>
         [DataMember(Name = "id")]
         [JsonProperty("id")]
-        [XmlElement(ElementName = "id")]
-        [SchemeProperty(ReadOnly = true)]
+        [XmlElement(ElementName = "id", IsNullable = true)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.WRITE)]
         public long? Id { get; set; }
 
         /// <summary>
