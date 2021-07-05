@@ -2062,7 +2062,7 @@ namespace Core.ConditionalAccess
                              */
 
                             if ((startDate < now) &&
-                                (maxNumberOfUses > numberOfUses || numberOfUses == 0) &&
+                                (maxNumberOfUses > numberOfUses || maxNumberOfUses == 0) &&
                                 (!endDate.HasValue ||
                                 endDate.Value > now ||
                                 // suspended subscription
