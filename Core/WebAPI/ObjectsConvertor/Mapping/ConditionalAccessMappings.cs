@@ -22,6 +22,7 @@ using ApiLogic.ConditionalAccess.Modules;
 using WebAPI.Models.Notification;
 using ApiObjects.Notification;
 using ApiObjects.Response;
+using ApiLogic;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -550,6 +551,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.MetaData, opt => opt.ResolveUsing(src => ConvertMetaData(src.MetaData)))
                 .AfterMap((src, dest) => dest.MetaData = dest.MetaData != null && dest.MetaData.Any() ? dest.MetaData : null);
 
+            cfg.CreateMap<KalturaSeriesRecordingOption, SeriesRecordingOption>()
+                .ForMember(dest => dest.MinEpisodeNumber, opt => opt.MapFrom(src => src.MinEpisodeNumber))
+                .ForMember(dest => dest.MinSeasonNumber, opt => opt.MapFrom(src => src.MinSeasonNumber))
+                ;
+
+            cfg.CreateMap<SeriesRecordingOption, KalturaSeriesRecordingOption>()
+                .ForMember(dest => dest.MinEpisodeNumber, opt => opt.MapFrom(src => src.MinEpisodeNumber))
+                .ForMember(dest => dest.MinSeasonNumber, opt => opt.MapFrom(src => src.MinSeasonNumber))
+                ;
+
             // KalturaSeriesRecording to SeriesRecording
             cfg.CreateMap<KalturaSeriesRecording, SeriesRecording>()
                .ForMember(dest => dest.EpgId, opt => opt.MapFrom(src => src.EpgId))
@@ -558,7 +569,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.SeasonNumber, opt => opt.MapFrom(src => src.SeasonNumber))
                .ForMember(dest => dest.SeriesId, opt => opt.MapFrom(src => src.SeriesId))
                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertKalturaRecordingType(src.Type)))
-               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.CreateDate)));
+               .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.UtcUnixTimestampSecondsToDateTime(src.CreateDate)))
+               .ForMember(dest => dest.SeriesRecordingOption, opt => opt.ResolveUsing(src => src.SeriesRecordingOption))
+               ;
 
             // SeriesRecording to KalturaSeriesRecording
             cfg.CreateMap<SeriesRecording, KalturaSeriesRecording>()
@@ -570,7 +583,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.Type, opt => opt.ResolveUsing(src => ConvertRecordingType(src.Type)))
                .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
                .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
-               .ForMember(dest => dest.ExcludedSeasons, opt => opt.MapFrom(src => src.ExcludedSeasons));
+               .ForMember(dest => dest.ExcludedSeasons, opt => opt.MapFrom(src => src.ExcludedSeasons))
+               .ForMember(dest => dest.SeriesRecordingOption, opt => opt.ResolveUsing(src => src.SeriesRecordingOption))
+               ;
 
             cfg.CreateMap<ExternalSeriesRecording, KalturaExternalSeriesRecording>()
                .IncludeBase<SeriesRecording, KalturaSeriesRecording>()

@@ -292,7 +292,17 @@ namespace Core.Catalog.Request
                         isOriginalBroadcast = "isOriginalBroadcast = '1'";
                     }
 
-                    ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4} {5})", seriesIdMetaOrTag, serie.SeriesId, serie.EpgChannelId, season, seasonsToExclude.ToString(), isOriginalBroadcast);
+                    var futureRecording = string.Empty;
+                    if (serie.SeriesRecordingOption != null && serie.SeriesRecordingOption.MinSeasonNumber > 0 && serie.SeriesRecordingOption.MinEpisodeNumber > 0)
+                    {
+                        //metas.X
+                        futureRecording = $"(or (and seasonnumber = '{serie.SeriesRecordingOption.MinSeasonNumber}" +
+                            $"' episodenumber >= '{serie.SeriesRecordingOption.MinEpisodeNumber}') seasonnumber > " +
+                            $"'{serie.SeriesRecordingOption.MinSeasonNumber}')";
+                    }
+
+                    ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4} {5} {6})", seriesIdMetaOrTag, serie.SeriesId, 
+                        serie.EpgChannelId, season, seasonsToExclude.ToString(), isOriginalBroadcast, futureRecording);
                 }
             }
 
@@ -346,6 +356,5 @@ namespace Core.Catalog.Request
 
             return response;
         }
-
     }
 }

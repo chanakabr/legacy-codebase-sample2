@@ -42,6 +42,7 @@ using System.Threading;
 using System.Xml;
 using TVinciShared;
 using Tvinic.GoogleAPI;
+using ApiLogic;
 
 namespace Core.ConditionalAccess
 {
@@ -6244,6 +6245,8 @@ namespace Core.ConditionalAccess
             DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
             DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
             var type = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORD_TYPE");
+            int? minSeason = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_SEASON_NUMBER");
+            int? minEpisode = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_EPISODE_NUMBER");
 
             return new SeriesRecording()
             {
@@ -6255,6 +6258,11 @@ namespace Core.ConditionalAccess
                 Type = type,
                 CreateDate = createDate,
                 UpdateDate = updateDate,
+                SeriesRecordingOption = new SeriesRecordingOption
+                {
+                    MinEpisodeNumber = minEpisode > 0 ? minEpisode : null,
+                    MinSeasonNumber = minSeason > 0 ? minSeason : null
+                },
                 Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
 
@@ -6271,18 +6279,27 @@ namespace Core.ConditionalAccess
                 {
                     foreach (DataRow dr in ds.Tables[0].Rows)
                     {
+                        int? minSeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_SEASON_NUMBER");
+                        int? minEpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_EPISODE_NUMBER");
+
                         seriesRecording = new SeriesRecording()
                         {
                             EpgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID"),
                             EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID"),
                             Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID"),
                             SeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER"),
+                            EpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "EPISODE_NUMBER"),
                             SeriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID"),
                             CreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE"),
                             UpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE"),
                             ExcludedSeasons = new List<int>(),
                             Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()),
-                            Type = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORD_TYPE", 0)
+                            Type = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORD_TYPE", 0),
+                            SeriesRecordingOption = new SeriesRecordingOption
+                            {
+                                MinSeasonNumber = minSeasonNumber > 0 ? minSeasonNumber : null,
+                                MinEpisodeNumber = minEpisodeNumber > 0 ? minEpisodeNumber : null,
+                            }
                         };
 
                         result.Add(seriesRecording.Id, seriesRecording);
@@ -6541,7 +6558,7 @@ namespace Core.ConditionalAccess
                     {
                         m_bOnlyActiveMedia = true
                     },
-                    ExtraReturnFields = new List<string> { "epg_channel_id", "crid" },
+                    ExtraReturnFields = new List<string> { "epg_channel_id", "crid", "metas.episodenumber", "metas.seasonnumber" },
                 };
                 FillCatalogSignature(request);
 
@@ -6650,7 +6667,8 @@ namespace Core.ConditionalAccess
             return recording;
         }
 
-        public SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed, ref List<long> futureSeriesRecordingIds, EPGChannelProgrammeObject epg = null)
+        public SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed, ref List<long> futureSeriesRecordingIds, EPGChannelProgrammeObject epg = null, 
+            SeriesRecordingOption seriesRecordingOption = null)
         {
             SeriesRecording seriesRecording = new SeriesRecording();
             if (epg == null)
@@ -6698,7 +6716,9 @@ namespace Core.ConditionalAccess
 
             isSeriesFollowed = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber, channelId);
             // insert or update domain_series table
-            DataTable dt = RecordingsDAL.FollowSeries(groupId, userId, domainID, epgId, channelId, seriesId, seasonNumber, episodeNumber, (int)recordingType);
+            DataTable dt = RecordingsDAL.FollowSeries(groupId, userId, domainID, epgId, channelId, seriesId, seasonNumber, 
+                episodeNumber, (int)recordingType, seriesRecordingOption?.MinSeasonNumber, seriesRecordingOption?.MinEpisodeNumber);
+            
             if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
             {
                 seriesRecording = BuildSeriesRecordingDetails(dt.Rows[0]);
@@ -6707,6 +6727,7 @@ namespace Core.ConditionalAccess
             // check if the user has future single episodes of the series/season and return them so we will cancel them and they will be recorded as part of series/season
             var domainSeriesRecording = (DomainSeriesRecording)seriesRecording;
             List<ExtendedSearchResult> futureRecordingsOfSeasonOrSeries = SearchSeriesRecordings(groupId, new List<string>(), new List<DomainSeriesRecording>() { domainSeriesRecording }, SearchSeriesRecordingsTimeOptions.future);
+            
             if (futureRecordingsOfSeasonOrSeries != null)
             {
                 foreach (ExtendedSearchResult futureRecordingSearchResult in futureRecordingsOfSeasonOrSeries)
@@ -6908,6 +6929,7 @@ namespace Core.ConditionalAccess
             StringBuilder ksql = new StringBuilder("(and (or ");
             StringBuilder seasonsToExclude = null;
             string season = null;
+            
             foreach (var serie in series)
             {
                 season = (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumber)) ? string.Format("{0} = '{1}' ", seasonNumber, serie.SeasonNumber) : string.Empty;
@@ -6920,7 +6942,16 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4})", seriesId, serie.SeriesId, serie.EpgChannelId, season, seasonsToExclude.ToString());
+                var futureRecording = string.Empty;
+                if (serie.SeriesRecordingOption != null && serie.SeriesRecordingOption.MinSeasonNumber > 0 && serie.SeriesRecordingOption.MinEpisodeNumber > 0)
+                {
+                    //metas.X
+                    futureRecording = $"(or (and seasonnumber = '{serie.SeriesRecordingOption.MinSeasonNumber}" +
+                        $"' episodenumber >= '{serie.SeriesRecordingOption.MinEpisodeNumber}') seasonnumber > " +
+                        $"'{serie.SeriesRecordingOption.MinSeasonNumber}')";
+                }
+
+                ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4} {5})", seriesId, serie.SeriesId, serie.EpgChannelId, season, seasonsToExclude.ToString(), futureRecording);
             }
 
             var order = new ApiObjects.SearchObjects.OrderObj()
@@ -7405,8 +7436,13 @@ namespace Core.ConditionalAccess
                             UserId = ODBCWrapper.Utils.GetSafeStr(dr, "USER_ID"),
                             EpgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID", 0),
                             ExcludedSeasons = new List<int>(),
-                            Type = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORD_TYPE")
-
+                            Type = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORD_TYPE"),
+                            EpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "EPISODE_NUMBER", 0),
+                            SeriesRecordingOption = new SeriesRecordingOption
+                            {
+                                MinSeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_SEASON_NUMBER", 0),
+                                MinEpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_EPISODE_NUMBER", 0)
+                            }
                         });
                     }
                 }

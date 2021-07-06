@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using System;
+using System.Web;
 using TVinciShared;
 using WebAPI.Models.General;
 
@@ -9,7 +10,7 @@ namespace WebAPI.EventNotifications
     {
         public static KalturaNotification ConvertEvent(string phoenixType, KalturaObjectEvent objectEvent)
         {
-            // convert the WS object to an API/rest/phoenixObject
+            // Convert the WS object to an API/rest/phoenixObject
             object phoenixObject = null;
             KalturaOTTObject ottObject = null;
 
@@ -77,12 +78,27 @@ namespace WebAPI.EventNotifications
                 UserIp = userIp,
                 SequenceId = RequestContextUtils.GetRequestId(),
                 UserId = userId,
-                Udid = udid
+                Context = GetContext(),
             };
 
             return eventWrapper;
         }
 
+        private static KalturaEventContextAction GetContext()
+        {
+            KalturaEventContextAction context = new KalturaEventContextAction
+            {
+                Service = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE]),
+                Action = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION])
+            };
+
+            if (!String.IsNullOrEmpty(context.Action) && !String.IsNullOrEmpty(context.Service))
+            {
+                return context;
+            }
+
+            return null;
+        }
         internal static KalturaEventAction ConvertKalturaAction(eKalturaEventActions eKalturaEventActions)
         {
             KalturaEventAction action = KalturaEventAction.None;

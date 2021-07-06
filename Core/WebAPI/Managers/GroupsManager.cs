@@ -101,6 +101,10 @@ namespace WebAPI.ClientManagers
                 SetInvalidationKeys(groupId);
                 response.Set(eResponseStatus.OK);
             }
+            catch(InternalServerErrorException)
+            {
+                response.Set(eResponseStatus.PartnerDoesNotExist, $"Partner {groupId} does not exist"); 
+            }
             catch (Exception ex)
             {
                 response.Set(eResponseStatus.Error);

@@ -4,12 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using WebAPI.Utils;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
+using WebAPI.Utils;
 
-[assembly:InternalsVisibleTo("WebAPI.Tests")]
+[assembly: InternalsVisibleTo("WebAPI.Tests")]
 
 namespace WebAPI.Clients
 {
@@ -270,6 +270,26 @@ namespace WebAPI.Clients
         internal static long GetLongResponseFromWS(Func<long> funcInWS)
         {
             long result = 0;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    result = funcInWS();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while calling service.", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            return result;
+        }
+
+        internal static List<int> GetListIntResponseFromWS(Func<List<int>> funcInWS)
+        {
+            List<int> result = new List<int>();
 
             try
             {

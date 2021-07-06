@@ -16,6 +16,7 @@ namespace DAL
     public interface ICAPartnerRepository
     {
         bool SetupPartnerInDb(long partnerId, long updaterId);
+        bool DeletePartnerBasicDataDb(long partnerId, long updaterId);
     }
 
     public class ConditionalAccessDAL : ICAPartnerRepository
@@ -3640,6 +3641,15 @@ namespace DAL
             sp.AddParameter("@updaterId", updaterId);
 
             return sp.ExecuteReturnValue<int>() > 0;
-        }        
+        }
+        public bool DeletePartnerBasicDataDb(long partnerId, long updaterId)
+        {
+            var sp = new StoredProcedure("Delete_GroupBasicData");
+            sp.SetConnectionKey(CA_CONNECTION_STRING);
+            sp.AddParameter("@groupId", partnerId);
+            sp.AddParameter("@updaterId", updaterId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
     }
 }

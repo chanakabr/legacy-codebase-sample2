@@ -807,7 +807,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetDomainSubscriptionPurchaseKey(long domainId, string subscriptionId)
         {
-            return $"domain_subcription_purchase_{domainId}_{subscriptionId}";
+            return $"domain_subcription_purchase_v1_{domainId}_{subscriptionId}";
         }
 
         #endregion

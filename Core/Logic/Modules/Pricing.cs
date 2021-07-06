@@ -799,7 +799,7 @@ namespace Core.Pricing
         public static SubscriptionsResponse GetSubscriptions(int groupId, string language, string udid, SubscriptionOrderBy orderBy, int pageIndex, int pageSize, bool shouldIgnorePaging, int? couponGroupIdEqual = null)
         {
             // get group's subscriptionIds
-            var subscriptionIds = PricingCache.GetSubscriptionsIds(groupId);
+            var subscriptionIds = PricingCache.Instance.GetSubscriptionsIds(groupId);
 
             if (subscriptionIds == null)
             {

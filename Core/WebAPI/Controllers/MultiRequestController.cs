@@ -512,6 +512,8 @@ namespace WebAPI.Controllers
                                 RequestContext.SetContext(parameters, request[i].Service, request[i].Action);
                                 Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
                                 List<Object> methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, parameters);
+                                HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE] = request[i].Service;
+                                HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION] = request[i].Action;
                                 response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
                             }
                         }

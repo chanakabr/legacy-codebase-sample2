@@ -9,8 +9,8 @@ namespace ApiObjects.TimeShiftedTv
 {
     public class SeriesRecording : DomainSeriesRecording
     {
-        public ApiObjects.Response.Status Status { get; set; }        
-        
+        public ApiObjects.Response.Status Status { get; set; }
+
         public DateTime CreateDate { get; set; }
 
         public DateTime UpdateDate { get; set; }
@@ -21,7 +21,7 @@ namespace ApiObjects.TimeShiftedTv
             : base()
         {
             Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
-            this.Id = 0;            
+            this.Id = 0;
         }
 
         public SeriesRecording(Recording record)
@@ -44,6 +44,7 @@ namespace ApiObjects.TimeShiftedTv
             this.Type = RecordingType.Series;
             this.CreateDate = seriesRecording.CreateDate;
             this.UpdateDate = seriesRecording.UpdateDate;
+            this.SeriesRecordingOption = seriesRecording.SeriesRecordingOption ?? new SeriesRecordingOption();
         }
 
         public override string ToString()
@@ -53,14 +54,31 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("Status Code: {0}, Status Message: {1} ", Status.Code, Status.Message));
             sb.Append(string.Format("Id: {0}, ", Id));
             sb.Append(string.Format("EpgID: {0}, ", EpgId));
-            sb.Append(string.Format("EpgChannelId: {0}, ", EpgChannelId)); 
-            sb.Append(string.Format("SeriesId: {0}, ", SeriesId));           
+            sb.Append(string.Format("EpgChannelId: {0}, ", EpgChannelId));
+            sb.Append(string.Format("SeriesId: {0}, ", SeriesId));
             sb.Append(string.Format("SeasonNumber: {0}, ", SeasonNumber));
             sb.Append(string.Format("Type: {0}, ", Type.ToString()));
             sb.Append(string.Format("CreateDate: {0}, ", CreateDate != null ? CreateDate.ToString() : ""));
             sb.Append(string.Format("UpdateDate: {0}, ", UpdateDate != null ? UpdateDate.ToString() : ""));
-                     
+            if (SeriesRecordingOption != null)
+            {
+                if (SeriesRecordingOption.MinEpisodeNumber.HasValue)
+                    sb.Append(string.Format("MinEpisodeNumber: {0}, ", SeriesRecordingOption.MinEpisodeNumber));
+                if (SeriesRecordingOption.MinSeasonNumber.HasValue)
+                    sb.Append(string.Format("MinSeasonNumber: {0}, ", SeriesRecordingOption.MinSeasonNumber));
+            }
             return sb.ToString();
+        }
+    }
+    public class SeriesRecordingOption
+    {
+        public int? MinSeasonNumber { get; set; }
+
+        public int? MinEpisodeNumber { get; set; }
+
+        public bool IsValid()
+        {
+            return this.MinEpisodeNumber.HasValue && this.MinSeasonNumber.HasValue;
         }
     }
 }

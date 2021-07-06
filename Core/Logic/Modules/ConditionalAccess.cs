@@ -17,6 +17,7 @@ using ApiObjects.TimeShiftedTv;
 using APILogic.ConditionalAccess.Response;
 using ApiObjects.SearchObjects;
 using ApiObjects.Base;
+using ApiLogic;
 
 namespace Core.ConditionalAccess
 {
@@ -2727,13 +2728,13 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static ApiObjects.TimeShiftedTv.SeriesRecording RecordSeasonOrSeries(int groupID, string userID, long epgID, ApiObjects.RecordingType recordingType)
+        public static ApiObjects.TimeShiftedTv.SeriesRecording RecordSeasonOrSeries(int groupID, string userID, long epgID, ApiObjects.RecordingType recordingType, SeriesRecordingOption recordingOption = null)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
             if (t != null)
             {
-                return t.RecordSeasonOrSeries(userID, epgID, recordingType);
+                return t.RecordSeasonOrSeries(userID, epgID, recordingType, recordingOption);
             }
 
             return null;

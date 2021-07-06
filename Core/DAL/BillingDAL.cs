@@ -13,6 +13,7 @@ namespace DAL
     public interface IBillingPartnerRepository
     {
         bool SetupPartnerInDb(long partnerId, long updaterId);
+        bool DeletePartnerBasicDataDb(long partnerId, long updaterId);
     }
 
     public class BillingDAL : IBillingPartnerRepository
@@ -2735,6 +2736,16 @@ namespace DAL
             var sp = new StoredProcedure("Create_GroupBasicData");
             sp.SetConnectionKey(BILLING_CONNECTION_STRING);
             sp.AddParameter("@groupId", partnerId);           
+            sp.AddParameter("@updaterId", updaterId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public bool DeletePartnerBasicDataDb(long partnerId, long updaterId)
+        {
+            var sp = new StoredProcedure("Delete_GroupBasicData");
+            sp.SetConnectionKey(BILLING_CONNECTION_STRING);
+            sp.AddParameter("@groupId", partnerId);
             sp.AddParameter("@updaterId", updaterId);
 
             return sp.ExecuteReturnValue<int>() > 0;

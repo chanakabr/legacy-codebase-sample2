@@ -52,6 +52,7 @@ namespace Core.Pricing
         public List<KeyValuePair<VerificationPaymentGateway, string>> ExternalProductCodes;
 
         public SubscriptionType Type;
+        public bool IsActive;
 
         #endregion
 

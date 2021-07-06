@@ -38,7 +38,6 @@ namespace WebAPI.EventNotifications
             }
 
             KalturaObjectActionEvent actionEvent = kalturaEvent as KalturaObjectActionEvent;
-
             this.SendRequest(
                 new KalturaHttpNotification()
                 {
@@ -50,7 +49,8 @@ namespace WebAPI.EventNotifications
                     UserIp = eventWrapper.UserIp ?? HttpContext.Current?.Items[RequestContextUtils.USER_IP]?.ToString(),
                     SequenceId = HttpContext.Current?.Items[Constants.REQUEST_ID_KEY]?.ToString(),
                     UserId = eventWrapper.UserId,
-                    Udid = eventWrapper.Udid
+                    Udid = eventWrapper.Udid,
+                    Context = eventWrapper.Context
                 }
             );
         }

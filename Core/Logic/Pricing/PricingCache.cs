@@ -11,6 +11,7 @@ namespace Core.Pricing
     public interface IPricingCache
     {
         bool TryGetGroupPricePlans(string key, out List<UsageModule> pricePlans);
+        HashSet<long> GetSubscriptionsIds(int groupId);
     }
 
     public class PricingCache : IPricingCache
@@ -384,7 +385,7 @@ namespace Core.Pricing
             return response;
         }
 
-        public static HashSet<long> GetSubscriptionsIds(int groupId)
+        public HashSet<long> GetSubscriptionsIds(int groupId)
         {
             var response = new HashSet<long>();
             try
