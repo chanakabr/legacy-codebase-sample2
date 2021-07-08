@@ -37,7 +37,7 @@ namespace APILogic
         private const int MaxExportSize = 500000;
         private const int MaxPageSize = 100000;
 
-        private delegate bool DoTaskJob(int groupId, long taskId, List<long> ids, string exportFullPath, string mainLang, int firstTaskIndex, int numberOfTasks, int index, int retrisCount = 0);
+        private delegate bool DoTaskJob(int groupId, long taskId, List<long> ids, string exportFullPath, string mainLang, int firstTaskIndex, int numberOfTasks, int index, int retrisCount = 0, bool isLastRun = false);
 
         public static bool Export(int groupId, BulkExportTask task, out string filename)
         {
@@ -336,11 +336,11 @@ namespace APILogic
                 if (remainTask > 0)
                     numberOfTasks++;
 
-                StartExportJobs(groupId, mediaIds, taskId, exportFullPath, mainLang, numberOfTasks, firstTaskIndex, doTaskJob);
+                StartExportJobs(groupId, mediaIds, taskId, exportFullPath, mainLang, numberOfTasks, firstTaskIndex, doTaskJob, true);
             }
         }
 
-        private static void StartExportJobs(int groupId, List<long> mediaIds, long taskId, string exportFullPath, string mainLang, int numberOfTasks, int firstTaskIndex, DoTaskJob doTaskJob)
+        private static void StartExportJobs(int groupId, List<long> mediaIds, long taskId, string exportFullPath, string mainLang, int numberOfTasks, int firstTaskIndex, DoTaskJob doTaskJob, bool isLastRun = false)
         {
             Task[] tasks;
             // create tasks array
@@ -351,13 +351,13 @@ namespace APILogic
             {
                 int index = i;
                 tasks[i] = Task.Run(() =>
-                    doTaskJob(groupId, taskId, mediaIds, exportFullPath, mainLang, firstTaskIndex, numberOfTasks, index));
+                    doTaskJob(groupId, taskId, mediaIds, exportFullPath, mainLang, firstTaskIndex, numberOfTasks, index, isLastRun: isLastRun));
 
             }
             Task.WaitAll(tasks);
         }
 
-        private static bool DoExportUpdatedEpgJob(int groupId, long taskId, List<long> programIds, string exportFullPath, string mainLang, int loopStartIndex, int tasksCount, int taskIndex, int retrisCount = 0)
+        private static bool DoExportUpdatedEpgJob(int groupId, long taskId, List<long> programIds, string exportFullPath, string mainLang, int loopStartIndex, int tasksCount, int taskIndex, int retrisCount = 0, bool isLastRun = false)
         {
             // calculate the start index of the media ids array 
             int startIndex = loopStartIndex + (taskIndex * maxAssetsPerTask);
@@ -368,7 +368,8 @@ namespace APILogic
             try
             {
                 ProgramObj[] programs;
-                if (tasksCount == 1)
+                // we need isLastRun to prevent retrieval of all assets on the last step (in case of the only one run).
+                if (tasksCount == 1 && isLastRun == false)
                 {
                     programs = GetProgramsByIds(programIds, groupId);
                 }
@@ -421,7 +422,7 @@ namespace APILogic
             return true;
         }
 
-        private static bool DoOpcExportUpdatedEpgJob(int groupId, long taskId, List<long> programIds, string exportFullPath, string mainLang, int loopStartIndex, int tasksCount, int taskIndex, int retrisCount = 0)
+        private static bool DoOpcExportUpdatedEpgJob(int groupId, long taskId, List<long> programIds, string exportFullPath, string mainLang, int loopStartIndex, int tasksCount, int taskIndex, int retrisCount = 0, bool isLastRun = false)
         {
             // calculate the start index of the media ids array 
             int startIndex = loopStartIndex + (taskIndex * maxAssetsPerTask);
@@ -432,7 +433,7 @@ namespace APILogic
             try
             {
                 List<Asset> programs;
-                if (tasksCount == 1)
+                if (tasksCount == 1 && isLastRun == false)
                 {
                     programs = AssetManager.GetAssets(groupId, programIds.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.EPG, id)).ToList(), true); 
                 }
@@ -485,7 +486,7 @@ namespace APILogic
             return true;
         }
 
-        private static bool DoExportUpdatedMediaJob(int groupId, long taskId, List<long> mediaIds, string exportFullPath, string mainLang, int loopStartIndex, int tasksCount, int taskIndex, int retrisCount = 0)
+        private static bool DoExportUpdatedMediaJob(int groupId, long taskId, List<long> mediaIds, string exportFullPath, string mainLang, int loopStartIndex, int tasksCount, int taskIndex, int retrisCount = 0, bool isLastRun = false)
         {
             // calculate the start index of the media ids array 
             int startIndex = loopStartIndex + (taskIndex * maxAssetsPerTask);
@@ -496,7 +497,7 @@ namespace APILogic
             try
             {
                 MediaObj[] medias;
-                if (tasksCount == 1)
+                if (tasksCount == 1 && isLastRun == false)
                 {
                     medias = GetMediaByIds(mediaIds, groupId);
                 }
@@ -551,7 +552,7 @@ namespace APILogic
             return true;
         }
 
-        private static bool DoOpcExportUpdatedMediaJob(int groupId, long taskId, List<long> mediaIds, string exportFullPath, string mainLang, int loopStartIndex, int tasksCount, int taskIndex, int retrisCount = 0)
+        private static bool DoOpcExportUpdatedMediaJob(int groupId, long taskId, List<long> mediaIds, string exportFullPath, string mainLang, int loopStartIndex, int tasksCount, int taskIndex, int retrisCount = 0, bool isLastRun = false)
         {
             // calculate the start index of the media ids array 
             int startIndex = loopStartIndex + (taskIndex * maxAssetsPerTask);
@@ -562,7 +563,8 @@ namespace APILogic
             try
             {
                 List<Asset> assets;
-                if (tasksCount == 1)
+                // we need isLastRun to prevent retrieval of all assets on the last step (in case of the only one run).
+                if (tasksCount == 1 && isLastRun == false)
                 {
                     assets = AssetManager.GetAssets(groupId, mediaIds.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), true); 
                 }
