@@ -448,6 +448,10 @@
       <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
       <Name>GroupsCacheManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Core\KalturaRequestContext\KalturaRequestContext.csproj">
+      <Project>{a967ecf4-2751-41ba-bec5-b13801ed03e5}</Project>
+      <Name>KalturaRequestContext</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Core\KlogMonitorHelper\KlogMonitorHelper.csproj">
       <Project>{fa277e9a-4c82-4ff7-a6e7-60feaeb363e2}</Project>
       <Name>KlogMonitorHelper</Name>

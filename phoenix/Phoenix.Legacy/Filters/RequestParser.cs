@@ -1,9 +1,4 @@
-﻿using ConfigurationManager;
-using HttpMultipartParser;
-using KLogMonitor;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -16,8 +11,14 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Filters;
-using TVinciShared;
+using ConfigurationManager;
+using HttpMultipartParser;
+using KalturaRequestContext;
+using KLogMonitor;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
@@ -61,7 +62,7 @@ namespace WebAPI.Filters
 
         public static object GetRequestPayload()
         {
-            return HttpContext.Current.Items[RequestContextUtils.REQUEST_METHOD_PARAMETERS];
+            return HttpContext.Current.Items[RequestContextConstants.REQUEST_METHOD_PARAMETERS];
         }
 
         private bool Equals(byte[] source, byte[] separator, int index)
@@ -158,7 +159,7 @@ namespace WebAPI.Filters
                 return;
             }
 
-            HttpContext.Current.Items[RequestContextUtils.REQUEST_TIME] = DateTime.UtcNow;
+            HttpContext.Current.Items[RequestContextConstants.REQUEST_TIME] = DateTime.UtcNow;
 
             Dictionary<string, object> formData = null;
 
@@ -206,7 +207,7 @@ namespace WebAPI.Filters
                     if (!Version.TryParse((string)formData["apiVersion"], out version))
                         throw new RequestParserException(RequestParserException.INVALID_VERSION, formData["apiVersion"]);
 
-                    HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION] = version;
+                    HttpContext.Current.Items[RequestContextConstants.REQUEST_VERSION] = version;
                 }
             }
             else if (actionContext.Request.Method == HttpMethod.Get)
@@ -230,28 +231,28 @@ namespace WebAPI.Filters
             }
             else
             {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.BadRequest, "HTTP Method not supported");
+                createErrorResponse(actionContext, (int)StatusCode.BadRequest, "HTTP Method not supported");
                 return;
             }
 
             if (currentController == null && pathData == null)
             {
-                createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidService, "Unknown Service");
+                createErrorResponse(actionContext, (int)StatusCode.InvalidService, "Unknown Service");
                 return;
             }
 
             if (currentController != null)
             {
-                HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE] = currentController;
+                HttpContext.Current.Items[RequestContextConstants.REQUEST_SERVICE] = currentController;
                 if (currentAction != null)
                 {
-                    HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION] = currentAction;
+                    HttpContext.Current.Items[RequestContextConstants.REQUEST_ACTION] = currentAction;
                 }
             }
 
             if (pathData != null)
             {
-                HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA] = pathData;
+                HttpContext.Current.Items[RequestContextConstants.REQUEST_PATH_DATA] = pathData;
             }
 
             if (actionContext.Request.Method == HttpMethod.Post)
@@ -304,13 +305,13 @@ namespace WebAPI.Filters
                             if (!Version.TryParse((string)JObj["apiVersion"], out version))
                                 throw new RequestParserException(RequestParserException.INVALID_VERSION, JObj["apiVersion"]);
 
-                            HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION] = version;
+                            HttpContext.Current.Items[RequestContextConstants.REQUEST_VERSION] = version;
                         }
 
                         Dictionary<string, object> requestParams;
-                        if (HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA] != null)
+                        if (HttpContext.Current.Items[RequestContextConstants.REQUEST_PATH_DATA] != null)
                         {
-                            requestParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA]);
+                            requestParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContextConstants.REQUEST_PATH_DATA]);
                         }
                         else
                         {
@@ -328,7 +329,7 @@ namespace WebAPI.Filters
                             Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(currentController, currentAction);
                             methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, requestParams);
                         }
-                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_METHOD_PARAMETERS, methodParams);
+                        HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_METHOD_PARAMETERS, methodParams);
                     }
                     catch (UnauthorizedException e)
                     {
@@ -347,12 +348,12 @@ namespace WebAPI.Filters
                     }
                     catch (JsonReaderException)
                     {
-                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
+                        createErrorResponse(actionContext, (int)StatusCode.InvalidJSONRequest, "Invalid JSON");
                         return;
                     }
                     catch (FormatException)
                     {
-                        createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.InvalidJSONRequest, "Invalid JSON");
+                        createErrorResponse(actionContext, (int)StatusCode.InvalidJSONRequest, "Invalid JSON");
                         return;
                     }
                 }
@@ -360,7 +361,7 @@ namespace WebAPI.Filters
                     && HttpContext.Current.Request.ContentLength > 0)
                 {
                     //TODO
-                    createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.BadRequest, "XML is currently not supported");
+                    createErrorResponse(actionContext, (int)StatusCode.BadRequest, "XML is currently not supported");
                     return;
                 }
                 else if (formData != null)
@@ -368,9 +369,9 @@ namespace WebAPI.Filters
                     try
                     {
                         Dictionary<string, object> groupedParams;
-                        if (HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA] != null)
+                        if (HttpContext.Current.Items[RequestContextConstants.REQUEST_PATH_DATA] != null)
                         {
-                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA]);
+                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContextConstants.REQUEST_PATH_DATA]);
                         }
                         else
                         {
@@ -390,7 +391,7 @@ namespace WebAPI.Filters
                             Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(currentController, currentAction);
                             methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, groupedParams);
                         }
-                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_METHOD_PARAMETERS, methodParams);
+                        HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_METHOD_PARAMETERS, methodParams);
                     }
                     catch (UnauthorizedException e)
                     {
@@ -411,7 +412,7 @@ namespace WebAPI.Filters
                 }
                 else
                 {
-                    createErrorResponse(actionContext, (int)WebAPI.Managers.Models.StatusCode.BadRequest, "Content type is invalid");
+                    createErrorResponse(actionContext, (int)StatusCode.BadRequest, "Content type is invalid");
                     return;
                 }
             }
@@ -426,7 +427,7 @@ namespace WebAPI.Filters
                     if (!Version.TryParse(tokens["apiVersion"], out version))
                         throw new RequestParserException(RequestParserException.INVALID_VERSION, tokens["apiVersion"]);
 
-                    HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION] = version;
+                    HttpContext.Current.Items[RequestContextConstants.REQUEST_VERSION] = version;
                 }
                 if (string.IsNullOrEmpty((string)HttpContext.Current.Items[Constants.CLIENT_TAG]))
                 {
@@ -449,9 +450,9 @@ namespace WebAPI.Filters
                     try
                     {
                         Dictionary<string, object> groupedParams;
-                        if (HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA] != null)
+                        if (HttpContext.Current.Items[RequestContextConstants.REQUEST_PATH_DATA] != null)
                         {
-                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContextUtils.REQUEST_PATH_DATA]);
+                            groupedParams = groupPathDataParams((string)HttpContext.Current.Items[RequestContextConstants.REQUEST_PATH_DATA]);
                         }
                         else
                         {
@@ -471,7 +472,7 @@ namespace WebAPI.Filters
                             Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(currentController, currentAction);
                             methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, groupedParams);
                         }
-                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_METHOD_PARAMETERS, methodParams);
+                        HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_METHOD_PARAMETERS, methodParams);
                     }
                     catch (UnauthorizedException e)
                     {

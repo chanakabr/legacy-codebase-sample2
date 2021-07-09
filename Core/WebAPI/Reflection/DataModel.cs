@@ -12,6 +12,7 @@ using WebAPI.Managers;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.MultiRequest;
 using TVinciShared;
+using KalturaRequestContext;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
 using WebAPI.Models.General;
@@ -8854,7 +8855,7 @@ namespace WebAPI.Reflection
                             return ConfigurationsController.List((KalturaConfigurationsFilter) methodParams[0]);
                             
                         case "servebydevice":
-                            HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVE_CONTENT_TYPE] = "application/json";
+                            HttpContext.Current.Items[RequestContextConstants.REQUEST_SERVE_CONTENT_TYPE] = "application/json";
                             return ConfigurationsController.ServeByDevice((string) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (string) methodParams[4], (int) methodParams[5]);
                             
                         case "update":
@@ -12040,7 +12041,7 @@ namespace WebAPI.Reflection
             service = service.ToLower();
             action = action.ToLower();
             Dictionary<string, MethodParam> ret = new Dictionary<string, MethodParam>();
-            Version currentVersion = (Version)HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION];
+            Version currentVersion = (Version)HttpContext.Current.Items[RequestContextConstants.REQUEST_VERSION];
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
             string paramName;
             string newParamName = null;

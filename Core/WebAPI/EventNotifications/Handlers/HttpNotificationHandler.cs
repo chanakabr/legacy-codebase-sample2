@@ -1,22 +1,22 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Web;
-using WebAPI.Models.General;
-using KLogMonitor;
-using System.Reflection;
-using WebAPI.Managers.Models;
-using System.Security.Cryptography.X509Certificates;
-using System.Threading.Tasks;
-using WebAPI.Managers;
-using ApiObjects;
 using System.Net.Http.Headers;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
+using System.Web;
+using ApiObjects;
+using EventManager;
+using KalturaRequestContext;
+using KLogMonitor;
+using Newtonsoft.Json;
 using TVinciShared;
+using WebAPI.Managers;
+using WebAPI.Managers.Models;
+using WebAPI.Models.General;
 
 namespace WebAPI.EventNotifications
 {
@@ -30,7 +30,7 @@ namespace WebAPI.EventNotifications
 
         #region Override Method
 
-        internal override void Handle(EventManager.KalturaEvent kalturaEvent, KalturaNotification eventWrapper)
+        internal override void Handle(KalturaEvent kalturaEvent, KalturaNotification eventWrapper)
         {
             if (this.ValidHttpStatuses == null || this.ValidHttpStatuses.Count == 0)
             {
@@ -46,7 +46,7 @@ namespace WebAPI.EventNotifications
                     eventType = eventWrapper.eventType,
                     objectType = eventWrapper.objectType,
                     partnerId = kalturaEvent.PartnerId,
-                    UserIp = eventWrapper.UserIp ?? HttpContext.Current?.Items[RequestContextUtils.USER_IP]?.ToString(),
+                    UserIp = eventWrapper.UserIp ?? HttpContext.Current?.Items[RequestContextConstants.USER_IP]?.ToString(),
                     SequenceId = HttpContext.Current?.Items[Constants.REQUEST_ID_KEY]?.ToString(),
                     UserId = eventWrapper.UserId,
                     Udid = eventWrapper.Udid,
@@ -293,7 +293,7 @@ namespace WebAPI.EventNotifications
                     cts.CancelAfter(TimeSpan.FromMilliseconds(this.Timeout));
                 }
 
-                using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null)
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS, null, null, null, null)
                 {
                     Database = this.Url
                 })

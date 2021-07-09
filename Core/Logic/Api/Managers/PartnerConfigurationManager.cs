@@ -1,21 +1,18 @@
-﻿using ApiLogic.Users.Security;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using ApiLogic.Users.Security;
 using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Api;
-using Core.Catalog;
-using Core.Catalog.CatalogManagement;
-using Core.Pricing;
 using CouchbaseManager;
 using DAL;
+using KalturaRequestContext;
 using KLogMonitor;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using TVinciShared;
+using Module = Core.Billing.Module;
 
 namespace ApiLogic.Api.Managers
 {
@@ -30,7 +27,7 @@ namespace ApiLogic.Api.Managers
         private static readonly Lazy<PartnerConfigurationManager> lazy = new Lazy<PartnerConfigurationManager>(() =>
         new PartnerConfigurationManager(LayeredCache.Instance,
                             ApiDAL.Instance,
-                            RequestContextUtils.Instance,
+                            RequestContextUtilsInstance.Get(),
                             GeneralPartnerConfigManager.Instance),
         LazyThreadSafetyMode.PublicationOnly);
 
@@ -603,7 +600,7 @@ namespace ApiLogic.Api.Managers
                 {
                     if (unifiedBillingCycle.PaymentGatewayId.HasValue)
                     {
-                        var paymentGatewayResponse = Core.Billing.Module.GetPaymentGatewayById(groupId, unifiedBillingCycle.PaymentGatewayId.Value);
+                        var paymentGatewayResponse = Module.GetPaymentGatewayById(groupId, unifiedBillingCycle.PaymentGatewayId.Value);
                         if (!paymentGatewayResponse.HasObject())
                         {
                             response.Set(paymentGatewayResponse.Status);

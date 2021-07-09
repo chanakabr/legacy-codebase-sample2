@@ -1,9 +1,10 @@
-﻿using AutoFixture;
-using NUnit.Framework;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using TVinciShared;
+using System.Web;
+using AutoFixture;
+using KalturaRequestContext;
+using NUnit.Framework;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Catalog;
@@ -36,7 +37,7 @@ namespace WebAPI.Tests.Models.Catalog
         [TestCaseSource(nameof(AddBadRequestExceptionTestCases), new object[] { "Add" })]
         public void CheckAddBadRequestException(Dictionary<string, object> actionParams, string exceptionMessage)
         {
-            System.Web.HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] = RequestType.INSERT;
+            HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] = RequestType.INSERT;
             var methodArgs = DataModel.getMethodParams("categoryVersion", "add");
             var reqParams = new Dictionary<string, object>(){
                     { "objectToAdd", actionParams }
@@ -132,7 +133,7 @@ namespace WebAPI.Tests.Models.Catalog
         [TestCaseSource(nameof(UpdateBadRequestExceptionTestCases))]
         public void CheckUpdateBadRequestException(Dictionary<string, object> actionParams, string exceptionMessage)
         {
-            System.Web.HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] = RequestType.UPDATE;
+            HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] = RequestType.UPDATE;
             var methodArgs = DataModel.getMethodParams("categoryVersion", "update");
             var reqParams = new Dictionary<string, object>(){
                     { "objectToUpdate", actionParams },

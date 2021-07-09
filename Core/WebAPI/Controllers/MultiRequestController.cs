@@ -1,12 +1,14 @@
-﻿using KLogMonitor;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web;
+using CachingProvider.LayeredCache;
+using KalturaRequestContext;
+using KLogMonitor;
+using Newtonsoft.Json.Linq;
 using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -473,12 +475,12 @@ namespace WebAPI.Controllers
                 {
                     try
                     {
-                        HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = false;
+                        HttpContext.Current.Items[LayeredCache.IS_READ_ACTION] = false;
 
                         if (!string.IsNullOrEmpty(request[i].Action))
                         {
-                            bool isReadAction = CachingProvider.LayeredCache.LayeredCache.readActions.Contains(request[i].Action);
-                            HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = isReadAction;
+                            bool isReadAction = LayeredCache.readActions.Contains(request[i].Action);
+                            HttpContext.Current.Items[LayeredCache.IS_READ_ACTION] = isReadAction;
                             if (!string.IsNullOrEmpty(request[i].Service))
                             {
                                 HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}", request[i].Service, request[i].Action);
@@ -512,8 +514,8 @@ namespace WebAPI.Controllers
                                 RequestContext.SetContext(parameters, request[i].Service, request[i].Action);
                                 Dictionary<string, MethodParam> methodArgs = DataModel.getMethodParams(request[i].Service, request[i].Action);
                                 List<Object> methodParams = RequestParsingHelpers.BuildActionArguments(methodArgs, parameters);
-                                HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE] = request[i].Service;
-                                HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION] = request[i].Action;
+                                HttpContext.Current.Items[RequestContextConstants.REQUEST_SERVICE] = request[i].Service;
+                                HttpContext.Current.Items[RequestContextConstants.REQUEST_ACTION] = request[i].Action;
                                 response = DataModel.execAction(request[i].Service, request[i].Action, methodParams);
                             }
                         }

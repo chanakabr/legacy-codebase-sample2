@@ -1,12 +1,3 @@
-using ConfigurationManager;
-using KLogMonitor;
-using WebAPI.Managers.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.WebUtilities;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Phoenix.Context;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,9 +7,18 @@ using System.Net.Mime;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using TVinciShared;
+using ConfigurationManager;
+using KalturaRequestContext;
+using KLogMonitor;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.WebUtilities;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Phoenix.Context;
 using WebAPI;
 using WebAPI.Filters;
+using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Reflection;
 
@@ -41,7 +41,7 @@ namespace Phoenix.Rest.Middleware
             KS.ClearOnRequest();
             var phoenixContext = new PhoenixRequestContext();
             context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] = phoenixContext;
-            context.Items[RequestContextUtils.REQUEST_TIME] = DateTime.UtcNow;
+            context.Items[RequestContextConstants.REQUEST_TIME] = DateTime.UtcNow;
             phoenixContext.SessionId = KLogger.GetRequestId();
             phoenixContext.RequestDate = DateTime.UtcNow;            
             if (phoenixContext == null) { throw new SystemException("Request Context is lost, something went wrong."); }
@@ -54,7 +54,7 @@ namespace Phoenix.Rest.Middleware
             var service = phoenixContext.RouteData.Service;
             var pathData = phoenixContext.RouteData.PathData;
             string serviceAction = $"{service}.{action}";
-            KLogger.LogContextData[KLogMonitor.Constants.ACTION] = serviceAction;
+            KLogger.LogContextData[Constants.ACTION] = serviceAction;
             System.Web.HttpContext.Current.Items[Constants.ACTION] = serviceAction;
 
             using var km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START);
@@ -65,7 +65,7 @@ namespace Phoenix.Rest.Middleware
             SetCommonRequestContextItems(context, phoenixContext, parsedActionParams, service, action);
 
             var actionParams = GetDeserializedActionParams(parsedActionParams, phoenixContext.IsMultiRequest, service, action);
-            context.Items[RequestContextUtils.REQUEST_METHOD_PARAMETERS] = actionParams;
+            context.Items[RequestContextConstants.REQUEST_METHOD_PARAMETERS] = actionParams;
             phoenixContext.ActionParams = actionParams;
 
             await _Next(context);
@@ -74,27 +74,27 @@ namespace Phoenix.Rest.Middleware
         private void SetCommonRequestContextItems(HttpContext context, PhoenixRequestContext _PhoenixContext, IDictionary<string, object> parsedActionParams, string service, string action)
         {
             RequestContext.SetContext(parsedActionParams, service, action);
-            _PhoenixContext.Format = context.Items[RequestContextUtils.REQUEST_FORMAT]?.ToString();
-            _PhoenixContext.UserIpAdress = context.Items[RequestContextUtils.USER_IP]?.ToString();
-            _PhoenixContext.Currency = context.Items[RequestContextUtils.REQUEST_GLOBAL_CURRENCY]?.ToString();
-            _PhoenixContext.Language = context.Items[RequestContextUtils.REQUEST_GLOBAL_LANGUAGE]?.ToString();
+            _PhoenixContext.Format = context.Items[RequestContextConstants.REQUEST_FORMAT]?.ToString();
+            _PhoenixContext.UserIpAdress = context.Items[RequestContextConstants.USER_IP]?.ToString();
+            _PhoenixContext.Currency = context.Items[RequestContextConstants.REQUEST_GLOBAL_CURRENCY]?.ToString();
+            _PhoenixContext.Language = context.Items[RequestContextConstants.REQUEST_GLOBAL_LANGUAGE]?.ToString();
 
-            if (context.Items.TryGetValue(RequestContextUtils.REQUEST_RESPONSE_PROFILE, out var responseProfile))
+            if (context.Items.TryGetValue(RequestContextConstants.REQUEST_RESPONSE_PROFILE, out var responseProfile))
             {
                 _PhoenixContext.ResponseProfile = responseProfile as KalturaOTTObject;
             }
 
-            if (context.Items.TryGetValue(RequestContextUtils.REQUEST_TYPE, out var reqType))
+            if (context.Items.TryGetValue(RequestContextConstants.REQUEST_TYPE, out var reqType))
             {
                 _PhoenixContext.RequestType = reqType as RequestType?;
             }
 
-            if (context.Items.TryGetValue(RequestContextUtils.REQUEST_GLOBAL_USER_ID, out var userId))
+            if (context.Items.TryGetValue(RequestContextConstants.REQUEST_GLOBAL_USER_ID, out var userId))
             {
                 _PhoenixContext.UserId = userId as int?;
             }
 
-            if (context.Items.TryGetValue(RequestContextUtils.REQUEST_VERSION, out var version))
+            if (context.Items.TryGetValue(RequestContextConstants.REQUEST_VERSION, out var version))
             {
                 _PhoenixContext.RequestVersion = version as Version;
             }

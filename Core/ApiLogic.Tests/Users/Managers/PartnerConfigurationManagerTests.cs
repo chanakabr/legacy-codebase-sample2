@@ -1,12 +1,10 @@
 ﻿using ApiLogic.Api.Managers;
 using ApiObjects;
-using CachingProvider.LayeredCache;
 using DAL;
+using KalturaRequestContext;
 using Moq;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using TVinciShared;
+
 namespace ApiLogic.Tests.Users.Managers
 {
     [TestFixture]

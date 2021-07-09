@@ -1,15 +1,22 @@
-﻿using ApiObjects.User;
-using AutoMapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web;
+using APILogic.Api.Managers;
+using ApiObjects;
+using ApiObjects.User;
+using AutoMapper;
+using Core.Catalog;
+using Core.Catalog.CatalogManagement;
+using GroupsCacheManager;
+using KalturaRequestContext;
 using TVinciShared;
-using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
+using KeyValuePair = ApiObjects.KeyValuePair;
+using Language = WebAPI.Managers.Models.Language;
 
 namespace WebAPI.Utils
 {
@@ -39,9 +46,9 @@ namespace WebAPI.Utils
         
         public static string GetClientIP()
         {
-            if (HttpContext.Current.Items[RequestContextUtils.USER_IP] != null)
+            if (HttpContext.Current.Items[RequestContextConstants.USER_IP] != null)
             {
-                return HttpContext.Current.Items[RequestContextUtils.USER_IP].ToString();
+                return HttpContext.Current.Items[RequestContextConstants.USER_IP].ToString();
             }
 
             string ip = string.Empty;
@@ -85,22 +92,22 @@ namespace WebAPI.Utils
         
         internal static string GetLanguageFromRequest()
         {
-            if (HttpContext.Current.Items[RequestContextUtils.REQUEST_LANGUAGE] == null)
+            if (HttpContext.Current.Items[RequestContextConstants.REQUEST_LANGUAGE] == null)
             {
                 return null;
             }
 
-            return HttpContext.Current.Items[RequestContextUtils.REQUEST_LANGUAGE].ToString();
+            return HttpContext.Current.Items[RequestContextConstants.REQUEST_LANGUAGE].ToString();
         }
 
         public static int? GetGroupIdFromRequest()
         {
-            if (HttpContext.Current.Items[RequestContextUtils.REQUEST_GROUP_ID] == null)
+            if (HttpContext.Current.Items[RequestContextConstants.REQUEST_GROUP_ID] == null)
             {
                 return null;
             }
 
-            return (int) HttpContext.Current.Items[RequestContextUtils.REQUEST_GROUP_ID];
+            return (int) HttpContext.Current.Items[RequestContextConstants.REQUEST_GROUP_ID];
         }
 
         internal static string GetDefaultLanguage()
@@ -154,18 +161,18 @@ namespace WebAPI.Utils
                 return null;
             }
 
-            if (Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId.Value))
+            if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId.Value))
             {
-                Core.Catalog.CatalogGroupCache groupCache;
+                CatalogGroupCache groupCache;
 
-                if (Core.Catalog.CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId.Value, out groupCache))
+                if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId.Value, out groupCache))
                 {
                     return Mapper.Map<List<Language>>(groupCache.LanguageMapById.Values.ToList());
                 }
             }
             else
             {
-                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
+                GroupManager groupManager = new GroupManager();
                 
                 return Mapper.Map<List<Language>>(groupManager.GetGroup(groupId.Value).GetLangauges());
             }
@@ -175,21 +182,21 @@ namespace WebAPI.Utils
 
         internal static string GetCurrencyFromRequest()
         {
-            var currency = HttpContext.Current.Items[RequestContextUtils.REQUEST_CURRENCY];
+            var currency = HttpContext.Current.Items[RequestContextConstants.REQUEST_CURRENCY];
             return currency != null ? currency.ToString() : null;
         }
 
         internal static string GetFormatFromRequest()
         {
-            var format = HttpContext.Current.Items[RequestContextUtils.REQUEST_FORMAT];
+            var format = HttpContext.Current.Items[RequestContextConstants.REQUEST_FORMAT];
             return format != null ? format.ToString() : null;
         }
 
-        internal static WebAPI.Models.General.KalturaBaseResponseProfile GetResponseProfileFromRequest()
+        internal static KalturaBaseResponseProfile GetResponseProfileFromRequest()
         {
-            KalturaBaseResponseProfile responseProfile = (KalturaBaseResponseProfile)HttpContext.Current.Items[RequestContextUtils.REQUEST_RESPONSE_PROFILE];
+            KalturaBaseResponseProfile responseProfile = (KalturaBaseResponseProfile)HttpContext.Current.Items[RequestContextConstants.REQUEST_RESPONSE_PROFILE];
                         
-            return responseProfile != null ? responseProfile as WebAPI.Models.General.KalturaBaseResponseProfile : null;
+            return responseProfile != null ? responseProfile as KalturaBaseResponseProfile : null;
         }
 
         public static string GetCurrentBaseUrl()
@@ -218,18 +225,18 @@ namespace WebAPI.Utils
         
         public static bool IsAllowedToViewInactiveAssets(int groupId, string userId, bool ignoreDoesGroupUsesTemplates = false)
         {
-            return APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS)
+            return RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.VIEW_INACTIVE_ASSETS)
                    && (DoesGroupUsesTemplates(groupId) || ignoreDoesGroupUsesTemplates);
         }
 
         public static bool DoesGroupUsesTemplates(int groupId)
         {
-            return Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
+            return CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
         }
 
         internal static bool GetAbortOnErrorFromRequest()
         {
-            var abortOnError= HttpContext.Current.Items[RequestContextUtils.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR];
+            var abortOnError= HttpContext.Current.Items[RequestContextConstants.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR];
             return abortOnError != null ? (bool)abortOnError : false;
         }
 
@@ -273,7 +280,7 @@ namespace WebAPI.Utils
             return res;
         }
 
-        internal static SerializableDictionary<string, KalturaStringValue> ConvertToSerializableDictionary(List<ApiObjects.KeyValuePair> dictionary)
+        internal static SerializableDictionary<string, KalturaStringValue> ConvertToSerializableDictionary(List<KeyValuePair> dictionary)
         {
             var result = new SerializableDictionary<string, KalturaStringValue>();
 
@@ -319,9 +326,9 @@ namespace WebAPI.Utils
 
         public static IEnumerable<string> GetOnDemandResponseProfileProperties()
         {
-            Models.General.KalturaBaseResponseProfile responseProfile = Utils.GetResponseProfileFromRequest();
+            KalturaBaseResponseProfile responseProfile = GetResponseProfileFromRequest();
 
-            if (responseProfile != null && responseProfile is Models.General.KalturaOnDemandResponseProfile onDemandResponseProfile)
+            if (responseProfile != null && responseProfile is KalturaOnDemandResponseProfile onDemandResponseProfile)
             {
                 SerializableDictionary<string, object> filteredResponse = new SerializableDictionary<string, object>();
 
