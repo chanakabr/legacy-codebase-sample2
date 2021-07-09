@@ -14,6 +14,7 @@ using Couchbase.N1QL;
 using System.Linq;
 using System.Threading.Tasks;
 using ConfigurationManager;
+using CouchbaseManager.Models;
 
 namespace CouchbaseManager
 {
@@ -792,50 +793,43 @@ namespace CouchbaseManager
             return result;
         }
 
-        public async Task<IDictionary<string, bool>> MultiSet<T>(List<IDocument<T>> values, bool allowPartial = false, bool asJson = false)
+        public async Task<IDictionary<string, bool>> MultiSet<T>(IEnumerable<CouchbaseRecord<T>> values, bool allowPartial = false)
         {
             IDictionary<string, bool> results = null;
-            IDocumentResult[] insertResult = null;
+            IOperationResult<T>[] operationResults = null;
 
             try
             {
-                values.ForEach(v => v.Expiry = FixExpirationTimeMilliseconds(v.Expiry));
                 var bucket = ClusterHelper.GetBucket(bucketName);
-                string cbDescription = string.Format("bucket: {0}; keyCount: {1};", bucketName, values.Count);
-                using (var km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = cbDescription })
+                using (var km = new KMonitor(Events.eEvent.EVENT_COUCHBASE, null, null, null, null) { QueryType = KLogEnums.eDBQueryType.UPDATE, Database = $"bucket: {bucketName}; keyCount: {values.Count()};" })
                 {
-
-                    if (!asJson)
-                        insertResult = await bucket.UpsertAsync(values);
-                    else
-                    {
-                        var serializedValue = ObjectsToJson(values);
-                        insertResult = await bucket.UpsertAsync(serializedValue);
-                    }
+                    var tasks = values.Select(v => bucket.UpsertAsync(v.Key, v.Content, FixExpirationTime(v.Expiration))).ToArray();
+                    await Task.WhenAll(tasks);
+                    operationResults = tasks.Select(t => t.Result).ToArray();
                 }
-
-
-                if (insertResult.Any(d => d.Status != Couchbase.IO.ResponseStatus.Success))
+                
+                if (operationResults.Any(d => d.Status != Couchbase.IO.ResponseStatus.Success))
                 {
-                    var errors = insertResult.Where(r => r.Exception != null).Select(r => r.Exception).ToList();
+                    var errors = operationResults.Where(r => r.Exception != null).Select(r => r.Exception).ToList();
 
                     if (!allowPartial)
                     {
-                        var failedItems = insertResult.Where(r => !r.Success);
+                        var failedItems = operationResults.Where(r => !r.Success);
                         errors.Add(new Exception($"CouchbaseManager - Will not allow partial set, One or more of the set operation failed: [{ObjectToJson(failedItems)}]"));
                     }
 
                     if (errors.Any())
                     {
+                        log.Error($"CouchbaseManager - errors during MultiSet<T>: {ObjectToJson(errors)}");
                         throw new AggregateException(errors);
                     }
                 }
 
-                results = insertResult.ToDictionary(k => k.Id, v => v.Success);
+                results = operationResults.ToDictionary(k => k.Id, v => v.Success);
             }
             catch (Exception ex)
             {
-                log.Error($"CouchbaseManager - Failed MultiSet<T> with keys:[{ObjectToJson(values.Select(v => v.Id))}],", ex);
+                log.Error($"CouchbaseManager - Failed MultiSet<T> with keys:[{ObjectToJson(values.Select(v => v.Key))}],", ex);
             }
 
             return results;
