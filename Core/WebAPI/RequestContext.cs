@@ -193,6 +193,15 @@ namespace WebAPI
             {
                 HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_USER_ID, HttpContext.Current.Items[RequestContextUtils.REQUEST_GLOBAL_USER_ID]);
             }
+            else
+            { // TODO not tested
+                var userId = KS.GetFromRequest()?.UserId;
+                if (userId.IsNullOrEmpty()) return;
+                if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_USER_ID))
+                    HttpContext.Current.Items[RequestContextUtils.REQUEST_USER_ID] = userId;
+                else
+                    HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_USER_ID, userId);
+            }
         }
 
         private static void SetKsContext(IDictionary<string, object> requestParams, bool globalScope)
