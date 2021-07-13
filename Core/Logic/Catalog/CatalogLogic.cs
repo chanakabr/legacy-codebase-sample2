@@ -343,42 +343,36 @@ namespace Core.Catalog
                 List<int> idsToDelete = new List<int>();
                 List<int> idsToTurnOff = new List<int>();
 
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
+
                 foreach (var id in nonExistingMediaIDs)
                 {
                     // Look for the origin row of the media in the database
                     DataRow currentMediaRow = ODBCWrapper.Utils.GetTableSingleRow("media", id, "MAIN_CONNECTION_STRING");
 
                     // If no row returned - delete the record in index
-                    if (currentMediaRow == null)
+                    if (currentMediaRow == null || ODBCWrapper.Utils.ExtractInteger(currentMediaRow, "status") != 1 ||
+                        (!doesGroupUsesTemplates && ODBCWrapper.Utils.ExtractDateTime(currentMediaRow, "FINAL_END_DATE") < DateTime.UtcNow)) //BEO-10220
                     {
                         idsToDelete.Add(id);
                     }
                     else
                     {
-                        int status = ODBCWrapper.Utils.ExtractInteger(currentMediaRow, "status");
+                        int isActive = ODBCWrapper.Utils.ExtractInteger(currentMediaRow, "is_active");
 
-                        // if the status is invalid - delete the record in index
-                        if (status != 1)
+                        // if media is not active, turn it off
+                        if (isActive != 1)
                         {
-                            idsToDelete.Add(id);
+                            idsToTurnOff.Add(id);
                         }
+                        // if media is active and has valid status, update it in index
                         else
                         {
-                            int isActive = ODBCWrapper.Utils.ExtractInteger(currentMediaRow, "is_active");
-
-                            // if media is not active, turn it off
-                            if (isActive != 1)
-                            {
-                                idsToTurnOff.Add(id);
-                            }
-                            // if media is active and has valid status, update it in index
-                            else
-                            {
-                                idsToUpdate.Add(id);
-                            }
+                            idsToUpdate.Add(id);
                         }
                     }
-                }
+
+                }            
 
                 // Add messages to queue for each type of action
                 CatalogLogic.Update(idsToDelete, groupId, eObjectType.Media, eAction.Delete);
