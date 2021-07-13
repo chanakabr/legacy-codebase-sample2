@@ -906,7 +906,7 @@ namespace Core.ConditionalAccess
             }
 
             string customdata = billingData != null ? billingData.Item2 : null;
-            entitlement.PriceDetails = GetSubscriptionEntitlementPriceDetails(cas.m_nGroupID, entitlement, customdata, domainId);           
+            entitlement.PriceDetails = GetSubscriptionEntitlementPriceDetails(cas.m_nGroupID, entitlement, customdata);           
 
             return entitlement;
         }
@@ -1901,7 +1901,7 @@ namespace Core.ConditionalAccess
             return status;
         }
 
-        private static EntitlementPriceDetails GetSubscriptionEntitlementPriceDetails(int groupId, Entitlement entitlement, string customData, long domainId)
+        private static EntitlementPriceDetails GetSubscriptionEntitlementPriceDetails(int groupId, Entitlement entitlement, string customData)
         {
             EntitlementPriceDetails entitlementPriceDetails = null;
 
@@ -1995,7 +1995,7 @@ namespace Core.ConditionalAccess
                                         EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
                                     };
 
-                                    var discount1 = Utils.GetLowestPriceByCouponCode(groupId, customDataCoupon, subscription, subOriginalPrice, domainId);
+                                    var discount1 = Utils.GetLowestPriceByCouponCode(groupId, customDataCoupon, subscription, subOriginalPrice, 0);
                                     ocedd.Amount = subOriginalPrice.m_dPrice - discount1.m_dPrice;
 
                                     entitlementPriceDetails.AddDiscountDetails(ocedd);
@@ -2013,7 +2013,7 @@ namespace Core.ConditionalAccess
                                     }
                                 }
 
-                                var discount = Utils.GetLowestPriceByCouponCode(groupId, recurringData.CouponCode, subscription, subOriginalPrice, domainId);
+                                var discount = Utils.GetLowestPriceByCouponCode(groupId, recurringData.CouponCode, subscription, subOriginalPrice, 0);
                                 cedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
 
                                 entitlementPriceDetails.AddDiscountDetails(cedd);
@@ -2026,7 +2026,7 @@ namespace Core.ConditionalAccess
                                     EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
                                 };
 
-                                var discount = Utils.GetLowestPriceByCouponCode(groupId, customDataCoupon, subscription, subOriginalPrice, domainId);
+                                var discount = Utils.GetLowestPriceByCouponCode(groupId, customDataCoupon, subscription, subOriginalPrice, 0);
                                 cedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
 
                                 entitlementPriceDetails.AddDiscountDetails(cedd);
@@ -2115,7 +2115,7 @@ namespace Core.ConditionalAccess
                                 EndDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(entitlement.endDate)
                             };
 
-                            var discount = Utils.GetLowestPriceByCouponCode(groupId, customDataCoupon, subscription, subOriginalPrice, domainId);
+                            var discount = Utils.GetLowestPriceByCouponCode(groupId, customDataCoupon, subscription, subOriginalPrice, 0);
                             ocedd.Amount = subOriginalPrice.m_dPrice - discount.m_dPrice;
 
                             entitlementPriceDetails.AddDiscountDetails(ocedd);
