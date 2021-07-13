@@ -20,7 +20,7 @@ namespace ApiLogic.Api.Managers
     {
         Status UpdateCatalogConfig(int groupId, CatalogPartnerConfig catalogPartnerConfig);
         GenericResponse<CatalogPartnerConfig> GetCatalogConfig(int groupId);
-        long GetCategoryVersionTreeId(ContextData contextData);
+        long GetCategoryVersionTreeIdByDeviceFamilyId(ContextData contextData, int? deviceFamilyId);
     }
 
     public class CatalogPartnerConfigManager : ICatalogPartnerConfigManager
@@ -160,7 +160,7 @@ namespace ApiLogic.Api.Managers
             return response;
         }
 
-        public long GetCategoryVersionTreeId(ContextData contextData)
+        public long GetCategoryVersionTreeIdByDeviceFamilyId(ContextData contextData, int? deviceFamilyId)
         {
             long treeId = 0;
             var catalogConfig = GetCatalogConfig(contextData.GroupId);
@@ -172,10 +172,14 @@ namespace ApiLogic.Api.Managers
             var categoryConfig = catalogConfig.Object.CategoryManagement;
             if (categoryConfig.DeviceFamilyToCategoryTree != null)
             {
-                var deviceFamily = _deviceFamilyManager.GetDeviceFamilyIdByUdid((int)(contextData.DomainId ?? 0), contextData.GroupId, contextData.Udid);
-                if (categoryConfig.DeviceFamilyToCategoryTree.ContainsKey(deviceFamily))
+                if (!deviceFamilyId.HasValue)
                 {
-                    treeId = categoryConfig.DeviceFamilyToCategoryTree[deviceFamily];
+                    deviceFamilyId = _deviceFamilyManager.GetDeviceFamilyIdByUdid((int)(contextData.DomainId ?? 0), contextData.GroupId, contextData.Udid);
+                }
+                
+                if (categoryConfig.DeviceFamilyToCategoryTree.ContainsKey(deviceFamilyId.Value))
+                {
+                    treeId = categoryConfig.DeviceFamilyToCategoryTree[deviceFamilyId.Value];
                     return treeId;
                 }
             }

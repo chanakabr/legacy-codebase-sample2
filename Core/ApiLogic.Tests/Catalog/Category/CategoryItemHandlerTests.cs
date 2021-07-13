@@ -23,7 +23,8 @@ namespace ApiLogic.Tests.Catalog.Category
         [TestCaseSource(nameof(GetTreeByVersionTestCases))]
         public void CheckGetTreeByVersion(long treeId, 
                                           List<CategoryVersion> defaultVersions, 
-                                          long? versionId, 
+                                          long? versionId,
+                                          int? deviceFamilyId,
                                           CategoryVersion categoryVersionOfId, 
                                           CategoryItem rootCategoryItem,
                                           Dictionary<long, CategoryItem> children)
@@ -31,7 +32,7 @@ namespace ApiLogic.Tests.Catalog.Category
             Fixture fixture = new Fixture();
             
             var catalogPartnerConfigMock = new Mock<ICatalogPartnerConfigManager>();
-            catalogPartnerConfigMock.Setup(x => x.GetCategoryVersionTreeId(It.IsAny<ContextData>()))
+            catalogPartnerConfigMock.Setup(x => x.GetCategoryVersionTreeIdByDeviceFamilyId(It.IsAny<ContextData>(), It.IsAny<int?>()))
                                     .Returns(treeId);
 
             var categoryCacheMock = new Mock<ICategoryCache>();
@@ -90,7 +91,7 @@ namespace ApiLogic.Tests.Catalog.Category
                                                   categoryCacheMock.Object,
                                                   catalogPartnerConfigMock.Object);
             
-            var categoryTreeResponse = handler.GetTreeByVersion(fixture.Create<ContextData>(), versionId);
+            var categoryTreeResponse = handler.GetTreeByVersion(fixture.Create<ContextData>(), versionId, deviceFamilyId);
             Assert.That(categoryTreeResponse.Status.Code, Is.EqualTo((int)eResponseStatus.OK));
             if (versionId.HasValue)
             {
@@ -133,6 +134,7 @@ namespace ApiLogic.Tests.Catalog.Category
             yield return new TestCaseData(treeId1,
                                           new List<CategoryVersion>() { categoryVersion1 },
                                           null,
+                                          null, // deviceFamily
                                           null,
                                           categoryItem1,
                                           children1)
@@ -164,10 +166,44 @@ namespace ApiLogic.Tests.Catalog.Category
             yield return new TestCaseData(treeId2,
                                           null,
                                           categoryVersion2.Id,
+                                          null, // deviceFamily
                                           categoryVersion2,
                                           categoryItem2,
                                           children2)
                 .SetName("GetTreeByVersion_Version");
+
+            // get tree by device family 
+            var categoryVersion3 = fixture.Create<CategoryVersion>();
+            categoryVersion3.State = CategoryVersionState.Default;
+            var treeId3 = categoryVersion3.TreeId;
+            var categoryItem3 = fixture.Create<CategoryItem>();
+            categoryItem3.Id = categoryVersion3.CategoryItemRootId;
+            categoryItem3.ParentId = null;
+            categoryItem3.VersionId = categoryVersion3.Id;
+
+            Dictionary<long, CategoryItem> children3 = new Dictionary<long, CategoryItem>();
+            foreach (var item in categoryItem3.ChildrenIds)
+            {
+                var child = fixture.Create<CategoryItem>();
+                child.Id = item;
+                child.ChildrenIds = null;
+                child.ParentId = categoryItem3.Id;
+                child.VersionId = categoryItem3.VersionId;
+
+                if (!children3.ContainsKey(child.Id))
+                {
+                    children3.Add(child.Id, child);
+                }
+            }
+
+            yield return new TestCaseData(treeId3,
+                                          new List<CategoryVersion>() { categoryVersion3 },
+                                          null,
+                                          fixture.Create<int>(), // deviceFamily
+                                          null,
+                                          categoryItem3,
+                                          children3)
+                .SetName("GetTreeByVersion_deviceFamily");
         }
 
         [TestCaseSource(nameof(DeleteTestCases))]

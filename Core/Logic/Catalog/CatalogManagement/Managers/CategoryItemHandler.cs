@@ -153,7 +153,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public GenericResponse<CategoryTree> GetTreeByVersion(ContextData contextData, long? versionId)
+        public GenericResponse<CategoryTree> GetTreeByVersion(ContextData contextData, long? versionId, int? deviceFamilyId)
         {
             var response = new GenericResponse<CategoryTree>();
             try
@@ -162,7 +162,7 @@ namespace Core.Catalog.CatalogManagement
                 if (!versionId.HasValue)
                 {
                     // get default version 
-                    long treeId = _catalogPartnerConfig.GetCategoryVersionTreeId(contextData);
+                    long treeId = _catalogPartnerConfig.GetCategoryVersionTreeIdByDeviceFamilyId(contextData, deviceFamilyId);
                     var defaultList = _categoryCache.ListCategoryVersionDefaults(contextData);
                     if (defaultList.HasObjects())
                     {

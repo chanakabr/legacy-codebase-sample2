@@ -79,20 +79,26 @@ namespace WebAPI.Controllers
         /// Retrieve default category tree of deviceFamilyId by KS or specific one if versionId is set. 
         /// </summary>        
         /// <param name="versionId">Category version id of tree</param>
+        /// <param name="deviceFamilyId">deviceFamilyId related to category tree</param>
         [Action("getByVersion")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.CategoryVersionDoesNotExist)]
-        static public KalturaCategoryTree GetByVersion(long? versionId = null)
+        static public KalturaCategoryTree GetByVersion(long? versionId = null, int? deviceFamilyId = null)
         {
             KalturaCategoryTree response = null;
             var contextData = KS.GetContextData();
 
+            if (versionId.HasValue && deviceFamilyId.HasValue)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "versionId", "deviceFamilyId");
+            }
+
             try
             {
                 Func<GenericResponse<CategoryTree>> getByVersionFunc = () =>
-                    CategoryItemHandler.Instance.GetTreeByVersion(contextData, versionId);
+                    CategoryItemHandler.Instance.GetTreeByVersion(contextData, versionId, deviceFamilyId);
 
                 response = ClientUtils.GetResponseFromWS<KalturaCategoryTree, CategoryTree>(getByVersionFunc);
             }

@@ -8589,7 +8589,7 @@ namespace WebAPI.Reflection
                             
                         case "getbyversion":
                             RolesManager.ValidateActionPermitted("categoryTree", "getByVersion", false);
-                            return CategoryTreeController.GetByVersion((Nullable<long>) methodParams[0]);
+                            return CategoryTreeController.GetByVersion((Nullable<long>) methodParams[0], (Nullable<int>) methodParams[1]);
                             
                     }
                     break;
@@ -14217,6 +14217,13 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsNullable = true,
                                 Type = typeof(Int64),
+                            });
+                            ret.Add("deviceFamilyId", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
                             });
                             return ret;
                             

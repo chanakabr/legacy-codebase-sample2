@@ -289,18 +289,8 @@ namespace ApiLogic.Tests.GroupManagers
             var fixture = new Fixture();
 
             var partnerDal = new Mock<IPartnerDal>();
-            var userDal = new Mock<IUserPartnerRepository>();
-            userDal.Setup(x => x.DeletePartnerDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             partnerDal.Setup(x => x.IsPartnerExists(It.IsAny<int>())).Returns(isPartnerExsits);
             partnerDal.Setup(x => x.DeletePartner(It.IsAny<int>(), It.IsAny<long>())).Returns(deletePartner);
-            var userManager = new Mock<IUserManager>();
-            var pricingPartnerRepository = new Mock<IPricingPartnerRepository>();
-            var userPartnerRepository = new Mock<IUserPartnerRepository>();
-            var billingPartnerRepository = new Mock<IBillingPartnerRepository>();
-            var caPartnerRepository = new Mock<ICAPartnerRepository>();
-
-            var applicationConfiguration = new Mock<IApplicationConfiguration>();
-            applicationConfiguration.Setup(x => x.RabbitConfiguration).Returns(_rabbitConfiguration);
 
             var rabbitConfigDal = new Mock<IRabbitConfigDal>();
             rabbitConfigDal.Setup(x => x.GetRabbitRoutingBindings()).Returns(_rabbitBindings);
@@ -310,16 +300,26 @@ namespace ApiLogic.Tests.GroupManagers
             int _ = 0;
             IConnection __;
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
-            
+
+            var applicationConfiguration = new Mock<IApplicationConfiguration>();
+            applicationConfiguration.Setup(x => x.RabbitConfiguration).Returns(_rabbitConfiguration);
+
+            var caPartnerRepository = new Mock<ICAPartnerRepository>();
             caPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+
+            var billingPartnerRepository = new Mock<IBillingPartnerRepository>();
             billingPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
-            userPartnerRepository.Setup(x => x.DeletePartnerDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+
+            var pricingPartnerRepository = new Mock<IPricingPartnerRepository>();
             pricingPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+
+            var userPartnerRepository = new Mock<IUserPartnerRepository>();
+            userPartnerRepository.Setup(x => x.DeletePartnerDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
 
             var manager = new PartnerManager(partnerDal.Object,
                                             rabbitConnection.Object,
                                             applicationConfiguration.Object,
-                                            userManager.Object,
+                                            Mock.Of<IUserManager>(),
                                             rabbitConfigDal.Object,
                                             pricingPartnerRepository.Object,
                                             Mock.Of<IElasticSearchApi>(),
@@ -330,7 +330,6 @@ namespace ApiLogic.Tests.GroupManagers
                                             caPartnerRepository.Object);
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
-
             Assert.That(response.Code, Is.EqualTo((int)expectedCode));
         }
 
@@ -340,22 +339,11 @@ namespace ApiLogic.Tests.GroupManagers
             var fixture = new Fixture();
 
             var partnerDal = new Mock<IPartnerDal>();
-            var userDal = new Mock<IUserPartnerRepository>();
-
-            userDal.Setup(x => x.DeletePartnerDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             partnerDal.Setup(x => x.IsPartnerExists(It.IsAny<int>())).Returns(true);
             partnerDal.Setup(x => x.DeletePartner(It.IsAny<int>(), It.IsAny<long>())).Returns(true);
-            var userManager = new Mock<IUserManager>();
-            var pricingPartnerRepository = new Mock<IPricingPartnerRepository>();
-            var userPartnerRepository = new Mock<IUserPartnerRepository>();
-            var billingPartnerRepository = new Mock<IBillingPartnerRepository>();
-            var caPartnerRepository = new Mock<ICAPartnerRepository>();
-
-            var applicationConfiguration = new Mock<IApplicationConfiguration>();
-            applicationConfiguration.Setup(x => x.RabbitConfiguration).Returns(_rabbitConfiguration);
+            partnerDal.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
 
             var rabbitConfigDal = new Mock<IRabbitConfigDal>();
-
             rabbitConfigDal.Setup(x => x.GetRabbitRoutingBindings()).Returns(_rabbitBindings);
 
             var rabbitConnection = new Mock<IRabbitConnection>();
@@ -364,15 +352,25 @@ namespace ApiLogic.Tests.GroupManagers
             IConnection __;
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
 
+            var applicationConfiguration = new Mock<IApplicationConfiguration>();
+            applicationConfiguration.Setup(x => x.RabbitConfiguration).Returns(_rabbitConfiguration);
+
+            var caPartnerRepository = new Mock<ICAPartnerRepository>();
             caPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+
+            var billingPartnerRepository = new Mock<IBillingPartnerRepository>();
             billingPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
-            userPartnerRepository.Setup(x => x.DeletePartnerDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+
+            var pricingPartnerRepository = new Mock<IPricingPartnerRepository>();
             pricingPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
-            partnerDal.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+
+            var userPartnerRepository = new Mock<IUserPartnerRepository>();
+            userPartnerRepository.Setup(x => x.DeletePartnerDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
+            
             var manager = new PartnerManager(partnerDal.Object,
                                             rabbitConnection.Object,
                                             applicationConfiguration.Object,
-                                            userManager.Object,
+                                            Mock.Of<IUserManager>(),
                                             rabbitConfigDal.Object,
                                             pricingPartnerRepository.Object,
                                             Mock.Of<IElasticSearchApi>(),
@@ -386,10 +384,9 @@ namespace ApiLogic.Tests.GroupManagers
 
             Assert.That(response.Code, Is.EqualTo((int)eResponseStatus.OK));
             Verify(partnerDal);
-            Verify(userManager);
-            Verify(rabbitConfigDal);
-            Verify(applicationConfiguration);
             Verify(rabbitConnection);
+            Verify(applicationConfiguration);
+            Verify(rabbitConfigDal);            
             Verify(pricingPartnerRepository);
             Verify(userPartnerRepository);
             Verify(billingPartnerRepository);
