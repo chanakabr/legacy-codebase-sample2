@@ -1313,7 +1313,8 @@ namespace APILogic
             return string.Format("<file co_guid=\"{0}\" handling_type=\"{1}\" assetDuration=\"{2}\" quality=\"{3}\" type=\"{4}\""
             + " billing_type=\"{5}\" PPV_Module=\"{6}\" cdn_code=\"{7}\" cdn_id=\"{8}\" pre_rule=\"{9}\" post_rule=\"{10}\" break_rule=\"{11}\""
             + " break_points=\"{12}\" overlay_rule=\"{13}\" overlay_points=\"{14}\" file_start_date=\"{15}\" file_end_date=\"{16}\" ads_enabled=\"{17}\""
-            + " contract_family=\"{18}\" lang=\"{19}\" default=\"{20}\" output_protection_level=\"{21}\" product_code=\"{22}\" alt_cdn_code=\"{23}\" alt_co_guid=\"{24}\" alt_cdn_id=\"{25}\" alt_cdn_name=\"{26}\"/>",
+            + " contract_family=\"{18}\" lang=\"{19}\" default=\"{20}\" output_protection_level=\"{21}\" product_code=\"{22}\""
+            + " alt_cdn_code=\"{23}\" alt_co_guid=\"{24}\" alt_cdn_id=\"{25}\" alt_cdn_name=\"{26}\" labels=\"{27}\"/>",
                 TVinciShared.ProtocolsFuncs.XMLEncode(file.ExternalId, true),                            // {0} - co_guid      
                 TVinciShared.ProtocolsFuncs.XMLEncode("Clip", true),                                    // {1} - handling_type
                 TVinciShared.ProtocolsFuncs.XMLEncode(file.Duration.ToString(), true),               // {2} - assetDuration    
@@ -1340,7 +1341,8 @@ namespace APILogic
                 TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {23} - alt_cdn_code   
                 TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {24} - alt_co_guid   
                 TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {25} - alt_cdn_id   
-                TVinciShared.ProtocolsFuncs.XMLEncode("", true)                                         // {26} - alt_cdn_name   
+                TVinciShared.ProtocolsFuncs.XMLEncode("", true),                                        // {26} - alt_cdn_name   
+                TVinciShared.ProtocolsFuncs.XMLEncode(file.Labels, true)                                // {27} - labels  
             );
         }
 

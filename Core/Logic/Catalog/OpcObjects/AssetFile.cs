@@ -1,13 +1,11 @@
-﻿using ApiObjects;
-using ApiObjects.BulkUpload;
+﻿using ApiObjects.BulkUpload;
 using ApiObjects.CDNAdapter;
-using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
+using ApiObjects.Response;
 using TVinciShared;
 
 namespace Core.Catalog
@@ -32,6 +30,7 @@ namespace Core.Catalog
         private const string FILE_SIZE = "File Size (Kb)";
         private const string LANGUAGE = "Language";
         private const string IS_DEFAULT_LANGUAGE = "Is Default Language";
+        private const string LABELS = "Labels";
         
         #endregion
 
@@ -126,6 +125,10 @@ namespace Core.Catalog
         [JsonProperty("Opl")]
         public string Opl { get; set; }
 
+        [ExcelColumn(ExcelColumnType.File, LABELS)]
+        [JsonProperty("Labels")]
+        public string Labels { get; set; }
+
         public DateTime? UpdateDate { get; set; }
 
         #endregion
@@ -135,11 +138,13 @@ namespace Core.Catalog
         public AssetFile()
         {
             type = string.Empty;
+            Labels = string.Empty;
         }
 
         public AssetFile(string typeName)
         {
             type = typeName;
+            Labels = string.Empty;
         }
 
         #endregion
@@ -275,6 +280,12 @@ namespace Core.Catalog
                 excelValues.TryAdd(isDefaultLanguage, this.IsDefaultLanguage);
             }
 
+            if (!string.IsNullOrEmpty(Labels))
+            {
+                var labels = ExcelColumn.GetFullColumnName(type, LABELS);
+                excelValues.TryAdd(labels, Labels);
+            }
+
             return excelValues;
         }
 
@@ -359,7 +370,7 @@ namespace Core.Catalog
 
             this.IsActive = true;
         }
-        
+
         #endregion
     }
 }

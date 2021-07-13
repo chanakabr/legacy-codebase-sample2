@@ -25927,6 +25927,162 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
+    public partial class KalturaLabel
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("entityAttribute")))
+            {
+                ret.Add("entityAttribute", "\"entityAttribute\": " + "\"" + Enum.GetName(typeof(KalturaEntityAttribute), EntityAttribute) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + Id);
+            }
+            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            {
+                ret.Add("value", "\"value\": " + "\"" + EscapeJson(Value) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("entityAttribute")))
+            {
+                ret.Add("entityAttribute", "<entityAttribute>" + "" + Enum.GetName(typeof(KalturaEntityAttribute), EntityAttribute) + "" + "</entityAttribute>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + Id + "</id>");
+            }
+            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            {
+                ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaLabelFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("entityAttributeEqual")))
+            {
+                ret.Add("entityAttributeEqual", "\"entityAttributeEqual\": " + "\"" + Enum.GetName(typeof(KalturaEntityAttribute), EntityAttributeEqual) + "\"");
+            }
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
+            if(LabelEqual != null && (retrievedProperties == null || retrievedProperties.Contains("labelEqual")))
+            {
+                ret.Add("labelEqual", "\"labelEqual\": " + "\"" + EscapeJson(LabelEqual) + "\"");
+            }
+            if(LabelStartsWith != null && (retrievedProperties == null || retrievedProperties.Contains("labelStartsWith")))
+            {
+                ret.Add("labelStartsWith", "\"labelStartsWith\": " + "\"" + EscapeJson(LabelStartsWith) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("entityAttributeEqual")))
+            {
+                ret.Add("entityAttributeEqual", "<entityAttributeEqual>" + "" + Enum.GetName(typeof(KalturaEntityAttribute), EntityAttributeEqual) + "" + "</entityAttributeEqual>");
+            }
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
+            if(LabelEqual != null && (retrievedProperties == null || retrievedProperties.Contains("labelEqual")))
+            {
+                ret.Add("labelEqual", "<labelEqual>" + EscapeXml(LabelEqual) + "</labelEqual>");
+            }
+            if(LabelStartsWith != null && (retrievedProperties == null || retrievedProperties.Contains("labelStartsWith")))
+            {
+                ret.Add("labelStartsWith", "<labelStartsWith>" + EscapeXml(LabelStartsWith) + "</labelStartsWith>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaLabelListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Labels != null)
+            {
+                propertyValue = "[" + String.Join(", ", Labels.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Labels != null)
+            {
+                propertyValue = Labels.Count > 0 ? "<item>" + String.Join("</item><item>", Labels.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaLastPosition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -26525,6 +26681,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("isDefaultLanguage", "\"isDefaultLanguage\": " + IsDefaultLanguage.ToString().ToLower());
             }
+            if(Labels != null && (retrievedProperties == null || retrievedProperties.Contains("labels")))
+            {
+                ret.Add("labels", "\"labels\": " + "\"" + EscapeJson(Labels) + "\"");
+            }
             if(Language != null && (retrievedProperties == null || retrievedProperties.Contains("language")))
             {
                 ret.Add("language", "\"language\": " + "\"" + EscapeJson(Language) + "\"");
@@ -26680,6 +26840,10 @@ namespace WebAPI.Models.Catalog
             if(IsDefaultLanguage.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefaultLanguage")))
             {
                 ret.Add("isDefaultLanguage", "<isDefaultLanguage>" + IsDefaultLanguage.ToString().ToLower() + "</isDefaultLanguage>");
+            }
+            if(Labels != null && (retrievedProperties == null || retrievedProperties.Contains("labels")))
+            {
+                ret.Add("labels", "<labels>" + EscapeXml(Labels) + "</labels>");
             }
             if(Language != null && (retrievedProperties == null || retrievedProperties.Contains("language")))
             {

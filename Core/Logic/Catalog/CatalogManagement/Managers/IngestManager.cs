@@ -709,6 +709,7 @@ namespace Core.Catalog.CatalogManagement
                                 FileSize = StringUtils.TryConvertTo<long>(mediaFile.FileSize),
                                 IsActive = true,
                                 CatalogEndDate = DateUtils.TryExtractDate(mediaFile.FileCatalogEndDate, ASSET_FILE_DATE_FORMAT),
+                                Labels = mediaFile.Labels
                             }, mediaFile.PpvModule));
                         }
                     }

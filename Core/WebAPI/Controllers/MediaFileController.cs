@@ -1,5 +1,4 @@
 ﻿using ApiObjects.Response;
-using System;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -17,6 +16,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="mediaFile">Media file object</param>        
         /// <returns></returns>
+        /// <remarks>Possible error codes: InvalidArgument = 50026, ArgumentCannotBeEmpty = 50027, ArgumentMaxLengthCrossed = 500045, ArgumentsDuplicate = 500066, MaxArguments = 500088,
+        /// AssetDoesNotExist = 4039, MediaFileTypeDoesNotExist = 4052, MediaFileExternalIdMustBeUnique = 4056, MediaFileAltExternalIdMustBeUnique = 4057,
+        /// ExternaldAndAltExternalIdMustBeUnique = 4058, CdnAdapterProfileDoesNotExist = 4062, DefaultCdnAdapterProfileNotConfigurd, MediaFileWithThisTypeAlreadyExistForAsset = 4065.</remarks>
         [Action("add")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
@@ -49,6 +51,9 @@ namespace WebAPI.Controllers
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "externalId");
             }
+
+            var validator = new KalturaLabelValidator();
+            validator.ValidateToAdd(mediaFile.Labels, KalturaEntityAttribute.MEDIA_FILE_LABELS, $"{nameof(mediaFile)}.labels");
 
             try
             {
@@ -97,6 +102,9 @@ namespace WebAPI.Controllers
         /// <param name="id">Media file identifier</param>        
         /// <param name="mediaFile">Media file object</param>
         /// <returns></returns>
+        /// <remarks>Possible error codes: InvalidArgument = 50026, ArgumentCannotBeEmpty = 50027, ArgumentMaxLengthCrossed = 500045, ArgumentsDuplicate = 500066, MaxArguments = 500088,
+        /// MediaFileDoesNotExist = 4053, MediaFileNotBelongToAsset = 4054, MediaFileExternalIdMustBeUnique = 4056, MediaFileAltExternalIdMustBeUnique = 4057,
+        /// ExternaldAndAltExternalIdMustBeUnique = 4058, MediaFileWithThisTypeAlreadyExistForAsset = 4065.</remarks>
         [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileDoesNotExist)]
@@ -111,6 +119,9 @@ namespace WebAPI.Controllers
             KalturaMediaFile response = null;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
+
+            var validator = new KalturaLabelValidator();
+            validator.ValidateToAdd(mediaFile.Labels, KalturaEntityAttribute.MEDIA_FILE_LABELS, $"{nameof(mediaFile)}.labels");
 
             try
             {
