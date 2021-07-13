@@ -1515,32 +1515,23 @@ namespace Core.Catalog
                             key = string.Format(keyFormat, baseAsset.AssetType.ToString(), baseAsset.AssetId);
                         }
 
-                        if (mappedAssets.ContainsKey(key))
+                        if (mappedAssets.TryGetValue(key, out var mappedAsset))
                         {
-                            BaseObject obj = mappedAssets[key];
-
-                            if (isNpvr)
+                            if (isNpvr && long.TryParse(baseAsset.AssetId, out var recordingId) && recordingId > 0)
                             {
-                                if (long.TryParse(baseAsset.AssetId, out long recordingId) && recordingId > 0)
+                                var recordingObject = new RecordingObj
                                 {
-                                    ProgramObj programObject = obj as ProgramObj;
-                                    RecordingObj recordingObject = new RecordingObj()
-                                    {
-                                        RecordingId = recordingId,
-                                        RecordingType = scheduledRecordingType,
-                                        Program = programObject
-                                    };
+                                    RecordingId = recordingId,
+                                    RecordingType = scheduledRecordingType,
+                                    Program = mappedAsset as ProgramObj,
+                                    m_dUpdateDate = baseAsset.m_dUpdateDate
+                                };
 
-                                    result.Add(recordingObject);
-                                }
-                                else
-                                {
-                                    result.Add(obj);
-                                }
+                                result.Add(recordingObject);
                             }
                             else
                             {
-                                result.Add(obj);
+                                result.Add(mappedAsset);
                             }
                         }
                         // support for TVPAPI (returns empty object for assets that don't exist)
