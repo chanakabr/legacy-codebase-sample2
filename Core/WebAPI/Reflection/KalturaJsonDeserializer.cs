@@ -34677,7 +34677,7 @@ namespace WebAPI.Models.Domains
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
+            RequiresPermission = 4,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
