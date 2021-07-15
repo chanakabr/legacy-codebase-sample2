@@ -1,6 +1,6 @@
 ﻿namespace FeatureFlag
 {
-    public class LaunchDarklyDummyFeatureFlag : IFeatureFlag
+    internal class LaunchDarklyDummyFeatureFlag : IFeatureFlag
     {
         public bool Enabled(string key, KalturaFeatureFlagUser user)
         {

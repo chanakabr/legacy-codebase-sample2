@@ -5,7 +5,7 @@ using LaunchDarkly.Client;
 
 namespace FeatureFlag
 {
-    public class LaunchDarklyFeatureFlag : IFeatureFlag
+    internal class LaunchDarklyFeatureFlag : IFeatureFlag
     {
         private const string LD_SDK_KEY = "LD_SDK_KEY";
         private const string ONE_BOX_ID = "ONE_BOX_ID";
@@ -41,8 +41,8 @@ namespace FeatureFlag
             var userId = kalturaUser.UserId ?? 0;
             var userIdString = userId.ToString(CultureInfo.InvariantCulture);
             var builder = User.Builder(userIdString)
-                .Anonymous(userId == 0)
-                .Custom("groupId", kalturaUser.GroupId);
+                .Anonymous(kalturaUser.IsAnonymous)
+                .Custom("groupId", kalturaUser.GroupId ?? 0);
 
             if (!string.IsNullOrEmpty(GetOneBoxId()))
             {

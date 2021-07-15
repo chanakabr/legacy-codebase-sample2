@@ -1,17 +1,22 @@
 ﻿namespace FeatureFlag
 {
-    public class KalturaFeatureFlagUserBuilder : IKalturaFeatureFlagUserBuilder, IKalturaFeatureFlagOptionalBuilder
+    public class KalturaFeatureFlagUserBuilder
     {
         private long? _userId;
         private int _groupId;
 
-        public IKalturaFeatureFlagOptionalBuilder WithUserId(long? userId)
+        public static KalturaFeatureFlagUserBuilder Get()
+        {
+            return new KalturaFeatureFlagUserBuilder();
+        }
+
+        public KalturaFeatureFlagUserBuilder WithUserId(long? userId)
         {
             _userId = userId;
             return this;
         }
 
-        public IKalturaFeatureFlagOptionalBuilder WithGroupId(int groupId)
+        public KalturaFeatureFlagUserBuilder WithGroupId(int groupId)
         {
             _groupId = groupId;
             return this;
@@ -19,19 +24,7 @@
 
         public KalturaFeatureFlagUser Build()
         {
-            return new KalturaFeatureFlagUser {UserId = _userId, GroupId = _groupId};
+            return new KalturaFeatureFlagUser(_userId, _groupId);
         }
-    }
-
-    public interface IKalturaFeatureFlagUserBuilder
-    {
-        IKalturaFeatureFlagOptionalBuilder WithUserId(long? userId);
-    }
-
-    public interface IKalturaFeatureFlagOptionalBuilder
-    {
-        IKalturaFeatureFlagOptionalBuilder WithGroupId(int groupId);
-
-        KalturaFeatureFlagUser Build();
     }
 }

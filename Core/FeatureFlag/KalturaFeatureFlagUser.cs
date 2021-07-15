@@ -1,9 +1,17 @@
 ﻿namespace FeatureFlag
 {
-    public struct KalturaFeatureFlagUser
+    public readonly struct KalturaFeatureFlagUser
     {
-        public long? UserId { get; internal set; }
+        public KalturaFeatureFlagUser(long? userId, int? groupId = null)
+        {
+            UserId = userId;
+            GroupId = groupId;
+        }
 
-        public int GroupId { get; internal set; }
+        public long? UserId { get; }
+
+        public int? GroupId { get; }
+
+        public bool IsAnonymous => UserId == null || UserId == 0;
     }
 }
