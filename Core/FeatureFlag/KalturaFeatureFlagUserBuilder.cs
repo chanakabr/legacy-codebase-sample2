@@ -5,10 +5,6 @@
         private long? _userId;
         private int _groupId;
 
-        public KalturaFeatureFlagUserBuilder()
-        {
-        }
-        
         public IKalturaFeatureFlagOptionalBuilder WithUserId(long? userId)
         {
             _userId = userId;

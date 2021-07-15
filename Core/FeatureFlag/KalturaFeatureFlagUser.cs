@@ -2,8 +2,8 @@
 {
     public struct KalturaFeatureFlagUser
     {
-        public long? UserId { get; set; }
+        public long? UserId { get; internal set; }
 
-        public int GroupId { get; set; }
+        public int GroupId { get; internal set; }
     }
 }
