@@ -52,6 +52,7 @@
     <ProjectReference Include="..\DAL\DAL.csproj" />
     <ProjectReference Include="..\ElasticSearch\ElasticSearch.csproj" />
     <ProjectReference Include="..\EpgBL\EpgBL.csproj" />
+    <ProjectReference Include="..\FeatureFlag\FeatureFlag.csproj" />
     <ProjectReference Include="..\FTPUploadQueue\UploadQueue.csproj" />
     <ProjectReference Include="..\GoogleAPI\GoogleAPI.csproj" />
     <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj" />

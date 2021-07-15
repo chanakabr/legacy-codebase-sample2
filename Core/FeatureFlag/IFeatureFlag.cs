@@ -1,7 +1,8 @@
-﻿namespace FeatureFlag
+﻿
+namespace FeatureFlag
 {
     public interface IFeatureFlag
     {
-        bool IsEpgNotificationEnabled(int groupId);
+        bool Enabled(string key, KalturaFeatureFlagUser user);
     }
 }
