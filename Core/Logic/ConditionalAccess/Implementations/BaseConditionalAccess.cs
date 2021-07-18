@@ -16235,9 +16235,11 @@ namespace Core.ConditionalAccess
                         // check if a program with the same CRID was already recorded
                         if (recordedCridsPerChannel.ContainsKey(epgChannelId) && recordedCridsPerChannel[epgChannelId].Contains(crid))
                         {
-                            log.DebugFormat("found relevant program to record but a program with the same CRID already recorded for the channel. household  = {0}, crid = {1}, recordingId = {2}",
-                                domainId, crid, potentialRecording.AssetId);
-                            return response;
+                            log.Debug($"found relevant program to record but a program with the same CRID already recorded for the channel. " +
+                                $"household  = {domainId}, crid = {crid}, recordingId = {potentialRecording.AssetId}");
+                            
+                            //BEO-10365
+                            continue;
                         }
 
                         RecordingType recordingType;
