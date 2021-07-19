@@ -41,8 +41,12 @@ namespace FeatureFlag
             var userId = kalturaUser.UserId ?? 0;
             var userIdString = userId.ToString(CultureInfo.InvariantCulture);
             var builder = User.Builder(userIdString)
-                .Anonymous(kalturaUser.IsAnonymous)
-                .Custom("groupId", kalturaUser.GroupId ?? 0);
+                .Anonymous(kalturaUser.IsAnonymous);
+
+            if (kalturaUser.GroupId != null)
+            {
+                builder.Custom("groupId", kalturaUser.GroupId ?? 0);
+            }
 
             if (!string.IsNullOrEmpty(GetOneBoxId()))
             {
