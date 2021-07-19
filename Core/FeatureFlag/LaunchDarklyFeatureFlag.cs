@@ -7,11 +7,13 @@ namespace FeatureFlag
 {
     internal class LaunchDarklyFeatureFlag : IFeatureFlag
     {
-        private const string LD_SDK_KEY = "LD_SDK_KEY";
-        private const string ONE_BOX_ID = "ONE_BOX_ID";
+        private const string LD_SDK_KEY_ENV = "LD_SDK_KEY";
+        private const string ONE_BOX_ID_ENV = "ONE_BOX_ID";
 
         private readonly ILdClient _ldClient; // should be singleton. covered by Lazy in FeatureFlagInstance
 
+        private static readonly string OneBoxIdVal = GetOneBoxId();
+        
         public LaunchDarklyFeatureFlag()
         {
             _ldClient = new LdClient(GetSdkKey());
@@ -23,10 +25,10 @@ namespace FeatureFlag
         }
 
         private string GetSdkKey() =>
-            Environment.GetEnvironmentVariable(LD_SDK_KEY)
-            ?? throw new ArgumentNullException($"Launch Darkly sdk key can't be found in {LD_SDK_KEY}");
+            Environment.GetEnvironmentVariable(LD_SDK_KEY_ENV)
+            ?? throw new ArgumentNullException($"Launch Darkly sdk key can't be found in {LD_SDK_KEY_ENV}");
 
-        private string GetOneBoxId() => Environment.GetEnvironmentVariable(ONE_BOX_ID);
+        private static string GetOneBoxId() => Environment.GetEnvironmentVariable(ONE_BOX_ID_ENV);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Enabled(string key, KalturaFeatureFlagUser kalturaUser)
@@ -43,16 +45,16 @@ namespace FeatureFlag
             var builder = User.Builder(userIdString)
                 .Anonymous(kalturaUser.IsAnonymous);
 
-            if (kalturaUser.GroupId != null)
+            if (kalturaUser.GroupId != null && kalturaUser.GroupId != 0)
             {
                 builder.Custom("groupId", kalturaUser.GroupId ?? 0);
             }
 
-            if (!string.IsNullOrEmpty(GetOneBoxId()))
+            if (!string.IsNullOrEmpty(OneBoxIdVal))
             {
                 // env is not used for staging, pre-prod, prod
                 // it is only used for creation of onebox specific rules in LD 
-                builder.Custom("env", GetOneBoxId());
+                builder.Custom("env", OneBoxIdVal);
             }
 
             return builder.Build();
