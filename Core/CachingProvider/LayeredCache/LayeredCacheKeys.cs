@@ -800,9 +800,14 @@ namespace CachingProvider.LayeredCache
             return $"ks_validation_result_{ks}";
         }
 
-        public static string GetCanaryDeploymentConfigurationKey(int partnerId)
+        public static string GetMicroservicesCanaryDeploymentConfigurationKey(int partnerId)
         {
-            return string.Format($"{partnerId}_CanaryDeploymentConfiguration");
+            return string.Format($"{partnerId}_MicroservicesCanaryDeploymentConfiguration");
+        }
+        
+        public static string GetElasticsearchCanaryDeploymentConfigurationKey(int partnerId)
+        {
+            return string.Format($"{partnerId}_ElasticsearchCanaryDeploymentConfiguration");
         }
 
         public static string GetDomainSubscriptionPurchaseKey(long domainId, string subscriptionId)
@@ -1492,9 +1497,14 @@ namespace CachingProvider.LayeredCache
             return $"invalidationKey_{GetCategoryVersionsOfTreeKey(groupId, treeId)}";
         }
 
-        public static string GetCanaryDeploymentConfigurationInvalidationKey(int partnerId)
+        public static string GetMicroserviceCanaryDeploymentConfigurationInvalidationKey(int partnerId)
         {
             return string.Format($"{partnerId}_InvalidateCanaryDeploymentConfiguration");
+        }
+        
+        public static string GetElasticsearchCanaryDeploymentConfigurationInvalidationKey(int partnerId)
+        {
+            return string.Format($"{partnerId}_InvalidateElasticsearchCanaryDeploymentConfiguration");
         }
 
         #endregion

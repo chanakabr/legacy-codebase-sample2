@@ -8,9 +8,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
-using ApiLogic.CanaryDeployment;
 using ApiLogic.Users.Services;
 using ApiObjects.CanaryDeployment;
+using ApiObjects.CanaryDeployment.Microservices;
 using ApiObjects.DataMigrationEvents;
 using TVinciShared;
 using WebAPI.ClientManagers;
@@ -28,6 +28,7 @@ using SessionManager;
 using AuthenticationGrpcClientWrapper;
 using CachingProvider.LayeredCache;
 using CachingProvider;
+using CanaryDeploymentManager;
 using EventBus.Kafka;
 using Grpc.Core;
 using AppToken = WebAPI.Managers.Models.AppToken;
@@ -52,7 +53,7 @@ namespace WebAPI.Managers
         {
             KS ks = KS.GetFromRequest();
             int groupId = ks.GroupId;
-            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationRefreshToken))
+            if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationRefreshToken))
             {
                 throw new Exception("This code should not be called, ownership flag of refresh token has been transfered to Authentication Service, Check TCM [MicroservicesClientConfiguration.Authentication.DataOwnershipConfiguration.RefreshToken]");
             }
@@ -166,7 +167,7 @@ namespace WebAPI.Managers
                 // try store in CB, will return false if the same token already exists
                 uint refreshTokenExpirationSeconds = (uint)(token.RefreshTokenExpiration - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow));
 
-                if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(token.GroupID, CanaryDeploymentDataOwnershipEnum.AuthenticationRefreshToken))
+                if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(token.GroupID, CanaryDeploymentDataOwnershipEnum.AuthenticationRefreshToken))
                 {
                     var authClient = AuthenticationGrpcClientWrapper.AuthenticationClient.GetClientFromTCM();
                     var refreshTokenFromAuthMs = authClient.GenerateRefreshToken(token.GroupID, token.KS, refreshTokenExpirationSeconds);
@@ -202,7 +203,7 @@ namespace WebAPI.Managers
 
         private static void SendRefreshTokenCanaryMigrationEvent(ApiToken token, uint refreshTokenExpirationSeconds)
         {
-            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(token.GroupID, CanaryDeploymentMigrationEvent.RefreshSession))
+            if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsEnabledMigrationEvent(token.GroupID, CanaryDeploymentMigrationEvent.RefreshSession))
             {
                 var migrationEvent = new ApiObjects.DataMigrationEvents.RefreshToken()
                 {
@@ -591,7 +592,7 @@ namespace WebAPI.Managers
 
         private static void SendAppTokenCanaryMigrationEvent(eMigrationOperation op, KalturaAppToken appToken, int groupId)
         {
-            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.AppToken))
+            if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.AppToken))
             {
                 var migrationEvent = new ApiObjects.DataMigrationEvents.AppToken()
                 {
@@ -676,7 +677,7 @@ namespace WebAPI.Managers
 
         private static void SendAppTokenRevocationMigrationEvent(int groupId, KalturaAppToken appToken, long revokedSessionTime, long revokedSessionExpiryInSeconds)
         {
-            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.SessionRevocation))
+            if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.SessionRevocation))
             {
                 var migrationEvent = new RevokeAppTokenSession
                 {
@@ -735,7 +736,7 @@ namespace WebAPI.Managers
 
         private static void SendRevokeKsCanaryMigrationEvent(KS ks)
         {
-            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(ks.GroupId, CanaryDeploymentMigrationEvent.SessionRevocation))
+            if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsEnabledMigrationEvent(ks.GroupId, CanaryDeploymentMigrationEvent.SessionRevocation))
             {
                 var migrationEvent = new RevokeKs
                 {
@@ -808,7 +809,7 @@ namespace WebAPI.Managers
                 return false;
             }
 
-            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(ks.GroupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSessionRevocation))
+            if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(ks.GroupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSessionRevocation))
             {
                 //use cache if not found
                 //call GRPC         

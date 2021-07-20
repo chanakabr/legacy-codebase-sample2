@@ -159,7 +159,7 @@ namespace Core.Api.Managers
                                 log.ErrorFormat("Failed to set invalidation key on media countries key = {0}", invalidationKey);
                             }
 
-                            IndexManager.UpsertMedia(groupId, mediaId);
+                            IndexManagerFactory.GetInstance(groupId).UpsertMedia(mediaId);
                         }
                         else
                         {
@@ -508,7 +508,7 @@ namespace Core.Api.Managers
             {
                 foreach (var assetId in mediaToUpdate)
                 {
-                    bool indexingResult = Catalog.CatalogManagement.IndexManager.UpsertMedia(groupId, assetId);
+                    bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertMedia(assetId);
                     if (!indexingResult)
                     {
                         log.ErrorFormat("Failed UpsertMedia index for assetId: {0}", assetId);
@@ -1426,9 +1426,10 @@ namespace Core.Api.Managers
 
             updatedMediaIds = updatedMediaIds.Distinct().ToList();
 
+            var indexManager = IndexManagerFactory.GetInstance(groupId);
             foreach (var mediaId in updatedMediaIds)
             {
-                IndexManager.UpsertMedia(groupId, mediaId);
+                indexManager.UpsertMedia(mediaId);
             }
 
             assetRule.Status = RuleStatus.Ready;

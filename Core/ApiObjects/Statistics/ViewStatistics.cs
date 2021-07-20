@@ -23,31 +23,12 @@ namespace ApiObjects.Statistics
 
     [Serializable]
     [JsonObject(Id = "media_view")]
-    public class MediaView
+    public class MediaView : SocialActionStatistics
     {
-        [JsonProperty("media_id")]
-        public int MediaID { get; set; }
-        
-        [JsonProperty("group_id")]
-        public int GroupID { get; set; }
-        
-        [JsonProperty("media_type")]
-        public string MediaType { get; set; }
-        
-        [JsonConverter(typeof(ApiObjects.JsonSerializers.BaseTimeConverter))]
-        [JsonProperty("action_date")]
-        public DateTime Date { get; set; }
-        
-        [JsonProperty("action")]
-        public string Action { get; set; }
-        
         [JsonProperty("location")]
         public int Location { get; set; }
         
-        [JsonProperty("count")]
-        public int? Count { get; set; }
-
-        public MediaView()
+        public MediaView() : base()
         {
             GroupID = 0;
             MediaType = string.Empty;

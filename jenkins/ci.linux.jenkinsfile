@@ -1,3 +1,5 @@
+@Library('ott-lib-jenkins')_
+
 pipeline {
     agent {
         label 'Linux'
@@ -102,17 +104,15 @@ def findDirectoriesWithTests() {
 }
 
 def runTestInDocker(testProjects){
-    withEnv(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME']) {
-        docker.image("mcr.microsoft.com/dotnet/core/sdk:3.1-alpine").inside(){
-            dir("."){
-                testProjects.each { project -> 
-                    sh("dotnet test ${project} --logger \"junit;LogFilePath=./test-results.xml\" || true")
-                }
+    testProjects.each { project -> 
+        // ott-lib-jenkins
+        withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "mcr.microsoft.com/dotnet/core/sdk:3.1-alpine", project) {
+            sh("dotnet test ${project} --logger \"junit;LogFilePath=./test-results.xml\" || true")
+
+            junit "**/test-results.xml"
+            if (currentBuild.result == 'UNSTABLE') {
+                error "Tests are failed, check tab Tests/Test Result..."
             }
-        }
-        junit "**/test-results.xml"
-        if (currentBuild.result == 'UNSTABLE') {
-            error "Tests are failed, check tab Tests/Test Result..."
         }
     }
 }

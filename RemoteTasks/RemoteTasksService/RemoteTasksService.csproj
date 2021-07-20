@@ -276,10 +276,6 @@
       <Project>{3bedba4c-502e-49a4-901f-f7d61365fba9}</Project>
       <Name>ModifiedRecordingsHandler</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PartialUpdateHandler\PartialUpdateHandler.csproj">
-      <Project>{a608ff48-9eb9-4e10-964a-a5235e9d37b0}</Project>
-      <Name>PartialUpdateHandler</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PendingTransactionHandler\PendingTransactionHandler.csproj">
       <Project>{1aae1b8a-483d-423a-97b8-1430098cef46}</Project>
       <Name>PendingTransactionHandler</Name>

@@ -45,8 +45,6 @@
     <ProjectReference Include="..\..\Core\CouchbaseManager\CouchbaseManager.csproj" />
     <ProjectReference Include="..\..\Core\DAL\DAL.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.Abstraction\EventBus.Abstraction.csproj" />
-    <ProjectReference Include="..\..\Core\ElasticSearch\ElasticSearch.csproj" />
-    <ProjectReference Include="..\..\Core\EpgBL\EpgBL.csproj" />
     <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
     <ProjectReference Include="..\..\Core\FTPUploadQueue\UploadQueue.csproj" />
     <ProjectReference Include="..\..\Core\GroupsCacheManager\GroupsCacheManager.csproj" />

@@ -3,6 +3,7 @@ using ApiObjects.SearchObjects;
 using ApiObjects.Social;
 using ApiObjects.Statistics;
 using ConfigurationManager;
+using Core.Catalog;
 using Core.Social.Responses;
 using Core.Social.SocialCommands;
 using Core.Users;
@@ -142,7 +143,16 @@ namespace Core.Social.Requests
 
             try
             {
-                result = ElasticSearch.Utilities.ESStatisticsUtilities.InsertSocialActionStatistics(this.m_nGroupID, this.m_nAssetID, mediaType, this.m_eAction, nRateValue, date);
+                var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                result = indexManager.InsertSocialStatisticsData(new SocialActionStatistics()
+                {
+                    Action = this.m_eAction.ToString(),
+                    Date = date,
+                    GroupID = this.m_nGroupID,
+                    MediaID = this.m_nAssetID,
+                    MediaType = mediaType.ToString(),
+                    RateValue = nRateValue,
+                });
             }
             catch (Exception ex)
             {
@@ -187,102 +197,6 @@ namespace Core.Social.Requests
             //    log.ErrorFormat("WriteFavoriteToES Failed ex={0}, index={1};type={2}", ex, index, ElasticSearch.Common.Utils.ES_STATS_TYPE);
             //    return false;
             //}
-        }
-
-        //delete row from  ES due to UNLIKE action 
-        private bool DeleteActionFromES(int nRateValue = 0, DateTime date = default(DateTime), eUserAction eAction = eUserAction.LIKE)
-        {
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(m_nGroupID);
-            bool result = false;
-
-            string url = ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value;
-
-            string statisticsIndex = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(this.m_nGroupID);
-            string normalIndex = this.m_nGroupID.ToString();
-
-            int nMediaType = Tvinci.Core.DAL.CatalogDAL.Get_MediaTypeIdByMediaId(this.m_nAssetID);
-
-            if (date == default(DateTime))
-            {
-                date = DateTime.UtcNow;
-            }
-
-            SocialActionStatistics oActionStats = new SocialActionStatistics()
-            {
-                Action = eAction.ToString().ToLower(),
-                Date = date,
-                GroupID = this.m_nGroupID,
-                MediaID = this.m_nAssetID,
-                MediaType = nMediaType.ToString(),
-                RateValue = nRateValue
-            };
-
-            StatisticsActionSearchObj socialSearch = new StatisticsActionSearchObj()
-            {
-                Action = eAction.ToString().ToLower(),
-                Date = date,
-                GroupID = this.m_nGroupID,
-                MediaID = this.m_nAssetID,
-                MediaType = nMediaType.ToString(),
-                RateValue = nRateValue
-            };
-
-            string sActionStatsJson = Newtonsoft.Json.JsonConvert.SerializeObject(oActionStats);
-
-            result = DeleteActionFromESV2(url, socialSearch, this.m_nGroupID, statisticsIndex);
-
-            return result;
-        }
-
-        private static bool DeleteActionFromESV2(string url, StatisticsActionSearchObj socialSearch, int groupId, string index)
-        {
-            bool result = false;
-
-            try
-            {
-                ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
-
-                if (oESApi.IndexExists(index))
-                {
-                    ElasticSearch.Searcher.ESStatisticsQueryBuilder queryBuilder = new ElasticSearch.Searcher.ESStatisticsQueryBuilder(groupId, socialSearch);
-                    string queryString = queryBuilder.BuildQuery();
-
-                    string searchResult = oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref queryString);
-                    string id = string.Empty;
-                    if (!string.IsNullOrEmpty(searchResult))
-                    {
-                        int totalItems = 1;
-                        List<StatisticsView> lSocialActionView = Utils.DecodeSearchJsonObject(searchResult, ref totalItems);
-                        if (lSocialActionView != null && lSocialActionView.Count > 0)
-                        {
-                            id = lSocialActionView[0].ID;
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(id))
-                    {
-                        // double try delete
-                        ESDeleteResult deleteResult = oESApi.DeleteDoc(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, id);
-                        bool deleteDocsByQueryResult = oESApi.DeleteDocsByQuery(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref queryString);
-
-                        if (deleteResult == null || !deleteResult.Ok)
-                        {
-                            log.Debug("DeleteActionFromESV2 - " + string.Format("Was unable to delete record from ES. index={0};type={1};",
-                                index, ElasticSearch.Common.Utils.ES_STATS_TYPE));
-                        }
-                        else
-                        {
-                            result = deleteDocsByQueryResult;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.DebugFormat("DeleteActionFromES Failed ex={0}, index={1};type={2}", ex, index, ElasticSearch.Common.Utils.ES_STATS_TYPE);
-            }
-
-            return result;
         }
 
         private string createFBObject()
@@ -389,7 +303,14 @@ namespace Core.Social.Requests
                     if (doc != null) 
                     {
                         DateTime date = DateUtils.UtcUnixTimestampSecondsToDateTime(doc.CreateDate);
-                        DeleteActionFromES(0, date);
+                        var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                        indexManager.DeleteSocialAction(
+                            new StatisticsActionSearchObj()
+                            {
+                                Date = date,
+                                MediaID = m_nAssetID,
+                                Action = eUserAction.LIKE.ToString().ToLower()
+                            });
                         //WriteActionToES();
                     }
                     #endregion

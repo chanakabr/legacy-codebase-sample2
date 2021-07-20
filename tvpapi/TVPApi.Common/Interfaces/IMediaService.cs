@@ -60,7 +60,7 @@ namespace TVPApiServices
         List<Media> GetUserSocialMedias(InitializationObject initObj, SocialPlatform socialPlatform, SocialAction socialAction, string picSize, int pageSize, int pageIndex);
 
         [OperationContract]
-        List<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex);
+        List<TVPApi.Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex);
 
         [OperationContract]
         List<Media> SearchMediaByTag(InitializationObject initObj, string tagName, string value, int mediaType, string picSize, int pageSize, int pageIndex, TVPApi.OrderBy orderBy);

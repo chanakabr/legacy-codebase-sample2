@@ -22,9 +22,10 @@ using WebAPI.Models.Segmentation;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
-using WebAPI.Models.CanaryDeployment;
+using WebAPI.Models.CanaryDeployment.Microservices;
 using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
+using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Controllers;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
@@ -39428,7 +39429,7 @@ namespace WebAPI.Models.Upload
     }
 }
 
-namespace WebAPI.Models.CanaryDeployment
+namespace WebAPI.Models.CanaryDeployment.Microservices
 {
     public partial class KalturaCanaryDeploymentAuthenticationMsOwnerShip
     {
@@ -39508,7 +39509,7 @@ namespace WebAPI.Models.CanaryDeployment
             return ret;
         }
     }
-    public partial class KalturaCanaryDeploymentConfiguration
+    public partial class KalturaMicroservicesCanaryDeploymentConfiguration
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
@@ -39568,7 +39569,7 @@ namespace WebAPI.Models.CanaryDeployment
             return ret;
         }
     }
-    public partial class KalturaCanaryDeploymentDataOwnerShip
+    public partial class KalturaMicroservicesCanaryDeploymentDataOwnerShip
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
@@ -39608,7 +39609,7 @@ namespace WebAPI.Models.CanaryDeployment
             return ret;
         }
     }
-    public partial class KalturaCanaryDeploymentMigrationEvents
+    public partial class KalturaMicroservicesCanaryDeploymentMigrationEvents
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
@@ -42257,6 +42258,56 @@ namespace WebAPI.Models.Domains
             if((retrievedProperties == null || retrievedProperties.Contains("type")))
             {
                 ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaHouseholdWith), type) + "" + "</type>");
+            }
+            return ret;
+        }
+    }
+}
+
+namespace WebAPI.Models.CanaryDeployment.Elasticsearch
+{
+    public partial class KalturaElasticsearchCanaryDeploymentConfiguration
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("elasticsearchActiveVersion")))
+            {
+                ret.Add("elasticsearchActiveVersion", "\"elasticsearchActiveVersion\": " + "\"" + Enum.GetName(typeof(KalturaElasticsearchVersion), ElasticsearchActiveVersion) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("enableMigrationEvents")))
+            {
+                ret.Add("enableMigrationEvents", "\"enableMigrationEvents\": " + EnableMigrationEvents.ToString().ToLower());
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("elasticsearchActiveVersion")))
+            {
+                ret.Add("elasticsearchActiveVersion", "<elasticsearchActiveVersion>" + "" + Enum.GetName(typeof(KalturaElasticsearchVersion), ElasticsearchActiveVersion) + "" + "</elasticsearchActiveVersion>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("enableMigrationEvents")))
+            {
+                ret.Add("enableMigrationEvents", "<enableMigrationEvents>" + EnableMigrationEvents.ToString().ToLower() + "</enableMigrationEvents>");
             }
             return ret;
         }

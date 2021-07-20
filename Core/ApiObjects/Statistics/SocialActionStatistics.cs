@@ -12,17 +12,25 @@ namespace ApiObjects.Statistics
     {
         [JsonProperty("media_id")]
         public int MediaID { get; set; }
+        
         [JsonProperty("group_id")]
         public int GroupID { get; set; }
+        
         [JsonProperty("media_type")]
         public string MediaType { get; set; }
+        
         [JsonConverter(typeof(ApiObjects.JsonSerializers.BaseTimeConverter))]
         [JsonProperty("action_date")]
         public DateTime Date { get; set; }
+        
         [JsonProperty("action")]
         public string Action { get; set; }
-        [JsonProperty("rate_value", NullValueHandling=NullValueHandling.Ignore)]
+        
+        [JsonProperty("rate_value", NullValueHandling = NullValueHandling.Ignore)]
         public int RateValue { get; set; }
+
+        [JsonProperty("count")]
+        public int? Count { get; set; }
 
         public SocialActionStatistics()
         {

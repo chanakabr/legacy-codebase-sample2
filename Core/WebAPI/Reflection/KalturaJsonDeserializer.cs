@@ -22,9 +22,10 @@ using WebAPI.Models.Segmentation;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
-using WebAPI.Models.CanaryDeployment;
+using WebAPI.Models.CanaryDeployment.Microservices;
 using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
+using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Controllers;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
@@ -473,15 +474,6 @@ namespace WebAPI.Reflection
                 case "KalturaCanaryDeploymentAuthenticationMsOwnerShip":
                     return new KalturaCanaryDeploymentAuthenticationMsOwnerShip(parameters);
                     
-                case "KalturaCanaryDeploymentConfiguration":
-                    return new KalturaCanaryDeploymentConfiguration(parameters);
-                    
-                case "KalturaCanaryDeploymentDataOwnerShip":
-                    return new KalturaCanaryDeploymentDataOwnerShip(parameters);
-                    
-                case "KalturaCanaryDeploymentMigrationEvents":
-                    return new KalturaCanaryDeploymentMigrationEvents(parameters);
-                    
                 case "KalturaCaptionPlaybackPluginData":
                     return new KalturaCaptionPlaybackPluginData(parameters);
                     
@@ -850,6 +842,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaDynamicOrderBy":
                     return new KalturaDynamicOrderBy(parameters);
+                    
+                case "KalturaElasticsearchCanaryDeploymentConfiguration":
+                    return new KalturaElasticsearchCanaryDeploymentConfiguration(parameters);
                     
                 case "KalturaEmailMessage":
                     return new KalturaEmailMessage(parameters);
@@ -1330,6 +1325,15 @@ namespace WebAPI.Reflection
                     
                 case "KalturaMetaListResponse":
                     return new KalturaMetaListResponse(parameters);
+                    
+                case "KalturaMicroservicesCanaryDeploymentConfiguration":
+                    return new KalturaMicroservicesCanaryDeploymentConfiguration(parameters);
+                    
+                case "KalturaMicroservicesCanaryDeploymentDataOwnerShip":
+                    return new KalturaMicroservicesCanaryDeploymentDataOwnerShip(parameters);
+                    
+                case "KalturaMicroservicesCanaryDeploymentMigrationEvents":
+                    return new KalturaMicroservicesCanaryDeploymentMigrationEvents(parameters);
                     
                 case "KalturaMonetizationCondition":
                     return new KalturaMonetizationCondition(parameters);
@@ -33612,7 +33616,7 @@ namespace WebAPI.Models.Upload
     }
 }
 
-namespace WebAPI.Models.CanaryDeployment
+namespace WebAPI.Models.CanaryDeployment.Microservices
 {
     public partial class KalturaCanaryDeploymentAuthenticationMsOwnerShip
     {
@@ -33647,9 +33651,9 @@ namespace WebAPI.Models.CanaryDeployment
             }
         }
     }
-    public partial class KalturaCanaryDeploymentConfiguration
+    public partial class KalturaMicroservicesCanaryDeploymentConfiguration
     {
-        public KalturaCanaryDeploymentConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMicroservicesCanaryDeploymentConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33657,11 +33661,11 @@ namespace WebAPI.Models.CanaryDeployment
                 {
                     if (parameters["dataOwnerShip"] is JObject)
                     {
-                        DataOwnerShip = (KalturaCanaryDeploymentDataOwnerShip) Deserializer.deserialize(typeof(KalturaCanaryDeploymentDataOwnerShip), ((JObject) parameters["dataOwnerShip"]).ToObject<Dictionary<string, object>>());
+                        DataOwnerShip = (KalturaMicroservicesCanaryDeploymentDataOwnerShip) Deserializer.deserialize(typeof(KalturaMicroservicesCanaryDeploymentDataOwnerShip), ((JObject) parameters["dataOwnerShip"]).ToObject<Dictionary<string, object>>());
                     }
                     else if (parameters["dataOwnerShip"] is IDictionary)
                     {
-                        DataOwnerShip = (KalturaCanaryDeploymentDataOwnerShip) Deserializer.deserialize(typeof(KalturaCanaryDeploymentDataOwnerShip), (Dictionary<string, object>) parameters["dataOwnerShip"]);
+                        DataOwnerShip = (KalturaMicroservicesCanaryDeploymentDataOwnerShip) Deserializer.deserialize(typeof(KalturaMicroservicesCanaryDeploymentDataOwnerShip), (Dictionary<string, object>) parameters["dataOwnerShip"]);
                     }
                 }
                 if (parameters.ContainsKey("routingConfiguration") && parameters["routingConfiguration"] != null)
@@ -33675,19 +33679,19 @@ namespace WebAPI.Models.CanaryDeployment
                 {
                     if (parameters["migrationEvents"] is JObject)
                     {
-                        MigrationEvents = (KalturaCanaryDeploymentMigrationEvents) Deserializer.deserialize(typeof(KalturaCanaryDeploymentMigrationEvents), ((JObject) parameters["migrationEvents"]).ToObject<Dictionary<string, object>>());
+                        MigrationEvents = (KalturaMicroservicesCanaryDeploymentMigrationEvents) Deserializer.deserialize(typeof(KalturaMicroservicesCanaryDeploymentMigrationEvents), ((JObject) parameters["migrationEvents"]).ToObject<Dictionary<string, object>>());
                     }
                     else if (parameters["migrationEvents"] is IDictionary)
                     {
-                        MigrationEvents = (KalturaCanaryDeploymentMigrationEvents) Deserializer.deserialize(typeof(KalturaCanaryDeploymentMigrationEvents), (Dictionary<string, object>) parameters["migrationEvents"]);
+                        MigrationEvents = (KalturaMicroservicesCanaryDeploymentMigrationEvents) Deserializer.deserialize(typeof(KalturaMicroservicesCanaryDeploymentMigrationEvents), (Dictionary<string, object>) parameters["migrationEvents"]);
                     }
                 }
             }
         }
     }
-    public partial class KalturaCanaryDeploymentDataOwnerShip
+    public partial class KalturaMicroservicesCanaryDeploymentDataOwnerShip
     {
-        public KalturaCanaryDeploymentDataOwnerShip(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMicroservicesCanaryDeploymentDataOwnerShip(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33705,9 +33709,9 @@ namespace WebAPI.Models.CanaryDeployment
             }
         }
     }
-    public partial class KalturaCanaryDeploymentMigrationEvents
+    public partial class KalturaMicroservicesCanaryDeploymentMigrationEvents
     {
-        public KalturaCanaryDeploymentMigrationEvents(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMicroservicesCanaryDeploymentMigrationEvents(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
@@ -36084,6 +36088,37 @@ namespace WebAPI.Models.Domains
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", type, typeof(KalturaHouseholdWith)));
                     }
+                }
+            }
+        }
+    }
+}
+
+namespace WebAPI.Models.CanaryDeployment.Elasticsearch
+{
+    public partial class KalturaElasticsearchCanaryDeploymentConfiguration
+    {
+        public KalturaElasticsearchCanaryDeploymentConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("elasticsearchActiveVersion") && parameters["elasticsearchActiveVersion"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["elasticsearchActiveVersion"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "elasticsearchActiveVersion");
+                    }
+
+                    ElasticsearchActiveVersion = (KalturaElasticsearchVersion) Enum.Parse(typeof(KalturaElasticsearchVersion), parameters["elasticsearchActiveVersion"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaElasticsearchVersion), ElasticsearchActiveVersion))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ElasticsearchActiveVersion, typeof(KalturaElasticsearchVersion)));
+                    }
+                }
+                if (parameters.ContainsKey("enableMigrationEvents") && parameters["enableMigrationEvents"] != null)
+                {
+                    EnableMigrationEvents = (Boolean) Convert.ChangeType(parameters["enableMigrationEvents"], typeof(Boolean));
                 }
             }
         }

@@ -1,4 +1,6 @@
-﻿using ApiObjects.TimeShiftedTv;
+﻿using ApiObjects;
+using ApiObjects.Catalog;
+using ApiObjects.TimeShiftedTv;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -28,7 +30,7 @@ namespace ElasticSearchHandler.Updaters
         #region Ctor
 
         public RecordingUpdaterV2(int groupId)
-            : base(groupId)
+            : base (groupId)
         {
             epgToRecordingMapping = new Dictionary<long, long>();
         }
@@ -49,16 +51,10 @@ namespace ElasticSearchHandler.Updaters
                 return result;
             }
 
-            if (!esApi.IndexExists(GetAlias()))
-            {
-                log.Error("Error - " + string.Format("Index of type recordings for group {0} does not exist", groupId));
-                return result;
-            }
-
             var recordingIds = this.IDs;
 
             // Get information about relevant recordings
-            epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMap(this.groupId, recordingIds.Select(i => (long)i).ToList());
+            epgToRecordingMapping = DAL.RecordingsDAL.GetEpgToRecordingsMap(this.groupId, recordingIds.Select(i => (long)i).ToList());            
 
             // Map EPGs to original recordings,
             // Get all program IDs
@@ -70,82 +66,27 @@ namespace ElasticSearchHandler.Updaters
             {
                 case ApiObjects.eAction.Off:
                 case ApiObjects.eAction.Delete:
-                    {
-                        result = DeleteEpg(epgIds);
-                    }
-                    break;
+                {
+                    result = DeleteEpg(epgIds);
+                }
+                break;
                 case ApiObjects.eAction.On:
                 case ApiObjects.eAction.Update:
-                    {
-                        result = UpdateEpg(epgIds);
-                        break;
-                    }
-                default:
-                    result = true;
+                {
+                    result = UpdateEpg(epgIds);
                     break;
+                }
+                default:
+                result = true;
+                break;
             }
 
             return result;
         }
 
-        /// <summary>
-        /// Alias will be recording_{group_id} and not epg_{group_id}
-        /// </summary>
-        /// <returns></returns>
-        protected override string GetAlias()
+        protected override bool UpdateEpgs(List<LanguageObj> languages, List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings)
         {
-            return ElasticsearchTasksCommon.Utils.GetRecordingGroupAliasStr(this.groupId);
-        }
-
-        protected override string GetAliasWithStartDate(int groupId, DateTime startDate)
-        {
-            return GetAlias();
-        }
-
-        protected override string GetDocumentType()
-        {
-            return RECORDING;
-        }
-
-        /// <summary>
-        /// Document ID will be the recording ID and not the EPG ID
-        /// </summary>
-        /// <param name="epg"></param>
-        /// <returns></returns>
-        protected override ulong GetDocumentId(ApiObjects.EpgCB epg)
-        {
-            ulong result = base.GetDocumentId(epg);
-
-            result = (ulong)(epgToRecordingMapping[(long)epg.EpgID]);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Document ID will be the recording ID and not the EPG ID
-        /// </summary>
-        /// <param name="epgId"></param>
-        /// <returns></returns>
-        protected override ulong GetDocumentId(int epgId)
-        {
-            return (ulong)(epgToRecordingMapping[epgId]);
-        }
-
-        /// <summary>
-        /// Serialize the recording ID as well as the EPG
-        /// </summary>
-        /// <param name="epg"></param>
-        /// <returns></returns>
-        protected override string SerializeEPG(ApiObjects.EpgCB epg, string suffix = null, bool doesGroupUsesTemplates = false)
-        {
-            long recordingId = (long)(epgToRecordingMapping[(int)epg.EpgID]);
-
-            return esSerializer.SerializeRecordingObject(epg, recordingId, suffix, doesGroupUsesTemplates);
-        }
-
-        protected override bool ShouldSetTTL()
-        {
-            return false;
+            return _indexManager.UpdateEpgs(languages, epgObjects, linearChannelSettings, true, epgToRecordingMapping);
         }
 
         #endregion

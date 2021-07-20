@@ -257,7 +257,7 @@ namespace ElasticSearch.Searcher
             {
                 pageSize = MAX_RESULTS;
             }
-            else if (this.SearchDefinitions.topHitsCount > 0)
+            else if (SearchDefinitions.topHitsCount > 0)
             {
                 pageSize = 0;
             }
@@ -275,6 +275,7 @@ namespace ElasticSearch.Searcher
                 fromIndex = (PageIndex <= 0) ? 0 : PageSize * PageIndex;
             }
 
+            // TODO: make it interface
             if (fromIndex + pageSize > ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value)
             {
                 log.WarnFormat("changing page size and index to 0 because size*index + size > max results configured, sent size: {0}, sent index: {1}", PageSize, PageIndex);

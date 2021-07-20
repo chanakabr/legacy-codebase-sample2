@@ -37,7 +37,7 @@ namespace WebAPI.ClientManagers.Client
                 case ClientType.Catalog:
                     client = new CatalogClient();
                     break;
-                case ClientType.CanaryDeployment:
+                case ClientType.MicroservicesCanaryDeployment:
                     client = new CanaryDeploymentClient();
                     break;
                 default:

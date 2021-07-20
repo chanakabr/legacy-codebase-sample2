@@ -2,9 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ApiLogic.CanaryDeployment;
 using ApiObjects.CanaryDeployment;
+using ApiObjects.CanaryDeployment.Microservices;
 using ApiObjects.DataMigrationEvents;
+using CanaryDeploymentManager;
 using Core.Users.Cache;
 using EventBus.Kafka;
 
@@ -33,7 +34,7 @@ namespace Core.Users
         {
             string pinCode = string.Empty;
 
-            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().
+            if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().
                 IsDataOwnershipFlagEnabled(nGroupID, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginPin))
             {
                 var authClient = AuthenticationGrpcClientWrapper.AuthenticationClient.GetClientFromTCM();
@@ -75,7 +76,7 @@ namespace Core.Users
 
         private static void SendCanaryMigrationEvent(int nGroupID, string sDeviceUDID, string pinCode)
         {
-            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(nGroupID, CanaryDeploymentMigrationEvent.DevicePinCode))
+            if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsEnabledMigrationEvent(nGroupID, CanaryDeploymentMigrationEvent.DevicePinCode))
             {
                 var migrationEvent = new ApiObjects.DataMigrationEvents.DeviceLoginPin()
                 {

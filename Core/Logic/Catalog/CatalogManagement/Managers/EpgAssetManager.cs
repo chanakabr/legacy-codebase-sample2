@@ -19,6 +19,7 @@ using ElasticSearch.Utilities;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
+using ApiObjects.Base;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -210,9 +211,13 @@ namespace Core.Catalog.CatalogManagement
                 var epgTags = GetEpgTags(epgAssetToAdd.Tags, allNames, defaultLanguageCode);
 
                 // insert epgCb to CB in all languages
-                SaveEpgCbToCB(groupId, epgCbToAdd, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, true);
+                var epgsToIndex = SaveEpgCbToCB(groupId, epgCbToAdd, 
+                    defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, true);
 
-                bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)newEpgId }, true);
+                bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertProgram(
+                    epgsToIndex,
+                    GetLinearChannelSettingsForEpgCB(groupId, epgCbToAdd)
+                    );
                 if (!indexingResult)
                 {
                     log.ErrorFormat("Failed UpsertProgram index for epg ExternalId: {0}, groupId: {1} after AddEpgAsset", epgAssetToAdd.EpgIdentifier, groupId);
@@ -227,6 +232,11 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        private static Dictionary<string, LinearChannelSettings> GetLinearChannelSettingsForEpgCB(int groupId, EpgCB epgCbToAdd)
+        {
+            return Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgCbToAdd.ChannelID.ToString() });
         }
 
         internal static GenericResponse<Asset> UpdateEpgAsset(int groupId, EpgAsset epgAssetToUpdate, long userId, EpgAsset oldEpgAsset, CatalogGroupCache catalogGroupCache)
@@ -347,28 +357,30 @@ namespace Core.Catalog.CatalogManagement
                 UpdateEpgImages(groupId, oldEpgAsset, epgCBToUpdate);
 
                 // update epgCb in CB for all languages
-                SaveEpgCbToCB(groupId, epgCBToUpdate, defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, false);
+                var epgsToIndex = SaveEpgCbToCB(groupId, epgCBToUpdate, 
+                    defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, false);
 
                 // delete index, if EPG moved to another day
                 var indexAddAction = false;
+                var indexManager = IndexManagerFactory.GetInstance(groupId);
                 if (epgAssetToUpdate.StartDate?.Date != oldEpgAsset.StartDate?.Date && isIngestV2)
                 {
-                    var deleteIndexResult = IndexManager.DeleteProgram(groupId, new List<long> { epgAssetToUpdate.Id }, new List<string> { epgAssetToUpdate.EpgChannelId.ToString() });
+                    var deleteIndexResult = indexManager.DeleteProgram(new List<long> { epgAssetToUpdate.Id }, new List<string> { epgAssetToUpdate.EpgChannelId.ToString() });
                     if (deleteIndexResult)
                     {
                         indexAddAction = true;
                     }
                     else
                     {
-                        log.ErrorFormat("Failed {0} index for groupId: {1}, assetId: {2}, channelId: {3} after {4}.", nameof(IndexManager.DeleteProgram), groupId, epgAssetToUpdate.Id, epgAssetToUpdate.EpgChannelId, nameof(SaveEpgCbToCB));
+                        log.ErrorFormat("Failed {0} index for groupId: {1}, assetId: {2}, channelId: {3} after {4}.", nameof(indexManager.DeleteProgram), groupId, epgAssetToUpdate.Id, epgAssetToUpdate.EpgChannelId, nameof(SaveEpgCbToCB));
                     }
                 }
 
                 // update index
-                var upsertIndexingResult = IndexManager.UpsertProgram(groupId, new List<int> { (int)epgAssetToUpdate.Id }, indexAddAction);
+                var upsertIndexingResult = indexManager.UpsertProgram(epgsToIndex, GetLinearChannelSettingsForEpgCB(groupId, epgCBToUpdate));
                 if (!upsertIndexingResult)
                 {
-                    log.ErrorFormat("Failed {0} index for groupId: {1}, assetId: {2} after {3}.", nameof(IndexManager.UpsertProgram), groupId, epgAssetToUpdate.Id, nameof(SaveEpgCbToCB));
+                    log.Error($"Failed to upsert to index for groupId: {groupId}, assetId: {epgAssetToUpdate.Id} after SaveEpgCbToCB.");
                 }
 
                 SendActionEvent(groupId, oldEpgAsset.Id, eAction.Update);
@@ -427,7 +439,7 @@ namespace Core.Catalog.CatalogManagement
             SendActionEvent(groupId, epgId, eAction.Delete);
 
             // Delete Index
-            bool indexingResult = IndexManager.DeleteProgram(groupId, new List<long>() { epgId }, epgCbList.Select(x => x.ChannelID.ToString()));
+            bool indexingResult = IndexManagerFactory.GetInstance(groupId).DeleteProgram(new List<long>() { epgId }, epgCbList.Select(x => x.ChannelID.ToString()));
             if (!indexingResult)
             {
                 log.ErrorFormat("Failed to delete epg index for assetId: {0}, groupId: {1} after DeleteEpgAsset", epgId, groupId);
@@ -506,8 +518,9 @@ namespace Core.Catalog.CatalogManagement
                     // invalidate asset
                     AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
 
+                    var epgCb = CreateEpgCbFromEpgAsset(epgAsset, groupId, epgAsset.CreateDate.Value, epgAsset.UpdateDate.Value);
                     // UpdateIndex
-                    bool indexingResult = IndexManager.UpsertProgram(groupId, new List<int>() { (int)epgAsset.Id }, false);
+                    bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertProgram(new List<EpgCB>() { epgCb }, GetLinearChannelSettingsForEpgCB(groupId, epgCb));
                     if (!indexingResult)
                     {
                         log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromProgram", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
@@ -650,7 +663,7 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, EpgAsset>, bool>(epgAssets, res);
         }
 
-        private static void SaveEpgCbToCB(
+        private static List<EpgCB> SaveEpgCbToCB(
             int groupId,
             EpgCB epg,
             string defaultLanguageCode,
@@ -689,7 +702,8 @@ namespace Core.Catalog.CatalogManagement
                 programs.Add((docId, epgCB));
             }
 
-            IndexManager.GetLinearChannelValues(programs.Select(p => p.epg).ToList(), groupId, _ => { });
+            CatalogManager.Instance.GetLinearChannelValues(programs.Select(p => p.epg).ToList(), groupId, _ => {});
+
             foreach (var program in programs)
             {
                 if (!EpgDal.SaveEpgCB(program.docId, program.epg, cb => TtlService.Instance.GetEpgCouchbaseTtlSeconds(cb)))
@@ -697,6 +711,8 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("Failed to SaveEpgCbToCB for epgId: {0}, languageCode: {1} in EpgAssetManager", program.epg.EpgID, program.epg.Language);
                 }
             }
+
+            return programs.Select(kvp => kvp.epg).ToList();
         }
 
         private static List<LanguageObj> GetLanguagesObj(List<string> languageCodes, CatalogGroupCache catalogGroupCache)

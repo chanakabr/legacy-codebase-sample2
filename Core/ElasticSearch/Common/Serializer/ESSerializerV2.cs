@@ -247,7 +247,7 @@ namespace ElasticSearch.Common
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = normalSearchAnalyzer,
@@ -256,7 +256,7 @@ namespace ElasticSearch.Common
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "lowercase",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -265,7 +265,7 @@ namespace ElasticSearch.Common
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "phrase_autocomplete",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -277,7 +277,7 @@ namespace ElasticSearch.Common
                 nameProperty.fields.Add(new BasicMappingPropertyV2()
                 {
                     name = "autocomplete",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
                     search_analyzer = autocompleteSearchAnalyzer,
@@ -290,7 +290,7 @@ namespace ElasticSearch.Common
                 nameProperty.fields.Add(new BasicMappingPropertyV2()
                 {
                     name = "phonetic",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
                     search_analyzer = phoneticSearchAnalyzer,
@@ -313,7 +313,7 @@ namespace ElasticSearch.Common
             descProperty.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
             {
                 name = AddSuffix("description", suffix),
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -322,7 +322,7 @@ namespace ElasticSearch.Common
             descProperty.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = normalSearchAnalyzer,
@@ -331,7 +331,7 @@ namespace ElasticSearch.Common
             descProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "lowercase",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -340,7 +340,7 @@ namespace ElasticSearch.Common
             descProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "phrase_autocomplete",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -352,7 +352,7 @@ namespace ElasticSearch.Common
                 descProperty.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
                 {
                     name = "autocomplete",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
                     search_analyzer = autocompleteSearchAnalyzer,
@@ -365,7 +365,7 @@ namespace ElasticSearch.Common
                 descProperty.fields.Add(new BasicMappingPropertyV2()
                 {
                     name = "phonetic",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
                     search_analyzer = phoneticSearchAnalyzer,
@@ -396,7 +396,7 @@ namespace ElasticSearch.Common
             externalId.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = defaultNormalSearchAnalyzer,
@@ -405,7 +405,7 @@ namespace ElasticSearch.Common
             externalId.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "lowercase",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -414,7 +414,7 @@ namespace ElasticSearch.Common
             externalId.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "phrase_autocomplete",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -426,7 +426,7 @@ namespace ElasticSearch.Common
                 externalId.fields.Add(new BasicMappingPropertyV2()
                 {
                     name = "autocomplete",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
                     search_analyzer = defaultAutocompleteSearchAnalyzer,
@@ -457,7 +457,7 @@ namespace ElasticSearch.Common
             entryId.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = defaultNormalSearchAnalyzer,
@@ -466,7 +466,7 @@ namespace ElasticSearch.Common
             entryId.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "lowercase",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -475,7 +475,7 @@ namespace ElasticSearch.Common
             entryId.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "phrase_autocomplete",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -487,7 +487,7 @@ namespace ElasticSearch.Common
                 entryId.fields.Add(new BasicMappingPropertyV2()
                 {
                     name = "autocomplete",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
                     search_analyzer = defaultAutocompleteSearchAnalyzer,
@@ -533,7 +533,7 @@ namespace ElasticSearch.Common
                         multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                         {
                             name = AddSuffix(loweredTagName, suffix),
-                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            type = eESFieldType.STRING,
                             null_value = string.Empty,
                             index = eMappingIndex.analyzed,
                             search_analyzer = LOWERCASE_ANALYZER,
@@ -542,7 +542,7 @@ namespace ElasticSearch.Common
                         multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                         {
                             name = "analyzed",
-                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            type = eESFieldType.STRING,
                             null_value = "",
                             index = eMappingIndex.analyzed,
                             search_analyzer = normalSearchAnalyzer,
@@ -551,7 +551,7 @@ namespace ElasticSearch.Common
                         multiField.fields.Add(new BasicMappingPropertyV2()
                         {
                             name = "lowercase",
-                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            type = eESFieldType.STRING,
                             null_value = "",
                             index = eMappingIndex.analyzed,
                             search_analyzer = LOWERCASE_ANALYZER,
@@ -560,7 +560,7 @@ namespace ElasticSearch.Common
                         multiField.fields.Add(new BasicMappingPropertyV2()
                         {
                             name = "phrase_autocomplete",
-                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            type = eESFieldType.STRING,
                             null_value = "",
                             index = eMappingIndex.analyzed,
                             search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -572,7 +572,7 @@ namespace ElasticSearch.Common
                             multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
                             {
                                 name = "autocomplete",
-                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                type = eESFieldType.STRING,
                                 null_value = "",
                                 index = eMappingIndex.analyzed,
                                 search_analyzer = autocompleteSearchAnalyzer,
@@ -585,7 +585,7 @@ namespace ElasticSearch.Common
                             multiField.fields.Add(new BasicMappingPropertyV2()
                             {
                                 name = "phonetic",
-                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                type = eESFieldType.STRING,
                                 null_value = "",
                                 index = eMappingIndex.analyzed,
                                 search_analyzer = phoneticSearchAnalyzer,
@@ -659,7 +659,7 @@ namespace ElasticSearch.Common
                                 multiField.fields.Add(new BasicMappingPropertyV2()
                                 {
                                     name = "phrase_autocomplete",
-                                    type = ElasticSearch.Common.eESFieldType.STRING,
+                                    type = eESFieldType.STRING,
                                     null_value = "",
                                     index = eMappingIndex.analyzed,
                                     search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -688,7 +688,7 @@ namespace ElasticSearch.Common
                             multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                             {
                                 name = "analyzed",
-                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                type = eESFieldType.STRING,
                                 null_value = "",
                                 index = eMappingIndex.analyzed,
                                 search_analyzer = normalSearchAnalyzer,
@@ -697,7 +697,7 @@ namespace ElasticSearch.Common
                             multiField.fields.Add(new BasicMappingPropertyV2()
                             {
                                 name = "lowercase",
-                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                type = eESFieldType.STRING,
                                 null_value = "",
                                 index = eMappingIndex.analyzed,
                                 search_analyzer = LOWERCASE_ANALYZER,
@@ -706,7 +706,7 @@ namespace ElasticSearch.Common
                             multiField.fields.Add(new BasicMappingPropertyV2()
                             {
                                 name = "phrase_autocomplete",
-                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                type = eESFieldType.STRING,
                                 null_value = "",
                                 index = eMappingIndex.analyzed,
                                 search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -718,7 +718,7 @@ namespace ElasticSearch.Common
                                 multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
                                 {
                                     name = "autocomplete",
-                                    type = ElasticSearch.Common.eESFieldType.STRING,
+                                    type = eESFieldType.STRING,
                                     null_value = "",
                                     index = eMappingIndex.analyzed,
                                     search_analyzer = autocompleteSearchAnalyzer,
@@ -731,7 +731,7 @@ namespace ElasticSearch.Common
                                 multiField.fields.Add(new BasicMappingPropertyV2()
                                 {
                                     name = "phonetic",
-                                    type = ElasticSearch.Common.eESFieldType.STRING,
+                                    type = eESFieldType.STRING,
                                     null_value = "",
                                     index = eMappingIndex.analyzed,
                                     search_analyzer = phoneticSearchAnalyzer,
@@ -935,7 +935,7 @@ namespace ElasticSearch.Common
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = normalSearchAnalyzer,
@@ -944,7 +944,7 @@ namespace ElasticSearch.Common
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "lowercase",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -953,7 +953,7 @@ namespace ElasticSearch.Common
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "phrase_autocomplete",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -965,7 +965,7 @@ namespace ElasticSearch.Common
                 nameProperty.fields.Add(new BasicMappingPropertyV2()
                 {
                     name = "autocomplete",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
                     search_analyzer = autocompleteSearchAnalyzer,
@@ -978,7 +978,7 @@ namespace ElasticSearch.Common
                 nameProperty.fields.Add(new BasicMappingPropertyV2()
                 {
                     name = "phonetic",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
                     search_analyzer = phoneticSearchAnalyzer,
@@ -1001,7 +1001,7 @@ namespace ElasticSearch.Common
             descrpitionMapping.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
             {
                 name = AddSuffix("description", suffix),
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -1010,7 +1010,7 @@ namespace ElasticSearch.Common
             descrpitionMapping.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = normalSearchAnalyzer,
@@ -1019,7 +1019,7 @@ namespace ElasticSearch.Common
             descrpitionMapping.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "lowercase",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -1028,7 +1028,7 @@ namespace ElasticSearch.Common
             descrpitionMapping.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "phrase_autocomplete",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -1040,7 +1040,7 @@ namespace ElasticSearch.Common
                 descrpitionMapping.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
                 {
                     name = "autocomplete",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
                     search_analyzer = autocompleteSearchAnalyzer,
@@ -1053,7 +1053,7 @@ namespace ElasticSearch.Common
                 descrpitionMapping.fields.Add(new BasicMappingPropertyV2()
                 {
                     name = "phonetic",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
                     search_analyzer = phoneticSearchAnalyzer,
@@ -1076,7 +1076,7 @@ namespace ElasticSearch.Common
             epgIdentifierProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "epg_identifier",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -1086,7 +1086,7 @@ namespace ElasticSearch.Common
             epgIdentifierProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "lowercase",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -1095,7 +1095,7 @@ namespace ElasticSearch.Common
             epgIdentifierProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "phrase_autocomplete",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -1132,7 +1132,7 @@ namespace ElasticSearch.Common
             cridProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "crid",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -1142,7 +1142,7 @@ namespace ElasticSearch.Common
             cridProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "lowercase",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -1151,7 +1151,7 @@ namespace ElasticSearch.Common
             cridProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "phrase_autocomplete",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -1163,7 +1163,7 @@ namespace ElasticSearch.Common
                 cridProperty.fields.Add(new BasicMappingPropertyV2()
                 {
                     name = "autocomplete",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
                     search_analyzer = defaultAutocompleteSearchAnalyzer,
@@ -1194,7 +1194,7 @@ namespace ElasticSearch.Common
             externalId.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = defaultNormalSearchAnalyzer,
@@ -1203,7 +1203,7 @@ namespace ElasticSearch.Common
             externalId.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "lowercase",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -1212,7 +1212,7 @@ namespace ElasticSearch.Common
             externalId.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "phrase_autocomplete",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -1224,7 +1224,7 @@ namespace ElasticSearch.Common
                 externalId.fields.Add(new BasicMappingPropertyV2()
                 {
                     name = "autocomplete",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     index = eMappingIndex.analyzed,
                     search_analyzer = defaultAutocompleteSearchAnalyzer,
@@ -1257,7 +1257,7 @@ namespace ElasticSearch.Common
                     multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                     {
                         name = AddSuffix(sTagName, suffix),
-                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        type = eESFieldType.STRING,
                         null_value = string.Empty,
                         index = eMappingIndex.analyzed,
                         search_analyzer = LOWERCASE_ANALYZER,
@@ -1266,7 +1266,7 @@ namespace ElasticSearch.Common
                     multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                     {
                         name = "analyzed",
-                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        type = eESFieldType.STRING,
                         null_value = "",
                         index = eMappingIndex.analyzed,
                         search_analyzer = normalSearchAnalyzer,
@@ -1275,7 +1275,7 @@ namespace ElasticSearch.Common
                     multiField.fields.Add(new BasicMappingPropertyV2()
                     {
                         name = "lowercase",
-                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        type = eESFieldType.STRING,
                         null_value = "",
                         index = eMappingIndex.analyzed,
                         search_analyzer = LOWERCASE_ANALYZER,
@@ -1284,7 +1284,7 @@ namespace ElasticSearch.Common
                     multiField.fields.Add(new BasicMappingPropertyV2()
                     {
                         name = "phrase_autocomplete",
-                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        type = eESFieldType.STRING,
                         null_value = "",
                         index = eMappingIndex.analyzed,
                         search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -1296,7 +1296,7 @@ namespace ElasticSearch.Common
                         multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
                         {
                             name = "autocomplete",
-                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            type = eESFieldType.STRING,
                             null_value = "",
                             index = eMappingIndex.analyzed,
                             search_analyzer = autocompleteSearchAnalyzer,
@@ -1309,7 +1309,7 @@ namespace ElasticSearch.Common
                         multiField.fields.Add(new BasicMappingPropertyV2()
                         {
                             name = "phonetic",
-                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            type = eESFieldType.STRING,
                             null_value = "",
                             index = eMappingIndex.analyzed,
                             search_analyzer = phoneticSearchAnalyzer,
@@ -1373,7 +1373,7 @@ namespace ElasticSearch.Common
                                 multiField.fields.Add(new BasicMappingPropertyV2()
                                 {
                                     name = "phrase_autocomplete",
-                                    type = ElasticSearch.Common.eESFieldType.STRING,
+                                    type = eESFieldType.STRING,
                                     null_value = "",
                                     index = eMappingIndex.analyzed,
                                     search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -1402,7 +1402,7 @@ namespace ElasticSearch.Common
                             multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV2()
                             {
                                 name = "analyzed",
-                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                type = eESFieldType.STRING,
                                 null_value = "",
                                 index = eMappingIndex.analyzed,
                                 search_analyzer = normalSearchAnalyzer,
@@ -1411,7 +1411,7 @@ namespace ElasticSearch.Common
                             multiField.fields.Add(new BasicMappingPropertyV2()
                             {
                                 name = "lowercase",
-                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                type = eESFieldType.STRING,
                                 null_value = "",
                                 index = eMappingIndex.analyzed,
                                 search_analyzer = LOWERCASE_ANALYZER,
@@ -1420,7 +1420,7 @@ namespace ElasticSearch.Common
                             multiField.fields.Add(new BasicMappingPropertyV2()
                             {
                                 name = "phrase_autocomplete",
-                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                type = eESFieldType.STRING,
                                 null_value = "",
                                 index = eMappingIndex.analyzed,
                                 search_analyzer = PHRASE_STARTS_WITH_SEARCH_ANALYZER,
@@ -1432,7 +1432,7 @@ namespace ElasticSearch.Common
                                 multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV2()
                                 {
                                     name = "autocomplete",
-                                    type = ElasticSearch.Common.eESFieldType.STRING,
+                                    type = eESFieldType.STRING,
                                     null_value = "",
                                     index = eMappingIndex.analyzed,
                                     search_analyzer = autocompleteSearchAnalyzer,
@@ -1445,7 +1445,7 @@ namespace ElasticSearch.Common
                                 multiField.fields.Add(new BasicMappingPropertyV2()
                                 {
                                     name = "phonetic",
-                                    type = ElasticSearch.Common.eESFieldType.STRING,
+                                    type = eESFieldType.STRING,
                                     null_value = "",
                                     index = eMappingIndex.analyzed,
                                     search_analyzer = phoneticSearchAnalyzer,
@@ -1519,7 +1519,7 @@ namespace ElasticSearch.Common
             valueProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = normalSearchAnalyzer,
@@ -1528,7 +1528,7 @@ namespace ElasticSearch.Common
             valueProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "lowercase",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -1537,7 +1537,7 @@ namespace ElasticSearch.Common
             valueProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "autocomplete",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = autocompleteSearchAnalyzer,
@@ -1630,7 +1630,7 @@ namespace ElasticSearch.Common
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = normalSearchAnalyzer,
@@ -1639,7 +1639,7 @@ namespace ElasticSearch.Common
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "lowercase",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -1648,7 +1648,7 @@ namespace ElasticSearch.Common
             nameProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "autocomplete",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = autocompleteSearchAnalyzer,
@@ -1681,7 +1681,7 @@ namespace ElasticSearch.Common
             systemNameProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = normalSearchAnalyzer,
@@ -1690,7 +1690,7 @@ namespace ElasticSearch.Common
             systemNameProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "lowercase",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -1699,7 +1699,7 @@ namespace ElasticSearch.Common
             systemNameProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "autocomplete",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = autocompleteSearchAnalyzer,
@@ -1732,7 +1732,7 @@ namespace ElasticSearch.Common
             descriptionProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = normalSearchAnalyzer,
@@ -1741,7 +1741,7 @@ namespace ElasticSearch.Common
             descriptionProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "lowercase",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = LOWERCASE_ANALYZER,
@@ -1750,7 +1750,7 @@ namespace ElasticSearch.Common
             descriptionProperty.fields.Add(new BasicMappingPropertyV2()
             {
                 name = "autocomplete",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 index = eMappingIndex.analyzed,
                 search_analyzer = autocompleteSearchAnalyzer,

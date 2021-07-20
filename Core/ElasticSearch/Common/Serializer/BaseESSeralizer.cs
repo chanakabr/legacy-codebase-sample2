@@ -9,7 +9,12 @@ using System.Threading.Tasks;
 
 namespace ElasticSearch.Common
 {
-    public abstract class BaseESSeralizer
+    public interface IBaseESSeralizer
+    {
+        string SerializeMediaObject(Media media, string suffix = null);
+    }
+
+    public abstract class BaseESSeralizer : IBaseESSeralizer
     {
         protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
         protected static readonly string META_BOOL_SUFFIX = "_BOOL";
@@ -435,7 +440,7 @@ namespace ElasticSearch.Common
             nameProperty.fields.Add(new BasicMappingPropertyV1()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 analyzed = true,
                 search_analyzer = normalSearchAnalyzer,
@@ -447,7 +452,7 @@ namespace ElasticSearch.Common
                 nameProperty.fields.Add(new BasicMappingPropertyV1()
                 {
                     name = "autocomplete",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     analyzed = true,
                     search_analyzer = autocompleteSearchAnalyzer,
@@ -465,14 +470,14 @@ namespace ElasticSearch.Common
             descProperty.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
             {
                 name = "description",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 analyzed = false
             });
             descProperty.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 analyzed = true,
                 search_analyzer = normalSearchAnalyzer,
@@ -484,7 +489,7 @@ namespace ElasticSearch.Common
                 descProperty.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
                 {
                     name = "autocomplete",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     analyzed = true,
                     search_analyzer = autocompleteSearchAnalyzer,
@@ -525,14 +530,14 @@ namespace ElasticSearch.Common
                         multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
                         {
                             name = loweredTagName,
-                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            type = eESFieldType.STRING,
                             null_value = string.Empty,
                             analyzed = false
                         });
                         multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
                         {
                             name = "analyzed",
-                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            type = eESFieldType.STRING,
                             null_value = "",
                             analyzed = true,
                             search_analyzer = normalSearchAnalyzer,
@@ -544,7 +549,7 @@ namespace ElasticSearch.Common
                             multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
                             {
                                 name = "autocomplete",
-                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                type = eESFieldType.STRING,
                                 null_value = "",
                                 analyzed = true,
                                 search_analyzer = autocompleteSearchAnalyzer,
@@ -599,7 +604,7 @@ namespace ElasticSearch.Common
                             multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
                             {
                                 name = "analyzed",
-                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                type = eESFieldType.STRING,
                                 null_value = "",
                                 analyzed = true,
                                 search_analyzer = normalSearchAnalyzer,
@@ -611,7 +616,7 @@ namespace ElasticSearch.Common
                                 multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
                                 {
                                     name = "autocomplete",
-                                    type = ElasticSearch.Common.eESFieldType.STRING,
+                                    type = eESFieldType.STRING,
                                     null_value = "",
                                     analyzed = true,
                                     search_analyzer = autocompleteSearchAnalyzer,
@@ -784,7 +789,7 @@ namespace ElasticSearch.Common
             nameProperty.fields.Add(new BasicMappingPropertyV1()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 analyzed = true,
                 search_analyzer = normalSearchAnalyzer,
@@ -796,7 +801,7 @@ namespace ElasticSearch.Common
                 nameProperty.fields.Add(new BasicMappingPropertyV1()
                 {
                     name = "autocomplete",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     analyzed = true,
                     search_analyzer = autocompleteSearchAnalyzer,
@@ -814,14 +819,14 @@ namespace ElasticSearch.Common
             descrpitionMapping.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
             {
                 name = "description",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 analyzed = false
             });
             descrpitionMapping.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
             {
                 name = "analyzed",
-                type = ElasticSearch.Common.eESFieldType.STRING,
+                type = eESFieldType.STRING,
                 null_value = "",
                 analyzed = true,
                 search_analyzer = normalSearchAnalyzer,
@@ -833,7 +838,7 @@ namespace ElasticSearch.Common
                 descrpitionMapping.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
                 {
                     name = "autocomplete",
-                    type = ElasticSearch.Common.eESFieldType.STRING,
+                    type = eESFieldType.STRING,
                     null_value = "",
                     analyzed = true,
                     search_analyzer = autocompleteSearchAnalyzer,
@@ -882,14 +887,14 @@ namespace ElasticSearch.Common
                     multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
                     {
                         name = sTagName,
-                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        type = eESFieldType.STRING,
                         null_value = string.Empty,
                         analyzed = false
                     });
                     multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
                     {
                         name = "analyzed",
-                        type = ElasticSearch.Common.eESFieldType.STRING,
+                        type = eESFieldType.STRING,
                         null_value = "",
                         analyzed = true,
                         search_analyzer = normalSearchAnalyzer,
@@ -901,7 +906,7 @@ namespace ElasticSearch.Common
                         multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
                         {
                             name = "autocomplete",
-                            type = ElasticSearch.Common.eESFieldType.STRING,
+                            type = eESFieldType.STRING,
                             null_value = "",
                             analyzed = true,
                             search_analyzer = autocompleteSearchAnalyzer,
@@ -952,7 +957,7 @@ namespace ElasticSearch.Common
                             multiField.AddField(new ElasticSearch.Common.BasicMappingPropertyV1()
                             {
                                 name = "analyzed",
-                                type = ElasticSearch.Common.eESFieldType.STRING,
+                                type = eESFieldType.STRING,
                                 null_value = "",
                                 analyzed = true,
                                 search_analyzer = normalSearchAnalyzer,
@@ -964,7 +969,7 @@ namespace ElasticSearch.Common
                                 multiField.fields.Add(new ElasticSearch.Common.BasicMappingPropertyV1()
                                 {
                                     name = "autocomplete",
-                                    type = ElasticSearch.Common.eESFieldType.STRING,
+                                    type = eESFieldType.STRING,
                                     null_value = "",
                                     analyzed = true,
                                     search_analyzer = autocompleteSearchAnalyzer,

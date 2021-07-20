@@ -5,11 +5,12 @@ using System.Text;
 using ConfigurationManager;
 using KLogMonitor;
 using System.Linq;
-using ApiLogic.CanaryDeployment;
 using ApiObjects.CanaryDeployment;
+using ApiObjects.CanaryDeployment.Microservices;
 using ApiObjects.DataMigrationEvents;
 using EventBus.Kafka;
 using AuthenticationGrpcClientWrapper;
+using CanaryDeploymentManager;
 
 namespace SessionManager
 {
@@ -41,7 +42,7 @@ namespace SessionManager
                 return true;
 
             bool shouldCallAuthMS = 
-                    CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager()
+                    CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager()
                     .IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSessionRevocation);
             
             if (shouldCallAuthMS)
@@ -141,7 +142,7 @@ namespace SessionManager
 
         private static void SendUserAndDeviceSessionRevocationCanaryMigrationEvent(int groupId, string userId, string udid, long revocationTime, UserSessions usersSessions)
         {
-            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.SessionRevocation))
+            if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsEnabledMigrationEvent(groupId, CanaryDeploymentMigrationEvent.SessionRevocation))
             {
                 var migrationEvent = new RevokeUserAndDeviceSession
                 {

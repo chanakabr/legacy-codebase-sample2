@@ -13,7 +13,12 @@ using Tvinci.Core.DAL;
 
 namespace Core.Catalog.Cache
 {
-    public class CatalogCache
+    public interface ICatalogCache
+    {
+        Dictionary<string, LinearChannelSettings> GetLinearChannelSettings(int groupID, List<string> keys);
+    }
+
+    public class CatalogCache : ICatalogCache
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

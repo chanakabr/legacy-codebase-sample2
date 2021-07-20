@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.SearchObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -513,19 +514,6 @@ namespace ElasticSearch.Common
 
             return sb.ToString();
         }
-    }
-
-    public enum eESFieldType
-    {
-        INTEGER,
-        LONG,
-        DOUBLE,
-        STRING,
-        BOOLEAN,
-        NESTED,
-        INNER,
-        MULTI_FIELD,
-        DATE
     }
 
     public enum eMappingIndex

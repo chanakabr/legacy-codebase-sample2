@@ -26,6 +26,10 @@ namespace CachingProvider.LayeredCache
         bool SetInvalidationKey(string key, DateTime? updatedAt = null);
 
         long GetInvalidationKeyValue(int groupId, string layeredCacheConfigName, string invalidationKey);
+        
+        bool GetValues<T>(Dictionary<string, string> keyToOriginalValueMap, ref Dictionary<string, T> results, Func<Dictionary<string, object>, Tuple<Dictionary<string, T>, bool>> fillObjectsMethod,
+            Dictionary<string, object> funcParameters, int groupId, string layeredCacheConfigName, Dictionary<string, List<string>> inValidationKeysMap = null,
+            bool shouldUseAutoNameTypeHandling = false);
     }
 
     public class LayeredCache : ILayeredCache

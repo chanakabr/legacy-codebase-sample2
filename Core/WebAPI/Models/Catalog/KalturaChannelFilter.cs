@@ -16,7 +16,7 @@ namespace WebAPI.Models.Catalog
     public partial class KalturaChannelFilter : KalturaBaseSearchAssetFilter
     {
         /// <summary>
-        /// <seealso cref="ElasticsearchWrapper.GroupBySearchIsSupportedForOrder(ApiObjects.SearchObjects.OrderBy)"/>
+        /// <seealso cref="IndexingUtils.GroupBySearchIsSupportedForOrder(ApiObjects.SearchObjects.OrderBy)"/>
         /// </summary>
         private static readonly HashSet<KalturaAssetOrderBy> supportedGroupByOrders = new HashSet<KalturaAssetOrderBy> {
             KalturaAssetOrderBy.CREATE_DATE_ASC,

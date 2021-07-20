@@ -14,12 +14,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using ApiLogic.CanaryDeployment;
 using ApiObjects.CanaryDeployment;
 using ApiObjects.DataMigrationEvents;
 using EventBus.Kafka;
 using Core.Api;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using Core.Catalog;
 
 namespace Core.Users
 {
@@ -204,8 +204,9 @@ namespace Core.Users
 
                 if (saveRes)
                 {
-                    WriteFavoriteToES(view); //saving to the ES onlt if save Succeeded  
-                }
+                    var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                    indexManager.InsertSocialStatisticsData(view); //saving to the ES onlt if save Succeeded  
+                }   
 
                 return status;
             }
@@ -254,7 +255,8 @@ namespace Core.Users
                 {
                     response.Object = f;
                     response.SetStatus(eResponseStatus.OK);
-                    WriteFavoriteToES(view); //saving to the ES only if save Succeeded  
+                    var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                    indexManager.InsertSocialStatisticsData(view); //saving to the ES only if save Succeeded  
                 }
             }
             catch (Exception ex)
@@ -310,35 +312,6 @@ namespace Core.Users
             }
 
             return true;
-        }
-
-        private bool WriteFavoriteToES(ApiObjects.Statistics.MediaView oMediaView)
-        {
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(oMediaView.GroupID);
-            try
-            {
-                bool bRes = false;
-                ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
-
-                string sJsonView = Newtonsoft.Json.JsonConvert.SerializeObject(oMediaView);
-
-                if (oESApi.IndexExists(index) && !string.IsNullOrEmpty(sJsonView))
-                {
-                    Guid guid = Guid.NewGuid();
-
-                    bRes = oESApi.InsertRecord(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJsonView);
-
-                    if (!bRes)
-                        log.Debug("WriteFavoriteToES - " + string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}", index, ElasticSearch.Common.Utils.ES_STATS_TYPE, sJsonView));
-                }
-
-                return bRes;
-            }
-            catch (Exception ex)
-            {
-                log.Error("WriteFavoriteToES - " + string.Format("Failed ex={0}, index={1};type={2}", ex.Message, index, ElasticSearch.Common.Utils.ES_STATS_TYPE), ex);
-                return false;
-            }
         }
 
         public virtual bool AddChannelMediaToFavorites(string sUserGUID, int domainID, string sDeviceUDID,

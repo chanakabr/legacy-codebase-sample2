@@ -4,7 +4,17 @@ using System.Threading;
 
 namespace ElasticSearch.Common
 {
-    public class ElasticSearchIndexDefinitions 
+    public interface IElasticSearchIndexDefinitions
+    {
+        string GetAnalyzerDefinition(string sAnalyzerName);
+        string GetFilterDefinition(string sFilterName);
+        string GetTokenizerDefinition(string tokenizerName);
+        bool AnalyzerExists(string sAnalyzerName);
+        bool FilterExists(string sFilterName);
+        bool TokenizerExists(string tokenizerName);
+    }
+
+    public class ElasticSearchIndexDefinitions : IElasticSearchIndexDefinitions
     {
         private static readonly Lazy<ElasticSearchIndexDefinitions> LazyInstance = new Lazy<ElasticSearchIndexDefinitions>(() =>
             new ElasticSearchIndexDefinitions(Utils.Instance), LazyThreadSafetyMode.PublicationOnly);

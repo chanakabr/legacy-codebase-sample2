@@ -7,6 +7,7 @@ using KLogMonitor;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -19,53 +20,76 @@ namespace EventBus.Kafka
         private const string PARTNER_ID_HEADER = "partnerId";
         private const string USER_ID_HEADER = "userId";
         private static IProducer<string, string> _Producer = null;
-        private static KafkaPublisher _Instance = null;
+        private static KafkaPublisher _RandomProducerInstance = null;
+        private static KafkaPublisher _ConsistantProducerInstance = null;
         private static object locker = new object();
 
         private bool _IsHealthy = true;
 
-        public static IEventBusPublisher GetFromTcmConfiguration()
+        public static IEventBusPublisher GetFromTcmConfiguration(bool useRandomPartitioner=true)
         {
-            if (_Instance == null)
+            if (useRandomPartitioner)
+            {
+                if (_RandomProducerInstance == null)
+                {
+                    lock (locker)
+                    {
+                        var tcmConfig = ApplicationConfiguration.Current.KafkaClientConfiguration;
+                        if (_RandomProducerInstance != null) return _RandomProducerInstance;
+                        _RandomProducerInstance = GetKafkaPublisher(tcmConfig, Partitioner.Murmur2Random);
+                    }
+                }
+                return _RandomProducerInstance;
+            }
+
+            if (_ConsistantProducerInstance == null) 
             {
                 lock (locker)
                 {
-                    if (_Instance == null)
-                    {
-                        var tcmConfig = ApplicationConfiguration.Current.KafkaClientConfiguration;
-                        var producerConfig = new ProducerConfig
-                        {
-                            BootstrapServers = tcmConfig.BootstrapServers.Value,
-                            SocketTimeoutMs = tcmConfig.SocketTimeoutMs.Value,
-                            ClientId = KLogger.GetServerName(),
-                            // TODO: talk to eli about partition implementation in golang
-                            Partitioner = Partitioner.Murmur2Random,
-                        };
-
-                        // create topic for health check if it doesn't exist
-                        using (var adminClient = new AdminClientBuilder(new AdminClientConfig { BootstrapServers = tcmConfig.BootstrapServers.Value }).Build())
-                        {
-                            try
-                            {
-                                  var createTopicsResult = adminClient.CreateTopicsAsync(new TopicSpecification[] {
-                                    new TopicSpecification {
-                                        Name = ApplicationConfiguration.Current.KafkaClientConfiguration.HealthCheckTopic.Value,
-                                        ReplicationFactor = 1,
-                                        NumPartitions = 1 } });
-                            }
-                            catch (CreateTopicsException e)
-                            {
-                                _Logger.Error($"An error occured creating topic {e.Results[0].Topic}: {e.Results[0].Error.Reason}", e);
-                            }
-                        }
-
-                        var producerFactory = new KafkaProducerFactory<string, string>(producerConfig);
-                        _Instance = new KafkaPublisher(producerFactory);
-                    }
+                    var tcmConfig = ApplicationConfiguration.Current.KafkaClientConfiguration;
+                    if (_ConsistantProducerInstance != null) return _ConsistantProducerInstance;
+                    _ConsistantProducerInstance = GetKafkaPublisher(tcmConfig, Partitioner.Murmur2);
+                    
                 }
             }
-            
-            return _Instance;
+            return _ConsistantProducerInstance;
+        }
+
+        public static KafkaPublisher GetKafkaPublisher(KafkaClientConfiguration tcmConfig, Partitioner partitioner)
+        {
+            var producerConfig = new ProducerConfig
+            {
+                BootstrapServers = tcmConfig.BootstrapServers.Value,
+                SocketTimeoutMs = tcmConfig.SocketTimeoutMs.Value,
+                ClientId = KLogger.GetServerName(),
+                Partitioner = partitioner,
+            };
+
+            // create topic for health check if it doesn't exist
+            using (var adminClient =
+                new AdminClientBuilder(new AdminClientConfig {BootstrapServers = tcmConfig.BootstrapServers.Value}).Build())
+            {
+                try
+                {
+                    var createTopicsResult = adminClient.CreateTopicsAsync(new TopicSpecification[]
+                    {
+                        new TopicSpecification
+                        {
+                            Name = ApplicationConfiguration.Current.KafkaClientConfiguration.HealthCheckTopic.Value,
+                            ReplicationFactor = 1,
+                            NumPartitions = 1
+                        }
+                    });
+                }
+                catch (CreateTopicsException e)
+                {
+                    _Logger.Error($"An error occured creating topic {e.Results[0].Topic}: {e.Results[0].Error.Reason}", e);
+                }
+            }
+
+            var producerFactory = new KafkaProducerFactory<string, string>(producerConfig);
+            var puvlisher = new KafkaPublisher(producerFactory);
+            return puvlisher;
         }
 
         public KafkaPublisher(IKafkaProducerFactory<string, string> producerFactory)
@@ -80,12 +104,12 @@ namespace EventBus.Kafka
 
         public void Publish(IEnumerable<ServiceEvent> serviceEvents)
         {
-            if (serviceEvents != null)
+            if (serviceEvents == null)
+                return;
+
+            foreach (ServiceEvent serviceEvent in serviceEvents)
             {
-                foreach (ServiceEvent serviceEvent in serviceEvents)
-                {
-                    Publish(serviceEvent, false);
-                }
+                Publish(serviceEvent, false);
             }
         }
 
@@ -107,8 +131,8 @@ namespace EventBus.Kafka
             {
                 msg.Value = JsonConvert.SerializeObject(serviceEvent);
             }
-
-            using (var kmon = new KLogMonitor.KMonitor(Events.eEvent.EVENT_KAFKA, groupId, "kafka.publish", reqId) { Database = topic, Table = key })
+            
+            using (var kmon = new KMonitor(Events.eEvent.EVENT_KAFKA, groupId, "kafka.publish", reqId) { Database = topic, Table = key })
             {                
                 _Producer.Produce(topic, msg, DeliveryHandler);
             }

@@ -7,6 +7,7 @@ using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
+using Core.Catalog.Cache;
 using Core.Catalog.Response;
 using Core.GroupManagers;
 using DAL;
@@ -21,6 +22,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
@@ -34,6 +36,9 @@ namespace Core.Catalog.CatalogManagement
         void InvalidateCatalogGroupCache(int groupId, Status resultStatus, bool shouldCheckResultObject, object resultObject = null);
         bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds,
                                                                         long assetStructId, long userId, List<long> relatedEntitiesTopicIds, bool shouldDeleteRelatedEntities);
+        Dictionary<int, Media> GetGroupMedia(int groupId, long mediaId, CatalogGroupCache catalogGroupCache);
+        
+        void GetLinearChannelValues(List<EpgCB> lEpg, int groupID, Action<EpgCB> action);
     }
 
     public class CatalogManager : ICatalogManager
@@ -50,6 +55,7 @@ namespace Core.Catalog.CatalogManagement
         internal const string OPC_UI_MANDATORY = "mandatory";
 
         public const string LINEAR_ASSET_STRUCT_SYSTEM_NAME = "Linear";
+        public const int CURRENT_REQUEST_DAYS_OFFSET_DEFAULT = 7;
 
         #endregion
 
@@ -2128,8 +2134,8 @@ namespace Core.Catalog.CatalogManagement
 
                 if (!isFromIngest)
                 {
-                    ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                    result.SetStatus(wrapper.UpdateTag(groupId, catalogGroupCache, result.Object));
+                    var indexManager = IndexManagerFactory.GetInstance(groupId);
+                    result.SetStatus(indexManager.UpdateTag(result.Object));
                 }
             }
             catch (Exception ex)
@@ -2217,11 +2223,6 @@ namespace Core.Catalog.CatalogManagement
                     //
                     InvalidateCacheAndUpdateIndexForAssets(groupId, false, mediaIds, epgIds);
 
-                    if (!PartialTagIndexUpdate(groupId, topic.SystemName, tagToUpdate.value, result.Object.value, string.Empty, mediaIds, epgIds))
-                    {
-                        log.ErrorFormat("Failed to PartialTagIndexUpdate after UpdateTag for groupId: {0}, tagId: {1}", groupId, tagToUpdate.tagId);
-                    }
-
                     if (shouldUpdateOtherNames)
                     {
                         foreach (var pair in languageCodeToName)
@@ -2232,65 +2233,17 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 originalValue = tagInOtherLanguage.m_sValue;
                             }
-
-                            PartialTagIndexUpdate(groupId, topic.SystemName, pair.Value, originalValue, pair.Key, mediaIds, epgIds);
                         }
                     }
 
-                    ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                    result.SetStatus(wrapper.UpdateTag(groupId, catalogGroupCache, result.Object));
+                    var indexManager = IndexManagerFactory.GetInstance(groupId);
+                    result.SetStatus(indexManager.UpdateTag(result.Object));
                 }
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed UpdateTag for groupId: {0}, id: {1} and tagToUpdate: {2}", groupId, tagToUpdate.tagId, tagToUpdate.ToString()), ex);
             }
-
-            return result;
-        }
-
-        private static bool PartialTagIndexUpdate(int groupId, string fieldName, string newValue, string originalValue, string languageCode, List<int> mediaIds, List<int> epgIds)
-        {
-            var result = true;
-
-            if (mediaIds?.Any() == true)
-            {
-                result &= EnqueuePatialUpdateEvent(groupId, fieldName, newValue, originalValue, languageCode, mediaIds);
-            }
-
-            if (epgIds?.Any() == true)
-            {
-                result &= EnqueuePatialUpdateEvent(groupId, fieldName, newValue, originalValue, languageCode, epgIds);
-            }
-
-            return result;
-        }
-
-        private static bool EnqueuePatialUpdateEvent(int groupId, string fieldName, string newValue, string originalValue, string languageCode, List<int> assetIds)
-        {
-            bool result;
-            var queue = new CatalogQueue();
-            var mediaQueueCeleryData = new PartialUpdateData(groupId,
-               new AssetsPartialUpdate()
-               {
-                   AssetIds = assetIds,
-                   AssetType = eObjectType.Media,
-                   Updates = new List<PartialUpdate>()
-                   {
-                            new PartialUpdate()
-                            {
-                                Action = eUpdateFieldAction.Replace,
-                                FieldName = fieldName,
-                                FieldType = eUpdateFieldType.Tag,
-                                LanguageCode = languageCode,
-                                NewValue = newValue,
-                                OriginalValue = originalValue,
-                                ShouldUpdateAllLanguages = false
-                            }
-                   }
-               });
-
-            result = queue.Enqueue(mediaQueueCeleryData, string.Format("PROCESS_PARTIAL_UPDATE\\{0}", groupId));
 
             return result;
         }
@@ -2316,8 +2269,8 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.DeleteTag(groupId, tagId, userId))
                 {
-                    ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-                    tagResponse.SetStatus(wrapper.DeleteTag(groupId, catalogGroupCache, tagId));
+                    var wrapper = IndexManagerFactory.GetInstance(groupId);
+                    tagResponse.SetStatus(wrapper.DeleteTag(tagId));
                     if (!tagResponse.HasObject())
                     {
                         return tagResponse.Status;
@@ -2422,8 +2375,8 @@ namespace Core.Catalog.CatalogManagement
             };
 
             int totalItemsCount = 0;
-            ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
-            List<ApiObjects.SearchObjects.TagValue> tagValues = wrapper.SearchTags(definitions, catalogGroupCache, out totalItemsCount);
+            var indexManager = IndexManagerFactory.GetInstance(groupId);
+            List<ApiObjects.SearchObjects.TagValue> tagValues = indexManager.SearchTags(definitions, out totalItemsCount);
             HashSet<long> tagIds = new HashSet<long>();
 
             foreach (ApiObjects.SearchObjects.TagValue tagValue in tagValues)
@@ -2468,7 +2421,7 @@ namespace Core.Catalog.CatalogManagement
 
         public List<ApiObjects.SearchObjects.TagValue> GetTagValues(int groupId, List<long> idIn, int pageIndex, int pageSize, out int totalItemsCount)
         {
-            var res = new List<ApiObjects.SearchObjects.TagValue>();
+            var result = new List<ApiObjects.SearchObjects.TagValue>();
             totalItemsCount = 0;
 
             try
@@ -2476,19 +2429,26 @@ namespace Core.Catalog.CatalogManagement
                 if (!TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
                 {
                     log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling SearchTags", groupId);
-                    return res;
+                    return result;
                 }
 
-                return new ElasticsearchWrapper().SearchTags(
-                    new TagSearchDefinitions() { GroupId = groupId, PageIndex = pageIndex, PageSize = pageSize, TagIds = idIn },
-                    catalogGroupCache,
-                       out totalItemsCount);
+                var indexManager = IndexManagerFactory.GetInstance(groupId);
+                var tagDefinitions = new TagSearchDefinitions() 
+                {
+                    GroupId = groupId, 
+                    PageIndex = pageIndex, 
+                    PageSize = pageSize, 
+                    TagIds = idIn
+                };
+
+                result = indexManager.SearchTags(tagDefinitions, out totalItemsCount);
             }
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed SearchTags for groupId: {0}", groupId), ex);
-                return res;
             }
+
+            return result;
         }
 
         public GenericResponse<AssetStructMeta> UpdateAssetStructMeta(long assetStructId, long metaId, AssetStructMeta assetStructMeta, int groupId, long userId)
@@ -2991,7 +2951,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (asset.SearchEndDate == DateTime.MinValue)
                         {
-                            asset.SearchEndDate = IndexManager.GetProgramSearchEndDate(groupId, asset.EpgChannelId.Value.ToString(), asset.EndDate.Value);
+                            asset.SearchEndDate = GetProgramSearchEndDate(groupId, asset.EpgChannelId.Value.ToString(), asset.EndDate.Value);
                         }
 
                         userMediaMark.ExpiredAt = DateUtils.ToUtcUnixTimestampSeconds(asset.SearchEndDate);
@@ -3003,5 +2963,117 @@ namespace Core.Catalog.CatalogManagement
         }
 
         #endregion
+
+        public Dictionary<int, Media> GetGroupMedia(int groupId, long mediaId, CatalogGroupCache catalogGroupCache)
+        {
+            var mediaTranslations = new Dictionary<int, Media>();
+
+            //temporary media dictionary
+            Dictionary<int, Media> medias = new Dictionary<int, Media>();
+
+            try
+            {
+                if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
+                {
+                    var dictionary = AssetManager.GetMediaForElasticSearchIndex(groupId, mediaId);
+                    return dictionary.ContainsKey((int)mediaId) ? dictionary[(int)mediaId] : null;
+                }
+
+                GroupManager groupManager = new GroupManager();
+                Group group = groupManager.GetGroup(groupId);
+
+                if (group == null)
+                {
+                    log.Error("Error - Could not load group from cache in GetGroupMedias");
+                    return mediaTranslations;
+                }
+
+                ApiObjects.LanguageObj defaultLangauge = group.GetGroupDefaultLanguage();
+                if (defaultLangauge == null)
+                {
+                    log.Error("Error - Could not get group default language from cache in GetGroupMedias");
+                    return mediaTranslations;
+                }
+
+                ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_GroupMedias_ml");
+                storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
+                storedProcedure.AddParameter("@GroupID", groupId);
+                storedProcedure.AddParameter("@MediaID", mediaId);
+
+                DataSet dataSet = storedProcedure.ExecuteDataSet();
+
+                Dictionary<int, Dictionary<int, Media>> refDictionary = new Dictionary<int, Dictionary<int, Media>>();
+                Utils.BuildMediaFromDataSet(ref refDictionary, ref medias, group, dataSet, (int)mediaId, catalogGroupCache);
+                mediaTranslations = refDictionary.ContainsKey((int)mediaId) ? refDictionary[(int)mediaId] : null;
+
+                // get media update dates
+                DataTable updateDates = CatalogDAL.Get_MediaUpdateDate(new List<int>() { (int)mediaId });
+            }
+            catch (Exception ex)
+            {
+                log.Error("Media Exception", ex);
+            }
+
+            return mediaTranslations;
+        }
+
+        public void GetLinearChannelValues(List<EpgCB> lEpg, int groupID, Action<EpgCB> action)
+        {
+            try
+            {
+                List<string> epgChannelIds = lEpg.Distinct().Select(item => item.ChannelID.ToString()).ToList<string>();
+                Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupID, epgChannelIds);
+
+                Parallel.ForEach(lEpg.Cast<EpgCB>(), currentElement =>
+                {
+                    currentElement.SearchEndDate = GetProgramSearchEndDate(groupID, currentElement.ChannelID.ToString(), currentElement.EndDate, linearChannelSettings);
+                    action?.Invoke(currentElement);
+                });
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error - Update EPGs threw an exception. (in GetLinearChannelValues). Exception={ex.Message};Stack={ex.StackTrace}", ex);
+                throw ex;
+            }
+        }
+
+        public DateTime GetProgramSearchEndDate(int groupId, string channelId, DateTime endDate, Dictionary<string, LinearChannelSettings> linearChannelSettings = null)
+        {
+            DateTime searchEndDate = DateTime.MinValue;
+            try
+            {
+                int days = ApplicationConfiguration.Current.CatalogLogicConfiguration.CurrentRequestDaysOffset.Value;
+
+                if (days == 0)
+                {
+                    days = CURRENT_REQUEST_DAYS_OFFSET_DEFAULT;
+                }
+
+                if (linearChannelSettings == null)
+                {
+                    linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { channelId });
+                }
+
+                if (!linearChannelSettings.ContainsKey(channelId))
+                {
+                    searchEndDate = endDate.AddDays(days);
+                }
+                else if (linearChannelSettings[channelId].EnableCatchUp)
+                {
+                    searchEndDate =
+                        endDate.AddMinutes(linearChannelSettings[channelId].CatchUpBuffer);
+                }
+                else
+                {
+                    searchEndDate = endDate;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("error while Getting program search end date", ex);
+            }
+
+            return searchEndDate;
+        }
     }
 }

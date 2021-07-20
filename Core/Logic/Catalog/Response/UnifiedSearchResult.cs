@@ -12,22 +12,14 @@ namespace Core.Catalog.Response
     public class UnifiedSearchResult : BaseObject
     {
         [DataMember]
-        public double Score
-        {
-            get;
-            set;
-        }
+        public double Score { get; set; }
     }
 
     [DataContract]
     public class RecordingSearchResult : UnifiedSearchResult
     {
         [DataMember]
-        public string EpgId
-        {
-            get;
-            set;
-        }
+        public string EpgId { get; set; }
 
         [DataMember]
         public RecordingType? RecordingType { get; set; }
@@ -35,11 +27,9 @@ namespace Core.Catalog.Response
         [DataMember]
         public string RecordingId { get; set; }
 
-        public RecordingSearchResult()
-            : base() { }
+        public RecordingSearchResult() : base() { }
 
-        public RecordingSearchResult(ExtendedSearchResult extendedSearchResult)
-            : base()
+        public RecordingSearchResult(ExtendedSearchResult extendedSearchResult) : base()
         {
             AssetId = string.Empty;
             EpgId = extendedSearchResult.AssetId;

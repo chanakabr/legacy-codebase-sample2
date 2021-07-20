@@ -249,56 +249,6 @@ namespace Core.Catalog
             }
         }
 
-
-        //This method is used specifically for Lucene cases when we get a search result which does not consist of an update date (Lucene does not hold update_date
-        //within its documents and therefore we need to go to the DB and return the media update date
-        public static List<SearchResult> GetMediaUpdateDate(List<ApiObjects.SearchObjects.SearchResult> lSearchResults, int groupId)
-        {
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-            List<SearchResult> lMediaRes = new List<SearchResult>();
-            if (lSearchResults != null && lSearchResults.Count > 0)
-            {
-                if (searcher.GetType().Equals(typeof(LuceneWrapper)))
-                {
-                    List<int> mediaIds = lSearchResults.Select(item => item.assetID).ToList();
-
-                    DataTable dt = null;
-                    if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
-                    {
-                        dt = CatalogDAL.GetAssetUpdateDate(mediaIds, eObjectType.Media);
-                    }
-                    else
-                    {
-                        dt = CatalogDAL.Get_MediaUpdateDate(mediaIds);
-                    }
-
-                    SearchResult oMediaRes = new SearchResult();
-                    if (dt != null)
-                    {
-                        if (dt.Columns != null)
-                        {
-                            for (int i = 0; i < dt.Rows.Count; i++)
-                            {
-                                oMediaRes.assetID = Utils.GetIntSafeVal(dt.Rows[i], "ID");
-                                if (!string.IsNullOrEmpty(dt.Rows[i]["UPDATE_DATE"].ToString()))
-                                {
-                                    oMediaRes.UpdateDate = System.Convert.ToDateTime(dt.Rows[i]["UPDATE_DATE"].ToString());
-                                }
-                                lMediaRes.Add(oMediaRes);
-                                oMediaRes = new SearchResult();
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    lMediaRes = lSearchResults.Select(item => new SearchResult() { assetID = item.assetID, UpdateDate = item.UpdateDate }).ToList();
-                }
-            }
-
-            return lMediaRes;
-        }
-
         public static List<SearchResult> GetMediaUpdateDate(int nParentGroupID, List<int> lMediaIDs)
         {
             List<SearchResult> lMediaRes = new List<SearchResult>();
@@ -306,9 +256,9 @@ namespace Core.Catalog
             if (lMediaIDs == null || lMediaIDs.Count == 0)
                 return lMediaRes;
 
-            ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+            var indexManager = IndexManagerFactory.GetInstance(nParentGroupID);
 
-            var assetsUpdateDates = wrapper.GetAssetsUpdateDate(nParentGroupID, eObjectType.Media, lMediaIDs);
+            var assetsUpdateDates = indexManager.GetAssetsUpdateDate(eObjectType.Media, lMediaIDs);
 
             Dictionary<int, SearchResult> idToSearchResult = assetsUpdateDates.ToDictionary<SearchResult, int>(item => item.assetID);
 
@@ -368,98 +318,6 @@ namespace Core.Catalog
             }
 
             return sResult;
-        }
-
-        public static List<int> SlidingWindowStatisticsAggregations(int nGroupId, List<int> lMediaIds,
-            DateTime dtStartDate, string action, string valueField, AggregationsComparer.eCompareType compareType)
-        {
-            List<int> result = new List<int>();
-
-            #region Define Aggregations Query
-            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 1 };
-            filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
-
-            BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
-            filter.AddChild(new ESTerm(true) { Key = "group_id", Value = nGroupId.ToString() });
-
-            #region define date filter
-            ESRange dateRange = new ESRange(false) { Key = "action_date" };
-            string sMax = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-            string sMin = dtStartDate.ToString("yyyyMMddHHmmss");
-            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-            dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
-            filter.AddChild(dateRange);
-            #endregion
-
-            #region define action filter
-            ESTerm esActionTerm = new ESTerm(false) { Key = "action", Value = action };
-            filter.AddChild(esActionTerm);
-            #endregion
-
-            #region define media id filter
-            ESTerms esMediaIdTerms = new ESTerms(true) { Key = "media_id" };
-            esMediaIdTerms.Value.AddRange(lMediaIds.Select(item => item.ToString()));
-            filter.AddChild(esMediaIdTerms);
-            #endregion
-
-            filteredQuery.Filter.FilterSettings = filter;
-
-            var aggregations = new ESBaseAggsItem()
-            {
-                Name = "sliding_window",
-                Field = "media_id",
-                Type = eElasticAggregationType.terms,
-            };
-
-            aggregations.SubAggrgations.Add(new ESBaseAggsItem()
-            {
-                Name = "sub_stats",
-                Type = eElasticAggregationType.stats,
-                Field = CatalogLogic.STAT_ACTION_RATE_VALUE_FIELD
-            });
-
-            filteredQuery.Aggregations.Add(aggregations);
-
-            #endregion
-
-            string aggregationsQuery = filteredQuery.ToString();
-
-
-            //Search
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
-            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
-
-            if (!string.IsNullOrEmpty(retval))
-            {
-                //Get aggregations results
-                Dictionary<string, List<StatisticsAggregationResult>> statisticsResults =
-                    ESAggregationsResult.DeserializeStatisticsAggregations(retval, "sub_stats");
-
-                if (statisticsResults != null && statisticsResults.Count > 0)
-                {
-                    List<StatisticsAggregationResult> aggregationResults;
-                    //retrieve channel_views aggregations results
-                    statisticsResults.TryGetValue("sliding_window", out aggregationResults);
-
-                    if (aggregationResults != null && aggregationResults.Count > 0)
-                    {
-                        int mediaId;
-
-                        aggregationResults.Sort(new AggregationsComparer(compareType));
-
-                        foreach (var stats in aggregationResults)
-                        {
-                            if (int.TryParse(stats.key, out mediaId))
-                            {
-                                result.Add(mediaId);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return result;
         }
 
         public static bool KeyInGroupTags(int nGroupID, string sTagType)
@@ -1376,17 +1234,11 @@ namespace Core.Catalog
                         groupId = funcParams["groupId"] as int?;
                         mediaId = funcParams["mediaId"] as int?;
 
-                        ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-                        if (searcher != null)
+                        if (groupId.HasValue && mediaId.HasValue)
                         {
-                            if (searcher is ElasticsearchWrapper)
-                            {
-                                if (groupId.HasValue && mediaId.HasValue)
-                                {
-                                    result = searcher.GetMediaChannels(groupId.Value, mediaId.Value);
+                        IIndexManager indexManager = IndexManagerFactory.GetInstance(groupId.Value);
+                                    result = indexManager.GetMediaChannels(mediaId.Value);
                                     res = true;
-                                }
-                            }
                         }
                     }
                 }

@@ -119,11 +119,11 @@ namespace Core.Catalog.Request
                 CatalogDAL.Get_ChannelsByBundles(m_nGroupID, subs, cols, ref channelsToSubsMapping,
                     ref channelsToColsMapping);
 
-                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+                IIndexManager indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
 
                 response = new BundlesContainingMediaResponse(m_oBundles);
 
-                List<int> channelsOfMedia = searcher.GetMediaChannels(m_nGroupID, m_nMediaID);
+                List<int> channelsOfMedia = indexManager.GetMediaChannels(m_nMediaID);
 
                 FillResponse(channelsOfMedia, channelsToSubsMapping, channelsToColsMapping, ref response);
 

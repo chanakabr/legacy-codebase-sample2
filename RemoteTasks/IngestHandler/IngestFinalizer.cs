@@ -22,12 +22,11 @@ namespace IngestHandler
 {
     public class IngestFinalizer
     {
-        private const string INDEX_REFRESH_INTERVAL = "10s";
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
 
         private BulkUpload _bulkUpload;
-        private readonly ElasticSearchApi _elasticSearchClient;
+        private readonly IIndexManager _indexManager;
         private readonly RetryPolicy _ingestRetryPolicy;
         private readonly BulkUploadResultsDictionary _relevantResults;
         private readonly DateTime _dateOfProgramsToIngest;
@@ -36,9 +35,10 @@ namespace IngestHandler
         private readonly EpgNotificationManager _notificationManager;
 
 
-        public IngestFinalizer(BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults, DateTime dateOfProgramsToIngest, string requestId)
+        public IngestFinalizer(BulkUpload bulkUpload, BulkUploadResultsDictionary relevantResults,
+            DateTime dateOfProgramsToIngest, string requestId, IIndexManager indexManager)
         {
-            _elasticSearchClient = new ElasticSearchApi();
+            _indexManager = indexManager;
             _ingestRetryPolicy = GetRetryPolicy<Exception>();
             _bulkUpload = bulkUpload;
             _relevantResults = relevantResults;
@@ -55,8 +55,7 @@ namespace IngestHandler
                 _logger.Debug($"Starting IngestFinalizer BulkUploadId:[{_bulkUpload.Id}]");
 
 
-                var dailyEpgIndexName = IndexManager.GetDailyEpgIndexName(_bulkUpload.GroupId, _dateOfProgramsToIngest);
-                var isRefreshSuccess = IndexManager.ForceRefresh(dailyEpgIndexName);
+                var isRefreshSuccess = _indexManager.FinalizeEpgV2Index(_dateOfProgramsToIngest);
 
                 if (!isRefreshSuccess)
                 {
@@ -72,7 +71,14 @@ namespace IngestHandler
                 if (BulkUpload.IsProcessCompletedByStatus(newStatus))
                 {
                     _logger.Debug($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}], Final part of bulk is marked, status is: [{newStatus}], finlizing bulk object");
-                    RefreshAllIndexes();
+                    bool finalizeResult = _indexManager.FinalizeEpgV2Indices(_bulkUploadJobData.DatesOfProgramsToIngest.ToList(), _ingestRetryPolicy);
+
+                    if (!finalizeResult)
+                    {
+                        _logger.Error($"BulkUploadId [{_bulkUpload.Id}], Date:[{_dateOfProgramsToIngest}] > index set refresh to -1 failed ]");
+                        throw new Exception("Could not set index refresh interval");
+                    }
+
                     InvalidateEpgAssets();
                     BulkUploadResultsDictionary bulkUploadResultsDictionaries = _bulkUpload.ConstructResultsDictionary();
                     var operations = CalculateOperations(bulkUploadResultsDictionaries);
@@ -126,26 +132,6 @@ namespace IngestHandler
             }
 
             return Task.CompletedTask;
-        }
-
-        private void RefreshAllIndexes()
-        {
-            var indexes = _bulkUploadJobData.DatesOfProgramsToIngest.Select(x => IndexManager.GetDailyEpgIndexName(_bulkUpload.GroupId, x));
-
-            foreach (var indexName in indexes)
-            {
-                if (!_elasticSearchClient.IndexExists(indexName)) { continue; }
-
-                _ingestRetryPolicy.Execute(() =>
-                {
-                    var isSetRefreshSuccess = _elasticSearchClient.UpdateIndexRefreshInterval(indexName, INDEX_REFRESH_INTERVAL);
-                    if (!isSetRefreshSuccess)
-                    {
-                        _logger.Error($"BulkUploadId [{_bulkUpload.Id}], Date:[{_dateOfProgramsToIngest}] > index set refresh to -1 failed [{isSetRefreshSuccess}]]");
-                        throw new Exception("Could not set index refresh interval");
-                    }
-                });
-            }
         }
 
 

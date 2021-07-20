@@ -10,6 +10,7 @@ using GroupsCacheManager;
 using KLogMonitor;
 using Tvinci.Core.DAL;
 using ApiObjects.Catalog;
+using ApiObjects.Statistics;
 
 namespace Core.Catalog.Request
 {
@@ -88,12 +89,21 @@ namespace Core.Catalog.Request
                 m_nGroupID = nParentGroupID,
             };
 
-            string sJson = Newtonsoft.Json.JsonConvert.SerializeObject(comment);
-            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            Guid guid = Guid.NewGuid();
 
-            bResult = esApi.InsertRecord(ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nParentGroupID), ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJson);
-
+            var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+            bResult = indexManager.InsertSocialStatisticsData(new Comment()
+            {
+                Date = DateTime.UtcNow,
+                GroupID = nParentGroupID,
+                MediaID = m_nAssetID,
+                MediaType = CatalogDAL.Get_MediaTypeIdByMediaId(oCommentReq.m_nAssetID).ToString(),
+                m_nLang = oCommentReq.m_oFilter.m_nLanguage,
+                m_sContentText = oCommentReq.m_sContentText,
+                m_sHeader = oCommentReq.m_sHeader,
+                m_sSubHeader = oCommentReq.m_sSubHeader,
+                m_sWriter = oCommentReq.m_sWriter
+            });
+                
             return bResult;
         }
 

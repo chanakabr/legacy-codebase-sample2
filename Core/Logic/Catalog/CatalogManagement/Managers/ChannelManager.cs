@@ -736,9 +736,9 @@ namespace Core.Catalog.CatalogManagement
                     AssetUserRuleId = assetUserRuleId
                 };
 
-                ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                var indexManager = IndexManagerFactory.GetInstance(groupId);
                 int totalItems = 0;
-                List<int> channelIds = wrapper.SearchChannels(definitions, ref totalItems);
+                List<int> channelIds = indexManager.SearchChannels(definitions, ref totalItems);
                 result = GetChannelsListResponseByChannelIds(groupId, channelIds, isAllowedToViewInactiveAssets, totalItems);
             }
             catch (Exception ex)
@@ -928,7 +928,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     CreateVirtualChannel(groupId, userId, response.Object);
 
-                    bool updateResult = IndexManager.UpsertChannel(groupId, response.Object.m_nChannelID, response.Object, userId);
+                    bool updateResult = IndexManagerFactory.GetInstance(groupId).UpsertChannel(response.Object.m_nChannelID, response.Object, userId);
                     if (!updateResult)
                     {
                         log.ErrorFormat("Failed update channel index with id: {0} after AddChannel", response.Object.m_nChannelID);
@@ -1166,7 +1166,7 @@ namespace Core.Catalog.CatalogManagement
                             UpdateVirtualAsset(groupId, userId, response.Object);
                         }
 
-                        bool updateResult = IndexManager.UpsertChannel(groupId, response.Object.m_nChannelID, response.Object, userId);
+                        bool updateResult = IndexManagerFactory.GetInstance(groupId).UpsertChannel(response.Object.m_nChannelID, response.Object, userId);
                         if (!updateResult)
                         {
                             log.ErrorFormat("Failed update channel index with id: {0} after UpdateChannel", channelId);
@@ -1280,7 +1280,7 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
 
-                        deleteResult = IndexManager.DeleteChannel(groupId, channelId);
+                        deleteResult = IndexManagerFactory.GetInstance(groupId).DeleteChannel(channelId);
                     }
                     else
                     {

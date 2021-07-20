@@ -1633,11 +1633,19 @@ namespace Core.Api
             rmo.Initialize(nVotesSum, nVotesCnt, dAvg);
 
             int mediaType = Tvinci.Core.DAL.CatalogDAL.Get_MediaTypeIdByMediaId(nMediaID);
-
+            
             // Insert statistic record to ElasticSearch
-            ElasticSearch.Utilities.ESStatisticsUtilities.InsertSocialActionStatistics(
-                nGroupID, nMediaID, mediaType, eUserAction.RATES, nRateVal);
-            //InsertStatisticsToES(nGroupID, nMediaID, eUserAction.RATES, nRateVal);
+            var indexManager = IndexManagerFactory.GetInstance(nGroupID);
+            indexManager.InsertSocialStatisticsData(
+                new ApiObjects.Statistics.SocialActionStatistics()
+                { 
+                    Action = eUserAction.RATES.ToString().ToLower(),
+                    RateValue = nRateVal,
+                    GroupID = nGroupID,
+                    MediaID = nMediaID,
+                    MediaType = mediaType.ToString()
+
+                });
 
             return rmo;
         }

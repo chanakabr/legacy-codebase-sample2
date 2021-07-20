@@ -26,9 +26,10 @@ using WebAPI.Models.Segmentation;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
-using WebAPI.Models.CanaryDeployment;
+using WebAPI.Models.CanaryDeployment.Microservices;
 using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
+using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Controllers;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
@@ -1342,46 +1343,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "KalturaCanaryDeploymentConfiguration":
-                    switch(property.Name)
-                    {
-                        case "DataOwnerShip":
-                            return "dataOwnerShip";
-                        case "MigrationEvents":
-                            return "migrationEvents";
-                        case "RoutingConfiguration":
-                            return "routingConfiguration";
-                    }
-                    break;
-                    
-                case "KalturaCanaryDeploymentDataOwnerShip":
-                    switch(property.Name)
-                    {
-                        case "AuthenticationMsOwnerShip":
-                            return "authenticationMsOwnerShip";
-                    }
-                    break;
-                    
-                case "KalturaCanaryDeploymentMigrationEvents":
-                    switch(property.Name)
-                    {
-                        case "AppToken":
-                            return "appToken";
-                        case "DeviceLoginHistory":
-                            return "deviceLoginHistory";
-                        case "DevicePinCode":
-                            return "devicePinCode";
-                        case "RefreshToken":
-                            return "refreshToken";
-                        case "SessionRevocation":
-                            return "sessionRevocation";
-                        case "UserLoginHistory":
-                            return "userLoginHistory";
-                        case "UserPinCode":
-                            return "userPinCode";
-                    }
-                    break;
-                    
                 case "KalturaCaptionPlaybackPluginData":
                     switch(property.Name)
                     {
@@ -2639,6 +2600,16 @@ namespace WebAPI.Reflection
                             return "name";
                         case "OrderBy":
                             return "orderBy";
+                    }
+                    break;
+                    
+                case "KalturaElasticsearchCanaryDeploymentConfiguration":
+                    switch(property.Name)
+                    {
+                        case "ElasticsearchActiveVersion":
+                            return "elasticsearchActiveVersion";
+                        case "EnableMigrationEvents":
+                            return "enableMigrationEvents";
                     }
                     break;
                     
@@ -4547,6 +4518,46 @@ namespace WebAPI.Reflection
                     {
                         case "Metas":
                             return "objects";
+                    }
+                    break;
+                    
+                case "KalturaMicroservicesCanaryDeploymentConfiguration":
+                    switch(property.Name)
+                    {
+                        case "DataOwnerShip":
+                            return "dataOwnerShip";
+                        case "MigrationEvents":
+                            return "migrationEvents";
+                        case "RoutingConfiguration":
+                            return "routingConfiguration";
+                    }
+                    break;
+                    
+                case "KalturaMicroservicesCanaryDeploymentDataOwnerShip":
+                    switch(property.Name)
+                    {
+                        case "AuthenticationMsOwnerShip":
+                            return "authenticationMsOwnerShip";
+                    }
+                    break;
+                    
+                case "KalturaMicroservicesCanaryDeploymentMigrationEvents":
+                    switch(property.Name)
+                    {
+                        case "AppToken":
+                            return "appToken";
+                        case "DeviceLoginHistory":
+                            return "deviceLoginHistory";
+                        case "DevicePinCode":
+                            return "devicePinCode";
+                        case "RefreshToken":
+                            return "refreshToken";
+                        case "SessionRevocation":
+                            return "sessionRevocation";
+                        case "UserLoginHistory":
+                            return "userLoginHistory";
+                        case "UserPinCode":
+                            return "userPinCode";
                     }
                     break;
                     
@@ -8473,40 +8484,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "canarydeploymentconfiguration":
-                    switch(action)
-                    {
-                        case "delete":
-                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "delete", false);
-                            return CanaryDeploymentConfigurationController.Delete((int) methodParams[0]);
-                            
-                        case "get":
-                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "get", false);
-                            return CanaryDeploymentConfigurationController.Get((int) methodParams[0]);
-                            
-                        case "setallmigrationeventsstatus":
-                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setAllMigrationEventsStatus", false);
-                            return CanaryDeploymentConfigurationController.SetAllMigrationEventsStatus((int) methodParams[0], (bool) methodParams[1]);
-                            
-                        case "setallroutingactionstoms":
-                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setAllRoutingActionsToMs", false);
-                            return CanaryDeploymentConfigurationController.SetAllRoutingActionsToMs((int) methodParams[0]);
-                            
-                        case "setallroutingactionstophoenix":
-                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setAllRoutingActionsToPhoenix", false);
-                            return CanaryDeploymentConfigurationController.SetAllRoutingActionsToPhoenix((int) methodParams[0]);
-                            
-                        case "setmigrationeventstatus":
-                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setMigrationEventStatus", false);
-                            return CanaryDeploymentConfigurationController.SetMigrationEventStatus((int) methodParams[0], (KalturaCanaryDeploymentMigrationEvent) methodParams[1], (bool) methodParams[2]);
-                            
-                        case "setroutingaction":
-                            RolesManager.ValidateActionPermitted("canaryDeploymentConfiguration", "setRoutingAction", false);
-                            return CanaryDeploymentConfigurationController.SetRoutingAction((int) methodParams[0], (KalturaCanaryDeploymentRoutingAction) methodParams[1], (KalturaCanaryDeploymentRoutingService) methodParams[2]);
-                            
-                    }
-                    break;
-                    
                 case "category":
                     switch(action)
                     {
@@ -9026,6 +9003,28 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("dynamiclist", "list");
                             return DynamicListController.List((KalturaDynamicListFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "elasticsearchcanarydeploymentconfiguration":
+                    switch(action)
+                    {
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("elasticsearchCanaryDeploymentConfiguration", "delete", false);
+                            return ElasticsearchCanaryDeploymentConfiguration.Delete((int) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("elasticsearchCanaryDeploymentConfiguration", "get", false);
+                            return ElasticsearchCanaryDeploymentConfiguration.Get((int) methodParams[0]);
+                            
+                        case "setactiveversion":
+                            RolesManager.ValidateActionPermitted("elasticsearchCanaryDeploymentConfiguration", "setActiveVersion", false);
+                            return ElasticsearchCanaryDeploymentConfiguration.SetActiveVersion((int) methodParams[0], (KalturaElasticsearchVersion) methodParams[1]);
+                            
+                        case "setmigrationeventsstatus":
+                            RolesManager.ValidateActionPermitted("elasticsearchCanaryDeploymentConfiguration", "setMigrationEventsStatus", false);
+                            return ElasticsearchCanaryDeploymentConfiguration.SetMigrationEventsStatus((int) methodParams[0], (bool) methodParams[1]);
                             
                     }
                     break;
@@ -10044,6 +10043,40 @@ namespace WebAPI.Reflection
                         case "updateoldstandard":
                             RolesManager.ValidateActionPermitted("meta", "updateOldStandard", false);
                             return MetaController.UpdateOldStandard((string) methodParams[0], (KalturaMeta) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "microservicescanarydeploymentconfiguration":
+                    switch(action)
+                    {
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "delete", false);
+                            return MicroservicesCanaryDeploymentConfigurationController.Delete((int) methodParams[0]);
+                            
+                        case "get":
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "get", false);
+                            return MicroservicesCanaryDeploymentConfigurationController.Get((int) methodParams[0]);
+                            
+                        case "setallmigrationeventsstatus":
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setAllMigrationEventsStatus", false);
+                            return MicroservicesCanaryDeploymentConfigurationController.SetAllMigrationEventsStatus((int) methodParams[0], (bool) methodParams[1]);
+                            
+                        case "setallroutingactionstoms":
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setAllRoutingActionsToMs", false);
+                            return MicroservicesCanaryDeploymentConfigurationController.SetAllRoutingActionsToMs((int) methodParams[0]);
+                            
+                        case "setallroutingactionstophoenix":
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setAllRoutingActionsToPhoenix", false);
+                            return MicroservicesCanaryDeploymentConfigurationController.SetAllRoutingActionsToPhoenix((int) methodParams[0]);
+                            
+                        case "setmigrationeventstatus":
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setMigrationEventStatus", false);
+                            return MicroservicesCanaryDeploymentConfigurationController.SetMigrationEventStatus((int) methodParams[0], (KalturaCanaryDeploymentMicroservicesMigrationEvent) methodParams[1], (bool) methodParams[2]);
+                            
+                        case "setroutingaction":
+                            RolesManager.ValidateActionPermitted("microservicesCanaryDeploymentConfiguration", "setRoutingAction", false);
+                            return MicroservicesCanaryDeploymentConfigurationController.SetRoutingAction((int) methodParams[0], (KalturaCanaryDeploymentMicroservicesRoutingAction) methodParams[1], (KalturaCanaryDeploymentMicroservicesRoutingService) methodParams[2]);
                             
                     }
                     break;
@@ -13984,84 +14017,6 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
-                case "canarydeploymentconfiguration":
-                    switch(action)
-                    {
-                        case "delete":
-                            ret.Add("groupId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(int),
-                            });
-                            return ret;
-                            
-                        case "get":
-                            ret.Add("groupId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(int),
-                            });
-                            return ret;
-                            
-                        case "setallmigrationeventsstatus":
-                            ret.Add("groupId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(int),
-                            });
-                            ret.Add("status", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(bool),
-                            });
-                            return ret;
-                            
-                        case "setallroutingactionstoms":
-                            ret.Add("groupId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(int),
-                            });
-                            return ret;
-                            
-                        case "setallroutingactionstophoenix":
-                            ret.Add("groupId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(int),
-                            });
-                            return ret;
-                            
-                        case "setmigrationeventstatus":
-                            ret.Add("groupId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(int),
-                            });
-                            ret.Add("migrationEvent", new MethodParam(){
-                                NewName = newParamName,
-                                IsEnum = true,
-                                Type = typeof(KalturaCanaryDeploymentMigrationEvent),
-                            });
-                            ret.Add("status", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(bool),
-                            });
-                            return ret;
-                            
-                        case "setroutingaction":
-                            ret.Add("groupId", new MethodParam(){
-                                NewName = newParamName,
-                                Type = typeof(int),
-                            });
-                            ret.Add("routingAction", new MethodParam(){
-                                NewName = newParamName,
-                                IsEnum = true,
-                                Type = typeof(KalturaCanaryDeploymentRoutingAction),
-                            });
-                            ret.Add("routingService", new MethodParam(){
-                                NewName = newParamName,
-                                IsEnum = true,
-                                Type = typeof(KalturaCanaryDeploymentRoutingService),
-                            });
-                            return ret;
-                            
-                    }
-                    break;
-                    
                 case "category":
                     switch(action)
                     {
@@ -15029,6 +14984,49 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "elasticsearchcanarydeploymentconfiguration":
+                    switch(action)
+                    {
+                        case "delete":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "setactiveversion":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("activeVersion", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaElasticsearchVersion),
+                            });
+                            return ret;
+                            
+                        case "setmigrationeventsstatus":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("status", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(bool),
                             });
                             return ret;
                             
@@ -17246,6 +17244,84 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaMeta),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "microservicescanarydeploymentconfiguration":
+                    switch(action)
+                    {
+                        case "delete":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "get":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "setallmigrationeventsstatus":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("status", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(bool),
+                            });
+                            return ret;
+                            
+                        case "setallroutingactionstoms":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "setallroutingactionstophoenix":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "setmigrationeventstatus":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("microservicesMigrationEvent", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaCanaryDeploymentMicroservicesMigrationEvent),
+                            });
+                            ret.Add("status", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(bool),
+                            });
+                            return ret;
+                            
+                        case "setroutingaction":
+                            ret.Add("groupId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("microservicesRoutingAction", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaCanaryDeploymentMicroservicesRoutingAction),
+                            });
+                            ret.Add("microservicesRoutingService", new MethodParam(){
+                                NewName = newParamName,
+                                IsEnum = true,
+                                Type = typeof(KalturaCanaryDeploymentMicroservicesRoutingService),
                             });
                             return ret;
                             

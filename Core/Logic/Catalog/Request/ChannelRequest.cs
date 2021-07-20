@@ -161,48 +161,6 @@ namespace Core.Catalog.Request
             return bResult;
         }
 
-        public static List<int> OrderMediaBySlidingWindow(int nGroupId, ApiObjects.SearchObjects.OrderBy orderBy, bool isDesc, int pageSize, int PageIndex, List<int> media, DateTime windowTime)
-        {
-            List<int> result;
-            DateTime now = DateTime.UtcNow;
-            switch (orderBy)
-            {
-                case OrderBy.VIEWS:
-
-                    result = CatalogLogic.SlidingWindowCountAggregations(nGroupId, media, windowTime, now, CatalogLogic.STAT_ACTION_FIRST_PLAY);
-                    break;
-                case OrderBy.RATING:
-                    result = CatalogLogic.SlidingWindowStatisticsAggregations(nGroupId, media, windowTime, now, CatalogLogic.STAT_ACTION_RATES, CatalogLogic.STAT_ACTION_RATE_VALUE_FIELD,
-                        ElasticSearch.Searcher.AggregationsComparer.eCompareType.Average);
-                    break;
-                case OrderBy.VOTES_COUNT:
-                    result = CatalogLogic.SlidingWindowCountAggregations(nGroupId, media, windowTime, now, CatalogLogic.STAT_ACTION_RATES);
-                    break;
-                case OrderBy.LIKE_COUNTER:
-                    result = CatalogLogic.SlidingWindowCountAggregations(nGroupId, media, windowTime, now, CatalogLogic.STAT_ACTION_LIKE);
-                    break;
-                default:
-                    result = media;
-                    break;
-            }
-
-            if (result != null && result.Count > 0)
-            {
-                // all results are returned ordered by descending
-                if (isDesc)
-                {
-                    result = Utils.ListPaging(result, pageSize, PageIndex);
-                }
-                else
-                {
-                    result.Reverse();
-                    result = Utils.ListPaging(result, pageSize, PageIndex);
-                }
-            }
-
-            return result;
-        }
-
         public static void OrderMediasByOrderNum(ref List<int> medias, GroupsCacheManager.Channel channel, ApiObjects.SearchObjects.OrderObj oOrderObj)
         {
             if (oOrderObj.m_eOrderBy.Equals(OrderBy.ID))
@@ -260,13 +218,9 @@ namespace Core.Catalog.Request
                 channelSearchObject.m_nPageIndex = 0;
             }
 
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-            if (searcher == null)
-            {
-                return response;
-            }
+            IIndexManager indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
             
-            SearchResultsObj oSearchResults = searcher.SearchMedias(channel.m_nGroupID, channelSearchObject, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_nGroupID);
+            SearchResultsObj oSearchResults = indexManager.SearchMedias(channelSearchObject, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate);
             if (oSearchResults == null || oSearchResults.m_resultIDs == null || oSearchResults.m_resultIDs.Count == 0)
             {
                 return response;
@@ -274,16 +228,13 @@ namespace Core.Catalog.Request
 
             List<int> medias = oSearchResults.m_resultIDs.Select(item => item.assetID).ToList();
             int nTotalItems = oSearchResults.n_TotalItems;
-            var isElasticsearchWrapper = searcher.GetType().Equals(typeof(ElasticsearchWrapper));// != typeof(LuceneWrapper))
-            List<SearchResult> lMediaRes = null;
-            if (isElasticsearchWrapper) 
-            {
-                lMediaRes = oSearchResults.m_resultIDs.Select(item => new SearchResult() { assetID = item.assetID, UpdateDate = item.UpdateDate }).ToList();
-            }
+            List<SearchResult> lMediaRes = 
+                oSearchResults.m_resultIDs.Select(
+                    item => new SearchResult() { assetID = item.assetID, UpdateDate = item.UpdateDate }).ToList();
 
             if (IsSlidingWindow(channel))
             {
-                medias = OrderMediaBySlidingWindow(groupId, channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
+                medias = indexManager.OrderMediaBySlidingWindow(channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC, nPageSize, nPageIndex, medias, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
                 nTotalItems = 0;
 
                 if (medias != null && medias.Count > 0)
@@ -320,7 +271,7 @@ namespace Core.Catalog.Request
                     medias.Clear();
                 }
 
-                if (isElasticsearchWrapper && medias != null && medias.Count > 0)
+                if (medias != null && medias.Count > 0)
                 {
                     Dictionary<int, SearchResult> dMediaRes = lMediaRes.ToDictionary(item => item.assetID);
                     lMediaRes = new List<SearchResult>();
@@ -342,11 +293,6 @@ namespace Core.Catalog.Request
             }
 
             response.m_nTotalItems = nTotalItems;
-
-            if (searcher.GetType().Equals(typeof(LuceneWrapper)))   //if (lMediaRes == null) //LUCENE
-            {
-                lMediaRes = GetMediaUpdateDate(medias);
-            }
 
             if (lMediaRes.Count > 0)
             {

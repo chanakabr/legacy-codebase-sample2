@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
+using ConfigurationManager;
 
 namespace WS_API
 {
@@ -76,7 +77,7 @@ namespace WS_API
                         string postErrorMsg = string.Empty;
                         int httpStatus = 0;
 
-                        ElasticSearch.Common.ElasticSearchApi api = new ElasticSearch.Common.ElasticSearchApi();
+                        ElasticSearch.Common.ElasticSearchApi api = new ElasticSearch.Common.ElasticSearchApi(ApplicationConfiguration.Current);
                         var postRequestResult = api.SendPostHttpReq(postURL, ref httpStatus, string.Empty, string.Empty, requestBody, true);
                         log.DebugFormat("Finished successfully - elastic response: {0}", postRequestResult);
                     }

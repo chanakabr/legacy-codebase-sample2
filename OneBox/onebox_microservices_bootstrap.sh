@@ -12,8 +12,8 @@ then
 else
       echo "system administrator KS fetched successfully "
 fi
-setAllMigrationEventsStatusRequestUrl="http://$fronEndUrl/api_v3/service/canaryDeploymentConfiguration/action/setAllMigrationEventsStatus"
-echo "sending canaryDeploymentConfiguration/action/setAllMigrationEventsStatus (set to true on groupId 0) request"
+setAllMigrationEventsStatusRequestUrl="http://$fronEndUrl/api_v3/service/microservicesCanaryDeploymentConfiguration/action/setAllMigrationEventsStatus"
+echo "sending microservicesCanaryDeploymentConfiguration/action/setAllMigrationEventsStatus (set to true on groupId 0) request"
 setAllMigrationEventsStatusResult=$(curl -s -X POST $setAllMigrationEventsStatusRequestUrl -H "Content-Type: application/json" -d '{ "groupId": 0, "ks": '"$systemAdminKs"', "status": true }' | jq .result)
 if [ $setAllMigrationEventsStatusResult = true ]
 then
@@ -22,8 +22,8 @@ else
 	echo "Error - could not set migration events status to true on groupId 0"
 	exit 1
 fi
-setAllRoutingActionsToMsRequestUrl="http://$fronEndUrl/api_v3/service/canaryDeploymentConfiguration/action/SetAllRoutingActionsToMs"
-echo "sending canaryDeploymentConfiguration/action/SetAllRoutingActionsToMs (on groupId 0) request"
+setAllRoutingActionsToMsRequestUrl="http://$fronEndUrl/api_v3/service/microservicesCanaryDeploymentConfiguration/action/SetAllRoutingActionsToMs"
+echo "sending microservicesCanaryDeploymentConfiguration/action/SetAllRoutingActionsToMs (on groupId 0) request"
 setAllRoutingActionsToMsResult=$(curl -s -X POST $setAllRoutingActionsToMsRequestUrl -H "Content-Type: application/json" -d '{ "groupId": 0, "ks": '"$systemAdminKs"' }' | jq .result)
 if [ $setAllRoutingActionsToMsResult = true ]
 then

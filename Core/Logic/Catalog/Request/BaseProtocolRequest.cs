@@ -26,7 +26,7 @@ namespace Core.Catalog.Request
 
         protected abstract List<SearchResult> ExecuteNonIPNOProtocol(BaseRequest oBaseRequest);
 
-        protected abstract List<SearchResult> ExecuteIPNOProtocol(BaseRequest oBaseRequest, int nOperatorID, List<List<string>> jsonizedChannelsDefinitions, ref ISearcher initializedSearcher);
+        protected abstract List<SearchResult> ExecuteIPNOProtocol(BaseRequest oBaseRequest, int nOperatorID, List<List<string>> jsonizedChannelsDefinitions);
 
         protected abstract int GetProtocolMaxResultsSize();
         #endregion
@@ -42,21 +42,22 @@ namespace Core.Catalog.Request
         public override BaseResponse GetResponse(BaseRequest oBaseRequest)
         {
             CheckSignature(oBaseRequest);
+            
+            // 007
             return ExecuteProtocol(oBaseRequest);
         }
 
         protected virtual BaseResponse ExecuteProtocol(BaseRequest oRequest)
         {
             List<SearchResult> res = null;
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
             List<List<string>> jsonizedChannelsDefinitions = null;
             int nOperatorID = 0;
             MediaIdsResponse response = new MediaIdsResponse();
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            if (CatalogLogic.IsUseIPNOFiltering(oRequest, ref searcher, ref jsonizedChannelsDefinitions, ref nOperatorID))
+            if (CatalogLogic.IsUseIPNOFiltering(oRequest, ref jsonizedChannelsDefinitions, ref nOperatorID))
             {
-                res = ExecuteIPNOProtocol(oRequest, nOperatorID, jsonizedChannelsDefinitions, ref searcher);
+                res = ExecuteIPNOProtocol(oRequest, nOperatorID, jsonizedChannelsDefinitions);
             }
             else
             {
@@ -72,15 +73,16 @@ namespace Core.Catalog.Request
             return response;
         }
 
-        protected List<SearchResult> GetProtocolFinalResultsUsingSearcher(List<SearchResult> initialResults, ref ISearcher initializedSearcher, List<List<string>> jsonizedChannelsDefinitions, int nGroupID)
+        protected List<SearchResult> GetProtocolFinalResultsUsingSearcher(List<SearchResult> initialResults, 
+            List<List<string>> jsonizedChannelsDefinitions, int nGroupID)
         {
             if (initialResults.Count > 0)
             {
                 List<long> mediaIDs = initialResults.Select<SearchResult, long>(item => item.assetID).ToList();
-                Dictionary<long, bool> resDict = initializedSearcher.ValidateMediaIDsInChannels(nGroupID, mediaIDs, jsonizedChannelsDefinitions[0], jsonizedChannelsDefinitions[1]);
+                var indexManager = IndexManagerFactory.GetInstance(nGroupID);
+                Dictionary<long, bool> resDict = indexManager.ValidateMediaIDsInChannels(mediaIDs, jsonizedChannelsDefinitions[0], jsonizedChannelsDefinitions[1]);
                 if (resDict != null && resDict.Count > 0)
                 {
-
                     int maxResults = GetProtocolMaxResultsSize();
                     int counter = 0;
                     List<SearchResult> finalResults = new List<SearchResult>(maxResults);

@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Xml;
 using ApiObjects;
+using ConfigurationManager;
 using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using EnumProject;
@@ -98,7 +99,7 @@ namespace TurnerFeeder
             bool resDelete = false;
             try
             {
-                ElasticSearchApi oESApi = new ElasticSearchApi();
+                ElasticSearchApi oESApi = new ElasticSearchApi(ApplicationConfiguration.Current);
 
                 string sQuery = BuildDeleteQuery(channelID, lDates);
                 string sIndex = string.Format("{0}_{1}", parentGroupID.ToString(), "epg");

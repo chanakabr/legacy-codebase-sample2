@@ -89,9 +89,9 @@ namespace WebAPI.ClientManagers.Client
 
         public static CanaryDeploymentClient CanaryDeploymentClient()
         {
-            return Nested.Instance.GetClient(ClientType.CanaryDeployment) as CanaryDeploymentClient;
+            return Nested.Instance.GetClient(ClientType.MicroservicesCanaryDeployment) as CanaryDeploymentClient;
         }
-
+        
         private BaseClient GetClient(ClientType clientType)
         {
             BaseClient client = null;

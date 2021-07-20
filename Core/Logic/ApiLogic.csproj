@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.3.101.9" />
-    <PackageReference Include="DeepCloner" Version="0.10.2" />
+    <PackageReference Include="DeepCloner" Version="0.10.2" />    
     <PackageReference Include="morelinq" Version="3.3.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Runtime.Caching" Version="4.5.0" />
@@ -51,7 +51,6 @@
     <ProjectReference Include="..\DalCB\DalCB.csproj" />
     <ProjectReference Include="..\DAL\DAL.csproj" />
     <ProjectReference Include="..\ElasticSearch\ElasticSearch.csproj" />
-    <ProjectReference Include="..\EpgBL\EpgBL.csproj" />
     <ProjectReference Include="..\FTPUploadQueue\UploadQueue.csproj" />
     <ProjectReference Include="..\GoogleAPI\GoogleAPI.csproj" />
     <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj" />

@@ -80,7 +80,6 @@ namespace Core.Catalog
 
         private static readonly string LINEAR_MEDIA_TYPES_KEY = "LinearMediaTypes";
         private static readonly string PERMITTED_WATCH_RULES_KEY = "PermittedWatchRules";
-        private static readonly int ASSET_STATS_VIEWS_INDEX = 0;
 
         private const int DEFAULT_SEARCHER_MAX_RESULTS_SIZE = 10000;
 
@@ -89,14 +88,7 @@ namespace Core.Catalog
         internal const int DEFAULT_PERSONAL_RECOMMENDED_MAX_RESULTS_SIZE = 20;
         internal const int FINISHED_PERCENT_THRESHOLD = 95;
         private static int DEFAULT_CURRENT_REQUEST_DAYS_OFFSET = 7;
-        internal const string STAT_ACTION_MEDIA_HIT = "mediahit";
-        internal const string STAT_ACTION_FIRST_PLAY = "firstplay";
-        internal const string STAT_ACTION_LIKE = "like";
-        internal const string STAT_ACTION_RATES = "rates";
-        internal const string STAT_ACTION_COUNT_VALUE_FIELD = "count";
-        internal static readonly string SUB_SUM_AGGREGATION_NAME = "sub_sum";
-        internal static readonly string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
-        internal static readonly string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
+
         private static readonly long UNIX_TIME_1980 = DateUtils.DateTimeToUtcUnixTimestampSeconds(new DateTime(1980, 1, 1, 0, 0, 0));
 
         protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
@@ -1240,7 +1232,8 @@ namespace Core.Catalog
         }
 
         /*Call To Searcher to get mediaIds by search Object*/
-        public static List<SearchResult> GetMediaIdsFromSearcher(BaseMediaSearchRequest oMediaRequest, ref int nTotalItems, ref bool isLucene)
+        public static List<SearchResult> GetMediaIdsFromSearcher(BaseMediaSearchRequest oMediaRequest, 
+            ref int nTotalItems)
         {
             List<SearchResult> lSearchResults = null;
 
@@ -1249,7 +1242,7 @@ namespace Core.Catalog
             try
             {
                 List<List<string>> jsonizedChannelsDefinitions = null;
-                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+                IIndexManager indexManager = IndexManagerFactory.GetInstance(oMediaRequest.m_nGroupID);
                 ApiObjects.SearchObjects.MediaSearchObj search = null;
 
                 // Group have user types per media  +  siteGuid != empty
@@ -1263,7 +1256,7 @@ namespace Core.Catalog
                     oMediaRequest.m_oFilter.m_nUserTypeID = Utils.GetUserType(oMediaRequest.m_sSiteGuid, oMediaRequest.m_nGroupID);
                 }
 
-                if (IsUseIPNOFiltering(oMediaRequest, ref searcher, ref jsonizedChannelsDefinitions))
+                if (IsUseIPNOFiltering(oMediaRequest, ref jsonizedChannelsDefinitions))
                 {
                     search = BuildSearchObject(oMediaRequest, jsonizedChannelsDefinitions[0], jsonizedChannelsDefinitions[1]);
                 }
@@ -1276,37 +1269,30 @@ namespace Core.Catalog
                 search.m_nPageIndex = oMediaRequest.m_nPageIndex;
                 search.m_nPageSize = oMediaRequest.m_nPageSize;
 
+                GroupManager groupManager = new GroupManager();
+                CatalogCache catalogCache = CatalogCache.Instance();
+                int nParentGroupID = catalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
+                Group groupInCache = groupManager.GetGroup(nParentGroupID);
 
-                if (searcher != null)
+                if (groupInCache != null)
                 {
-                    isLucene = searcher is LuceneWrapper;
-                    GroupManager groupManager = new GroupManager();
-                    CatalogCache catalogCache = CatalogCache.Instance();
-                    int nParentGroupID = catalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
-                    Group groupInCache = groupManager.GetGroup(nParentGroupID);
+                    LanguageObj objLang = groupInCache.GetLanguage(oMediaRequest.m_oFilter.m_nLanguage);
+                    search.m_oLangauge = objLang;
+                }
 
-                    if (groupInCache != null)
-                    {
-                        LanguageObj objLang = groupInCache.GetLanguage(oMediaRequest.m_oFilter.m_nLanguage);
-                        search.m_oLangauge = objLang;
-                    }
+                SearchResultsObj resultObj = indexManager.SearchMedias(search, 0, oMediaRequest.m_oFilter.m_bUseStartDate);
 
-                    SearchResultsObj resultObj = searcher.SearchMedias(oMediaRequest.m_nGroupID, search, 0, oMediaRequest.m_oFilter.m_bUseStartDate, oMediaRequest.m_nGroupID);
-
-
-                    if (resultObj != null)
-                    {
-                        lSearchResults = resultObj.m_resultIDs;
-                        nTotalItems = resultObj.n_TotalItems;
-                    }
-
+                if (resultObj != null)
+                {
+                    lSearchResults = resultObj.m_resultIDs;
+                    nTotalItems = resultObj.n_TotalItems;
                 }
             }
-
             catch (Exception ex)
             {
                 log.Error(ex.Message, ex);
             }
+
             #endregion
 
             return lSearchResults;
@@ -1430,20 +1416,18 @@ namespace Core.Catalog
         public static UnifiedSearchResponse UnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions)
         {
             UnifiedSearchResponse response = new UnifiedSearchResponse();
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+            int parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
+            IIndexManager indexManager = IndexManagerFactory.GetInstance(parentGroupId);
 
             int totalItems = 0;
             int to = 0;
             List<AggregationsResult> aggregationsResults = null;
 
-            if (searcher != null)
-            {
-                List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResults);
+            List<UnifiedSearchResult> searchResults = indexManager.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResults);
 
-                if (searchResults != null)
-                {
-                    response.searchResults = searchResults;
-                }
+            if (searchResults != null)
+            {
+                response.searchResults = searchResults;
             }
 
             response.m_nTotalItems = totalItems;
@@ -3388,15 +3372,16 @@ namespace Core.Catalog
 
         internal static SearchResultsObj GetProgramIdsFromSearcher(EpgSearchObj epgSearchReq)
         {
+            CatalogCache catalogCache = CatalogCache.Instance();
+            int nParentGroupID = catalogCache.GetParentGroup(epgSearchReq.m_nGroupID);
+            IIndexManager indexManager = IndexManagerFactory.GetInstance(nParentGroupID);
 
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-
-            if (searcher == null)
+            if (indexManager == null)
             {
                 throw new Exception(String.Concat("Failed to create Searcher instance. Request is: ", epgSearchReq != null ? epgSearchReq.ToString() : "null"));
             }
 
-            return searcher.SearchEpgs(epgSearchReq);
+            return indexManager.SearchEpgs(epgSearchReq);
         }
 
         internal static void GetGroupsTagsAndMetas(int nGroupID, ref List<string> lSearchList)
@@ -3710,7 +3695,7 @@ namespace Core.Catalog
             }
         }
 
-        internal static List<long> GetEpgChannelIDsForIPNOFiltering(int groupID, ref ISearcher initializedSearcher,
+        internal static List<long> GetEpgChannelIDsForIPNOFiltering(int groupID, 
             int domainId, string siteGuid,
             ref List<List<string>> jsonizedChannelsDefinitions)
         {
@@ -3719,7 +3704,8 @@ namespace Core.Catalog
             MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(groupID,
                 domainId, siteGuid,
                 dict, jsonizedChannelsDefinitions);
-            SearchResultsObj searcherAnswer = initializedSearcher.SearchMedias(groupID, linearChannelMediaIDsRequest, 0, true, groupID);
+            var indexManager = IndexManagerFactory.GetInstance(groupID);
+            SearchResultsObj searcherAnswer = indexManager.SearchMedias(linearChannelMediaIDsRequest, 0, true);
 
             if (searcherAnswer.n_TotalItems > 0)
             {
@@ -3733,14 +3719,14 @@ namespace Core.Catalog
         internal static List<string> EpgAutoComplete(EpgSearchObj request)
         {
 
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+            IIndexManager indexManager = IndexManagerFactory.GetInstance(request.m_nGroupID);
 
-            if (searcher == null || request == null)
+            if (indexManager == null || request == null)
             {
                 throw new Exception("EpgAutoComplete. Either EpgSearchObj or Searcher instance is null.");
             }
 
-            return searcher.GetEpgAutoCompleteList(request);
+            return indexManager.GetEpgAutoCompleteList(request);
 
         }
 
@@ -3975,125 +3961,6 @@ namespace Core.Catalog
             }
         }
 
-        private static void GetDataForGetAssetStatsFromES(int parentGroupID, List<int> assetIDs, DateTime startDate,
-            DateTime endDate, StatsType type, Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
-        {
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(parentGroupID);
-            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-
-
-            switch (type)
-            {
-                case StatsType.MEDIA:
-                    {
-                        List<string> aggregations = new List<string>(3);
-                        aggregations.Add(BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_FIRST_PLAY, true)); // views count
-                        aggregations.Add(BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE));
-                        aggregations.Add(BuildSlidingWindowStatisticsAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD));
-
-                        string esResp = esApi.MultiSearch(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, aggregations, null);
-
-                        List<string> responses = ParseResponsesFromMultiAggregations(esResp);
-                        string currResp = responses[0];
-                        Dictionary<string, Dictionary<int, int>> viewsRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp, SUB_SUM_AGGREGATION_NAME);
-                        currResp = responses[1];
-                        Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp);
-                        currResp = responses[2];
-                        Dictionary<string, List<StatisticsAggregationResult>> ratesRaw = ESAggregationsResult.DeserializeStatisticsAggregations(currResp, "sub_stats");
-
-                        Dictionary<int, int> views, likes;
-                        List<StatisticsAggregationResult> rates = null;
-                        viewsRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out views);
-                        likesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
-                        ratesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out rates);
-                        InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, views, likes, rates);
-                        break;
-                    }
-                case StatsType.EPG:
-                    {
-                        // in epg we bring just likes
-                        string likesAggregations = BuildSlidingWindowCountAggregationRequest(parentGroupID, assetIDs, startDate, endDate, STAT_ACTION_LIKE);
-                        string searchResponse = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref likesAggregations);
-
-                        if (!string.IsNullOrEmpty(searchResponse))
-                        {
-                            Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(searchResponse);
-                            Dictionary<int, int> likes = null;
-                            likesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
-
-                            if (likes != null && likes.Count > 0)
-                            {
-                                InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, new Dictionary<int, int>(0), likes,
-                                    new List<StatisticsAggregationResult>(0));
-                            }
-                        }
-                        break;
-                    }
-                default:
-                    {
-                        break;
-                    }
-            }
-
-        }
-
-        private static void InjectResultsIntoAssetStatsResponse(Dictionary<int, AssetStatsResult> assetIDsToStatsMapping,
-            Dictionary<int, int> views, Dictionary<int, int> likes, List<StatisticsAggregationResult> rates)
-        {
-            if (assetIDsToStatsMapping != null)
-            {
-                // views and likes
-                foreach (KeyValuePair<int, AssetStatsResult> kvp in assetIDsToStatsMapping)
-                {
-                    if (views != null && views.ContainsKey(kvp.Key))
-                    {
-                        kvp.Value.m_nViews = views[kvp.Key];
-                    }
-                    if (likes != null && likes.ContainsKey(kvp.Key))
-                    {
-                        kvp.Value.m_nLikes = likes[kvp.Key];
-                    }
-                }
-
-                if (rates != null)
-                {
-                    // rates
-                    for (int i = 0; i < rates.Count; i++)
-                    {
-                        int assetId = 0;
-
-                        if (Int32.TryParse(rates[i].key, out assetId) && assetId > 0 && assetIDsToStatsMapping.ContainsKey(assetId))
-                        {
-                            assetIDsToStatsMapping[assetId].m_nVotes = rates[i].count;
-                            assetIDsToStatsMapping[assetId].m_dRate = rates[i].avg;
-                        }
-
-                    }
-                }
-            }
-        }
-
-        private static List<string> ParseResponsesFromMultiAggregations(string esResp)
-        {
-            List<string> res = new List<string>();
-            if (!string.IsNullOrEmpty(esResp))
-            {
-                JObject jObj = JObject.Parse(esResp);
-                JToken responses = jObj["responses"];
-                if (responses != null && responses.Count() > 0)
-                {
-                    foreach (var response in responses)
-                    {
-                        res.Add(response.ToString());
-                    }
-                }
-
-
-            }
-
-            return res;
-        }
-
         private static List<EPGChannelProgrammeObject> GetEpgsByGroupAndIDs(int groupID, List<int> epgIDs)
         {
             BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupID);
@@ -4138,6 +4005,7 @@ namespace Core.Catalog
             Dictionary<int, AssetStatsResult> assetIdToAssetStatsMapping = null;
             InitializeAssetStatsResultsDataStructs(assetIDs, ref set, ref assetIdToAssetStatsMapping);
 
+            var indexManager = IndexManagerFactory.GetInstance(groupId);
             switch (statsType)
             {
                 case StatsType.MEDIA:
@@ -4155,7 +4023,7 @@ namespace Core.Catalog
 
                         if (dStartDate != DateTime.MinValue || dEndDate != DateTime.MaxValue)
                         {
-                            GetDataForGetAssetStatsFromES(groupId, assetIDs, dStartDate, dEndDate, StatsType.MEDIA, assetIdToAssetStatsMapping);
+                            indexManager.GetAssetStats(assetIDs, dStartDate, dEndDate, StatsType.MEDIA, ref assetIdToAssetStatsMapping);
                         }
                         else
                         {
@@ -4227,7 +4095,7 @@ namespace Core.Catalog
 
                             if (dStartDate != DateTime.MinValue || dEndDate != DateTime.MaxValue)
                             {
-                                GetDataForGetAssetStatsFromES(groupId, assetIDs, dStartDate, dEndDate, StatsType.EPG, assetIdToAssetStatsMapping);
+                                indexManager.GetAssetStats(assetIDs, dStartDate, dEndDate, StatsType.EPG, ref assetIdToAssetStatsMapping);
                             }
                             else
                             {
@@ -4298,6 +4166,7 @@ namespace Core.Catalog
 
             try
             {
+
                 if (funcParams != null &&
                     funcParams.ContainsKey("assetsIds") && funcParams.ContainsKey("statsType") &&
                     funcParams.ContainsKey("groupId") && funcParams.ContainsKey("mapping"))
@@ -4314,10 +4183,11 @@ namespace Core.Catalog
                     }
 
                     int groupId = Convert.ToInt32(funcParams["groupId"]);
+                    var indexManager = IndexManagerFactory.GetInstance(groupId);
                     StatsType statsType = (StatsType)funcParams["statsType"];
                     Dictionary<int, AssetStatsResult> mapping = (Dictionary<int, AssetStatsResult>)funcParams["mapping"];
 
-                    GetDataForGetAssetStatsFromES(groupId, assetIds, DateTime.MinValue, DateTime.MaxValue, statsType, mapping);
+                    indexManager.GetAssetStats(assetIds, DateTime.MinValue, DateTime.MaxValue, statsType, ref mapping);
 
                     result = new Dictionary<string, AssetStatsResult>();
 
@@ -4395,17 +4265,16 @@ namespace Core.Catalog
             return res;
         }
 
-        internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest,
-            ref ISearcher initializedSearcher, ref List<List<string>> outJsonizedChannelsDefinitions)
+        internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest, ref List<List<string>> outJsonizedChannelsDefinitions)
         {
             int operatorID = 0;
-            return IsUseIPNOFiltering(oMediaRequest, ref initializedSearcher, ref outJsonizedChannelsDefinitions, ref operatorID);
+            return IsUseIPNOFiltering(oMediaRequest, ref outJsonizedChannelsDefinitions, ref operatorID);
         }
 
         internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest,
-            ref ISearcher initializedSearcher, ref List<List<string>> outJsonizedChannelsDefinitions, ref int operatorID)
+            ref List<List<string>> outJsonizedChannelsDefinitions, ref int operatorID)
         {
-
+            var indexManager = IndexManagerFactory.GetInstance(oMediaRequest.m_nGroupID);
             bool res = false;
             long lSiteGuid = 0;
             if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
@@ -4441,16 +4310,13 @@ namespace Core.Catalog
                         CatalogCache catalogCache = CatalogCache.Instance();
                         int nParentGroupID = catalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
 
-
-
                         List<long> channelsOfIPNO = new List<long>(0);
                         List<long> allChannelsOfAllIPNOs = new List<long>(0);
 
                         if (channelsOfIPNO != null && channelsOfIPNO.Count > 0 && allChannelsOfAllIPNOs != null && allChannelsOfAllIPNOs.Count > 0)
                         {
                             // get channels definitions from ES Percolator
-
-                            outJsonizedChannelsDefinitions = initializedSearcher.GetChannelsDefinitions(new List<List<long>>(2) { channelsOfIPNO, allChannelsOfAllIPNOs }, oMediaRequest.m_nGroupID);
+                            outJsonizedChannelsDefinitions = indexManager.GetChannelsDefinitions(new List<List<long>>(2) { channelsOfIPNO, allChannelsOfAllIPNOs });
                         }
                         else
                         {
@@ -5037,398 +4903,6 @@ namespace Core.Catalog
 
         }
 
-        private static string BuildSlidingWindowCountAggregationRequest(int groupID, List<int> mediaIDs, DateTime startDate, DateTime endDate,
-            string action, bool setSubSum = false)
-        {
-            #region Define Aggregation Query
-            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
-            {
-                PageIndex = 0,
-                PageSize = 0,
-                ZeroSize = true
-            };
-
-            filteredQuery.ReturnFields.Clear();
-
-            filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
-
-            BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
-            filter.AddChild(new ESTerm(true)
-            {
-                Key = "group_id",
-                Value = groupID.ToString()
-            });
-
-            #region define date filter
-            if (!startDate.Equals(DateTime.MinValue) || !endDate.Equals(DateTime.MaxValue))
-            {
-                ESRange dateRange = new ESRange(false)
-                {
-                    Key = "action_date"
-                };
-                string sMax = endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-                string sMin = startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-
-                if (!startDate.Equals(DateTime.MinValue))
-                {
-                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-                }
-
-                if (!endDate.Equals(DateTime.MaxValue))
-                {
-                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
-                }
-
-                filter.AddChild(dateRange);
-            }
-
-            #endregion
-
-            #region define action filter
-            ESTerm esActionTerm = new ESTerm(false)
-            {
-                Key = "action",
-                Value = action
-            };
-            filter.AddChild(esActionTerm);
-            #endregion
-
-            #region define media id filter
-            ESTerms esMediaIdTerms = new ESTerms(true)
-            {
-                Key = "media_id"
-            };
-            esMediaIdTerms.Value.AddRange(mediaIDs.Select(item => item.ToString()));
-            filter.AddChild(esMediaIdTerms);
-            #endregion
-
-            #region define order filter
-            // if no ordering is specified the default is order by count descending
-            #endregion
-
-            filteredQuery.Filter.FilterSettings = filter;
-
-            ESBaseAggsItem aggregation = new ESBaseAggsItem()
-            {
-                Field = "media_id",
-                Name = STAT_SLIDING_WINDOW_AGGREGATION_NAME,
-                Type = eElasticAggregationType.terms,
-                ShardSize = 0
-            };
-
-            if (setSubSum)
-            {
-                aggregation.SubAggrgations.Add(new ESBaseAggsItem()
-                {
-                    Name = SUB_SUM_AGGREGATION_NAME,
-                    Type = eElasticAggregationType.sum,
-                    Field = STAT_ACTION_COUNT_VALUE_FIELD,
-                    Missing = 1
-                });
-            }
-
-            filteredQuery.Aggregations.Add(aggregation);
-
-            #endregion
-
-            return filteredQuery.ToString();
-        }
-
-        internal static List<int> SlidingWindowCountAggregations(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
-            DateTime dtEndDate, string action)
-        {
-            List<int> result = new List<int>(lMediaIds);
-
-            var searcher = Bootstrapper.GetInstance<ISearcher>() as ElasticsearchWrapper;
-
-            // If we have ElasticSearchWrapper, use its sorting method, because it is far more efficient than the code in "else".
-            if (searcher != null)
-            {
-                var assetIds = lMediaIds.Select(id => (long)id).ToList();
-                OrderBy orderBy = OrderBy.ID;
-
-                switch (action)
-                {
-                    case STAT_ACTION_FIRST_PLAY:
-                        {
-                            orderBy = OrderBy.VIEWS;
-                            break;
-                        }
-                    case STAT_ACTION_LIKE:
-                        {
-                            orderBy = OrderBy.LIKE_COUNTER;
-                            break;
-                        }
-                    case STAT_ACTION_RATES:
-                        {
-                            orderBy = OrderBy.RATING;
-                            break;
-                        }
-                    default:
-                        {
-                            break;
-                        }
-                }
-
-                var orderedList = searcher.SortAssetsByStats(assetIds, nGroupId, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, dtEndDate);
-
-                result = orderedList.Select(id => (int)id).ToList();
-            }
-            else
-            {
-                // if no ordering is specified to BuildSlidingWindowCountAggregationsRequest function then default is order by count descending
-                string aggregationsQuery = BuildSlidingWindowCountAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
-
-                //Search
-                string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
-                ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-                string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
-
-                if (!string.IsNullOrEmpty(retval))
-                {
-                    //Get aggregations results
-                    Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval, SUB_SUM_AGGREGATION_NAME);
-
-                    if (aggregationResults != null && aggregationResults.Count > 0)
-                    {
-                        Dictionary<string, int> aggregationResult;
-                        //retrieve channel_views aggregations results
-                        aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
-
-                        if (aggregationResult != null && aggregationResult.Count > 0)
-                        {
-                            foreach (string key in aggregationResult.Keys)
-                            {
-                                int count = aggregationResult[key];
-
-                                int nMediaId;
-                                if (int.TryParse(key, out nMediaId))
-                                {
-                                    result.Add(nMediaId);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        internal static Dictionary<int, int> SlidingWindowCountAggregationsMappings(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
-            DateTime dtEndDate, string action)
-        {
-            Dictionary<int, int> result = new Dictionary<int, int>();
-
-            string aggregationsQuery = BuildSlidingWindowCountAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate, action);
-
-            //Search
-            string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
-            ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-            string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
-
-            if (!string.IsNullOrEmpty(retval))
-            {
-                //Get aggregations results
-                Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval, SUB_SUM_AGGREGATION_NAME);
-
-                if (aggregationResults != null && aggregationResults.Count > 0)
-                {
-                    Dictionary<string, int> aggregationResult;
-                    //retrieve channel_views aggregations results
-                    aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
-
-                    if (aggregationResult != null && aggregationResult.Count > 0)
-                    {
-                        foreach (string key in aggregationResult.Keys)
-                        {
-                            int count = aggregationResult[key];
-
-                            int nMediaId;
-                            if (int.TryParse(key, out nMediaId) && !result.ContainsKey(nMediaId))
-                            {
-                                result.Add(nMediaId, count);
-                            }
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        private static string BuildSlidingWindowStatisticsAggregationRequest(int groupID, List<int> mediaIDs, DateTime startDate,
-            DateTime endDate, string action, string valueField)
-        {
-            #region Define Aggregation Query
-            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery()
-            {
-                PageIndex = 0,
-                PageSize = 0,
-                ZeroSize = true
-            };
-            filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
-
-            BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
-            filter.AddChild(new ESTerm(true)
-            {
-                Key = "group_id",
-                Value = groupID.ToString()
-            });
-
-            #region define date filter
-
-            if (!startDate.Equals(DateTime.MinValue) || !endDate.Equals(DateTime.MaxValue))
-            {
-                ESRange dateRange = new ESRange(false)
-                {
-                    Key = "action_date"
-                };
-                string sMax = endDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-                string sMin = startDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT);
-
-                if (!startDate.Equals(DateTime.MinValue))
-                {
-                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
-                }
-
-                if (!endDate.Equals(DateTime.MaxValue))
-                {
-                    dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, sMax));
-                }
-
-                filter.AddChild(dateRange);
-            }
-
-            #endregion
-
-            #region define action filter
-            ESTerm esActionTerm = new ESTerm(false)
-            {
-                Key = "action",
-                Value = action
-            };
-            filter.AddChild(esActionTerm);
-            #endregion
-
-            #region define media id filter
-            ESTerms esMediaIdTerms = new ESTerms(true)
-            {
-                Key = "media_id"
-            };
-            esMediaIdTerms.Value.AddRange(mediaIDs.Select(item => item.ToString()));
-            filter.AddChild(esMediaIdTerms);
-            #endregion
-
-            filteredQuery.Filter.FilterSettings = filter;
-
-            #endregion
-
-            var aggregation = new ESBaseAggsItem()
-            {
-                Name = STAT_SLIDING_WINDOW_AGGREGATION_NAME,
-                Field = "media_id",
-                Type = eElasticAggregationType.terms,
-                ShardSize = 0
-            };
-
-            aggregation.SubAggrgations.Add(new ESBaseAggsItem()
-            {
-                Name = "sub_stats",
-                Type = eElasticAggregationType.stats,
-                Field = valueField
-            });
-
-            filteredQuery.Aggregations.Add(aggregation);
-
-            return filteredQuery.ToString();
-        }
-
-        internal static List<int> SlidingWindowStatisticsAggregations(int nGroupId, List<int> lMediaIds, DateTime dtStartDate,
-            DateTime dtEndDate, string action, string valueField, AggregationsComparer.eCompareType compareType)
-        {
-
-            List<int> result = new List<int>(lMediaIds);
-
-            var searcher = Bootstrapper.GetInstance<ISearcher>() as ElasticsearchWrapper;
-
-            // If we have ElasticSearchWrapper, use its sorting method, because it is far more efficient than the code in "else".
-            if (searcher != null)
-            {
-                var assetIds = lMediaIds.Select(id => (long)id).ToList();
-                OrderBy orderBy = OrderBy.ID;
-
-                switch (action)
-                {
-                    case STAT_ACTION_FIRST_PLAY:
-                        {
-                            orderBy = OrderBy.VIEWS;
-                            break;
-                        }
-                    case STAT_ACTION_LIKE:
-                        {
-                            orderBy = OrderBy.LIKE_COUNTER;
-                            break;
-                        }
-                    case STAT_ACTION_RATES:
-                        {
-                            orderBy = OrderBy.RATING;
-                            break;
-                        }
-                    default:
-                        {
-                            break;
-                        }
-                }
-
-                var orderedList = searcher.SortAssetsByStats(assetIds, nGroupId, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, dtEndDate);
-
-                result = orderedList.Select(id => (int)id).ToList();
-            }
-            else
-            {
-                string aggregationsQuery = BuildSlidingWindowStatisticsAggregationRequest(nGroupId, lMediaIds, dtStartDate, dtEndDate,
-                    action, valueField);
-
-                //Search
-                string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nGroupId);
-                ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-                string retval = esApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref aggregationsQuery);
-
-                if (!string.IsNullOrEmpty(retval))
-                {
-                    //Get aggregation results
-                    Dictionary<string, List<StatisticsAggregationResult>> aggregationResults =
-                        ESAggregationsResult.DeserializeStatisticsAggregations(retval, "sub_stats");
-
-                    if (aggregationResults != null && aggregationResults.Count > 0)
-                    {
-                        List<StatisticsAggregationResult> aggregationResult;
-                        //retrieve channel_views aggregation results
-                        aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
-
-                        if (aggregationResult != null && aggregationResult.Count > 0)
-                        {
-                            int mediaId;
-
-                            // sorts order by descending
-                            aggregationResult.Sort(new AggregationsComparer(compareType));
-
-                            foreach (var stats in aggregationResult)
-                            {
-                                if (int.TryParse(stats.key, out mediaId))
-                                {
-                                    result.Add(mediaId);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            return result;
-        }
-
         internal static int GetLastNpvrPosition(string NpvrID, int userID)
         {
             if (string.IsNullOrEmpty(NpvrID) || userID == 0)
@@ -5981,29 +5455,28 @@ namespace Core.Catalog
 
                 // Map order of IDs
                 searchDefinitions.specificOrder = recommendations.Select(item => long.Parse(item.id)).ToList();
-                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
-                if (searcher != null)
+                int parentGroupId = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
+                IIndexManager indexManager = IndexManagerFactory.GetInstance(parentGroupId);
+
+                int to = 0;
+                // The provided response should be filtered according to the Filter defined in the applicable 3rd-party channel settings
+                List<UnifiedSearchResult> searchResults = indexManager.UnifiedSearch(searchDefinitions, ref totalItems, ref to);
+
+                if (searchResults != null)
                 {
-                    int to = 0;
-                    // The provided response should be filtered according to the Filter defined in the applicable 3rd-party channel settings
-                    List<UnifiedSearchResult> searchResults = searcher.UnifiedSearch(searchDefinitions, ref totalItems, ref to);
+                    searchResultsList = searchResults;
 
-                    if (searchResults != null)
-                    {
-                        searchResultsList = searchResults;
+                    List<RecommendationResult> recommendationResults = searchResultsList.Select(result =>
+                        new RecommendationResult()
+                        {
+                            id = result.AssetId,
+                            type = result.AssetType
+                        }).ToList();
 
-                        List<RecommendationResult> recommendationResults = searchResultsList.Select(result =>
-                            new RecommendationResult()
-                            {
-                                id = result.AssetId,
-                                type = result.AssetType
-                            }).ToList();
-
-                        // After applying the filter - the recommendation engine should be reported back with the remaining result set
-                        // async query - no response is expected from the recommendation engine
-                        RecommendationAdapterController.GetInstance().ShareFilteredResponse(externalChannel, recommendationResults);
-                    }
+                    // After applying the filter - the recommendation engine should be reported back with the remaining result set
+                    // async query - no response is expected from the recommendation engine
+                    RecommendationAdapterController.GetInstance().ShareFilteredResponse(externalChannel, recommendationResults);
                 }
             }
 
@@ -6058,9 +5531,10 @@ namespace Core.Catalog
 
                 if (elasticSearchPageSize > 0)
                 {
-                    ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
+                    int parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
+                    var indexManager = IndexManagerFactory.GetInstance(parentGroupId);
                     int esTotalItems = 0, to = 0;
-                    var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
+                    var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
 
                     if (searchResults != null && searchResults.Count > 0)
                     {
@@ -6585,15 +6059,16 @@ namespace Core.Catalog
 
         private static UnifiedSearchResponse ChannelUnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel)
         {
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-            if (searcher == null) return new UnifiedSearchResponse { status = Status.ErrorMessage("Failed getting instance of searcher") };
+            var parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
+            IIndexManager indexManager = IndexManagerFactory.GetInstance(parentGroupId);
+
+            if (indexManager == null) return new UnifiedSearchResponse { status = Status.ErrorMessage("Failed getting instance of searcher") };
 
             if (unifiedSearchDefinitions.groupBy?.Count == 1 // only one group by
                 && unifiedSearchDefinitions.groupBy.Single().Key == unifiedSearchDefinitions.distinctGroup.Key) // distinct is on
             {
-                var parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
                 parentGroupId = parentGroupId == 0 ? groupId : parentGroupId;
-                var aggregation = searcher.UnifiedSearchForGroupBy(unifiedSearchDefinitions, parentGroupId);
+                var aggregation = indexManager.UnifiedSearchForGroupBy(unifiedSearchDefinitions);
 
                 return new UnifiedSearchResponse
                 {
@@ -6619,7 +6094,7 @@ namespace Core.Catalog
             int notUsed = 0;
             int totalItems = 0;
             List<AggregationsResult> aggregationsResult;
-            var searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref notUsed, out aggregationsResult);
+            var searchResults = indexManager.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref notUsed, out aggregationsResult);
 
             if (searchResults == null) return new UnifiedSearchResponse { status = Status.ErrorMessage("Failed performing channel search") };
             if (totalItems == 0)
@@ -6639,7 +6114,7 @@ namespace Core.Catalog
 
             if (ChannelRequest.IsSlidingWindow(channel))
             {
-                assetIDs = ChannelRequest.OrderMediaBySlidingWindow(groupId, channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC,
+                assetIDs = indexManager.OrderMediaBySlidingWindow(channel.m_OrderObject.m_eOrderBy, channel.m_OrderObject.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC,
                                                                     pageSize, pageIndex, assetIDs, channel.m_OrderObject.m_dSlidingWindowStartTimeField);
                 if (assetIDs != null && assetIDs.Count > 0)
                 {
@@ -6710,26 +6185,23 @@ namespace Core.Catalog
                     assetIDs.Clear();
                 }
 
-                if (searcher.GetType().Equals(typeof(ElasticsearchWrapper)))
+                if (assetIDs != null && assetIDs.Count > 0)
                 {
-                    if (assetIDs != null && assetIDs.Count > 0)
+                    Dictionary<string, UnifiedSearchResult> assetDictionary = searchResults.ToDictionary(item => item.AssetId);
+
+                    searchResults = new List<UnifiedSearchResult>();
+
+                    foreach (int item in assetIDs)
                     {
-                        Dictionary<string, UnifiedSearchResult> assetDictionary = searchResults.ToDictionary(item => item.AssetId);
-
-                        searchResults = new List<UnifiedSearchResult>();
-
-                        foreach (int item in assetIDs)
+                        if (assetDictionary.ContainsKey(item.ToString()))
                         {
-                            if (assetDictionary.ContainsKey(item.ToString()))
-                            {
-                                searchResults.Add(assetDictionary[item.ToString()]);
-                            }
+                            searchResults.Add(assetDictionary[item.ToString()]);
                         }
                     }
-                    else
-                    {
-                        searchResults.Clear();
-                    }
+                }
+                else
+                {
+                    searchResults.Clear();
                 }
             }
 
@@ -7045,9 +6517,9 @@ namespace Core.Catalog
             int pageIndex = request.m_nPageIndex;
             int pageSize = request.m_nPageSize;
 
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+            IIndexManager indexManager = IndexManagerFactory.GetInstance(parentGroupID);
 
-            if (searcher == null)
+            if (indexManager == null)
             {
                 return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
             }
@@ -7055,7 +6527,7 @@ namespace Core.Catalog
             int to = 0;
 
             // Perform initial search of channel            
-            searchResults = searcher.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResults);
+            searchResults = indexManager.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResults);
 
             if (searchResults == null)
             {
@@ -8157,9 +7629,9 @@ namespace Core.Catalog
                 // change default channel order to ID when we have groupBy + orderBy is not supported
                 // because we don't support all orderBy's with groupBy
                 var defaultChannelOrder = channel.m_OrderObject;
-                if (request.searchGroupBy?.groupBy?.Count == 1
-                    && defaultChannelOrder != null
-                    && !ElasticsearchWrapper.GroupBySearchIsSupportedForOrder(defaultChannelOrder.m_eOrderBy))
+                if (request.searchGroupBy?.groupBy?.Count == 1 && 
+                    defaultChannelOrder != null && 
+                    !IndexingUtils.GroupBySearchIsSupportedForOrder(defaultChannelOrder.m_eOrderBy))
                 {
                     defaultChannelOrder = new OrderObj
                     {
@@ -9038,8 +8510,8 @@ namespace Core.Catalog
         {
             ApiObjects.Response.Status status = null;
 
-            var wrapper = new ElasticsearchWrapper();
-            status = wrapper.DeleteStatistics(groupId, until);
+            var indexManager = IndexManagerFactory.GetInstance(groupId);
+            status = indexManager.DeleteStatistics(until);
 
             return status;
         }
@@ -9165,9 +8637,10 @@ namespace Core.Catalog
                             List<int> activeMediaIds = new List<int>();
                             List<int> activeEpg = new List<int>();
 
-                            ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
+                            int parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
+                            var indexManager = IndexManagerFactory.GetInstance(parentGroupId);
                             int esTotalItems = 0, to = 0;
-                            var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
+                            var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
 
                             long episodeStructId = 0;
 
@@ -9490,9 +8963,10 @@ namespace Core.Catalog
 
                 ((ApiObjects.SearchObjects.BooleanLeaf)filterTree).shouldLowercase = true;
 
-                ElasticsearchWrapper esWrapper = new ElasticsearchWrapper();
+                int parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
+                var indexManager = IndexManagerFactory.GetInstance(parentGroupId);
                 int esTotalItems = 0, to = 0;
-                var searchResults = esWrapper.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
+                var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
 
                 if (searchResults != null && searchResults.Count > 0)
                 {

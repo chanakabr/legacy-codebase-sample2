@@ -1,6 +1,7 @@
 ﻿using ApiLogic.Users.Managers;
 using ApiObjects;
 using ApiObjects.Response;
+using ApiObjects.SearchObjects;
 using ConfigurationManager;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
@@ -16,6 +17,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using MetaType = ApiObjects.MetaType;
 
 namespace Core.GroupManagers
 {
@@ -50,7 +52,7 @@ namespace Core.GroupManagers
                                UserManager.Instance, 
                                RabbitConfigDal.Instance, 
                                PricingDAL.Instance,
-                               new ElasticSearchApi(),
+                               new ElasticSearchApi(ApplicationConfiguration.Current),
                                ElasticSearchIndexDefinitions.Instance,
                                CatalogManager.Instance,
                                UsersDal.Instance, 

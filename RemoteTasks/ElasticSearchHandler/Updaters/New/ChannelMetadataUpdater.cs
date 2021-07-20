@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ElasticSearch.Common;
 using GroupsCacheManager;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using KLogMonitor;
 using System.Reflection;
-using ElasticSearch.Searcher;
 using KlogMonitorHelper;
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json.Linq;
@@ -25,8 +23,7 @@ namespace ElasticSearchHandler.Updaters
         #region Data Members
 
         private int groupId;
-        private ElasticSearch.Common.ESSerializerV2 esSerializer;
-        private ElasticSearch.Common.ElasticSearchApi esApi;
+        private IIndexManager _indexManager;
 
         #endregion
 
@@ -35,28 +32,6 @@ namespace ElasticSearchHandler.Updaters
         public List<int> IDs { get; set; }
         public ApiObjects.eAction Action { get; set; }
 
-        public string ElasticSearchUrl
-        {
-            get
-            {
-                if (esApi != null)
-                {
-                    return esApi.baseUrl;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            set
-            {
-                if (esApi != null)
-                {
-                    esApi.baseUrl = value;
-                }
-            }
-        }
-
         #endregion
 
         #region Ctors
@@ -64,8 +39,7 @@ namespace ElasticSearchHandler.Updaters
         public ChannelMetadataUpdater(int groupId)
         {
             this.groupId = groupId;
-            esSerializer = new ElasticSearch.Common.ESSerializerV2();
-            esApi = new ElasticSearch.Common.ElasticSearchApi();
+            _indexManager = IndexManagerFactory.GetInstance(groupId);
         }
 
         #endregion
@@ -86,14 +60,6 @@ namespace ElasticSearchHandler.Updaters
                 return result;
             }
 
-            if (!esApi.IndexExists(ElasticSearchTaskUtils.GetChannelMetadataIndexName(groupId)))
-            {
-                log.Error("Error - " + string.Format("Index of type channel for group {0} does not exist", groupId));
-
-                return result;
-            }
-
-            ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
             CatalogGroupCache catalogGroupCache = null;
 
             // Check if group supports Templates
@@ -122,13 +88,13 @@ namespace ElasticSearchHandler.Updaters
                     case eAction.On:
                     case eAction.Update:
                         {
-                            result = IndexManager.UpsertChannel(groupId, id);
+                            result = _indexManager.UpsertChannel(id);
                             break;
                         }
                     case eAction.Off:
                     case eAction.Delete:
                         {
-                            result = IndexManager.DeleteChannel(groupId, id);
+                            result = _indexManager.DeleteChannel(id);
                             break;
                         }
                     default:
