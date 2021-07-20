@@ -103,6 +103,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FinishedPercentThreshold, opt => opt.MapFrom(src => src.FinishedPercentThreshold))
                 .ForMember(dest => dest.SuspensionProfileInheritanceType, opt => opt.ResolveUsing(src => 
                                     ConvertSuspensionProfileInheritanceType(src.SuspensionProfileInheritanceType)))
+                .ForMember(dest => dest.AllowDeviceMobility, opt => opt.MapFrom(src => src.AllowDeviceMobility))
                 ;
 
             // map KalturaGeneralPartnerConfig to GeneralPartnerConfig
@@ -125,6 +126,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .AfterMap((src, dest) => dest.SecondaryCurrencies = src.SecondaryCurrencies == null ? null : dest.SecondaryCurrencies)
                 .ForMember(dest => dest.SuspensionProfileInheritanceType, opt => opt.ResolveUsing(src => 
                                     ConvertSuspensionProfileInheritanceType(src.SuspensionProfileInheritanceType)))
+                .ForMember(dest => dest.AllowDeviceMobility, opt => opt.MapFrom(src => src.AllowDeviceMobility))
                 ;
 
             #region KalturaObjectVirtualAssetPartnerConfig

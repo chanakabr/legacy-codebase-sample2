@@ -7,6 +7,8 @@ using System.Reflection;
 using System.Threading;
 using APILogic.Api.Managers;
 using Core.Users;
+using System.Linq;
+using ApiObjects.Response;
 
 namespace ApiLogic.Users.Managers
 {
@@ -62,14 +64,46 @@ namespace ApiLogic.Users.Managers
 
             int domainID = DomainDal.Instance.GetDeviceDomainData(nGroupID, sUDID, ref tempDeviceID, ref isDevActive, ref status, ref nDbDomainDeviceID);
 
+            var skipHHQuantityValidation = false;
             // If the device is already contained in any domain
             if (domainID != 0)
             {
                 // If the device is already contained in ANOTHER domain
                 if (domainID != nDomainID)
                 {
-                    eRetVal = DomainResponseStatus.DeviceExistsInOtherDomains;
-                    return eRetVal;
+                    if (ValidateDeviceMobilityPolicy(nGroupID))
+                    {
+                        DeviceContainer _container = domain.GetDeviceContainerByFamilyId(device.m_deviceFamilyID);
+                        DomainResponseStatus _responseStatus = domain.ValidateQuantity(sUDID, brandID, ref _container, ref device, true);
+
+                        if (_responseStatus == DomainResponseStatus.ExceededLimit)
+                        {
+                            log.Error($"Failed to reassign device: {sUDID} from hh: {domainID} to hh: {nDomainID}, group: {nGroupID}, new HH ExceededLimit");
+                            return _responseStatus;
+                        }
+                        else
+                        {
+                            skipHHQuantityValidation = true;
+                        }
+            
+                        var delete = Core.Domains.Module.RemoveDeviceFromDomain(nGroupID, domainID, sUDID, true);
+                        if (delete.Status.Code == (int)eResponseStatus.OK)
+                        {
+                            //Delete hh device from old hh
+                            log.Debug($"Device: {sUDID} was removed from hh: {domainID} and will be added to hh: {nDomainID}");
+                        }
+                        else
+                        {
+                            log.Error($"Failed to reassign device: {sUDID} from hh: {domainID} to hh: {nDomainID}, group: {nGroupID}");
+                            eRetVal = delete?.DomainResponse != null ? delete.DomainResponse.m_oDomainResponseStatus : DomainResponseStatus.Error;
+                            return eRetVal;
+                        }
+                    }
+                    else
+                    {
+                        eRetVal = DomainResponseStatus.DeviceExistsInOtherDomains;
+                        return eRetVal;
+                    }
                 }
                 // If the device is already contained in THIS domain
                 else
@@ -116,15 +150,18 @@ namespace ApiLogic.Users.Managers
                 }
             }
 
-            DeviceContainer container = domain.GetDeviceContainerByFamilyId(device.m_deviceFamilyID);
-
-            //Check if exceeded limit for the device type
-            DomainResponseStatus responseStatus = domain.ValidateQuantity(sUDID, brandID, ref container, ref device);
-
-            if (responseStatus == DomainResponseStatus.ExceededLimit || responseStatus == DomainResponseStatus.DeviceTypeNotAllowed || responseStatus == DomainResponseStatus.DeviceAlreadyExists)
+            if (!skipHHQuantityValidation)
             {
-                eRetVal = responseStatus;
-                return eRetVal;
+                DeviceContainer container = domain.GetDeviceContainerByFamilyId(device.m_deviceFamilyID);
+
+                //Check if exceeded limit for the device type
+                DomainResponseStatus responseStatus = domain.ValidateQuantity(sUDID, brandID, ref container, ref device);
+
+                if (responseStatus == DomainResponseStatus.ExceededLimit || responseStatus == DomainResponseStatus.DeviceTypeNotAllowed || responseStatus == DomainResponseStatus.DeviceAlreadyExists)
+                {
+                    eRetVal = responseStatus;
+                    return eRetVal;
+                }
             }
 
             int isActive = 0;
@@ -217,6 +254,17 @@ namespace ApiLogic.Users.Managers
             }
 
             return eRetVal;
+        }
+
+        private bool ValidateDeviceMobilityPolicy(int groupId)
+        {
+            var generalPartnerConfig = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId);
+            if (generalPartnerConfig != null)
+            {
+                return generalPartnerConfig.AllowDeviceMobility.HasValue && generalPartnerConfig.AllowDeviceMobility.Value;
+            }
+
+            return false;
         }
     }
 }

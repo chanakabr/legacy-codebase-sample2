@@ -148,6 +148,15 @@ namespace WebAPI.Models.Partner
         [SchemeProperty(IsNullable = true)]
         public KalturaSuspensionProfileInheritanceType? SuspensionProfileInheritanceType { get; set; }
 
+        /// <summary>
+        /// Allow Device Mobility
+        /// </summary>
+        [DataMember(Name = "allowDeviceMobility")]
+        [JsonProperty("allowDeviceMobility")]
+        [XmlElement(ElementName = "allowDeviceMobility")]
+        [SchemeProperty(IsNullable = true)]
+        public bool? AllowDeviceMobility { get; set; }
+
         internal List<int> GetSecondaryLanguagesIds()
         {
             return GetItemsIn<List<int>, int>(SecondaryLanguages, "KalturaGeneralPartnerConfig.secondaryLanguages", false, false);

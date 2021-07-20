@@ -3273,6 +3273,8 @@ namespace WebAPI.Reflection
                 case "KalturaGeneralPartnerConfig":
                     switch(property.Name)
                     {
+                        case "AllowDeviceMobility":
+                            return "allowDeviceMobility";
                         case "DateFormat":
                             return "dateFormat";
                         case "DefaultRegion":

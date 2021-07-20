@@ -32480,6 +32480,16 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute AllowDeviceMobilitySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaGeneralPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -32622,6 +32632,14 @@ namespace WebAPI.Models.Partner
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", SuspensionProfileInheritanceType, typeof(KalturaSuspensionProfileInheritanceType)));
                     }
+                }
+                if (parameters.ContainsKey("allowDeviceMobility") && parameters["allowDeviceMobility"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AllowDeviceMobilitySchemaProperty.Validate("allowDeviceMobility", parameters["allowDeviceMobility"]);
+                    }
+                    AllowDeviceMobility = (Boolean) Convert.ChangeType(parameters["allowDeviceMobility"], typeof(Boolean));
                 }
             }
         }

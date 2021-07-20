@@ -37967,6 +37967,10 @@ namespace WebAPI.Models.Partner
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AllowDeviceMobility.HasValue && (retrievedProperties == null || retrievedProperties.Contains("allowDeviceMobility")))
+            {
+                ret.Add("allowDeviceMobility", "\"allowDeviceMobility\": " + AllowDeviceMobility.ToString().ToLower());
+            }
             if(DateFormat != null && (retrievedProperties == null || retrievedProperties.Contains("dateFormat")))
             {
                 ret.Add("dateFormat", "\"dateFormat\": " + "\"" + EscapeJson(DateFormat) + "\"");
@@ -38042,6 +38046,10 @@ namespace WebAPI.Models.Partner
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AllowDeviceMobility.HasValue && (retrievedProperties == null || retrievedProperties.Contains("allowDeviceMobility")))
+            {
+                ret.Add("allowDeviceMobility", "<allowDeviceMobility>" + AllowDeviceMobility.ToString().ToLower() + "</allowDeviceMobility>");
+            }
             if(DateFormat != null && (retrievedProperties == null || retrievedProperties.Contains("dateFormat")))
             {
                 ret.Add("dateFormat", "<dateFormat>" + EscapeXml(DateFormat) + "</dateFormat>");

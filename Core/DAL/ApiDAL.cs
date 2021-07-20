@@ -5738,6 +5738,11 @@ namespace DAL
                 sp.AddParameter("@suspensionProfileInheritanceType", partnerConfig.SuspensionProfileInheritanceType.Value);
             }
 
+            if (partnerConfig.AllowDeviceMobility.HasValue)
+            {
+                sp.AddParameter("@allowDeviceMobility", partnerConfig.AllowDeviceMobility.Value ? 1 : 0);
+            }
+
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
