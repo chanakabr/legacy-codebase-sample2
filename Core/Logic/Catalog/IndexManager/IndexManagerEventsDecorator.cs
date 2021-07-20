@@ -317,6 +317,11 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
+        public bool SetupSocialStatisticsDataIndex()
+        {
+            return Execute<bool>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.STATS);
+        }
+        
         public bool InsertSocialStatisticsData(SocialActionStatistics action)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.STATS,action);

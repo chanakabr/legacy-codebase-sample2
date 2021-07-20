@@ -210,7 +210,7 @@ namespace Core.Social
         {
             bool result = false;
 
-            string url = ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value;
+            string url = ApplicationConfiguration.Current.ElasticSearchConfiguration.URL_V2.Value;
 
             string normalIndex = groupId.ToString();
 

@@ -61,6 +61,7 @@ namespace Core.Catalog
         List<int> GetEntitledEpgLinearChannels(UnifiedSearchDefinitions definitions);
         bool DoesMediaBelongToChannels(List<int> lChannelIDs, int nMediaID);
         List<int> GetMediaChannels(int nMediaID);
+
         List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch);
 
         // could be deprecated, but we really can't tell...
@@ -90,6 +91,7 @@ namespace Core.Catalog
         List<int> OrderMediaBySlidingWindow(ApiObjects.SearchObjects.OrderBy orderBy, bool isDesc, int pageSize, int PageIndex, List<int> media, DateTime windowTime);
 
         // added from ESStatisticsUtilities
+        bool SetupSocialStatisticsDataIndex();
 
         bool InsertSocialStatisticsData(SocialActionStatistics action);
 

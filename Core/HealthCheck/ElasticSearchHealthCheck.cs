@@ -12,10 +12,27 @@ using System.Reflection;
 
 namespace HealthCheck
 {
-    class ElasticSearchHealthCheck : IHealthCheck
+    public class ElasticSearch_7_13_HealthCheck: ElasticSearchHealthCheck
+    {
+        public ElasticSearch_7_13_HealthCheck(IHttpClientFactory factory) : base(factory)
+        {
+            base.esUrl = $"{ApplicationConfiguration.Current.ElasticSearchConfiguration.URL_V7_13.Value}/{"_cluster/health"}";
+        }
+    }
+    
+    public class ElasticSearch_2_3_HealthCheck: ElasticSearchHealthCheck
+    {
+        public ElasticSearch_2_3_HealthCheck(IHttpClientFactory factory) : base(factory)
+        {
+            base.esUrl = $"{ApplicationConfiguration.Current.ElasticSearchConfiguration.URL_V2.Value}/{"_cluster/health"}";
+        }
+    }
+    
+    public class ElasticSearchHealthCheck : IHealthCheck
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private readonly HttpClient httpClient = null;
+        protected string esUrl;
 
         public ElasticSearchHealthCheck(IHttpClientFactory factory)
         {
@@ -39,18 +56,17 @@ namespace HealthCheck
         private bool HealthCheck()
         {
             bool result = false;
-            var url = $"{ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value}/{"_cluster/health"}";
             try
             {                
                 var status = 0;
-                var response = httpClient.GetAsync(url).ExecuteAndWait();
+                var response = httpClient.GetAsync(esUrl).ExecuteAndWait();
 
                 status = GetResponseCode(response.StatusCode);
                 var ret = response.Content.ReadAsStringAsync().ExecuteAndWait();
 
                 if (status != 200)
                 {
-                    log.Error($"ES health-check get request to url {url} failed");
+                    log.Error($"ES health-check get request to url {esUrl} failed");
                     return false;
                 }
 
@@ -70,14 +86,14 @@ namespace HealthCheck
                         }
                         else
                         {
-                            log.Error($"ES health-check status did not return green/yellow from url {url}");
+                            log.Error($"ES health-check status did not return green/yellow from url {esUrl}");
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                log.Error($"Failed to do health-check on ES, request url {url}", ex);
+                log.Error($"Failed to do health-check on ES, request url {esUrl}", ex);
                 result = false;
             }
 

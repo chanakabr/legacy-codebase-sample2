@@ -41,6 +41,7 @@ namespace ConfigurationManager
         SQL,
         CouchBase,
         ElasticSearch,
+        ElasticSearch_7_13,
         RabbitMQ,
         ThirdParty,
         CacheRedis,

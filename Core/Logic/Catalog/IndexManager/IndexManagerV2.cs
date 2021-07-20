@@ -4661,6 +4661,15 @@ namespace Core.Catalog
 
         #region Statistics
 
+        public bool SetupSocialStatisticsDataIndex()
+        {
+            var statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
+
+            var analyzers = new List<string>();
+            var filters = new List<string>();
+            return _elasticSearchApi.BuildIndex(statisticsIndex, NUM_OF_SHARDS, NUM_OF_REPLICAS, analyzers, filters);
+        }
+        
         // Testable
         // priority
         public bool InsertSocialStatisticsData(SocialActionStatistics action)

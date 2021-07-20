@@ -39,7 +39,7 @@ namespace ElasticSearch.Common
         {
             _applicationConfiguration = applicationConfiguration;
             
-            baseUrl =  _applicationConfiguration.ElasticSearchConfiguration.URL.Value;
+            baseUrl =  _applicationConfiguration.ElasticSearchConfiguration.URL_V2.Value;
             httpClient = HttpClientUtil.GetHttpClient(_applicationConfiguration.ElasticSearchHttpClientConfiguration);
         }
 
