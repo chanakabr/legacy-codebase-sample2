@@ -25,7 +25,7 @@ namespace ApiLogic.FeatureToggle
         public bool IsEpgNotificationEnabled(int groupId) => _featureFlag.Enabled("epg.notification", GetUser(groupId));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private KalturaFeatureFlagUser GetUser(int groupId)
+        private KalturaFeatureFlagUser GetUser(int? groupId)
         {
             var userId = _requestContextUtils.GetUserId();
             

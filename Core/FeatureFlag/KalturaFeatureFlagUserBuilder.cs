@@ -3,7 +3,7 @@
     public class KalturaFeatureFlagUserBuilder
     {
         private long? _userId;
-        private int _groupId;
+        private int? _groupId;
 
         public static KalturaFeatureFlagUserBuilder Get()
         {
@@ -16,7 +16,7 @@
             return this;
         }
 
-        public KalturaFeatureFlagUserBuilder WithGroupId(int groupId)
+        public KalturaFeatureFlagUserBuilder WithGroupId(int? groupId)
         {
             _groupId = groupId;
             return this;

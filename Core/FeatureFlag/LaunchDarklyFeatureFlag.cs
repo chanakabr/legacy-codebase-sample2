@@ -47,7 +47,7 @@ namespace FeatureFlag
 
             if (kalturaUser.GroupId != null && kalturaUser.GroupId != 0)
             {
-                builder.Custom("groupId", kalturaUser.GroupId ?? 0);
+                builder.Custom("groupId", kalturaUser.GroupId.Value);
             }
 
             if (!string.IsNullOrEmpty(OneBoxIdVal))
