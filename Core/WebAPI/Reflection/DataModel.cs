@@ -4655,6 +4655,8 @@ namespace WebAPI.Reflection
                     {
                         case "Context":
                             return "context";
+                        case "CreateDate":
+                            return "createDate";
                         case "eventObject":
                             return "object";
                         case "SequenceId":
@@ -7587,6 +7589,20 @@ namespace WebAPI.Reflection
                             return "service";
                         case "TriggerConditions":
                             return "triggerConditions";
+                    }
+                    break;
+                    
+                case "KalturaTriggerCampaignEvent":
+                    switch(property.Name)
+                    {
+                        case "CampaignId":
+                            return "campaignId";
+                        case "HouseholdId":
+                            return "householdId";
+                        case "Udid":
+                            return "udid";
+                        case "UserId":
+                            return "userId";
                     }
                     break;
                     

@@ -8362,6 +8362,10 @@ namespace WebAPI.Models.General
                 propertyValue = Context.ToJson(currentVersion, omitObsolete);
                 ret.Add("context", "\"context\": " + propertyValue);
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "\"createDate\": " + CreateDate);
+            }
             if(eventObject != null && (retrievedProperties == null || retrievedProperties.Contains("object")))
             {
                 propertyValue = eventObject.ToJson(currentVersion, omitObsolete);
@@ -8421,6 +8425,10 @@ namespace WebAPI.Models.General
             {
                 propertyValue = Context.ToXml(currentVersion, omitObsolete);
                 ret.Add("context", "<context>" + propertyValue + "</context>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             }
             if(eventObject != null && (retrievedProperties == null || retrievedProperties.Contains("object")))
             {
@@ -21009,6 +21017,68 @@ namespace WebAPI.Models.Notification
             {
                 propertyValue = Topics.Count > 0 ? "<item>" + String.Join("</item><item>", Topics.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaTriggerCampaignEvent
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("campaignId")))
+            {
+                ret.Add("campaignId", "\"campaignId\": " + CampaignId);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("householdId")))
+            {
+                ret.Add("householdId", "\"householdId\": " + HouseholdId);
+            }
+            if(Udid != null && (retrievedProperties == null || retrievedProperties.Contains("udid")))
+            {
+                ret.Add("udid", "\"udid\": " + "\"" + EscapeJson(Udid) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("userId")))
+            {
+                ret.Add("userId", "\"userId\": " + UserId);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("campaignId")))
+            {
+                ret.Add("campaignId", "<campaignId>" + CampaignId + "</campaignId>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("householdId")))
+            {
+                ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
+            }
+            if(Udid != null && (retrievedProperties == null || retrievedProperties.Contains("udid")))
+            {
+                ret.Add("udid", "<udid>" + EscapeXml(Udid) + "</udid>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("userId")))
+            {
+                ret.Add("userId", "<userId>" + UserId + "</userId>");
             }
             return ret;
         }
@@ -37668,7 +37738,7 @@ namespace WebAPI.Models.Partner
                 propertyValue = "[" + String.Join(", ", BookmarkEventThresholds.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("bookmarkEventThresholds", "\"bookmarkEventThresholds\": " + propertyValue);
             }
-            return ret; 
+            return ret;
         }
         
         protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)

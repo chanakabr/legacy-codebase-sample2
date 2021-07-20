@@ -95,14 +95,22 @@ namespace CampaignHandler
                         }
 
                         continue;
-                    }   
+                    }
 
                     Parallel.ForEach(domain.m_masterGUIDs, user =>
                     {
-                        var _contextData = new ContextData(serviceEvent.GroupId) { DomainId = serviceEvent.DomainId, UserId = user };
+                        var _contextData = new ContextData(serviceEvent.GroupId)
+                        {
+                            DomainId = serviceEvent.DomainId,
+                            UserId = user
+                        };
+
                         if (_triggerCampaign.EvaluateTriggerConditions(serviceEvent.EventObject, _contextData))
                         {
                             Core.Notification.MessageInboxManger.AddCampaignMessage(_triggerCampaign, serviceEvent.GroupId, user, serviceEvent.EventObject.Udid);
+                            _contextData.Udid = serviceEvent.EventObject?.Udid;
+
+                            CampaignManager.Instance.NotifyTriggerCampaignEvent(_triggerCampaign, _contextData);
                         }
                     });
                 }

@@ -485,6 +485,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ProductType, opt => opt.MapFrom(src => src.ProductType))
                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId));
 
+            cfg.CreateMap<KalturaTriggerCampaignEvent, TriggerCampaignEvent>()
+                .IncludeBase<KalturaOTTObject, CoreObject>()
+                .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.CampaignId, opt => opt.MapFrom(src => src.CampaignId))
+                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
+                .ForMember(dest => dest.DomainId, opt => opt.MapFrom(src => src.HouseholdId))
+                ;
+
+            cfg.CreateMap<TriggerCampaignEvent, KalturaTriggerCampaignEvent>()
+               .IncludeBase<CoreObject, KalturaOTTObject>()
+               .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.UserId))
+                .ForMember(dest => dest.CampaignId, opt => opt.MapFrom(src => src.CampaignId))
+                .ForMember(dest => dest.Udid, opt => opt.MapFrom(src => src.Udid))
+                .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.DomainId))
+                ;
+
             cfg.CreateMap<KalturaBookmarkActionType, MediaPlayActions>()
                 .ConvertUsing(bookmarkActionType =>
                 {
