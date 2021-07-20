@@ -10636,6 +10636,15 @@ namespace Core.ConditionalAccess
                     List<long> addOnBase = new List<long>();
                     List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
 
+                    //BEO-10259
+                    var commercePartnerConfig = PartnerConfigurationManager.GetCommercePartnerConfig(this.m_nGroupID);
+                    if (commercePartnerConfig.IsOkStatusCode() && 
+                        commercePartnerConfig.Object.KeepSubscriptionAddOns.HasValue && commercePartnerConfig.Object.KeepSubscriptionAddOns.Value)
+                    {
+                        log.Debug($"CancelAddOnByCancelBaseSubscription: Should keep add ons by configuration for group: {this.m_nGroupID}");
+                        return false;
+                    }
+
                     List<long> setsIds = subscription.GetSubscriptionSetIdsToPriority() != null ? subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList() : null;
 
                     if (setsIds != null && setsIds.Count > 0 && Utils.TryGetSubscriptionSets(m_nGroupID, setsIds, ref subscriptionSets))

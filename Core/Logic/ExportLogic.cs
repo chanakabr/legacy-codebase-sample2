@@ -369,7 +369,8 @@ namespace APILogic
             {
                 ProgramObj[] programs;
                 // we need isLastRun to prevent retrieval of all assets on the last step (in case of the only one run).
-                if (tasksCount == 1 && isLastRun == false)
+            
+                if (tasksCount == 1 && !isLastRun)
                 {
                     programs = GetProgramsByIds(programIds, groupId);
                 }
@@ -497,7 +498,8 @@ namespace APILogic
             try
             {
                 MediaObj[] medias;
-                if (tasksCount == 1 && isLastRun == false)
+
+                if (tasksCount == 1 && !isLastRun)
                 {
                     medias = GetMediaByIds(mediaIds, groupId);
                 }
@@ -564,7 +566,8 @@ namespace APILogic
             {
                 List<Asset> assets;
                 // we need isLastRun to prevent retrieval of all assets on the last step (in case of the only one run).
-                if (tasksCount == 1 && isLastRun == false)
+            
+                if (tasksCount == 1 && !isLastRun)
                 {
                     assets = AssetManager.GetAssets(groupId, mediaIds.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), true); 
                 }

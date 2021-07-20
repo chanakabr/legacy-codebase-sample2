@@ -190,10 +190,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion KalturaObjectVirtualAssetPartnerConfig
 
             cfg.CreateMap<KalturaCommercePartnerConfig, CommercePartnerConfig>()
-                .ForMember(dest => dest.BookmarkEventThresholds, opt => opt.MapFrom(src => src.GetBookmarkEventThresholds()));
+                .ForMember(dest => dest.BookmarkEventThresholds, opt => opt.MapFrom(src => src.GetBookmarkEventThresholds()))
+                .ForMember(dest => dest.KeepSubscriptionAddOns, opt => opt.MapFrom(src => src.KeepSubscriptionAddOns))
+                ;
 
             cfg.CreateMap<CommercePartnerConfig, KalturaCommercePartnerConfig>()
-                .ForMember(dest => dest.BookmarkEventThresholds, opt => opt.MapFrom(src => src.BookmarkEventThresholds));
+                .ForMember(dest => dest.BookmarkEventThresholds, opt => opt.MapFrom(src => src.BookmarkEventThresholds))
+                .ForMember(dest => dest.KeepSubscriptionAddOns, opt => opt.MapFrom(src => src.KeepSubscriptionAddOns))
+                ;
 
             cfg.CreateMap<KeyValuePair<eTransactionType, int>, KalturaBookmarkEventThreshold>()
                 .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => src.Key))

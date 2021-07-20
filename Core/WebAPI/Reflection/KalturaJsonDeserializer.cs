@@ -32194,10 +32194,22 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaCommercePartnerConfig
     {
+        private static RuntimeSchemePropertyAttribute KeepSubscriptionAddOnsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCommercePartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaCommercePartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("bookmarkEventThresholds") && parameters["bookmarkEventThresholds"] != null)
                 {
                     if (parameters["bookmarkEventThresholds"] is JArray)
@@ -32208,6 +32220,14 @@ namespace WebAPI.Models.Partner
                     {
                         BookmarkEventThresholds = buildList(typeof(KalturaBookmarkEventThreshold), parameters["bookmarkEventThresholds"] as object[]);
                     }
+                }
+                if (parameters.ContainsKey("keepSubscriptionAddOns") && parameters["keepSubscriptionAddOns"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        KeepSubscriptionAddOnsSchemaProperty.Validate("keepSubscriptionAddOns", parameters["keepSubscriptionAddOns"]);
+                    }
+                    KeepSubscriptionAddOns = (Boolean) Convert.ChangeType(parameters["keepSubscriptionAddOns"], typeof(Boolean));
                 }
             }
         }

@@ -1839,6 +1839,8 @@ namespace WebAPI.Reflection
                     {
                         case "BookmarkEventThresholds":
                             return "bookmarkEventThresholds";
+                        case "KeepSubscriptionAddOns":
+                            return "keepSubscriptionAddOns";
                     }
                     break;
                     

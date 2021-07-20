@@ -37738,6 +37738,10 @@ namespace WebAPI.Models.Partner
                 propertyValue = "[" + String.Join(", ", BookmarkEventThresholds.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("bookmarkEventThresholds", "\"bookmarkEventThresholds\": " + propertyValue);
             }
+            if(KeepSubscriptionAddOns.HasValue && (retrievedProperties == null || retrievedProperties.Contains("keepSubscriptionAddOns")))
+            {
+                ret.Add("keepSubscriptionAddOns", "\"keepSubscriptionAddOns\": " + KeepSubscriptionAddOns.ToString().ToLower());
+            }
             return ret;
         }
         
@@ -37756,6 +37760,10 @@ namespace WebAPI.Models.Partner
             {
                 propertyValue = BookmarkEventThresholds.Count > 0 ? "<item>" + String.Join("</item><item>", BookmarkEventThresholds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("bookmarkEventThresholds", "<bookmarkEventThresholds>" + propertyValue + "</bookmarkEventThresholds>");
+            }
+            if(KeepSubscriptionAddOns.HasValue && (retrievedProperties == null || retrievedProperties.Contains("keepSubscriptionAddOns")))
+            {
+                ret.Add("keepSubscriptionAddOns", "<keepSubscriptionAddOns>" + KeepSubscriptionAddOns.ToString().ToLower() + "</keepSubscriptionAddOns>");
             }
             return ret;
         }
