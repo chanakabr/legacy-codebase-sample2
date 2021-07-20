@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
@@ -24,6 +25,8 @@ namespace WebAPI.Controllers
         /// <returns>canary Deployment configuration</returns>
         [Action("get", isInternal: true)]
         [ApiAuthorize]
+        [Throws(eResponseStatus.GroupCanaryDeploymentConfigurationNotSetYet)]
+        [Throws(eResponseStatus.CanaryDeploymentConfigurationIsDisabledOnTheEnvironment)]
         public static KalturaCanaryDeploymentConfiguration Get(int groupId)
         {
             KalturaCanaryDeploymentConfiguration res = null;
@@ -49,6 +52,9 @@ namespace WebAPI.Controllers
         [Action("setMigrationEventStatus", isInternal: true)]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.FailedToEnableCanaryDeploymentMigrationEvent)]
+        [Throws(eResponseStatus.FailedToDisableCanaryDeploymentMigrationEvent)]
+        [Throws(eResponseStatus.CanaryDeploymentConfigurationIsDisabledOnTheEnvironment)]
         static public bool SetMigrationEventStatus(int groupId, KalturaCanaryDeploymentMigrationEvent migrationEvent, bool status)
         {
             bool res = false;
@@ -72,7 +78,9 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [ApiAuthorize]
         [Action("setAllMigrationEventsStatus", isInternal: true)]
-        [ValidationException(SchemeValidationType.ACTION_NAME)]/// 
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.FailedToSetAllGroupCanaryDeploymentMigrationEventsStatus)]
+        [Throws(eResponseStatus.CanaryDeploymentConfigurationIsDisabledOnTheEnvironment)]
         static public bool SetAllMigrationEventsStatus(int groupId, bool status)
         {
             bool res = false;
@@ -98,6 +106,13 @@ namespace WebAPI.Controllers
         [Action("setRoutingAction", isInternal: true)]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.FailedToSetAllRoutingActions)]
+        [Throws(eResponseStatus.FailedToSetRouteAppTokenController)]
+        [Throws(eResponseStatus.FailedToSetRouteUserLoginPinController)]
+        [Throws(eResponseStatus.FailedToSetRouteSessionController)]
+        [Throws(eResponseStatus.FailedToSetRouteHouseHoldDevicePinActions)]
+        [Throws(eResponseStatus.FailedToSetRouteRefreshToken)]
+        [Throws(eResponseStatus.CanaryDeploymentConfigurationIsDisabledOnTheEnvironment)]
         static public bool SetRoutingAction(int groupId, KalturaCanaryDeploymentRoutingAction routingAction, KalturaCanaryDeploymentRoutingService routingService)
         {
             bool res = false;
@@ -121,6 +136,13 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Action("setAllRoutingActionsToMs", isInternal: true)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.FailedToSetAllRoutingActions)]
+        [Throws(eResponseStatus.FailedToSetRouteAppTokenController)]
+        [Throws(eResponseStatus.FailedToSetRouteUserLoginPinController)]
+        [Throws(eResponseStatus.FailedToSetRouteSessionController)]
+        [Throws(eResponseStatus.FailedToSetRouteHouseHoldDevicePinActions)]
+        [Throws(eResponseStatus.FailedToSetRouteRefreshToken)]
+        [Throws(eResponseStatus.CanaryDeploymentConfigurationIsDisabledOnTheEnvironment)]
         public static bool SetAllRoutingActionsToMs(int groupId)
         {
             bool res = false;
@@ -144,6 +166,13 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Action("setAllRoutingActionsToPhoenix", isInternal: true)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.FailedToSetAllRoutingActions)]
+        [Throws(eResponseStatus.FailedToSetRouteAppTokenController)]
+        [Throws(eResponseStatus.FailedToSetRouteUserLoginPinController)]
+        [Throws(eResponseStatus.FailedToSetRouteSessionController)]
+        [Throws(eResponseStatus.FailedToSetRouteHouseHoldDevicePinActions)]
+        [Throws(eResponseStatus.FailedToSetRouteRefreshToken)]
+        [Throws(eResponseStatus.CanaryDeploymentConfigurationIsDisabledOnTheEnvironment)]
         public static bool SetAllRoutingActionsToPhoenix(int groupId)
         {
             bool res = false;
@@ -166,6 +195,8 @@ namespace WebAPI.Controllers
         /// <returns>canary Deployment configuration</returns>
         [Action("delete", isInternal: true)]
         [ApiAuthorize]
+        [Throws(eResponseStatus.FailedToDeleteGroupCanaryDeploymentConfiguration)]
+        [Throws(eResponseStatus.CanaryDeploymentConfigurationIsDisabledOnTheEnvironment)]
         public static bool Delete(int groupId)
         {
             bool res = false;

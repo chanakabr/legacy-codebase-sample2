@@ -14,16 +14,16 @@ namespace WebAPI.Controllers
     [Service("categoryVersion")]
     [AddAction(Summary = "categoryVersion add",
         ObjectToAddDescription = "categoryVersion details",
-        ClientThrows = new eResponseStatus[]{
-            eResponseStatus.NameRequired,
-            eResponseStatus.CategoryVersionDoesNotExist
+        ClientThrows = new [] {
+            eResponseStatus.CategoryVersionDoesNotExist,
+            eResponseStatus.CategoryNotExist
         }
      )]
 
     [UpdateAction(Summary = "categoryVersion update",
         IdDescription = "Category version identifier",
         ObjectToUpdateDescription = "categoryVersion details",
-        ClientThrows = new eResponseStatus[] {
+        ClientThrows = new [] {
             eResponseStatus.CategoryVersionDoesNotExist,
             eResponseStatus.CategoryVersionIsNotDraft
         }
@@ -31,14 +31,16 @@ namespace WebAPI.Controllers
 
     [DeleteAction(Summary = "Remove category version",
         IdDescription = "Category version identifier",
-        ClientThrows = new eResponseStatus[] { 
+        ClientThrows = new [] {
             eResponseStatus.CategoryVersionIsNotDraft,
-            eResponseStatus.CategoryVersionDoesNotExist
+            eResponseStatus.CategoryVersionDoesNotExist,
+            eResponseStatus.CategoryNotExist,
+            eResponseStatus.CategoryItemIsRoot
         }
     )]
 
     [ListAction(Summary = "Gets all category versions", IsFilterOptional = false, IsPagerOptional = true)]
-    public class CategoryVersionController : KalturaCrudController<KalturaCategoryVersion, KalturaCategoryVersionListResponse, CategoryVersion, long, KalturaCategoryVersionFilter>
+    public class  CategoryVersionController : KalturaCrudController<KalturaCategoryVersion, KalturaCategoryVersionListResponse, CategoryVersion, long, KalturaCategoryVersionFilter>
     {
         /// <summary>
         /// Acreate new tree for this categoryItem
@@ -49,9 +51,9 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("createTree")]
         [ApiAuthorize]
-        [Throws(StatusCode.ArgumentCannotBeEmpty)]
         [Throws(eResponseStatus.CategoryIsAlreadyAssociatedToVersionTree)]
         [Throws(eResponseStatus.CategoryIsNotRoot)]
+        [Throws(eResponseStatus.CategoryNotExist)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         public static KalturaCategoryVersion CreateTree(long categoryItemId, string name, string comment)

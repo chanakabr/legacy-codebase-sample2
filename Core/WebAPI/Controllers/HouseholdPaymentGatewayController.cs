@@ -27,7 +27,11 @@ namespace WebAPI.Controllers
         /// </remarks>        
         [Action("list")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.DomainNotExists)]
         static public KalturaHouseholdPaymentGatewayListResponse List()
         {
             List<KalturaHouseholdPaymentGateway> list = null;
@@ -54,10 +58,10 @@ namespace WebAPI.Controllers
         /// Set user billing account identifier (charge ID), for a specific household and a specific payment gateway
         /// </summary>
         /// <remarks>
-        /// Possible status codes:         
-        /// Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External identifier required = 6016, Error saving payment gateway household = 6017, 
+        /// Possible status codes:
+        /// Payment gateway not exist = 6008, Payment gateway charge id required = 6009, External identifier required = 6016, Error saving payment gateway household = 6017,
         /// Charge id already set to household payment gateway = 6025
-        /// </remarks>        
+        /// </remarks>
         /// <param name="paymentGatewayExternalId">External identifier for the payment gateway  </param>
         /// <param name="chargeId">The billing user account identifier for this household at the given payment gateway</param>        
         [Action("setChargeID")]
@@ -133,17 +137,16 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Enable a payment-gateway provider for the household. 
         /// </summary>
-        /// <remarks>
-        /// Possible status codes:       
-        /// user suspended = 2001, payment gateway id is required = 6005, error saving payment gateway household = 6017, household already set to payment gateway = 6024, payment gateway selection is disabled = 6028,
-        /// payment gateway not valid = 6043
-        /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
         [Action("enable")]
         [OldStandardAction("set")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
         [Throws(eResponseStatus.ErrorSavingPaymentGatewayHousehold)]
         [Throws(eResponseStatus.HouseholdAlreadySetToPaymentGateway)]
@@ -176,17 +179,16 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Disable payment-gateway on the household
         /// </summary>
-        /// <remarks>
-        /// Possible status codes:       
-        /// user suspended = 2001, payment gateway identifier is missing = 6005, payment gateway not exist = 6008, household not set to payment gateway = 6027
-        /// payment gateway selection is disabled = 6028, service forbidden = 500004
-        /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param>
         [Action("disable")]
         [ApiAuthorize]
         [OldStandardAction("delete")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.HouseholdNotSetToPaymentGateway)]
@@ -262,6 +264,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.HouseholdNotSetToPaymentGateway)]
         static public void Suspend(int paymentGatewayId, KalturaSuspendSettings suspendSettings = null)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -286,6 +290,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.HouseholdNotSetToPaymentGateway)]
         static public void Resume(int paymentGatewayId, List<KalturaKeyValue> adapterData = null)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;

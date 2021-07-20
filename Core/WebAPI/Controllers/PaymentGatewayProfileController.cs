@@ -85,6 +85,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandardArgument("paymentGatewayId", "payment_gateway_id")]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
         static public bool Delete(int paymentGatewayId)
         {
             bool response = false;
@@ -115,9 +116,9 @@ namespace WebAPI.Controllers
         [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
-        [Throws(eResponseStatus.NameRequired)]
-        [Throws(eResponseStatus.SharedSecretRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
+        [Throws(eResponseStatus.PaymentGatewayNameRequired)]
+        [Throws(eResponseStatus.PaymentGatewaySharedSecretRequired)]
         [Throws(eResponseStatus.NoPaymentGatewayToInsert)]
         static public KalturaPaymentGatewayProfile Add(KalturaPaymentGatewayProfile paymentGateway)
         {
@@ -187,8 +188,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
         [Throws(eResponseStatus.PaymentGatewayIdRequired)]
-        [Throws(eResponseStatus.NameRequired)]
-        [Throws(eResponseStatus.SharedSecretRequired)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayNameRequired)]
+        [Throws(eResponseStatus.PaymentGatewaySharedSecretRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
         static public KalturaPaymentGatewayProfile Update(int paymentGatewayId, KalturaPaymentGatewayProfile paymentGateway)
@@ -288,16 +290,13 @@ namespace WebAPI.Controllers
         /// <param name="alias">The payemnt gateway for which to return the registration URL/s for the household. If omitted – return the regisration URL for the household for the default payment gateway</param>                
         /// <param name="intent">Represent the client’s intent for working with the payment gateway. Intent options to be coordinated with the applicable payment gateway adapter.</param>                
         /// <param name="extraParameters">Additional parameters to send to the payment gateway adapter.</param>
-        /// <remarks>
-        /// Possible status codes:       
-        /// PaymentGatewayNotExist = 6008, SignatureMismatch = 6013
-        /// </remarks>
         [Action("getConfiguration")]
         [ApiAuthorize]
         [OldStandardArgument("extraParameters", "extra_parameters")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.SignatureMismatch)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.NoConfigurationFound)]
         static public Models.Billing.KalturaPaymentGatewayConfiguration GetConfiguration(string alias, string intent, List<KalturaKeyValue> extraParameters)
         {
             Models.Billing.KalturaPaymentGatewayConfiguration response = null;

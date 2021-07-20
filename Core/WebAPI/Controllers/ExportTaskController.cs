@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -21,13 +22,13 @@ namespace WebAPI.Controllers
         /// Adds a new bulk export task
         /// </summary>
         /// <param name="task">The task model to add</param>
-        /// <remarks>
-        /// Possible status codes:   
-        /// Export notification URL required = 5017, Export frequency minimum value = 5018, Alias must be unique = 5019, Alias is required = 5020 
-        /// </remarks>
         /// <returns></returns>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AliasRequired)]
+        [Throws(eResponseStatus.ExportNotificationUrlRequired)]
+        [Throws(eResponseStatus.ExportFrequencyMinValue)]
+        [Throws(eResponseStatus.AliasMustBeUnique)]
         static public KalturaExportTask Add(KalturaExportTask task)
         {
             KalturaExportTask response = null;
@@ -53,14 +54,13 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">The task id to update</param>
         /// <param name="task">The task model to update</param>
-        /// <remarks>
-        /// Possible status codes:   
-        /// Export notification URL required = 5017, Export frequency minimum value = 5018, Alias must be unique = 5019
-        /// </remarks>
         /// <returns></returns>
         [Action("update")]
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
+        [Throws(eResponseStatus.ExportNotificationUrlRequired)]
+        [Throws(eResponseStatus.ExportFrequencyMinValue)]
+        [Throws(eResponseStatus.AliasMustBeUnique)]
         static public KalturaExportTask Update(long id, KalturaExportTask task)
         {
             KalturaExportTask response = null;
@@ -85,7 +85,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="task">The task model to update</param>
         /// <remarks>
-        /// Possible status codes:   
+        /// Possible status codes:
         /// Export notification URL required = 5017, Export frequency minimum value = 5018, Alias must be unique = 5019
         /// </remarks>
         /// <returns></returns>

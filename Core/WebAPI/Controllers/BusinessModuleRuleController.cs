@@ -132,6 +132,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("get")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.RuleNotExists)]
         static public KalturaBusinessModuleRule Get(long id)
         {
             KalturaBusinessModuleRule response = null;

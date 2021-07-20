@@ -20,7 +20,6 @@ namespace WebAPI.Controllers
         /// Add media to user's favorite list
         /// </summary>        
         /// <param name="favorite">Favorite details.</param>
-        /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserDoesNotExist)]
@@ -107,12 +106,8 @@ namespace WebAPI.Controllers
         /// Remove media from user's favorite list
         /// </summary>        
         /// <param name="id">Media identifier</param>
-        /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001, Wrong username or password = 1011</remarks>
         [Action("delete")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.UserDoesNotExist)]
-        [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.UserFavoriteNotDeleted)]
         static public bool Delete(long id)
         {
@@ -178,11 +173,11 @@ namespace WebAPI.Controllers
         /// Retrieving users' favorites
         /// </summary>            
         /// <param name="filter">Request filter</param>
-        /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001</remarks>
         [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
         static public KalturaFavoriteListResponse List(KalturaFavoriteFilter filter = null)
         {
             List<KalturaFavorite> favorites = null;
@@ -223,7 +218,7 @@ namespace WebAPI.Controllers
         /// <param name="filter">Request filter</param>                        
         /// <param name="udid">device identifier</param>                        
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. 
-        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>        
+        /// Possible values: stats – add the AssetStats model to each asset. files – add the AssetFile model to each asset. images - add the Image model to each asset.</param>
         /// <remarks>Possible status codes: User does not exist = 2000, User suspended = 2001</remarks>
         [Action("listOldStandard")]
         [OldStandardAction("list")]

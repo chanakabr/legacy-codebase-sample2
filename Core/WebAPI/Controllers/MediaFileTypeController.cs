@@ -49,6 +49,7 @@ namespace WebAPI.Controllers
         [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MediaFileTypeNameAlreadyInUse)]
+        [Throws(eResponseStatus.MediaFileTypeDoesNotExist)]
         static public KalturaMediaFileType Add(KalturaMediaFileType mediaFileType)
         {
             int groupId = KS.GetFromRequest().GroupId;

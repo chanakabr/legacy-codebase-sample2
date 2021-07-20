@@ -84,6 +84,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.CategoryNotExist)]
         [Throws(eResponseStatus.CategoryVersionDoesNotExist)]
         static public KalturaCategoryTree GetByVersion(long? versionId = null, int? deviceFamilyId = null)
         {

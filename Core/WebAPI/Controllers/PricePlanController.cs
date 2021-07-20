@@ -95,6 +95,7 @@ namespace WebAPI.Controllers
         [Action("delete")]
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
+        [Throws(eResponseStatus.PricePlanDoesNotExist)]
         static public bool Delete(long id)
         {
             bool result = false;
@@ -122,8 +123,10 @@ namespace WebAPI.Controllers
         /// <param name="pricePlan">Price plan Object</param>
         [Action("add")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.CurrencyIsMissing)]
-        [Throws(eResponseStatus.InvalidCurrency)]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.InvalidArgumentValue)]
+        [Throws(eResponseStatus.InvalidPriceCode)]
+        [Throws(eResponseStatus.PriceCodeDoesNotExist)]
         static public KalturaPricePlan Add(KalturaPricePlan pricePlan)
         {
             KalturaPricePlan result = null;

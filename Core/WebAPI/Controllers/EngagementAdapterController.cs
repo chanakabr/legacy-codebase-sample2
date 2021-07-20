@@ -52,6 +52,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Action("get")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.EngagementAdapterNotExist)]
         static public KalturaEngagementAdapter Get(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -81,7 +82,6 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.EngagementAdapterIdentifierRequired)]
         [Throws(eResponseStatus.EngagementAdapterNotExist)]
-        [Throws(eResponseStatus.ActionIsNotAllowed)]
         static public bool Delete(int id)
         {
             bool response = false;
@@ -114,6 +114,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NoEngagementAdapterToInsert)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.ProviderUrlRequired)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
         static public KalturaEngagementAdapter Add(KalturaEngagementAdapter engagementAdapter)
         {
             KalturaEngagementAdapter response = null;
@@ -157,6 +158,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NoEngagementAdapterToUpdate)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.ProviderUrlRequired)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.EngagementAdapterNotExist)]
         static public KalturaEngagementAdapter Update(int id, KalturaEngagementAdapter engagementAdapter)
         {
             KalturaEngagementAdapter response = null;

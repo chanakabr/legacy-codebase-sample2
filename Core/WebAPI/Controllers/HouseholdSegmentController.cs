@@ -8,14 +8,15 @@ namespace WebAPI.Controllers
     [Service("householdSegment")]
     [AddAction(Summary = "householdSegment add",
                ObjectToAddDescription = "householdSegment details",
-               ClientThrows = new eResponseStatus[]{
+               ClientThrows = new [] {
                    eResponseStatus.HouseholdRequired,
+                   eResponseStatus.DomainNotExists,
                    eResponseStatus.ObjectNotExist
                })]
 
     [DeleteAction(Summary = "Remove segment from household",
                   IdDescription = "Segment identifier",
-                  ClientThrows = new eResponseStatus[] { 
+                  ClientThrows = new [] { 
                       eResponseStatus.HouseholdRequired,
                       eResponseStatus.ObjectNotExist,
                   })]              

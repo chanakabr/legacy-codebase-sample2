@@ -54,6 +54,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Action("get")]
         [ApiAuthorize]
+        [Throws(StatusCode.NotFound)]
         static public KalturaOTTCategory Get(int id)
         {
             return BaseCategoryController.Get(id);

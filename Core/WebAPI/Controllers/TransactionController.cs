@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UnableToPurchaseCollectionPurchased)]
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.IncorrectPrice)]
-        [Throws(eResponseStatus.UnKnownPPVModule)]
+        [Throws(eResponseStatus.PendingEntitlement)]
         [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentGatewayChargeIdRequired)]
@@ -48,6 +48,11 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce)]
         [Throws(eResponseStatus.CanOnlyUpgradeSubscriptionWithTheSameCurrencyAsCurrentSubscription)]
         [Throws(eResponseStatus.SubscriptionNotAllowedForUserType)]
+        [Throws(eResponseStatus.PaymentGatewayNotValid)]
+        [Throws(eResponseStatus.PaymentGatewaySuspended)]
+        [Throws(eResponseStatus.PaymentGatewayAdapterFailReasonUnknown)]
+        [Throws(eResponseStatus.PurchasePassedEntitlementFailed)]
+        [Throws(eResponseStatus.PurchaseFailed)]
         static public KalturaTransaction Upgrade(KalturaPurchase purchase)
         {
             KalturaTransaction response = new KalturaTransaction();
@@ -85,28 +90,13 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.CouponNotValid)]
-        [Throws(eResponseStatus.UnableToPurchasePPVPurchased)]
-        [Throws(eResponseStatus.UnableToPurchaseFree)]
-        [Throws(eResponseStatus.UnableToPurchaseForPurchaseSubscriptionOnly)]
-        [Throws(eResponseStatus.UnableToPurchaseSubscriptionPurchased)]
-        [Throws(eResponseStatus.NotForPurchase)]
-        [Throws(eResponseStatus.UnableToPurchaseCollectionPurchased)]
-        [Throws(eResponseStatus.AdapterUrlRequired)]
-        [Throws(eResponseStatus.IncorrectPrice)]
         [Throws(eResponseStatus.UnKnownPPVModule)]
-        [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
-        [Throws(eResponseStatus.PaymentGatewayNotExist)]
-        [Throws(eResponseStatus.PaymentGatewayChargeIdRequired)]
-        [Throws(eResponseStatus.NoConfigurationFound)]
-        [Throws(eResponseStatus.SignatureMismatch)]
-        [Throws(eResponseStatus.UnknownTransactionState)]
-        [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
-        [Throws(eResponseStatus.PaymentMethodNotExist)]
+        [Throws(eResponseStatus.SubscriptionNotAllowedForUserType)]
         [Throws(eResponseStatus.SubscriptionNotRenewable)]
         [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeRecurringSubscriptionInTheSameSubscriptionSet)]
-        [Throws(eResponseStatus.CanOnlyDowngradeSubscriptionWithLowerPriority)]
         [Throws(eResponseStatus.CanOnlyUpgradeOrDowngradeSubscriptionOnce)]
-        [Throws(eResponseStatus.SubscriptionNotAllowedForUserType)]
+        [Throws(eResponseStatus.CanOnlyDowngradeSubscriptionWithLowerPriority)]
+        [Throws(eResponseStatus.PaymentGatewayNotValid)]
         static public void Downgrade(KalturaPurchase purchase)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -265,12 +255,17 @@ namespace WebAPI.Controllers
         /// <param name="externalTransactionId">external transaction identifier</param>
         /// <param name="signature">Security signature to validate the caller is a payment gateway adapter application</param>
         /// <param name="status">Status properties</param>
-        /// <remarks>Possible status codes: payment gateway not exist = 6008, signature does not match = 6036, error while updating pending transaction = 6037, 
-        /// Payment gateway transaction was not found = 6038, Payment gateway transaction is not pending = 6039, Unknown transaction state = 6042, 
-        ///,         </remarks>
         [Action("updateStatus")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.NoPaymentGateway)]
+        [Throws(eResponseStatus.UnknownTransactionState)]
+        [Throws(eResponseStatus.PaymentGatewayAdapterFailReasonUnknown)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayTransactionNotFound)]
+        [Throws(eResponseStatus.PaymentGatewayTransactionIsNotPending)]
+        [Throws(eResponseStatus.ErrorUpdatingPendingTransaction)]
+        [Throws(eResponseStatus.UnKnownPPVModule)]
         static public void UpdateStatus(string paymentGatewayId, string externalTransactionId, string signature, KalturaTransactionStatus status)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -333,6 +328,25 @@ namespace WebAPI.Controllers
         [Action("validateReceipt")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.InvalidContentId)]
+        [Throws(eResponseStatus.NoMediaRelatedToFile)]
+        [Throws(eResponseStatus.UnKnownPPVModule)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.NoConfigurationFound)]
+        [Throws(eResponseStatus.PurchasePassedEntitlementFailed)]
+        [Throws(eResponseStatus.PaymentGatewayAdapterFailReasonUnknown)]
+        [Throws(eResponseStatus.UnknownTransactionState)]
+        [Throws(eResponseStatus.UnableToPurchasePPVPurchased)]
+        [Throws(eResponseStatus.UnableToPurchaseFree)]
+        [Throws(eResponseStatus.UnableToPurchaseForPurchaseSubscriptionOnly)]
+        [Throws(eResponseStatus.UnableToPurchaseSubscriptionPurchased)]
+        [Throws(eResponseStatus.NotForPurchase)]
+        [Throws(eResponseStatus.UnableToPurchaseCollectionPurchased)]
+        [Throws(eResponseStatus.PendingEntitlement)]
         static public KalturaTransaction ValidateReceipt(KalturaExternalReceipt externalReceipt)
         {
             KalturaTransaction response = null;
@@ -417,6 +431,10 @@ namespace WebAPI.Controllers
         [OldStandardArgument("transactionType", "transaction_type")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("assetId", MinInteger = 1)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
         static public bool SetWaiver(int assetId, KalturaTransactionType transactionType)
         {
             bool response = false;

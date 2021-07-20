@@ -23,6 +23,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(StatusCode.UserIDInvalid)]
         static public KalturaPersonalFeedListResponse List(KalturaPersonalFeedFilter filter, KalturaFilterPager pager = null)
         {
             KalturaPersonalFeedListResponse response = null;

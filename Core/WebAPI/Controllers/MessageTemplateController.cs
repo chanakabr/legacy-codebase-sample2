@@ -1,4 +1,5 @@
 ﻿using System;
+using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -66,6 +67,9 @@ namespace WebAPI.Controllers
         [OldStandardArgument("messageType", "asset_Type")]
         [OldStandardArgument("messageType", "assetType", "3.6.2094.15157")]        
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.MessagePlaceholdersInvalid)]
+        [Throws(eResponseStatus.DatetimeFormatIsInvalid)]
+        [Throws(eResponseStatus.URLPlaceholdersInvalid)]
         static public KalturaMessageTemplate Update(KalturaMessageTemplateType messageType, KalturaMessageTemplate template)
         {
             KalturaMessageTemplate response = null;
@@ -110,6 +114,7 @@ namespace WebAPI.Controllers
         [OldStandardArgument("messageType", "asset_Type")]
         [OldStandardArgument("messageType", "assetType", "3.6.2094.15157")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.MessageTemplateNotFound)]
         static public KalturaMessageTemplate Get(KalturaMessageTemplateType messageType)
         {
             KalturaMessageTemplate response = null;

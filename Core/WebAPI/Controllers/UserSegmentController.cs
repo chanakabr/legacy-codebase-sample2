@@ -24,11 +24,6 @@ namespace WebAPI.Controllers
         /// <returns>All the segments that apply for user in filter</returns>
         [Action("list")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.UserDoesNotExist)]
-        [Throws(eResponseStatus.UserWithNoDomain)]
-        [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.UserNotInDomain)]
-        [Throws(eResponseStatus.DomainNotExists)]
         static public KalturaUserSegmentListResponse List(KalturaUserSegmentFilter filter, KalturaFilterPager pager = null)
         {
             KalturaUserSegmentListResponse response = null;
@@ -78,6 +73,8 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.ObjectNotExist)]
         static public KalturaUserSegment Add(KalturaUserSegment userSegment)
         {
             try
@@ -102,6 +99,7 @@ namespace WebAPI.Controllers
         [Action("delete")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.ObjectNotExist)]
         static public bool Delete(string userId, long segmentId)
         {
             bool response = false;

@@ -26,7 +26,11 @@ namespace WebAPI.Controllers
         /// </remarks>        
         [Action("list")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.DomainNotExists)]
         static public KalturaHouseholdPaymentMethodListResponse List()
         {
             List<KalturaHouseholdPaymentMethod> list = null;
@@ -100,10 +104,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Removes a payment method of the household. 
         /// </summary>
-        /// <remarks>
-        /// Possible status codes:  
-        /// Payment method not set for household = 6048, PaymentMethodIsUsedByHousehold = 3041, PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007,
-        /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
         /// <param name="paymentMethodId">Payment method Identifier</param>
         /// <returns></returns>
@@ -115,6 +115,16 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentMethodIsUsedByHousehold)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
+        [Throws(eResponseStatus.PaymentMethodIdRequired)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.NoConfigurationFound)]
+        [Throws(eResponseStatus.SignatureMismatch)]
         static public bool Remove(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;
@@ -142,10 +152,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Force remove of a payment method of the household. 
         /// </summary>
-        /// <remarks>
-        /// Possible status codes:  
-        /// Payment method not set for household = 6048, PaymentGatewayNotExist = 6008, PaymentGatewayNotSetForHousehold = 6007
-        /// </remarks>
         /// <param name="paymentGatewayId">Payment Gateway Identifier</param> 
         /// <param name="paymentMethodId">Payment method Identifier</param>
         /// <returns></returns>
@@ -156,6 +162,16 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
+        [Throws(eResponseStatus.PaymentMethodIdRequired)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.NoConfigurationFound)]
+        [Throws(eResponseStatus.SignatureMismatch)]
         static public bool ForceRemove(int paymentGatewayId, int paymentMethodId)
         {
             bool response = false;

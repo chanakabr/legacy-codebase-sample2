@@ -110,6 +110,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ProgramDoesntExist)]
         [Throws(eResponseStatus.ActionNotRecognized)]
         [Throws(eResponseStatus.InvalidAssetId)]
+        [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.UserNotAllowed)]
         static public bool Add(KalturaBookmark bookmark)
         {
             if (bookmark.PlayerData == null)

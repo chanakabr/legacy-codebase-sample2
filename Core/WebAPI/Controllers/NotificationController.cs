@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -51,14 +52,14 @@ namespace WebAPI.Controllers
         /// <summary>
         /// TBD 
         /// </summary>
-        /// <remarks>
-        /// Possible status codes:       
-        /// </remarks>
         /// <param name="identifier">In case type is 'announcement', identifier should be the announcement ID. In case type is 'system', identifier should be 'login' (the login topic)</param>        
         /// <param name="type">'announcement' - TV-Series topic, 'system' - login topic</param>
         [Action("register")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.ItemNotFound)]
+        [Throws(eResponseStatus.AnnouncementNotFound)]
+        [Throws(eResponseStatus.ReminderNotFound)]
         static public KalturaRegistryResponse Register(string identifier, KalturaNotificationType type)
         {
             KalturaRegistryResponse response = null;

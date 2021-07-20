@@ -86,10 +86,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Delete External channel by External channel id
         /// </summary>
-        /// <remarks>
-        /// Possible status codes:   
-        /// external channel not exist = 4011, external channel identifier required = 4013
-        /// </remarks>
         /// <param name="externalChannelId">External channel identifier</param>
         [Action("delete")]
         [ApiAuthorize]
@@ -120,21 +116,18 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Insert new External channel for partner
         /// </summary>
-        /// <remarks>
-        /// Possible status codes:     
-        /// recommendation engine not exist = 4007, recommendation engine identifier required = 4008, inactive external channel enrichment = 4016, 
-        /// name required = 5005, external identifier required = 6016, external identifier must be unique = 6040
-        /// </remarks>
         /// <param name="externalChannel">External channel Object</param>
         [Action("add")]
         [ApiAuthorize]
         [OldStandardArgument("externalChannel", "external_channel")]
+        [Throws(eResponseStatus.NoExternalChannelToInsert)]
         [Throws(eResponseStatus.RecommendationEngineNotExist)]
         [Throws(eResponseStatus.RecommendationEngineIdentifierRequired)]
         [Throws(eResponseStatus.InactiveExternalChannelEnrichment)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
         static public KalturaExternalChannelProfile Add(KalturaExternalChannelProfile externalChannel)
         {
             KalturaExternalChannelProfile response = null;
@@ -167,6 +160,7 @@ namespace WebAPI.Controllers
         /// <param name="externalChannel">External channel Object</param>       
         [Action("update")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.NoExternalChannelToUpdate)]
         [Throws(eResponseStatus.ExternalChannelNotExist)]
         [Throws(eResponseStatus.ExternalChannelIdentifierRequired)]
         [Throws(eResponseStatus.InactiveExternalChannelEnrichment)]
@@ -199,11 +193,11 @@ namespace WebAPI.Controllers
         /// Update External channel details
         /// </summary>
         /// <remarks>
-        /// Possible status codes:   
+        /// Possible status codes:
         /// external channel not exist = 4011, external channel identifier required = 4013, inactive external channel enrichment = 4016,
-        /// name required = 5005, external identifier required = 6016, external identifier must be unique = 6040  
+        /// name required = 5005, external identifier required = 6016, external identifier must be unique = 6040
         /// </remarks>
-        /// <param name="external_channel">External channel Object</param>       
+        /// <param name="external_channel">External channel Object</param>
         [Action("updateOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("update")]

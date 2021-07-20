@@ -24,6 +24,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(StatusCode.UserIDInvalid)]
         static public KalturaFollowTvSeriesListResponse List(KalturaFollowTvSeriesFilter filter, KalturaFilterPager pager = null)
         {
             KalturaFollowTvSeriesListResponse response = null;
@@ -81,7 +82,6 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Delete a user's tv series follow.
-        /// <remarks>Possible status codes: UserNotFollowing = 8012, NotFound = 500007, InvalidAssetId = 4024, AnnouncementNotFound = 8006</remarks>
         /// </summary>
         /// <param name="assetId">Asset identifier</param>
         /// <returns></returns>
@@ -89,9 +89,10 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandardArgument("assetId", "asset_id")]
         [SchemeArgument("assetId", MinInteger = 1)]
+        [Throws(StatusCode.UserIDInvalid)]
         [Throws(eResponseStatus.UserNotFollowing)]
         [Throws(eResponseStatus.InvalidAssetId)]
-        [Throws(eResponseStatus.AnnouncementNotFound)]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
         public static bool Delete(int assetId)
         {
             bool response = false;
@@ -134,6 +135,10 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.UserAlreadyFollowing)]
         [Throws(eResponseStatus.InvalidAssetId)]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.FailCreateAnnouncement)]
+        [Throws(StatusCode.UserIDInvalid)]
         static public KalturaFollowTvSeries Add(KalturaFollowTvSeries followTvSeries)
         {
             var contextData = KS.GetContextData();
@@ -198,7 +203,7 @@ namespace WebAPI.Controllers
         [Action("deleteWithToken")]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.InvalidToken)]
+        [Throws(StatusCode.UserIDInvalid)]
         public static void DeleteWithToken(int assetId, string token, int partnerId)
         {
             try

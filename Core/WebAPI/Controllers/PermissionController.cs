@@ -88,6 +88,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.PermissionNameAlreadyInUse)]
         [Throws(eResponseStatus.CanModifyOnlyNormalPermission)]
+        [Throws(eResponseStatus.CannotAddPermissionTypeGroup)]
+        [Throws(eResponseStatus.PermissionItemNotFound)]
         static public KalturaPermission Add(KalturaPermission permission)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -207,6 +209,7 @@ namespace WebAPI.Controllers
         [SchemeArgument("id", MinLong = 1)]
         [Throws(eResponseStatus.PermissionNotFound)]
         [Throws(eResponseStatus.CanModifyOnlyNormalPermission)]
+        [Throws(eResponseStatus.PermissionItemNotFound)]
         static public KalturaPermission Update(long id, KalturaPermission permission)
         {
             KalturaPermission response = null;

@@ -206,13 +206,9 @@ namespace WebAPI.Controllers
         /// Returns the users within the household
         /// </summary>                
         /// <param name="filter">Household user filter</param>
-        /// <remarks>Possible status codes: 
-        /// Household does not exist = 1006, Household user failed = 1007  
-        /// </remarks>
         [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.DomainNotExists)]
-        [Throws(eResponseStatus.HouseholdUserFailed)]
         static public KalturaHouseholdUserListResponse List(KalturaHouseholdUserFilter filter = null)
         {
             KalturaHouseholdUserListResponse response = new KalturaHouseholdUserListResponse(); 
