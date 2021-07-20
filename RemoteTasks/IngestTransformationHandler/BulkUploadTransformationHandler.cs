@@ -39,6 +39,8 @@ namespace IngestTransformationHandler
         private BulkUpload _bulUpload;
         private BulkUploadIngestJobData _jobData;
         private BulkUploadEpgAssetData _objectData;
+        private IDictionary<string,LanguageObj> _languages;
+        private LanguageObj _defaultLanguage;
 
         private IngestProfile _ingestProfile;
         private DistributedLock _locker;
@@ -169,6 +171,8 @@ namespace IngestTransformationHandler
 
             _ingestProfile = GetIngestProfile();
             _bulUpload.UpdaterId = serviceEvent.UserId;
+            
+            _languages = BulkUploadMethods.GetGroupLanguages(_eventData.GroupId, out _defaultLanguage);
         }
 
         private Status ValidateBulkUpload()
@@ -213,7 +217,7 @@ namespace IngestTransformationHandler
                 foreach (var result in epgBulkUploadResults)
                 {
                     var epgObject = result.Object as EpgProgramBulkUploadObject;
-                    ProgramValidator.Validate(epgObject, result);
+                    ProgramValidator.Validate(epgObject, result, _defaultLanguage);
                 }
 
                 if (epgBulkUploadResults.Any())
