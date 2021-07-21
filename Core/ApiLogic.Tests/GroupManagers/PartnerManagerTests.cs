@@ -3,6 +3,7 @@ using ApiObjects.Response;
 using AutoFixture;
 using ConfigurationManager;
 using ConfigurationManager.ConfigurationSettings.ConfigurationBase;
+using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
 using DAL;
@@ -55,12 +56,11 @@ namespace ApiLogic.Tests.GroupManagers
                                              Mock.Of<IUserManager>(), 
                                              Mock.Of<IRabbitConfigDal>(),
                                              Mock.Of<IPricingPartnerRepository>(), 
-                                             Mock.Of<IElasticSearchApi>(), 
-                                             new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()), 
                                              Mock.Of<ICatalogManager>(),
                                              Mock.Of<IUserPartnerRepository>(), 
                                              Mock.Of<IBillingPartnerRepository>(), 
-                                             Mock.Of<ICAPartnerRepository>());
+                                             Mock.Of<ICAPartnerRepository>(),
+                                             Mock.Of<IIndexManager>());
 
 
             var response = manager.GetPartners(partnerIds);
@@ -129,12 +129,11 @@ namespace ApiLogic.Tests.GroupManagers
                                             userManager.Object,
                                             rabbitConfigDal.Object,
                                             pricingPartnerRepository.Object,
-                                            Mock.Of<IElasticSearchApi>(),
-                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
                                             Mock.Of<ICatalogManager>(),
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object, 
-                                            caPartnerRepository.Object);
+                                            caPartnerRepository.Object,
+                                            Mock.Of<IIndexManager>());
 
 
             Assert.Throws<AggregateException>(() => manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
@@ -173,12 +172,11 @@ namespace ApiLogic.Tests.GroupManagers
                                             userManager.Object,
                                             rabbitConfigDal.Object,
                                             pricingPartnerRepository.Object,
-                                            Mock.Of<IElasticSearchApi>(),
-                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
                                             Mock.Of<ICatalogManager>(),
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object,
-                                            caPartnerRepository.Object);
+                                            caPartnerRepository.Object,
+                                            Mock.Of<IIndexManager>());
 
             Assert.Throws<Exception>(() => manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
                 fixture.Create<ApiObjects.PartnerSetup>(), fixture.Create<long>()));
@@ -205,12 +203,11 @@ namespace ApiLogic.Tests.GroupManagers
                                              Mock.Of<IUserManager>(),
                                              Mock.Of<IRabbitConfigDal>(),
                                              Mock.Of<IPricingPartnerRepository>(),
-                                             Mock.Of<IElasticSearchApi>(),
-                                             new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
                                              Mock.Of<ICatalogManager>(),
                                              Mock.Of<IUserPartnerRepository>(),
                                              Mock.Of<IBillingPartnerRepository>(),
-                                             Mock.Of<ICAPartnerRepository>());
+                                             Mock.Of<ICAPartnerRepository>(),
+                                             Mock.Of<IIndexManager>());
 
             var partner = new ApiObjects.Partner { Id = 1, Name = "Abc" };
             var partnerResponse = manager.AddPartner(partner,
@@ -261,12 +258,11 @@ namespace ApiLogic.Tests.GroupManagers
                                             userManager.Object,
                                             rabbitConfigDal.Object,
                                             pricingPartnerRepository.Object,
-                                            Mock.Of<IElasticSearchApi>(),
-                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
                                             Mock.Of<ICatalogManager>(),
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object, 
-                                            caPartnerRepository.Object);
+                                            caPartnerRepository.Object,
+                                            Mock.Of<IIndexManager>());
 
 
             var partnerResponse = manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
@@ -322,12 +318,13 @@ namespace ApiLogic.Tests.GroupManagers
                                             userManager.Object,
                                             rabbitConfigDal.Object,
                                             pricingPartnerRepository.Object,
-                                            Mock.Of<IElasticSearchApi>(),
-                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
+                                            
+                                            
                                             Mock.Of<ICatalogManager>(),
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object,
-                                            caPartnerRepository.Object);
+                                            caPartnerRepository.Object,
+                                            Mock.Of<IIndexManager>());
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
 
@@ -375,12 +372,11 @@ namespace ApiLogic.Tests.GroupManagers
                                             userManager.Object,
                                             rabbitConfigDal.Object,
                                             pricingPartnerRepository.Object,
-                                            Mock.Of<IElasticSearchApi>(),
-                                            new ElasticSearchIndexDefinitions(Mock.Of<IElasticSearchCommonUtils>()),
                                             Mock.Of<ICatalogManager>(),
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object,
-                                            caPartnerRepository.Object);
+                                            caPartnerRepository.Object,
+                                            Mock.Of<IIndexManager>());
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
 
