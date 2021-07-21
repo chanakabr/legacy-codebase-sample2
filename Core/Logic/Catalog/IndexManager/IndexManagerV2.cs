@@ -158,7 +158,6 @@ namespace Core.Catalog
 
         #region Methods from Static IndexManager
 
-        //TESTABLE gil
         public bool UpsertMedia(long assetId)
         {
             bool result = false;
@@ -252,7 +251,6 @@ namespace Core.Catalog
             return result;
         }
 
-        //TESTABLE gil
         public bool DeleteMedia(long assetId)
         {
             bool result = false;
@@ -319,7 +317,6 @@ namespace Core.Catalog
             return result;
         }
 
-        //TESTABLE gil
         public bool UpsertChannel(int channelId, Channel channel = null, long userId = 0)
         {
             var result = false;
@@ -382,7 +379,6 @@ namespace Core.Catalog
             return result;
         }
         
-        //TESTABLE
         public bool DeleteChannel(int channelId)
         {
             bool result = false;            
@@ -419,8 +415,6 @@ namespace Core.Catalog
             return result;
         }
 
-        // Non testable as of now
-        //todo tests ask lior if he wants to rewrite ChannelRepository, asset user rule manager - all is static
         public bool UpdateChannelPercolator(List<int> channelIds, Channel channel = null)
         {
             bool result = false;
@@ -478,7 +472,6 @@ namespace Core.Catalog
             return result;
         }
 
-        // Tests: depends on updates
         public bool DeleteChannelPercolator(List<int> channelIds)
         {
             bool result = false;
@@ -741,7 +734,6 @@ namespace Core.Catalog
             return result;
         }
 
-        // test: depends of upsert program
         public bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds)
         {
             bool result = false;
@@ -783,7 +775,6 @@ namespace Core.Catalog
             return result;
         }
 
-        // Testable
         private void CreateNewEpgIndex(IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage,
             string newIndexName, bool isRecording = false, bool shouldBuildWithReplicas = true, bool shouldUseNumOfConfiguredShards = true,
             string refreshInterval = null)
@@ -934,7 +925,6 @@ namespace Core.Catalog
             return true;
         }
 
-        // Testable, depends on epg v2 creation and insertion of data
         public IList<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(int channelId, DateTime fromDate, DateTime toDate)
         {
             log.Debug($"GetCurrentProgramsByDate > fromDate:[{fromDate}], toDate:[{toDate}]");
@@ -1013,8 +1003,6 @@ namespace Core.Catalog
 
         #endregion
 
-        // Testable
-        // TODO: verify that build search query is independent
         public SearchResultsObj SearchMedias(MediaSearchObj oSearch, int nLangID, bool bUseStartDate)
         {
             SearchResultsObj oRes = new SearchResultsObj();
@@ -1139,8 +1127,6 @@ namespace Core.Catalog
             return oRes;
         }
 
-        // Testable
-        // not mainstream
         public List<string> GetAutoCompleteList(MediaSearchObj oSearch, int nLangID, ref int nTotalItems)
         {
             List<string> lRes = new List<string>();
@@ -1177,8 +1163,6 @@ namespace Core.Catalog
             return lRes;
         }
 
-        // Testable
-        // not mainstream - low priorirty
         public List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch)
         {
             List<string> resultFinalList = null;
@@ -1216,8 +1200,6 @@ namespace Core.Catalog
             return resultFinalList;
         }
 
-        // Testable
-        // low priority
         public List<List<string>> GetChannelsDefinitions(List<List<long>> listsOfChannelIDs)
         {
             long groupID = _partnerId;
@@ -1248,7 +1230,6 @@ namespace Core.Catalog
             return new List<List<string>>(0);
         }
 
-        // Testable
         public SearchResultsObj SearchSubscriptionMedias(List<MediaSearchObj> oSearch, int nLangID, bool bUseStartDate,
             string sMediaTypes, OrderObj oOrderObj, int nPageIndex, int nPageSize)
         {
@@ -1362,7 +1343,6 @@ namespace Core.Catalog
             return lSortedMedias;
         }
 
-        // Testable
         /// <summary>
         /// Takes several search objects, joins them together and searches the assets in ES indexes.
         /// </summary>
@@ -1480,7 +1460,6 @@ namespace Core.Catalog
             return finalSearchResults;
         }
 
-        // Tests: NON TESTABLE until we fix update percolators
         public bool DoesMediaBelongToChannels(List<int> lChannelIDs, int nMediaID)
         {
             bool bResult = false;
@@ -1505,7 +1484,6 @@ namespace Core.Catalog
             return bResult;
         }
 
-        // Tests: NON TESTABLE until we fix update percolators
         public List<int> GetMediaChannels(int nMediaID)
         {
             List<int> lResult = new List<int>();
@@ -1549,9 +1527,6 @@ namespace Core.Catalog
             return lResult;
         }
 
-        // Testable
-        // Depends on insert media
-        // Sunny?
         public List<SearchResult> GetAssetsUpdateDate(eObjectType assetType, List<int> assetIds)
         {
             List<SearchResult> response = new List<SearchResult>();
@@ -1660,8 +1635,6 @@ namespace Core.Catalog
             return response;
         }
 
-        // Non testable
-        // low priorirty - old, non mainstream
         public virtual SearchResultsObj SearchEpgs(EpgSearchObj epgSearch)
         {
             SearchResultsObj epgResponse = null;
@@ -1736,8 +1709,6 @@ namespace Core.Catalog
             return epgResponse;
         }
 
-        // Tests: depends on percolators
-        // low priority - old, weird func uses it
         public Dictionary<long, bool> ValidateMediaIDsInChannels(List<long> distinctMediaIDs,
             List<string> jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
             List<string> jsonizedChannelsDefinitionsMediasMustNotAppearInAll)
@@ -1817,9 +1788,7 @@ namespace Core.Catalog
             return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref notUsed, out _);
         }
 
-        // Testable
-        // major
-        // todo: organize
+       
         /// <summary>
         /// Performs a search on several types of assets in a single call
         /// </summary>
@@ -2133,7 +2102,6 @@ namespace Core.Catalog
             return (searchResultsList);
         }
 
-        // Testable
         public AggregationsResult UnifiedSearchForGroupBy(UnifiedSearchDefinitions search)
         {
             var singleGroupByWithDistinct = search.groupBy?.Count == 1 && search.groupBy.Single().Key == search.distinctGroup.Key;
@@ -3214,7 +3182,6 @@ namespace Core.Catalog
 
         #endregion
 
-        // Testable
         public List<UnifiedSearchResult> GetAssetsUpdateDates(List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex, bool shouldIgnoreRecordings = false)
         {
             List<UnifiedSearchResult> validAssets = new List<UnifiedSearchResult>();
@@ -3346,7 +3313,6 @@ namespace Core.Catalog
             return validAssets;
         }
 
-        // Testable
         public List<int> GetEntitledEpgLinearChannels(UnifiedSearchDefinitions definitions)
         {
             List<int> result = new List<int>();
@@ -3404,8 +3370,6 @@ namespace Core.Catalog
             return result;
         }
 
-        // Testable
-        // low priority
         public ApiObjects.Response.Status DeleteStatistics(DateTime until)
         {
             ApiObjects.Response.Status status = null;
@@ -3504,7 +3468,6 @@ namespace Core.Catalog
 
         #region Tags
 
-        // Testable
         public List<TagValue> SearchTags(TagSearchDefinitions definitions, out int totalItems)
         {
             List<TagValue> result = new List<TagValue>();
@@ -3725,7 +3688,6 @@ namespace Core.Catalog
             return term;
         }
 
-        // Testable
         public ApiObjects.Response.Status DeleteTag(long tagId)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
@@ -3764,7 +3726,6 @@ namespace Core.Catalog
             return status;
         }
 
-        // Testable
         public ApiObjects.Response.Status DeleteTagsByTopic(long topicId)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
@@ -3803,7 +3764,6 @@ namespace Core.Catalog
             return status;
         }
 
-        // Testable
         public ApiObjects.Response.Status UpdateTag(TagValue tag)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
@@ -3902,7 +3862,6 @@ namespace Core.Catalog
 
         #region Channels
 
-        // Testable
         public List<int> SearchChannels(ChannelSearchDefinitions definitions, ref int totalItems)
         {
             List<int> result = new List<int>();
@@ -4081,8 +4040,6 @@ namespace Core.Catalog
 
         #region Asset Stats and company
 
-        // Testable
-        // priority
         public void GetAssetStats(List<int> assetIDs, DateTime startDate,
             DateTime endDate, StatsType type, ref Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
         {
@@ -4670,8 +4627,6 @@ namespace Core.Catalog
             return _elasticSearchApi.BuildIndex(statisticsIndex, NUM_OF_SHARDS, NUM_OF_REPLICAS, analyzers, filters);
         }
         
-        // Testable
-        // priority
         public bool InsertSocialStatisticsData(SocialActionStatistics action)
         {
             bool result = false;
@@ -4700,7 +4655,6 @@ namespace Core.Catalog
             return result;
         }
 
-        // Testable
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)
         {
             bool result = false;
@@ -4787,7 +4741,6 @@ namespace Core.Catalog
 
         #region Ip to Country
 
-        // Testable
         public string SetupIPToCountryIndex()
         {
             string newIndexName = IndexingUtils.GetNewUtilsIndexString();
@@ -4845,7 +4798,6 @@ namespace Core.Catalog
             return newIndexName;
         }
 
-        // Testable
         public bool InsertDataToIPToCountryIndex(string newIndexName,
             List<IPV4> ipV4ToCountryMapping, List<IPV6> ipV6ToCountryMapping)
         {
@@ -4916,7 +4868,6 @@ namespace Core.Catalog
             return true;
         }
 
-        // Testable
         public bool PublishIPToCountryIndex(string newIndexName)
         {
             bool result = true;
@@ -4986,7 +4937,6 @@ namespace Core.Catalog
             return Newtonsoft.Json.JsonConvert.SerializeObject(ipv6);
         }
 
-        // Testable
         public Country GetCountryByCountryName(string countryName)
         {
             Country country = null;
@@ -5042,7 +4992,6 @@ namespace Core.Catalog
             return country;
         }
 
-        // Testable
         public Country GetCountryByIp(string ip, out bool searchSuccess)
         {
             searchSuccess = false;
