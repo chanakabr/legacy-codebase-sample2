@@ -1,17 +1,17 @@
 version: '3'
 
 services:
-#  elastic:
-#    image: elasticsearch:2.3.3
-#    volumes:
-#      - data01:/usr/share/elasticsearch/data
-#    ports:
-#      - 9200:9200
-#    command:
-#      - sh
-#      - -c
-#      - "plugin list | grep -q  analysis-icu || plugin install analysis-icu;
-#         /docker-entrypoint.sh elasticsearch"
+  elastic:
+    image: elasticsearch:2.3.3
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    command:
+      - sh
+      - -c
+      - "plugin list | grep -q  analysis-icu || plugin install analysis-icu;
+         /docker-entrypoint.sh elasticsearch"
   es07:
     image: elasticsearch:7.13.4
     container_name: es07
