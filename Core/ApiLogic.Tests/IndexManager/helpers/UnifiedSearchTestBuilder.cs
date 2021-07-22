@@ -28,8 +28,13 @@ namespace ApiLogic.Tests.IndexManager.helpers
         {
             us.shouldSearchMedia=true;
             return us; 
-        } 
-        
+        }
+        public static UnifiedSearchDefinitions ShouldSearchEpg(this UnifiedSearchDefinitions us)
+        {
+            us.shouldSearchEpg = true;
+            return us;
+        }
+
         public static UnifiedSearchDefinitions WithPageSize(this UnifiedSearchDefinitions us,int data)
         {
             us.pageSize = data;
@@ -41,5 +46,21 @@ namespace ApiLogic.Tests.IndexManager.helpers
             us.langauge = data;
             return us; 
         } 
+        
+        public static UnifiedSearchDefinitions WithGroupByOrder(this UnifiedSearchDefinitions us,AggregationOrder? data)
+        {
+            us.groupByOrder = data;
+            return us; 
+        }
+        public static UnifiedSearchDefinitions WithOrder(this UnifiedSearchDefinitions us,OrderObj data)
+        {
+            us.order = data;
+            return us; 
+        }
+        public static UnifiedSearchDefinitions WithDistinctGroup(this UnifiedSearchDefinitions us,string key,string value)
+        {
+            us.distinctGroup = new KeyValuePair<string, string>(key, value);
+            return us; 
+        }
     }
 }

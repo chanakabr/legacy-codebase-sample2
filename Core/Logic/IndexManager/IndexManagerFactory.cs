@@ -10,6 +10,7 @@ using Core.Catalog.Cache;
 using EventBus.Kafka;
 using ElasticSearch.Common;
 using Core.Catalog.CatalogManagement;
+using ApiLogic.Catalog;
 
 namespace Core.Catalog
 {
@@ -31,7 +32,8 @@ namespace Core.Catalog
                 ElasticSearchIndexDefinitions.Instance,
                 LayeredCache.Instance,
                 ChannelManager.Instance, 
-                CatalogCache.Instance());
+                CatalogCache.Instance(),
+                WatchRuleManager.Instance);
             
             if (CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().IsMigrationEventsEnabled(partnerId))
             {
@@ -44,9 +46,7 @@ namespace Core.Catalog
             }
             
             return indexManagerV2;
-        }
-
-        
+        }        
 
         public static IIndexManagerFactory GetFactory()
         {

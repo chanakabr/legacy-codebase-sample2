@@ -12,7 +12,8 @@ services:
     command:
       - sh
       - -c
-      - "plugin list | grep -q  analysis-icu || plugin install analysis-icu;
+      - "plugin list | grep -q delete-by-query || plugin install delete-by-query;
+      - plugin list | grep -q  analysis-icu || plugin install analysis-icu;
          /docker-entrypoint.sh elasticsearch" 
 
 volumes:

@@ -28,13 +28,6 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <None Remove="TestAssets\config.yaml" />
-    <EmbeddedResource Include="TestAssets\config.yaml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
-  </ItemGroup>
-
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
     <Copy SourceFiles="app.config" DestinationFiles="$(OutDir)\ReSharperTestRunner64.dll.config" />
   </Target>

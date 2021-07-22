@@ -33,10 +33,8 @@ namespace Core.Catalog.CatalogManagement
         bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache);
         bool DoesGroupUsesTemplates(int groupId);
         void InvalidateCatalogGroupCache(int groupId, Status resultStatus, bool shouldCheckResultObject, object resultObject = null);
-        bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds,
-                                                                        long assetStructId, long userId, List<long> relatedEntitiesTopicIds, bool shouldDeleteRelatedEntities);
+        bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds, long assetStructId, long userId, List<long> relatedEntitiesTopicIds, bool shouldDeleteRelatedEntities);
         Dictionary<int, Media> GetGroupMedia(int groupId, long mediaId, CatalogGroupCache catalogGroupCache);
-        
         void GetLinearChannelValues(List<EpgCB> lEpg, int groupID, Action<EpgCB> action);
     }
 
@@ -3044,7 +3042,8 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        public DateTime GetProgramSearchEndDate(int groupId, string channelId, DateTime endDate, Dictionary<string, LinearChannelSettings> linearChannelSettings = null)
+        public DateTime GetProgramSearchEndDate(int groupId, string channelId, DateTime endDate, 
+            Dictionary<string, LinearChannelSettings> linearChannelSettings = null)
         {
             DateTime searchEndDate = DateTime.MinValue;
             try
