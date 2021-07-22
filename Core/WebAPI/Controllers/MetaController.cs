@@ -155,6 +155,10 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.InvalidMutlipleValueForMetaType)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
+        [Throws(eResponseStatus.ParentIdShouldNotPointToItself)]
+        [Throws(eResponseStatus.ParentIdNotExist)]
+        [Throws(eResponseStatus.MetaDoesNotExist)]
         static public KalturaMeta Add(KalturaMeta meta)
         {
             KalturaMeta response = null;
@@ -204,8 +208,9 @@ namespace WebAPI.Controllers
         [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.MetaDoesNotExist)]
-        [Throws(eResponseStatus.MetaSystemNameAlreadyInUse)]
-        [Throws(eResponseStatus.CanNotChangePredefinedMetaSystemName)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
+        [Throws(eResponseStatus.ParentIdShouldNotPointToItself)]
+        [Throws(eResponseStatus.ParentIdNotExist)]
         [SchemeArgument("id", MinLong = 1)]
         static public KalturaMeta Update(long id, KalturaMeta meta)
         {
@@ -245,9 +250,11 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("delete")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         [Throws(eResponseStatus.MetaDoesNotExist)]
         [Throws(eResponseStatus.CanNotDeletePredefinedMeta)]
         [Throws(eResponseStatus.CanNotDeleteConnectingAssetStructMeta)]
+        [Throws(eResponseStatus.CanNotDeleteObjectVirtualAssetMeta)]
         [SchemeArgument("id", MinLong = 1)]
         static public bool Delete(long id)
         {

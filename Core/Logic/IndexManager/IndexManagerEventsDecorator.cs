@@ -299,12 +299,12 @@ namespace ApiLogic.Catalog.IndexManager
         }
         
         //CUD
-        public bool UpdateEpgs(List<LanguageObj> languages, List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings, bool isRecording,
+        public bool UpdateEpgs(List<EpgCB> epgObjects, bool isRecording,
             Dictionary<long, long> epgToRecordingMapping = null)
         {
             var eventKey = isRecording ? IndexManagerMigrationEventKeys.RECORDING : IndexManagerMigrationEventKeys.EPG;
-            return Execute<bool>(MethodBase.GetCurrentMethod(), eventKey, languages,
-                epgObjects, linearChannelSettings, isRecording, epgToRecordingMapping);
+            return Execute<bool>(MethodBase.GetCurrentMethod(), eventKey, 
+                epgObjects, isRecording, epgToRecordingMapping);
         }
         
         //CUD
@@ -484,10 +484,10 @@ namespace ApiLogic.Catalog.IndexManager
             return _indexManager.SearchMedias(oSearch, nLangID, bUseStartDate);
         }
         
-        public SearchResultsObj SearchSubscriptionMedias(List<MediaSearchObj> oSearch, int nLangID, bool bUseStartDate, string sMediaTypes,
+        public SearchResultsObj SearchSubscriptionMedias(List<MediaSearchObj> oSearch, int nLangID, bool shouldUseStartDate, string sMediaTypes,
             OrderObj oOrderObj, int nPageIndex, int nPageSize)
         {
-            return _indexManager.SearchSubscriptionMedias(oSearch, nLangID, bUseStartDate, sMediaTypes,
+            return _indexManager.SearchSubscriptionMedias(oSearch, nLangID, shouldUseStartDate, sMediaTypes,
                 oOrderObj, nPageIndex, nPageSize);
         }
         #endregion

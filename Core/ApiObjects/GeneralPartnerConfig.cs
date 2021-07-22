@@ -19,6 +19,7 @@ namespace ApiObjects
         public RollingDeviceRemovalData RollingDeviceRemovalData { get; set; }
         public int? FinishedPercentThreshold { get; set; }
         public SuspensionProfileInheritanceType? SuspensionProfileInheritanceType { get; set; }
+        public bool? AllowDeviceMobility { get; set; }
 
         public bool SetUnchangedProperties(GeneralPartnerConfig oldConfig)
         {

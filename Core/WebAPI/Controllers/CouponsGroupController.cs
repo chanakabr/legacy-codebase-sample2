@@ -85,6 +85,7 @@ namespace WebAPI.Controllers
         [Action("get")]
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
+        [Throws(eResponseStatus.CouponGroupNotExist)]
         static public KalturaCouponsGroup Get(long id)
         {
             KalturaCouponsGroup couponsGroup = null;

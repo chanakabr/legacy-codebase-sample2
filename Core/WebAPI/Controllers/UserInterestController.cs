@@ -38,6 +38,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ParentTopicMetaIdNotEqualToMetaParentMetaID)]
         [Throws(eResponseStatus.ParentTopicValueIsMissing)]
         [Throws(eResponseStatus.ParentIdNotAUserInterest)]
+        [Throws(eResponseStatus.FailCreateAnnouncement)]
+        [Throws(eResponseStatus.UserSuspended)]
         static public KalturaUserInterest Add(KalturaUserInterest userInterest)
         {
             KalturaUserInterest response = null;
@@ -69,6 +71,9 @@ namespace WebAPI.Controllers
         /// <param name="id">User interest identifier</param>
         [Action("delete")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserInterestNotExist)]
+        [Throws(eResponseStatus.PartnerTopicInterestIsMissing)]
         static public bool Delete(string id)
         {
             bool response = false;
@@ -135,6 +140,9 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.InvalidToken)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserInterestNotExist)]
+        [Throws(eResponseStatus.PartnerTopicInterestIsMissing)]
         static public void DeleteWithToken(string id, string token, int partnerId)
         {
             try

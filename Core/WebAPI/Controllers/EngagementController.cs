@@ -57,6 +57,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Action("get")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.EngagementAdapterNotExist)]
         static public KalturaEngagement Get(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -78,15 +79,11 @@ namespace WebAPI.Controllers
         /// Delete engagement by engagement adapter id
         /// </summary>
         /// <remarks>
-        /// Possible status codes:       
-        /// engagement identifier required = 8031, engagement not exist = 8032,  action is not allowed = 5011
         /// </remarks>
         /// <param name="id">Engagement identifier</param>
         [Action("delete")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.EngagementRequired)]
         [Throws(eResponseStatus.EngagementNotExist)]
-        [Throws(eResponseStatus.ActionIsNotAllowed)]
         static public bool Delete(int id)
         {
             bool response = false;
@@ -110,13 +107,19 @@ namespace WebAPI.Controllers
         /// Insert new Engagement for partner
         /// </summary>
         /// <remarks>
-        /// Possible status codes:     
-        /// no engagement to insert = 8030
         /// </remarks>
         /// <param name="engagement">Engagement adapter Object</param>
         [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.NoEngagementToInsert)]
+        [Throws(eResponseStatus.IllegalPostData)]
+        [Throws(eResponseStatus.EngagementTimeDifference)]
+        [Throws(eResponseStatus.EngagementIllegalSendTime)]
+        [Throws(eResponseStatus.FutureScheduledEngagementDetected)]
+        [Throws(eResponseStatus.EngagementScheduleWithoutAdapter)]
+        [Throws(eResponseStatus.EngagementTemplateNotFound)]
+        [Throws(eResponseStatus.InvalidCouponGroup)]
+        [Throws(eResponseStatus.EngagementAdapterNotExist)]
         static public KalturaEngagement Add(KalturaEngagement engagement)
         {
             KalturaEngagement response = null;

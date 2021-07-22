@@ -168,13 +168,6 @@ namespace ElasticSearchHandler.Updaters
                     epgObjects = programsTasks.SelectMany(t => t.Result).Where(t => t != null).ToList();
                 }
 
-                // GetLinear Channel Values 
-                IndexingUtils.GetLinearChannelValues(epgObjects, this.groupId);
-
-                // used only to support linear media id search on elastic search                
-                List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList<string>();
-                Dictionary<string, LinearChannelSettings> linearChannelSettings = Core.Catalog.Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, epgChannelIds);
-
                 if (epgObjects != null)
                 {
                     if (epgObjects.Count == 0)
@@ -185,7 +178,7 @@ namespace ElasticSearchHandler.Updaters
                     }
                     else
                     {
-                        result = this.UpdateEpgs(languages, epgObjects, linearChannelSettings);
+                        result = this.UpdateEpgs(epgObjects);
                     }
                 }
             }
@@ -204,10 +197,9 @@ namespace ElasticSearchHandler.Updaters
             //return result;
         }
 
-        protected virtual bool UpdateEpgs(List<LanguageObj> languages, List<EpgCB> epgObjects,
-            Dictionary<string, LinearChannelSettings> linearChannelSettings)
+        protected virtual bool UpdateEpgs(List<EpgCB> epgObjects)
         {
-            return _indexManager.UpdateEpgs(languages, epgObjects, linearChannelSettings, false);
+            return _indexManager.UpdateEpgs(epgObjects, false);
         }
     }
 }

@@ -25,6 +25,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.InvalidFileType)]
         public static KalturaBulkUploadListResponse List(KalturaBulkUploadFilter filter, KalturaFilterPager pager = null)
         {
             KalturaBulkUploadListResponse response = null;

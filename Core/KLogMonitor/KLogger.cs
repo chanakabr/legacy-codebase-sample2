@@ -20,8 +20,14 @@ using System.Text.RegularExpressions;
 
 namespace KLogMonitor
 {
+    public interface IKLogger : Microsoft.Extensions.Logging.ILogger
+    {
+        void Error(string sMessage, Exception ex = null, [CallerMemberName] string callerMemberName = null);
+        void ErrorFormat(string format, params object[] args);
+    }
+
     [Serializable]
-    public class KLogger : Microsoft.Extensions.Logging.ILogger
+    public class KLogger : IKLogger
     {
         // this logger is used to log Klogger configuration etc...
         private static readonly ILog _InternalLogger = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);

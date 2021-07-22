@@ -96,6 +96,15 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.MetaDoesNotExist)]
         [Throws(eResponseStatus.ExtendedTypeValueCannotBeChanged)]
+        [Throws(eResponseStatus.NoPartnerConfigurationToUpdate)]
+        [Throws(eResponseStatus.NoConfigurationValueToUpdate)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.OSSAdapterNotExist)]
+        [Throws(eResponseStatus.CategoryTreeDoesNotExist)]
+        [Throws(eResponseStatus.RegionDoesNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
+        [Throws(eResponseStatus.AdapterNotExists)]
+        [Throws(eResponseStatus.NotAllowed)]
         static public bool Update(KalturaPartnerConfiguration configuration)
         {
             bool response = false;

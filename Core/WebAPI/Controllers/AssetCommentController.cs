@@ -1,6 +1,7 @@
 ﻿using KLogMonitor;
 using System;
 using System.Reflection;
+using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -24,6 +25,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(StatusCode.ObjectIdNotFound)]
         static public KalturaAssetCommentListResponse List(KalturaAssetCommentFilter filter, KalturaFilterPager pager = null)
         {
             KalturaAssetCommentListResponse response = null;
@@ -64,6 +66,7 @@ namespace WebAPI.Controllers
         /// <remarks></remarks>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
         static public KalturaAssetComment Add(KalturaAssetComment comment)
         {
             KalturaAssetComment response = null;

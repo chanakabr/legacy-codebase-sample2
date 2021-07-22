@@ -772,6 +772,9 @@ namespace Core.Catalog
         [XmlAttribute("file_catalog_end_date")]
         public string FileCatalogEndDate { get; set; }
 
+        [XmlAttribute("labels")]
+        public string Labels { get; set; }
+
         public IngestMediaFile()
         {
             this.Quality = "HIGH";

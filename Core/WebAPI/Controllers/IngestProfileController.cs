@@ -79,11 +79,9 @@ namespace WebAPI.Controllers
         /// <param name="ingestProfile">ingest profile Object to be added</param>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.IngestProfileNotExists)]
         [Throws(eResponseStatus.NameRequired)]
-        [Throws(eResponseStatus.SharedSecretRequired)]
-        [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
-        [Throws(eResponseStatus.NoIngestProfileToInsert)]
         static public KalturaIngestProfile Add(KalturaIngestProfile ingestProfile)
         {
             KalturaIngestProfile response = null;
@@ -110,8 +108,7 @@ namespace WebAPI.Controllers
         /// <param name="ingestProfile">ingest profile Object</param>       
         [Action("update")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.ActionIsNotAllowed)]
-        [Throws(eResponseStatus.IngestProfileIdRequired)]
+        [Throws(eResponseStatus.IngestProfileNotExists)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
         static public KalturaIngestProfile Update(int ingestProfileId, KalturaIngestProfile ingestProfile)

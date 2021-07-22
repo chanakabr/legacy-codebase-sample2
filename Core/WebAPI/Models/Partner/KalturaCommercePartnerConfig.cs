@@ -27,6 +27,15 @@ namespace WebAPI.Models.Partner
         [XmlElement(ElementName = "bookmarkEventThresholds", IsNullable = true)]
         public List<KalturaBookmarkEventThreshold> BookmarkEventThresholds { get; set; }
 
+        /// <summary>
+        /// configuration for keep add-ons after subscription deletion
+        /// </summary>
+        [DataMember(Name = "keepSubscriptionAddOns")]
+        [JsonProperty("keepSubscriptionAddOns")]
+        [XmlElement(ElementName = "keepSubscriptionAddOns", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public bool? KeepSubscriptionAddOns { get; set; }
+
         internal override bool Update(int groupId)
         {
             Func<CommercePartnerConfig, Status> commercePartnerConfigFunc =

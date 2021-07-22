@@ -84,6 +84,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.AliasMustBeUnique)]
         [Throws(eResponseStatus.AliasRequired)]
+        [Throws(eResponseStatus.NoAdapterToInsert)]
         static public KalturaCDNAdapterProfile Add(KalturaCDNAdapterProfile adapter)
         {
             KalturaCDNAdapterProfile response = null;
@@ -114,6 +115,7 @@ namespace WebAPI.Controllers
         [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AdapterNotExists)]
+        [Throws(eResponseStatus.AdapterIsRequired)]
         [Throws(eResponseStatus.AdapterIdentifierRequired)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.AdapterUrlRequired)]

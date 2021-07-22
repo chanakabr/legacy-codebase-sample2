@@ -21,8 +21,6 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Series Recording identifier</param>       
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
         [Action("cancel")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -30,8 +28,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
-        [Throws(eResponseStatus.RecordingNotFound)]
-        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.SeriesRecordingNotFound)]
         static public KalturaSeriesRecording Cancel(long id)//, long epgId, long seasonNumber
         {
@@ -57,8 +54,6 @@ namespace WebAPI.Controllers
         /// <param name="id">Series Recording identifier</param>
         /// <param name="epgId">epg program identifier</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, EpgIdNotPartOfSeries = 3049 </remarks>
         [Action("cancelByEpgId")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -67,8 +62,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
-        [Throws(eResponseStatus.RecordingNotFound)]
-        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.SeriesRecordingNotFound)]
         [Throws(eResponseStatus.EpgIdNotPartOfSeries)]
         static public KalturaSeriesRecording CancelByEpgId(long id, long epgId)
@@ -96,8 +90,6 @@ namespace WebAPI.Controllers
         /// <param name="id">Series Recording identifier</param>
         /// <param name="seasonNumber">Season Number</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048, SeasonNumberNotMatch = 3052  </remarks>
         [Action("cancelBySeasonNumber")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -106,8 +98,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
-        [Throws(eResponseStatus.RecordingNotFound)]
-        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.SeriesRecordingNotFound)]
         [Throws(eResponseStatus.SeasonNumberNotMatch)]
         static public KalturaSeriesRecording CancelBySeasonNumber(long id, long seasonNumber)
@@ -135,16 +126,13 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Series Recording identifier</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001,
-        /// UserWithNoDomain = 2024, RecordingNotFound = 3039,RecordingStatusNotValid = 3043, SeriesRecordingNotFound= 3048 </remarks>
         [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
-        [Throws(eResponseStatus.RecordingNotFound)]
-        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.SeriesRecordingNotFound)]
         static public KalturaSeriesRecording Delete(long id)
         {
@@ -180,8 +168,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
-        [Throws(eResponseStatus.RecordingNotFound)]
-        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.SeriesRecordingNotFound)]
         [Throws(eResponseStatus.SeasonNumberNotMatch)]
         static public KalturaSeriesRecording DeleteBySeasonNumber(long id, int seasonNumber)
@@ -215,6 +202,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.SeriesRecordingNotFound)]
         static public KalturaSeriesRecordingListResponse List(KalturaSeriesRecordingFilter filter = null)
         {
             KalturaSeriesRecordingListResponse response = null;
@@ -324,8 +313,11 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("epgId", MinLong = 1)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.SeriesRecordingNotFound)]

@@ -54,6 +54,8 @@ namespace WebAPI.Controllers
         /// <param name="assetFilePpv">asset file ppv</param>        
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.UnKnownPPVModule)]
+        [Throws(eResponseStatus.MediaFileDoesNotExist)]
         static public KalturaAssetFilePpv Add(KalturaAssetFilePpv assetFilePpv)
         {
             KalturaAssetFilePpv response = null;
@@ -96,6 +98,8 @@ namespace WebAPI.Controllers
         [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetFilePPVNotExist)]
+        [Throws(eResponseStatus.UnKnownPPVModule)]
+        [Throws(eResponseStatus.MediaFileDoesNotExist)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         static public bool Delete(long assetFileId, long ppvModuleId)
         {
@@ -135,6 +139,8 @@ namespace WebAPI.Controllers
         [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetFilePPVNotExist)]
+        [Throws(eResponseStatus.UnKnownPPVModule)]
+        [Throws(eResponseStatus.MediaFileDoesNotExist)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         static public KalturaAssetFilePpv Update(long assetFileId, long ppvModuleId, KalturaAssetFilePpv assetFilePpv)
         {

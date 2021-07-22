@@ -15,8 +15,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Return a device configuration retrieval log request for a specific device.
         /// </summary>
-        /// <param name="udid">Device UDID</param>        
-        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001, NotExist = 12003, PartnerMismatch = 12004</remarks>
+        /// <param name="udid">Device UDID</param>
         [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -24,6 +23,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.IllegalQueryParams)]
         [Throws(eResponseStatus.NotExist)]
         [Throws(eResponseStatus.PartnerMismatch)]
+        [Throws(StatusCode.MissingConfiguration)]
         static public KalturaReport Get(string udid)
         {
             KalturaReport response = null;
@@ -50,11 +50,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="filter">Filter option for from date (sec)</param>
         /// <param name="pager">Page size and index</param>
-        /// <remarks> Possible status codes: Forbidden = 12000, IllegalQueryParams = 12001 </remarks>
         [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.Forbidden)]
         [Throws(eResponseStatus.IllegalQueryParams)]
+        [Throws(StatusCode.MissingConfiguration)]
         static public KalturaReportListResponse List(KalturaReportFilter filter, KalturaFilterPager pager = null)
         {
             KalturaReportListResponse response = null;

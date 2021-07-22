@@ -11,9 +11,9 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [Service("dynamicList")]
-    [AddAction]
-    [UpdateAction]
-    [DeleteAction]
+    [AddAction(ClientThrows = new [] { eResponseStatus.ExceededMaxCapacity })]
+    [UpdateAction(ClientThrows = new [] { eResponseStatus.DynamicListDoesNotExist })]
+    [DeleteAction(ClientThrows = new [] { eResponseStatus.DynamicListDoesNotExist })]
     [ListAction(IsFilterOptional = false, IsPagerOptional = true)]
     public class DynamicListController : KalturaCrudController<KalturaDynamicList, KalturaDynamicListListResponse, DynamicList, long, KalturaDynamicListFilter>
     {
@@ -26,23 +26,18 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("addFromBulkUpload")]
         [ApiAuthorize]
-        [Throws(StatusCode.ArgumentCannotBeEmpty)]
         [Throws(eResponseStatus.FileDoesNotExists)]
         [Throws(eResponseStatus.FileAlreadyExists)]
         [Throws(eResponseStatus.ErrorSavingFile)]
         [Throws(eResponseStatus.FileIdNotInCorrectLength)]
         [Throws(eResponseStatus.InvalidFileType)]
-        [Throws(eResponseStatus.IllegalExcelFile)]
         [Throws(eResponseStatus.EnqueueFailed)]
-        [Throws(eResponseStatus.InvalidBulkUploadStructure)]
-        [Throws(eResponseStatus.ExcelMandatoryValueIsMissing)]
-        [Throws(eResponseStatus.InvalidArgumentValue)]
         [Throws(eResponseStatus.BulkUploadDoesNotExist)]
-        [Throws(eResponseStatus.BulkUploadResultIsMissing)]
         [Throws(eResponseStatus.AccountEpgIngestVersionDoesNotSupportBulk)]
         [Throws(eResponseStatus.FileExceededMaxSize)]
         [Throws(eResponseStatus.FileExtensionNotSupported)]
         [Throws(eResponseStatus.FileMimeDifferentThanExpected)]
+        [Throws(eResponseStatus.DynamicListDoesNotExist)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
 

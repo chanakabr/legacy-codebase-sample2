@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -17,12 +18,12 @@ namespace WebAPI.Controllers
         /// Insert new user social action
         /// </summary>
         /// <param name="socialAction">social Action Object</param>
-        /// <remarks>
-        /// Possible status codes:  OK , Error , AssetAlreadyRated = 7014 , UserDoesNotExist = 2000, NotAllowed = 7013, ActionIsNotAllowed = 5011
-        /// </remarks>       
         [Action("add")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.AssetAlreadyLiked)]
+        [Throws(eResponseStatus.AssetAlreadyRated)]
         static public KalturaUserSocialActionResponse Add(KalturaSocialAction socialAction)
         {
             KalturaUserSocialActionResponse response = null;
@@ -98,12 +99,13 @@ namespace WebAPI.Controllers
         /// delete user social action
         /// </summary>
         /// <param name="id">social Action Id</param>
-        /// <remarks>
-        /// Possible status codes:  OK , Error , AssetAlreadyRated = 7014 , UserDoesNotExist = 2000, NotAllowed = 7013, ActionIsNotAllowed = 5011, SocialActionIdDoseNotExists = 7016, 
-        /// </remarks>       
         [Action("delete")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserNotAllowed)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
+        [Throws(eResponseStatus.SocialActionIdDoseNotExists)]
         static public List<KalturaNetworkActionStatus> Delete(string id)
         {
             List<KalturaNetworkActionStatus> response = null;

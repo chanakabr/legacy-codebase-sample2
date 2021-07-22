@@ -23,6 +23,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
         [Throws(eResponseStatus.PaymentGatewayNotExist)]
         static public KalturaPaymentMethodProfileListResponse List(KalturaPaymentMethodProfileFilter filter)
         {
@@ -154,16 +155,10 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="paymentMethodId">Payment method identifier to update</param>
         /// <param name="paymentMethod">Payment method to update</param>
-        /// <remarks>
-        /// Possible status codes: 
-        /// Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050      
-        /// </remarks>
         [Action("update")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
-        [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentMethodNotExist)]
-        [Throws(eResponseStatus.PaymentMethodIdRequired)]
+        [Throws(eResponseStatus.PaymentMethodNotExist)]
         static public KalturaPaymentMethodProfile Update(int paymentMethodId, KalturaPaymentMethodProfile paymentMethod)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -223,14 +218,8 @@ namespace WebAPI.Controllers
         /// Delete payment method profile
         /// </summary>
         /// <param name="paymentMethodId">Payment method identifier to delete</param>
-        /// <remarks>
-        ///  Possible status codes: 
-        ///  Payment gateway ID is required = 6005, Payment gateway does not exist = 6008, Payment method does not exist = 6049, Payment method ID is required = 6050    
-        /// </remarks>
         [Action("delete")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.PaymentGatewayIdRequired)]
-        [Throws(eResponseStatus.PaymentGatewayNotExist)]
         [Throws(eResponseStatus.PaymentMethodNotExist)]
         [Throws(eResponseStatus.PaymentMethodIdRequired)]
         static public bool Delete(int paymentMethodId)

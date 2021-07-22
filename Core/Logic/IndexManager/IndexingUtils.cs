@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿
+using ApiObjects;
 using ApiObjects.SearchObjects;
 using System;
 using System.Collections.Generic;
@@ -27,8 +28,9 @@ namespace Core.Catalog
     public static class IndexingUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         public static readonly int DEFAULT_CURRENT_REQUEST_DAYS_OFFSET = 7;
-       
+
         public static long UnixTimeStampNow()
         {
             TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
@@ -187,46 +189,6 @@ namespace Core.Catalog
                 return new List<LanguageObj>();
             }
         }
-
-        // Get linear channel settings from catalog cache 
-        public static void GetLinearChannelValues(List<EpgCB> lEpg, int groupID)
-        {
-            try
-            {
-                int days = ApplicationConfiguration.Current.CatalogLogicConfiguration.CurrentRequestDaysOffset.Value;
-
-                if (days == 0)
-                {
-                    days = DEFAULT_CURRENT_REQUEST_DAYS_OFFSET;
-                }
-
-                List<string> epgChannelIds = lEpg.Distinct().Select(item => item.ChannelID.ToString()).ToList<string>();
-                Dictionary<string, LinearChannelSettings> linearChannelSettings = CatalogCache.Instance().GetLinearChannelSettings(groupID, epgChannelIds);
-
-                Parallel.ForEach(lEpg.Cast<EpgCB>(), currentElement =>
-                {
-                    if (!linearChannelSettings.ContainsKey(currentElement.ChannelID.ToString()))
-                    {
-                        currentElement.SearchEndDate = currentElement.EndDate.AddDays(days);
-                    }
-                    else if (linearChannelSettings[currentElement.ChannelID.ToString()].EnableCatchUp)
-                    {
-                        currentElement.SearchEndDate = 
-                            currentElement.EndDate.AddMinutes(linearChannelSettings[currentElement.ChannelID.ToString()].CatchUpBuffer);
-                    }
-                    else
-                    {
-                        currentElement.SearchEndDate = currentElement.EndDate;
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error - " + string.Format("Update EPGs threw an exception. (in GetLinearChannelValues). Exception={0};Stack={1}", ex.Message, ex.StackTrace), ex);
-                throw ex;
-            }
-        }
-
 
         public static bool GroupBySearchIsSupportedForOrder(OrderBy orderBy) => GetStrategy(orderBy) != null;
 

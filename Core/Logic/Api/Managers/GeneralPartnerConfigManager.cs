@@ -459,6 +459,7 @@ namespace ApiLogic.Api.Managers
                                 MainLanguage = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "LANGUAGE_ID"),
                                 RollingDeviceRemovalData = GetRollingDeviceRemovalData(dt.Rows[0]),
                                 FinishedPercentThreshold = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "FINISHED_PERCENT_THRESHOLD"),
+                                AllowDeviceMobility = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "ALLOW_DEVICE_MOBILITY") == 1
                             };
 
                             if (!generalPartnerConfig.FinishedPercentThreshold.HasValue || generalPartnerConfig.FinishedPercentThreshold.Value == 0)

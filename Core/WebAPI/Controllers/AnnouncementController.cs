@@ -34,7 +34,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AnnouncementMessageTooLong)]
         [Throws(eResponseStatus.AnnouncementMessageIsEmpty)]
         [Throws(eResponseStatus.AnnouncementInvalidTimezone)]
-        [Throws(eResponseStatus.FeatureDisabled)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
         static public KalturaAnnouncement Add(KalturaAnnouncement announcement)
         {
             try
@@ -119,6 +119,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AnnouncementUpdateNotAllowed)]
         [Throws(eResponseStatus.AnnouncementInvalidTimezone)]
         [Throws(eResponseStatus.FeatureDisabled)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
         static public KalturaAnnouncement Update(int announcementId, KalturaAnnouncement announcement)
         {
             try
@@ -283,9 +284,10 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter object</param>
         /// <param name="pager">Paging the request</param>
         /// <returns></returns>
-        /// <remarks>FeatureDisabled = 8009</remarks>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.InvalidValue)]
+        [Throws(eResponseStatus.AnnouncementNotFound)]
         [Throws(eResponseStatus.FeatureDisabled)]
         static public KalturaAnnouncementListResponse List(KalturaAnnouncementFilter filter, KalturaFilterPager pager = null)
         {

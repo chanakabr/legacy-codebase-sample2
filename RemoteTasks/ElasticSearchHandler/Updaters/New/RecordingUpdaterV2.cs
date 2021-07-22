@@ -84,9 +84,9 @@ namespace ElasticSearchHandler.Updaters
             return result;
         }
 
-        protected override bool UpdateEpgs(List<LanguageObj> languages, List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings)
+        protected override bool UpdateEpgs(List<EpgCB> epgObjects)
         {
-            return _indexManager.UpdateEpgs(languages, epgObjects, linearChannelSettings, true, epgToRecordingMapping);
+            return _indexManager.UpdateEpgs(epgObjects, true, epgToRecordingMapping);
         }
 
         #endregion

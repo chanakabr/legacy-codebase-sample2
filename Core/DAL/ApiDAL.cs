@@ -4241,45 +4241,53 @@ namespace DAL
         public static List<MediaFile> GetMediaFiles(int groupId, long mediaId)
         {
             List<MediaFile> files = null;
-            DataTable dt = null;
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetMediaFiles");
+            var sp = new StoredProcedure("GetMediaFiles");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@mediaId", mediaId);
             sp.AddParameter("@groupId", groupId);
-            dt = sp.Execute();
+            var dataSet = sp.ExecuteDataSet();
 
-            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+            if (dataSet.Tables.Count == 2)
             {
-                files = new List<MediaFile>();
-                MediaFile file;
-                foreach (DataRow dr in dt.Rows)
+                var dt = dataSet.Tables[0];
+                var labelsTable = dataSet.Tables[1];
+
+                if (dt != null && dt.Rows.Count > 0)
                 {
-                    file = new MediaFile()
+                    files = new List<MediaFile>();
+                    foreach (DataRow dr in dt.Rows)
                     {
-                        Duration = ODBCWrapper.Utils.GetLongSafeVal(dr, "duration"),
-                        ExternalId = ODBCWrapper.Utils.GetSafeStr(dr, "co_guid"),
-                        Id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id"),
-                        Type = ODBCWrapper.Utils.GetSafeStr(dr, "DESCRIPTION"),
-                        IsTrailer = ODBCWrapper.Utils.GetIntSafeVal(dr, "IS_TRAILER") == 1 ? true : false,
-                        CdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
-                        Url = ODBCWrapper.Utils.GetSafeStr(dr, "STREAMING_CODE"),
-                        AltCdnId = ODBCWrapper.Utils.GetIntSafeVal(dr, "ALT_STREAMING_SUPLIER_ID"),
-                        AltUrl = ODBCWrapper.Utils.GetSafeStr(dr, "ALT_STREAMING_CODE"),
-                        DrmId = ODBCWrapper.Utils.GetIntSafeVal(dr, "DRM_ID"),
-                        MediaId = mediaId,
-                        Opl = ODBCWrapper.Utils.GetSafeStr(dr, "OPL"),
-                        GroupId = ODBCWrapper.Utils.GetLongSafeVal(dr, "GROUP_ID")
-                    };
+                        var file = new MediaFile
+                        {
+                            Duration = Utils.GetLongSafeVal(dr, "duration"),
+                            ExternalId = Utils.GetSafeStr(dr, "co_guid"),
+                            Id = Utils.GetLongSafeVal(dr, "id"),
+                            Type = Utils.GetSafeStr(dr, "DESCRIPTION"),
+                            IsTrailer = Utils.GetIntSafeVal(dr, "IS_TRAILER") == 1 ? true : false,
+                            CdnId = Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
+                            Url = Utils.GetSafeStr(dr, "STREAMING_CODE"),
+                            AltCdnId = Utils.GetIntSafeVal(dr, "ALT_STREAMING_SUPLIER_ID"),
+                            AltUrl = Utils.GetSafeStr(dr, "ALT_STREAMING_CODE"),
+                            DrmId = Utils.GetIntSafeVal(dr, "DRM_ID"),
+                            MediaId = mediaId,
+                            Opl = Utils.GetSafeStr(dr, "OPL"),
+                            GroupId = Utils.GetLongSafeVal(dr, "GROUP_ID")
+                        };
+                        var labels = labelsTable
+                            .Select($"MEDIA_FILE_ID = {file.Id}")
+                            .Select(x => Utils.GetSafeStr(x, "LABEL_VALUE"));
+                        file.Labels = string.Join(",", labels);
 
-                    if (ODBCWrapper.Utils.GetNullableInt(dr, "streamer_type").HasValue)
-                    {
-                        file.StreamerType = (StreamerType)ODBCWrapper.Utils.GetNullableInt(dr, "streamer_type");
+                        if (Utils.GetNullableInt(dr, "streamer_type").HasValue)
+                        {
+                            file.StreamerType = (StreamerType)Utils.GetNullableInt(dr, "streamer_type");
+                        }
+
+                        files.Add(file);
                     }
-
-
-                    files.Add(file);
                 }
             }
+            
             return files;
         }
 
@@ -5728,6 +5736,11 @@ namespace DAL
             if (partnerConfig.SuspensionProfileInheritanceType.HasValue)
             {
                 sp.AddParameter("@suspensionProfileInheritanceType", partnerConfig.SuspensionProfileInheritanceType.Value);
+            }
+
+            if (partnerConfig.AllowDeviceMobility.HasValue)
+            {
+                sp.AddParameter("@allowDeviceMobility", partnerConfig.AllowDeviceMobility.Value ? 1 : 0);
             }
 
             return sp.ExecuteReturnValue<int>() > 0;

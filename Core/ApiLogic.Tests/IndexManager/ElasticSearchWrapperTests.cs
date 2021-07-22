@@ -1,7 +1,12 @@
-﻿using ApiObjects.SearchObjects;
+﻿using ApiLogic.Catalog;
+using ApiObjects.SearchObjects;
+using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Catalog;
+using Core.Catalog.Cache;
+using Core.Catalog.CatalogManagement;
 using ElasticSearch.Common;
+using GroupsCacheManager;
 using JsonDiffPatchDotNet;
 using Moq;
 using NUnit.Framework;
@@ -12,7 +17,7 @@ using System.Linq;
 using TVinciShared;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 
-namespace ApiLogic.Tests.Catalog.Searcher
+namespace ApiLogic.Tests.IndexManager
 {
     [TestFixture]
     public class ElasticSearchWrapperTests
@@ -20,15 +25,33 @@ namespace ApiLogic.Tests.Catalog.Searcher
         private readonly JsonDiffPatch jdp = new JsonDiffPatch();
 
         delegate void MockSendPostHttpReq(string url, ref int status, string userName, string password, string parameters, bool isFirstTry, bool isPut = false);
+        
+        private MockRepository _mockRepository;
+        private Mock<IGroupManager> _mockGroupManager;
+        private Mock<ICatalogManager> _mockCatalogManager;
+        private Mock<IChannelManager> _mockChannelManager;
+        private ESSerializerV2 _mockEsSerializerV2;
+        private ElasticSearchIndexDefinitions _elasticSearchIndexDefinitions;
+        private Mock<ILayeredCache> _mockLayeredCache;
+        private Mock<ICatalogCache> _mockCatalogCache;
+        private Mock<IWatchRuleManager> _mockWatchRuleManager;
 
         [SetUp]
         public void SetUp()
         {
             ApplicationConfiguration.Current._elasticSearchConfiguration = new MockElasticSearchConfiguration();
+            _mockEsSerializerV2 = new ESSerializerV2();
+            _mockRepository = new MockRepository(MockBehavior.Loose);
+            _mockGroupManager = _mockRepository.Create<IGroupManager>();
+            _mockCatalogManager = _mockRepository.Create<ICatalogManager>();
+            MockChannelManager = _mockRepository.Create<IChannelManager>();
+            _mockCatalogCache = _mockRepository.Create<ICatalogCache>();
+            _mockLayeredCache = _mockRepository.Create<ILayeredCache>();
+            _mockWatchRuleManager = _mockRepository.Create<IWatchRuleManager>();
+            _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance);
         }
 
 
-        [Ignore("This test should be fixed after refactor to IIndexManager instead of elastic wrapper")]
         [TestCaseSource(nameof(TestCases))]
         public void ShouldGenerateCorrectRequestAndFilterResponse(
             OrderBy orderBy,
@@ -40,12 +63,24 @@ namespace ApiLogic.Tests.Catalog.Searcher
             int expectedTotalCount,
             string[] expectedAssets)
         {
-          
-          // TODO think ohw to change this test since now ES API should be hidden form logic 
-            var clientMock = new Mock<IElasticSearchApi>();
-            var elasticSearchWrapper = new Mock<IIndexManager>();
-
             var parentGroupId = 1;
+
+            // TODO think ohw to change this test since now ES API should be hidden form logic 
+            var clientMock = new Mock<IElasticSearchApi>();
+            clientMock.Setup(x => x.baseUrl).Returns("http://elasticsearch.service.consul:9200");
+
+            var elasticSearchWrapper = new IndexManagerV2(parentGroupId,
+                clientMock.Object,
+                _mockGroupManager.Object,
+                _mockEsSerializerV2,
+                _mockCatalogManager.Object,
+                _elasticSearchIndexDefinitions,
+                _mockLayeredCache.Object,
+                _mockChannelManager.Object,
+                _mockCatalogCache.Object,
+                _mockWatchRuleManager.Object
+                );
+
             var groupBy = KeyValuePair.Create("content_reference_id", "content_reference_id.name.in.elastic");
             var unifiedSearchDefinitions = new UnifiedSearchDefinitions
             {
@@ -79,7 +114,7 @@ namespace ApiLogic.Tests.Catalog.Searcher
 
             using var overwriteTime = SystemDateTime.UtcNowIs(new DateTime(2020, 11, 11));
 
-            var aggregationsResult = elasticSearchWrapper.Object.UnifiedSearchForGroupBy(unifiedSearchDefinitions);
+            var aggregationsResult = elasticSearchWrapper.UnifiedSearchForGroupBy(unifiedSearchDefinitions);
 
             Assert.That(aggregationsResult, Is.Not.Null);
             Assert.That(aggregationsResult.totalItems, Is.EqualTo(expectedTotalCount));
@@ -932,6 +967,8 @@ namespace ApiLogic.Tests.Catalog.Searcher
             }
           }";
 
+        public Mock<IChannelManager> MockChannelManager { get => _mockChannelManager; set => _mockChannelManager = value; }
+
         #endregion
 
         internal class MockElasticSearchConfiguration : ElasticSearchConfiguration
@@ -939,6 +976,7 @@ namespace ApiLogic.Tests.Catalog.Searcher
             public MockElasticSearchConfiguration()
             {
                 SetActualValue(MaxResults, 100000);
+                SetActualValue(URL_V2, "http://elasticsearch.service.consul:9200");
             }
         }
     }

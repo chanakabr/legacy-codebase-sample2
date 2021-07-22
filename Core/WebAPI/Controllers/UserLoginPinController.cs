@@ -25,7 +25,6 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.UserDoesNotExist)]
-        [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.InvalidParameters)]
         [Throws(eResponseStatus.LoginViaPinNotAllowed)]
         [Throws(eResponseStatus.MissingSecurityParameter)]
@@ -97,6 +96,8 @@ namespace WebAPI.Controllers
         [Action("deleteAll")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         static public bool DeleteAll()
         {
             bool res = false;
@@ -123,6 +124,9 @@ namespace WebAPI.Controllers
         [Action("delete")]
         [ApiAuthorize]
         [OldStandardArgument("pinCode", "pin_code")]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.PinNotExists)]
         static public bool Delete(string pinCode)
         {
             bool res = false;

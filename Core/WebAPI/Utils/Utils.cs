@@ -6,7 +6,6 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using TVinciShared;
-using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
@@ -361,6 +360,28 @@ namespace WebAPI.Utils
             }
 
             return res;
+        }
+
+        internal static IEnumerable<long> ParseCommaSeparatedString(string value, char[] separator, string argumentName)
+        {
+            var ids = new HashSet<long>();
+            if (!string.IsNullOrEmpty(value))
+            {
+                var stringValues = value.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var stringValue in stringValues)
+                {
+                    if (long.TryParse(stringValue, out var id) && !ids.Contains(id))
+                    {
+                        ids.Add(id);
+                    }
+                    else
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, argumentName);
+                    }
+                }
+            }
+
+            return ids.ToArray();
         }
     }
 }

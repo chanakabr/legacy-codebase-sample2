@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
+using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Response;
 
@@ -6,10 +8,10 @@ namespace IngestTransformationHandler.Managers
 {
     public static class ProgramValidator
     {
-        internal static bool Validate(EpgProgramBulkUploadObject program, BulkUploadResult epg)
+        internal static bool Validate(EpgProgramBulkUploadObject program, BulkUploadResult epg, LanguageObj defaultLanguage)
         {
             bool result = true;
-            if (!ValidateMetadataLang(program))
+            if (!ValidateMetadataLang(program))  
             {
                 epg.AddError(eResponseStatus.Error, "Language value on meta data must not be empty.");
                 result = false;
@@ -21,9 +23,15 @@ namespace IngestTransformationHandler.Managers
                 result = false;
             }
 
-            if (!ValidateTitleLang(program))
+            if (!ValidateTitle(program, defaultLanguage))
             {
-                epg.AddError(eResponseStatus.Error, "Language value on title cannot be empty.");
+                epg.AddError(eResponseStatus.Error, "Language value on title and value cannot be empty.");
+                result = false;
+            }
+
+            if (!ValidateDescription(program, defaultLanguage))
+            {
+                epg.AddError(eResponseStatus.Error, "Language value on description and value cannot be empty.");
                 result = false;
             }
 
@@ -48,51 +56,71 @@ namespace IngestTransformationHandler.Managers
             return result;
         }
 
-        private static bool ValidateIcon(EpgProgramBulkUploadObject p)
+        private static bool ValidateIcon(EpgProgramBulkUploadObject p) =>
+            p.ParsedProgramObject != null
+            && p.ParsedProgramObject.icon == null
+            || p.ParsedProgramObject.icon.All(x => x != null && !string.IsNullOrEmpty(x.src));
+
+        private static bool ValidateTitle(EpgProgramBulkUploadObject p, LanguageObj defaultLanguage)
         {
-            return p.ParsedProgramObject != null
-                && p.ParsedProgramObject.icon == null
-                || p.ParsedProgramObject.icon.All(x => x != null && !string.IsNullOrEmpty(x.src));
+            return ValidateFields(p.ParsedProgramObject?.title, defaultLanguage, title => title.lang, title => title.Value);
         }
 
-        private static bool ValidateTitleLang(EpgProgramBulkUploadObject p)
+        private static bool ValidateDescription(EpgProgramBulkUploadObject p, LanguageObj defaultLanguage)
         {
-            return p.ParsedProgramObject != null
-                && p.ParsedProgramObject.title != null
-                && p.ParsedProgramObject.title.All(x => x != null && !string.IsNullOrEmpty(x.lang));
+            return ValidateFields(p.ParsedProgramObject?.desc, defaultLanguage, desc => desc.lang, desc => desc.Value);
         }
 
-        public static bool ValidateMetadataLang(EpgProgramBulkUploadObject p)
-        {
+        public static bool ValidateMetadataLang(EpgProgramBulkUploadObject p) =>
             //verify does not contain empty lang 
-            return (p.ParsedProgramObject != null
-                && p.ParsedProgramObject.metas == null)
-                || (p.ParsedProgramObject != null
-                && p.ParsedProgramObject.metas != null
-                && p.ParsedProgramObject.metas.SelectMany(x => x.MetaValues)
+            p.ParsedProgramObject != null
+            && p.ParsedProgramObject.metas == null
+            || p.ParsedProgramObject?.metas != null && p.ParsedProgramObject.metas.SelectMany(x => x.MetaValues)
+                .All(x => x != null && !string.IsNullOrEmpty(x.lang));
+
+        public static bool ValidateTagsLang(EpgProgramBulkUploadObject p) =>
+            //verify does not contain empty lang 
+            (p.ParsedProgramObject != null && p.ParsedProgramObject.tags == null)
+            || (p.ParsedProgramObject?.tags != null && p.ParsedProgramObject.tags.SelectMany(x => x.TagValues)
                 .All(x => x != null && !string.IsNullOrEmpty(x.lang)));
-        }
 
-        public static bool ValidateTagsLang(EpgProgramBulkUploadObject p)
-        {
-            //verify does not contain empty lang 
-            return (p.ParsedProgramObject != null && p.ParsedProgramObject.tags == null)
-                || (p.ParsedProgramObject != null && p.ParsedProgramObject.tags != null
-                && p.ParsedProgramObject.tags.SelectMany(x => x.TagValues)
-                                             .All(x => x != null && !string.IsNullOrEmpty(x.lang)));
-        }
-
-        private static bool ValidateExternalId(EpgProgramBulkUploadObject p)
-        {
+        private static bool ValidateExternalId(EpgProgramBulkUploadObject p) =>
             //verify that external id is not empty
-            return p.ParsedProgramObject != null && !string.IsNullOrWhiteSpace(p.ParsedProgramObject.external_id);
+            p.ParsedProgramObject != null && !string.IsNullOrWhiteSpace(p.ParsedProgramObject.external_id);
 
-        }
-
-        private static bool ValidateProgramDates(EpgProgramBulkUploadObject p)
+        private static bool ValidateProgramDates(EpgProgramBulkUploadObject p) =>
+            p.StartDate != null && p.EndDate != null && p.StartDate < p.EndDate;
+        
+        private static bool ValidateFields<T>(T[] fields, LanguageObj defaultLanguage, Func<T, string> langRetriever, Func<T, string> valueRetriever)
         {
-            return p.StartDate != null && p.EndDate != null && p.StartDate < p.EndDate;
-        }
+            if (fields == null)
+            {
+                return false;
+            }
+            
+            foreach (var f in fields)
+            {
+                if (f == null)
+                {
+                    return false;
+                }
 
+                var lang = langRetriever(f);
+                if (string.IsNullOrEmpty(lang))
+                {
+                    return false;
+                }
+
+                if (string.Equals(lang, defaultLanguage.Code, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    if (string.IsNullOrEmpty(valueRetriever(f)))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
     }
 }

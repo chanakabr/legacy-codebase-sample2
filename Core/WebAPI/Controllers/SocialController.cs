@@ -23,13 +23,11 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <param name="token">Social token</param>
         /// <param name="type">Social network type</param>
-        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001, UserEmailIsMissing - 7017</remarks>
         [Action("getByToken")]
         [BlockHttpMethods("GET")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.Conflict)]
-        [Throws(eResponseStatus.MinFriendsLimitation)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserEmailIsMissing)]
         static public KalturaSocial GetByToken(int partnerId, string token, KalturaSocialNetwork type)
         {
@@ -102,6 +100,7 @@ namespace WebAPI.Controllers
         [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         static public KalturaSocial Get(KalturaSocialNetwork type)
         {
             KalturaSocial response = null;
@@ -134,13 +133,11 @@ namespace WebAPI.Controllers
         /// <param name="token">Social token</param>
         /// <param name="type">Social network</param>
         /// <param name="udid">Device UDID</param>
-        /// <remarks>        
-        /// User does not exist = 2000
-        /// </remarks>
         [Action("login")]
         [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.NotAllowed)]
         static public KalturaLoginResponse Login(int partnerId, string token, KalturaSocialNetwork type, string udid = null)
         {
             KalturaOTTUser response = null;
@@ -183,11 +180,9 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>
         /// <param name="type">Social network type</param>
         /// <param name="email">User email</param>
-        /// <remarks>Possible status codes: Conflict - 7000, MinFriendsLimitation - 7001</remarks>
         [Action("register")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
         [Throws(eResponseStatus.UserEmailIsMissing)]
         static public KalturaSocial Register(int partnerId, string token, KalturaSocialNetwork type, string email = null)
@@ -310,6 +305,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         static public KalturaSocial Merge(string token, KalturaSocialNetwork type)
         {
             if (string.IsNullOrEmpty(token))
@@ -385,8 +381,6 @@ namespace WebAPI.Controllers
         [Action("unmerge")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.WrongPasswordOrUserName)]
-        [Throws(eResponseStatus.Conflict)]
         [Throws(eResponseStatus.MinFriendsLimitation)]
         static public KalturaSocial Unmerge(KalturaSocialNetwork type)
         {

@@ -50,7 +50,8 @@ namespace WebAPI.EventNotifications
                     SequenceId = HttpContext.Current?.Items[Constants.REQUEST_ID_KEY]?.ToString(),
                     UserId = eventWrapper.UserId,
                     Udid = eventWrapper.Udid,
-                    Context = eventWrapper.Context
+                    Context = eventWrapper.Context,
+                    CreateDate = eventWrapper.CreateDate
                 }
             );
         }

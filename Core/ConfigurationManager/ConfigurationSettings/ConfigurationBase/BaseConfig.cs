@@ -99,7 +99,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
             }
             catch (Exception ex)
             {
-                _Logger.Error($"Eror in configuration reading: {ex}");
+                _Logger.Error($"Error in configuration reading: {ex}");
                 //todo
             }
         }

@@ -79,6 +79,8 @@ namespace WebAPI.EventNotifications
                 SequenceId = RequestContextUtils.GetRequestId(),
                 UserId = userId,
                 Context = GetContext(),
+                Udid = udid,
+                CreateDate = DateUtils.GetUtcUnixTimestampNow()
             };
 
             return eventWrapper;
@@ -86,19 +88,27 @@ namespace WebAPI.EventNotifications
 
         private static KalturaEventContextAction GetContext()
         {
-            KalturaEventContextAction context = new KalturaEventContextAction
+            if (HttpContext.Current?.Items != null)
             {
-                Service = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE]),
-                Action = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION])
-            };
+                var context = new KalturaEventContextAction();
+                if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_SERVICE))
+                {
+                    context.Service = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE]);
+                }
 
-            if (!String.IsNullOrEmpty(context.Action) && !String.IsNullOrEmpty(context.Service))
-            {
-                return context;
+                if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_ACTION))
+                {
+                    context.Action = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION]);
+                }
+
+                if (!string.IsNullOrEmpty(context.Action) && !string.IsNullOrEmpty(context.Service))
+                {
+                    return context;
+                }
             }
-
             return null;
         }
+
         internal static KalturaEventAction ConvertKalturaAction(eKalturaEventActions eKalturaEventActions)
         {
             KalturaEventAction action = KalturaEventAction.None;

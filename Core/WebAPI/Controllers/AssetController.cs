@@ -1024,9 +1024,12 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotInDomain)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.ServiceNotAllowed)]
-        [Throws(eResponseStatus.NotEntitled)]
-        [Throws(eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel)]
         [Throws(eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         static public KalturaAdsContext GetAdsContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams)
         {
             KalturaAdsContext response = null;
@@ -1063,6 +1066,12 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
         [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
         [Throws(StatusCode.StartDateShouldBeLessThanEndDate)]
+        [Throws(eResponseStatus.EPGSProgramDatesError)]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.ChannelDoesNotExist)]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.MetaDoesNotExist)]
+        [Throws(eResponseStatus.GroupDoesNotContainLanguage)]
         static public KalturaAsset Add(KalturaAsset asset)
         {
             KalturaAsset response = null;
@@ -1092,6 +1101,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
+        [Throws(eResponseStatus.CategoryVersionIsNotDraft)]
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         static public bool Delete(long id, KalturaAssetReferenceType assetReferenceType)
@@ -1126,11 +1136,13 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetExternalIdMustBeUnique)]
         [Throws(eResponseStatus.InvalidMetaType)]
         [Throws(eResponseStatus.InvalidValueSentForMeta)]
-        [Throws(eResponseStatus.DeviceRuleDoesNotExistForGroup)]
-        [Throws(eResponseStatus.GeoBlockRuleDoesNotExistForGroup)]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
         [Throws(eResponseStatus.RelatedEntitiesExceedLimitation)]
         [Throws(eResponseStatus.StartDateShouldBeLessThanEndDate)]
+        [Throws(eResponseStatus.MetaDoesNotExist)]
+        [Throws(eResponseStatus.GroupDoesNotContainLanguage)]
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
+        [Throws(eResponseStatus.CategoryVersionIsNotDraft)]
         [SchemeArgument("id", MinLong = 1)]
         static public KalturaAsset Update(long id, KalturaAsset asset)
         {
@@ -1162,6 +1174,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetDoesNotExist)]
         [Throws(eResponseStatus.CanNotRemoveBasicMetaIds)]
+        [Throws(StatusCode.NotFound)]
         [SchemeArgument("id", MinLong = 1)]
         [SchemeArgument("idIn", DynamicMinInt = 1)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -1243,17 +1256,14 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ErrorSavingFile)]
         [Throws(eResponseStatus.FileIdNotInCorrectLength)]
         [Throws(eResponseStatus.InvalidFileType)]
-        [Throws(eResponseStatus.IllegalExcelFile)]
         [Throws(eResponseStatus.EnqueueFailed)]
-        [Throws(eResponseStatus.InvalidBulkUploadStructure)]
-        [Throws(eResponseStatus.ExcelMandatoryValueIsMissing)]
         [Throws(eResponseStatus.InvalidArgumentValue)]
         [Throws(eResponseStatus.BulkUploadDoesNotExist)]
-        [Throws(eResponseStatus.BulkUploadResultIsMissing)]
         [Throws(eResponseStatus.AccountEpgIngestVersionDoesNotSupportBulk)]
         [Throws(eResponseStatus.FileExceededMaxSize)]
         [Throws(eResponseStatus.FileExtensionNotSupported)]
         [Throws(eResponseStatus.FileMimeDifferentThanExpected)]
+        [Throws(eResponseStatus.DynamicListDoesNotExist)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
 
@@ -1308,10 +1318,14 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.RecordingNotFound)]
+        [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel)]
         [Throws(eResponseStatus.ProgramDoesntExist)]
         [Throws(eResponseStatus.AdapterAppFailure)]
         [Throws(eResponseStatus.AdapterNotExists)]
-        [Throws(eResponseStatus.AdapterUrlRequired)]        
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.DeviceNotInDomain)]
+        [Throws(eResponseStatus.NoFilesFound)]
         static public KalturaPlaybackContext GetPlaybackManifest(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams, string sourceType = null)
         {
             KalturaPlaybackContext response = null;

@@ -136,14 +136,13 @@ namespace Core.Catalog
         bool FinishUpEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
 
         // updaters 
-        bool UpdateEpgs(List<LanguageObj> languages, List<EpgCB> epgObjects, 
-            Dictionary<string, LinearChannelSettings> linearChannelSettings, 
+        bool UpdateEpgs(List<EpgCB> epgObjects, 
             bool isRecording, Dictionary<long, long> epgToRecordingMapping = null);
 
         // remark: Verify these methods should really be here ..
 
         SearchResultsObj SearchMedias(MediaSearchObj oSearch, int nLangID, bool bUseStartDate);
-        SearchResultsObj SearchSubscriptionMedias(List<MediaSearchObj> oSearch, int nLangID, bool bUseStartDate, string sMediaTypes, OrderObj oOrderObj, int nPageIndex, int nPageSize);
+        SearchResultsObj SearchSubscriptionMedias(List<MediaSearchObj> oSearch, int nLangID, bool shouldUseStartDate, string sMediaTypes, OrderObj oOrderObj, int nPageIndex, int nPageSize);
         SearchResultsObj SearchEpgs(EpgSearchObj epgSearch);
         List<string> GetAutoCompleteList(MediaSearchObj oSearch, int nLangID, ref int nTotalItems);
         

@@ -205,7 +205,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Order, opt => opt.ResolveUsing(src => ConvertOrderObjToAssetOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
                 .ForMember(dest => dest.GroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.searchGroupBy)))
                 .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
-                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId));
+                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
+                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
 
             //KSQLChannel to KalturaChannel
             cfg.CreateMap<KSQLChannel, KalturaChannel>()
@@ -958,6 +959,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
                  .ForMember(dest => dest.CatalogEndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CatalogEndDate)))
                  .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.Opl))
+                 .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels))
                  ;
 
             //File
@@ -986,6 +988,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CatalogEndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.CatalogEndDate)))
                 .ForMember(dest => dest.PpvModule, opt => opt.MapFrom(src => GetPPVModule(src.PPVModules)))
                 .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.Opl))
+                .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels))
                 ;
 
             #endregion
@@ -1474,6 +1477,44 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.StateEqual));
 
             #endregion CategoryVersion
+
+            #region Label
+
+            cfg.CreateMap<LabelValue, KalturaLabel>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                .ForMember(dest => dest.EntityAttribute, opt => opt.MapFrom(src => src.EntityAttribute));
+
+            cfg.CreateMap<KalturaLabel, LabelValue>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                .ForMember(dest => dest.EntityAttribute, opt => opt.MapFrom(src => src.EntityAttribute));
+
+            cfg.CreateMap<EntityAttribute, KalturaEntityAttribute>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case EntityAttribute.MediaFileLabels:
+                            return KalturaEntityAttribute.MEDIA_FILE_LABELS;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown {nameof(EntityAttribute)}: {type.ToString()}");
+                    }
+                });
+
+            cfg.CreateMap<KalturaEntityAttribute, EntityAttribute>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case KalturaEntityAttribute.MEDIA_FILE_LABELS:
+                            return EntityAttribute.MediaFileLabels;
+                    }
+
+                    return (EntityAttribute)0;
+                });
+
+            #endregion
         }
 
         private static int? ConvertToNullableInt(bool? value)

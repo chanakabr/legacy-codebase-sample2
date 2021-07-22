@@ -18,10 +18,6 @@ namespace WebAPI.Controllers
         /// Includes specification of where these settings were defined – account, household or user        
         /// </summary>
         /// <param name="by">Reference type to filter by</param>
-        /// <remarks>
-        /// Possible status codes: 
-        /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
-        /// </remarks>
         /// <returns>The purchase settings that apply for the user</returns>
         [Action("get")]
         [ApiAuthorize]
@@ -30,6 +26,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         static public KalturaPurchaseSettings Get(KalturaEntityReferenceBy by)
         {
             KalturaPurchaseSettings purchaseResponse = null;
@@ -121,6 +118,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.PurchaseSettingsTypeInvalid)]
         static public KalturaPurchaseSettings Update(KalturaEntityReferenceBy entityReference, KalturaPurchaseSettings settings)

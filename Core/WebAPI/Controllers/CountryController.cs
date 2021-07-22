@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -16,14 +17,15 @@ namespace WebAPI.Controllers
     {
          private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        /// <summary>
+         /// <summary>
          /// Get the list of countries for the partner with option to filter by countries identifiers
-        /// </summary>
-        /// <param name="filter">Country filter</param>
-        /// <remarks></remarks>
+         /// </summary>
+         /// <param name="filter">Country filter</param>
+         /// <remarks></remarks>
          [Action("list")]
          [ApiAuthorize]
-        static public KalturaCountryListResponse List(KalturaCountryFilter filter)
+         [Throws(eResponseStatus.CountryNotFound)]
+         static public KalturaCountryListResponse List(KalturaCountryFilter filter)
          {
              KalturaCountryListResponse response = null;
 

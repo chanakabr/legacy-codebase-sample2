@@ -12,7 +12,7 @@ namespace WebAPI.Models.Catalog
     {
         public override KalturaAssetOrderBy GetDefaultOrderByValue()
         {
-            return KalturaAssetOrderBy.RELEVANCY_DESC;
+            return KalturaAssetOrderBy.CREATE_DATE_DESC;
         }
 
         internal virtual void Validate()

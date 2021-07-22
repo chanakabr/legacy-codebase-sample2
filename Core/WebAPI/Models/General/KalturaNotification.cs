@@ -53,7 +53,7 @@ namespace WebAPI.Models.General
             get;
             set;
         }
-        
+
         [DataMember(Name = "userIp")]
         [JsonProperty(PropertyName = "userIp")]
         [XmlElement(ElementName = "userIp", IsNullable = true)]
@@ -96,11 +96,16 @@ namespace WebAPI.Models.General
         [JsonProperty(PropertyName = "context")]
         [XmlElement(ElementName = "context", IsNullable = true)]
         [SchemeProperty(IsNullable = true)]
-        public KalturaEventContext Context
-        {
-            get;
-            set;
-        }
+        public KalturaEventContext Context { get; set; }
+
+        /// <summary>
+        /// Create Date
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty(PropertyName = "createDate")]
+        [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
     }
 
     [Serializable]

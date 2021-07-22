@@ -1,5 +1,6 @@
 ﻿using AdapterControllers;
 using ApiLogic.Api.Managers;
+using ApiLogic.Catalog;
 using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Catalog;
@@ -335,42 +336,36 @@ namespace Core.Catalog
                 List<int> idsToDelete = new List<int>();
                 List<int> idsToTurnOff = new List<int>();
 
+                bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
+
                 foreach (var id in nonExistingMediaIDs)
                 {
                     // Look for the origin row of the media in the database
                     DataRow currentMediaRow = ODBCWrapper.Utils.GetTableSingleRow("media", id, "MAIN_CONNECTION_STRING");
 
                     // If no row returned - delete the record in index
-                    if (currentMediaRow == null)
+                    if (currentMediaRow == null || ODBCWrapper.Utils.ExtractInteger(currentMediaRow, "status") != 1 ||
+                        (!doesGroupUsesTemplates && ODBCWrapper.Utils.ExtractDateTime(currentMediaRow, "FINAL_END_DATE") < DateTime.UtcNow)) //BEO-10220
                     {
                         idsToDelete.Add(id);
                     }
                     else
                     {
-                        int status = ODBCWrapper.Utils.ExtractInteger(currentMediaRow, "status");
+                        int isActive = ODBCWrapper.Utils.ExtractInteger(currentMediaRow, "is_active");
 
-                        // if the status is invalid - delete the record in index
-                        if (status != 1)
+                        // if media is not active, turn it off
+                        if (isActive != 1)
                         {
-                            idsToDelete.Add(id);
+                            idsToTurnOff.Add(id);
                         }
+                        // if media is active and has valid status, update it in index
                         else
                         {
-                            int isActive = ODBCWrapper.Utils.ExtractInteger(currentMediaRow, "is_active");
-
-                            // if media is not active, turn it off
-                            if (isActive != 1)
-                            {
-                                idsToTurnOff.Add(id);
-                            }
-                            // if media is active and has valid status, update it in index
-                            else
-                            {
-                                idsToUpdate.Add(id);
-                            }
+                            idsToUpdate.Add(id);
                         }
                     }
-                }
+
+                }            
 
                 // Add messages to queue for each type of action
                 CatalogLogic.Update(idsToDelete, groupId, eObjectType.Media, eAction.Delete);
@@ -3005,65 +3000,12 @@ namespace Core.Catalog
             return returnedSearchValues;
         }
 
-        public static List<string> GetGroupPermittedWatchRules(int groupId)
-        {
-            List<string> result = null;
-            try
-            {
-                string key = LayeredCacheKeys.GetGroupWatchPermissionRulesKey(groupId);
-                string invalidationKey = LayeredCacheKeys.GetGroupWatchPermissionRulesInvalidationKey(groupId);
-                if (!LayeredCache.Instance.Get<List<string>>(key, ref result, GetGroupPermittedWatchRules, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
-                                                                LayeredCacheConfigNames.GROUP_WATCH_PERMISSION_RULES_LAYERED_CACHE_CONFIG_NAME, new List<string>() { invalidationKey }))
-                {
-                    log.ErrorFormat("GetGroupPermittedWatchRules - Couldn't get groupId {0} watch permission rules", groupId);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed GetGroupPermittedWatchRules, groupId: {0}", groupId), ex);
-            }
-
-            return result;
-        }
-
-        private static Tuple<List<string>, bool> GetGroupPermittedWatchRules(Dictionary<string, object> funcParams)
-        {
-            List<string> watchPermissionRules = null;
-            bool res = false;
-            try
-            {
-                if (funcParams != null && funcParams.ContainsKey("groupId"))
-                {
-                    int? groupId = funcParams["groupId"] as int?;
-                    GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
-                    List<int> lSubGroup = groupManager.GetSubGroup(groupId.Value);
-                    watchPermissionRules = new List<string>();
-                    DataTable dt = Tvinci.Core.DAL.CatalogDAL.GetPermittedWatchRulesByGroupId(groupId.Value, lSubGroup);
-                    if (dt != null && dt.Rows.Count > 0)
-                    {
-                        foreach (DataRow dr in dt.Rows)
-                        {
-                            watchPermissionRules.Add(Utils.GetStrSafeVal(dr, "RuleID"));
-                        }
-                    }
-                }
-
-                res = watchPermissionRules != null;
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("GetGroupPermittedWatchRules failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
-            }
-
-            return new Tuple<List<string>, bool>(watchPermissionRules, res);
-        }
-
         private static string GetPermittedWatchRules(int groupId, DataTable extractedPermittedWatchRulesDT)
         {
             List<string> watchPermissionRules = null;
             if (extractedPermittedWatchRulesDT == null)
             {
-                watchPermissionRules = GetGroupPermittedWatchRules(groupId);
+                watchPermissionRules = WatchRuleManager.Instance.GetGroupPermittedWatchRules(groupId);
             }
             else
             {
@@ -5486,12 +5428,12 @@ namespace Core.Catalog
         private static List<UnifiedSearchResult> GetValidateRecommendationsAssets(List<RecommendationResult> recommendations, int groupId)
         {
             var searchResultsList = new List<UnifiedSearchResult>();
-            var groupPermittedWatchRules = GetGroupPermittedWatchRules(groupId);
+            var groupPermittedWatchRules = WatchRuleManager.Instance.GetGroupPermittedWatchRules(groupId);
 
             bool isOPC = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
             if (isOPC || (groupPermittedWatchRules != null && groupPermittedWatchRules.Count > 0))
             {
-                string watchRules = string.Join(" ", GetGroupPermittedWatchRules(groupId));
+                string watchRules = string.Join(" ", WatchRuleManager.Instance.GetGroupPermittedWatchRules(groupId));
 
                 // validate media on ES
                 UnifiedSearchDefinitions searchDefinitions = new UnifiedSearchDefinitions()

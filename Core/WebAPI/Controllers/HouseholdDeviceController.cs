@@ -301,8 +301,6 @@ namespace WebAPI.Controllers
         /// </summary>                
         /// <param name="udid">Device UDID</param>
         /// <param name="device">Device object</param>
-        /// <remarks>Possible status codes: 
-        /// Device not exists = 1019</remarks>
         [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.DeviceNotExists)]
@@ -382,13 +380,13 @@ namespace WebAPI.Controllers
         /// </summary>                
         /// <param name="udid">Device UDID</param>
         /// <param name="status">Device status</param>
-        /// <remarks>Possible status codes: 
-        /// Limitation period = 1014, Exceeded limit = 1001 </remarks>
         [Action("updateStatus")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.LimitationPeriod)]
         [Throws(eResponseStatus.ExceededLimit)]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.DeviceNotInDomain)]
         static public bool UpdateStatus(string udid, KalturaDeviceStatus status)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -422,12 +420,8 @@ namespace WebAPI.Controllers
         /// Returns the devices within the household
         /// </summary>
         /// <param name="filter">Household devices filter</param>
-        /// <returns></returns><remarks>Possible status codes:
-        /// Household does not exist = 1006, Household user failed = 1007
-        /// </remarks>
         [Action("list")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.DeviceNotExists)]
         static public KalturaHouseholdDeviceListResponse List(KalturaHouseholdDeviceFilter filter = null)
         {
             KalturaHouseholdDeviceListResponse response = null;
@@ -473,36 +467,22 @@ namespace WebAPI.Controllers
         /// <param name="pin">pin code</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <param name="udid">Device UDID</param>
-        /// <remarks>Possible status codes: 
-        /// UserNotInDomain = 1005, Wrong username or password = 1011, PinNotExists = 2003, PinExpired = 2004, NoValidPin = 2006, SecretIsWrong = 2008, 
-        /// LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
-        /// UserAllreadyLoggedIn = 2017,UserDoubleLogIn = 2018, DeviceNotRegistered = 2019, ErrorOnInitUser = 2021,UserNotMasterApproved = 2023, UserWithNoDomain = 2024, User does not exist = 2000
-        /// </remarks>
         [Action("loginWithPin")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.PinNotExists)]
-        [Throws(eResponseStatus.PinExpired)]
         [Throws(eResponseStatus.NoValidPin)]
-        [Throws(eResponseStatus.SecretIsWrong)]
-        [Throws(eResponseStatus.LoginViaPinNotAllowed)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.InsideLockTime)]
         [Throws(eResponseStatus.UserNotActivated)]
         [Throws(eResponseStatus.UserAllreadyLoggedIn)]
         [Throws(eResponseStatus.UserDoubleLogIn)]
-        [Throws(eResponseStatus.DeviceNotRegistered)]
         [Throws(eResponseStatus.ErrorOnInitUser)]
         [Throws(eResponseStatus.UserNotMasterApproved)]
-        [Throws(eResponseStatus.UserWithNoDomain)]
-        [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.DeviceNotExists)]
-        [Throws(eResponseStatus.PinNotExists)]
         [Throws(eResponseStatus.DeviceNotInDomain)]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.MasterUserNotFound)]
-        [Throws(eResponseStatus.NoValidPin)]
         static public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null)
         {
             KalturaOTTUser response = null;
@@ -536,6 +516,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.DeviceNotExists)]
         [Throws(eResponseStatus.ExceededMaxCapacity)]
+        [Throws(eResponseStatus.ExceededMaxLength)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public static KalturaDynamicData UpsertDynamicData(string udid, string key, KalturaStringValue value)
         {

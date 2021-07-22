@@ -68,6 +68,7 @@ namespace Core.Catalog.CatalogManagement
         private const string TABLE_NAME_METAS = "METAS";
         private const string TABLE_NAME_TAGS = "TAGS";
         private const string TABLE_NAME_FILES = "FILES";
+        private const string TABLE_NAME_FILES_LABELS = "FILES_LABELS";
         private const string TABLE_NAME_IMAGES = "IMAGES";
         private const string TABLE_NAME_NEW_TAGS = "NEW_TAGS";
         private const string TABLE_NAME_UPDATE_DATE = "UPDATE_DATE";
@@ -468,7 +469,7 @@ namespace Core.Catalog.CatalogManagement
             List<AssetFile> files = null;
             if (!isForIndex && tables.ContainsKey(TABLE_NAME_FILES) && tables[TABLE_NAME_FILES]?.Rows.Count > 0)
             {
-                files = FileManager.CreateAssetFileListResponseFromDataTable(groupId, tables[TABLE_NAME_FILES]);
+                files = FileManager.CreateAssetFileListResponseFromDataTable(groupId, tables[TABLE_NAME_FILES], tables[TABLE_NAME_FILES_LABELS]);
                 // get only active files
                 files = files.Where(x => x.IsActive.HasValue && x.IsActive.Value).ToList();
 
@@ -613,10 +614,10 @@ namespace Core.Catalog.CatalogManagement
                 var metasTable = GetDataRows(ds, 1);
                 var tagsTable = GetDataRows(ds, 2);
                 var filesTable = GetDataRows(ds, 3);
-                var imagesTable = GetDataRows(ds, 4);
-                // assetUpdateDateTable = GetDataRows(ds, 5);
-                var linearMediasTable = GetDataRows(ds, 5);
-                var relatedEntitiesTable = GetDataRows(ds, 6);
+                var filesLabelsTable = GetDataRows(ds, 4);
+                var imagesTable = GetDataRows(ds, 5);
+                var linearMediasTable = GetDataRows(ds, 6);
+                var relatedEntitiesTable = GetDataRows(ds, 7);
 
                 foreach (DataRow basicDataRow in ds.Tables[0].Rows)
                 {
@@ -630,10 +631,11 @@ namespace Core.Catalog.CatalogManagement
                         tables.Add(TABLE_NAME_METAS, GetTableByAssetDataRows(metasTable, "ASSET_ID", id, ds, 1));
                         tables.Add(TABLE_NAME_TAGS, GetTableByAssetDataRows(tagsTable, "ASSET_ID", id, ds, 2));
                         tables.Add(TABLE_NAME_FILES, GetTableByAssetDataRows(filesTable, "MEDIA_ID", id, ds, 3));
-                        tables.Add(TABLE_NAME_IMAGES, GetTableByAssetDataRows(imagesTable, "ASSET_ID", id, ds, 4));
+                        tables.Add(TABLE_NAME_FILES_LABELS, GetTableByAssetDataRows(filesLabelsTable, "MEDIA_ID", id, ds, 4));
+                        tables.Add(TABLE_NAME_IMAGES, GetTableByAssetDataRows(imagesTable, "ASSET_ID", id, ds, 5));
                         //tables.Add(TABLE_NAME_UPDATE_DATE, GetTableByAssetDataRows(assetUpdateDateTable, "ID", id, ds, 5));
-                        tables.Add(TABLE_NAME_LINEAR, GetTableByAssetDataRows(linearMediasTable, "MEDIA_ID", id, ds, 6));
-                        tables.Add(TABLE_NAME_RELATED_ENTITIES, GetTableByAssetDataRows(relatedEntitiesTable, "ASSET_ID", id, ds, 7));
+                        tables.Add(TABLE_NAME_LINEAR, GetTableByAssetDataRows(linearMediasTable, "MEDIA_ID", id, ds, 7));
+                        tables.Add(TABLE_NAME_RELATED_ENTITIES, GetTableByAssetDataRows(relatedEntitiesTable, "ASSET_ID", id, ds, 8));
 
                         MediaAsset mediaAsset = CreateMediaAsset(groupId, id, tables, defaultLanguage, groupLanguages);
                         if (mediaAsset != null)
@@ -2904,9 +2906,9 @@ namespace Core.Catalog.CatalogManagement
                 return CreateAssetResponseStatusFromResult(id);
             }
 
-            if (ds.Tables.Count < 7)
+            if (ds.Tables.Count < 8)
             {
-                log.WarnFormat("BuildTableDicAfterInsertMediaAsset didn't receive dataset with 6 or more tables");
+                log.Warn($"{nameof(BuildTableDicAfterInsertMediaAsset)} received dataset with {ds.Tables.Count} tables but expects 8 or more.");
                 return null;
             }
 
@@ -2915,9 +2917,10 @@ namespace Core.Catalog.CatalogManagement
             tables.Add(TABLE_NAME_METAS, ds.Tables[1]);
             tables.Add(TABLE_NAME_TAGS, ds.Tables[2]);
             tables.Add(TABLE_NAME_FILES, ds.Tables[3]);
-            tables.Add(TABLE_NAME_IMAGES, ds.Tables[4]);
-            tables.Add(TABLE_NAME_NEW_TAGS, ds.Tables[5]);
-            tables.Add(TABLE_NAME_RELATED_ENTITIES, ds.Tables[6]);
+            tables.Add(TABLE_NAME_FILES_LABELS, ds.Tables[4]);
+            tables.Add(TABLE_NAME_IMAGES, ds.Tables[5]);
+            tables.Add(TABLE_NAME_NEW_TAGS, ds.Tables[6]);
+            tables.Add(TABLE_NAME_RELATED_ENTITIES, ds.Tables[7]);
 
             return new Status((int)eResponseStatus.OK);
         }
@@ -2945,9 +2948,9 @@ namespace Core.Catalog.CatalogManagement
                 return CreateAssetResponseStatusFromResult(id);
             }
 
-            if (ds.Tables.Count < 7)
+            if (ds.Tables.Count < 8)
             {
-                log.WarnFormat("BuildTableDicAfterUpdateMediaAsset didn't receive dataset with 6 or more tables assetId {0}", assetId);
+                log.Warn($"{nameof(BuildTableDicAfterUpdateMediaAsset)} received dataset with {ds.Tables.Count} tables associated with assetId {assetId} but expects 8 or more.");
                 return new Status((int)eResponseStatus.Error);
             }
 
@@ -2956,9 +2959,10 @@ namespace Core.Catalog.CatalogManagement
             tables.Add(TABLE_NAME_METAS, ds.Tables[1]);
             tables.Add(TABLE_NAME_TAGS, ds.Tables[2]);
             tables.Add(TABLE_NAME_FILES, ds.Tables[3]);
-            tables.Add(TABLE_NAME_IMAGES, ds.Tables[4]);
-            tables.Add(TABLE_NAME_NEW_TAGS, ds.Tables[5]);
-            tables.Add(TABLE_NAME_RELATED_ENTITIES, ds.Tables[6]);
+            tables.Add(TABLE_NAME_FILES_LABELS, ds.Tables[4]);
+            tables.Add(TABLE_NAME_IMAGES, ds.Tables[5]);
+            tables.Add(TABLE_NAME_NEW_TAGS, ds.Tables[6]);
+            tables.Add(TABLE_NAME_RELATED_ENTITIES, ds.Tables[7]);
 
             return new Status((int)eResponseStatus.OK);
         }

@@ -266,7 +266,7 @@ namespace Core.Domains
             return response;
         }
 
-        public static DomainStatusResponse RemoveDeviceFromDomain(int nGroupID, int nDomainID, string udid)
+        public static DomainStatusResponse RemoveDeviceFromDomain(int nGroupID, int nDomainID, string udid, bool forceDelete = false)
         {
             DomainStatusResponse response = new DomainStatusResponse();
             response.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -275,7 +275,7 @@ namespace Core.Domains
             Utils.GetBaseImpl(ref t, nGroupID);
             if (t != null)
             {
-                response.DomainResponse = t.RemoveDeviceFromDomain(nDomainID, udid);
+                response.DomainResponse = t.RemoveDeviceFromDomain(nDomainID, udid, forceDelete);
                 if (response.DomainResponse != null)
                 {
                     // convert response status

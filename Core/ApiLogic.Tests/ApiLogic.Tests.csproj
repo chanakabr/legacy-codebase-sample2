@@ -18,8 +18,7 @@
     <PackageReference Include="JUnitTestLogger" Version="1.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\RemoteTasks\IngestHandler.Common\IngestHandler.Common.csproj" />
+  <ItemGroup>    
     <ProjectReference Include="..\Logic\ApiLogic.csproj" />
   </ItemGroup>
 
@@ -27,13 +26,6 @@
     <Content Include="app.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="TestAssets\config.yaml" />
-    <EmbeddedResource Include="TestAssets\config.yaml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
   </ItemGroup>
 
   <Target Name="CopyCustomContent" AfterTargets="AfterBuild">

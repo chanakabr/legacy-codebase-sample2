@@ -45,6 +45,10 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.FileExtensionNotSupported)]
         [Throws(eResponseStatus.FileMimeDifferentThanExpected)]
         [Throws(eResponseStatus.FileDoesNotExists)]
+        [Throws(eResponseStatus.InvalidFileType)]
+        [Throws(eResponseStatus.FileIdNotInCorrectLength)]
+        [Throws(eResponseStatus.FileAlreadyExists)]
+        [Throws(eResponseStatus.ErrorSavingFile)]
         static public KalturaUploadToken Upload(string uploadTokenId, KalturaOTTFile fileData)
         {
             KalturaUploadToken uploadToken = null;

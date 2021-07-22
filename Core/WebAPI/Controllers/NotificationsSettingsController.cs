@@ -81,6 +81,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
+        [Throws(eResponseStatus.NoNotificationSettingsSent)]
         static public bool Update(KalturaNotificationsSettings settings)
         {
             bool response = false;
@@ -143,6 +144,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.InvalidToken)]
+        [Throws(eResponseStatus.NoNotificationSettingsSent)]
         static public bool UpdateWithToken(KalturaNotificationsSettings settings, string token, int partnerId)
         {
             bool response = false;

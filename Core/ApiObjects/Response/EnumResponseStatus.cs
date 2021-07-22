@@ -315,6 +315,8 @@ namespace ApiObjects.Response
         CategoryVersionIsOlderThanDefault = 4109,
         CategoryIsAlreadyAssociatedToVersionTree = 4110,
         StartDateShouldBeLessThanEndDate = 4111,
+        LabelAlreadyInUse = 4112,
+        LabelDoesNotExist = 4113,
 
         #endregion
 

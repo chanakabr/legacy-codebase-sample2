@@ -175,5 +175,10 @@ namespace ConfigurationManager
             TCMClient.Settings.Instance.Init();
             Init(Current);
         }
+
+        public static void InitDefaults()
+        {
+            Init(Current);
+        }
     }
 }

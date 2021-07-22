@@ -1,6 +1,7 @@
 ﻿using KLogMonitor;
 using System;
 using System.Reflection;
+using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -23,6 +24,7 @@ namespace WebAPI.Controllers
         /// <returns>The segmentation type that was added</returns>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.InvalidParameters)]
         static public KalturaSegmentationType Add(KalturaSegmentationType segmentationType)
         {
             try
@@ -49,6 +51,7 @@ namespace WebAPI.Controllers
         /// <returns>The segmentation type that was updated</returns>
         [Action("update")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.ObjectNotExist)]
         static public KalturaSegmentationType Update(long segmentationTypeId, KalturaSegmentationType segmentationType)
         {
             try
@@ -74,6 +77,7 @@ namespace WebAPI.Controllers
         /// <returns>Whether action succeeded or not</returns>
         [Action("delete")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.ObjectNotExist)]
         static public bool Delete(long id)
         {
             bool response = false;

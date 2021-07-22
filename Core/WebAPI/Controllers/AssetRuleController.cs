@@ -24,6 +24,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AssetRuleNotExists)]
         static public KalturaAssetRuleListResponse List(KalturaAssetRuleFilter filter = null)
         {
             KalturaAssetRuleListResponse response = null;
@@ -69,7 +70,6 @@ namespace WebAPI.Controllers
         /// <param name="assetRule">Asset rule</param>              
         [Action("add")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.AdapterNotExists)]
         static public KalturaAssetRule Add(KalturaAssetRule assetRule)
         {
             KalturaAssetRule response = null;
@@ -102,6 +102,7 @@ namespace WebAPI.Controllers
         [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetRuleNotExists)]
+        [Throws(eResponseStatus.AssetRuleStatusNotWritable)]
         static public KalturaAssetRule Update(long id, KalturaAssetRule assetRule)
         {
             KalturaAssetRule response = null;
@@ -136,6 +137,7 @@ namespace WebAPI.Controllers
         [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetRuleNotExists)]
+        [Throws(eResponseStatus.AssetRuleStatusNotWritable)]
         static public bool Delete(long id)
         {
             bool response = false;

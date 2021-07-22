@@ -1,5 +1,5 @@
 ﻿using ApiLogic.Api.Managers;
-using ApiLogic.Catalog;
+using ApiLogic.Catalog.CatalogManagement.Repositories;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.MediaMarks;
@@ -18,7 +18,6 @@ using QueueWrapper;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -34,10 +33,8 @@ namespace Core.Catalog.CatalogManagement
         bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache);
         bool DoesGroupUsesTemplates(int groupId);
         void InvalidateCatalogGroupCache(int groupId, Status resultStatus, bool shouldCheckResultObject, object resultObject = null);
-        bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds,
-                                                                        long assetStructId, long userId, List<long> relatedEntitiesTopicIds, bool shouldDeleteRelatedEntities);
+        bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds, long assetStructId, long userId, List<long> relatedEntitiesTopicIds, bool shouldDeleteRelatedEntities);
         Dictionary<int, Media> GetGroupMedia(int groupId, long mediaId, CatalogGroupCache catalogGroupCache);
-        
         void GetLinearChannelValues(List<EpgCB> lEpg, int groupID, Action<EpgCB> action);
     }
 
@@ -45,7 +42,8 @@ namespace Core.Catalog.CatalogManagement
     {
         #region Constants and Readonly
 
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static IKLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private readonly ILabelRepository _labelRepository;
 
         internal static readonly HashSet<string> TopicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
         internal const string OPC_UI_METADATA = "metadata";
@@ -65,6 +63,13 @@ namespace Core.Catalog.CatalogManagement
 
         private CatalogManager()
         {
+            _labelRepository = new LabelRepository();
+        }
+
+        public CatalogManager(ILabelRepository labelRepository, IKLogger logger)
+        {
+            _labelRepository = labelRepository;
+            log = logger;
         }
 
         #region Private Methods
@@ -3037,7 +3042,8 @@ namespace Core.Catalog.CatalogManagement
             }
         }
 
-        public DateTime GetProgramSearchEndDate(int groupId, string channelId, DateTime endDate, Dictionary<string, LinearChannelSettings> linearChannelSettings = null)
+        public DateTime GetProgramSearchEndDate(int groupId, string channelId, DateTime endDate, 
+            Dictionary<string, LinearChannelSettings> linearChannelSettings = null)
         {
             DateTime searchEndDate = DateTime.MinValue;
             try
@@ -3075,5 +3081,126 @@ namespace Core.Catalog.CatalogManagement
 
             return searchEndDate;
         }
+
+        #region Label
+
+        public GenericResponse<LabelValue> AddLabel(int groupId, LabelValue requestLabel, long userId)
+        {
+            var result = new GenericResponse<LabelValue>();
+
+            try
+            {
+                result = _labelRepository.Add(groupId, requestLabel, userId);
+            }
+            catch (Exception e)
+            {
+                log.Error($"Failed {nameof(AddLabel)}, {nameof(groupId)}:{groupId}, {nameof(requestLabel)}:{requestLabel}, {nameof(userId)}:{userId}.", e, null);
+            }
+
+            return result;
+        }
+
+        public GenericResponse<LabelValue> UpdateLabel(int groupId, LabelValue requestLabel, long userId)
+        {
+            var result = new GenericResponse<LabelValue>();
+
+            try
+            {
+                result = _labelRepository.Update(groupId, requestLabel, userId);
+            }
+            catch (Exception e)
+            {
+                log.Error($"Failed {nameof(UpdateLabel)}, {nameof(groupId)}:{groupId}, {nameof(requestLabel)}:{requestLabel}, {nameof(userId)}:{userId}.", e, null);
+            }
+
+            return result;
+        }
+
+        public Status DeleteLabel(int groupId, long labelId, long userId)
+        {
+            var result = Status.Error;
+
+            try
+            {
+                result = _labelRepository.Delete(groupId, labelId, userId);
+            }
+            catch (Exception e)
+            {
+                log.Error($"Failed {nameof(DeleteLabel)}, {nameof(groupId)}:{groupId}, {nameof(labelId)}:{labelId}, {nameof(userId)}:{userId}.", e, null);
+            }
+
+            return result;
+        }
+
+        public GenericListResponse<LabelValue> SearchLabels(int groupId, IReadOnlyCollection<long> idIn, string labelEqual, string labelStartWith, EntityAttribute entityAttribute, int pageIndex, int pageSize)
+        {
+            var result = new GenericListResponse<LabelValue>();
+
+            try
+            {
+                idIn = idIn ?? new List<long>();
+                var predicate = GetFilterLabelsPredicate(idIn, labelEqual, labelStartWith, entityAttribute);
+                result = FilterLabels(groupId, predicate, pageIndex, pageSize);
+            }
+            catch (Exception e)
+            {
+                log.Error($"Failed {nameof(SearchLabels)}, {nameof(groupId)}:{groupId}, {nameof(idIn)}:[{string.Join(",", idIn)}], {nameof(labelEqual)}:{labelEqual}, {nameof(labelStartWith)}:{labelStartWith}, {nameof(entityAttribute)}:{entityAttribute}, {nameof(pageIndex)}:{pageIndex}, {nameof(pageSize)}:{pageSize}.", e, null);
+            }
+
+            return result;
+        }
+
+        private static Func<LabelValue, bool> GetFilterLabelsPredicate(IReadOnlyCollection<long> idIn, string labelEqual, string labelStartWith, EntityAttribute entityAttribute)
+        {
+            Func<LabelValue, bool> predicate;
+            if (idIn.Any())
+            {
+                predicate = x => idIn.Contains(x.Id) && x.EntityAttribute == entityAttribute;
+            }
+            else if (!string.IsNullOrEmpty(labelEqual))
+            {
+                predicate = x => labelEqual.Equals(x.Value, StringComparison.InvariantCultureIgnoreCase) && x.EntityAttribute == entityAttribute;
+            }
+            else if (!string.IsNullOrEmpty(labelStartWith))
+            {
+                predicate = x => x.Value.StartsWith(labelStartWith, StringComparison.InvariantCultureIgnoreCase) && x.EntityAttribute == entityAttribute;
+            }
+            else
+            {
+                predicate = x => x.EntityAttribute == entityAttribute;
+            }
+
+            return predicate;
+        }
+
+        private GenericListResponse<LabelValue> FilterLabels(int groupId, Func<LabelValue, bool> predicate, int pageIndex, int pageSize)
+        {
+            var result = new GenericListResponse<LabelValue>();
+
+            var listResponse = _labelRepository.List(groupId);
+            if (listResponse.IsOkStatusCode())
+            {
+                var filteredLabels = listResponse.Objects
+                    .Where(predicate)
+                    .ToArray();
+                var pagedResult = filteredLabels
+                    .Skip(pageIndex * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+
+                result = new GenericListResponse<LabelValue>(Status.Ok, pagedResult)
+                {
+                    TotalItems = filteredLabels.Length
+                };
+            }
+            else
+            {
+                result.SetStatus(listResponse.Status);
+            }
+
+            return result;
+        }
+
+        #endregion
     }
 }
