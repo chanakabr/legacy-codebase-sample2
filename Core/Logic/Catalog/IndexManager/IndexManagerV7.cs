@@ -163,6 +163,7 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
+        //DO NOT IMPLEMENT THIS METHOD
         public Status DeleteStatistics(DateTime until)
         {
             throw new NotImplementedException();
