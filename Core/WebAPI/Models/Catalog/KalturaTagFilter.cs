@@ -91,29 +91,6 @@ namespace WebAPI.Models.Catalog
         {
             return KalturaTagOrderBy.NONE;
         }
-
-        public List<long> GetIdIn()
-        {
-            HashSet<long> list = new HashSet<long>();
-            if (!string.IsNullOrEmpty(IdIn))
-            {
-                string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    long value;
-                    if (long.TryParse(stringValue, out value) && !list.Contains(value))
-                    {
-                        list.Add(value);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaTagFilter.idIn");
-                    }
-                }
-            }
-
-            return new List<long>(list);
-        }
     }
 
     public enum KalturaTagOrderBy

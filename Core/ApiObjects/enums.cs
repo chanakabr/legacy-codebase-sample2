@@ -1205,4 +1205,9 @@ namespace ApiObjects
         PrivateDistribute = 1,
         PrivateRetry = 2
     }
+
+    public enum EntityAttribute
+    {
+        MediaFileLabels = 1
+    }
 }

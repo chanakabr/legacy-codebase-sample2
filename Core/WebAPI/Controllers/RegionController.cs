@@ -23,7 +23,6 @@ namespace WebAPI.Controllers
         [Action("list")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        [Throws(eResponseStatus.RegionNotFound)]
         static public KalturaRegionListResponse List(KalturaBaseRegionFilter filter, KalturaFilterPager pager = null)
         {
             KalturaRegionListResponse response = null;

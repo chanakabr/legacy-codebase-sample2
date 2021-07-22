@@ -314,6 +314,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "businessModuleDetails")]
         public KalturaBusinessModuleDetails BusinessModuleDetails { get; set; }
 
+        /// <summary>
+        /// Labels associated with the media file
+        /// </summary>
+        [DataMember(Name = "labels")]
+        [JsonProperty(PropertyName = "labels")]
+        [XmlElement(ElementName = "labels")]
+        public string Labels { get; set; }
+
         #endregion
     }
 

@@ -49,6 +49,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.CDNPartnerSettingsNotFound)]
+        [Throws(eResponseStatus.AdapterNotExists)]
         static public KalturaCDNPartnerSettings Update(KalturaCDNPartnerSettings settings)
         {
             KalturaCDNPartnerSettings response = null;

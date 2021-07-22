@@ -210,7 +210,7 @@ namespace ApiLogic.Tests.Partner
         }
 
         [TestCaseSource(nameof(GetCategoryVersionTreeIdTestCases))]
-        public void CheckGetCategoryVersionTreeId(CatalogPartnerConfig catalogPartnerConfig, long expectedTreeId, int deviceFamilyId)
+        public void CheckGetCategoryVersionTreeId(CatalogPartnerConfig catalogPartnerConfig, long expectedTreeId, int deviceFamilyId, int? deviceFamily)
         {
             var layeredCacheMock = LayeredCacheHelper.GetLayeredCacheMock(catalogPartnerConfig, true, false);
 
@@ -222,7 +222,7 @@ namespace ApiLogic.Tests.Partner
             var repositoryMock = Mock.Of<ICatalogPartnerRepository>();
             var categoryCacheMock = Mock.Of<ICategoryCache>();
             CatalogPartnerConfigManager manager = new CatalogPartnerConfigManager(repositoryMock, layeredCacheMock.Object, categoryCacheMock, deviceFamilyManagerMock.Object);
-            var treeId = manager.GetCategoryVersionTreeId(fixture.Create<ContextData>());
+            var treeId = manager.GetCategoryVersionTreeIdByDeviceFamilyId(fixture.Create<ContextData>(), deviceFamily);
             Assert.That(treeId, Is.EqualTo(expectedTreeId));
         }
 
@@ -233,32 +233,54 @@ namespace ApiLogic.Tests.Partner
             // no category management
             var config1 = fixture.Create<CatalogPartnerConfig>();
             config1.CategoryManagement = null;
-            yield return new TestCaseData(config1, 0, fixture.Create<int>()).SetName("GetCategoryVersionTreeId_NoCategoryManagement");
+            var realDeviceFamily1 = fixture.Create<int>();
+            yield return new TestCaseData(config1, 0, realDeviceFamily1, null).SetName("GetCategoryVersionTreeId_NoCategoryManagement");
 
             // no default and no map 
             var config2 = fixture.Create<CatalogPartnerConfig>();
             config2.CategoryManagement = new CategoryManagement();
-            yield return new TestCaseData(config2, 0, fixture.Create<int>()).SetName("GetCategoryVersionTreeId_NoValues");
+            var realDeviceFamily2 = fixture.Create<int>();
+            yield return new TestCaseData(config2, 0, realDeviceFamily2, null).SetName("GetCategoryVersionTreeId_NoValues");
 
             // get tree by map
             var config3 = fixture.Create<CatalogPartnerConfig>();
-            var deviceFamilyId3 = fixture.Create<int>();
-            if (!config3.CategoryManagement.DeviceFamilyToCategoryTree.ContainsKey(deviceFamilyId3))
+            var realDeviceFamilyId3 = fixture.Create<int>();
+            if (!config3.CategoryManagement.DeviceFamilyToCategoryTree.ContainsKey(realDeviceFamilyId3))
             {
-                config3.CategoryManagement.DeviceFamilyToCategoryTree.Add(deviceFamilyId3, fixture.Create<long>());
+                config3.CategoryManagement.DeviceFamilyToCategoryTree.Add(realDeviceFamilyId3, fixture.Create<long>());
             }
-            var treeId3 = config3.CategoryManagement.DeviceFamilyToCategoryTree[deviceFamilyId3];
-            yield return new TestCaseData(config3, treeId3, deviceFamilyId3).SetName("GetCategoryVersionTreeId_TreeByMap");
+            var treeId3 = config3.CategoryManagement.DeviceFamilyToCategoryTree[realDeviceFamilyId3];
+            yield return new TestCaseData(config3, treeId3, realDeviceFamilyId3, null).SetName("GetCategoryVersionTreeId_TreeByMap");
 
             // no device familiy in map - return default tree
             var config4 = fixture.Create<CatalogPartnerConfig>();
-            var deviceFamilyId4 = fixture.Create<int>();
-            if (config4.CategoryManagement.DeviceFamilyToCategoryTree.ContainsKey(deviceFamilyId4))
+            var realDeviceFamilyId4 = fixture.Create<int>();
+            if (config4.CategoryManagement.DeviceFamilyToCategoryTree.ContainsKey(realDeviceFamilyId4))
             {
-                config4.CategoryManagement.DeviceFamilyToCategoryTree.Remove(deviceFamilyId4);
+                config4.CategoryManagement.DeviceFamilyToCategoryTree.Remove(realDeviceFamilyId4);
             }
             var treeId4 = config4.CategoryManagement.DefaultCategoryTree.Value;
-            yield return new TestCaseData(config4, treeId4, deviceFamilyId4).SetName("GetCategoryVersionTreeId_DefaultTree");
+            yield return new TestCaseData(config4, treeId4, realDeviceFamilyId4, null).SetName("GetCategoryVersionTreeId_DefaultTree");
+
+            // get tree by map WithDeviceFamily
+            var config5 = fixture.Create<CatalogPartnerConfig>();
+            var realDeviceFamilyId5 = fixture.Create<int>();
+            if (!config5.CategoryManagement.DeviceFamilyToCategoryTree.ContainsKey(realDeviceFamilyId5))
+            {
+                config5.CategoryManagement.DeviceFamilyToCategoryTree.Add(realDeviceFamilyId5, fixture.Create<long>());
+            }
+            var treeId5 = config5.CategoryManagement.DeviceFamilyToCategoryTree[realDeviceFamilyId5];
+            yield return new TestCaseData(config5, treeId5, realDeviceFamilyId5, realDeviceFamilyId5).SetName("GetCategoryVersionTreeId_TreeByMapWithDeviceFamily");
+
+            // no device familiy in map - return default tree WithDeviceFamily
+            var config6 = fixture.Create<CatalogPartnerConfig>();
+            var realDeviceFamilyId6 = fixture.Create<int>();
+            if (config6.CategoryManagement.DeviceFamilyToCategoryTree.ContainsKey(realDeviceFamilyId6))
+            {
+                config6.CategoryManagement.DeviceFamilyToCategoryTree.Remove(realDeviceFamilyId6);
+            }
+            var treeId6 = config6.CategoryManagement.DefaultCategoryTree.Value;
+            yield return new TestCaseData(config6, treeId6, realDeviceFamilyId6, realDeviceFamilyId6).SetName("GetCategoryVersionTreeId_DefaultTreeWithDeviceFamily");
         }
     }
 }

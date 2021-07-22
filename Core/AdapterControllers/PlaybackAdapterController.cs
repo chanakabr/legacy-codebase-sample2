@@ -305,7 +305,8 @@ namespace AdapterControllers
                             {
                                 BusinessModuleId = x.BusinessModuleId,
                                 BusinessModuleType = ConvertModuleType(x.BusinessModuleType)
-                            }
+                            },
+                            Labels = x.Labels
                         }).ToList();
                 }
 
@@ -558,7 +559,8 @@ namespace AdapterControllers
                             Protocols = x.Protocols,
                             Type = x.Type,
                             BusinessModuleId = x.BusinessModuleDetails?.BusinessModuleId,
-                            BusinessModuleType = ConvertModuleType(x.BusinessModuleDetails?.BusinessModuleType)
+                            BusinessModuleType = ConvertModuleType(x.BusinessModuleDetails?.BusinessModuleType),
+                            Labels = x.Labels
                         }).ToList();
                 }
 

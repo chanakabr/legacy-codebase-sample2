@@ -26,7 +26,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.SubscriptionNotRenewable)]
         [Throws(eResponseStatus.NotEntitled)]
         [Throws(eResponseStatus.CompensationAlreadyExists)]
+        [Throws(eResponseStatus.PaymentGatewayExternalVerification)]
         [Throws(eResponseStatus.PaymentGatewayNotValid)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
         static public KalturaCompensation Add(KalturaCompensation compensation)
         {
             KalturaCompensation response = null;

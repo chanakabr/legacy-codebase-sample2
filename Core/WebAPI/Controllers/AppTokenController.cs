@@ -50,6 +50,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("get")]
         [ApiAuthorize]
+        [Throws(StatusCode.NotFound)]
         static public KalturaAppToken Get(string id)
         {
             KalturaAppToken response = null;

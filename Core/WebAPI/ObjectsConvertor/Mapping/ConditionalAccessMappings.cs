@@ -646,6 +646,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => 0))
               .ForMember(dest => dest.Opl, opt => opt.ResolveUsing(src => src.Opl))
               .ForMember(dest => dest.BusinessModuleDetails, opt => opt.ResolveUsing(src => src.BusinessModuleDetails))
+              .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels))
               ;
 
             cfg.CreateMap<PlaybackContextResponse, KalturaPlaybackContext>()

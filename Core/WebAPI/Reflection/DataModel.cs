@@ -1800,6 +1800,8 @@ namespace WebAPI.Reflection
                     {
                         case "BookmarkEventThresholds":
                             return "bookmarkEventThresholds";
+                        case "KeepSubscriptionAddOns":
+                            return "keepSubscriptionAddOns";
                     }
                     break;
                     
@@ -3244,6 +3246,8 @@ namespace WebAPI.Reflection
                 case "KalturaGeneralPartnerConfig":
                     switch(property.Name)
                     {
+                        case "AllowDeviceMobility":
+                            return "allowDeviceMobility";
                         case "DateFormat":
                             return "dateFormat";
                         case "DefaultRegion":
@@ -3983,6 +3987,40 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaLabel":
+                    switch(property.Name)
+                    {
+                        case "EntityAttribute":
+                            return "entityAttribute";
+                        case "Id":
+                            return "id";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
+                case "KalturaLabelFilter":
+                    switch(property.Name)
+                    {
+                        case "EntityAttributeEqual":
+                            return "entityAttributeEqual";
+                        case "IdIn":
+                            return "idIn";
+                        case "LabelEqual":
+                            return "labelEqual";
+                        case "LabelStartsWith":
+                            return "labelStartsWith";
+                    }
+                    break;
+                    
+                case "KalturaLabelListResponse":
+                    switch(property.Name)
+                    {
+                        case "Labels":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaLanguage":
                     switch(property.Name)
                     {
@@ -4302,6 +4340,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "IsDefaultLanguage":
                             return "isDefaultLanguage";
+                        case "Labels":
+                            return "labels";
                         case "Language":
                             return "language";
                         case "Opl":
@@ -4630,6 +4670,8 @@ namespace WebAPI.Reflection
                     {
                         case "Context":
                             return "context";
+                        case "CreateDate":
+                            return "createDate";
                         case "eventObject":
                             return "object";
                         case "SequenceId":
@@ -7565,6 +7607,20 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaTriggerCampaignEvent":
+                    switch(property.Name)
+                    {
+                        case "CampaignId":
+                            return "campaignId";
+                        case "HouseholdId":
+                            return "householdId";
+                        case "Udid":
+                            return "udid";
+                        case "UserId":
+                            return "userId";
+                    }
+                    break;
+                    
                 case "KalturaTvmDeviceRule":
                     switch(property.Name)
                     {
@@ -8530,7 +8586,7 @@ namespace WebAPI.Reflection
                             
                         case "getbyversion":
                             RolesManager.ValidateActionPermitted("categoryTree", "getByVersion", false);
-                            return CategoryTreeController.GetByVersion((Nullable<long>) methodParams[0]);
+                            return CategoryTreeController.GetByVersion((Nullable<long>) methodParams[0], (Nullable<int>) methodParams[1]);
                             
                     }
                     break;
@@ -9892,6 +9948,28 @@ namespace WebAPI.Reflection
                         case "get":
                             RolesManager.ValidateActionPermitted("iotprofile", "get");
                             return IotProfileController.Get((long) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "label":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("label", "add", false);
+                            return LabelController.Add((KalturaLabel) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("label", "delete", false);
+                            return LabelController.Delete((long) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("label", "list", false);
+                            return LabelController.List((KalturaLabelFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("label", "update", false);
+                            return LabelController.Update((long) methodParams[0], (KalturaLabel) methodParams[1]);
                             
                     }
                     break;
@@ -14115,6 +14193,13 @@ namespace WebAPI.Reflection
                                 IsNullable = true,
                                 Type = typeof(Int64),
                             });
+                            ret.Add("deviceFamilyId", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
                             return ret;
                             
                     }
@@ -16887,6 +16972,54 @@ namespace WebAPI.Reflection
                             ret.Add("id", new MethodParam(){
                                 NewName = newParamName,
                                 Type = typeof(long),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "label":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("label", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaLabel),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaLabelFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("label", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaLabel),
                             });
                             return ret;
                             

@@ -306,7 +306,7 @@ namespace ApiLogic.Tests.GroupManagers
             int _ = 0;
             IConnection __;
             rabbitConnection.Setup(x => x.InitializeRabbitInstance(It.IsAny<RabbitConfigurationData>(), It.IsAny<QueueAction>(), ref _, out __)).Returns(true);
-            
+
             caPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             billingPartnerRepository.Setup(x => x.DeletePartnerBasicDataDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
             userPartnerRepository.Setup(x => x.DeletePartnerDb(It.IsAny<long>(), It.IsAny<long>())).Returns(true);
@@ -318,8 +318,8 @@ namespace ApiLogic.Tests.GroupManagers
                                             userManager.Object,
                                             rabbitConfigDal.Object,
                                             pricingPartnerRepository.Object,
-                                            
-                                            
+
+
                                             Mock.Of<ICatalogManager>(),
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object,

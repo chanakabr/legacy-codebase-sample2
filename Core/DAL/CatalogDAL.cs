@@ -5285,7 +5285,7 @@ namespace Tvinci.Core.DAL
         public static DataSet InsertMediaFile(int groupId, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId,
             long billingType, double? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage,
             string language, int? orderNum, DateTime? startDate, string url, long? streamingSuplierId, int? type, string altExternalId,
-            bool? isActive, DateTime? catalogEndDate, string opl = "")
+            bool? isActive, DateTime? catalogEndDate, IReadOnlyCollection<string> labelValues, string opl = "")
         {
             StoredProcedure sp = new StoredProcedure("InsertMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5316,6 +5316,7 @@ namespace Tvinci.Core.DAL
             {
                 sp.AddParameter("@opl", opl);
             }
+            sp.AddDataTableParameter("@labelValues", CreateLabelValuesDataTable(labelValues.ToList()));
 
             return sp.ExecuteDataSet();
         }
@@ -5343,7 +5344,7 @@ namespace Tvinci.Core.DAL
 
         public static DataSet UpdateMediaFile(int groupId, long id, long userId, string additionalData, string altStreamingCode, long? altStreamingSuplierId, long assetId, long billingType,
             long? duration, DateTime? endDate, string externalId, string externalStoreId, long? fileSize, bool? isDefaultLanguage, string language, int? orderNum, DateTime? startDate,
-            string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive, DateTime? catalogEndDate, string opl)
+            string url, long? streamingSuplierId, int? type, string altExternalId, bool? isActive, DateTime? catalogEndDate, string opl, IReadOnlyCollection<string> labelValues)
         {
             StoredProcedure sp = new StoredProcedure("UpdateMediaFile");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
@@ -5371,6 +5372,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@IsActive", isActive);
             sp.AddParameter("@catalogEndDate", catalogEndDate);
             sp.AddParameter("@opl", opl);
+            sp.AddDataTableParameter("@labelValues", CreateLabelValuesDataTable(labelValues.ToList()));
 
             return sp.ExecuteDataSet();
         }
@@ -6863,6 +6865,28 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@GroupId", groupId);
             sp.AddParameter("@TagsXml", tagsXmlDoc != null ? tagsXmlDoc.InnerXml : string.Empty);
             return sp.Execute();
+        }
+
+        private static DataTable CreateLabelValuesDataTable(IEnumerable<string> labelValues)
+        {
+            var dataTable = new DataTable("labelValues");
+            try
+            {
+                dataTable.Columns.Add("STR", typeof(string));
+                foreach (var labelValue in labelValues)
+                {
+                    var row = dataTable.NewRow();
+                    row["STR"] = labelValue;
+                    dataTable.Rows.Add(row);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Could not create DataTable parameter for {nameof(labelValues)}=[{string.Join(",", labelValues)}].", ex);
+                return null;
+            }
+
+            return dataTable;
         }
     }
 }

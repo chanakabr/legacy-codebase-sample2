@@ -63,6 +63,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetStructNameAlreadyInUse)]
         [Throws(eResponseStatus.AssetStructSystemNameAlreadyInUse)]
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.MetaIdsDoesNotExist)]
         [Throws(eResponseStatus.AssetStructMissingBasicMetaIds)]
         [Throws(eResponseStatus.MetaIdsDuplication)]
@@ -107,6 +108,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.AssetStructNameAlreadyInUse)]
         [Throws(eResponseStatus.AssetStructSystemNameAlreadyInUse)]
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.MetaIdsDoesNotExist)]
         [Throws(eResponseStatus.CanNotChangePredefinedAssetStructSystemName)]
         [Throws(eResponseStatus.AssetStructMissingBasicMetaIds)]
@@ -160,6 +162,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.CanNotDeletePredefinedAssetStruct)]
         [Throws(eResponseStatus.CanNotDeleteParentAssetStruct)]
+        [Throws(eResponseStatus.CannotDeleteAssetStruct)]
         [SchemeArgument("id", MinLong = 0)]
         static public bool Delete(long id)
         {

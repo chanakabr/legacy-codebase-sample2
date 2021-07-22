@@ -493,12 +493,12 @@ namespace Core.Users
             return oDomainResponseObject;
         }
 
-        public virtual DomainResponseObject RemoveDeviceFromDomain(int nDomainID, string sDeviceUDID)
+        public virtual DomainResponseObject RemoveDeviceFromDomain(int nDomainID, string sDeviceUDID, bool forceDelete = false)
         {
             Domain domain = DomainInitializer(m_nGroupID, nDomainID, false);
             DomainResponseObject oDomainResponseObject;
 
-            DomainResponseStatus eDomainResponseStatus = domain.RemoveDeviceFromDomain(sDeviceUDID);
+            DomainResponseStatus eDomainResponseStatus = domain.RemoveDeviceFromDomain(sDeviceUDID, forceDelete);
             oDomainResponseObject = new DomainResponseObject(domain, eDomainResponseStatus);
 
             return oDomainResponseObject;

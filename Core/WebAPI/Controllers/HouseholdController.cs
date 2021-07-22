@@ -106,8 +106,8 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="filter">Specify how to retrieve the household. Possible values: internal – internal ID ; external – external ID</param>
         /// <param name="with">Additional data to return per asset, formatted as a comma-separated array. Possible values: "users_base_info", "users_full_info"</param>
-        /// <remarks>Possible status codes: 
-        /// Household does not exist = 1006, Household user failed = 1007</remarks>                
+        /// <remarks>Possible status codes:
+        /// Household does not exist = 1006, Household user failed = 1007</remarks>
         [Action("getByOperator")]
         [ApiAuthorize]
         [Obsolete]
@@ -396,6 +396,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardArgument("frequencyType", "household_frequency_type")]
+        [Throws(eResponseStatus.DomainSuspended)]
+        [Throws(eResponseStatus.DomainNotExists)]
         static public KalturaHousehold ResetFrequency(KalturaHouseholdFrequencyType frequencyType)
         {
             KalturaHousehold household = null;
@@ -423,6 +425,8 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.RegionDoesNotExist)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.DomainAlreadyExists)]
         static public KalturaHousehold Update(KalturaHousehold household)
         {
             int groupId = KS.GetFromRequest().GroupId;

@@ -1,7 +1,9 @@
-﻿using EventBus.Abstraction;
+﻿using System;
+using EventBus.Abstraction;
 
 namespace Core.Api.Modules
 {
+    [Serializable]
     public class CampaignTriggerEvent : ServiceEvent
     {
         public long DomainId { get; set; }

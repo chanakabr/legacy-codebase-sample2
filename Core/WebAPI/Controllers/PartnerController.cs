@@ -24,6 +24,7 @@ namespace WebAPI.Controllers
         [Action("externalLogin")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
+        [Throws(StatusCode.MissingConfiguration)]
         public static KalturaLoginSession ExternalLogin()
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -125,6 +126,7 @@ namespace WebAPI.Controllers
         [Action("createIndexes")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
+        [Throws(eResponseStatus.PartnerDoesNotExist)]
         public static bool CreateIndexes()
         {
             int groupId = KS.GetFromRequest().GroupId;

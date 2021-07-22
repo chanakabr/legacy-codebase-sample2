@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: InvalidAssetId = 4024, FeatureDisabled = 8009, FailCreateAnnouncement = 8011, UserAlreadySetReminder = 8023, PassedAsset = 8024</remarks>
         [Action("add")]
         [ApiAuthorize]
-        [Throws(WebAPI.Managers.Models.StatusCode.TimeInPast)]
+        [Throws(StatusCode.UserIDInvalid)]
         [Throws(eResponseStatus.UserAlreadySetReminder)]
         [Throws(eResponseStatus.FailCreateAnnouncement)]
         [Throws(eResponseStatus.PassedAsset)]
@@ -87,6 +87,7 @@ namespace WebAPI.Controllers
         [Action("delete")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.ReminderNotFound)]
         static public bool Delete(long id, KalturaReminderType type)
         {
             bool response = false;
@@ -119,6 +120,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.InvalidToken)]
+        [Throws(eResponseStatus.ReminderNotFound)]
         static public void DeleteWithToken(long id, KalturaReminderType type, string token, int partnerId)
         {
             try
@@ -139,10 +141,9 @@ namespace WebAPI.Controllers
         /// <param name="filter">Filter object</param>
         /// <param name="pager">Paging the request</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: SyntaxError = 4004, FeatureDisabled = 8009</remarks>        
         [Action("list")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.SyntaxError)]
+        [Throws(StatusCode.UserIDInvalid)]
         [Throws(eResponseStatus.FeatureDisabled)]
         static public KalturaReminderListResponse List<T>(KalturaReminderFilter<T> filter, KalturaFilterPager pager = null) where T : struct, IComparable, IFormattable, IConvertible
         {

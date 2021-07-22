@@ -70,6 +70,12 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ChannelDoesNotExist)]
         [Throws(eResponseStatus.ImageTypeDoesNotExist)]
         [Throws(eResponseStatus.ImageTypeAlreadyInUse)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
+        [Throws(eResponseStatus.ImageDoesNotExist)]
+        [Throws(eResponseStatus.DefaultImageInvalidImageType)]
+        [Throws(eResponseStatus.RatioDoesNotExist)]
+        [Throws(eResponseStatus.ObjectNotExist)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
         static public KalturaImage Add(KalturaImage image)
         {
             KalturaImage response = null;
@@ -141,6 +147,8 @@ namespace WebAPI.Controllers
         [SchemeArgument("id", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.ImageDoesNotExist)]
+        [Throws(eResponseStatus.ImageTypeDoesNotExist)]
+        [Throws(eResponseStatus.FileDoesNotExists)]
         [Throws(eResponseStatus.InvalidRatioForImage)]
         [Throws(eResponseStatus.InvalidUrlForImage)]
         static public void SetContent(long id, KalturaContentResource content)

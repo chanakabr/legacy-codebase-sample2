@@ -46,7 +46,7 @@ namespace WebAPI.Models.Domains
         [DataMember(Name = "externalId")]
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId")]
-        [SchemeProperty()]
+        [SchemeProperty(RequiresPermission = (int)RequestType.UPDATE)]
         [OldStandardProperty("external_id")]
         public string ExternalId { get; set; }
 

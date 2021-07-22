@@ -18,8 +18,7 @@
     <PackageReference Include="JUnitTestLogger" Version="1.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\RemoteTasks\IngestHandler.Common\IngestHandler.Common.csproj" />
+  <ItemGroup>    
     <ProjectReference Include="..\Logic\ApiLogic.csproj" />
   </ItemGroup>
 

@@ -1224,6 +1224,15 @@ namespace WebAPI.Reflection
                 case "KalturaKsqlSegmentAction":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
+                case "KalturaLabel":
+                    return new KalturaLabel(parameters);
+                    
+                case "KalturaLabelFilter":
+                    return new KalturaLabelFilter(parameters);
+                    
+                case "KalturaLabelListResponse":
+                    return new KalturaLabelListResponse(parameters);
+                    
                 case "KalturaLanguage":
                     return new KalturaLanguage(parameters);
                     
@@ -2156,6 +2165,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaTriggerCampaign":
                     return new KalturaTriggerCampaign(parameters);
+                    
+                case "KalturaTriggerCampaignEvent":
+                    return new KalturaTriggerCampaignEvent(parameters);
                     
                 case "KalturaTriggerCampaignSearchFilter":
                     return new KalturaTriggerCampaignSearchFilter(parameters);
@@ -8567,6 +8579,16 @@ namespace WebAPI.Models.General
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaNotification(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -8664,6 +8686,14 @@ namespace WebAPI.Models.General
                     {
                         Context = (KalturaEventContext) Deserializer.deserialize(typeof(KalturaEventContext), (Dictionary<string, object>) parameters["context"]);
                     }
+                }
+                if (parameters.ContainsKey("createDate") && parameters["createDate"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CreateDateSchemaProperty.Validate("createDate", parameters["createDate"]);
+                    }
+                    CreateDate = (Int64) Convert.ChangeType(parameters["createDate"], typeof(Int64));
                 }
             }
         }
@@ -17147,6 +17177,89 @@ namespace WebAPI.Models.Notification
             }
         }
     }
+    public partial class KalturaTriggerCampaignEvent
+    {
+        private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTriggerCampaignEvent")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute CampaignIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTriggerCampaignEvent")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute UdidSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTriggerCampaignEvent")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute HouseholdIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTriggerCampaignEvent")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaTriggerCampaignEvent(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("userId") && parameters["userId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UserIdSchemaProperty.Validate("userId", parameters["userId"]);
+                    }
+                    UserId = (Int64) Convert.ChangeType(parameters["userId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("campaignId") && parameters["campaignId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CampaignIdSchemaProperty.Validate("campaignId", parameters["campaignId"]);
+                    }
+                    CampaignId = (Int64) Convert.ChangeType(parameters["campaignId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("udid") && parameters["udid"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UdidSchemaProperty.Validate("udid", parameters["udid"]);
+                    }
+                    Udid = (String) Convert.ChangeType(parameters["udid"], typeof(String));
+                }
+                if (parameters.ContainsKey("householdId") && parameters["householdId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        HouseholdIdSchemaProperty.Validate("householdId", parameters["householdId"]);
+                    }
+                    HouseholdId = (Int64) Convert.ChangeType(parameters["householdId"], typeof(Int64));
+                }
+            }
+        }
+    }
 }
 
 namespace WebAPI.Models.Catalog
@@ -21632,6 +21745,122 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
+    public partial class KalturaLabel
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLabel")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute EntityAttributeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLabel")
+        {
+            ReadOnly = false,
+            InsertOnly = true,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaLabel(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("value") && parameters["value"] != null)
+                {
+                    Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
+                }
+                if (parameters.ContainsKey("entityAttribute") && parameters["entityAttribute"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        EntityAttributeSchemaProperty.Validate("entityAttribute", parameters["entityAttribute"]);
+                    }
+                    if(string.IsNullOrEmpty(parameters["entityAttribute"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "entityAttribute");
+                    }
+
+                    EntityAttribute = (KalturaEntityAttribute) Enum.Parse(typeof(KalturaEntityAttribute), parameters["entityAttribute"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEntityAttribute), EntityAttribute))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EntityAttribute, typeof(KalturaEntityAttribute)));
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaLabelFilter
+    {
+        public KalturaLabelFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("idIn") && parameters["idIn"] != null)
+                {
+                    IdIn = (String) Convert.ChangeType(parameters["idIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("labelEqual") && parameters["labelEqual"] != null)
+                {
+                    LabelEqual = (String) Convert.ChangeType(parameters["labelEqual"], typeof(String));
+                }
+                if (parameters.ContainsKey("labelStartsWith") && parameters["labelStartsWith"] != null)
+                {
+                    LabelStartsWith = (String) Convert.ChangeType(parameters["labelStartsWith"], typeof(String));
+                }
+                if (parameters.ContainsKey("entityAttributeEqual") && parameters["entityAttributeEqual"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["entityAttributeEqual"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "entityAttributeEqual");
+                    }
+
+                    EntityAttributeEqual = (KalturaEntityAttribute) Enum.Parse(typeof(KalturaEntityAttribute), parameters["entityAttributeEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaEntityAttribute), EntityAttributeEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", EntityAttributeEqual, typeof(KalturaEntityAttribute)));
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaLabelListResponse
+    {
+        public KalturaLabelListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Labels = buildList<KalturaLabel>(typeof(KalturaLabel), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Labels = buildList(typeof(KalturaLabel), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
     public partial class KalturaLastPosition
     {
         public KalturaLastPosition(Dictionary<string, object> parameters = null) : base(parameters)
@@ -22512,6 +22741,10 @@ namespace WebAPI.Models.Catalog
                     {
                         BusinessModuleDetails = (KalturaBusinessModuleDetails) Deserializer.deserialize(typeof(KalturaBusinessModuleDetails), (Dictionary<string, object>) parameters["businessModuleDetails"]);
                     }
+                }
+                if (parameters.ContainsKey("labels") && parameters["labels"] != null)
+                {
+                    Labels = (String) Convert.ChangeType(parameters["labels"], typeof(String));
                 }
             }
         }
@@ -31965,10 +32198,22 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaCommercePartnerConfig
     {
+        private static RuntimeSchemePropertyAttribute KeepSubscriptionAddOnsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCommercePartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaCommercePartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("bookmarkEventThresholds") && parameters["bookmarkEventThresholds"] != null)
                 {
                     if (parameters["bookmarkEventThresholds"] is JArray)
@@ -31979,6 +32224,14 @@ namespace WebAPI.Models.Partner
                     {
                         BookmarkEventThresholds = buildList(typeof(KalturaBookmarkEventThreshold), parameters["bookmarkEventThresholds"] as object[]);
                     }
+                }
+                if (parameters.ContainsKey("keepSubscriptionAddOns") && parameters["keepSubscriptionAddOns"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        KeepSubscriptionAddOnsSchemaProperty.Validate("keepSubscriptionAddOns", parameters["keepSubscriptionAddOns"]);
+                    }
+                    KeepSubscriptionAddOns = (Boolean) Convert.ChangeType(parameters["keepSubscriptionAddOns"], typeof(Boolean));
                 }
             }
         }
@@ -32251,6 +32504,16 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute AllowDeviceMobilitySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaGeneralPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -32393,6 +32656,14 @@ namespace WebAPI.Models.Partner
                     {
                         throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", SuspensionProfileInheritanceType, typeof(KalturaSuspensionProfileInheritanceType)));
                     }
+                }
+                if (parameters.ContainsKey("allowDeviceMobility") && parameters["allowDeviceMobility"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AllowDeviceMobilitySchemaProperty.Validate("allowDeviceMobility", parameters["allowDeviceMobility"]);
+                    }
+                    AllowDeviceMobility = (Boolean) Convert.ChangeType(parameters["allowDeviceMobility"], typeof(Boolean));
                 }
             }
         }
@@ -34552,7 +34823,7 @@ namespace WebAPI.Models.Domains
             ReadOnly = false,
             InsertOnly = false,
             WriteOnly = false,
-            RequiresPermission = 0,
+            RequiresPermission = 4,
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,

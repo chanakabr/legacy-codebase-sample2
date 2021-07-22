@@ -958,6 +958,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.IsActive))
                  .ForMember(dest => dest.CatalogEndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CatalogEndDate)))
                  .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.Opl))
+                 .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels))
                  ;
 
             //File
@@ -986,6 +987,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CatalogEndDate, opt => opt.ResolveUsing(src => ConvertToNullableDatetime(src.CatalogEndDate)))
                 .ForMember(dest => dest.PpvModule, opt => opt.MapFrom(src => GetPPVModule(src.PPVModules)))
                 .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.Opl))
+                .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels))
                 ;
 
             #endregion
@@ -1474,6 +1476,44 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.State, opt => opt.MapFrom(src => src.StateEqual));
 
             #endregion CategoryVersion
+
+            #region Label
+
+            cfg.CreateMap<LabelValue, KalturaLabel>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                .ForMember(dest => dest.EntityAttribute, opt => opt.MapFrom(src => src.EntityAttribute));
+
+            cfg.CreateMap<KalturaLabel, LabelValue>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
+                .ForMember(dest => dest.EntityAttribute, opt => opt.MapFrom(src => src.EntityAttribute));
+
+            cfg.CreateMap<EntityAttribute, KalturaEntityAttribute>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case EntityAttribute.MediaFileLabels:
+                            return KalturaEntityAttribute.MEDIA_FILE_LABELS;
+                        default:
+                            throw new ClientException((int)StatusCode.UnknownEnumValue, $"Unknown {nameof(EntityAttribute)}: {type.ToString()}");
+                    }
+                });
+
+            cfg.CreateMap<KalturaEntityAttribute, EntityAttribute>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case KalturaEntityAttribute.MEDIA_FILE_LABELS:
+                            return EntityAttribute.MediaFileLabels;
+                    }
+
+                    return (EntityAttribute)0;
+                });
+
+            #endregion
         }
 
         private static int? ConvertToNullableInt(bool? value)

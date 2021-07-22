@@ -2,12 +2,12 @@
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using KLogMonitor;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using ApiLogic.Catalog.CatalogManagement.Repositories;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
@@ -16,8 +16,8 @@ namespace Core.Catalog.CatalogManagement
 {
     public class FileManager
     {
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly ILabelRepository _labelRepository = new LabelRepository();
 
         #region Private Methods
 
@@ -193,12 +193,14 @@ namespace Core.Catalog.CatalogManagement
         {
             GenericResponse<AssetFile> response = new GenericResponse<AssetFile>();
 
-            if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
+            if (ds != null && ds.Tables.Count > 0)
             {
                 DataTable dt = ds.Tables[0];
-                if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+                if (dt != null && dt.Rows.Count == 1)
                 {
-                    response.Object = CreateAssetFile(groupId, dt.Rows[0], shouldAddBaseUrl);
+                    var assetFileRow = dt.Rows[0];
+                    var labelsTable = ds.Tables.Count > 1 ? ds.Tables[1] : null;
+                    response.Object = CreateAssetFile(groupId, assetFileRow, labelsTable, shouldAddBaseUrl);
                     if (response.Object != null)
                     {
                         response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -214,7 +216,7 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        private static AssetFile CreateAssetFile(int groupId, DataRow dr, bool shouldAddBaseUrl)
+        private static AssetFile CreateAssetFile(int groupId, DataRow dr, DataTable labelsTable, bool shouldAddBaseUrl)
         {
             string typeName = string.Empty;
             int typeId = ODBCWrapper.Utils.GetIntSafeVal(dr, "MEDIA_TYPE_ID");
@@ -252,6 +254,19 @@ namespace Core.Catalog.CatalogManagement
                 Opl = ODBCWrapper.Utils.GetSafeStr(dr, "opl"),
                 UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE")
             };
+
+            if (labelsTable != null)
+            {
+                var labelValues = new List<string>();
+                var labelRows = labelsTable.Select($"MEDIA_FILE_ID={res.Id}");
+                foreach (var labelRow in labelRows)
+                {
+                    var labelValue = ODBCWrapper.Utils.GetSafeStr(labelRow, "VALUE");
+                    labelValues.Add(labelValue);
+                }
+
+                SetLabels(res, labelValues);
+            }
 
             if (shouldAddBaseUrl)
             {
@@ -328,18 +343,76 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
+        private static void TryInvalidateLabels(long groupId, AssetFile assetFile)
+        {
+            var assetLabelValues = GetLabelValues(assetFile.Labels);
+            var labelsResult = _labelRepository.List(groupId);
+            if (labelsResult.IsOkStatusCode()
+                && assetLabelValues.Any(x => labelsResult.Objects.All(_ => x != _.Value && _.EntityAttribute == EntityAttribute.MediaFileLabels)))
+            {
+                _labelRepository.InvalidateCache(groupId);
+            }
+        }
+
+        private static IReadOnlyCollection<string> GetLabelValues(string labels)
+        {
+            return string.IsNullOrEmpty(labels)
+                ? new string[0]
+                : labels
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(x => x.Trim())
+                    .Where(x => !string.IsNullOrEmpty(x))
+                    .ToArray();
+        }
+        
+        private static IReadOnlyCollection<string> GetValidLabelValues(string labels)
+        {
+            const int labelValueMaxLength = 128;
+            const int maxMediaFileLabelsCount = 25;
+
+            var labelValues = GetLabelValues(labels).OrderBy(x => x.Length).ToArray();
+            if (labelValues.Length > maxMediaFileLabelsCount)
+            {
+                log.Warn($"Media file can contain up to {maxMediaFileLabelsCount} labels but is attempts to save {labelValues.Length} labels. Only first {maxMediaFileLabelsCount} valid labels will be saved.");
+            }
+
+            var validLabelValues = labelValues.Where(x => x.Length <= labelValueMaxLength).Take(maxMediaFileLabelsCount).ToArray();
+            var invalidLabelValues = labelValues.Except(validLabelValues);
+
+            foreach (var invalidLabelValue in invalidLabelValues)
+            {
+                if (invalidLabelValue.Length > labelValueMaxLength)
+                {
+                    log.Warn($"Label {invalidLabelValue} can not be saved. Maximum length of a label value is {labelValueMaxLength}.");
+                }
+                else
+                {
+                    log.Warn($"Label {invalidLabelValue} can not be saved.");
+                }
+            }
+
+            return validLabelValues;
+        }
+
+        private static void SetLabels(AssetFile assetFile, IEnumerable<string> labelValues)
+        {
+            assetFile.Labels = labelValues == null
+                ? string.Empty
+                : string.Join(",", labelValues);
+        }
+
         #endregion
 
         #region Internal Methods
 
-        internal static List<AssetFile> CreateAssetFileListResponseFromDataTable(int groupId, DataTable dt, bool shouldAddBaseUrl = true)
+        internal static List<AssetFile> CreateAssetFileListResponseFromDataTable(int groupId, DataTable dt, DataTable labelsTable, bool shouldAddBaseUrl = true)
         {
             var response = new List<AssetFile>();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 foreach (DataRow dr in dt.Rows)
                 {
-                    AssetFile assetFile = CreateAssetFile(groupId, dr, shouldAddBaseUrl);
+                    AssetFile assetFile = CreateAssetFile(groupId, dr, labelsTable, shouldAddBaseUrl);
                     if (assetFile != null)
                     {
                         response.Add(assetFile);
@@ -371,9 +444,11 @@ namespace Core.Catalog.CatalogManagement
         {
             List<AssetFile> files = new List<AssetFile>();
             DataSet ds = CatalogDAL.GetMediaFilesByAssetIds(groupId, new List<long>() { assetId });
-            if (ds != null && ds.Tables != null && ds.Tables[0] != null && ds.Tables[0].Rows != null && ds.Tables[0].Rows.Count > 0)
+            if (ds?.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
             {
-                files = CreateAssetFileListResponseFromDataTable(groupId, ds.Tables[0], shouldAddBaseUrl);
+                var assetsTable = ds.Tables[0];
+                var labelsTable = ds.Tables.Count > 1 ? ds.Tables[1] : null;
+                files = CreateAssetFileListResponseFromDataTable(groupId, assetsTable, labelsTable, shouldAddBaseUrl);
             }
 
             return files;
@@ -569,8 +644,8 @@ namespace Core.Catalog.CatalogManagement
 
                 DataSet ds = CatalogDAL.InsertMediaFile(groupId, userId, assetFileToAdd.AdditionalData, assetFileToAdd.AltStreamingCode, assetFileToAdd.AlternativeCdnAdapaterProfileId, assetFileToAdd.AssetId,
                                                         assetFileToAdd.BillingType, assetFileToAdd.Duration, assetFileToAdd.EndDate, assetFileToAdd.ExternalId, assetFileToAdd.ExternalStoreId, assetFileToAdd.FileSize,
-                                                        assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, startDate,
-                                                        assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId, assetFileToAdd.TypeId, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive, assetFileToAdd.CatalogEndDate, assetFileToAdd.Opl);
+                                                        assetFileToAdd.IsDefaultLanguage, assetFileToAdd.Language, assetFileToAdd.OrderNum, startDate, assetFileToAdd.Url, assetFileToAdd.CdnAdapaterProfileId,
+                                                        assetFileToAdd.TypeId, assetFileToAdd.AltExternalId, assetFileToAdd.IsActive, assetFileToAdd.CatalogEndDate, GetValidLabelValues(assetFileToAdd.Labels), assetFileToAdd.Opl);
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);
 
                 if (result.Status.Code == (int)eResponseStatus.OK)
@@ -597,6 +672,8 @@ namespace Core.Catalog.CatalogManagement
 
                     // free item index update 
                     DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToAdd.AssetId, null, assetFileToAdd.StartDate, null, assetFileToAdd.EndDate);
+
+                    TryInvalidateLabels(groupId, result.Object);
                 }
             }
             catch (Exception ex)
@@ -730,7 +807,7 @@ namespace Core.Catalog.CatalogManagement
                                                     assetFileToUpdate.IsDefaultLanguage, assetFileToUpdate.Language, assetFileToUpdate.OrderNum,
                                                     assetFileToUpdate.StartDate, assetFileToUpdate.Url, assetFileToUpdate.CdnAdapaterProfileId,
                                                     assetFileToUpdate.TypeId, assetFileToUpdate.AltExternalId, assetFileToUpdate.IsActive, assetFileToUpdate.CatalogEndDate,
-                                                    assetFileToUpdate.Opl);
+                                                    assetFileToUpdate.Opl, GetValidLabelValues(assetFileToUpdate.Labels));
 
                 result = CreateAssetFileResponseFromDataSet(groupId, ds);
 
@@ -759,6 +836,8 @@ namespace Core.Catalog.CatalogManagement
                     // free item index update 
                     DoFreeItemIndexUpdateIfNeeded(groupId, (int)assetFileToUpdate.AssetId, currentAssetFile.StartDate, assetFileToUpdate.StartDate,
                                                   currentAssetFile.EndDate, assetFileToUpdate.EndDate);
+
+                    TryInvalidateLabels(groupId, result.Object);
                 }
             }
             catch (Exception ex)

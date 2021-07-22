@@ -51,9 +51,8 @@ namespace WebAPI.Controllers
         /// <param name="id">Playback adapter identifier</param>
         [Action("delete")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.AdapterIdentifierRequired)]
+        [Throws(eResponseStatus.CanNotDeleteDefaultAdapter)]
         [Throws(eResponseStatus.AdapterNotExists)]
-        [Throws(eResponseStatus.ActionIsNotAllowed)]
         static public bool Delete(int id)
         {
             bool response = false;
@@ -127,9 +126,10 @@ namespace WebAPI.Controllers
         /// <param name="playbackProfile">Playback adapter Object</param>       
         [Action("update")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.AdapterIdentifierRequired)]
         [Throws(eResponseStatus.AdapterNotExists)]
         [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.AdapterUrlRequired)]
+        [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
         static public KalturaPlaybackProfile Update(int id, KalturaPlaybackProfile playbackProfile)
         {
             KalturaPlaybackProfile response = null;

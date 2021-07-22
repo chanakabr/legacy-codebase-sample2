@@ -32,6 +32,7 @@ namespace WebAPI.Controllers
         [Action("getContext")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(StatusCode.ObjectIdNotFound)]
         static public KalturaAssetFileContext GetContext(string id, KalturaContextType contextType)
         {
             KalturaAssetFileContext response = null;
@@ -88,6 +89,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotInDomain)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.ServiceNotAllowed)]
         [Throws(eResponseStatus.RecordingPlaybackNotAllowedForNonExistingEpgChannel)]
         [Throws(eResponseStatus.RecordingPlaybackNotAllowedForNotEntitledEpgChannel)]
@@ -96,6 +100,12 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceTypeNotAllowed)]
         [Throws(eResponseStatus.NoFilesFound)]
         [Throws(eResponseStatus.NotEntitled)]
+        [Throws(eResponseStatus.NotAllowed)]
+        [Throws(eResponseStatus.AccountCatchUpNotEnabled)]
+        [Throws(eResponseStatus.ProgramCatchUpNotEnabled)]
+        [Throws(eResponseStatus.CatchUpBufferLimitation)]
+        [Throws(eResponseStatus.NetworkRuleBlock)]
+        [Throws(eResponseStatus.ActionBlocked)]
         static public KalturaAssetFile PlayManifest(int partnerId, string assetId, KalturaAssetType assetType, 
             long assetFileId, KalturaPlaybackContextType contextType, string ks = null, string tokenizedUrl = null, bool isAltUrl = false)
         {

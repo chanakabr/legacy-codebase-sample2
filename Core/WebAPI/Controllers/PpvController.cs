@@ -1,4 +1,5 @@
 ﻿using System;
+using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -19,6 +20,7 @@ namespace WebAPI.Controllers
         /// <remarks>Possible status codes: ModuleNotExists = 9016</remarks>     
         [Action("get")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.ModuleNotExists)]
         static public KalturaPpv Get(long id)
         {
             KalturaPpv response = null;

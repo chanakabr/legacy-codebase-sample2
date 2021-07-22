@@ -28,6 +28,7 @@ namespace WebAPI.Controllers
         /// </remarks>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.BadSearchRequest)]
         static public KalturaAssetHistoryListResponse List(KalturaAssetHistoryFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaAssetHistoryListResponse response = null;
@@ -203,6 +204,7 @@ namespace WebAPI.Controllers
         [Action("clean")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.BadSearchRequest)]
         static public void Clean(KalturaAssetHistoryFilter filter = null)
         {
             var ks = KS.GetFromRequest();

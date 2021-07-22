@@ -22,9 +22,6 @@ namespace WebAPI.Controllers
         /// <returns>Credentials for aws-sdk connection</returns>
         [Action("register")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.ActionIsNotAllowed)]
-        [Throws(eResponseStatus.InternalConnectionIssue)]
-        [Throws(eResponseStatus.DeviceNotInDomain)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public static KalturaIot Register()
         {
@@ -54,9 +51,6 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("getClientConfiguration")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.ActionIsNotAllowed)]
-        [Throws(eResponseStatus.InternalConnectionIssue)]
-        [Throws(eResponseStatus.DeviceNotInDomain)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public static KalturaIotClientConfiguration GetClientConfiguration()
         {

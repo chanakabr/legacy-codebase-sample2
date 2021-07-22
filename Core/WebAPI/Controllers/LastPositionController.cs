@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -22,6 +23,9 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.UserNotExistsInDomain)]
+        [Throws(eResponseStatus.InvalidAssetType)]
         static public KalturaLastPositionListResponse List(KalturaLastPositionFilter filter)
         {
             KalturaLastPositionListResponse response = null;

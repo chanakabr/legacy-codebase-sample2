@@ -10,7 +10,6 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType NOT_ACTIVE_APP_TOKEN = new ApiExceptionType(StatusCode.NotActiveAppToken, "Application-token [@id@] is not active", "id");
         public static ApiExceptionType INVALID_APP_TOKEN_HASH = new ApiExceptionType(StatusCode.InvalidAppTokenHash, "Invalid application-token hash");
         public static ApiExceptionType APP_TOKEN_EXPIRED = new ApiExceptionType(StatusCode.ExpiredAppToken, "Application-token is expired");
-        public static ApiExceptionType NOT_ALLOWED = new ApiExceptionType((int)eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString(), "Action not allowed due to roleId [@roleId@]");
         public static ApiExceptionType GROUP_MISS_MATCH = new ApiExceptionType(StatusCode.GroupMissMatch, "KS and session are not from the same group");
 
         public ForbiddenException(ApiExceptionType type, params object[] parameters)

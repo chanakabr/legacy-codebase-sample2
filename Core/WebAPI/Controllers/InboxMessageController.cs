@@ -17,14 +17,13 @@ namespace WebAPI.Controllers
         /// <summary>
         /// TBD
         /// </summary>
-        /// <remarks>
-        /// Possible status codes:       
-        /// User inbox messages not exist = 8020
-        /// </remarks>
         /// <param name="id">message id</param>        
         [Action("get")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserInboxMessagesNotExist)]
+        [Throws(eResponseStatus.FeatureDisabled)]
+        [Throws(eResponseStatus.MessageIdentifierRequired)]
+        [Throws(StatusCode.UserIDInvalid)]
         static public KalturaInboxMessage Get(string id)
         {
             KalturaInboxMessage response = null;
@@ -51,17 +50,13 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// List inbox messages
-        /// </summary>
-        /// <remarks>
-        /// Possible status codes:       
-        /// message identifier required = 8019, user inbox message not exist = 8020,
-        /// </remarks>     
+        /// </summary>  
         /// <param name="filter">filter</param>   
         /// <param name="pager">Page size and index</param>        
         [Action("list")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.MessageIdentifierRequired)]
-        [Throws(eResponseStatus.UserInboxMessagesNotExist)]
+        [Throws(StatusCode.UserIDInvalid)]
+        [Throws(eResponseStatus.FeatureDisabled)]
         static public KalturaInboxMessageListResponse List(KalturaInboxMessageFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaInboxMessageListResponse response = null;
@@ -109,6 +104,10 @@ namespace WebAPI.Controllers
         [Action("updateStatus")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserInboxMessagesNotExist)]
+        [Throws(eResponseStatus.FeatureDisabled)]
+        [Throws(eResponseStatus.MessageIdentifierRequired)]
+        [Throws(StatusCode.UserIDInvalid)]
         static public bool UpdateStatus(string id, KalturaInboxMessageStatus status)
         {
             bool response = false;

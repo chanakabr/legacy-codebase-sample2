@@ -150,6 +150,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
         [Throws(eResponseStatus.PermissionNameNotExists)]
+        [Throws(eResponseStatus.RoleDoesNotExists)]
         [Throws(eResponseStatus.RoleReadOnly)]
         static public KalturaUserRole Update(long id, KalturaUserRole role)
         {

@@ -815,6 +815,11 @@ namespace CachingProvider.LayeredCache
             return $"domain_subcription_purchase_v1_{domainId}_{subscriptionId}";
         }
 
+        public static string GetLabelsKey(long groupId)
+        {
+            return $"Labels_{groupId}";
+        }
+
         #endregion
 
         #region Invalidation Keys - SHOULD START WITH "invalidationKey..." prefix
@@ -1505,6 +1510,11 @@ namespace CachingProvider.LayeredCache
         public static string GetElasticsearchCanaryDeploymentConfigurationInvalidationKey(int partnerId)
         {
             return string.Format($"{partnerId}_InvalidateElasticsearchCanaryDeploymentConfiguration");
+        }
+
+        public static string GetLabelsInvalidationKey(long groupId)
+        {
+            return $"invalidationKey_Labels_{groupId}";
         }
 
         #endregion

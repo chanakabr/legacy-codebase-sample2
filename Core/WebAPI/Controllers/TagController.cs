@@ -1,5 +1,6 @@
 ﻿using ApiObjects.Response;
 using System;
+using System.Linq;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -48,7 +49,8 @@ namespace WebAPI.Controllers
 
                 if (!string.IsNullOrEmpty(filter.IdIn))
                 {
-                    response = ClientsManager.CatalogClient().GetTags(groupId, filter.GetIdIn(), pager.getPageIndex(), pager.getPageSize());
+                    var idIn = Utils.Utils.ParseCommaSeparatedString(filter.IdIn, new[] { ',' }, $"{nameof(filter)}.idIn");
+                    response = ClientsManager.CatalogClient().GetTags(groupId, idIn.ToList(), pager.getPageIndex(), pager.getPageSize());
                 }
                 else if (!string.IsNullOrEmpty(filter.TagEqual))
                 {
@@ -77,7 +79,7 @@ namespace WebAPI.Controllers
         [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.TopicNotFound)]        
-        [Throws(eResponseStatus.TagAlreadyInUse)]        
+        [Throws(eResponseStatus.TagAlreadyInUse)]
         static public KalturaTag Add(KalturaTag tag)
         {
             KalturaTag response = null;
@@ -122,8 +124,8 @@ namespace WebAPI.Controllers
         [Action("update")]
         [ApiAuthorize]
         [Throws(eResponseStatus.TopicNotFound)]
-        [Throws(eResponseStatus.TagDoesNotExist)]
         [Throws(eResponseStatus.TagAlreadyInUse)]
+        [Throws(eResponseStatus.NoValuesToUpdate)]
         static public KalturaTag Update(long id, KalturaTag tag)
         {
             KalturaTag response = null;

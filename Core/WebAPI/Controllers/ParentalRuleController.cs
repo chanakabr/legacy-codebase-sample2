@@ -77,6 +77,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         static public KalturaParentalRuleListResponse List(KalturaParentalRuleFilter filter)
         {
             List<KalturaParentalRule> response = null;
@@ -115,8 +116,6 @@ namespace WebAPI.Controllers
         /// Enable a parental rules for a user  
         /// </summary>
         /// <param name="entityReference">Reference type to filter by</param>
-        /// <remarks>Possible status codes: 
-        /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003</remarks>
         /// <param name="ruleId">Rule Identifier</param>
         /// <returns>Success or failure and reason</returns>
         [Action("enable")]
@@ -128,6 +127,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.UserParentalRuleNotExists)]
         [Throws(eResponseStatus.RuleNotExists)]
         static public bool Enable(long ruleId, KalturaEntityReferenceBy entityReference)
         {
@@ -162,9 +163,6 @@ namespace WebAPI.Controllers
         /// Disables a parental rule that was previously defined by the household master. Disable can be at specific user or household level.  
         /// </summary>
         /// <param name="entityReference">Reference type to filter by</param>
-        /// <remarks>Possible status codes: 
-        /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001, Invalid rule = 5003, 
-        /// Cannot disable a default rule that was not specifically enabled previously = 5021 </remarks>
         /// <param name="ruleId">Rule Identifier</param>
         /// <returns>Success or failure and reason</returns>
         [Action("disable")]
@@ -175,6 +173,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.RuleNotExists)]
         [Throws(eResponseStatus.UserParentalRuleNotExists)]
@@ -211,10 +210,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Disables a parental rule that was defined at account level. Disable can be at specific user or household level.
         /// </summary>
-        /// <remarks>
-        /// Possible status codes: Bad, Internal connection = 500001, Timeout = 500002, Bad request = 500003, Forbidden = 500004, Unauthorized = 500005, Configuration error = 500006, Not found = 500007, Partner is invalid = 500008,
-        /// Household does not exist = 1006, User does not exist = 2000, User with no household = 2024, User suspended = 2001
-        /// </remarks>
         /// <param name="entityReference">Reference type to filter by</param>
         /// <returns>Success / fail</returns>
         [Action("disableDefault")]
@@ -225,6 +220,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.UserNotInDomain)]
+        [Throws(eResponseStatus.RuleNotExists)]
+        [Throws(eResponseStatus.UserParentalRuleNotExists)]
         static public bool DisableDefault(KalturaEntityReferenceBy entityReference)
         {
             bool success = false;

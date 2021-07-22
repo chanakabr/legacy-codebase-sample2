@@ -328,6 +328,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardAction("sendPassword")]
         [SchemeArgument("templateName", RequiresPermission = true)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
         static public bool resetPassword(int partnerId, string username, string templateName = null)
         {
             bool response = false;
@@ -356,11 +357,10 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner Identifier</param>
         /// <param name="token">Token that sent by e-mail</param>
         /// <param name="password">New password</param>
-        /// <remarks>Possible status codes: User does not exist = 2000</remarks>
         [Action("setInitialPassword")]
         [BlockHttpMethods("GET")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
-        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.PasswordPolicyViolation)]
         [Throws(eResponseStatus.InvalidToken)]
         static public KalturaOTTUser setInitialPassword(int partnerId, string token, string password)
         {
@@ -437,11 +437,11 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="userId">User Identifier</param>        
         /// <param name="password">new password</param>
-        /// <remarks>Possible status codes: User does not exist = 2000</remarks>
         [Action("updatePassword")]
         [ApiAuthorize(true)]
         [BlockHttpMethods("GET")]
-        [WebAPI.Managers.Scheme.ValidationException(WebAPI.Managers.Scheme.SchemeValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.PasswordPolicyViolation)]
         static public void updatePassword(int userId, string password)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -503,11 +503,11 @@ namespace WebAPI.Controllers
         /// <param name="username">user name</param>
         /// <param name="oldPassword">old password</param>
         /// <param name="newPassword">new password</param>
-        /// <remarks>Possible status codes: Wrong username or password = 1011, User does not exist = 2000, Inside lock time = 2015, User already logged in = 2017</remarks>
         [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.InsideLockTime)]
         [Throws(eResponseStatus.UserAllreadyLoggedIn)]
+        [Throws(eResponseStatus.PasswordPolicyViolation)]
         [Action("updateLoginData")]
         [BlockHttpMethods("GET")]
         [ApiAuthorize]
@@ -691,6 +691,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardArgument("roleId", "role_id")]
+        [Throws(eResponseStatus.RoleAlreadyAssignedToUser)]
         static public bool AddRole(long roleId)
         {
             bool response = false;
@@ -724,20 +725,23 @@ namespace WebAPI.Controllers
 
         /// <summary>
         /// Permanently delete a user. User to delete cannot be an exclusive household master, and cannot be default user.
-        /// </summary>        
-        /// <remarks>        
-        /// Possible status codes: 
-        /// Household suspended = 1009, Limitation period = 1014,  User does not exist = 2000, Default user cannot be deleted = 2030, Exclusive master user cannot be deleted = 2031
-        /// </remarks>        
+        /// </summary>
         [Action("delete")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.LimitationPeriod)]
-        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.DefaultUserCannotBeDeleted)]
         [Throws(eResponseStatus.ExclusiveMasterUserCannotBeDeleted)]
         [Throws(eResponseStatus.UserSelfDeleteNotPermitted)]
+        [Throws(eResponseStatus.NotAllowedToDelete)]
+        [Throws(eResponseStatus.DomainNotInitialized)]
+        [Throws(eResponseStatus.UserNotExistsInDomain)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.InvalidUser)]
+        [Throws(eResponseStatus.NoUsersInDomain)]
+        [Throws(eResponseStatus.UserNotAllowed)]
         static public bool Delete()
         {
             bool response = false;
@@ -809,6 +813,8 @@ namespace WebAPI.Controllers
         [Action("activate")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardArgument("activationToken", "activation_token")]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
+        [Throws(eResponseStatus.UserNotActivated)]
         static public Models.Users.KalturaOTTUser Activate(int partnerId, string username, string activationToken)
         {
             Models.Users.KalturaOTTUser response = null;
@@ -833,6 +839,7 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("resendActivationToken")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
         static public bool ResendActivationToken(int partnerId, string username)
         {
             bool response = false;
@@ -856,6 +863,7 @@ namespace WebAPI.Controllers
         [Action("getEncryptedUserId")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(StatusCode.MissingConfiguration)]
         static public KalturaStringValue GetEncryptedUserId()
         {
             KalturaStringValue response = null;

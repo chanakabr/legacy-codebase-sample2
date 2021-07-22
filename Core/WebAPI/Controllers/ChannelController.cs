@@ -28,6 +28,10 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [SchemeArgument("id", MinInteger = 1)]
         [Throws(eResponseStatus.ChannelDoesNotExist)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
+        [Throws(StatusCode.NotFound)]
+        [Throws(eResponseStatus.ObjectNotExist)]
         static public KalturaChannel Get(int id)
         {
             KalturaChannel response = null;
@@ -113,7 +117,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandardArgument("channelId", "channel_id")]
         [Throws(eResponseStatus.IdentifierRequired)]
-        [Throws(eResponseStatus.ObjectNotExist)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
+        [Throws(StatusCode.NotFound)]
         static public bool Delete(int channelId)
         {
             bool response = false;
@@ -149,7 +155,11 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ChannelMetaOrderByIsInvalid)]
         [Throws(eResponseStatus.ChannelSystemNameAlreadyInUse)]
         [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.InvalidMediaType)]
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
         [Throws(eResponseStatus.AccountIsNotOpcSupported)]
+        [Throws(eResponseStatus.SyntaxError)]
+        [Throws(eResponseStatus.ActionIsNotAllowed)]
         static public KalturaChannel Add(KalturaChannel channel)
         {
             KalturaChannel response = null;
@@ -216,7 +226,13 @@ namespace WebAPI.Controllers
         [OldStandardArgument("id", "channelId", sinceVersion = OPC_MERGE_VERSION)]
         [Throws(eResponseStatus.ObjectNotExist)]
         [Throws(eResponseStatus.NoObjectToInsert)]
-        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.ChannelDoesNotExist)]
+        [Throws(eResponseStatus.ChannelSystemNameAlreadyInUse)]
+        [Throws(eResponseStatus.ChannelMetaOrderByIsInvalid)]
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
+        [Throws(eResponseStatus.AssetDoesNotExist)]
+        [Throws(eResponseStatus.InvalidMediaType)]
+        [Throws(eResponseStatus.SyntaxError)]
         [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         [Throws(eResponseStatus.ActionIsNotAllowed)]
         static public KalturaChannel Update(int id, KalturaChannel channel)

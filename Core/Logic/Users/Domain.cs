@@ -1349,7 +1349,8 @@ namespace Core.Users
             return ValidateQuantity(udid, deviceBrandId, ref dc, ref device);
         }
 
-        public DomainResponseStatus ValidateQuantity(string udid, int deviceBrandId, ref DeviceContainer dc, ref Device device)
+        public DomainResponseStatus ValidateQuantity(string udid, int deviceBrandId, ref DeviceContainer dc, ref Device device, 
+            bool skipOtherDomainCheck = false)
         {
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
             if (device == null)
@@ -1398,7 +1399,7 @@ namespace Core.Users
                         }
                     }
 
-                    if (deviceAlreadyExistsInOtherDomain)
+                    if (deviceAlreadyExistsInOtherDomain && !skipOtherDomainCheck)
                     {
                         // the device is associated to a different domain.
                         res = DomainResponseStatus.DeviceExistsInOtherDomains;

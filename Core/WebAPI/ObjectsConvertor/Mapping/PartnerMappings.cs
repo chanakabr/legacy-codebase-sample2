@@ -103,6 +103,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.FinishedPercentThreshold, opt => opt.MapFrom(src => src.FinishedPercentThreshold))
                 .ForMember(dest => dest.SuspensionProfileInheritanceType, opt => opt.ResolveUsing(src => 
                                     ConvertSuspensionProfileInheritanceType(src.SuspensionProfileInheritanceType)))
+                .ForMember(dest => dest.AllowDeviceMobility, opt => opt.MapFrom(src => src.AllowDeviceMobility))
                 ;
 
             // map KalturaGeneralPartnerConfig to GeneralPartnerConfig
@@ -125,6 +126,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .AfterMap((src, dest) => dest.SecondaryCurrencies = src.SecondaryCurrencies == null ? null : dest.SecondaryCurrencies)
                 .ForMember(dest => dest.SuspensionProfileInheritanceType, opt => opt.ResolveUsing(src => 
                                     ConvertSuspensionProfileInheritanceType(src.SuspensionProfileInheritanceType)))
+                .ForMember(dest => dest.AllowDeviceMobility, opt => opt.MapFrom(src => src.AllowDeviceMobility))
                 ;
 
             #region KalturaObjectVirtualAssetPartnerConfig
@@ -188,10 +190,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion KalturaObjectVirtualAssetPartnerConfig
 
             cfg.CreateMap<KalturaCommercePartnerConfig, CommercePartnerConfig>()
-                .ForMember(dest => dest.BookmarkEventThresholds, opt => opt.MapFrom(src => src.GetBookmarkEventThresholds()));
+                .ForMember(dest => dest.BookmarkEventThresholds, opt => opt.MapFrom(src => src.GetBookmarkEventThresholds()))
+                .ForMember(dest => dest.KeepSubscriptionAddOns, opt => opt.MapFrom(src => src.KeepSubscriptionAddOns))
+                ;
 
             cfg.CreateMap<CommercePartnerConfig, KalturaCommercePartnerConfig>()
-                .ForMember(dest => dest.BookmarkEventThresholds, opt => opt.MapFrom(src => src.BookmarkEventThresholds));
+                .ForMember(dest => dest.BookmarkEventThresholds, opt => opt.MapFrom(src => src.BookmarkEventThresholds))
+                .ForMember(dest => dest.KeepSubscriptionAddOns, opt => opt.MapFrom(src => src.KeepSubscriptionAddOns))
+                ;
 
             cfg.CreateMap<KeyValuePair<eTransactionType, int>, KalturaBookmarkEventThreshold>()
                 .ForMember(dest => dest.TransactionType, opt => opt.MapFrom(src => src.Key))

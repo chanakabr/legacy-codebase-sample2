@@ -17,11 +17,9 @@ namespace WebAPI.Controllers
         /// Retrieve the account’s time-shifted TV settings (catch-up and C-DVR, Trick-play, Start-over)
         /// </summary>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, TimeShiftedTvPartnerSettingsNotFound = 5022</remarks>   
         [Action("get")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
-        [Throws(eResponseStatus.TimeShiftedTvPartnerSettingsNotFound)]
         static public KalturaTimeShiftedTvPartnerSettings Get()
         {
             KalturaTimeShiftedTvPartnerSettings response = null;

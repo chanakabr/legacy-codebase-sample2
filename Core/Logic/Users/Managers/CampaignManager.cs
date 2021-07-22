@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using Core.Pricing;
 using EventBus.Abstraction;
+using ApiObjects.Notification;
 
 namespace ApiLogic.Users.Managers
 {
@@ -114,7 +115,7 @@ namespace ApiLogic.Users.Managers
 
             try
             {
-                var key = LayeredCacheKeys.GetCampaignKey(contextData.GroupId, id); 
+                var key = LayeredCacheKeys.GetCampaignKey(contextData.GroupId, id);
                 var cacheResult = _layeredCache.Get(key,
                                                     ref _campaign,
                                                     Get_CampaignsByIdDB,
@@ -125,7 +126,7 @@ namespace ApiLogic.Users.Managers
                                                     },
                                                     contextData.GroupId,
                                                     LayeredCacheConfigNames.GET_CAMPAIGN_BY_ID,
-                                                    new List<string>() { LayeredCacheKeys.GetCampaignInvalidationKey(contextData.GroupId, id) }, 
+                                                    new List<string>() { LayeredCacheKeys.GetCampaignInvalidationKey(contextData.GroupId, id) },
                                                     true);
             }
             catch (Exception ex)
@@ -141,7 +142,8 @@ namespace ApiLogic.Users.Managers
                 {
                     _campaign.State = CampaignState.ARCHIVE;
 
-                    Task.Run(() => {
+                    Task.Run(() =>
+                    {
                         _campaign.UpdateDate = DateUtils.GetUtcUnixTimestampNow();
                         if (_repository.Update_Campaign(_campaign, contextData))
                         {
@@ -164,6 +166,33 @@ namespace ApiLogic.Users.Managers
             }
 
             return response;
+        }
+
+        public void NotifyTriggerCampaignEvent(TriggerCampaign campaign, ContextData contextData)
+        {
+            try
+            {
+                var eventObject = new TriggerCampaignEvent
+                {
+                    CampaignId = campaign.Id,
+                    DomainId = contextData.DomainId ?? 0,
+                    Udid = contextData.Udid,
+                    UserId = contextData.UserId ?? 0
+                };
+
+                if (eventObject.Notify())
+                {
+                    log.Debug($"Event for campaign: {campaign.Id}, contextData: {contextData} was added successfully");
+                }
+                else
+                {
+                    log.Warn($"Event for campaign: {campaign.Id}, contextData: {contextData} was ended with a failure");
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error while adding new Campaign: {campaign.Id} Event. contextData: {contextData}, ex: {ex}", ex);
+            }
         }
 
         public GenericListResponse<TriggerCampaign> ListTriggerCampaigns(ContextData contextData, TriggerCampaignFilter filter, CorePager pager = null)
@@ -276,7 +305,7 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<Campaign> AddCampaign<T>(ContextData contextData, T campaignToAdd) where T: Campaign, new()
+        public GenericResponse<Campaign> AddCampaign<T>(ContextData contextData, T campaignToAdd) where T : Campaign, new()
         {
             var response = new GenericResponse<Campaign>();
 
@@ -624,7 +653,7 @@ namespace ApiLogic.Users.Managers
             catch (Exception ex)
             {
 
-            }            
+            }
         }
 
         private List<T> ListCampaignsByType<T>(ContextData contextData, CampaignSearchFilter filter, eCampaignType campaignType) where T : Campaign, new()
