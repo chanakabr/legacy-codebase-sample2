@@ -20547,6 +20547,16 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute VirtualAssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaChannel(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -20765,6 +20775,14 @@ namespace WebAPI.Models.Catalog
                     {
                         MetaData = buildDictionary<KalturaStringValue>(typeof(KalturaStringValue), ((JObject) parameters["metaData"]).ToObject<Dictionary<string, object>>());
                     }
+                }
+                if (parameters.ContainsKey("virtualAssetId") && parameters["virtualAssetId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        VirtualAssetIdSchemaProperty.Validate("virtualAssetId", parameters["virtualAssetId"]);
+                    }
+                    VirtualAssetId = (Int64) Convert.ChangeType(parameters["virtualAssetId"], typeof(Int64));
                 }
             }
         }

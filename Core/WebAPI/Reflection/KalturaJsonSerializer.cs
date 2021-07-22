@@ -24913,6 +24913,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
             }
+            if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
+            {
+                ret.Add("virtualAssetId", "\"virtualAssetId\": " + VirtualAssetId);
+            }
             return ret;
         }
         
@@ -25024,6 +25028,10 @@ namespace WebAPI.Models.Catalog
             if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
                 ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
+            }
+            if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
+            {
+                ret.Add("virtualAssetId", "<virtualAssetId>" + VirtualAssetId + "</virtualAssetId>");
             }
             return ret;
         }

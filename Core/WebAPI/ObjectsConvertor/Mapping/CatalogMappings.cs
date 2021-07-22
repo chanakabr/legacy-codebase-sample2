@@ -205,7 +205,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Order, opt => opt.ResolveUsing(src => ConvertOrderObjToAssetOrder(src.m_OrderObject.m_eOrderBy, src.m_OrderObject.m_eOrderDir)))
                 .ForMember(dest => dest.GroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.searchGroupBy)))
                 .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
-                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId));
+                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
+                .ForMember(dest => dest.VirtualAssetId, opt => opt.MapFrom(src => src.VirtualAssetId));
 
             //KSQLChannel to KalturaChannel
             cfg.CreateMap<KSQLChannel, KalturaChannel>()

@@ -1622,6 +1622,8 @@ namespace WebAPI.Reflection
                             return "systemName";
                         case "UpdateDate":
                             return "updateDate";
+                        case "VirtualAssetId":
+                            return "virtualAssetId";
                     }
                     break;
                     

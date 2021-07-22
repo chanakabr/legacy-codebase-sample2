@@ -5731,6 +5731,17 @@ namespace Tvinci.Core.DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
+        public static bool UpdateChannelVirtualAssetId(int groupId, int channelId, long virtualAssetId)
+        {
+            var sp = new StoredProcedure("UpdateChannelVirtualAssetId");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@channelId", channelId);
+            sp.AddParameter("@virtualAssetId", virtualAssetId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
         public static DataTable InsertLinearMediaAsset(int groupId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableRecordingPlaybackNonEntitledChannel, TstvState? enableStartOver, TstvState? enableTrickPlay,
                                                     long? catchUpBuffer, long? trickPlayBuffer, string externalCdvrId, string externalIngestId, long mediaId, LinearChannelType? channelType, long userId)
         {
