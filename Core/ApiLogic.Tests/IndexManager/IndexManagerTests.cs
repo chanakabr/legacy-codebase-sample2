@@ -1133,13 +1133,14 @@ namespace ApiLogic.Tests.IndexManager
             //if running from local env not on tests env
             //update to localhost
             var isJenkins = System.Environment.GetEnvironmentVariable("IS_ON_JENKINS")?.ToLower() == "true";
-            if (!isJenkins)
+            
+            if (isJenkins)
             {
-                SetActualValue(URL_V2, "http://localhost:9200");
+                SetActualValue(URL_V2, "http://elastic02:9200");
             }
             else
             {
-                SetActualValue(URL_V2, "http://elastic:9200");
+                SetActualValue(URL_V2, "http://localhost:9201");
             }
         }
     }

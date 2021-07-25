@@ -1,28 +1,46 @@
 version: '3'
 
 services:
-  elastic:
+  elastic02:
+    container_name: elastic02
     image: elasticsearch:2.3.3
     volumes:
       - data01:/usr/share/elasticsearch/data
     ports:
-      - 9200:9200
+      - 9201:9200
     command:
       - sh
       - -c
       - "plugin list | grep -q delete-by-query || plugin install delete-by-query;
       -  plugin list | grep -q analysis-icu || plugin install analysis-icu; 
          /docker-entrypoint.sh elasticsearch"
-  es07:
-    image: elasticsearch:7.13.4
-    container_name: es07
-    volumes:
-      - data01:/usr/share/elasticsearch/data
-    ports:
-      - 9201:9200    
+#  es07:
+#    image: elasticsearch:7.13.4
+#    container_name: es07
+#    environment:
+#      - discovery.type=single-node
+#    volumes:
+#      - data01:/usr/share/elasticsearch/data
+#    ports:
+#      - 9200:9200
+#    networks:
+#      - elastic
+#
+#  kib01:
+#    image: docker.elastic.co/kibana/kibana:7.13.4
+#    container_name: kib01
+#    ports:
+#      - 5601:5601
+#    environment:
+#      ELASTICSEARCH_URL: http://es07:9200
+#      ELASTICSEARCH_HOSTS: '["http://es07:9200"]'
+#    networks:
+#      - elastic
+
 volumes:
   data01:
     driver: local
-    
-    
-    
+
+#networks:
+#  elastic:
+#    driver: bridge
