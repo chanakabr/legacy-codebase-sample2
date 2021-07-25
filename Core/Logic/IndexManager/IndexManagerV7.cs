@@ -10,11 +10,23 @@ using Catalog.Response;
 using Core.Catalog.Response;
 using GroupsCacheManager;
 using Polly.Retry;
+using ESUtils = ElasticSearch.Common.Utils;
+using ConfigurationManager;
 
 namespace Core.Catalog
 {
     public class IndexManagerV7 : IIndexManager
     {
+        #region Consts
+
+        private static readonly int NUM_OF_SHARDS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
+        private static readonly int NUM_OF_REPLICAS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
+
+        #endregion
+
+        private readonly IApplicationConfiguration _applicationConfiguration;
+        private readonly int _partnerId;
+
         public bool UpsertMedia(long assetId)
         {
             throw new NotImplementedException();
@@ -118,7 +130,7 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public List<int> GetMediaChannels(int nMediaID)
+        public List<int> GetMediaChannels(int mediaId)
         {
             throw new NotImplementedException();
         }
@@ -189,7 +201,14 @@ namespace Core.Catalog
 
         public bool SetupSocialStatisticsDataIndex()
         {
-            throw new NotImplementedException();
+            bool result = false;
+            
+            var statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
+
+            var analyzers = new List<string>();
+            var filters = new List<string>();
+            return _elasticSearchApi.BuildIndex(statisticsIndex, NUM_OF_SHARDS, NUM_OF_REPLICAS, analyzers, filters);
+            return result;
         }
 
         public bool InsertSocialStatisticsData(SocialActionStatistics action)
