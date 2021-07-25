@@ -1487,12 +1487,12 @@ namespace Core.Catalog
             return bResult;
         }
 
-        public List<int> GetMediaChannels(int nMediaID)
+        public List<int> GetMediaChannels(int mediaId)
         {
             List<int> lResult = new List<int>();
             string sIndex = IndexingUtils.GetMediaIndexAlias(_partnerId);
 
-            string sMediaDoc = _elasticSearchApi.GetDoc(sIndex, ES_MEDIA_TYPE, nMediaID.ToString());
+            string sMediaDoc = _elasticSearchApi.GetDoc(sIndex, ES_MEDIA_TYPE, mediaId.ToString());
 
             if (!string.IsNullOrEmpty(sMediaDoc))
             {

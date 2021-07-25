@@ -60,7 +60,7 @@ namespace Core.Catalog
         List<UnifiedSearchResult> SearchSubscriptionAssets(List<BaseSearchObject> searchObjects, int languageId, bool useStartDate, string mediaTypes, ApiObjects.SearchObjects.OrderObj order, int pageIndex, int pageSize, ref int totalItems);
         List<int> GetEntitledEpgLinearChannels(UnifiedSearchDefinitions definitions);
         bool DoesMediaBelongToChannels(List<int> lChannelIDs, int nMediaID);
-        List<int> GetMediaChannels(int nMediaID);
+        List<int> GetMediaChannels(int mediaId);
 
         List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch);
 

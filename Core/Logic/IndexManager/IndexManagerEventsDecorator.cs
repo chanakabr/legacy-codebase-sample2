@@ -448,9 +448,9 @@ namespace ApiLogic.Catalog.IndexManager
             return _indexManager.DoesMediaBelongToChannels( lChannelIDs, nMediaID);
         }
 
-        public List<int> GetMediaChannels(  int nMediaID)
+        public List<int> GetMediaChannels(  int mediaId)
         {
-            return _indexManager.GetMediaChannels( nMediaID);
+            return _indexManager.GetMediaChannels( mediaId);
         }
 
         public List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch)

@@ -13,18 +13,34 @@ using M1BL;
 using Nest;
 using Newtonsoft.Json.Linq;
 using Polly.Retry;
+using ESUtils = ElasticSearch.Common.Utils;
+using ConfigurationManager;
 using Status = ApiObjects.Response.Status;
 
 namespace Core.Catalog
 {
     public class IndexManagerV7 : IIndexManager
     {
+        #region Consts
+
+        #endregion
+
+        private readonly IApplicationConfiguration _applicationConfiguration;
+        private readonly int _partnerId;
         private readonly IElasticClient _elasticClient;
 
-        public IndexManagerV7(IElasticClient elasticClient)
+        private readonly int _numOfShards;
+        private readonly int _numOfReplicas;
+
+        public IndexManagerV7(int partnerId, IElasticClient elasticClient, IApplicationConfiguration applicationConfiguration)
         {
             _elasticClient = elasticClient;
+            _partnerId = partnerId;
+            _applicationConfiguration = applicationConfiguration;
+            _numOfShards = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
+            _numOfReplicas = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
         }
+        
         public bool UpsertMedia(long assetId)
         {
             var doc = new JObject();
@@ -132,7 +148,7 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public List<int> GetMediaChannels(int nMediaID)
+        public List<int> GetMediaChannels(int mediaId)
         {
             throw new NotImplementedException();
         }
@@ -203,7 +219,14 @@ namespace Core.Catalog
 
         public bool SetupSocialStatisticsDataIndex()
         {
-            throw new NotImplementedException();
+            var statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
+            var createIndexResponse = _elasticClient.Indices.Create(statisticsIndex,
+                c => c.Settings(settings => 
+                    settings.NumberOfShards(_numOfShards).NumberOfReplicas(_numOfReplicas)
+                    ));
+            bool result = createIndexResponse != null && createIndexResponse.Acknowledged && createIndexResponse.IsValid;
+            
+            return result;
         }
 
         public bool InsertSocialStatisticsData(SocialActionStatistics action)
