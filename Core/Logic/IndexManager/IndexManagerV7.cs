@@ -3,21 +3,35 @@ using System.Collections.Generic;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
-using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using Catalog.Response;
 using Core.Catalog.Response;
+using ElasticSearch.NEST;
 using GroupsCacheManager;
+using M1BL;
+using Nest;
+using Newtonsoft.Json.Linq;
 using Polly.Retry;
+using Status = ApiObjects.Response.Status;
 
 namespace Core.Catalog
 {
     public class IndexManagerV7 : IIndexManager
     {
+        private readonly IElasticClient _elasticClient;
+
+        public IndexManagerV7(IElasticClient elasticClient)
+        {
+            _elasticClient = elasticClient;
+        }
         public bool UpsertMedia(long assetId)
         {
-            throw new NotImplementedException();
+            var doc = new JObject();
+
+            var indexResponse = _elasticClient.Index(doc, d => d.Index("index_name").Id("test_id"));
+
+            return true;
         }
 
         public string SetupEpgV2Index(DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages, LanguageObj _defaultLanguage,
