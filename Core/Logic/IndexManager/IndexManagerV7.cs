@@ -13,7 +13,7 @@ using Polly.Retry;
 
 namespace Core.Catalog
 {
-    public class IndexManagerV7:IIndexManager
+    public class IndexManagerV7 : IIndexManager
     {
         public bool UpsertMedia(long assetId)
         {
@@ -303,8 +303,7 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public bool UpdateEpgs(List<LanguageObj> languages, List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings, bool isRecording,
-            Dictionary<long, long> epgToRecordingMapping = null)
+        public bool UpdateEpgs(List<EpgCB> epgObjects, bool isRecording, Dictionary<long, long> epgToRecordingMapping = null)
         {
             throw new NotImplementedException();
         }
