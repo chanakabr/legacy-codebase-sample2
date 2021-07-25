@@ -26,6 +26,7 @@ using EpgGroupSettings = GroupsCacheManager.EpgGroupSettings;
 using KeyValuePair = System.Collections.Generic.KeyValuePair;
 using Utils = ElasticSearch.Common.Utils;
 using ApiLogic.Catalog;
+using ApiLogic.Tests.ConfigurationMocks;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -157,7 +158,7 @@ namespace ApiLogic.Tests.IndexManager
             _random = new Random();
 
             ApplicationConfiguration.InitDefaults();
-            ApplicationConfiguration.Current._elasticSearchConfiguration = new MockElasticSearchV2Configuration();
+            ApplicationConfiguration.Current._elasticSearchConfiguration = new MockElasticSearchConfiguration();
 
             _mockEsSerializerV2 = new ESSerializerV2();
             _mockRepository = new MockRepository(MockBehavior.Loose);
@@ -1121,28 +1122,6 @@ namespace ApiLogic.Tests.IndexManager
             Assert.AreEqual(1, result.results.Where(x => x.value == randomMedia.m_sName).Count());
             Assert.AreEqual(1, result.results.Where(x => x.value == randomMedia2.m_sName).Count());
             Assert.AreEqual(0, result.results.Where(x => x.value == "NAME NOT EXISTS").Count());
-        }
-    }
-
-    internal class MockElasticSearchV2Configuration : ElasticSearchConfiguration
-    {
-        public MockElasticSearchV2Configuration()
-        {
-            SetActualValue(MaxResults, 100000);
-
-            //if running from local env not on tests env
-            //update to localhost
-            var isJenkins = System.Environment.GetEnvironmentVariable("IS_ON_JENKINS")?.ToLower() == "true";
-            
-            if (isJenkins)
-            {
-                SetActualValue(URL_V2, "http://elastic02:9200");
-            }
-            else
-            {
-                var httpLocalhost = "http://localhost:" + "9201";//9201 is the port of es2 on local tests for now
-                SetActualValue(URL_V2, httpLocalhost);
-            }
         }
     }
 }
