@@ -37,9 +37,9 @@ namespace Core.Catalog
             return Convert.ToInt64(ts.TotalSeconds, CultureInfo.CurrentCulture);
         }
 
-        public static string GetEpgIndexAlias(int nGroupID)
+        public static string GetEpgIndexAlias(int groupId)
         {
-            return string.Format("{0}_epg", nGroupID);
+            return $"{groupId}_epg";
         }
 
         public static string GetDailyEpgIndexName(int groupId, DateTime indexDate)
