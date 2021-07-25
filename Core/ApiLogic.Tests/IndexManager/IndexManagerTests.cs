@@ -157,7 +157,7 @@ namespace ApiLogic.Tests.IndexManager
             _random = new Random();
 
             ApplicationConfiguration.InitDefaults();
-            ApplicationConfiguration.Current._elasticSearchConfiguration = new MockElasticSearchConfiguration();
+            ApplicationConfiguration.Current._elasticSearchConfiguration = new MockElasticSearchV2Configuration();
 
             _mockEsSerializerV2 = new ESSerializerV2();
             _mockRepository = new MockRepository(MockBehavior.Loose);
@@ -1124,9 +1124,9 @@ namespace ApiLogic.Tests.IndexManager
         }
     }
 
-    internal class MockElasticSearchConfiguration : ElasticSearchConfiguration
+    internal class MockElasticSearchV2Configuration : ElasticSearchConfiguration
     {
-        public MockElasticSearchConfiguration()
+        public MockElasticSearchV2Configuration()
         {
             SetActualValue(MaxResults, 100000);
 
