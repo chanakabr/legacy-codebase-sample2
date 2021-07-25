@@ -197,6 +197,7 @@ namespace Core.Catalog
                 List<LanguageObj> languages = _group.GetLangauges();
                 languagesMap = languages.ToDictionary(x => x.ID, x => x);
             }
+            
 
             try
             {

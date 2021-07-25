@@ -3,15 +3,19 @@ using System.Collections.Generic;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
-using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using Catalog.Response;
 using Core.Catalog.Response;
+using ElasticSearch.NEST;
 using GroupsCacheManager;
+using M1BL;
+using Nest;
+using Newtonsoft.Json.Linq;
 using Polly.Retry;
 using ESUtils = ElasticSearch.Common.Utils;
 using ConfigurationManager;
+using Status = ApiObjects.Response.Status;
 
 namespace Core.Catalog
 {
@@ -19,17 +23,31 @@ namespace Core.Catalog
     {
         #region Consts
 
-        private static readonly int NUM_OF_SHARDS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
-        private static readonly int NUM_OF_REPLICAS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
-
         #endregion
 
         private readonly IApplicationConfiguration _applicationConfiguration;
         private readonly int _partnerId;
+        private readonly IElasticClient _elasticClient;
 
+        private readonly int _numOfShards;
+        private readonly int _numOfReplicas;
+
+        public IndexManagerV7(int partnerId, IElasticClient elasticClient, IApplicationConfiguration applicationConfiguration)
+        {
+            _elasticClient = elasticClient;
+            _partnerId = partnerId;
+            _applicationConfiguration = applicationConfiguration;
+            _numOfShards = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
+            _numOfReplicas = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
+        }
+        
         public bool UpsertMedia(long assetId)
         {
-            throw new NotImplementedException();
+            var doc = new JObject();
+
+            var indexResponse = _elasticClient.Index(doc, d => d.Index("index_name").Id("test_id"));
+
+            return true;
         }
 
         public string SetupEpgV2Index(DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages, LanguageObj _defaultLanguage,
@@ -201,13 +219,13 @@ namespace Core.Catalog
 
         public bool SetupSocialStatisticsDataIndex()
         {
-            bool result = false;
-            
             var statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
-
-            var analyzers = new List<string>();
-            var filters = new List<string>();
-            return _elasticSearchApi.BuildIndex(statisticsIndex, NUM_OF_SHARDS, NUM_OF_REPLICAS, analyzers, filters);
+            var createIndexResponse = _elasticClient.Indices.Create(statisticsIndex,
+                c => c.Settings(settings => 
+                    settings.NumberOfShards(_numOfShards).NumberOfReplicas(_numOfReplicas)
+                    ));
+            bool result = createIndexResponse != null && createIndexResponse.Acknowledged && createIndexResponse.IsValid;
+            
             return result;
         }
 

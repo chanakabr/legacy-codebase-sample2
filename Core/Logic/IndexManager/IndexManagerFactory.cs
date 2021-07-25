@@ -11,6 +11,8 @@ using EventBus.Kafka;
 using ElasticSearch.Common;
 using Core.Catalog.CatalogManagement;
 using ApiLogic.Catalog;
+using ApiObjects.CanaryDeployment.Elasticsearch;
+using ElasticSearch.NEST;
 
 namespace Core.Catalog
 {
@@ -24,6 +26,13 @@ namespace Core.Catalog
         private IndexManagerFactory(){}
         public static IIndexManager GetInstance(int partnerId)
         {
+            var partnerConfiguration = CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().GetPartnerConfiguration(partnerId);
+            if( partnerConfiguration.Object.ElasticsearchActiveVersion== ElasticsearchVersion.ES_7_13)
+            {
+                var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
+                return new IndexManagerV7(partnerId, elasticClient, ApplicationConfiguration.Current);
+            }
+                
             var indexManagerV2 = new IndexManagerV2(partnerId,
                 new ElasticSearchApi(ApplicationConfiguration.Current),
                 new GroupsCacheManager.GroupManager(),
