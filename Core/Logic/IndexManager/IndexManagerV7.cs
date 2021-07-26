@@ -24,6 +24,8 @@ using Core.Catalog.Cache;
 using ApiLogic.Catalog;
 using ElasticSearch.Searcher.Settings;
 using ApiObjects.CanaryDeployment.Elasticsearch;
+using Elasticsearch.Net;
+using ElasticSearch.Searcher;
 
 namespace Core.Catalog
 {
@@ -132,7 +134,9 @@ namespace Core.Catalog
 
         public bool FinalizeEpgV2Index(DateTime date)
         {
-            throw new NotImplementedException();
+            var dailyEpgIndexName = IndexingUtils.GetDailyEpgIndexName(_partnerId, date);
+            var response = _elasticClient.Indices.Refresh(new RefreshRequest(dailyEpgIndexName));
+            return response.IsValid;
         }
 
         public bool FinalizeEpgV2Indices(List<DateTime> date, RetryPolicy retryPolicy)
@@ -337,7 +341,25 @@ namespace Core.Catalog
 
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)
         {
-            throw new NotImplementedException();
+            var index = ESUtils.GetGroupStatisticsIndex(_partnerId);
+
+            try
+            {
+                if (_elasticClient.Indices.Exists(index).Exists)
+                {
+                    var queryBuilder = new ESStatisticsQueryBuilder(_partnerId, socialSearch);
+                    var queryString = queryBuilder.BuildQuery();
+                    //TODO IMPLEMENT THIS METHOD!
+                    throw new NotImplementedException();
+                    //return _elasticSearchApi.DeleteDocsByQuery(index, ESUtils.ES_STATS_TYPE, ref queryString);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.DebugFormat("DeleteActionFromES Failed ex={0}, index={1};type={2}", ex, index, ESUtils.ES_STATS_TYPE);
+            }
+
+            return false;
         }
 
         public string SetupIPToCountryIndex()
