@@ -98,6 +98,13 @@ namespace ApiLogic.Tests.IndexManager
             var result = indexManager.SetupEpgV2Index(DateTime.Today, policy);
 
             Assert.IsNotEmpty(result);
+            
+            
+            var res = indexManager.FinalizeEpgV2Index(DateTime.Now);
+            Assert.IsTrue(res);
+
+            res = indexManager.FinalizeEpgV2Indices(new List<DateTime>() {DateTime.Today, DateTime.Now.AddDays(-1)}, policy);
+            Assert.IsTrue(res);
         }
 
         [Test]
@@ -120,6 +127,17 @@ namespace ApiLogic.Tests.IndexManager
             
             var res=indexManager.InsertSocialStatisticsData(stat1);
             Assert.True(res);
+            var socialSearch = new StatisticsActionSearchObj()
+            {
+                Action = stat1.Action,
+                GroupID = partnerId,
+                MediaID = stat1.MediaID,
+                MediaType = stat1.MediaType,
+                Date = stat1.Date
+            };
+
+            var deleteSocialAction = indexManager.DeleteSocialAction(socialSearch);
+            
         }
     }
 }
