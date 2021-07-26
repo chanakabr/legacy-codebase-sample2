@@ -44,8 +44,13 @@ namespace ApiLogic.Tests.IndexManager
         private IndexManagerV7 GetIndexV7Manager(int partnerId)
         {
             return new IndexManagerV7(partnerId,
-                NESTFactory.GetInstance(ApplicationConfiguration.Current),
-                ApplicationConfiguration.Current
+                    NESTFactory.GetInstance(ApplicationConfiguration.Current),
+                    ApplicationConfiguration.Current,
+                    _mockGroupManager.Object,
+                    _mockCatalogManager.Object,
+                    _elasticSearchIndexDefinitions,
+                    _mockChannelManager.Object,
+                    _mockCatalogCache.Object
                 );
         }
         #endregion
@@ -75,7 +80,7 @@ namespace ApiLogic.Tests.IndexManager
         [Test]
         public void TestSetupEPGV2Index()
         {
-            var partnerId = GetRandomPartnerId();
+            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
             var language = IndexManagerMockDataCreator.GetRandomLanguage();
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
