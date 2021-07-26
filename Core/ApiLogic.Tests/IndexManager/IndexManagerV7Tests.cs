@@ -18,6 +18,8 @@ using System.Collections.Generic;
 using System.Linq;
 using ApiLogic.Tests.IndexManager.helpers;
 using Utils = ElasticSearch.Common.Utils;
+using Polly;
+using ApiLogic.Tests.IndexManager.helpers;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -34,7 +36,7 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<ILayeredCache> _mockLayeredCache;
         private Mock<ICatalogCache> _mockCatalogCache;
         private Mock<IWatchRuleManager> _mockWatchRuleManager;
-
+        private Mock<IElasticSearchCommonUtils> _mockElasticSearchCommonUtils;
         private static int _nextPartnerId = 10000;
         private Random _random;
 
@@ -65,7 +67,32 @@ namespace ApiLogic.Tests.IndexManager
             _mockCatalogCache = _mockRepository.Create<ICatalogCache>();
             _mockLayeredCache = _mockRepository.Create<ILayeredCache>();
             _mockWatchRuleManager = _mockRepository.Create<IWatchRuleManager>();
-            _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance, ApplicationConfiguration.Current);
+            _mockElasticSearchCommonUtils = _mockRepository.Create<IElasticSearchCommonUtils>();
+            _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(_mockElasticSearchCommonUtils.Object, ApplicationConfiguration.Current);
+
+        }
+
+        [Test]
+        public void TestSetupEPGV2Index()
+        {
+            var partnerId = GetRandomPartnerId();
+            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
+            var indexManager = GetIndexV7Manager(partnerId);
+             var policy = Policy.Handle<Exception>().WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1));
+
+            _mockElasticSearchCommonUtils.Setup(x => x.GetTcmValue(
+                It.Is<string>(a => a.ToLower().Contains("filter"))
+            ))
+            .Returns("\"eng_ngram_filter\":{\"type\":\"nGram\",\"min_gram\":2,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}, \"eng_edgengram_filter\":{\"type\":\"edgeNGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}");
+            _mockElasticSearchCommonUtils.Setup(x => x.GetTcmValue(
+                It.Is<string>(a => a.ToLower().Contains("analyzer"))
+            ))
+            .Returns("\"eng_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\": [\"asciifolding\",\"lowercase\",\"eng_ngram_filter\"],\"char_filter\":[\"html_strip\"]}, \"eng_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\": [\"asciifolding\",\"lowercase\"],\"char_filter\":[\"html_strip\"]},\"eng_autocomplete_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"filter\": [\"asciifolding\",\"lowercase\",\"eng_edgengram_filter\"],\"char_filter\":[\"html_strip\"]}, \"eng_autocomplete_search_analyzer\":{\"type\": \"custom\",\"tokenizer\": \"whitespace\",\"filter\": [\"asciifolding\",\"lowercase\"],\"char_filter\": [\"html_strip\"]}");
+
+            var result = indexManager.SetupEpgV2Index(DateTime.Today, policy);
+
+            Assert.IsNotEmpty(result);
         }
 
         [Test]
