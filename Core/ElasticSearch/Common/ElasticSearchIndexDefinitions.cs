@@ -21,7 +21,7 @@ namespace ElasticSearch.Common
         bool TokenizerExists(string tokenizerName);
 
         List<Analyzer> GetAnalyzers(ElasticsearchVersion version, string languageCode);
-        List<Tokenizer> GetTokenizers(ElasticsearchVersion version, string languageCode);
+        //List<Tokenizer> GetTokenizers(ElasticsearchVersion version, string languageCode);
         List<Filter> GetFilters(ElasticsearchVersion version, string languageCode);
 
     }
@@ -118,22 +118,51 @@ namespace ElasticSearch.Common
                 string tcmKey = Utils.GetLangCodeAnalyzerKey(languageCode, versionString);
                 string analyzerString = GetAnalyzerDefinition(tcmKey);
                 string jsonAnalyzerString = $"{{analyzerString}}";
-                var analyzerDefinitions = JsonConvert.DeserializeObject<AnalyzerDefinitions>(jsonAnalyzerString);
+                var analyzerDefinitions = JsonConvert.DeserializeObject<Dictionary<string, Analyzer>>(jsonAnalyzerString);
 
-                result = analyzerDefinitions.Analyzers.Values.ToList();
+                result = analyzerDefinitions.Values.ToList();
             }
 
             return result;
         }
 
-        public List<Tokenizer> GetTokenizers(ElasticsearchVersion version, string languageCode)
-        {
-            throw new NotImplementedException();
-        }
+        //public List<Tokenizer> GetTokenizers(ElasticsearchVersion version, string languageCode)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         public List<Filter> GetFilters(ElasticsearchVersion version, string languageCode)
         {
-            throw new NotImplementedException();
+            List<Filter> result = new List<Filter>();
+            string versionString = string.Empty;
+            switch (version)
+            {
+                case ElasticsearchVersion.ES_7_13:
+                    versionString = "7";
+                    break;
+                default:
+                    versionString = "7";
+                    break;
+            }
+
+            if (_configuration.ElasticSearchConfiguration.ShouldUseClassAnalyzerDefinitions.Value)
+            {
+                // TODO: future implementation
+            }
+            else
+            {
+                string tcmKey = Utils.GetLangCodeFilterKey(languageCode, versionString);
+                string filterString = GetFilterDefinition(tcmKey);
+                string jsonFilterString = $"{{filterString}}";
+                JObject jObject = JObject.Parse(jsonFilterString);
+
+                foreach (var jsonFilter in jObject.Values())
+                {
+                    string type = jsonFilter.Value<string>("type");
+                }
+            }
+
+            return result;
         }
     }
 }
