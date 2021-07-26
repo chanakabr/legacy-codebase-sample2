@@ -25,6 +25,15 @@ services:
       - data02:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
+#    command:
+#      - sh
+#      - -c
+#      - "bin/elasticsearch-plugin install analysis-icu;"
+#      - /docker-entrypoint.sh elasticsearch"
+
+#      - "plugin list | grep -q delete-by-query || plugin install delete-by-query;
+#      -  plugin list | grep -q analysis-icu || plugin install analysis-icu; 
+#         /docker-entrypoint.sh elasticsearch"
 #    networks:
 #      - elasticnet
 volumes:

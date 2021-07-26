@@ -20,9 +20,9 @@ namespace ElasticSearch.Common
         bool FilterExists(string sFilterName);
         bool TokenizerExists(string tokenizerName);
 
-        List<Analyzer> GetAnalyzers(ElasticsearchVersion version, string languageCode);
+        Dictionary<string, Analyzer> GetAnalyzers(ElasticsearchVersion version, string languageCode);
         //List<Tokenizer> GetTokenizers(ElasticsearchVersion version, string languageCode);
-        List<Filter> GetFilters(ElasticsearchVersion version, string languageCode);
+        Dictionary<string, Filter> GetFilters(ElasticsearchVersion version, string languageCode);
 
     }
 
@@ -95,9 +95,9 @@ namespace ElasticSearch.Common
         public bool FilterExists(string sFilterName) => !string.IsNullOrEmpty(GetFilterDefinition(sFilterName));
         public bool TokenizerExists(string tokenizerName) => !string.IsNullOrEmpty(GetTokenizerDefinition(tokenizerName));
 
-        public List<Analyzer> GetAnalyzers(ElasticsearchVersion version, string languageCode)
+        public Dictionary<string, Analyzer> GetAnalyzers(ElasticsearchVersion version, string languageCode)
         {
-            List<Analyzer> result = new List<Analyzer>();
+            var result = new Dictionary<string, Analyzer>();
             string versionString = string.Empty;
             switch (version)
             {
@@ -117,10 +117,8 @@ namespace ElasticSearch.Common
             {
                 string tcmKey = Utils.GetLangCodeAnalyzerKey(languageCode, versionString);
                 string analyzerString = GetAnalyzerDefinition(tcmKey);
-                string jsonAnalyzerString = $"{{analyzerString}}";
-                var analyzerDefinitions = JsonConvert.DeserializeObject<Dictionary<string, Analyzer>>(jsonAnalyzerString);
-
-                result = analyzerDefinitions.Values.ToList();
+                string jsonAnalyzerString = $"{{{analyzerString}}}";
+                result = JsonConvert.DeserializeObject<Dictionary<string, Analyzer>>(jsonAnalyzerString);
             }
 
             return result;
@@ -131,9 +129,9 @@ namespace ElasticSearch.Common
         //    throw new NotImplementedException();
         //}
 
-        public List<Filter> GetFilters(ElasticsearchVersion version, string languageCode)
+        public Dictionary<string, Filter> GetFilters(ElasticsearchVersion version, string languageCode)
         {
-            List<Filter> result = new List<Filter>();
+            var result = new Dictionary<string, Filter>();
             string versionString = string.Empty;
             switch (version)
             {
@@ -153,12 +151,25 @@ namespace ElasticSearch.Common
             {
                 string tcmKey = Utils.GetLangCodeFilterKey(languageCode, versionString);
                 string filterString = GetFilterDefinition(tcmKey);
-                string jsonFilterString = $"{{filterString}}";
+                string jsonFilterString = $"{{{filterString}}}";
                 JObject jObject = JObject.Parse(jsonFilterString);
 
-                foreach (var jsonFilter in jObject.Values())
+                foreach (var jsonFilter in jObject)
                 {
-                    string type = jsonFilter.Value<string>("type");
+                    string type = jsonFilter.Value.Value<string>("type");
+
+                    switch (type.ToLower())
+                    {
+                        case "ngram":
+                        case "edgengram":
+                        {
+                            var parsedFilter = jsonFilter.Value.ToObject<NgramFilter>();
+                            result.Add(jsonFilter.Key, parsedFilter);
+                            break;
+                        }
+                        default:
+                            break;
+                    }
                 }
             }
 

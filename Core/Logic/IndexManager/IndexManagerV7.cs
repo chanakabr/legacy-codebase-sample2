@@ -572,12 +572,14 @@ namespace Core.Catalog
             }
 
             var createResponse = _elasticClient.Indices.Create(newIndexName,
-                c => c.Settings(settings =>
-                    settings.
-                    NumberOfShards(shards).
-                    NumberOfReplicas(replicas).
-                    RefreshInterval(new Time(refreshIntervalSeconds, TimeUnit.Second)).
-                    Setting("index.max_result_window", _maxResults)
+                c => c.Settings(settings => settings
+                    .NumberOfShards(shards)
+                    .NumberOfReplicas(replicas)
+                    .RefreshInterval(new Time(refreshIntervalSeconds, TimeUnit.Second))
+                    .Setting("index.max_result_window", _maxResults)
+                    .Setting("index.max_ngram_diff", 20)
+                    // TODO: convert to tcm...
+                    .Setting("index.mapping.total_fields.limit", 2600)
                     .Analysis(a => a
                         .Analyzers(an => analyzersDescriptor)
                         .TokenFilters(tf => filtersDesctiptor)
@@ -625,24 +627,66 @@ namespace Core.Catalog
 
                 // we always want a lowercase analyzer
                 // we always want "autocomplete" ability
-                analyzers.Add("lowercase_analyzer", new Analyzer());
-                analyzers.Add("phrase_starts_with_analyzer", new Analyzer());
-                analyzers.Add("phrase_starts_with_search_analyzer", new Analyzer());
+                analyzers.Add("lowercase_analyzer", 
+                    new Analyzer()
+                    {
+                        tokenizer = "keyword",
+                        char_filter = new List<string>()
+                        {
+                            "html_strip"
+                        },
+                        filter = new List<string>()
+                        {
+                            "lowercase",
+                            "asciifolding"
+                        }
+                    }
+                    );
+                analyzers.Add("phrase_starts_with_analyzer", new Analyzer()
+                {
+                    tokenizer = "keyword",
+                    filter = new List<string>()
+                    {
+                        "lowercase",
+                        "edgengram_filter",
+                        "icu_folding",
+                        "icu_normalizer",
+                        "asciifolding"
+                    },
+                    char_filter = new List<string>()
+                    {
+                        "html_strip"
+                    }
+                });
+                analyzers.Add("phrase_starts_with_search_analyzer", new Analyzer()
+                {
+                    tokenizer = "keyword",
+                    filter = new List<string>()
+                    {
+                        "lowercase",
+                        "icu_folding",
+                        "icu_normalizer",
+                        "asciifolding"
+                    },
+                    char_filter = new List<string>()
+                    {
+                        "html_strip"
+                    }
+                });
 
                 filters.Add("edgengram_filter", new ElasticSearch.Searcher.Settings.NgramFilter()
                 {
                     type = "edgeNGram",
-                    // TODO
+                    min_gram = 1,
+                    max_gram = 20,
+                    token_chars = new List<string>()
+                    {
+                        "letter",
+                        "digit",
+                        "punctuation",
+                        "symbol"
+                    }
                 });
-
-                /*
-        public const string LOWERCASE_ANALYZER = "\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\",\"asciifolding\"],\"char_filter\": [\"html_strip\"]}";
-
-        public const string PHRASE_STARTS_WITH_FILTER = "\"edgengram_filter\": {\"type\":\"edgeNGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}";
-        public const string PHRASE_STARTS_WITH_ANALYZER = "\"phrase_starts_with_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\",\"edgengram_filter\", \"icu_folding\",\"icu_normalizer\",\"asciifolding\"],\"char_filter\":[\"html_strip\"]}";
-        public const string PHRASE_STARTS_WITH_SEARCH_ANALYZER = "\"phrase_starts_with_search_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\", \"icu_folding\",\"icu_normalizer\",\"asciifolding\"],\"char_filter\":[\"html_strip\"]}";
-
-                 */
             }
         }
 

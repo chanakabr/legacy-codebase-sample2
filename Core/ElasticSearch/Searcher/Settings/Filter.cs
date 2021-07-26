@@ -18,9 +18,9 @@ namespace ElasticSearch.Searcher.Settings
     public class NgramFilter : Filter
     {
         [JsonProperty()]
-        public string min_gram;
+        public int min_gram;
         [JsonProperty()]
-        public string max_gram;
+        public int max_gram;
     }
 
     [JsonObject()]
