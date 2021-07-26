@@ -22,8 +22,7 @@ namespace Core.Catalog
     {
         #region added from IndexManager
         bool UpsertMedia(long assetId);
-        string SetupEpgV2Index(DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages,
-            LanguageObj _defaultLanguage, RetryPolicy retryPolicy);
+        string SetupEpgV2Index(DateTime dateOfProgramsToIngest, RetryPolicy retryPolicy);
 
         bool FinalizeEpgV2Index(DateTime date);
         bool FinalizeEpgV2Indices(List<DateTime> date, RetryPolicy retryPolicy);
@@ -127,7 +126,7 @@ namespace Core.Catalog
         void AddTagsToIndex(string newIndexName, List<ApiObjects.SearchObjects.TagValue> allTagValues);
         bool PublishTagsIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
 
-        string SetupEpgIndex(IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, bool isRecording);
+        string SetupEpgIndex(bool isRecording);
 
         void AddEPGsToIndex(string index, bool isRecording,
             Dictionary<ulong, Dictionary<string, EpgCB>> programs,

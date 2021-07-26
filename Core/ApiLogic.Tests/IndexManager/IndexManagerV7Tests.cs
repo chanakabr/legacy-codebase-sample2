@@ -153,7 +153,7 @@ namespace ApiLogic.Tests.IndexManager
             _mockCatalogCache = _mockRepository.Create<ICatalogCache>();
             _mockLayeredCache = _mockRepository.Create<ILayeredCache>();
             _mockWatchRuleManager = _mockRepository.Create<IWatchRuleManager>();
-            _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance);
+            _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance, ApplicationConfiguration.Current);
 
         }
 

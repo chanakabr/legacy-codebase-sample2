@@ -74,7 +74,7 @@ namespace ApiLogic.Tests.IndexManager
             _mockCatalogCache = _mockRepository.Create<ICatalogCache>();
             _mockLayeredCache = _mockRepository.Create<ILayeredCache>();
             _mockWatchRuleManager = _mockRepository.Create<IWatchRuleManager>();
-            _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance);
+            _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance, ApplicationConfiguration.Current);
 
         }
 
@@ -388,7 +388,7 @@ namespace ApiLogic.Tests.IndexManager
             var epgId = 1 + new Random().Next(1000);
 
             //act
-            var setupEpgV2Index = indexManager.SetupEpgV2Index(DateTime.Now, languageObjs, language, policy);
+            var setupEpgV2Index = indexManager.SetupEpgV2Index(DateTime.Now, policy);
 
             //assert
             Assert.IsNotEmpty(setupEpgV2Index);
@@ -466,7 +466,7 @@ namespace ApiLogic.Tests.IndexManager
             var policy = Policy.Handle<Exception>().WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1));
             ulong epgId = (ulong)(1 + new Random().Next(10000));
 
-            string indexName = indexManager.SetupEpgIndex(new List<LanguageObj>() { language }, language, false);
+            string indexName = indexManager.SetupEpgIndex(false);
 
             var randomChannel = IndexManagerMockDataCreator.GetRandomChannel(partnerId);
             Dictionary<ulong, Dictionary<string, EpgCB>> epgs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
@@ -584,7 +584,7 @@ namespace ApiLogic.Tests.IndexManager
 
             var mediaIndexName = indexManager.SetupMediaIndex(new List<LanguageObj>() { language }, language);
             indexManager.PublishMediaIndex(mediaIndexName, true, true);
-            var epgIndexName = indexManager.SetupEpgIndex(new List<LanguageObj>() { language }, language, false);
+            var epgIndexName = indexManager.SetupEpgIndex(false);
             indexManager.FinishUpEpgIndex(epgIndexName, false, true, true);
 
             var secondRandomChannel = IndexManagerMockDataCreator.GetRandomChannel(randomPartnerId);

@@ -305,7 +305,7 @@ namespace Core.GroupManagers
         {
             try
             {
-                var epgIndex = _indexManager.SetupEpgIndex(languages, catalogGroupCache.DefaultLanguage, isRecording: false);
+                var epgIndex = _indexManager.SetupEpgIndex(isRecording: false);
                 if (string.IsNullOrEmpty(epgIndex))
                 {
                     Log.Warn($"create epg index returned with an empty index name for partner {groupId}");
@@ -332,7 +332,7 @@ namespace Core.GroupManagers
         {
             try
             {
-                var indexName = _indexManager.SetupEpgIndex(languages, catalogGroupCache.DefaultLanguage, isRecording: true);
+                var indexName = _indexManager.SetupEpgIndex(isRecording: true);
                 if (string.IsNullOrEmpty(indexName))
                 {
                     Log.Warn($"create recording index returned with an empty index name for partner {groupId}");

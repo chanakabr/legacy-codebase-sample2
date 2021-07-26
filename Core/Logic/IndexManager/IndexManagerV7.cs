@@ -16,6 +16,7 @@ using Polly.Retry;
 using ESUtils = ElasticSearch.Common.Utils;
 using ConfigurationManager;
 using Status = ApiObjects.Response.Status;
+using System.Linq;
 
 namespace Core.Catalog
 {
@@ -26,11 +27,16 @@ namespace Core.Catalog
         #endregion
 
         private readonly IApplicationConfiguration _applicationConfiguration;
-        private readonly int _partnerId;
         private readonly IElasticClient _elasticClient;
 
         private readonly int _numOfShards;
         private readonly int _numOfReplicas;
+
+        private readonly int _partnerId;
+        private bool _doesGroupUsesTemplates;
+        private readonly IGroupManager _groupManager;
+        private Group _group;
+        private CatalogGroupCache _catalogGroupCache;
 
         public IndexManagerV7(int partnerId, IElasticClient elasticClient, IApplicationConfiguration applicationConfiguration)
         {
@@ -50,10 +56,11 @@ namespace Core.Catalog
             return true;
         }
 
-        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages, LanguageObj _defaultLanguage,
-            RetryPolicy retryPolicy)
+        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest, RetryPolicy retryPolicy)
         {
-            throw new NotImplementedException();
+            string indexName = string.Empty;
+
+            return indexName;
         }
 
         public bool FinalizeEpgV2Index(DateTime date)
@@ -225,6 +232,9 @@ namespace Core.Catalog
                     settings.
                     NumberOfShards(_numOfShards).
                     NumberOfReplicas(_numOfReplicas)
+
+                    //.Analysis(analysis => analysis.Analyzers(b => b.Custom("harta", new CustomAnalyzer())
+
                     ));
             bool result = createIndexResponse != null && createIndexResponse.Acknowledged && createIndexResponse.IsValid;
             
@@ -326,7 +336,7 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public string SetupEpgIndex(IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, bool isRecording)
+        public string SetupEpgIndex(bool isRecording)
         {
             throw new NotImplementedException();
         }
@@ -374,5 +384,19 @@ namespace Core.Catalog
         {
             throw new NotImplementedException();
         }
+
+        #region Private Methods
+
+        private List<LanguageObj> GetLanguages()
+        {
+            return _doesGroupUsesTemplates ? _catalogGroupCache.LanguageMapById.Values.ToList() : _group.GetLangauges();
+        }
+
+        private LanguageObj GetDefaultLanguage()
+        {
+            return _doesGroupUsesTemplates ? _catalogGroupCache.GetDefaultLanguage() : _group.GetGroupDefaultLanguage();
+        }
+
+        #endregion
     }
 }

@@ -639,7 +639,7 @@ namespace Core.Catalog
                                     if (!createdAliases.Contains(alias))
                                     {
                                         var aliases = new string[] { IndexingUtils.GetEpgIndexAlias(_partnerId) };
-                                        CreateIndex(alias, languages, aliases);
+                                        CreateIndex(alias, aliases);
                                         createdAliases.Add(alias);
                                     }
                                 }
@@ -780,17 +780,17 @@ namespace Core.Catalog
             return result;
         }
 
-        private void CreateNewEpgIndex(IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage,
-            string newIndexName, bool isRecording = false, bool shouldBuildWithReplicas = true, bool shouldUseNumOfConfiguredShards = true,
+        private void CreateNewEpgIndex(string newIndexName, bool isRecording = false, bool shouldBuildWithReplicas = true, bool shouldUseNumOfConfiguredShards = true,
             string refreshInterval = null)
         {
-            CreateEmptyEpgIndex(newIndexName, languages, shouldBuildWithReplicas, shouldUseNumOfConfiguredShards, refreshInterval);
-            AddMappingsToEpgIndex(newIndexName, languages, defaultLanguage, isRecording);
+            CreateEmptyEpgIndex(newIndexName, shouldBuildWithReplicas, shouldUseNumOfConfiguredShards, refreshInterval);
+            AddMappingsToEpgIndex(newIndexName, isRecording);
         }
 
-        private void CreateEmptyEpgIndex(string newIndexName, IEnumerable<LanguageObj> languages, bool shouldBuildWithReplicas = true,
+        private void CreateEmptyEpgIndex(string newIndexName,  bool shouldBuildWithReplicas = true,
             bool shouldUseNumOfConfiguredShards = true, string refreshInterval = null)
         {
+            List<LanguageObj> languages = GetLanguages();
             GetEpgAnalyzers(languages, out var analyzers, out var filters, out var tokenizers);
             int replicas = shouldBuildWithReplicas ? NUM_OF_REPLICAS : 0;
             int shards = shouldUseNumOfConfiguredShards ? NUM_OF_SHARDS : 1;
@@ -798,20 +798,30 @@ namespace Core.Catalog
             if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
         }
 
+        private List<LanguageObj> GetLanguages()
+        {
+            return _doesGroupUsesTemplates ? _catalogGroupCache.LanguageMapById.Values.ToList() : _group.GetLangauges();
+        }
+
+        private LanguageObj GetDefaultLanguage()
+        {
+            return _doesGroupUsesTemplates ? _catalogGroupCache.GetDefaultLanguage() : _group.GetGroupDefaultLanguage();
+        }
+
         #endregion
 
         #region methods required by epg v2
 
-        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages, LanguageObj defaultLanguage, RetryPolicy retryPolicy)
+        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest, RetryPolicy retryPolicy)
         {
             string dailyEpgIndexName = IndexingUtils.GetDailyEpgIndexName(_partnerId, dateOfProgramsToIngest);
-            EnsureEpgIndexExist(dailyEpgIndexName, languages, defaultLanguage, retryPolicy);
+            EnsureEpgIndexExist(dailyEpgIndexName, retryPolicy);
             SetNoRefresh(dailyEpgIndexName, retryPolicy);
 
             return dailyEpgIndexName;
         }
 
-        private void EnsureEpgIndexExist(string dailyEpgIndexName, IDictionary<string, LanguageObj> languages, LanguageObj defaultLanguage, RetryPolicy retryPolicy)
+        private void EnsureEpgIndexExist(string dailyEpgIndexName, RetryPolicy retryPolicy)
         {
             // TODO it's possible to create new index with mappings and alias in one request,
             // https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-create-index.html#mappings
@@ -821,8 +831,8 @@ namespace Core.Catalog
             // EPGs could be added to the index without mapping (e.g. from asset.add)
             try
             {
-                AddEmptyIndex(dailyEpgIndexName, languages, retryPolicy);
-                AddEpgMappings(dailyEpgIndexName, languages, defaultLanguage, retryPolicy);
+                AddEmptyIndex(dailyEpgIndexName, retryPolicy);
+                AddEpgMappings(dailyEpgIndexName, retryPolicy);
                 AddAlias(dailyEpgIndexName, retryPolicy);
             }
             catch (Exception e)
@@ -832,22 +842,23 @@ namespace Core.Catalog
             }
         }
 
-        private void AddEmptyIndex(string dailyEpgIndexName, IDictionary<string, LanguageObj> languages, RetryPolicy retryPolicy)
+        private void AddEmptyIndex(string dailyEpgIndexName, RetryPolicy retryPolicy)
         {
             retryPolicy.Execute(() =>
             {
                 var isIndexExist = _elasticSearchApi.IndexExists(dailyEpgIndexName);
                 if (isIndexExist) return;
                 log.Info($"creating new index [{dailyEpgIndexName}]");
-                this.CreateEmptyEpgIndex(dailyEpgIndexName, languages.Values, true,
+                this.CreateEmptyEpgIndex(dailyEpgIndexName, true,
                     true, REFRESH_INTERVAL_FOR_EMPTY_INDEX);
             });
         }
 
-        private void AddEpgMappings(string dailyEpgIndexName, IDictionary<string, LanguageObj> languages, LanguageObj defaultLanguage, RetryPolicy retryPolicy)
+        private void AddEpgMappings(string dailyEpgIndexName, RetryPolicy retryPolicy)
         {
+            var languages = GetLanguages();
             var existingMappings = _elasticSearchApi.GetMappingsNames(dailyEpgIndexName).ToHashSet();
-            var languagesToCreate = languages.Values.Where(language =>
+            var languagesToCreate = languages.Where(language =>
             {
                 var mappingName = GetIndexType(false, language);
                 return !existingMappings.Contains(mappingName);
@@ -869,6 +880,7 @@ namespace Core.Catalog
                 throw new Exception($"failed to get metas and tags");
             }
 
+            var defaultLanguage = GetDefaultLanguage();
             foreach (var language in languagesToCreate)
             {
                 retryPolicy.Execute(() =>
@@ -6230,7 +6242,7 @@ namespace Core.Catalog
             return result;
         }
 
-        public string SetupEpgIndex(IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, bool isRecording)
+        public string SetupEpgIndex(bool isRecording)
         {
             var indexName = IndexingUtils.GetNewEpgIndexStr(_partnerId);
 
@@ -6239,7 +6251,7 @@ namespace Core.Catalog
                 indexName = IndexingUtils.GetNewRecordingIndexStr(_partnerId);
             }
 
-            CreateNewEpgIndex(languages, defaultLanguage, indexName, isRecording);
+            CreateNewEpgIndex(indexName, isRecording);
             return indexName;
         }
 
@@ -7325,11 +7337,11 @@ namespace Core.Catalog
         /// <summary>
         /// will create a new index in case not exists
         /// </summary>
-        private void CreateIndex(string index, List<LanguageObj> languages, string[] aliases)
+        private void CreateIndex(string index, string[] aliases)
         {
             if (!_elasticSearchApi.IndexExists(index))
             {
-                CreateNewEpgIndex(languages, languages.First(x => x.IsDefault), index);
+                CreateNewEpgIndex(index);
                 foreach (var indexAlias in aliases)
                 {
                     _elasticSearchApi.AddAlias(index, indexAlias);
@@ -7442,9 +7454,10 @@ namespace Core.Catalog
             return result;
         }
 
-        private void AddMappingsToEpgIndex(string indexName, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage,
-            bool isRecording)
+        private void AddMappingsToEpgIndex(string indexName, bool isRecording)
         {
+            var languages = GetLanguages();
+            var defaultLanguage = GetDefaultLanguage();
             var defaultMappingAnalyzers = GetMappingAnalyzers(defaultLanguage, ES_VERSION);
 
             if (!GetMetasAndTagsForMapping(out Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
