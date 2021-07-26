@@ -493,6 +493,7 @@ namespace Core.Catalog
             retryPolicy.Execute(() =>
             {
                 var updateDisableIndexRefresh = new UpdateIndexSettingsRequest(dailyEpgIndexName);
+                updateDisableIndexRefresh.IndexSettings = new DynamicIndexSettings();
                 updateDisableIndexRefresh.IndexSettings.RefreshInterval = Time.MinusOne;
                 var updateSettingsResult = _elasticClient.Indices.UpdateSettings(updateDisableIndexRefresh);
 
