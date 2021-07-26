@@ -16,6 +16,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.Tests.IndexManager.helpers;
 using Utils = ElasticSearch.Common.Utils;
 
 namespace ApiLogic.Tests.IndexManager
@@ -72,11 +73,7 @@ namespace ApiLogic.Tests.IndexManager
             return language;
         }
 
-        private int GetRandomPartnerId()
-        {
-            var partnerId = _nextPartnerId++ + _random.Next(1000);
-            return partnerId;
-        }
+        
 
         private Media GetRandomMedia(int partnerId)
         {
@@ -160,7 +157,7 @@ namespace ApiLogic.Tests.IndexManager
         [Test]
         public void TestBasics()
         {
-            var partnerId = GetRandomPartnerId();
+            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
             var indexManager = GetIndexV7Manager(partnerId);
             var result = indexManager.SetupSocialStatisticsDataIndex();
             Assert.IsTrue(result);
@@ -169,11 +166,14 @@ namespace ApiLogic.Tests.IndexManager
         [Test]
         public void TestInsertSocialStatisticsData()
         {
-            var partnerId = GetRandomPartnerId();
+            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var stat1 = IndexManagerMockDataCreator.GetRandomSocialActionStat(partnerId);
+            
             var indexManager = GetIndexV7Manager(partnerId);
+            var result = indexManager.SetupSocialStatisticsDataIndex();
             
-            // indexManager.InsertSocialStatisticsData(new )
-            
+            var res=indexManager.InsertSocialStatisticsData(stat1);
+            Assert.True(res);
         }
     }
 }

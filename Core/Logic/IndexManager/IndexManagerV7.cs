@@ -256,7 +256,46 @@ namespace Core.Catalog
 
         public bool InsertSocialStatisticsData(SocialActionStatistics action)
         {
-            throw new NotImplementedException();
+            var result = false;
+            var guid = Guid.NewGuid();
+            var statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
+
+            try
+            {
+                var actionStatsJson = Newtonsoft.Json.JsonConvert.SerializeObject(action);
+                
+
+                //var response = _elasticClient.IndexDocument(action);
+                var response = _elasticClient.Index(action, i => i.Index(statisticsIndex));
+                //result = _elasticSearchApi.InsertRecord(statisticsIndex, ESUtils.ES_STATS_TYPE, guid.ToString(), actionStatsJson);
+
+                if (!result)
+                {
+                    log.Debug("InsertStatisticsToES " + string.Format("Was unable to insert record to ES. index={0};type={1};doc={2}",
+                        statisticsIndex, ESUtils.ES_STATS_TYPE, actionStatsJson));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"InsertStatisticsToES - Failed ex={ex.Message}, group={_partnerId}", ex);
+                result = false;
+            }
+
+            return result;
+            
+            
+            
+            // var statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
+            // var createIndexResponse = _elasticClient.Indices.Create(statisticsIndex,
+            //     c => c.Settings(settings => 
+            //             settings.
+            //                 NumberOfShards(_numOfShards).
+            //                 NumberOfReplicas(_numOfReplicas)
+            //         
+            //     ));
+            // bool result = createIndexResponse != null && createIndexResponse.Acknowledged && createIndexResponse.IsValid;
+            //
+            // return result;
         }
 
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)
