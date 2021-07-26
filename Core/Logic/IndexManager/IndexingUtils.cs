@@ -30,7 +30,9 @@ namespace Core.Catalog
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static readonly int DEFAULT_CURRENT_REQUEST_DAYS_OFFSET = 7;
-
+        protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
+        protected static readonly string META_BOOL_SUFFIX = "_BOOL";
+        protected static readonly string META_DATE_PREFIX = "date";
         public static long UnixTimeStampNow()
         {
             TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);
@@ -204,6 +206,55 @@ namespace Core.Catalog
                 case OrderBy.NAME:
                 case OrderBy.META: return new GroupByWithOrderByNonNumericField();
                 default: return null;
+            }
+        }
+
+        public static void GetMetaType(string sMeta, out eESFieldType sMetaType, out string sNullValue)
+        {
+            sMetaType = eESFieldType.STRING;
+            sNullValue = string.Empty;
+
+            if (sMeta.Contains(META_BOOL_SUFFIX))
+            {
+                sMetaType = eESFieldType.INTEGER;
+                sNullValue = "0";
+            }
+            else if (sMeta.Contains(META_DOUBLE_SUFFIX))
+            {
+                sMetaType = eESFieldType.DOUBLE;
+                sNullValue = "0.0";
+            }
+            else if (sMeta.StartsWith(META_DATE_PREFIX))
+            {
+                sMetaType = eESFieldType.DATE;
+            }
+        }
+
+        public static void GetMetaType(ApiObjects.MetaType metaType, out eESFieldType esFieldType, out string sNullValue)
+        {
+            esFieldType = eESFieldType.STRING;
+            sNullValue = string.Empty;
+            switch (metaType)
+            {
+                case ApiObjects.MetaType.MultilingualString:
+                case ApiObjects.MetaType.String:
+                    esFieldType = eESFieldType.STRING;
+                    break;
+                case ApiObjects.MetaType.Number:
+                    esFieldType = eESFieldType.DOUBLE;
+                    sNullValue = "0.0";
+                    break;
+                case ApiObjects.MetaType.Bool:
+                    esFieldType = eESFieldType.INTEGER;
+                    sNullValue = "0";
+                    break;
+                case ApiObjects.MetaType.DateTime:
+                    esFieldType = eESFieldType.DATE;
+                    break;
+                case ApiObjects.MetaType.All:
+                case ApiObjects.MetaType.Tag:
+                default:
+                    break;
             }
         }
 

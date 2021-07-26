@@ -497,7 +497,7 @@ namespace Core.Catalog
             try
             {
                 AddEmptyIndex(dailyEpgIndexName, retryPolicy);
-                //AddEpgMappings(dailyEpgIndexName, retryPolicy);
+                AddEpgMappings(dailyEpgIndexName, retryPolicy);
                 //AddAlias(dailyEpgIndexName, retryPolicy);
             }
             catch (Exception e)
@@ -531,9 +531,14 @@ namespace Core.Catalog
             retryPolicy.Execute(() =>
             {
                 var isIndexExist = _elasticClient.Indices.Exists(dailyEpgIndexName);
-                if (isIndexExist != null && isIndexExist.Exists) return;
+
+                if (isIndexExist != null && isIndexExist.Exists)
+                {
+                    return;
+                }
+
                 log.Info($"creating new index [{dailyEpgIndexName}]");
-                this.CreateEmptyEpgIndex(dailyEpgIndexName, true,
+                CreateEmptyEpgIndex(dailyEpgIndexName, true,
                     true, REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS);
             });
         }
@@ -542,7 +547,7 @@ namespace Core.Catalog
             bool shouldUseNumOfConfiguredShards = true, int refreshIntervalSeconds = 0)
         {
             List<LanguageObj> languages = GetLanguages();
-            GetEpgAnalyzers(languages, out var analyzers, out var filters);
+            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var filters);
             int replicas = shouldBuildWithReplicas ? _numOfReplicas : 0;
             int shards = shouldUseNumOfConfiguredShards ? _numOfShards : 1;
             var isIndexCreated = false;
@@ -568,7 +573,7 @@ namespace Core.Catalog
             if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
         }
 
-        private static TokenFiltersDescriptor GetTokenFiltersDescriptor(Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
+        private TokenFiltersDescriptor GetTokenFiltersDescriptor(Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
         {
             TokenFiltersDescriptor filtersDesctiptor = new TokenFiltersDescriptor();
 
@@ -606,7 +611,7 @@ namespace Core.Catalog
             return filtersDesctiptor;
         }
 
-        private static AnalyzersDescriptor GetAnalyzersDesctiptor(Dictionary<string, Analyzer> analyzers)
+        private AnalyzersDescriptor GetAnalyzersDesctiptor(Dictionary<string, Analyzer> analyzers)
         {
             AnalyzersDescriptor analyzersDescriptor = new AnalyzersDescriptor();
 
@@ -623,7 +628,7 @@ namespace Core.Catalog
             return analyzersDescriptor;
         }
 
-        private void GetEpgAnalyzers(IEnumerable<LanguageObj> languages, 
+        private void GetAnalyzersWithLowercaseAndPhraseStartsWith(IEnumerable<LanguageObj> languages, 
             out Dictionary<string, Analyzer> analyzers, 
             out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
         {
@@ -632,49 +637,8 @@ namespace Core.Catalog
 
             if (languages != null)
             {
-                foreach (LanguageObj language in languages)
-                {
-                    var currentAnalyzers = _esIndexDefinitions.GetAnalyzers(ElasticsearchVersion.ES_7_13, language.Code);
-                    var currentFilters = _esIndexDefinitions.GetFilters(ElasticsearchVersion.ES_7_13, language.Code);
-                    
-                    if (currentAnalyzers == null)
-                    {
-                        log.Error(string.Format("analyzer for language {0} doesn't exist", language.Code));
-                    }
-                    else
-                    {
-                        foreach (var analyzer in currentAnalyzers)
-                        {
-                            analyzers.Add(analyzer.Key, analyzer.Value);
-                        }
-                    }
+                GetAnalyzersWithLowercase(languages, analyzers, filters);
 
-                    if (currentFilters != null)
-                    {
-                        foreach (var filter in currentFilters)
-                        {
-                            filters.Add(filter.Key, filter.Value);
-                        }
-                    }
-                }
-
-                // we always want a lowercase analyzer
-                // we always want "autocomplete" ability
-                analyzers.Add("lowercase_analyzer", 
-                    new Analyzer()
-                    {
-                        tokenizer = "keyword",
-                        char_filter = new List<string>()
-                        {
-                            "html_strip"
-                        },
-                        filter = new List<string>()
-                        {
-                            "lowercase",
-                            "asciifolding"
-                        }
-                    }
-                    );
                 analyzers.Add("phrase_starts_with_analyzer", new Analyzer()
                 {
                     tokenizer = "keyword",
@@ -721,6 +685,232 @@ namespace Core.Catalog
                     }
                 });
             }
+        }
+
+        private void GetAnalyzersWithLowercase(IEnumerable<LanguageObj> languages, Dictionary<string, Analyzer> analyzers, Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
+        {
+            GetAnalyzersAndFiltersFromConfiguration(languages, analyzers, filters);
+
+            // we always want a lowercase analyzer
+            // we always want "autocomplete" ability
+            analyzers.Add("lowercase_analyzer",
+                new Analyzer()
+                {
+                    tokenizer = "keyword",
+                    char_filter = new List<string>()
+                    {
+                            "html_strip"
+                    },
+                    filter = new List<string>()
+                    {
+                            "lowercase",
+                            "asciifolding"
+                    }
+                }
+            );
+        }
+
+        private void GetAnalyzersAndFiltersFromConfiguration(IEnumerable<LanguageObj> languages, Dictionary<string, Analyzer> analyzers, Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
+        {
+            foreach (LanguageObj language in languages)
+            {
+                var currentAnalyzers = _esIndexDefinitions.GetAnalyzers(ElasticsearchVersion.ES_7_13, language.Code);
+                var currentFilters = _esIndexDefinitions.GetFilters(ElasticsearchVersion.ES_7_13, language.Code);
+
+                if (currentAnalyzers == null)
+                {
+                    log.Error(string.Format("analyzer for language {0} doesn't exist", language.Code));
+                }
+                else
+                {
+                    foreach (var analyzer in currentAnalyzers)
+                    {
+                        analyzers.Add(analyzer.Key, analyzer.Value);
+                    }
+                }
+
+                if (currentFilters != null)
+                {
+                    foreach (var filter in currentFilters)
+                    {
+                        filters.Add(filter.Key, filter.Value);
+                    }
+                }
+            }
+        }
+
+        private void AddEpgMappings(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        {
+            var languages = GetLanguages();
+
+            log.Info($"creating mappings. index [{dailyEpgIndexName}], languages [{languages.Select(_ => _.Name)}]");
+
+            _groupManager.RemoveGroup(_partnerId); // remove from cache
+            _group = _groupManager.GetGroup(_partnerId);
+            var doesGroupUsesTemplates = _doesGroupUsesTemplates;
+
+            if (!this.GetMetasAndTagsForMapping(
+                out var metas,
+                out var tags,
+                out var metasToPad,
+                true))
+            {
+                throw new Exception($"failed to get metas and tags");
+            }
+
+            var defaultLanguage = GetDefaultLanguage();
+            foreach (var language in languages)
+            {
+                //retryPolicy.Execute(() =>
+                //    this.AddLanguageMapping(dailyEpgIndexName, language, defaultLanguage, metas, tags, metasToPad));
+            }
+        }
+
+        private bool GetMetasAndTagsForMapping(
+            out Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
+            out List<string> tags,
+            out HashSet<string> metasToPad, bool isEpg = false)
+        {
+
+            bool result = true;
+            tags = new List<string>();
+            metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();
+
+            // Padded with zero prefix metas to sort numbers by text without issues in elastic (Brilliant!)
+            metasToPad = new HashSet<string>();
+
+            if (_doesGroupUsesTemplates && _catalogGroupCache != null)
+            {
+                try
+                {
+                    HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
+                    tags = _catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => x.Value.ContainsKey(ApiObjects.MetaType.Tag.ToString()) && !topicsToIgnore.Contains(x.Key)).Select(x => x.Key.ToLower()).ToList();
+
+                    foreach (KeyValuePair<string, Dictionary<string, Topic>> topics in _catalogGroupCache.TopicsMapBySystemNameAndByType)
+                    {
+                        //TODO anat ask Ira
+                        if (topics.Value.Keys.Any(x => x != ApiObjects.MetaType.Tag.ToString() && x != ApiObjects.MetaType.ReleatedEntity.ToString()))
+                        {
+                            string nullValue = string.Empty;
+                            eESFieldType metaType;
+                            ApiObjects.MetaType topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
+                            IndexingUtils.GetMetaType(topicMetaType, out metaType, out nullValue);
+
+                            if (topicMetaType == ApiObjects.MetaType.Number && !metasToPad.Contains(topics.Key.ToLower()))
+                            {
+                                metasToPad.Add(topics.Key.ToLower());
+                            }
+
+                            if (!metas.ContainsKey(topics.Key.ToLower()))
+                            {
+                                metas.Add(topics.Key.ToLower(), new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType, nullValue));
+                            }
+                            else
+                            {
+                                log.ErrorFormat("Duplicate topic found for group {0} name {1}", _partnerId, topics.Key.ToLower());
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error(string.Format("Failed BuildIndex for _partnerId: {0} because CatalogGroupCache", _partnerId), ex);
+                    return false;
+                }
+            }
+            else if (_group != null)
+            {
+                try
+                {
+                    if (_group.m_oEpgGroupSettings != null && _group.m_oEpgGroupSettings.m_lTagsName != null)
+                    {
+                        foreach (var item in _group.m_oEpgGroupSettings.m_lTagsName)
+                        {
+                            if (!tags.Contains(item.ToLower()))
+                            {
+                                tags.Add(item.ToLower());
+                            }
+                        }
+                    }
+
+                    if (_group.m_oGroupTags != null)
+                    {
+                        foreach (var item in _group.m_oGroupTags.Values)
+                        {
+                            if (!tags.Contains(item.ToLower()))
+                            {
+                                tags.Add(item.ToLower());
+                            }
+                        }
+                    }
+
+                    var realMetasType = new Dictionary<string, eESFieldType>();
+                    if (_group.m_oMetasValuesByGroupId != null)
+                    {
+                        foreach (Dictionary<string, string> metaMap in _group.m_oMetasValuesByGroupId.Values)
+                        {
+                            foreach (KeyValuePair<string, string> meta in metaMap)
+                            {
+                                string nullValue = string.Empty;
+                                eESFieldType metaType;
+                                IndexingUtils.GetMetaType(meta.Key, out metaType, out nullValue);
+
+                                var metaName = meta.Value.ToLower();
+                                if (!metas.ContainsKey(metaName))
+                                {
+                                    realMetasType.Add(metaName, metaType);
+                                    metas.Add(metaName, new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType, nullValue));
+                                }
+                                else
+                                {
+                                    log.WarnFormat("Duplicate media meta found for group {0} name {1}", _partnerId, meta.Value);
+                                }
+                            }
+                        }
+                    }
+
+                    if (_group.m_oEpgGroupSettings != null && _group.m_oEpgGroupSettings.m_lMetasName != null)
+                    {
+                        foreach (string epgMeta in _group.m_oEpgGroupSettings.m_lMetasName)
+                        {
+                            string nullValue = string.Empty;
+                            eESFieldType metaType;
+                            IndexingUtils.GetMetaType(epgMeta, out metaType, out nullValue);
+
+                            var epgMetaName = epgMeta.ToLower();
+                            if (!metas.ContainsKey(epgMetaName))
+                            {
+                                realMetasType.Add(epgMetaName, metaType);
+                                metas.Add(epgMetaName, new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType, nullValue));
+                            }
+                            else
+                            {
+                                var mediaMetaType = realMetasType[epgMetaName];
+
+                                // If the metas is numeric for media and it exists also for epg, we will have problems with sorting 
+                                // (since epg metas are string and there will be a type mismatch)
+                                // the solution is to add another field of a padded string to the indices and sort by it
+                                if (mediaMetaType == eESFieldType.INTEGER ||
+                                    mediaMetaType == eESFieldType.DOUBLE ||
+                                    mediaMetaType == eESFieldType.LONG)
+                                {
+                                    metasToPad.Add(epgMetaName);
+                                }
+                                else
+                                {
+                                    log.WarnFormat("Duplicate epg meta found for group {0} name {1}", _partnerId, epgMeta);
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorFormat("Failed get metas and tags for mapping for group {0} ex = {1}", _partnerId, ex);
+                }
+            }
+
+            return result;
         }
 
         #endregion

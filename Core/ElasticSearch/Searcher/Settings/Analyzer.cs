@@ -15,13 +15,6 @@ namespace ElasticSearch.Searcher.Settings
         [JsonProperty()]
         public string tokenizer;
     }
-
-    [JsonObject()]
-    public class AnalyzerDefinitions
-    {
-        [JsonProperty()]
-        public Dictionary<string, Analyzer> Analyzers;
-    }
 }
 
 //"filter" : [ "lowercase", "icu_folding", "icu_normalizer", "asciifolding" ],
