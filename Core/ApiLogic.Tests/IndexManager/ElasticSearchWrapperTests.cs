@@ -35,6 +35,7 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<ILayeredCache> _mockLayeredCache;
         private Mock<ICatalogCache> _mockCatalogCache;
         private Mock<IWatchRuleManager> _mockWatchRuleManager;
+        private Mock<IApplicationConfiguration> _mockApplicationConfiguration;
 
         [SetUp]
         public void SetUp()
@@ -48,7 +49,8 @@ namespace ApiLogic.Tests.IndexManager
             _mockCatalogCache = _mockRepository.Create<ICatalogCache>();
             _mockLayeredCache = _mockRepository.Create<ILayeredCache>();
             _mockWatchRuleManager = _mockRepository.Create<IWatchRuleManager>();
-            _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance);
+            _mockApplicationConfiguration = _mockRepository.Create<IApplicationConfiguration>();
+            _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance, _mockApplicationConfiguration.Object);
         }
 
 

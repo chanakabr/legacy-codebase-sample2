@@ -269,11 +269,10 @@ namespace ApiLogic.Catalog.IndexManager
         }
         
         //CUD
-        public string SetupEpgIndex(  IEnumerable<LanguageObj> languages,LanguageObj defaultLanguage, bool isRecording )
+        public string SetupEpgIndex(bool isRecording)
         {
             var eventKey = isRecording ? IndexManagerMigrationEventKeys.RECORDING : IndexManagerMigrationEventKeys.EPG;
-            return Execute<string>(MethodBase.GetCurrentMethod(), eventKey, languages,
-                defaultLanguage, isRecording);
+            return Execute<string>(MethodBase.GetCurrentMethod(), eventKey, isRecording);
         }
 
         //CUD
@@ -308,12 +307,11 @@ namespace ApiLogic.Catalog.IndexManager
         }
         
         //CUD
-        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages,
-            LanguageObj defaultLanguage,
+        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest,
             RetryPolicy retryPolicy)
         {
             return Execute<string>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.EPG, dateOfProgramsToIngest, languages, defaultLanguage, retryPolicy);
+                IndexManagerMigrationEventKeys.EPG, dateOfProgramsToIngest, retryPolicy);
         }
 
         //CUD
