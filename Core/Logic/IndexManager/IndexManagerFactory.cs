@@ -30,7 +30,14 @@ namespace Core.Catalog
             if( partnerConfiguration.Object.ElasticsearchActiveVersion== ElasticsearchVersion.ES_7_13)
             {
                 var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
-                return new IndexManagerV7(partnerId, elasticClient, ApplicationConfiguration.Current);
+                return new IndexManagerV7(partnerId, 
+                    elasticClient, 
+                    ApplicationConfiguration.Current,
+                    new GroupsCacheManager.GroupManager(),
+                    CatalogManager.Instance,
+                    ElasticSearchIndexDefinitions.Instance,
+                    ChannelManager.Instance,
+                    CatalogCache.Instance());
             }
                 
             var indexManagerV2 = new IndexManagerV2(partnerId,

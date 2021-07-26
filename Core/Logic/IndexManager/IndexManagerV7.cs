@@ -19,6 +19,13 @@ using Status = ApiObjects.Response.Status;
 using System.Linq;
 using KLogMonitor;
 using System.Reflection;
+using Core.Catalog.CatalogManagement;
+using ElasticSearch.Common;
+using CachingProvider.LayeredCache;
+using Core.Catalog.Cache;
+using ApiLogic.Catalog;
+using ElasticSearch.Searcher.Settings;
+using ApiObjects.CanaryDeployment.Elasticsearch;
 
 namespace Core.Catalog
 {
@@ -42,6 +49,12 @@ namespace Core.Catalog
 
         private readonly IApplicationConfiguration _applicationConfiguration;
         private readonly IElasticClient _elasticClient;
+        private readonly ICatalogManager _catalogManager;
+        private readonly IElasticSearchIndexDefinitions _esIndexDefinitions;
+        private readonly ILayeredCache _layeredCache;
+        private readonly IChannelManager _channelManager;
+        private readonly ICatalogCache _catalogCache;
+        private readonly IWatchRuleManager _watchRuleManager;
 
         private readonly int _partnerId;
         private bool _doesGroupUsesTemplates;
@@ -49,15 +62,58 @@ namespace Core.Catalog
         private Group _group;
         private CatalogGroupCache _catalogGroupCache;
 
-        public IndexManagerV7(int partnerId, IElasticClient elasticClient, IApplicationConfiguration applicationConfiguration)
+        public IndexManagerV7(int partnerId, 
+            IElasticClient elasticClient, 
+            IApplicationConfiguration applicationConfiguration,
+            IGroupManager groupManager,
+            ICatalogManager catalogManager,
+            IElasticSearchIndexDefinitions esIndexDefinitions,
+            IChannelManager channelManager,
+            ICatalogCache catalogCache
+            )
         {
             _elasticClient = elasticClient;
-            _partnerId = partnerId;
+            _partnerId = partnerId;            
             _applicationConfiguration = applicationConfiguration;
+
+            _catalogManager = catalogManager;
+            _esIndexDefinitions = esIndexDefinitions;
+            _channelManager = channelManager;
+            _catalogCache = catalogCache;
+            _partnerId = partnerId;
+            _groupManager = groupManager;
+
             _numOfShards = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
             _numOfReplicas = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
+            _maxResults = _applicationConfiguration.ElasticSearchConfiguration.MaxResults.Value;
+
+            InitializePartnerData(_partnerId);
         }
-        
+
+        private void InitializePartnerData(int partnerId)
+        {
+            if (partnerId <= 0)
+            {
+                return;
+            }
+
+            _doesGroupUsesTemplates = _catalogManager.DoesGroupUsesTemplates(partnerId);
+
+            if (_doesGroupUsesTemplates)
+            {
+                _catalogManager.TryGetCatalogGroupCacheFromCache(partnerId, out _catalogGroupCache);
+            }
+            else
+            {
+                _group = _groupManager.GetGroup(partnerId);
+            }
+
+            if (_catalogGroupCache == null && _group == null)
+            {
+                log.Error($"Could not load group configuration for {partnerId}");
+            }
+        }
+
         public bool UpsertMedia(long assetId)
         {
             var doc = new JObject();
@@ -465,12 +521,129 @@ namespace Core.Catalog
             bool shouldUseNumOfConfiguredShards = true, int refreshIntervalSeconds = 0)
         {
             List<LanguageObj> languages = GetLanguages();
-            //GetEpgAnalyzers(languages, out var analyzers, out var filters, out var tokenizers);
+            GetEpgAnalyzers(languages, out var analyzers, out var filters);
             int replicas = shouldBuildWithReplicas ? _numOfReplicas : 0;
             int shards = shouldUseNumOfConfiguredShards ? _numOfShards : 1;
-            var isIndexCreated = false; 
-                //_elasticSearchApi.BuildIndex(newIndexName, shards, replicas, analyzers, filters, tokenizers, MAX_RESULTS, refreshInterval);
+            var isIndexCreated = false;
+
+            AnalyzersDescriptor analyzersDescriptor = new AnalyzersDescriptor();
+
+            foreach (var analyzer in analyzers)
+            {
+                analyzersDescriptor = analyzersDescriptor.Custom(analyzer.Key,
+                    ca => ca
+                    .CharFilters(analyzer.Value.char_filter)
+                    .Tokenizer(analyzer.Value.tokenizer)
+                    .Filters(analyzer.Value.filter)
+                );
+            }
+
+            TokenFiltersDescriptor filtersDesctiptor = new TokenFiltersDescriptor();
+
+            foreach (var filter in filters)
+            {
+                switch (filter.Value.type)
+                {
+                    case "nGram":
+                        {
+                            var castedFilter = filter.Value as NgramFilter;
+                            filtersDesctiptor =
+                                filtersDesctiptor.NGram(filter.Key,
+                                    f => f
+                                    .MinGram(castedFilter.min_gram)
+                                    .MaxGram(castedFilter.max_gram)
+                                );
+                            break;
+                        }
+                    case "edgeNGram":
+                        {
+                            var castedFilter = filter.Value as NgramFilter;
+                            filtersDesctiptor =
+                                filtersDesctiptor.EdgeNGram(filter.Key,
+                                    f => f
+                                    .MinGram(castedFilter.min_gram)
+                                    .MaxGram(castedFilter.max_gram)
+                                );
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+
+            var createResponse = _elasticClient.Indices.Create(newIndexName,
+                c => c.Settings(settings =>
+                    settings.
+                    NumberOfShards(shards).
+                    NumberOfReplicas(replicas).
+                    RefreshInterval(new Time(refreshIntervalSeconds, TimeUnit.Second)).
+                    Setting("index.max_result_window", _maxResults)
+                    .Analysis(a => a
+                        .Analyzers(an => analyzersDescriptor)
+                        .TokenFilters(tf => filtersDesctiptor)
+                    )
+                    ));
+
+            isIndexCreated = createResponse != null && createResponse.Acknowledged && createResponse.IsValid;
             if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
+        }
+
+        private void GetEpgAnalyzers(IEnumerable<LanguageObj> languages, 
+            out Dictionary<string, Analyzer> analyzers, 
+            out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
+        {
+            analyzers = new Dictionary<string, Analyzer>();
+            filters = new Dictionary<string, ElasticSearch.Searcher.Settings.Filter>();
+
+            if (languages != null)
+            {
+                foreach (LanguageObj language in languages)
+                {
+                    var currentAnalyzers = _esIndexDefinitions.GetAnalyzers(ElasticsearchVersion.ES_7_13, language.Code);
+                    var currentFilters = _esIndexDefinitions.GetFilters(ElasticsearchVersion.ES_7_13, language.Code);
+                    
+                    if (currentAnalyzers == null)
+                    {
+                        log.Error(string.Format("analyzer for language {0} doesn't exist", language.Code));
+                    }
+                    else
+                    {
+                        foreach (var analyzer in currentAnalyzers)
+                        {
+                            analyzers.Add(analyzer.Key, analyzer.Value);
+                        }
+                    }
+
+                    if (currentFilters != null)
+                    {
+                        foreach (var filter in currentFilters)
+                        {
+                            filters.Add(filter.Key, filter.Value);
+                        }
+                    }
+                }
+
+                // we always want a lowercase analyzer
+                // we always want "autocomplete" ability
+                analyzers.Add("lowercase_analyzer", new Analyzer());
+                analyzers.Add("phrase_starts_with_analyzer", new Analyzer());
+                analyzers.Add("phrase_starts_with_search_analyzer", new Analyzer());
+
+                filters.Add("edgengram_filter", new ElasticSearch.Searcher.Settings.NgramFilter()
+                {
+                    type = "edgeNGram",
+                    // TODO
+                });
+
+                /*
+        public const string LOWERCASE_ANALYZER = "\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\",\"asciifolding\"],\"char_filter\": [\"html_strip\"]}";
+
+        public const string PHRASE_STARTS_WITH_FILTER = "\"edgengram_filter\": {\"type\":\"edgeNGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}";
+        public const string PHRASE_STARTS_WITH_ANALYZER = "\"phrase_starts_with_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\",\"edgengram_filter\", \"icu_folding\",\"icu_normalizer\",\"asciifolding\"],\"char_filter\":[\"html_strip\"]}";
+        public const string PHRASE_STARTS_WITH_SEARCH_ANALYZER = "\"phrase_starts_with_search_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\", \"icu_folding\",\"icu_normalizer\",\"asciifolding\"],\"char_filter\":[\"html_strip\"]}";
+
+                 */
+            }
         }
 
         #endregion
