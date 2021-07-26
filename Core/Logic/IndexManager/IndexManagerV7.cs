@@ -526,19 +526,30 @@ namespace Core.Catalog
             int replicas = shouldBuildWithReplicas ? _numOfReplicas : 0;
             int shards = shouldUseNumOfConfiguredShards ? _numOfShards : 1;
             var isIndexCreated = false;
+            AnalyzersDescriptor analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
+            TokenFiltersDescriptor filtersDesctiptor = GetTokenFiltersDescriptor(filters);
 
-            AnalyzersDescriptor analyzersDescriptor = new AnalyzersDescriptor();
+            var createResponse = _elasticClient.Indices.Create(newIndexName,
+                c => c.Settings(settings => settings
+                    .NumberOfShards(shards)
+                    .NumberOfReplicas(replicas)
+                    .RefreshInterval(new Time(refreshIntervalSeconds, TimeUnit.Second))
+                    .Setting("index.max_result_window", _maxResults)
+                    .Setting("index.max_ngram_diff", 20)
+                    // TODO: convert to tcm...
+                    .Setting("index.mapping.total_fields.limit", 2600)
+                    .Analysis(a => a
+                        .Analyzers(an => analyzersDescriptor)
+                        .TokenFilters(tf => filtersDesctiptor)
+                    )
+                    ));
 
-            foreach (var analyzer in analyzers)
-            {
-                analyzersDescriptor = analyzersDescriptor.Custom(analyzer.Key,
-                    ca => ca
-                    .CharFilters(analyzer.Value.char_filter)
-                    .Tokenizer(analyzer.Value.tokenizer)
-                    .Filters(analyzer.Value.filter)
-                );
-            }
+            isIndexCreated = createResponse != null && createResponse.Acknowledged && createResponse.IsValid;
+            if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
+        }
 
+        private static TokenFiltersDescriptor GetTokenFiltersDescriptor(Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
+        {
             TokenFiltersDescriptor filtersDesctiptor = new TokenFiltersDescriptor();
 
             foreach (var filter in filters)
@@ -572,23 +583,24 @@ namespace Core.Catalog
                 }
             }
 
-            var createResponse = _elasticClient.Indices.Create(newIndexName,
-                c => c.Settings(settings => settings
-                    .NumberOfShards(shards)
-                    .NumberOfReplicas(replicas)
-                    .RefreshInterval(new Time(refreshIntervalSeconds, TimeUnit.Second))
-                    .Setting("index.max_result_window", _maxResults)
-                    .Setting("index.max_ngram_diff", 20)
-                    // TODO: convert to tcm...
-                    .Setting("index.mapping.total_fields.limit", 2600)
-                    .Analysis(a => a
-                        .Analyzers(an => analyzersDescriptor)
-                        .TokenFilters(tf => filtersDesctiptor)
-                    )
-                    ));
+            return filtersDesctiptor;
+        }
 
-            isIndexCreated = createResponse != null && createResponse.Acknowledged && createResponse.IsValid;
-            if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
+        private static AnalyzersDescriptor GetAnalyzersDesctiptor(Dictionary<string, Analyzer> analyzers)
+        {
+            AnalyzersDescriptor analyzersDescriptor = new AnalyzersDescriptor();
+
+            foreach (var analyzer in analyzers)
+            {
+                analyzersDescriptor = analyzersDescriptor.Custom(analyzer.Key,
+                    ca => ca
+                    .CharFilters(analyzer.Value.char_filter)
+                    .Tokenizer(analyzer.Value.tokenizer)
+                    .Filters(analyzer.Value.filter)
+                );
+            }
+
+            return analyzersDescriptor;
         }
 
         private void GetEpgAnalyzers(IEnumerable<LanguageObj> languages, 
