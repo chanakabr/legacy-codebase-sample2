@@ -12,7 +12,8 @@ namespace ApiLogic.Tests.IndexManager
         [SetUp]
         public void Setup()
         {
-             _client = new ElasticClient(new Uri("http://localhost:9201"));
+             //es7 client
+             _client = new ElasticClient(new Uri("http://localhost:9200"));
         }
         
         [Test]
