@@ -7,9 +7,7 @@ using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using Catalog.Response;
 using Core.Catalog.Response;
-using ElasticSearch.NEST;
 using GroupsCacheManager;
-using M1BL;
 using Nest;
 using Newtonsoft.Json.Linq;
 using Polly.Retry;
@@ -312,7 +310,29 @@ namespace Core.Catalog
 
         public bool InsertSocialStatisticsData(SocialActionStatistics action)
         {
-            throw new NotImplementedException();
+            var result = false;
+            var guid = Guid.NewGuid();
+            var statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
+
+            try
+            {
+                var response = _elasticClient.Index(action, i => i.Index(statisticsIndex));
+                result = response != null && response.IsValid && response.Result == Result.Created;
+                
+                if (!result)
+                {
+                    var actionStatsJson = Newtonsoft.Json.JsonConvert.SerializeObject(action);
+                    log.Debug("InsertStatisticsToES " + string.Format("Was unable to insert record to ES. index={0};doc={1}",
+                        statisticsIndex, actionStatsJson));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"InsertStatisticsToES - Failed ex={ex.Message}, group={_partnerId}", ex);
+                result = false;
+            }
+
+            return result;
         }
 
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)

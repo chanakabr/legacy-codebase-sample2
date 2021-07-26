@@ -22,10 +22,8 @@ namespace ApiLogic.Tests.ConfigurationMocks
             }
             else
             {
-                var httpLocalhost = "http://localhost:" + "9201";//9201 is the port of es2 on local tests for now
-                SetActualValue(URL_V2, httpLocalhost);
+                SetActualValue(URL_V2, "http://localhost:9201");//9201 is the port of es2 on local tests for now
                 SetActualValue(URL_V7_13, "http://localhost:9200");
-
             }
         }
     }

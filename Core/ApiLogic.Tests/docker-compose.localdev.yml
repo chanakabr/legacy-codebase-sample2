@@ -21,6 +21,12 @@ services:
     environment:
       - discovery.type=single-node
       - node.max_local_storage_nodes=1
+    command: 
+      - sh
+      - -c
+      - "bin/elasticsearch-plugin install analysis-icu; 
+         /usr/local/bin/docker-entrypoint.sh elasticsearch"
+    
     volumes:
       - data02:/usr/share/elasticsearch/data
     ports:
