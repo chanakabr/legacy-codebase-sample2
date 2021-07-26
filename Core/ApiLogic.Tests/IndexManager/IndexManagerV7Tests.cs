@@ -102,6 +102,9 @@ namespace ApiLogic.Tests.IndexManager
             
             var res = indexManager.FinalizeEpgV2Index(DateTime.Now);
             Assert.IsTrue(res);
+
+            res = indexManager.FinalizeEpgV2Indices(new List<DateTime>() {DateTime.Today, DateTime.Now.AddDays(-1)}, policy);
+            Assert.IsTrue(res);
         }
 
         [Test]

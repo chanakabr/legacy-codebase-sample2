@@ -36,6 +36,7 @@ namespace Core.Catalog
         #region Consts
 
         private const int REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS = 10;
+        private const string INDEX_REFRESH_INTERVAL = "10s";
 
         #endregion
 
@@ -139,9 +140,33 @@ namespace Core.Catalog
             return response.IsValid;
         }
 
-        public bool FinalizeEpgV2Indices(List<DateTime> date, RetryPolicy retryPolicy)
+        public bool FinalizeEpgV2Indices(List<DateTime> dates, RetryPolicy retryPolicy)
         {
-            throw new NotImplementedException();
+            var indices = dates.Select(x => IndexingUtils.GetDailyEpgIndexName(_partnerId, x));
+            var existingIndices = indices.Select(x => x).Where(x => _elasticClient.Indices.Exists(x).IsValid).ToList();
+
+            foreach (var index in existingIndices)
+            {
+                var response = _elasticClient.Indices.UpdateSettings(Indices.Index(index),
+                    x => x.IndexSettings(y => y.RefreshInterval(INDEX_REFRESH_INTERVAL)));
+                
+                if (!response.IsValid)
+                {
+                    retryPolicy.Execute(() =>
+                    {
+                        var isSetRefreshSuccess = _elasticClient.Indices.UpdateSettings(Indices.Index(index),
+                            x => x.IndexSettings(y => y.RefreshInterval(INDEX_REFRESH_INTERVAL))).IsValid;
+                        
+                        if (!isSetRefreshSuccess)
+                        {
+                            log.Error($"index {index} set refresh to -1 failed [{isSetRefreshSuccess}]]");
+                            throw new Exception("Could not set index refresh interval");
+                        }
+                    });
+                }
+            }
+            
+            return true;
         }
 
         public bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds)
@@ -555,7 +580,7 @@ namespace Core.Catalog
                 var isIndexExist = _elasticClient.Indices.Exists(dailyEpgIndexName);
                 if (isIndexExist != null && isIndexExist.Exists) return;
                 log.Info($"creating new index [{dailyEpgIndexName}]");
-                this.CreateEmptyEpgIndex(dailyEpgIndexName, true,
+                CreateEmptyEpgIndex(dailyEpgIndexName, true,
                     true, REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS);
             });
         }
