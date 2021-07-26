@@ -17,20 +17,31 @@ using ESUtils = ElasticSearch.Common.Utils;
 using ConfigurationManager;
 using Status = ApiObjects.Response.Status;
 using System.Linq;
+using KLogMonitor;
+using System.Reflection;
 
 namespace Core.Catalog
 {
     public class IndexManagerV7 : IIndexManager
     {
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+
         #region Consts
+
+        private const int REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS = 10;
+
+        #endregion
+
+        #region Config Values
+
+        private readonly int _numOfShards;
+        private readonly int _numOfReplicas;
+        private readonly int _maxResults;
 
         #endregion
 
         private readonly IApplicationConfiguration _applicationConfiguration;
         private readonly IElasticClient _elasticClient;
-
-        private readonly int _numOfShards;
-        private readonly int _numOfReplicas;
 
         private readonly int _partnerId;
         private bool _doesGroupUsesTemplates;
@@ -58,9 +69,11 @@ namespace Core.Catalog
 
         public string SetupEpgV2Index(DateTime dateOfProgramsToIngest, RetryPolicy retryPolicy)
         {
-            string indexName = string.Empty;
+            string dailyEpgIndexName = IndexingUtils.GetDailyEpgIndexName(_partnerId, dateOfProgramsToIngest);
+            EnsureEpgIndexExist(dailyEpgIndexName, retryPolicy);
+            SetNoRefresh(dailyEpgIndexName, retryPolicy);
 
-            return indexName;
+            return dailyEpgIndexName;
         }
 
         public bool FinalizeEpgV2Index(DateTime date)
@@ -395,6 +408,69 @@ namespace Core.Catalog
         private LanguageObj GetDefaultLanguage()
         {
             return _doesGroupUsesTemplates ? _catalogGroupCache.GetDefaultLanguage() : _group.GetGroupDefaultLanguage();
+        }
+
+        private void EnsureEpgIndexExist(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        {
+            // TODO it's possible to create new index with mappings and alias in one request,
+            // https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-create-index.html#mappings
+            // but we have huge mappings and don't know the impact on timeouts during index creation - should be tested on real environment.
+
+            // Limitation: it's not a transaction, we don't remove index when add-mapping failed =>
+            // EPGs could be added to the index without mapping (e.g. from asset.add)
+            try
+            {
+                AddEmptyIndex(dailyEpgIndexName, retryPolicy);
+                //AddEpgMappings(dailyEpgIndexName, retryPolicy);
+                //AddAlias(dailyEpgIndexName, retryPolicy);
+            }
+            catch (Exception e)
+            {
+                log.Error($"index creation failed [{dailyEpgIndexName}]", e);
+                throw new Exception($"index creation failed");
+            }
+        }
+
+        private void SetNoRefresh(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        {
+            // shut down refresh of index while bulk uploading
+            retryPolicy.Execute(() =>
+            {
+                var updateDisableIndexRefresh = new UpdateIndexSettingsRequest(dailyEpgIndexName);
+                updateDisableIndexRefresh.IndexSettings.RefreshInterval = Time.MinusOne;
+                var updateSettingsResult = _elasticClient.Indices.UpdateSettings(updateDisableIndexRefresh);
+
+                var isSetRefreshSuccess = updateSettingsResult != null && updateSettingsResult.Acknowledged && updateSettingsResult.IsValid;
+                if (!isSetRefreshSuccess)
+                {
+                    log.Error($"index set refresh to -1 failed [false], dailyEpgIndexName [{dailyEpgIndexName}]");
+                    throw new Exception("Could not set index refresh interval");
+                }
+            });
+        }
+
+        private void AddEmptyIndex(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        {
+            retryPolicy.Execute(() =>
+            {
+                var isIndexExist = _elasticClient.Indices.Exists(dailyEpgIndexName);
+                if (isIndexExist != null && isIndexExist.Exists) return;
+                log.Info($"creating new index [{dailyEpgIndexName}]");
+                this.CreateEmptyEpgIndex(dailyEpgIndexName, true,
+                    true, REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS);
+            });
+        }
+
+        private void CreateEmptyEpgIndex(string newIndexName, bool shouldBuildWithReplicas = true,
+            bool shouldUseNumOfConfiguredShards = true, int refreshIntervalSeconds = 0)
+        {
+            List<LanguageObj> languages = GetLanguages();
+            //GetEpgAnalyzers(languages, out var analyzers, out var filters, out var tokenizers);
+            int replicas = shouldBuildWithReplicas ? _numOfReplicas : 0;
+            int shards = shouldUseNumOfConfiguredShards ? _numOfShards : 1;
+            var isIndexCreated = false; 
+                //_elasticSearchApi.BuildIndex(newIndexName, shards, replicas, analyzers, filters, tokenizers, MAX_RESULTS, refreshInterval);
+            if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
         }
 
         #endregion
