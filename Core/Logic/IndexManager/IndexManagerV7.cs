@@ -222,7 +222,9 @@ namespace Core.Catalog
             var statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
             var createIndexResponse = _elasticClient.Indices.Create(statisticsIndex,
                 c => c.Settings(settings => 
-                    settings.NumberOfShards(_numOfShards).NumberOfReplicas(_numOfReplicas)
+                    settings.
+                    NumberOfShards(_numOfShards).
+                    NumberOfReplicas(_numOfReplicas)
                     ));
             bool result = createIndexResponse != null && createIndexResponse.Acknowledged && createIndexResponse.IsValid;
             
