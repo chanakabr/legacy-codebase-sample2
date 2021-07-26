@@ -163,8 +163,17 @@ namespace ApiLogic.Tests.IndexManager
             var partnerId = GetRandomPartnerId();
             var indexManager = GetIndexV7Manager(partnerId);
             var result = indexManager.SetupSocialStatisticsDataIndex();
-
             Assert.IsTrue(result);
+        }
+        
+        [Test]
+        public void TestInsertSocialStatisticsData()
+        {
+            var partnerId = GetRandomPartnerId();
+            var indexManager = GetIndexV7Manager(partnerId);
+            
+            // indexManager.InsertSocialStatisticsData(new )
+            
         }
     }
 }
