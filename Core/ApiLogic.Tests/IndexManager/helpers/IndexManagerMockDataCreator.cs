@@ -24,9 +24,22 @@ namespace ApiLogic.Tests.IndexManager.helpers
             var catalogGroupCache = new CatalogGroupCache()
             {
                 LanguageMapByCode = languages.ToDictionary(x => x.Code),
-                LanguageMapById = languages.ToDictionary(x => x.ID)
+                LanguageMapById = languages.ToDictionary(x => x.ID),
             };
-
+            catalogGroupCache.TopicsMapBySystemNameAndByType.Add(
+                "test_tag",
+                new Dictionary<string, Topic>()
+                {
+                    {
+                        ApiObjects.MetaType.Tag.ToString(),
+                        new Topic()
+                            {
+                                
+                            }
+                    }
+                }
+            );
+            //_catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => x.Value.ContainsKey(ApiObjects.MetaType.Tag.ToString()) && !topicsToIgnore.Contains(x.Key)).Select(x => x.Key.ToLower()).ToList();
             _mockCatalogManager.Setup(x => x.TryGetCatalogGroupCacheFromCache(partnerId, out catalogGroupCache)).Returns(true);
         }
 

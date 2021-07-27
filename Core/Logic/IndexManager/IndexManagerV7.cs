@@ -627,7 +627,7 @@ namespace Core.Catalog
 
             var defaultLanguage = GetDefaultLanguage();
 
-            PropertiesDescriptor<object> propertiesDescriptor = GetPropertiesDesctiptor(languages, metas, tags, metasToPad, analyzers);
+            PropertiesDescriptor<object> propertiesDescriptor = GetEpgPropertiesDesctiptor(languages, metas, tags, metasToPad, analyzers);
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                 c => c.Settings(settings => settings
                     .NumberOfShards(shards)
@@ -648,7 +648,7 @@ namespace Core.Catalog
             if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
         }
 
-        private PropertiesDescriptor<object> GetPropertiesDesctiptor(List<LanguageObj> languages, 
+        private PropertiesDescriptor<object> GetEpgPropertiesDesctiptor(List<LanguageObj> languages, 
             Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
             List<string> tags,
             HashSet<string> metasToPad,
@@ -662,7 +662,7 @@ namespace Core.Catalog
                 .Number(x => x.Name("epg_channel_id").Type(NumberType.Integer))
                 .Number(x => x.Name("linear_media_id").Type(NumberType.Long))
                 .Number(x => x.Name("wp_type_id").Type(NumberType.Integer).NullValue(0))
-                .Number(x => x.Name("is_active").Type(NumberType.Integer))
+                .Boolean(x => x.Name("is_active"))
                 .Number(x => x.Name("user_types").Type(NumberType.Integer))
                 .Date(x => x.Name("start_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("end_date").Format(ESUtils.ES_DATE_FORMAT))
@@ -713,9 +713,10 @@ namespace Core.Catalog
                 }
 
                 bool shouldAddPhoneticField = analyzers.ContainsKey(phoneticIndexAnalyzer) && analyzers.ContainsKey(phoneticSearchAnalyzer);
-                string nameFieldName = $"name_{language.Code}";
-                var textPropertyDescriptor = InitializeTextField(
-                    nameFieldName,
+
+                InitializeTextField(
+                    $"name_{language.Code}",
+                    propertiesDescriptor,
                     indexAnalyzer, 
                     searchAnalyzer, 
                     autocompleteAnalyzer, 
@@ -724,8 +725,38 @@ namespace Core.Catalog
                     phoneticSearchAnalyzer,
                     shouldAddPhoneticField
                     );
+                InitializeTextField(
+                    $"description_{language.Code}",
+                    propertiesDescriptor,
+                    indexAnalyzer,
+                    searchAnalyzer,
+                    autocompleteAnalyzer,
+                    autocompleteSearchAnalyzer,
+                    phoneticIndexAnalyzer,
+                    phoneticSearchAnalyzer,
+                    shouldAddPhoneticField
+                    );
 
-                propertiesDescriptor.Text(x => textPropertyDescriptor);
+                PropertiesDescriptor<object> tagsPropertiesDesctiptor = new PropertiesDescriptor<object>();
+
+                foreach (var tag in tags)
+                {
+                    InitializeTextField(tag,
+                        tagsPropertiesDesctiptor,
+                        indexAnalyzer,
+                        searchAnalyzer,
+                        autocompleteAnalyzer,
+                        autocompleteSearchAnalyzer,
+                        phoneticIndexAnalyzer,
+                        phoneticSearchAnalyzer,
+                        shouldAddPhoneticField
+                        );
+                }
+
+                propertiesDescriptor.Object<object>(x => x
+                    .Name($"tags_{language.Code}")
+                    .Properties(properties => tagsPropertiesDesctiptor))
+                ;
             }
 
             return propertiesDescriptor;
@@ -733,6 +764,7 @@ namespace Core.Catalog
 
         private TextPropertyDescriptor<object> InitializeTextField(
             string nameFieldName,
+            PropertiesDescriptor<object> propertiesDescriptor,
             string indexAnalyzer, 
             string searchAnalyzer,
             string autocompleteAnalyzer, 
@@ -782,6 +814,7 @@ namespace Core.Catalog
                 .Name(nameFieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER)
                     .Fields(fields => fieldsPropertiesDesctiptor)
                 ;
+            propertiesDescriptor.Text(x => textPropertyDescriptor);
 
             return textPropertyDescriptor;
         }
@@ -811,13 +844,13 @@ namespace Core.Catalog
                 .SearchAnalyzer(DEFAULT_SEARCH_ANALYZER);
 
             return x.Name(fieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER)
-                                .Fields(fields => fields
-                                    .Text(y => y.Name(fieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER))
-                                    .Text(y => lowercaseSubField)
-                                    .Text(y => phraseAutocompleteSubField)
-                                    .Text(y => autocompleteSubField)
-                                    .Text(y => analyzedField)
-                                    );
+                .Fields(fields => fields
+                    .Text(y => y.Name(fieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER))
+                    .Text(y => lowercaseSubField)
+                    .Text(y => phraseAutocompleteSubField)
+                    .Text(y => autocompleteSubField)
+                    .Text(y => analyzedField)
+                    );
         }
 
         private TokenFiltersDescriptor GetTokenFiltersDescriptor(Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
