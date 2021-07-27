@@ -30,9 +30,10 @@ namespace Core.Catalog
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static readonly int DEFAULT_CURRENT_REQUEST_DAYS_OFFSET = 7;
-        protected static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
-        protected static readonly string META_BOOL_SUFFIX = "_BOOL";
-        protected static readonly string META_DATE_PREFIX = "date";
+        private static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
+        private static readonly string META_BOOL_SUFFIX = "_BOOL";
+        private static readonly string META_DATE_PREFIX = "date";
+
         public static long UnixTimeStampNow()
         {
             TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);

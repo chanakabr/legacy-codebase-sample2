@@ -38,6 +38,17 @@ namespace Core.Catalog
         private const int REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS = 10;
         private const string INDEX_REFRESH_INTERVAL = "10s";
 
+        protected const string LOWERCASE_ANALYZER = "lowercase_analyzer";
+        protected const string DEFAULT_INDEX_ANALYZER = "index_analyzer";
+        protected const string DEFAULT_SEARCH_ANALYZER = "search_analyzer";
+        protected const string PHRASE_STARTS_WITH_ANALYZER = "phrase_starts_with_analyzer";
+        protected const string PHRASE_STARTS_WITH_SEARCH_ANALYZER = "phrase_starts_with_search_analyzer";
+        protected const string EDGENGRAM_FILTER = "edgengram_filter";
+        protected const string NGRAM_FILTER = "ngram_filter";
+
+        protected const string AUTOCOMPLETE_ANALYZER = "autocomplete_analyzer";
+        protected const string AUTOCOMPLETE_SEARCH_ANALYZER = "autocomplete_search_analyzer";
+
         #endregion
 
         #region Config Values
@@ -544,7 +555,7 @@ namespace Core.Catalog
             try
             {
                 AddEmptyIndex(dailyEpgIndexName, retryPolicy);
-                AddEpgMappings(dailyEpgIndexName, retryPolicy);
+                //AddEpgMappings(dailyEpgIndexName, retryPolicy);
                 //AddAlias(dailyEpgIndexName, retryPolicy);
             }
             catch (Exception e)
@@ -601,6 +612,22 @@ namespace Core.Catalog
             AnalyzersDescriptor analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
             TokenFiltersDescriptor filtersDesctiptor = GetTokenFiltersDescriptor(filters);
 
+            _groupManager.RemoveGroup(_partnerId); // remove from cache
+            _group = _groupManager.GetGroup(_partnerId);
+            var doesGroupUsesTemplates = _doesGroupUsesTemplates;
+
+            if (!this.GetMetasAndTagsForMapping(
+                out var metas,
+                out var tags,
+                out var metasToPad,
+                true))
+            {
+                throw new Exception($"failed to get metas and tags");
+            }
+
+            var defaultLanguage = GetDefaultLanguage();
+
+            PropertiesDescriptor<object> propertiesDescriptor = GetPropertiesDesctiptor(languages, metas, tags, metasToPad, analyzers);
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                 c => c.Settings(settings => settings
                     .NumberOfShards(shards)
@@ -613,11 +640,184 @@ namespace Core.Catalog
                     .Analysis(a => a
                         .Analyzers(an => analyzersDescriptor)
                         .TokenFilters(tf => filtersDesctiptor)
-                    )
-                    ));
+                    ))
+                .Map(map => map.RoutingField(rf => new RoutingField() { Required = false }).Properties(props => propertiesDescriptor)
+                ));
 
             isIndexCreated = createResponse != null && createResponse.Acknowledged && createResponse.IsValid;
             if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
+        }
+
+        private PropertiesDescriptor<object> GetPropertiesDesctiptor(List<LanguageObj> languages, 
+            Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
+            List<string> tags,
+            HashSet<string> metasToPad,
+            Dictionary<string, Analyzer> analyzers)
+        {
+            PropertiesDescriptor<object> propertiesDescriptor = new PropertiesDescriptor<object>();
+
+            propertiesDescriptor
+                .Number(x => x.Name("epg_id").Type(NumberType.Long))
+                .Number(x => x.Name("group_id").Type(NumberType.Integer))
+                .Number(x => x.Name("epg_channel_id").Type(NumberType.Integer))
+                .Number(x => x.Name("linear_media_id").Type(NumberType.Long))
+                .Number(x => x.Name("wp_type_id").Type(NumberType.Integer).NullValue(0))
+                .Number(x => x.Name("is_active").Type(NumberType.Integer))
+                .Number(x => x.Name("user_types").Type(NumberType.Integer))
+                .Date(x => x.Name("start_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Date(x => x.Name("end_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Text(x => x.Name("date_routing"))
+                .Number(x => x.Name("media_type_id").Type(NumberType.Integer).NullValue(0))
+                .Number(x => x.Name("language_id").Type(NumberType.Long))
+                .Text(x => InitializeDefaultTextPropertyDescriptor(x, "epg_identifier")
+                    )
+                .Date(x => x.Name("cache_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Date(x => x.Name("create_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Text(x => InitializeDefaultTextPropertyDescriptor(x, "crid"))
+                .Text(x => InitializeDefaultTextPropertyDescriptor(x, "external_id"))
+                ;
+
+            var defaultLanguage = GetDefaultLanguage();
+            string defaultIndexAnalyzer = $"{defaultLanguage.Code}_index_analyzer";
+            string defaultSearchAnalyzer = $"{defaultLanguage.Code}_search_analyzer";
+            string defaultAutocompleteAnalyzer = $"{defaultLanguage.Code}_autocomplete_analyzer";
+            string defaultAutocompleteSearchAnalyzer = $"{defaultLanguage.Code}_autocomplete_search_analyzer";
+
+            foreach (var language in languages)
+            {
+                string indexAnalyzer = $"{language.Code}_index_analyzer";
+                string searchAnalyzer = $"{language.Code}_search_analyzer";
+                string autocompleteAnalyzer = $"{language.Code}_autocomplete_analyzer";
+                string autocompleteSearchAnalyzer = $"{language.Code}_autocomplete_search_analyzer";
+                string phoneticIndexAnalyzer = $"{language.Code}_index_dbl_metaphone";
+                string phoneticSearchAnalyzer = $"{language.Code}_search_dbl_metaphone";
+
+                if (!analyzers.ContainsKey(indexAnalyzer))
+                {
+                    indexAnalyzer = defaultIndexAnalyzer;
+                }
+
+                if (!analyzers.ContainsKey(searchAnalyzer))
+                {
+                    searchAnalyzer = defaultSearchAnalyzer;
+                }
+
+                if (!analyzers.ContainsKey(autocompleteAnalyzer))
+                {
+                    autocompleteAnalyzer = defaultAutocompleteAnalyzer;
+                }
+
+                if (!analyzers.ContainsKey(autocompleteSearchAnalyzer))
+                {
+                    autocompleteSearchAnalyzer = defaultAutocompleteSearchAnalyzer;
+                }
+
+                bool shouldAddPhoneticField = analyzers.ContainsKey(phoneticIndexAnalyzer) && analyzers.ContainsKey(phoneticSearchAnalyzer);
+                string nameFieldName = $"name_{language.Code}";
+                var textPropertyDescriptor = InitializeTextField(
+                    nameFieldName,
+                    indexAnalyzer, 
+                    searchAnalyzer, 
+                    autocompleteAnalyzer, 
+                    autocompleteSearchAnalyzer,
+                    phoneticIndexAnalyzer,
+                    phoneticSearchAnalyzer,
+                    shouldAddPhoneticField
+                    );
+
+                propertiesDescriptor.Text(x => textPropertyDescriptor);
+            }
+
+            return propertiesDescriptor;
+        }
+
+        private TextPropertyDescriptor<object> InitializeTextField(
+            string nameFieldName,
+            string indexAnalyzer, 
+            string searchAnalyzer,
+            string autocompleteAnalyzer, 
+            string autocompleteSearchAnalyzer,
+            string phoneticIndexAnalyzer,
+            string phoneticSearchAnalyzer,
+            bool shouldAddPhoneticField)
+        {
+            var lowercaseSubField = new TextPropertyDescriptor<object>()
+                .Name("lowercase")
+                .Analyzer(PHRASE_STARTS_WITH_ANALYZER)
+                .SearchAnalyzer(PHRASE_STARTS_WITH_SEARCH_ANALYZER);
+
+            var phraseAutocompleteSubField = new TextPropertyDescriptor<object>()
+                .Name("phrase_autocomplete")
+                .Analyzer(PHRASE_STARTS_WITH_ANALYZER)
+                .SearchAnalyzer(PHRASE_STARTS_WITH_SEARCH_ANALYZER);
+
+            var autocompleteSubField = new TextPropertyDescriptor<object>()
+                .Name("autocomplete")
+                .Analyzer(autocompleteAnalyzer)
+                .SearchAnalyzer(autocompleteSearchAnalyzer);
+
+            var analyzedField = new TextPropertyDescriptor<object>()
+                .Name("analyzed")
+                .Analyzer(indexAnalyzer)
+                .SearchAnalyzer(searchAnalyzer);
+
+            PropertiesDescriptor<object> fieldsPropertiesDesctiptor = new PropertiesDescriptor<object>()
+                .Text(y => y.Name(nameFieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER))
+                        .Text(y => lowercaseSubField)
+                        .Text(y => phraseAutocompleteSubField)
+                        .Text(y => autocompleteSubField)
+                        .Text(y => analyzedField)
+                ;
+
+            if (shouldAddPhoneticField)
+            {
+                var phoneticField = new TextPropertyDescriptor<object>()
+                    .Name("phonetic")
+                    .Analyzer(phoneticIndexAnalyzer)
+                    .SearchAnalyzer(phoneticSearchAnalyzer);
+                fieldsPropertiesDesctiptor.Text(y => phoneticField);
+            }
+
+            TextPropertyDescriptor<object> textPropertyDescriptor = new TextPropertyDescriptor<object>()
+                .Name(nameFieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER)
+                    .Fields(fields => fieldsPropertiesDesctiptor)
+                ;
+
+            return textPropertyDescriptor;
+        }
+
+        private TextPropertyDescriptor<object> InitializeDefaultTextPropertyDescriptor(
+            TextPropertyDescriptor<object> x, 
+            string fieldName)
+        {
+            var lowercaseSubField = new TextPropertyDescriptor<object>()
+                .Name("lowercase")
+                .Analyzer(LOWERCASE_ANALYZER)
+                .SearchAnalyzer(LOWERCASE_ANALYZER);
+
+            var phraseAutocompleteSubField = new TextPropertyDescriptor<object>()
+                .Name("phrase_autocomplete")
+                .Analyzer(PHRASE_STARTS_WITH_ANALYZER)
+                .SearchAnalyzer(PHRASE_STARTS_WITH_SEARCH_ANALYZER);
+
+            var autocompleteSubField = new TextPropertyDescriptor<object>()
+                .Name("autocomplete")
+                .Analyzer(AUTOCOMPLETE_ANALYZER)
+                .SearchAnalyzer(AUTOCOMPLETE_SEARCH_ANALYZER);
+
+            var analyzedField = new TextPropertyDescriptor<object>()
+                .Name("analyzed")
+                .Analyzer(DEFAULT_INDEX_ANALYZER)
+                .SearchAnalyzer(DEFAULT_SEARCH_ANALYZER);
+
+            return x.Name(fieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER)
+                                .Fields(fields => fields
+                                    .Text(y => y.Name(fieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER))
+                                    .Text(y => lowercaseSubField)
+                                    .Text(y => phraseAutocompleteSubField)
+                                    .Text(y => autocompleteSubField)
+                                    .Text(y => analyzedField)
+                                    );
         }
 
         private TokenFiltersDescriptor GetTokenFiltersDescriptor(Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
@@ -684,25 +884,24 @@ namespace Core.Catalog
 
             if (languages != null)
             {
-                GetAnalyzersWithLowercase(languages, analyzers, filters);
+                GetAnalyzersWithLowercase(languages, out analyzers, out filters);
 
-                analyzers.Add("phrase_starts_with_analyzer", new Analyzer()
+                var defaultCharFilter = new List<string>() { "html_strip" };
+
+                analyzers.Add(PHRASE_STARTS_WITH_ANALYZER, new Analyzer()
                 {
                     tokenizer = "keyword",
                     filter = new List<string>()
                     {
                         "lowercase",
-                        "edgengram_filter",
+                        EDGENGRAM_FILTER,
                         "icu_folding",
                         "icu_normalizer",
                         "asciifolding"
                     },
-                    char_filter = new List<string>()
-                    {
-                        "html_strip"
-                    }
+                    char_filter = defaultCharFilter
                 });
-                analyzers.Add("phrase_starts_with_search_analyzer", new Analyzer()
+                analyzers.Add(PHRASE_STARTS_WITH_SEARCH_ANALYZER, new Analyzer()
                 {
                     tokenizer = "keyword",
                     filter = new List<string>()
@@ -712,13 +911,34 @@ namespace Core.Catalog
                         "icu_normalizer",
                         "asciifolding"
                     },
-                    char_filter = new List<string>()
-                    {
-                        "html_strip"
-                    }
+                    char_filter = defaultCharFilter
                 });
-
-                filters.Add("edgengram_filter", new ElasticSearch.Searcher.Settings.NgramFilter()
+                analyzers.Add(AUTOCOMPLETE_ANALYZER, new Analyzer()
+                {
+                    tokenizer = "whitespace",
+                    filter = new List<string>()
+                    {
+                        "lowercase",
+                        EDGENGRAM_FILTER,
+                        "icu_folding",
+                        "icu_normalizer",
+                        "asciifolding"
+                    },
+                    char_filter = defaultCharFilter
+                });
+                analyzers.Add(AUTOCOMPLETE_SEARCH_ANALYZER, new Analyzer()
+                {
+                    tokenizer = "whitespace",
+                    filter = new List<string>()
+                    {
+                        "lowercase",
+                        "icu_folding",
+                        "icu_normalizer",
+                        "asciifolding"
+                    },
+                    char_filter = defaultCharFilter
+                });
+                filters.Add(EDGENGRAM_FILTER, new ElasticSearch.Searcher.Settings.NgramFilter()
                 {
                     type = "edgeNGram",
                     min_gram = 1,
@@ -734,13 +954,15 @@ namespace Core.Catalog
             }
         }
 
-        private void GetAnalyzersWithLowercase(IEnumerable<LanguageObj> languages, Dictionary<string, Analyzer> analyzers, Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
+        private void GetAnalyzersWithLowercase(IEnumerable<LanguageObj> languages, 
+            out Dictionary<string, Analyzer> analyzers, 
+            out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
         {
-            GetAnalyzersAndFiltersFromConfiguration(languages, analyzers, filters);
+            GetAnalyzersAndFiltersFromConfiguration(languages, out analyzers, out filters);
 
             // we always want a lowercase analyzer
             // we always want "autocomplete" ability
-            analyzers.Add("lowercase_analyzer",
+            analyzers.Add(LOWERCASE_ANALYZER,
                 new Analyzer()
                 {
                     tokenizer = "keyword",
@@ -757,8 +979,14 @@ namespace Core.Catalog
             );
         }
 
-        private void GetAnalyzersAndFiltersFromConfiguration(IEnumerable<LanguageObj> languages, Dictionary<string, Analyzer> analyzers, Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
+        private void GetAnalyzersAndFiltersFromConfiguration(IEnumerable<LanguageObj> languages, 
+            out Dictionary<string, Analyzer> analyzers, 
+            out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
         {
+            analyzers = new Dictionary<string, Analyzer>();
+            filters = new Dictionary<string, ElasticSearch.Searcher.Settings.Filter>();
+            SetDefaultAnalyzersAndFilters(analyzers, filters);
+
             foreach (LanguageObj language in languages)
             {
                 var currentAnalyzers = _esIndexDefinitions.GetAnalyzers(ElasticsearchVersion.ES_7_13, language.Code);
@@ -772,7 +1000,7 @@ namespace Core.Catalog
                 {
                     foreach (var analyzer in currentAnalyzers)
                     {
-                        analyzers.Add(analyzer.Key, analyzer.Value);
+                        analyzers[analyzer.Key] = analyzer.Value;
                     }
                 }
 
@@ -780,37 +1008,78 @@ namespace Core.Catalog
                 {
                     foreach (var filter in currentFilters)
                     {
-                        filters.Add(filter.Key, filter.Value);
+                        filters[filter.Key] = filter.Value;
                     }
                 }
             }
         }
 
-        private void AddEpgMappings(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        private void SetDefaultAnalyzersAndFilters(Dictionary<string, Analyzer> analyzers, Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
         {
-            var languages = GetLanguages();
-
-            log.Info($"creating mappings. index [{dailyEpgIndexName}], languages [{languages.Select(_ => _.Name)}]");
-
-            _groupManager.RemoveGroup(_partnerId); // remove from cache
-            _group = _groupManager.GetGroup(_partnerId);
-            var doesGroupUsesTemplates = _doesGroupUsesTemplates;
-
-            if (!this.GetMetasAndTagsForMapping(
-                out var metas,
-                out var tags,
-                out var metasToPad,
-                true))
-            {
-                throw new Exception($"failed to get metas and tags");
-            }
-
             var defaultLanguage = GetDefaultLanguage();
-            foreach (var language in languages)
+            var defaultCharFilter = new List<string>() { "html_strip" };
+            var defaultTokenChars = new List<string>() { "letter", "digit", "punctuation", "symbol" };
+
+            var defaultIndexAnalyzer = new Analyzer()
             {
-                //retryPolicy.Execute(() =>
-                //    this.AddLanguageMapping(dailyEpgIndexName, language, defaultLanguage, metas, tags, metasToPad));
-            }
+                char_filter = defaultCharFilter,
+                filter = new List<string>()
+                {
+                    "asciifolding",
+                    "lowercase",
+                    $"{defaultLanguage.Code}_ngram_filter"
+                },
+                tokenizer = "keyword"
+            };
+            var defaultSearchAnalyzer = new Analyzer()
+            {
+                char_filter = defaultCharFilter,
+                filter = new List<string>()
+                {
+                    "asciifolding",
+                    "lowercase"
+                },
+                tokenizer = "keyword"
+            };
+            analyzers.Add($"{defaultLanguage.Code}_index_analyzer", defaultIndexAnalyzer);
+            analyzers.Add(DEFAULT_INDEX_ANALYZER, defaultIndexAnalyzer);
+            analyzers.Add($"{defaultLanguage.Code}_search_analyzer", defaultSearchAnalyzer);
+            analyzers.Add(DEFAULT_SEARCH_ANALYZER, defaultSearchAnalyzer);
+            analyzers.Add($"{defaultLanguage.Code}_autocomplete_analyzer", new Analyzer()
+            {
+                char_filter = defaultCharFilter,
+                filter = new List<string>()
+                {
+                    "asciifolding",
+                    "lowercase",
+                },
+                tokenizer = "whitespace"
+            });
+            analyzers.Add($"{defaultLanguage.Code}_autocomplete_search_analyzer", new Analyzer()
+            {
+                char_filter = defaultCharFilter,
+                filter = new List<string>()
+                {
+                    "asciifolding",
+                    "lowercase",
+                    $"{defaultLanguage.Code}_edgengram_filter"
+                },
+                tokenizer = "whitespace"
+            });
+            filters.Add($"{defaultLanguage.Code}_ngram_filter", new NgramFilter()
+            {
+                type = "nGram",
+                min_gram = 2,
+                max_gram = 20,
+                token_chars = defaultTokenChars
+            });
+            filters.Add($"{defaultLanguage.Code}_edgengram_filter", new NgramFilter()
+            {
+                type = "edgeNGram",
+                min_gram = 2,
+                max_gram = 20,
+                token_chars = defaultTokenChars
+            });
         }
 
         private bool GetMetasAndTagsForMapping(
