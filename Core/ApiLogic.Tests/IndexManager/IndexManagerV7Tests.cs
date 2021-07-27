@@ -74,7 +74,6 @@ namespace ApiLogic.Tests.IndexManager
             _mockWatchRuleManager = _mockRepository.Create<IWatchRuleManager>();
             _mockElasticSearchCommonUtils = _mockRepository.Create<IElasticSearchCommonUtils>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(_mockElasticSearchCommonUtils.Object, ApplicationConfiguration.Current);
-
         }
 
         [Test]
@@ -98,7 +97,6 @@ namespace ApiLogic.Tests.IndexManager
             var result = indexManager.SetupEpgV2Index(DateTime.Today, policy);
 
             Assert.IsNotEmpty(result);
-            
             
             var res = indexManager.FinalizeEpgV2Index(DateTime.Now);
             Assert.IsTrue(res);
@@ -137,7 +135,6 @@ namespace ApiLogic.Tests.IndexManager
             };
 
             var deleteSocialAction = indexManager.DeleteSocialAction(socialSearch);
-            
         }
     }
 }

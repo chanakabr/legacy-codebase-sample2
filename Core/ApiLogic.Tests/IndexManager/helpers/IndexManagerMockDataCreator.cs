@@ -39,6 +39,32 @@ namespace ApiLogic.Tests.IndexManager.helpers
                     }
                 }
             );
+            catalogGroupCache.TopicsMapBySystemNameAndByType.Add(
+                "test_numeric_meta",
+                new Dictionary<string, Topic>()
+                {
+                    {
+                        ApiObjects.MetaType.Number.ToString(),
+                        new Topic()
+                            {
+
+                            }
+                    }
+                }
+            );
+            catalogGroupCache.TopicsMapBySystemNameAndByType.Add(
+                "test_string_meta",
+                new Dictionary<string, Topic>()
+                {
+                                {
+                                    ApiObjects.MetaType.String.ToString(),
+                                    new Topic()
+                                        {
+
+                                        }
+                                }
+                }
+            );
             //_catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => x.Value.ContainsKey(ApiObjects.MetaType.Tag.ToString()) && !topicsToIgnore.Contains(x.Key)).Select(x => x.Key.ToLower()).ToList();
             _mockCatalogManager.Setup(x => x.TryGetCatalogGroupCacheFromCache(partnerId, out catalogGroupCache)).Returns(true);
         }

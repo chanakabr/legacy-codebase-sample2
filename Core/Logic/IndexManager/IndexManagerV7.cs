@@ -723,7 +723,8 @@ namespace Core.Catalog
                     autocompleteSearchAnalyzer,
                     phoneticIndexAnalyzer,
                     phoneticSearchAnalyzer,
-                    shouldAddPhoneticField
+                    shouldAddPhoneticField,
+                    false
                     );
                 InitializeTextField(
                     $"description_{language.Code}",
@@ -734,7 +735,8 @@ namespace Core.Catalog
                     autocompleteSearchAnalyzer,
                     phoneticIndexAnalyzer,
                     phoneticSearchAnalyzer,
-                    shouldAddPhoneticField
+                    shouldAddPhoneticField,
+                    false
                     );
 
                 PropertiesDescriptor<object> tagsPropertiesDesctiptor = new PropertiesDescriptor<object>();
@@ -749,7 +751,8 @@ namespace Core.Catalog
                         autocompleteSearchAnalyzer,
                         phoneticIndexAnalyzer,
                         phoneticSearchAnalyzer,
-                        shouldAddPhoneticField
+                        shouldAddPhoneticField,
+                        false
                         );
                 }
 
@@ -757,9 +760,85 @@ namespace Core.Catalog
                     .Name($"tags_{language.Code}")
                     .Properties(properties => tagsPropertiesDesctiptor))
                 ;
+                PropertiesDescriptor<object> metasPropertiesDesctiptor = new PropertiesDescriptor<object>();
+
+                foreach (var meta in metas)
+                {
+                    string metaName = meta.Key.ToLower();
+                    bool shouldAddPadded = metasToPad.Contains(metaName);
+
+                    var metaType = meta.Value.Key;
+                    if (metaType != eESFieldType.DATE)
+                    {
+                        if (metaType == eESFieldType.STRING)
+                        {
+                            var descriptor = InitializeTextField(metaName,
+                                metasPropertiesDesctiptor,
+                                indexAnalyzer,
+                                searchAnalyzer,
+                                autocompleteAnalyzer,
+                                autocompleteSearchAnalyzer,
+                                phoneticIndexAnalyzer,
+                                phoneticSearchAnalyzer,
+                                shouldAddPhoneticField,
+                                shouldAddPadded);
+                        }
+                        else
+                        {
+                            InitializeNumericMetaField(propertiesDescriptor, metaName, shouldAddPadded);
+                        }
+                    }
+                    else
+                    {
+                        propertiesDescriptor.Date(x => x.Name(metaName).Format(ESUtils.ES_DATE_FORMAT));
+                    }
+
+                }
+
+                propertiesDescriptor.Object<object>(x => x
+                    .Name($"metas_{language.Code}")
+                    .Properties(properties => metasPropertiesDesctiptor))
+                ;
+
             }
 
             return propertiesDescriptor;
+        }
+
+        private static void InitializeNumericMetaField(PropertiesDescriptor<object> propertiesDescriptor, 
+            string metaName, 
+            bool shouldAddPaddedField)
+        {
+            var lowercaseSubField = new TextPropertyDescriptor<object>()
+                .Name("lowercase")
+                .Analyzer(PHRASE_STARTS_WITH_ANALYZER)
+                .SearchAnalyzer(PHRASE_STARTS_WITH_SEARCH_ANALYZER);
+
+            var phraseAutocompleteSubField = new TextPropertyDescriptor<object>()
+                .Name("phrase_autocomplete")
+                .Analyzer(PHRASE_STARTS_WITH_ANALYZER)
+                .SearchAnalyzer(PHRASE_STARTS_WITH_SEARCH_ANALYZER);
+
+            PropertiesDescriptor<object> fieldsPropertiesDesctiptor = new PropertiesDescriptor<object>()
+                .Number(y => y.Name(metaName).Type(NumberType.Double))
+                        .Text(y => lowercaseSubField)
+                        .Text(y => phraseAutocompleteSubField)
+                ;
+
+            if (shouldAddPaddedField)
+            {
+                var padded = new TextPropertyDescriptor<object>()
+                    .Name($"padded_{metaName}")
+                    .Analyzer(LOWERCASE_ANALYZER)
+                    .SearchAnalyzer(LOWERCASE_ANALYZER);
+                fieldsPropertiesDesctiptor.Text(y => padded);
+            }
+
+            NumberPropertyDescriptor<object> numberPropertyDescriptor = new NumberPropertyDescriptor<object>()
+                .Name(metaName)
+                .Fields(fields => fieldsPropertiesDesctiptor)
+                ;
+            propertiesDescriptor.Number(x => numberPropertyDescriptor);
         }
 
         private TextPropertyDescriptor<object> InitializeTextField(
@@ -771,7 +850,8 @@ namespace Core.Catalog
             string autocompleteSearchAnalyzer,
             string phoneticIndexAnalyzer,
             string phoneticSearchAnalyzer,
-            bool shouldAddPhoneticField)
+            bool shouldAddPhoneticField,
+            bool shouldAddPaddedField)
         {
             var lowercaseSubField = new TextPropertyDescriptor<object>()
                 .Name("lowercase")
@@ -810,6 +890,14 @@ namespace Core.Catalog
                 fieldsPropertiesDesctiptor.Text(y => phoneticField);
             }
 
+            if (shouldAddPaddedField)
+            {
+                var padded = new TextPropertyDescriptor<object>()
+                    .Name($"padded_{nameFieldName}")
+                    .Analyzer(LOWERCASE_ANALYZER)
+                    .SearchAnalyzer(LOWERCASE_ANALYZER);
+                fieldsPropertiesDesctiptor.Text(y => padded);
+            }
             TextPropertyDescriptor<object> textPropertyDescriptor = new TextPropertyDescriptor<object>()
                 .Name(nameFieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER)
                     .Fields(fields => fieldsPropertiesDesctiptor)
