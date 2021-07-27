@@ -555,8 +555,7 @@ namespace Core.Catalog
             try
             {
                 AddEmptyIndex(dailyEpgIndexName, retryPolicy);
-                //AddEpgMappings(dailyEpgIndexName, retryPolicy);
-                //AddAlias(dailyEpgIndexName, retryPolicy);
+                AddAlias(dailyEpgIndexName, retryPolicy);
             }
             catch (Exception e)
             {
@@ -1350,6 +1349,18 @@ namespace Core.Catalog
             return result;
         }
 
+        private void AddAlias(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        {
+            // create alias is idempotent request
+            var epgIndexAlias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            log.Info($"creating alias. index [{dailyEpgIndexName}], alias [{epgIndexAlias}]");
+            retryPolicy.Execute(() =>
+            {
+                var putAliasResponse = _elasticClient.Indices.PutAlias(dailyEpgIndexName, epgIndexAlias);
+                bool isAliasAdded = putAliasResponse != null && putAliasResponse.IsValid;
+                if (!isAliasAdded) throw new Exception($"index set alias failed [{dailyEpgIndexName}], alias [{epgIndexAlias}]");
+            });
+        }
         #endregion
     }
 }
