@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  elastic:
+    image: elasticsearch:2.3.3
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - testbed
+    command:
+      - sh
+      - -c
+      - "plugin list | grep -q delete-by-query || plugin install delete-by-query;
+      - plugin list | grep -q  analysis-icu || plugin install analysis-icu;
+         /docker-entrypoint.sh elasticsearch" 
+
+volumes:
+  data01:
+    driver: local
+
+networks:
+  testbed:
+    driver: bridge

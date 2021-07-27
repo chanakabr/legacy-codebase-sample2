@@ -44,7 +44,8 @@ namespace Core.Catalog.Request
 
                 CheckSignature(request);
 
-                ElasticsearchWrapper elasticSearchWrapper = new ElasticsearchWrapper();
+                int parentGroupId = Cache.CatalogCache.Instance().GetParentGroup(m_nGroupID);
+                var indexManager = IndexManagerFactory.GetInstance(parentGroupId);
 
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(request.m_nGroupID);
@@ -76,7 +77,7 @@ namespace Core.Catalog.Request
 
                 int totalItems = 0;
                 int to = 0;
-                var initialSearchResult = elasticSearchWrapper.UnifiedSearch(definitions, ref totalItems, ref to);
+                var initialSearchResult = indexManager.UnifiedSearch(definitions, ref totalItems, ref to);
 
                 EpgProgramsResponse response = new EpgProgramsResponse();
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);

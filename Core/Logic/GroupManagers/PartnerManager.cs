@@ -1,6 +1,7 @@
 ﻿using ApiLogic.Users.Managers;
 using ApiObjects;
 using ApiObjects.Response;
+using ApiObjects.SearchObjects;
 using ConfigurationManager;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
@@ -16,46 +17,25 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using MetaType = ApiObjects.MetaType;
 
 namespace Core.GroupManagers
 {
     public class PartnerManager
     {
         private const string ROUTING_PARAMETER_KEY = "partner_id";
-        private const string ES_VERSION = "2";
-        private const string MEDIA_INDEX_MAP_TYPE = "media";
-        private const string TAG_INDEX_MAP_TYPE = "tag";
-        private const string EPG_INDEX_MAP_TYPE = "epg";
-        private const string RECORDING_INDEX_MAP_TYPE = "recording";
-        private const string CHANNEL_INDEX_MAP_TYPE = "channel";
-
-        public const string LOWERCASE_ANALYZER =
-            "\"lowercase_analyzer\": {\"type\": \"custom\",\"tokenizer\": \"keyword\",\"filter\": [\"lowercase\",\"asciifolding\"],\"char_filter\": [\"html_strip\"]}";
-
-        public const string PHRASE_STARTS_WITH_FILTER =
-            "\"edgengram_filter\": {\"type\":\"edgeNGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}";
-
-        public const string PHRASE_STARTS_WITH_ANALYZER =
-            "\"phrase_starts_with_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\",\"edgengram_filter\", \"icu_folding\",\"icu_normalizer\",\"asciifolding\"]," +
-            "\"char_filter\":[\"html_strip\"]}";
-
-        public const string PHRASE_STARTS_WITH_SEARCH_ANALYZER =
-            "\"phrase_starts_with_search_analyzer\": {\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\":[\"lowercase\", \"icu_folding\",\"icu_normalizer\",\"asciifolding\"]," +
-            "\"char_filter\":[\"html_strip\"]}";
-
-        private static readonly Lazy<PartnerManager> LazyInstance = new Lazy<PartnerManager>(() => 
+        private static readonly Lazy<PartnerManager> LazyInstance = new Lazy<PartnerManager>(() =>
             new PartnerManager(PartnerDal.Instance,
-                               RabbitConnection.Instance, 
-                               ApplicationConfiguration.Current, 
-                               UserManager.Instance, 
-                               RabbitConfigDal.Instance, 
+                               RabbitConnection.Instance,
+                               ApplicationConfiguration.Current,
+                               UserManager.Instance,
+                               RabbitConfigDal.Instance,
                                PricingDAL.Instance,
-                               new ElasticSearchApi(),
-                               ElasticSearchIndexDefinitions.Instance,
                                CatalogManager.Instance,
-                               UsersDal.Instance, 
-                               BillingDAL.Instance, 
-                               ConditionalAccessDAL.Instance), 
+                               UsersDal.Instance,
+                               BillingDAL.Instance,
+                               ConditionalAccessDAL.Instance,
+                               IndexManagerFactory.GetInstance(0)),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static PartnerManager Instance => LazyInstance.Value;
@@ -68,27 +48,23 @@ namespace Core.GroupManagers
         private readonly IApplicationConfiguration _applicationConfiguration;
         private readonly IUserManager _userManager;
         private readonly IRabbitConfigDal _rabbitConfigDal;
-        private readonly IElasticSearchApi _elasticSearchApi;
-        private readonly ElasticSearchIndexDefinitions _indexDefinitions;
         private readonly ICatalogManager _catalogManager;
         private readonly IUserPartnerRepository _userPartnerRepository;
         private readonly IBillingPartnerRepository _billingPartnerRepository;
-        private readonly ICAPartnerRepository _caPartnerRepository;       
-        
-        private static Dictionary<string, MappingAnalyzers> _mappingAnalyzers = new Dictionary<string, MappingAnalyzers>();
+        private readonly ICAPartnerRepository _caPartnerRepository;
+        private readonly IIndexManager _indexManager;
 
-        public PartnerManager(IPartnerDal partnerDal, 
-                              IRabbitConnection rabbitConnection, 
-                              IApplicationConfiguration applicationConfiguration, 
-                              IUserManager userManager, 
+        public PartnerManager(IPartnerDal partnerDal,
+                              IRabbitConnection rabbitConnection,
+                              IApplicationConfiguration applicationConfiguration,
+                              IUserManager userManager,
                               IRabbitConfigDal rabbitConfigDal,
                               IPricingPartnerRepository pricingDal,
-                              IElasticSearchApi elasticSearchApi,
-                              ElasticSearchIndexDefinitions indexDefinitions,
                               ICatalogManager catalogManager,
                               IUserPartnerRepository userPartnerRepository,
-                              IBillingPartnerRepository billingPartnerRepository, 
-                              ICAPartnerRepository caPartnerRepository)
+                              IBillingPartnerRepository billingPartnerRepository,
+                              ICAPartnerRepository caPartnerRepository,
+                              IIndexManager indexManager)
         {
             _partnerDal = partnerDal;
             _rabbitConnection = rabbitConnection;
@@ -96,12 +72,11 @@ namespace Core.GroupManagers
             _userManager = userManager;
             _rabbitConfigDal = rabbitConfigDal;
             _pricingPartnerRepository = pricingDal;
-            _elasticSearchApi = elasticSearchApi;
-            _indexDefinitions = indexDefinitions;
             _catalogManager = catalogManager;
             _userPartnerRepository = userPartnerRepository;
             _billingPartnerRepository = billingPartnerRepository;
             _caPartnerRepository = caPartnerRepository;
+            _indexManager = indexManager;
         }
 
         public GenericResponse<Partner> AddPartner(Partner partner, PartnerSetup partnerSetup, long updaterId)
@@ -129,7 +104,7 @@ namespace Core.GroupManagers
             partner.Id = partnerId;
 
             if (!(_userPartnerRepository.SetupPartnerInDb(partnerId, updaterId) &&
-                _partnerDal.SetupPartnerInDb(partnerId, partner.Name,  updaterId) &&
+                _partnerDal.SetupPartnerInDb(partnerId, partner.Name, updaterId) &&
                 _pricingPartnerRepository.SetupPartnerInDb(partnerId, updaterId) &&
                 _billingPartnerRepository.SetupPartnerInDb(partnerId, updaterId) &&
                 _caPartnerRepository.SetupPartnerInDb(partnerId, updaterId)))
@@ -285,408 +260,148 @@ namespace Core.GroupManagers
                 return new Status(eResponseStatus.PartnerDoesNotExist, $"Partner {groupId} does not exist");
             }
 
-            if (!_catalogManager.TryGetCatalogGroupCacheFromCache(groupId, out var  catalogGroupCache))
+            if (!_catalogManager.TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache))
             {
                 Log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling CreateIndexes", groupId);
                 return Status.Error;
             }
-            
-            var serializer = new ESSerializerV2();
-            if (!GetMetasAndTagsForMapping(serializer, catalogGroupCache, out var metas, out var tags, out var metasToPad))
-            {
-                Log.Error($"Failed GetMetasAndTagsForMapping while calling CreateIndexes");
-                return Status.Error;
-            }
-            
-            var defaultLanguage = catalogGroupCache.LanguageMapById.Values.FirstOrDefault(x => x.IsDefault);
-            MappingAnalyzers defaultMappingAnalyzers = GetMappingAnalyzers(defaultLanguage);
 
-            // get definitions of analyzers, filters and tokenizers
-            GetAnalyzers(catalogGroupCache.LanguageMapById.Values, out var analyzers, out var filters, out var tokenizers);
-            
-            Task<Status>[] taskArray = { 
-                Task<Status>.Factory.StartNew(() => CreateIndex(GetMediaIndexName(groupId), 
-                                                                GetMediaIndexAlias(groupId), 
-                                                                GetMediaIndexType,
-                                                                (ma, type) => serializer.CreateMediaMapping(metas, tags, metasToPad, ma, defaultMappingAnalyzers))),
-                
-                Task<Status>.Factory.StartNew(() => CreateIndex(GetEpgIndexName(groupId), 
-                                                                GetEpgIndexAlias(groupId), 
-                                                                GetEpgIndexType,
-                                                                (ma, type) => serializer.CreateEpgMapping(metas, tags, metasToPad, ma, defaultMappingAnalyzers, type, true))), // for now we support only in epg v2
-                
-                Task<Status>.Factory.StartNew(() => CreateIndex(GetRecordingIndexName(groupId), 
-                                                                GetRecordingIndexAlias(groupId), 
-                                                                GetRecordingIndexType,
-                                                                (ma, type) => serializer.CreateEpgMapping(metas, tags, metasToPad, ma, defaultMappingAnalyzers, type, true))),
-                
-                Task<Status>.Factory.StartNew(() => CreateIndex(GetTagIndexName(groupId), 
-                                                                GetTagIndexAlias(groupId), 
-                                                                GetTagIndexType,
-                                                                (ma, type) => serializer.CreateMetadataMapping(ma.normalIndexAnalyzer, ma.normalSearchAnalyzer, ma.autocompleteIndexAnalyzer, ma.autocompleteSearchAnalyzer, ma.suffix))),
-                
-                Task<Status>.Factory.StartNew(() => CreateIndex(GetChannelMetadataIndexName(groupId), 
-                                                                GetChannelMetadataIndexAlias(groupId),
-                                                                GetChannelMetadataIndexType,
-                                                                (ma, type) => serializer.CreateChannelMapping(ma.normalIndexAnalyzer, ma.normalSearchAnalyzer, ma.autocompleteIndexAnalyzer, ma.autocompleteSearchAnalyzer, ma.suffix), 
-                                                                GetChannelMetadataIndexSuffix)),
+            var languages = catalogGroupCache.LanguageMapById.Values.ToList();
+
+            Task<Status>[] taskArray = {
+                Task<Status>.Factory.StartNew(() => CreateMediaIndex(groupId, catalogGroupCache, languages)),
+                Task<Status>.Factory.StartNew(() => CreateEpgIndex(groupId, catalogGroupCache, languages)),
+                Task<Status>.Factory.StartNew(() => CreateRecordingIndex(groupId, catalogGroupCache, languages)),
+                Task<Status>.Factory.StartNew(() => CreateTagsIndex(groupId)),
+                Task<Status>.Factory.StartNew(() => CreateChannelsIndex(groupId)),
             };
-
-            Status CreateIndex(string indexName, string alias, Func<LanguageObj, string> getIndexTypeFunc, MapAnalyzersFunc mapAnalyzersFunc, Func<LanguageObj, string> getIndexSuffixFunc = null)
-            {
-                var result = Status.Ok;
-
-                if (_elasticSearchApi.IndexExists(indexName)) { return result; }
-                bool actionResult = CreateEmptyIndex(indexName, analyzers, filters, tokenizers);
-                if (!actionResult)
-                {
-                    result.Set(eResponseStatus.Error, $"Failed creating index [{indexName}]");
-                    return result;
-                }
-
-                if (getIndexSuffixFunc == null)
-                {
-                    getIndexSuffixFunc = GetGeneralIndexSuffix;
-                }
-
-                if (!CreateIndexMappings(indexName, catalogGroupCache, getIndexTypeFunc, mapAnalyzersFunc, getIndexSuffixFunc))
-                {
-                    result.Set(eResponseStatus.Error, $"Failed creating index [{indexName}] mapping");
-                    return result;
-                }
-
-                if (!CreateIndexAliasIfNotExist(indexName, alias))
-                {
-                    result.Set(eResponseStatus.Error, $"Failed creating index [{indexName}] alias [{alias}]");
-                    return result;
-                }
-                return result;
-            }
 
             Task.WaitAll(taskArray);
             var errorTasks = taskArray.Where(t => !t.Result.IsOkStatusCode()).ToList();
             return errorTasks.Count == 0 ? Status.Ok : Status.ErrorMessage(string.Join("; ", errorTasks.Select(_ => _.Result.Message)));
         }
 
-        // TODO SUNNY/arthur  - ALL OF THIS region SHOULD BE PART OF new INDEX_MANAGER 
-        #region Index creation
-
-        private bool CreateEmptyIndex(string indexName, List<string> analyzers, List<string> filters, List<string> tokenizers)
+        private Status CreateMediaIndex(int groupId, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages)
         {
-            // Basic TCM configurations for indexing - number of shards/replicas, size of bulks 
-            int replicas = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
-            int shards = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
-            // Default size of max results should be 100,000
-            var maxResults = _applicationConfiguration.ElasticSearchConfiguration.MaxResults.Value == 0 ? 100000 :
-                _applicationConfiguration.ElasticSearchConfiguration.MaxResults.Value;
-
-            var isIndexCreated = _elasticSearchApi.BuildIndex(indexName, shards, replicas, analyzers, filters, tokenizers, maxResults);
-
-            return isIndexCreated;
-        }
-
-        private bool CreateIndexMappings(string indexName, CatalogGroupCache catalogGroupCache, Func<LanguageObj, string> getIndexTypeFunc, MapAnalyzersFunc mapAnalyzersFunc, Func<LanguageObj, string> getIndexSuffixFunc)
-        {
-            // Mapping for each language
-            foreach (var language in catalogGroupCache.LanguageMapById.Values)
-            {
-                string type = getIndexTypeFunc(language);
-                MappingAnalyzers specificMappingAnalyzers = GetMappingAnalyzers(language);
-                specificMappingAnalyzers.suffix = getIndexSuffixFunc(language);
-
-                // Ask serializer to create the mapping definitions string
-                string mapping = mapAnalyzersFunc(specificMappingAnalyzers, type);
-                //string mapping = createMappingFunc(serializer, mappingAnlyzers);
-                bool mappingResult = _elasticSearchApi.InsertMapping(indexName, type, mapping.ToString());
-
-                // Most important is the mapping for the default language, we can live without the others...
-                if (language.IsDefault && !mappingResult)
-                {
-                    return false;
-                }
-                if (!mappingResult)
-                {
-                    Log.Error($"Could not create mapping of type {type} for language {language.Name}");
-                }
-            }
-
-            return true;
-        }
-
-        private bool CreateIndexAliasIfNotExist(string index, string alias)
-        {
-            if (_elasticSearchApi.IndexExists(alias)) { return true; }
-            return _elasticSearchApi.AddAlias(index, alias);
-        }
-
-        private bool GetMetasAndTagsForMapping(BaseESSeralizer serializer, CatalogGroupCache catalogGroupCache,
-            out Dictionary<string, KeyValuePair<eESFieldType, string>> metas, out List<string> tags, out HashSet<string> metasToPad, bool isEpg = false)
-        {
-            bool result = true;
-            tags = new List<string>();
-            metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();
-
-            // Padded with zero prefix metas to sort numbers by text without issues in elastic (Brilliant!)
-            metasToPad = new HashSet<string>();
             try
             {
-                HashSet<string> topicsToIgnore = CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
-                tags = catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => x.Value.ContainsKey(MetaType.Tag.ToString()) && !topicsToIgnore.Contains(x.Key)).Select(x => x.Key.ToLower()).ToList();
+                var mediaIndex = _indexManager.SetupMediaIndex(languages, catalogGroupCache.DefaultLanguage);
 
-                foreach (KeyValuePair<string, Dictionary<string, Topic>> topics in catalogGroupCache.TopicsMapBySystemNameAndByType)
+                if (string.IsNullOrEmpty(mediaIndex))
                 {
-                    //TODO anat ask Ira
-                    if (topics.Value.Keys.Any(x => x != MetaType.Tag.ToString() && x != MetaType.ReleatedEntity.ToString()))
-                    {
-                        string nullValue = string.Empty;
-                        eESFieldType metaType;
-                        MetaType topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
-                        serializer.GetMetaType(topicMetaType, out metaType, out nullValue);
-
-                        if (topicMetaType == MetaType.Number && !metasToPad.Contains(topics.Key.ToLower()))
-                        {
-                            metasToPad.Add(topics.Key.ToLower());
-                        }
-
-                        if (!metas.ContainsKey(topics.Key.ToLower()))
-                        {
-                            metas.Add(topics.Key.ToLower(), new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType, nullValue));
-                        }
-                        else
-                        {
-                            Log.Error($"Duplicate topic found for name {topics.Key.ToLower()}.");
-                        }
-                    }
+                    return new Status(eResponseStatus.Error, $"error creating media index for partner {groupId}");
                 }
+                _indexManager.PublishMediaIndex(mediaIndex, true, true);
+                return Status.Ok;
             }
             catch (Exception ex)
             {
-                Log.Error($"An Exception was occurred in GetMetasAndTagsForMapping. details:{ex}.");
-                return false;
+                Log.Error($"error creating media index for partner {groupId}", ex);
+                return new Status(eResponseStatus.Error, $"error creating media index for partner {groupId}");
             }
-
-            return result;
         }
 
-        private MappingAnalyzers GetMappingAnalyzers(LanguageObj language)
+        private Status CreateEpgIndex(int groupId, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages)
         {
-            if (_mappingAnalyzers.TryGetValue(language.Code, out MappingAnalyzers specificMappingAnlyzers))
+            try
             {
-                return specificMappingAnlyzers;
-            }
-
-            specificMappingAnlyzers = new MappingAnalyzers();
-            // create names for analyzers to be used in the mapping later on
-            string analyzerDefinitionName = ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, ES_VERSION);
-
-            if (_indexDefinitions.AnalyzerExists(analyzerDefinitionName))
-            {
-                specificMappingAnlyzers.normalIndexAnalyzer = string.Concat(language.Code, "_index_", "analyzer");
-                specificMappingAnlyzers.normalSearchAnalyzer = string.Concat(language.Code, "_search_", "analyzer");
-
-                string analyzerDefinition = _indexDefinitions.GetAnalyzerDefinition(analyzerDefinitionName);
-
-                if (analyzerDefinition.Contains("autocomplete"))
+                var epgIndex = _indexManager.SetupEpgIndex(languages, catalogGroupCache.DefaultLanguage, isRecording: false);
+                if (string.IsNullOrEmpty(epgIndex))
                 {
-                    specificMappingAnlyzers.autocompleteIndexAnalyzer = string.Concat(language.Code, "_autocomplete_analyzer");
-                    specificMappingAnlyzers.autocompleteSearchAnalyzer = string.Concat(language.Code, "_autocomplete_search_analyzer");
+                    Log.Warn($"create epg index returned with an empty index name for partner {groupId}");
+                    return new Status(eResponseStatus.Error, $"error creating epg index for partner {groupId}");
                 }
 
-                if (analyzerDefinition.Contains("dbl_metaphone"))
+                bool publishResult = _indexManager.FinishUpEpgIndex(epgIndex, isRecording: false, true, true);
+                if (!publishResult)
                 {
-                    specificMappingAnlyzers.phoneticIndexAnalyzer = string.Concat(language.Code, "_index_dbl_metaphone");
-                    specificMappingAnlyzers.phoneticSearchAnalyzer = string.Concat(language.Code, "_search_dbl_metaphone");
-                }
-            }
-            else
-            {
-                specificMappingAnlyzers.normalIndexAnalyzer = "whitespace";
-                specificMappingAnlyzers.normalSearchAnalyzer = "whitespace";
-                Log.Error(string.Format("could not find analyzer for language ({0}) for mapping. whitespace analyzer will be used instead", language.Code));
-            }
-
-            specificMappingAnlyzers.suffix = null;
-
-            if (!language.IsDefault)
-            {
-                specificMappingAnlyzers.suffix = language.Code;
-            }
-
-            _mappingAnalyzers[language.Code] = specificMappingAnlyzers;
-
-            return specificMappingAnlyzers;
-        }
-
-        private void GetAnalyzers(IEnumerable<LanguageObj> languages, out List<string> analyzers, out List<string> filters, out List<string> tokenizers, bool autocomplete = true)
-        {
-            analyzers = new List<string>();
-            filters = new List<string>();
-            tokenizers = new List<string>();
-
-            if (languages != null)
-            {
-                foreach (LanguageObj language in languages)
-                {
-                    string analyzer = _indexDefinitions.GetAnalyzerDefinition(ElasticSearch.Common.Utils.GetLangCodeAnalyzerKey(language.Code, ES_VERSION));
-                    string filter = _indexDefinitions.GetFilterDefinition(ElasticSearch.Common.Utils.GetLangCodeFilterKey(language.Code, ES_VERSION));
-                    string tokenizer = _indexDefinitions.GetTokenizerDefinition(ElasticSearch.Common.Utils.GetLangCodeTokenizerKey(language.Code, ES_VERSION));
-
-                    if (string.IsNullOrEmpty(analyzer))
-                    {
-                        Log.Error($"analyzer for language {language.Code} doesn't exist");
-                    }
-                    else
-                    {
-                        analyzers.Add(analyzer);
-                    }
-
-                    if (!string.IsNullOrEmpty(filter))
-                    {
-                        filters.Add(filter);
-                    }
-
-                    if (!string.IsNullOrEmpty(tokenizer))
-                    {
-                        tokenizers.Add(tokenizer);
-                    }
+                    Log.Warn($"create epg index - failed publishing epg index for partner {groupId}");
+                    return new Status(eResponseStatus.Error, $"error creating epg index for partner {groupId}");
                 }
 
-                // we always want a lowercase analyzer
-                analyzers.Add(LOWERCASE_ANALYZER);
+                return Status.Ok;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"error creating epg index for partner {groupId}", ex);
+                return new Status(eResponseStatus.Error, $"error creating epg index for partner {groupId}");
+            }
+        }
 
-                if (autocomplete)
+        private Status CreateRecordingIndex(int groupId, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages)
+        {
+            try
+            {
+                var indexName = _indexManager.SetupEpgIndex(languages, catalogGroupCache.DefaultLanguage, isRecording: true);
+                if (string.IsNullOrEmpty(indexName))
                 {
-                    filters.Add(PHRASE_STARTS_WITH_FILTER);
-                    analyzers.Add(PHRASE_STARTS_WITH_ANALYZER);
-                    analyzers.Add(PHRASE_STARTS_WITH_SEARCH_ANALYZER);
+                    Log.Warn($"create recording index returned with an empty index name for partner {groupId}");
+                    return new Status(eResponseStatus.Error, $"error creating recording index for partner {groupId}");
                 }
+
+                bool publishResult = _indexManager.FinishUpEpgIndex(indexName, isRecording: true, true, true);
+                if (!publishResult)
+                {
+                    Log.Warn($"create recording index - failed publishing recording index for partner {groupId}");
+                    return new Status(eResponseStatus.Error, $"error creating recording index for partner {groupId}");
+                }
+
+                return Status.Ok;
             }
-        }
-
-        delegate string MapAnalyzersFunc(MappingAnalyzers mappingAnalyzers, string indexType);
-
-        #region Index type
-
-        private string GetMediaIndexType(LanguageObj language)
-        {
-            string type = MEDIA_INDEX_MAP_TYPE;
-            if (!language.IsDefault)
+            catch (Exception ex)
             {
-                type = $"{MEDIA_INDEX_MAP_TYPE}_{language.Code}";
+                Log.Error($"error creating recording index for partner {groupId}", ex);
+                return new Status(eResponseStatus.Error, $"error creating recording index for partner {groupId}");
             }
-            return type;
         }
 
-        private string GetEpgIndexType(LanguageObj language)
+        private Status CreateTagsIndex(int groupId)
         {
-            string indexTypePrefix = EPG_INDEX_MAP_TYPE;
-            if (language.IsDefault) { return indexTypePrefix; }
-            else { return $"{indexTypePrefix}_{language.Code}"; }
-        }
-
-        private string GetRecordingIndexType( LanguageObj language)
-        {
-            string indexTypePrefix = RECORDING_INDEX_MAP_TYPE;
-            if (language.IsDefault) { return indexTypePrefix; }
-            else { return $"{indexTypePrefix}_{language.Code}"; }
-        }
-
-        private string GetTagIndexType(LanguageObj language)
-        {
-            string type = TAG_INDEX_MAP_TYPE;
-            if (!language.IsDefault)
+            try
             {
-                type = string.Concat(TAG_INDEX_MAP_TYPE, "_", language.Code);
+                var indexName = _indexManager.SetupTagsIndex();
+                if (string.IsNullOrEmpty(indexName))
+                {
+                    Log.Warn($"create tags index returned with an empty index name for partner {groupId}");
+                    return new Status(eResponseStatus.Error, $"error creating tags index for partner {groupId}");
+                }
+
+                bool publishResult = _indexManager.PublishTagsIndex(indexName, true, true);
+                if (!publishResult)
+                {
+                    Log.Warn($"create tags index - failed publishing tags index for partner {groupId}");
+                    return new Status(eResponseStatus.Error, $"error creating tags index for partner {groupId}");
+                }
+
+                return Status.Ok;
             }
-            return type;
-        }
-
-        private string GetChannelMetadataIndexType(LanguageObj language)
-        {
-            return CHANNEL_INDEX_MAP_TYPE;
-        }
-
-        #endregion
-
-        #region Index suffix
-
-        private string GetGeneralIndexSuffix(LanguageObj language)
-        {
-            string suffix = null;
-            if (!language.IsDefault)
+            catch (Exception ex)
             {
-                suffix = language.Code;
+                Log.Error($"error creating tags index for partner {groupId}", ex);
+                return new Status(eResponseStatus.Error, $"error creating tags index for partner {groupId}");
             }
-            return suffix;
         }
 
-        private string GetChannelMetadataIndexSuffix(LanguageObj language)
+        private Status CreateChannelsIndex(int groupId)
         {
-            return null;
+            try
+            {
+                var indexName = _indexManager.SetupChannelMetadataIndex();
+                if (string.IsNullOrEmpty(indexName))
+                {
+                    Log.Warn($"create channel index returned with an empty index name for partner {groupId}");
+                    return new Status(eResponseStatus.Error, $"error creating channel index for partner {groupId}");
+                }
+
+                _indexManager.PublishChannelsMetadataIndex(indexName, true, true);
+
+                return Status.Ok;
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"error creating channel index for partner {groupId}", ex);
+                return new Status(eResponseStatus.Error, $"error creating channel index for partner {groupId}");
+            }
         }
-
-        #endregion
-
-        #region Index name
-
-        private string GetMediaIndexName(int groupId)
-        {
-            return $"{groupId}_{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}";
-        }
-
-        private string GetEpgIndexName(int groupId)
-        {
-            var indexDate = DateTime.UtcNow;
-            string dateString = indexDate.Date.ToString(ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
-            return $"{groupId}_epg_v2_{dateString}";
-        }
-
-        private string GetTagIndexName(int groupId)
-        {
-            return $"{groupId}_metadata_{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}";
-        }
-
-        private string GetChannelMetadataIndexName(int groupId)
-        {
-            return $"{groupId}_channel_{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}";
-        }
-
-        private string GetRecordingIndexName(int groupId)
-        {
-            return $"{groupId}_recording_{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}";
-        }
-
-        #endregion
-
-        #region Index alias
-
-        private string GetMediaIndexAlias(int groupId)
-        {
-            return groupId.ToString();
-        }
-
-        private string GetEpgIndexAlias(int groupId)
-        {
-            return $"{groupId}_epg";
-        }
-
-        private string GetTagIndexAlias(int groupId)
-        {
-            return $"{groupId}_metadata";
-        }
-
-        private string GetChannelMetadataIndexAlias(int groupId)
-        {
-            return $"{groupId}_channel";
-        }
-
-        private string GetRecordingIndexAlias(int groupId)
-        {
-            return $"{groupId}_recording";
-        }
-
-        #endregion
-
-        #endregion
     }
 }

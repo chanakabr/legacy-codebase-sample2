@@ -655,7 +655,18 @@ namespace Core.Catalog.Request
             {
                 int parentGroupID = Cache.CatalogCache.Instance().GetParentGroup(groupID);
 
-                if (!ElasticSearch.Utilities.ESStatisticsUtilities.InsertMediaView(parentGroupID, mediaID, mediaTypeID, CatalogLogic.STAT_ACTION_MEDIA_HIT, playTime, false))
+                var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                if (!indexManager.InsertSocialStatisticsData(
+                    new MediaView()
+                    {
+                        GroupID = parentGroupID,
+                        MediaID = mediaID,
+                        MediaType = mediaTypeID.ToString(),
+                        Action = IndexManagerV2.STAT_ACTION_MEDIA_HIT,
+                        Location = playTime
+                    }
+                    ))
+                    //parentGroupID, mediaID, mediaTypeID, IndexManagerV2.STAT_ACTION_MEDIA_HIT, playTime, false))
                     log.Error("Error - " + String.Concat("Failed to write mediahit into stats index. M ID: ", mediaID, " MT ID: ", mediaTypeID));
             }
             catch (Exception ex)
@@ -671,12 +682,21 @@ namespace Core.Catalog.Request
             try
             {
                 int parentGroupID = Cache.CatalogCache.Instance().GetParentGroup(groupID);
+                var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
 
                 if (ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseFirstPlayRateManager.Value)
                 {
                     PublishKafkaFirstPlayMessage(parentGroupID, mediaID, mediaTypeID);
                 }
-                else if (!ElasticSearch.Utilities.ESStatisticsUtilities.InsertMediaView(parentGroupID, mediaID, mediaTypeID, CatalogLogic.STAT_ACTION_FIRST_PLAY, playTime, true))
+                else if (!indexManager.InsertSocialStatisticsData(
+                    new MediaView()
+                    {
+                        Action = IndexManagerV2.STAT_ACTION_FIRST_PLAY,
+                        GroupID = parentGroupID,
+                        MediaID = mediaID,
+                        MediaType = mediaTypeID.ToString(),
+                        Location = playTime,
+                    }))
                 {
                     log.Error("Error - " + String.Concat("Failed to write firstplay into stats index. Req: ", ToString()));
                 }

@@ -134,7 +134,11 @@
         public const string GET_KS_VALIDATION = "Get_KsValidation";
         public const string GET_OPC_PARTNER_CONFIG = "GetOpcPartnerConfig";
         public const string GET_DOMAIN_SUBSCRIPTION_PURCHASE = "GetDomainSubscriptionPurchase";
-        public const string GET_CANARY_CONFIGURATION = "GetCanaryConfiguration";
+        public const string GET_LABELS_CACHE_CONFIG_NAME = "GetLabels";
+
+        // DON'T you ever change the value of this static var even when its not aligned, changing will require sync integration and change tcm config
+        public const string GET_MICROSERVICES_CANARY_CONFIGURATION = "GetCanaryConfiguration";
+        public const string GET_ELASTICSEARCH_CANARY_CONFIGURATION = "GetElasticsearchCanaryConfiguration";
 
         #endregion
 

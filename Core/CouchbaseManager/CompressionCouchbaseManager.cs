@@ -98,9 +98,24 @@ namespace CouchbaseManager
             return GetWithVersion<T>(key, out _, out status, settings);
         }
 
+        public T Get<T>(string key, bool asJson = false)
+        {
+            return GetWithVersion<T>(key, out _, out _);
+        }
+
         public T GetWithVersion<T>(string key, out ulong version, out eResultStatus status, bool asJson)
         {
             return this.GetWithVersion<T>(key, out version, out status);
+        }
+
+        public bool IsKeyExists(string key)
+        {
+            return _manager.IsKeyExists(key);
+        }
+
+        public bool Remove(string key, ulong cas = 0)
+        {
+            return _manager.Remove(key, cas);
         }
 
         public T GetWithVersion<T>(string key, out ulong version, out eResultStatus status, JsonSerializerSettings settings = null)

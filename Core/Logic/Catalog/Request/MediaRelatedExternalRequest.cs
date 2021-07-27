@@ -91,7 +91,7 @@ namespace Core.Catalog.Request
                     return mediaResponse;
                 }
 
-			    ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+			    IIndexManager indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
 
                 var allRecommendations = results.Select(result =>
 					new UnifiedSearchResult()
@@ -107,7 +107,7 @@ namespace Core.Catalog.Request
                 int tempTotalItems = 0;
                 if (allRecommendations != null && allRecommendations.Count > 0)
 				    searchResultsList =
-                        searcher.FillUpdateDates(mediaRelatedRequest.m_nGroupID, allRecommendations, ref tempTotalItems, mediaRelatedRequest.m_nPageSize, mediaRelatedRequest.m_nPageIndex);
+                        indexManager.GetAssetsUpdateDates(allRecommendations, ref tempTotalItems, mediaRelatedRequest.m_nPageSize, mediaRelatedRequest.m_nPageIndex);
 
                 mediaResponse.m_nTotalItems = totalItems;
                 mediaResponse.m_nMediaIds = searchResultsList.Select(result => new SearchResult() { assetID = int.Parse(result.AssetId), UpdateDate = result.m_dUpdateDate }).ToList();

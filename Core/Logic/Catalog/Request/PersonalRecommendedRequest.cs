@@ -92,11 +92,14 @@ namespace Core.Catalog.Request
         }
 
 
-        protected override List<SearchResult> ExecuteIPNOProtocol(BaseRequest oBaseRequest, int nOperatorID, List<List<string>> jsonizedChannelsDefinitions, ref ISearcher initializedSearcher)
+        protected override List<SearchResult> ExecuteIPNOProtocol(BaseRequest oBaseRequest, 
+            int nOperatorID, List<List<string>> jsonizedChannelsDefinitions)
         {
             List<SearchResult> lMedias = null;
             try
             {
+                var indexManager = IndexManagerFactory.GetInstance(oBaseRequest.m_nGroupID);
+
                 PersonalRecommendedRequest request = oBaseRequest as PersonalRecommendedRequest;
                 if (request == null)
                     throw new Exception("Request object is null");
@@ -118,7 +121,7 @@ namespace Core.Catalog.Request
                     {
                         //Return most viewed items and validate against ES they are still associated with the operator
                         lMedias = HandleMostViewed(dt);
-                        lMedias = GetProtocolFinalResultsUsingSearcher(lMedias, ref initializedSearcher, jsonizedChannelsDefinitions, request.m_nGroupID);
+                        lMedias = GetProtocolFinalResultsUsingSearcher(lMedias, jsonizedChannelsDefinitions, request.m_nGroupID);
                     }
                 }
                 else

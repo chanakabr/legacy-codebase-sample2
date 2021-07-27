@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
@@ -194,6 +195,9 @@ namespace WebAPI.Controllers
         [Action("validateCoupon")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [ApiAuthorize]
+        [Throws(eResponseStatus.CouponNotValid)]
+        [Throws(eResponseStatus.CouponPromotionDateExpired)]
+        [Throws(eResponseStatus.CouponPromotionDateNotStarted)]
         static public KalturaCoupon ValidateCoupon(int id, string code)
         {
             //filter.Validate();

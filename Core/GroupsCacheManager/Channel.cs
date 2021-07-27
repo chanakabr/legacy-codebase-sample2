@@ -111,6 +111,8 @@ namespace GroupsCacheManager
         /// </summary>
         public Dictionary<string, string> MetaData { get; set; }
 
+        public long? VirtualAssetId { get; set; }
+
         #endregion
 
         #region CTOR

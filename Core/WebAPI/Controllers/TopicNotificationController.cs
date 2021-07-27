@@ -23,6 +23,7 @@ namespace WebAPI.Controllers
         [Action("add")]
         [ApiAuthorize]
         [Throws(eResponseStatus.SubscriptionDoesNotExist)]
+        [Throws(eResponseStatus.FailCreateTopicNotification)]
         static public KalturaTopicNotification Add(KalturaTopicNotification topicNotification)
         {
             try
@@ -145,6 +146,7 @@ namespace WebAPI.Controllers
         [Action("subscribe")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.TopicNotificationNotFound)]
         static public void Subscribe(long topicNotificationId)
         {
             try
@@ -167,6 +169,8 @@ namespace WebAPI.Controllers
         [Action("unsubscribe")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.TopicNotificationNotFound)]
+        [Throws(eResponseStatus.UserNotFollowing)]
         static public void Unubscribe(long topicNotificationId)
         {
             try

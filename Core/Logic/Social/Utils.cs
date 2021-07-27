@@ -791,39 +791,6 @@ namespace Core.Social
             return res;
         }
 
-        public static List<StatisticsView> DecodeSearchJsonObject(string sObj, ref int totalItems)
-        {
-            List<StatisticsView> documents = null;
-            try
-            {
-                var jsonObj = JObject.Parse(sObj);
-
-                if (jsonObj != null)
-                {
-                    JToken tempToken;
-                    totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
-
-                    if (totalItems > 0)
-                    {
-                        documents = jsonObj.SelectToken("hits.hits").Select(item => new StatisticsView()
-                        {
-
-                            ID = ElasticSearch.Common.Utils.ExtractValueFromToken<string>(item, "_id"),
-                            GroupID = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, "group_id"),
-                            MediaID = ElasticSearch.Common.Utils.ExtractValueFromToken<int>(item, "media_id")
-                        }).ToList();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                documents = null;
-                log.Error("Error - " + string.Format("Json Deserialization failed for ElasticSearch Media request. Execption={0}", ex.Message), ex);
-            }
-
-            return documents;
-        }
-
         public static UserResponseObject Signin(Int32 nGroupID, string sSiteGuid, string sIP, string deviceID, bool bPreventDoubleLogins)
         {
             UserResponseObject response = null;

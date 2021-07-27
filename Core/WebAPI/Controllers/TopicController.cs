@@ -1,4 +1,5 @@
 ﻿using System;
+using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -24,6 +25,7 @@ namespace WebAPI.Controllers
         [Action("get")]
         [ApiAuthorize]
         [SchemeArgument("id", MinInteger = 1)]
+        [Throws(eResponseStatus.AnnouncementNotFound)]
         static public KalturaTopic Get(int id)
         {
             KalturaTopic response = null;
@@ -116,6 +118,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Topic identifier</param>
         [Action("delete")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AnnouncementNotFound)]
         static public bool Delete(int id)
         {
             bool response = false;
@@ -138,10 +141,6 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Updates a topic "automatic issue notification" behavior.
         /// </summary>
-        /// <remarks>
-        /// Possible status codes:       
-        /// 
-        /// </remarks>
         /// <param name="id">Topic identifier</param>        
         /// <param name="automaticIssueNotification">Behavior options:
         ///  Inherit = 0: Take value from partner notification settings
@@ -151,6 +150,7 @@ namespace WebAPI.Controllers
         [Action("updateStatus")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.AnnouncementNotFound)]
         static public bool UpdateStatus(int id, KalturaTopicAutomaticIssueNotification automaticIssueNotification)
         {
             bool response = false;

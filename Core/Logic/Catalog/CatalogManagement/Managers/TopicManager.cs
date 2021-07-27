@@ -20,26 +20,26 @@ namespace Core.Catalog.CatalogManagement
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<TopicManager> lazy = new Lazy<TopicManager>(() => 
         new TopicManager(CatalogManager.Instance, CatalogDAL.Instance, VirtualAssetPartnerConfigManager.Instance,
-            new ElasticsearchWrapper(), GroupsCache.Instance(), ConditionalAccess.Utils.Instance, Core.Notification.NotificationCache.Instance())
+            IndexManagerFactory.GetFactory(), GroupsCache.Instance(), ConditionalAccess.Utils.Instance, Core.Notification.NotificationCache.Instance())
         , LazyThreadSafetyMode.PublicationOnly);
         public static TopicManager Instance { get { return lazy.Value; } }
 
         private readonly ICatalogManager _catalogManager;
         private readonly ITopicRepository _repository;
         private readonly IVirtualAssetPartnerConfigManager _virtualAssetPartnerConfigManager;
-        private readonly IElasticsearchWrapper _wrapper;
+        private readonly IIndexManagerFactory _indexManagerFactory;
         private readonly GroupsCacheManager.IGroupsCache _groupsCache;
         private readonly ConditionalAccess.IConditionalAccessUtils _conditionalAccessUtils;
         private readonly Notification.INotificationCache _notificationCache;
 
         public TopicManager(ICatalogManager catalogManager, ITopicRepository topicRepository, IVirtualAssetPartnerConfigManager virtualAssetPartnerConfigManager, 
-            IElasticsearchWrapper elasticsearchWrapper, GroupsCacheManager.IGroupsCache groupsCache, ConditionalAccess.IConditionalAccessUtils conditionalAccessUtils,
+            IIndexManagerFactory indexManagerFactory, GroupsCacheManager.IGroupsCache groupsCache, ConditionalAccess.IConditionalAccessUtils conditionalAccessUtils,
             Notification.INotificationCache notificationCache)
         {
             _catalogManager = catalogManager;
             _repository = topicRepository;
             _virtualAssetPartnerConfigManager = virtualAssetPartnerConfigManager;
-            _wrapper = elasticsearchWrapper;
+            _indexManagerFactory = indexManagerFactory;
             _groupsCache = groupsCache;
             _conditionalAccessUtils = conditionalAccessUtils;
             _notificationCache = notificationCache;
@@ -261,7 +261,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (topic.Type == MetaType.Tag)
                     {
-                        Status deleteTopicFromEsResult = _wrapper.DeleteTagsByTopic(groupId, _catalogGroupCache, id);
+                        Status deleteTopicFromEsResult = _indexManagerFactory.GetInstance(groupId).DeleteTagsByTopic(id);
                         if (deleteTopicFromEsResult == null || deleteTopicFromEsResult.Code != (int)eResponseStatus.OK)
                         {
                             log.ErrorFormat("Failed deleting topic from ElasticSearch, for groupId: {0} and topicId: {1}", groupId, id);

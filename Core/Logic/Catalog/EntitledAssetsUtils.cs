@@ -155,44 +155,41 @@ namespace Core.Catalog
 
             List<int> result = new List<int>();
 
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+            IIndexManager indexManager = IndexManagerFactory.GetInstance(parentGroupID);
 
-            if (searcher != null)
+            Group group = null;
+            if (!doesGroupUsesTemplates)
             {
-                Group group = null;
-                if (!doesGroupUsesTemplates)
-                {
-                    GroupManager manager = new GroupManager();
-                    group = manager.GetGroup(parentGroupID);
-                }
-
-                UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
-                bool shouldSearchNotEntitled = originalDefinitions.entitlementSearchDefinitions.shouldSearchNotEntitled;
-
-                // Copy definitions from original object
-                definitions.entitlementSearchDefinitions = originalDefinitions.entitlementSearchDefinitions;
-                definitions.entitlementSearchDefinitions.shouldSearchNotEntitled = false;
-                definitions.deviceRuleId = originalDefinitions.deviceRuleId;
-                definitions.groupId = parentGroupID;
-                definitions.indexGroupId = parentGroupID;
-                definitions.geoBlockRules = originalDefinitions.geoBlockRules;
-                definitions.permittedWatchRules = originalDefinitions.permittedWatchRules;
-                definitions.shouldSearchMedia = true;
-                definitions.shouldSearchEpg = false;
-                definitions.shouldSearchRecordings = false;
-                definitions.userTypeID = originalDefinitions.userTypeID;
-
-                // Most important part - tell the definitions to search only entitled assets and only of linear channels
-                definitions.filterPhrase = new BooleanLeaf("entitled_assets", "true", typeof(string), ComparisonOperator.Contains);
-                definitions.mediaTypes = linearChannelMediaTypes;
-
-                // Also indicate that we are interested in this field
-                definitions.extraReturnFields.Add("epg_identifier");
-
-                result = searcher.GetEntitledEpgLinearChannels(group, definitions, parentGroupID);
-
-                originalDefinitions.entitlementSearchDefinitions.shouldSearchNotEntitled = shouldSearchNotEntitled;
+                GroupManager manager = new GroupManager();
+                group = manager.GetGroup(parentGroupID);
             }
+
+            UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
+            bool shouldSearchNotEntitled = originalDefinitions.entitlementSearchDefinitions.shouldSearchNotEntitled;
+
+            // Copy definitions from original object
+            definitions.entitlementSearchDefinitions = originalDefinitions.entitlementSearchDefinitions;
+            definitions.entitlementSearchDefinitions.shouldSearchNotEntitled = false;
+            definitions.deviceRuleId = originalDefinitions.deviceRuleId;
+            definitions.groupId = parentGroupID;
+            definitions.indexGroupId = parentGroupID;
+            definitions.geoBlockRules = originalDefinitions.geoBlockRules;
+            definitions.permittedWatchRules = originalDefinitions.permittedWatchRules;
+            definitions.shouldSearchMedia = true;
+            definitions.shouldSearchEpg = false;
+            definitions.shouldSearchRecordings = false;
+            definitions.userTypeID = originalDefinitions.userTypeID;
+
+            // Most important part - tell the definitions to search only entitled assets and only of linear channels
+            definitions.filterPhrase = new BooleanLeaf("entitled_assets", "true", typeof(string), ComparisonOperator.Contains);
+            definitions.mediaTypes = linearChannelMediaTypes;
+
+            // Also indicate that we are interested in this field
+            definitions.extraReturnFields.Add("epg_identifier");
+
+            result = indexManager.GetEntitledEpgLinearChannels(definitions);
+
+            originalDefinitions.entitlementSearchDefinitions.shouldSearchNotEntitled = shouldSearchNotEntitled;
 
             return result;
         }

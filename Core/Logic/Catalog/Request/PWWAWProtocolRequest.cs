@@ -56,8 +56,8 @@ namespace Core.Catalog.Request
             return ConvertProtocolDataTableToList(dt, "m_id");
         }
 
-        protected override List<SearchResult> ExecuteIPNOProtocol(BaseRequest oBaseRequest, int nOperatorID, List<List<string>> jsonizedChannelsDefinitions,
-            ref ISearcher initializedSearcher)
+        protected override List<SearchResult> ExecuteIPNOProtocol(BaseRequest oBaseRequest, 
+            int nOperatorID, List<List<string>> jsonizedChannelsDefinitions)
         {
             int nGroupID = 0, nMediaID = 0, nCountryID = 0;
             string sSiteGuid = string.Empty;
@@ -67,7 +67,7 @@ namespace Core.Catalog.Request
                 nCountryID, nLanguageID, sEndDate, nDeviceID, nOperatorID);
             List<SearchResult> initialResults = ConvertProtocolDataTableToList(dt, "m_id");
 
-            return GetProtocolFinalResultsUsingSearcher(initialResults, ref initializedSearcher, jsonizedChannelsDefinitions, nGroupID);
+            return GetProtocolFinalResultsUsingSearcher(initialResults, jsonizedChannelsDefinitions, nGroupID);
         }
 
         private void GetProtocolData(BaseRequest oRequest, ref int nGroupID, ref int nMediaID, ref string sSiteGuid, ref int nCountryID)

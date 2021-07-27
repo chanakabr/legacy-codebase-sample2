@@ -37,16 +37,13 @@ namespace Core.Catalog.Request
 
                 CheckSignature(request);
 
-                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+                IIndexManager indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
 
-                if (searcher != null)
+                List<int> lChannels = indexManager.GetMediaChannels(request.m_nMediaID);
+
+                if (lChannels != null && lChannels.Count > 0)
                 {
-                    List<int> lChannels = searcher.GetMediaChannels(request.m_nGroupID, request.m_nMediaID);
-
-                    if (lChannels != null && lChannels.Count > 0)
-                    {
-                        response.m_nChannelIDs.AddRange(lChannels);
-                    }
+                    response.m_nChannelIDs.AddRange(lChannels);
                 }
 
                 return response;

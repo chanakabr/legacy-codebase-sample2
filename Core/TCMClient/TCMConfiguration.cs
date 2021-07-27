@@ -33,6 +33,7 @@ namespace TCMClient
             string appSecret = System.Environment.GetEnvironmentVariable("TCM_APP_SECRET");
             string verifySSL = System.Environment.GetEnvironmentVariable("TCM_VERIFY_SSL");
             string fromLocal = System.Environment.GetEnvironmentVariable("TCM_FROM_LOCAL");
+            string localPath = System.Environment.GetEnvironmentVariable("LOCAL_PATH");
 
             if (application != null)
             {
@@ -77,6 +78,11 @@ namespace TCMClient
             if (fromLocal != null && bool.TryParse(fromLocal, out fromLocalParsed))
             {
                 FromLocal = fromLocalParsed;
+            }
+            
+            if (localPath != null)
+            {
+                LocalPath = localPath;
             }
         }
 

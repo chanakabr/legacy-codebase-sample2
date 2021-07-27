@@ -3,11 +3,10 @@ using System;
 using System.Linq;
 using System.Web;
 using System.Collections.Generic;
-using KalturaRequestContext;
-using TVinciShared;
 using WebAPI.Managers.Scheme;
 using WebAPI.Filters;
 using WebAPI.Managers;
+using TVinciShared;
 using WebAPI.Utils;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
@@ -23,9 +22,10 @@ using WebAPI.Models.Segmentation;
 using WebAPI.Models.Users;
 using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
-using WebAPI.Models.CanaryDeployment;
+using WebAPI.Models.CanaryDeployment.Microservices;
 using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
+using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Controllers;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
@@ -8363,6 +8363,10 @@ namespace WebAPI.Models.General
                 propertyValue = Context.ToJson(currentVersion, omitObsolete);
                 ret.Add("context", "\"context\": " + propertyValue);
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "\"createDate\": " + CreateDate);
+            }
             if(eventObject != null && (retrievedProperties == null || retrievedProperties.Contains("object")))
             {
                 propertyValue = eventObject.ToJson(currentVersion, omitObsolete);
@@ -8422,6 +8426,10 @@ namespace WebAPI.Models.General
             {
                 propertyValue = Context.ToXml(currentVersion, omitObsolete);
                 ret.Add("context", "<context>" + propertyValue + "</context>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             }
             if(eventObject != null && (retrievedProperties == null || retrievedProperties.Contains("object")))
             {
@@ -9597,7 +9605,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(PopulationConditions != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaBatchCampaign", "PopulationConditions", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("populationConditions")))
             {
@@ -9617,7 +9625,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(PopulationConditions != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaBatchCampaign", "PopulationConditions", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("populationConditions")))
             {
@@ -9883,7 +9891,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(CollectionIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("collectionIdIn")))
             {
@@ -9947,7 +9955,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(CollectionIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("collectionIdIn")))
             {
@@ -14420,7 +14428,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(CurrentUserPermissionsContains.HasValue && (retrievedProperties == null || retrievedProperties.Contains("currentUserPermissionsContains")))
             {
@@ -14443,7 +14451,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(CurrentUserPermissionsContains.HasValue && (retrievedProperties == null || retrievedProperties.Contains("currentUserPermissionsContains")))
             {
@@ -16356,7 +16364,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("action")))
             {
@@ -16384,7 +16392,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("action")))
             {
@@ -21014,6 +21022,68 @@ namespace WebAPI.Models.Notification
             return ret;
         }
     }
+    public partial class KalturaTriggerCampaignEvent
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("campaignId")))
+            {
+                ret.Add("campaignId", "\"campaignId\": " + CampaignId);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("householdId")))
+            {
+                ret.Add("householdId", "\"householdId\": " + HouseholdId);
+            }
+            if(Udid != null && (retrievedProperties == null || retrievedProperties.Contains("udid")))
+            {
+                ret.Add("udid", "\"udid\": " + "\"" + EscapeJson(Udid) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("userId")))
+            {
+                ret.Add("userId", "\"userId\": " + UserId);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("campaignId")))
+            {
+                ret.Add("campaignId", "<campaignId>" + CampaignId + "</campaignId>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("householdId")))
+            {
+                ret.Add("householdId", "<householdId>" + HouseholdId + "</householdId>");
+            }
+            if(Udid != null && (retrievedProperties == null || retrievedProperties.Contains("udid")))
+            {
+                ret.Add("udid", "<udid>" + EscapeXml(Udid) + "</udid>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("userId")))
+            {
+                ret.Add("userId", "<userId>" + UserId + "</userId>");
+            }
+            return ret;
+        }
+    }
 }
 
 namespace WebAPI.App_Start
@@ -21184,7 +21254,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
             {
@@ -21325,7 +21395,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
             {
@@ -24843,6 +24913,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
             }
+            if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
+            {
+                ret.Add("virtualAssetId", "\"virtualAssetId\": " + VirtualAssetId);
+            }
             return ret;
         }
         
@@ -24954,6 +25028,10 @@ namespace WebAPI.Models.Catalog
             if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
             {
                 ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
+            }
+            if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
+            {
+                ret.Add("virtualAssetId", "<virtualAssetId>" + VirtualAssetId + "</virtualAssetId>");
             }
             return ret;
         }
@@ -25174,7 +25252,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("idEqual")))
             {
@@ -25209,7 +25287,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("idEqual")))
             {
@@ -25928,6 +26006,162 @@ namespace WebAPI.Models.Catalog
             return ret;
         }
     }
+    public partial class KalturaLabel
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("entityAttribute")))
+            {
+                ret.Add("entityAttribute", "\"entityAttribute\": " + "\"" + Enum.GetName(typeof(KalturaEntityAttribute), EntityAttribute) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + Id);
+            }
+            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            {
+                ret.Add("value", "\"value\": " + "\"" + EscapeJson(Value) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("entityAttribute")))
+            {
+                ret.Add("entityAttribute", "<entityAttribute>" + "" + Enum.GetName(typeof(KalturaEntityAttribute), EntityAttribute) + "" + "</entityAttribute>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + Id + "</id>");
+            }
+            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            {
+                ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaLabelFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("entityAttributeEqual")))
+            {
+                ret.Add("entityAttributeEqual", "\"entityAttributeEqual\": " + "\"" + Enum.GetName(typeof(KalturaEntityAttribute), EntityAttributeEqual) + "\"");
+            }
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "\"idIn\": " + "\"" + EscapeJson(IdIn) + "\"");
+            }
+            if(LabelEqual != null && (retrievedProperties == null || retrievedProperties.Contains("labelEqual")))
+            {
+                ret.Add("labelEqual", "\"labelEqual\": " + "\"" + EscapeJson(LabelEqual) + "\"");
+            }
+            if(LabelStartsWith != null && (retrievedProperties == null || retrievedProperties.Contains("labelStartsWith")))
+            {
+                ret.Add("labelStartsWith", "\"labelStartsWith\": " + "\"" + EscapeJson(LabelStartsWith) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("entityAttributeEqual")))
+            {
+                ret.Add("entityAttributeEqual", "<entityAttributeEqual>" + "" + Enum.GetName(typeof(KalturaEntityAttribute), EntityAttributeEqual) + "" + "</entityAttributeEqual>");
+            }
+            if(IdIn != null && (retrievedProperties == null || retrievedProperties.Contains("idIn")))
+            {
+                ret.Add("idIn", "<idIn>" + EscapeXml(IdIn) + "</idIn>");
+            }
+            if(LabelEqual != null && (retrievedProperties == null || retrievedProperties.Contains("labelEqual")))
+            {
+                ret.Add("labelEqual", "<labelEqual>" + EscapeXml(LabelEqual) + "</labelEqual>");
+            }
+            if(LabelStartsWith != null && (retrievedProperties == null || retrievedProperties.Contains("labelStartsWith")))
+            {
+                ret.Add("labelStartsWith", "<labelStartsWith>" + EscapeXml(LabelStartsWith) + "</labelStartsWith>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaLabelListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Labels != null)
+            {
+                propertyValue = "[" + String.Join(", ", Labels.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Labels != null)
+            {
+                propertyValue = Labels.Count > 0 ? "<item>" + String.Join("</item><item>", Labels.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaLastPosition
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -26090,7 +26324,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(BufferCatchUp.HasValue && (retrievedProperties == null || retrievedProperties.Contains("bufferCatchUpSetting")))
             {
@@ -26173,7 +26407,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(BufferCatchUp.HasValue && (retrievedProperties == null || retrievedProperties.Contains("bufferCatchUpSetting")))
             {
@@ -26296,7 +26530,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && CatchUpBuffer.HasValue && (retrievedProperties == null || retrievedProperties.Contains("catchUpBuffer")))
             {
@@ -26363,7 +26597,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && CatchUpBuffer.HasValue && (retrievedProperties == null || retrievedProperties.Contains("catchUpBuffer")))
             {
@@ -26526,6 +26760,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("isDefaultLanguage", "\"isDefaultLanguage\": " + IsDefaultLanguage.ToString().ToLower());
             }
+            if(Labels != null && (retrievedProperties == null || retrievedProperties.Contains("labels")))
+            {
+                ret.Add("labels", "\"labels\": " + "\"" + EscapeJson(Labels) + "\"");
+            }
             if(Language != null && (retrievedProperties == null || retrievedProperties.Contains("language")))
             {
                 ret.Add("language", "\"language\": " + "\"" + EscapeJson(Language) + "\"");
@@ -26681,6 +26919,10 @@ namespace WebAPI.Models.Catalog
             if(IsDefaultLanguage.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefaultLanguage")))
             {
                 ret.Add("isDefaultLanguage", "<isDefaultLanguage>" + IsDefaultLanguage.ToString().ToLower() + "</isDefaultLanguage>");
+            }
+            if(Labels != null && (retrievedProperties == null || retrievedProperties.Contains("labels")))
+            {
+                ret.Add("labels", "<labels>" + EscapeXml(Labels) + "</labels>");
             }
             if(Language != null && (retrievedProperties == null || retrievedProperties.Contains("language")))
             {
@@ -27610,7 +27852,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(OnlyNewStandardAttribute.IsNew("5.0.0.0", currentVersion) && CatchUpEnabled.HasValue && (retrievedProperties == null || retrievedProperties.Contains("enableCatchUp")))
             {
@@ -27661,7 +27903,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(OnlyNewStandardAttribute.IsNew("5.0.0.0", currentVersion) && CatchUpEnabled.HasValue && (retrievedProperties == null || retrievedProperties.Contains("enableCatchUp")))
             {
@@ -27824,7 +28066,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(RecordingId != null && (retrievedProperties == null || retrievedProperties.Contains("recordingId")))
             {
@@ -27847,7 +28089,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(RecordingId != null && (retrievedProperties == null || retrievedProperties.Contains("recordingId")))
             {
@@ -29823,7 +30065,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("percentage")))
             {
@@ -29842,7 +30084,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("percentage")))
             {
@@ -29863,7 +30105,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("endDate")))
             {
@@ -29907,7 +30149,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("endDate")))
             {
@@ -31027,7 +31269,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(Amount.HasValue && (retrievedProperties == null || retrievedProperties.Contains("amount")))
             {
@@ -31062,7 +31304,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(Amount.HasValue && (retrievedProperties == null || retrievedProperties.Contains("amount")))
             {
@@ -35511,7 +35753,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(Address != null && (retrievedProperties == null || retrievedProperties.Contains("address")))
             {
@@ -35669,7 +35911,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(Address != null && (retrievedProperties == null || retrievedProperties.Contains("address")))
             {
@@ -35931,7 +36173,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(EmailEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "EmailEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("emailEqual")))
             {
@@ -35966,7 +36208,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(EmailEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "EmailEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("emailEqual")))
             {
@@ -36441,7 +36683,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
             {
@@ -36488,7 +36730,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
             {
@@ -36537,7 +36779,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             return ret;
         }
@@ -36552,7 +36794,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             return ret;
         }
@@ -37505,6 +37747,10 @@ namespace WebAPI.Models.Partner
                 propertyValue = "[" + String.Join(", ", BookmarkEventThresholds.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("bookmarkEventThresholds", "\"bookmarkEventThresholds\": " + propertyValue);
             }
+            if(KeepSubscriptionAddOns.HasValue && (retrievedProperties == null || retrievedProperties.Contains("keepSubscriptionAddOns")))
+            {
+                ret.Add("keepSubscriptionAddOns", "\"keepSubscriptionAddOns\": " + KeepSubscriptionAddOns.ToString().ToLower());
+            }
             return ret;
         }
         
@@ -37523,6 +37769,10 @@ namespace WebAPI.Models.Partner
             {
                 propertyValue = BookmarkEventThresholds.Count > 0 ? "<item>" + String.Join("</item><item>", BookmarkEventThresholds.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("bookmarkEventThresholds", "<bookmarkEventThresholds>" + propertyValue + "</bookmarkEventThresholds>");
+            }
+            if(KeepSubscriptionAddOns.HasValue && (retrievedProperties == null || retrievedProperties.Contains("keepSubscriptionAddOns")))
+            {
+                ret.Add("keepSubscriptionAddOns", "<keepSubscriptionAddOns>" + KeepSubscriptionAddOns.ToString().ToLower() + "</keepSubscriptionAddOns>");
             }
             return ret;
         }
@@ -37734,6 +37984,10 @@ namespace WebAPI.Models.Partner
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AllowDeviceMobility.HasValue && (retrievedProperties == null || retrievedProperties.Contains("allowDeviceMobility")))
+            {
+                ret.Add("allowDeviceMobility", "\"allowDeviceMobility\": " + AllowDeviceMobility.ToString().ToLower());
+            }
             if(DateFormat != null && (retrievedProperties == null || retrievedProperties.Contains("dateFormat")))
             {
                 ret.Add("dateFormat", "\"dateFormat\": " + "\"" + EscapeJson(DateFormat) + "\"");
@@ -37809,6 +38063,10 @@ namespace WebAPI.Models.Partner
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AllowDeviceMobility.HasValue && (retrievedProperties == null || retrievedProperties.Contains("allowDeviceMobility")))
+            {
+                ret.Add("allowDeviceMobility", "<allowDeviceMobility>" + AllowDeviceMobility.ToString().ToLower() + "</allowDeviceMobility>");
+            }
             if(DateFormat != null && (retrievedProperties == null || retrievedProperties.Contains("dateFormat")))
             {
                 ret.Add("dateFormat", "<dateFormat>" + EscapeXml(DateFormat) + "</dateFormat>");
@@ -39429,7 +39687,7 @@ namespace WebAPI.Models.Upload
     }
 }
 
-namespace WebAPI.Models.CanaryDeployment
+namespace WebAPI.Models.CanaryDeployment.Microservices
 {
     public partial class KalturaCanaryDeploymentAuthenticationMsOwnerShip
     {
@@ -39509,7 +39767,7 @@ namespace WebAPI.Models.CanaryDeployment
             return ret;
         }
     }
-    public partial class KalturaCanaryDeploymentConfiguration
+    public partial class KalturaMicroservicesCanaryDeploymentConfiguration
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
@@ -39569,7 +39827,7 @@ namespace WebAPI.Models.CanaryDeployment
             return ret;
         }
     }
-    public partial class KalturaCanaryDeploymentDataOwnerShip
+    public partial class KalturaMicroservicesCanaryDeploymentDataOwnerShip
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
@@ -39609,7 +39867,7 @@ namespace WebAPI.Models.CanaryDeployment
             return ret;
         }
     }
-    public partial class KalturaCanaryDeploymentMigrationEvents
+    public partial class KalturaMicroservicesCanaryDeploymentMigrationEvents
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
@@ -41682,7 +41940,7 @@ namespace WebAPI.Models.Domains
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(DeviceFamilyIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyIdIn")))
             {
@@ -41709,7 +41967,7 @@ namespace WebAPI.Models.Domains
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(DeviceFamilyIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyIdIn")))
             {
@@ -42156,7 +42414,7 @@ namespace WebAPI.Models.Domains
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdUserFilter", "HouseholdIdEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("householdIdEqual")))
             {
@@ -42175,7 +42433,7 @@ namespace WebAPI.Models.Domains
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdUserFilter", "HouseholdIdEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("householdIdEqual")))
             {
@@ -42264,6 +42522,56 @@ namespace WebAPI.Models.Domains
     }
 }
 
+namespace WebAPI.Models.CanaryDeployment.Elasticsearch
+{
+    public partial class KalturaElasticsearchCanaryDeploymentConfiguration
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("elasticsearchActiveVersion")))
+            {
+                ret.Add("elasticsearchActiveVersion", "\"elasticsearchActiveVersion\": " + "\"" + Enum.GetName(typeof(KalturaElasticsearchVersion), ElasticsearchActiveVersion) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("enableMigrationEvents")))
+            {
+                ret.Add("enableMigrationEvents", "\"enableMigrationEvents\": " + EnableMigrationEvents.ToString().ToLower());
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("elasticsearchActiveVersion")))
+            {
+                ret.Add("elasticsearchActiveVersion", "<elasticsearchActiveVersion>" + "" + Enum.GetName(typeof(KalturaElasticsearchVersion), ElasticsearchActiveVersion) + "" + "</elasticsearchActiveVersion>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("enableMigrationEvents")))
+            {
+                ret.Add("enableMigrationEvents", "<enableMigrationEvents>" + EnableMigrationEvents.ToString().ToLower() + "</enableMigrationEvents>");
+            }
+            return ret;
+        }
+    }
+}
+
 namespace WebAPI.Controllers
 {
     public partial class KalturaEpg
@@ -42278,7 +42586,7 @@ namespace WebAPI.Controllers
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             return ret;
         }
@@ -42293,7 +42601,7 @@ namespace WebAPI.Controllers
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
 
             return ret;
         }

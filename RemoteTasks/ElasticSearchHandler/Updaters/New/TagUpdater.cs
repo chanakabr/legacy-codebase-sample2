@@ -16,8 +16,6 @@ namespace ElasticSearchHandler.Updaters
         #region Data Members
 
         private int groupId;
-        private ElasticSearch.Common.ESSerializerV2 esSerializer;
-        private ElasticSearch.Common.ElasticSearchApi esApi;
 
         #endregion
 
@@ -26,28 +24,6 @@ namespace ElasticSearchHandler.Updaters
         public List<int> IDs { get; set; }
         public ApiObjects.eAction Action { get; set; }
 
-        public string ElasticSearchUrl
-        {
-            get
-            {
-                if (esApi != null)
-                {
-                    return esApi.baseUrl;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            set
-            {
-                if (esApi != null)
-                {
-                    esApi.baseUrl = value;
-                }
-            }
-        }
-
         #endregion
 
         #region Ctors
@@ -55,8 +31,6 @@ namespace ElasticSearchHandler.Updaters
         public TagUpdater(int groupId)
         {
             this.groupId = groupId;
-            esSerializer = new ElasticSearch.Common.ESSerializerV2();
-            esApi = new ElasticSearch.Common.ElasticSearchApi();
         }
 
         #endregion
@@ -77,14 +51,7 @@ namespace ElasticSearchHandler.Updaters
                 return result;
             }
 
-            if (!esApi.IndexExists(ElasticSearchTaskUtils.GetMetadataGroupAliasStr(groupId)))
-            {
-                log.Error("Error - " + string.Format("Index of type metadata for group {0} does not exist", groupId));
-
-                return result;
-            }
-
-            ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+            var indexManager = IndexManagerFactory.GetInstance(groupId);
             CatalogGroupCache catalogGroupCache = null;
 
             // Check if group supports Templates
@@ -121,7 +88,7 @@ namespace ElasticSearchHandler.Updaters
                             }
                             else
                             {
-                                var status = wrapper.UpdateTag(groupId, catalogGroupCache, tagValue.Object);
+                                var status = indexManager.UpdateTag(tagValue.Object);
                                 if (!status.IsOkStatusCode())
                                 {
                                     result = false;
@@ -134,7 +101,7 @@ namespace ElasticSearchHandler.Updaters
                     case eAction.Off:
                     case eAction.Delete:
                         {
-                            var status = wrapper.DeleteTag(groupId, catalogGroupCache, id);
+                            var status = indexManager.DeleteTag(id);
 
                             if (status == null || status.Code != (int)eResponseStatus.OK)
                             {

@@ -80,6 +80,7 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [OldStandardArgument("adapterId", "adapter_id")]
         [Throws(eResponseStatus.AdapterNotExists)]
+        [Throws(eResponseStatus.AdapterIdentifierRequired)]
         static public bool Delete(int adapterId)
         {
             bool response = false;
@@ -109,6 +110,7 @@ namespace WebAPI.Controllers
         /// <param name="adapter">C-DVR adapter object</param>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.NoAdapterToInsert)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
@@ -143,10 +145,12 @@ namespace WebAPI.Controllers
         /// <param name="adapter">C-DVR adapter Object</param>       
         [Action("update")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AdapterIsRequired)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.AdapterIdentifierRequired)]
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
+        [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
         [Throws(eResponseStatus.AdapterNotExists)]
         static public KalturaCDVRAdapterProfile Update(int adapterId, KalturaCDVRAdapterProfile adapter)
         {

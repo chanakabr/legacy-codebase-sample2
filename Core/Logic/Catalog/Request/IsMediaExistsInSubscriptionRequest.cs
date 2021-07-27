@@ -63,98 +63,16 @@ namespace Core.Catalog.Request
 
                     if (allChannels != null && allChannels.Count > 0)
                     {
-                        ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+                        IIndexManager indexManager = IndexManagerFactory.GetInstance(groupInCache.m_nParentGroupID);
+                        List<int> lChannelIDs = allChannels.Select(channel => channel.m_nChannelID).ToList();
+                        
+                        bool bDoesMediaBelongToSubscription = indexManager.DoesMediaBelongToChannels(lChannelIDs, request.m_nMediaID);
 
-                        #region searcher is LuceneWrapper
-                        if (searcher is LuceneWrapper)
+                        if (bDoesMediaBelongToSubscription)
                         {
-                            List<ApiObjects.SearchObjects.MediaSearchObj> channelsSearchObjects = new List<ApiObjects.SearchObjects.MediaSearchObj>();
-
-                            // save monitor and logs context data
-                            ContextData contextData = new ContextData();
-
-                            Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
-                            int[] nDeviceRuleId = null;
-
-                            if (request.m_oFilter != null)
-                                nDeviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
-
-                            #region Building search object for each channel
-                            for (int searchObjectIndex = 0; searchObjectIndex < allChannels.Count; searchObjectIndex++)
-                            {
-                                channelsSearchObjectTasks[searchObjectIndex] = new Task(
-                                     (obj) =>
-                                     {
-                                         // load monitor and logs context data
-                                         contextData.Load();
-
-                                         try
-                                         {
-                                             if (groupInCache != null)
-                                             {
-                                                 GroupsCacheManager.Channel currentChannel = allChannels[(int)obj];
-                                                 ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = CatalogLogic.BuildBaseChannelSearchObject(currentChannel, request, null, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
-                                                 channelSearchObject.m_oOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
-                                                 channelsSearchObjects.Add(channelSearchObject);
-                                             }
-                                         }
-                                         catch (Exception ex)
-                                         {
-                                             log.Error(ex.Message, ex);
-                                         }
-                                     }, searchObjectIndex);
-                                channelsSearchObjectTasks[searchObjectIndex].Start();
-                            }
-
-                            //Wait for all parallel tasks to end
-                            Task.WaitAll(channelsSearchObjectTasks);
-                            #endregion
-
-                            if (channelsSearchObjects != null && channelsSearchObjects.Count > 0)
-                            {
-                                try
-                                {
-                                    if (searcher != null)
-                                    {
-
-                                        // Getting all medias in subscription
-                                        SearchResultsObj oSearchResult = null;
-                                            //searcher.SearchSubscriptionMedias(request.m_nGroupID, channelsSearchObjects, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, string.Empty, new OrderObj(), request.m_nPageIndex, request.m_nPageSize);
-
-                                        if (oSearchResult != null && oSearchResult.m_resultIDs != null && oSearchResult.m_resultIDs.Count > 0)
-                                        {
-
-                                            IList<int> mediaIDsInList = oSearchResult.m_resultIDs.Select(searchRes => searchRes.assetID).Where(searchMediaID => searchMediaID == m_nMediaID).ToList();
-                                            if (mediaIDsInList.Count > 0)
-                                            {
-                                                response.m_nTotalItems = 1;
-                                                response.m_bExists = true;
-                                            }
-                                        }
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    log.Error(ex.Message);
-                                }
-                            }
+                            response.m_bExists = true;
+                            response.m_nTotalItems = 1;
                         }
-                        #endregion
-                        #region searcher is ElasticSearchWrapper
-                        else
-                        {
-                            List<int> lChannelIDs = allChannels.Select(channel => channel.m_nChannelID).ToList();
-                            int nOwnerGroup = groupInCache.m_nParentGroupID;
-
-                            bool bDoesMediaBelongToSubscription = searcher.DoesMediaBelongToChannels(nOwnerGroup, lChannelIDs, request.m_nMediaID);
-
-                            if (bDoesMediaBelongToSubscription)
-                            {
-                                response.m_bExists = true;
-                                response.m_nTotalItems = 1;
-                            }
-                        }
-                        #endregion
                     }
                 }
                 return response;

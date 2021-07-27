@@ -1,4 +1,5 @@
-﻿using WebAPI.ClientManagers.Client;
+﻿using ApiObjects.Response;
+using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
@@ -43,6 +44,8 @@ namespace WebAPI.Controllers
         /// <returns></returns>
         [Action("get")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.DlmNotExist)]
+        [Throws(eResponseStatus.WrongPasswordOrUserName)]
         static public KalturaHouseholdLimitations Get(int id)
         {
             KalturaHouseholdLimitations response = null;
@@ -92,6 +95,7 @@ namespace WebAPI.Controllers
         /// <returns>true if success</returns>
         [Action("delete")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.DlmNotExist)]
         public static bool Delete(int householdLimitationsId)
         {
             try

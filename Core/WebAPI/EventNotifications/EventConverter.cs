@@ -1,9 +1,7 @@
-﻿using System;
+﻿using ApiObjects;
+using System;
 using System.Web;
-using ApiObjects;
-using AutoMapper;
-using KalturaRequestContext;
-using WebAPI.Managers.Models;
+using TVinciShared;
 using WebAPI.Models.General;
 
 namespace WebAPI.EventNotifications
@@ -24,7 +22,7 @@ namespace WebAPI.EventNotifications
             {
                 Type sourceType = objectEvent.Object.GetType();
 
-                phoenixObject = Mapper.Map(objectEvent.Object, sourceType, destination);
+                phoenixObject = AutoMapper.Mapper.Map(objectEvent.Object, sourceType, destination);
                 ottObject = phoenixObject as KalturaOTTObject;
             }
             else
@@ -55,7 +53,7 @@ namespace WebAPI.EventNotifications
             string userIp;
             string udid;
 
-            var contextData = KS.GetContextData(true);
+            var contextData = Managers.Models.KS.GetContextData(true);
             if (contextData != null)
             {
                 userId = contextData.OriginalUserId > 0 ? contextData.OriginalUserId : contextData.UserId;
@@ -65,9 +63,9 @@ namespace WebAPI.EventNotifications
             else
             {
                 //try get from context
-                userIp = RequestContextUtilsInstance.Get().GetUserIp();
-                userId = RequestContextUtilsInstance.Get().GetUserId();
-                udid = RequestContextUtilsInstance.Get().GetUdid();
+                userIp = RequestContextUtils.GetUserIp();
+                userId = RequestContextUtils.GetUserId();
+                udid = RequestContextUtils.GetUdid();
             }
 
             KalturaNotification eventWrapper = new KalturaNotification()
@@ -78,9 +76,11 @@ namespace WebAPI.EventNotifications
                 systemName = systemName,
                 partnerId = objectEvent.PartnerId,
                 UserIp = userIp,
-                SequenceId = RequestContextUtilsInstance.Get().GetRequestId(),
+                SequenceId = RequestContextUtils.GetRequestId(),
                 UserId = userId,
                 Context = GetContext(),
+                Udid = udid,
+                CreateDate = DateUtils.GetUtcUnixTimestampNow()
             };
 
             return eventWrapper;
@@ -88,19 +88,27 @@ namespace WebAPI.EventNotifications
 
         private static KalturaEventContextAction GetContext()
         {
-            KalturaEventContextAction context = new KalturaEventContextAction
+            if (HttpContext.Current?.Items != null)
             {
-                Service = Convert.ToString(HttpContext.Current.Items[RequestContextConstants.REQUEST_SERVICE]),
-                Action = Convert.ToString(HttpContext.Current.Items[RequestContextConstants.REQUEST_ACTION])
-            };
+                var context = new KalturaEventContextAction();
+                if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_SERVICE))
+                {
+                    context.Service = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE]);
+                }
 
-            if (!String.IsNullOrEmpty(context.Action) && !String.IsNullOrEmpty(context.Service))
-            {
-                return context;
+                if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_ACTION))
+                {
+                    context.Action = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION]);
+                }
+
+                if (!string.IsNullOrEmpty(context.Action) && !string.IsNullOrEmpty(context.Service))
+                {
+                    return context;
+                }
             }
-
             return null;
         }
+
         internal static KalturaEventAction ConvertKalturaAction(eKalturaEventActions eKalturaEventActions)
         {
             KalturaEventAction action = KalturaEventAction.None;

@@ -182,6 +182,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.AdapterUrlRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
+        [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
+        [Throws(eResponseStatus.OSSAdapterNotExist)]
         static public KalturaOSSAdapterProfile Update(int ossAdapterId, KalturaOSSAdapterProfile ossAdapter)
         {
             KalturaOSSAdapterProfile response = null;

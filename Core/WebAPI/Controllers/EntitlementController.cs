@@ -18,8 +18,6 @@ namespace WebAPI.Controllers
         /// </summary>                
         /// <param name="assetId">The mediaFileID to cancel</param>        
         /// <param name="productType">The product type for the cancelation</param>
-        /// <remarks>Possible status codes: 
-        /// Household suspended = 1009, Invalid purchase = 3000, Cancellation window period expired = 3001, Content already consumed = 3005</remarks>
         [Action("cancel")]
         [ApiAuthorize]
         [OldStandardArgument("assetId", "asset_id")]
@@ -27,13 +25,18 @@ namespace WebAPI.Controllers
         [OldStandardArgument("productType", "transactionType", sinceVersion = "4.7.0.0")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [SchemeArgument("assetId", MinInteger = 1)]
+        [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.InvalidPurchase)]
         [Throws(eResponseStatus.CancelationWindowPeriodExpired)]
         [Throws(eResponseStatus.ContentAlreadyConsumed)]
-        [Throws(eResponseStatus.PaymentGatewayNotValid)]
         [Throws(eResponseStatus.CanNotCancelSubscriptionWhileDowngradeIsPending)]
         [Throws(eResponseStatus.SubscriptionCancellationIsBlocked)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayExternalVerification)]
+        [Throws(eResponseStatus.PaymentGatewayNotValid)]
+        [Throws(eResponseStatus.ActionBlocked)]
+        [Throws(StatusCode.HouseholdForbidden)]
         static public bool Cancel(int assetId, KalturaTransactionType productType)
         {
             var response = false;
@@ -72,8 +75,6 @@ namespace WebAPI.Controllers
         /// </summary>                
         /// <param name="assetId">The mediaFileID to cancel</param>        
         /// <param name="productType">The product type for the cancelation</param>
-        /// <remarks>Possible status codes: 
-        /// Household suspended = 1009, Invalid purchase = 3000</remarks>
         [Action("forceCancel")]
         [ApiAuthorize]
         [OldStandardArgument("assetId", "asset_id")]
@@ -131,17 +132,19 @@ namespace WebAPI.Controllers
         /// Cancel a household service subscription at the next renewal. The subscription stays valid till the next renewal.        
         /// </summary>        
         /// <param name="subscriptionId">Subscription Code</param>
-        /// <remarks>Possible status codes: 
-        /// Household suspended = 1009, Invalid purchase = 3000, SubscriptionNotRenewable = 300</remarks>
         [Action("cancelRenewal")]
         [ApiAuthorize]
         [OldStandardArgument("subscriptionId", "subscription_id")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(StatusCode.HouseholdForbidden)]
+        [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.DomainSuspended)]
         [Throws(eResponseStatus.InvalidPurchase)]
         [Throws(eResponseStatus.SubscriptionNotRenewable)]
         [Throws(eResponseStatus.CanNotCancelSubscriptionRenewalWhileDowngradeIsPending)]
         [Throws(eResponseStatus.SubscriptionCancellationIsBlocked)]
+        [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
+        [Throws(eResponseStatus.ActionBlocked)]
         static public void CancelRenewal(string subscriptionId)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -174,7 +177,6 @@ namespace WebAPI.Controllers
         /// Gets all the entitled media items for a household
         /// </summary>        
         /// <param name="filter">Request filter</param>
-        /// <remarks></remarks>
         [Action("listOldStandard")]
         [ApiAuthorize]
         [OldStandardAction("list")]
@@ -220,7 +222,6 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="filter">Request filter</param>
         /// <param name="pager">Request pager</param>1
-        /// <remarks></remarks>
         [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserDoesNotExist)]
@@ -276,7 +277,6 @@ namespace WebAPI.Controllers
         /// </summary>        
         /// <param name="filter">Request filter</param>
         /// <param name="pager">Paging the request</param>
-        /// <remarks></remarks>
         [Action("listExpired")]
         [ApiAuthorize]
         [Obsolete]
@@ -326,11 +326,6 @@ namespace WebAPI.Controllers
         /// <param name="productId">Identifier for the product package from which this content is offered  </param>
         /// <param name="productType">Product package type. Possible values: PPV, Subscription, Collection</param>
         /// <param name="history">Controls if the new entitlements grant will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
-        /// <remarks>Possible status codes: 
-        /// User not in household = 1005, User does not exist = 2000, User suspended = 2001, PPV purchased = 3021, Free = 3022, For purchase subscription only = 3023,
-        /// Subscription purchased = 3024, Not for purchase = 3025, Collection purchased = 3027, UnKnown PPV module = 6001
-        ///,       
-        /// </remarks>
         [Action("grant")]
         [ApiAuthorize]
         [OldStandardArgument("productId", "product_id")]
@@ -387,7 +382,7 @@ namespace WebAPI.Controllers
         /// (Deprecated - use Transaction.purchase) Charges a user for subscription or PPV      
         /// </summary>
         /// <remarks>
-        /// Possible status codes: 
+        /// Possible status codes:
         /// Price not correct = 6000, Unknown PPV module = 6001, Expired credit card = 6002, Cellular permissions error (for cellular charge) = 6003, Unknown billing provider = 6004
         /// </remarks>
         /// <param name="udid">Device UDID</param>
@@ -448,17 +443,15 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Reconcile the user household's entitlements with an external entitlements source. This request is frequency protected to avoid too frequent calls per household. 
         /// </summary>
-        /// /// <remarks>
-        /// Possible status codes: 
-        /// User not in household = 1005, User does not exist = 2000, User suspended = 2001, Reconciliation too frequent = 3029, Adapter application failure = 6012
-        /// </remarks>
         [Action("externalReconcile")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.ReconciliationFrequencyLimitation)]
         [Throws(eResponseStatus.AdapterAppFailure)]
+        [Throws(eResponseStatus.OSSAdapterNotExist)]
         static public bool ExternalReconcile()
         {
             bool response = false;
@@ -485,12 +478,19 @@ namespace WebAPI.Controllers
         /// </summary>                
         /// <param name="id">Purchase Id</param>
         /// <param name="entitlement">KalturaEntitlement object</param>
-        /// <remarks>Possible status codes: 
-        /// InvalidPurchase = 3000, SubscriptionNotRenewable = 3002, PaymentGatewayNotExist = 6008,  PaymentGatewayNotValid = 6043,PaymentGatewayNotSupportPaymentMethod = 6056,
-        /// PaymentGatewayNotSetForHousehold = 6007,PaymentGatewayTransactionNotFound = 6038,
-        /// </remarks>
         [Action("update")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.InvalidPurchase)]
+        [Throws(eResponseStatus.SubscriptionNotRenewable)]
+        [Throws(eResponseStatus.PaymentGatewayNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayNotSetForHousehold)]
+        [Throws(eResponseStatus.PaymentMethodIdRequired)]
+        [Throws(eResponseStatus.PaymentMethodNotSetForHousehold)]
+        [Throws(eResponseStatus.PaymentMethodNotExist)]
+        [Throws(eResponseStatus.PaymentGatewayNotSupportPaymentMethod)]
+        [Throws(eResponseStatus.PaymentGatewayNotValid)]
+        [Throws(eResponseStatus.PaymentGatewayChargeIdRequired)]
         static public KalturaEntitlement Update(int id, KalturaEntitlement entitlement)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -530,13 +530,15 @@ namespace WebAPI.Controllers
         /// <param name="currentProductId">Identifier for the current product package</param>
         /// <param name="newProductId">Identifier for the new product package </param>
         /// <param name="history">Controls if the new entitlements swap will appear in the user’s history. True – will add a history entry. False (or if ommited) – no history entry will be added</param>
-        /// <remarks>Possible status codes: 
-        /// UserDoesNotExist = 2000, UserSuspended = 2001, SubscriptionNotRenewable = 3002,UnableToPurchaseSubscriptionPurchased = 3024,
-        ///,User not in household = 1005, Not for purchase = 3025, ServiceAlreadyExists = 3053, DlmExist = 1035
-        /// </remarks>
         [Action("swap")]
         [ApiAuthorize]       
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserSuspended)]
+        [Throws(eResponseStatus.SubscriptionNotRenewable)]
+        [Throws(eResponseStatus.UnableToPurchaseSubscriptionPurchased)]
+        [Throws(eResponseStatus.ServiceAlreadyExists)]
+        [Throws(eResponseStatus.DlmExist)]
         static public bool Swap(int currentProductId, int newProductId, bool history)
         {
             bool response = false;
@@ -594,6 +596,8 @@ namespace WebAPI.Controllers
         [Action("getNextRenewal")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.SubscriptionSetDoesNotExist)]
+        [Throws(eResponseStatus.MissingBasePackage)]
         static public KalturaEntitlementRenewal GetNextRenewal(int id)
         {
             int groupId = KS.GetFromRequest().GroupId;
@@ -620,6 +624,9 @@ namespace WebAPI.Controllers
         [Action("applyCoupon")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [Throws(eResponseStatus.InvalidPurchase)]
+        [Throws(eResponseStatus.SubscriptionNotRenewable)]
+        [Throws(eResponseStatus.SubscriptionDoesNotExist)]
         [Throws(eResponseStatus.CouponNotValid)]
         [Throws(eResponseStatus.OtherCouponIsAlreadyAppliedForSubscription)]
         [Throws(eResponseStatus.CampaignIsAlreadyAppliedForSubscription)]

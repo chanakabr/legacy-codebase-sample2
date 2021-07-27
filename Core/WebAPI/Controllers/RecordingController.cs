@@ -265,12 +265,13 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="recordingIds">Recording identifiers. Up to 40 private copies and up to 100 shared copies can be deleted withing a call.</param>
         /// <returns>List of recordings with result of action in status.</returns>
-        /// <remarks>Possible status codes: BadRequest = 500003,UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024, RecordingIdsExceededLimit=3086.
-        /// RecordingNotFound = 3039 and RecordingStatusNotValid = 3043 indicates that the recording with particular Id can not be deleted.</remarks>
         [Action("bulkdelete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.DomainNotExists)]
+        [Throws(eResponseStatus.UserDoesNotExist)]
+        [Throws(eResponseStatus.UserNotInDomain)]
         [Throws(eResponseStatus.RecordingIdsExceededLimit)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public static List<KalturaActionResult> BulkDelete(string recordingIds)
@@ -315,8 +316,6 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">Recording identifier</param>
         /// <returns></returns>
-        /// <remarks>Possible status codes: BadRequest = 500003, UserNotInDomain = 1005, UserDoesNotExist = 2000, UserSuspended = 2001, UserWithNoDomain = 2024,
-        /// RecordingNotFound = 3039, RecordingStatusNotValid = 3043, HouseholdExceededProtectionQuota = 3044, AccountProtectRecordNotEnabled = 3045</remarks>     
         [Action("protect")]
         [ApiAuthorize]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
@@ -324,8 +323,11 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
+        [Throws(eResponseStatus.RecordingFailed)]
+        [Throws(eResponseStatus.InvalidParameters)]
         [Throws(eResponseStatus.ExceededProtectionQuota)]
         [Throws(eResponseStatus.AccountProtectRecordNotEnabled)]
         static public KalturaRecording Protect(long id)
@@ -360,9 +362,11 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
         [Throws(eResponseStatus.UserWithNoDomain)]
+        [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.RecordingNotFound)]
         [Throws(eResponseStatus.RecordingStatusNotValid)]
         [Throws(eResponseStatus.ExceededProtectionQuota)]
+        [Throws(eResponseStatus.RecordingFailed)]
         [Throws(eResponseStatus.AccountProtectRecordNotEnabled)]
         [Throws(eResponseStatus.InvalidParameters)]
         public static KalturaRecording Update(long id, KalturaRecording recording)

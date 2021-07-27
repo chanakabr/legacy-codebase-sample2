@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using CouchbaseManager.Models;
 
 namespace DalCB
 {
@@ -96,15 +97,15 @@ namespace DalCB
             {
                 try
                 {
-                    var documents = objects.Select(o => new Document<EpgCB>
-                    {
-                        Id = o.DocumentId,
-                        Content = o,
-                        Expiry = expirationRetriever(o),
-                    }).Cast<IDocument<EpgCB>>().ToList();
-
+                    var documents = objects.Select(o => new CouchbaseRecord<EpgCB>
+                        {
+                            Key = o.DocumentId,
+                            Content = o,
+                            Expiration = expirationRetriever(o)
+                        }).ToList();
+                    
                     var results = await cbManager.MultiSet(documents, allowPartial: false);
-                    // no need to check anything becasue allowPartials = false; means if one failes we get exception
+                    // no need to check anything because allowPartials = false; means if one failes we get exception
                     bRes = true;
                 }
                 catch (Exception ex)

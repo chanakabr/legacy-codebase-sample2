@@ -5,6 +5,7 @@ using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
 using Core.Api.Managers;
+using Core.Catalog;
 using Core.Users;
 using ElasticSearch.Utilities;
 using GroupsCacheManager;
@@ -439,7 +440,9 @@ namespace APILogic
                     string ip = funcParams["ip"].ToString();
                     if (!string.IsNullOrEmpty(ip))
                     {
-                        country = IpToCountry.GetCountryByIp(ip, out isCountryFilled);
+                        // index manager for group 0 is used for ip2country
+                        var indexManager = IndexManagerFactory.GetInstance(0);
+                        country = indexManager.GetCountryByIp(ip, out isCountryFilled);
                         if (country == null && isCountryFilled)
                         {
                             country = new ApiObjects.Country();
@@ -466,7 +469,9 @@ namespace APILogic
                     string countryName = funcParams["countryName"].ToString();
                     if (!string.IsNullOrEmpty(countryName))
                     {
-                        country = ElasticSearch.Utilities.IpToCountry.GetCountryByCountryName(countryName);
+                        // index manager for group 0 is used for ip2country
+                        var indexManager = IndexManagerFactory.GetInstance(0);
+                        country = indexManager.GetCountryByCountryName(countryName);
 
                         res = country != null;
                     }

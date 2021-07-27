@@ -45,24 +45,6 @@ namespace ElasticsearchTasksCommon
             return nGroupID.ToString();
         }
 
-        public static string GetRecordingGroupAliasStr(int nGroupID)
-        {
-            return string.Format("{0}_recording", nGroupID);
-        }
-        public static string GetNewEpgIndexStr(int nGroupID)
-        {
-            return string.Format("{0}_epg_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
-        }
-
-        public static string GetNewMediaIndexStr(int nGroupID)
-        {
-            return string.Format("{0}_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
-        }
-
-        public static string GetNewRecordingIndexStr(int nGroupID)
-        {
-            return string.Format("{0}_recording_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
-        }
 
         public static string GetTanslationType(string sType, LanguageObj oLanguage)
         {

@@ -211,6 +211,15 @@ namespace WebAPI.Models.Catalog
         [SchemeProperty(IsNullable = true)]
         public SerializableDictionary<string, KalturaStringValue> MetaData { get; set; }
 
+        /// <summary>
+        /// Virtual asset id
+        /// </summary>
+        [DataMember(Name = "virtualAssetId")]
+        [JsonProperty("virtualAssetId")]
+        [XmlElement(ElementName = "virtualAssetId", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long? VirtualAssetId { get; set; }
+
         internal virtual void ValidateForInsert()
         {
             if (string.IsNullOrEmpty(SystemName))

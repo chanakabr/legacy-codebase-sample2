@@ -47,5 +47,7 @@ namespace PlaybackAdapter
         public bool? Status { get; set; }
         [DataMember]
         public long? CatalogEndDate { get; set; }
+        [DataMember]
+        public string Labels { get; set; }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
-using ElasticSearch.Common;
 using EpgBL;
 using GroupsCacheManager;
 using KLogMonitor;
@@ -12,12 +11,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Core.Catalog;
 
 namespace ElasticSearchHandler.IndexBuilders
 {
     public abstract class AbstractIndexBuilder
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());                
 
         #region Consts
 
@@ -40,9 +40,7 @@ namespace ElasticSearchHandler.IndexBuilders
         #region Data Members
 
         protected int groupId;
-        protected ElasticSearchApi api;
-        protected BaseESSeralizer serializer;
-        protected HashSet<string> MetasToPad;
+        protected IIndexManager _IndexManager;
 
         #endregion
 
@@ -72,36 +70,14 @@ namespace ElasticSearchHandler.IndexBuilders
             set;
         }
 
-        public string ElasticSearchUrl
-        {
-            get
-            {
-                if (api != null)
-                {
-                    return api.baseUrl;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            set
-            {
-                if (api != null)
-                {
-                    api.baseUrl = value;
-                }
-            }
-        }
-
         #endregion
-
+        
         #region Ctor
 
         public AbstractIndexBuilder(int groupID)
         {
             this.groupId = groupID;
-            api = new ElasticSearchApi();
+            _IndexManager = IndexManagerFactory.GetInstance(groupID);
         }
 
         #endregion
@@ -113,8 +89,6 @@ namespace ElasticSearchHandler.IndexBuilders
         #endregion
 
         #region Protected Methods
-
-
 
         protected bool DualBuild(AbstractIndexBuilder firstBuilder, AbstractIndexBuilder secondBuilder)
         {

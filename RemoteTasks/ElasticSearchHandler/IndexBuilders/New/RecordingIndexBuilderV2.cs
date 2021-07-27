@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using EpgBL;
-using ElasticSearch.Common;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog;
 using GroupsCacheManager;
@@ -19,10 +18,7 @@ namespace ElasticSearchHandler.IndexBuilders
     {
         #region Data Members
 
-        public static readonly string RECORDING = "recording";
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         protected Dictionary<long, long> epgToRecordingMapping = null;
 
         #endregion
@@ -32,7 +28,6 @@ namespace ElasticSearchHandler.IndexBuilders
         public RecordingIndexBuilderV2(int groupId)
             : base(groupId)
         {
-            serializer = new ESSerializerV2();
             epgToRecordingMapping = new Dictionary<long, long>();
             shouldAddRouting = false;
         }
@@ -41,14 +36,9 @@ namespace ElasticSearchHandler.IndexBuilders
 
         #region Override Methods
 
-        protected override string GetNewIndexName()
+        protected override string CreateNewIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage)
         {
-            return ElasticsearchTasksCommon.Utils.GetNewRecordingIndexStr(this.groupId);
-        }
-
-        protected override HashSet<string> CreateNewIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, string newIndexName)
-        {
-            return IndexManager.CreateNewEpgIndex(groupId, catalogGroupCache, group, languages, defaultLanguage, newIndexName, true);
+            return _IndexManager.SetupEpgIndex(languages, defaultLanguage, true);
         }
 
         protected override void PopulateIndex(string newIndexName, GroupsCacheManager.Group group)
@@ -95,7 +85,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 }
 
                 // Work in bulks so we don't chocke the Couchbase. every time get only a bulk of EPGs
-                if (epgIds.Count >= sizeOfBulk)
+                if (epgIds.Count >= epgCbBulkSize)
                 {
                     // Get EPG objects
                     epgs.AddRange(epgBL.GetEpgs(epgIds, true));
@@ -111,64 +101,12 @@ namespace ElasticSearchHandler.IndexBuilders
 
             Dictionary<ulong, Dictionary<string, EpgCB>> epgDictionary = BuildEpgsLanguageDictionary(epgs);
 
-            this.AddEPGsToIndex(newIndexName, RECORDING, epgDictionary, group, doesGroupUsesTemplates, catalogGroupCache);
+            _IndexManager.AddEPGsToIndex(newIndexName, true, epgDictionary, linearChannelsRegionsMapping, epgToRecordingMapping);
         }
 
-        /// <summary>
-        /// Do nothing when it comes to recordings
-        /// </summary>
-        /// <param name="groupManager"></param>
-        /// <param name="group"></param>
-        /// <param name="newIndexName"></param>
-        protected override void InsertChannelsQueries(GroupsCacheManager.GroupManager groupManager, GroupsCacheManager.Group group, string newIndexName, bool doesGroupUsesTemplates)
+        protected override bool FinishUpEpgIndex(string newIndexName)
         {
-
-        }
-
-        protected override string GetAlias()
-        {
-            return ElasticsearchTasksCommon.Utils.GetRecordingGroupAliasStr(this.groupId);
-        }
-
-        protected override string SerializeEPGObject(ApiObjects.EpgCB epg, string suffix = null, bool doesGroupUsesTemplates = false)
-        {
-            long recordingId = (long)(epgToRecordingMapping[(int)epg.EpgID]);
-
-            return serializer.SerializeRecordingObject(epg, recordingId, suffix, doesGroupUsesTemplates);
-        }
-
-        protected override ulong GetDocumentId(ulong epgId)
-        {
-            return (ulong)(epgToRecordingMapping[(int)epgId]);
-        }
-
-        /// <summary>
-        /// Document ID will be the recording ID and not the EPG ID
-        /// </summary>
-        /// <param name="epg"></param>
-        /// <returns></returns>
-        protected override ulong GetDocumentId(ApiObjects.EpgCB epg)
-        {
-            ulong result = base.GetDocumentId(epg);
-
-            result = (ulong)(epgToRecordingMapping[(long)epg.EpgID]);
-
-            return result;
-        }
-
-        protected override string GetIndexType(LanguageObj language)
-        {
-            return (language.IsDefault) ? IndexManager.RECORDING_IDEX_TYPE : string.Concat(IndexManager.RECORDING_IDEX_TYPE, "_", language.Code);
-        }
-
-        protected override string GetIndexType()
-        {
-            return IndexManager.RECORDING_IDEX_TYPE;
-        }
-
-        protected override bool ShouldSetTTL()
-        {
-            return false;
+            return _IndexManager.FinishUpEpgIndex(newIndexName, isRecording: true, this.SwitchIndexAlias, this.DeleteOldIndices);
         }
 
         #endregion

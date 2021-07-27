@@ -10637,6 +10637,15 @@ namespace Core.ConditionalAccess
                     List<long> addOnBase = new List<long>();
                     List<SubscriptionSet> subscriptionSets = new List<SubscriptionSet>();
 
+                    //BEO-10259
+                    var commercePartnerConfig = PartnerConfigurationManager.GetCommercePartnerConfig(this.m_nGroupID);
+                    if (commercePartnerConfig.IsOkStatusCode() && 
+                        commercePartnerConfig.Object.KeepSubscriptionAddOns.HasValue && commercePartnerConfig.Object.KeepSubscriptionAddOns.Value)
+                    {
+                        log.Debug($"CancelAddOnByCancelBaseSubscription: Should keep add ons by configuration for group: {this.m_nGroupID}");
+                        return false;
+                    }
+
                     List<long> setsIds = subscription.GetSubscriptionSetIdsToPriority() != null ? subscription.GetSubscriptionSetIdsToPriority().Select(x => x.Key).ToList() : null;
 
                     if (setsIds != null && setsIds.Count > 0 && Utils.TryGetSubscriptionSets(m_nGroupID, setsIds, ref subscriptionSets))
@@ -16236,9 +16245,11 @@ namespace Core.ConditionalAccess
                         // check if a program with the same CRID was already recorded
                         if (recordedCridsPerChannel.ContainsKey(epgChannelId) && recordedCridsPerChannel[epgChannelId].Contains(crid))
                         {
-                            log.DebugFormat("found relevant program to record but a program with the same CRID already recorded for the channel. household  = {0}, crid = {1}, recordingId = {2}",
-                                domainId, crid, potentialRecording.AssetId);
-                            return response;
+                            log.Debug($"found relevant program to record but a program with the same CRID already recorded for the channel. " +
+                                $"household  = {domainId}, crid = {crid}, recordingId = {potentialRecording.AssetId}");
+                            
+                            //BEO-10365
+                            continue;
                         }
 
                         RecordingType recordingType;

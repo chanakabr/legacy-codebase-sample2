@@ -8,7 +8,7 @@ using Tvinci.Core.DAL;
 
 namespace GroupsCacheManager
 {
-    public class GroupManager
+    public class GroupManager :IGroupManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private IGroupsCache cache;
@@ -430,5 +430,25 @@ namespace GroupsCacheManager
 
             return isUpdated;
         }
+    }
+
+    public interface IGroupManager
+    {
+        bool AddChannelsToOperator(int nOperatorID, List<long> subscriptionChannels, Group group);
+        bool AddServices(int nGroupID, List<int> services);
+        bool DeleteServices(int nGroupID, List<int> services);
+        Channel GetChannel(int channelId, ref Group group);
+        List<Channel> GetChannels(List<int> channelIds, int groupId, bool isAlsoInActive = false);
+        Group GetGroup(int nGroupID);
+        void GetGroupAndChannel(int nChannelId, int nGroupId, ref Group group, ref Channel channel);
+        int GetLinearMediaTypeId(int groupId);
+        List<MediaType> GetMediaTypesOfGroup(int groupId);
+        List<int> GetSubGroup(int nGroupID);
+        bool HandleOperatorEvent(int nGroupID, int nOperatorID, int nSubscriptionID, long lChannelID, eOperatorEvent oe);
+        bool RemoveChannel(int nGroupID, int nChannelId);
+        bool RemoveGroup(int nGroupID);
+        bool UpdateGroup(int groupID);
+        bool UpdateRegionalization(int groupID);
+        bool UpdateServices(int nGroupID, List<int> services);
     }
 }

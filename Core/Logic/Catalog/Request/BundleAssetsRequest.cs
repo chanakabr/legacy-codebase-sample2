@@ -119,33 +119,31 @@ namespace Core.Catalog.Request
                         {
                             try
                             {
-                                ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-                                if (searcher != null)
+                                IIndexManager indexManager = IndexManagerFactory.GetInstance(parentGroupId);
+
+                                ApiObjects.SearchObjects.OrderObj oSearchOrder = new ApiObjects.SearchObjects.OrderObj();
+                                if (request.m_oOrderObj == null)
                                 {
-                                    ApiObjects.SearchObjects.OrderObj oSearchOrder = new ApiObjects.SearchObjects.OrderObj();
-                                    if (request.m_oOrderObj == null)
-                                    {
-                                        oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
-                                        oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                                    }
-                                    CatalogLogic.GetOrderValues(ref oSearchOrder, request.m_oOrderObj);
-                                    if (oSearchOrder.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(oSearchOrder.m_sOrderValue))
-                                    {
-                                        oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
-                                        oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                                    }
+                                    oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
+                                    oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                                }
+                                CatalogLogic.GetOrderValues(ref oSearchOrder, request.m_oOrderObj);
+                                if (oSearchOrder.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(oSearchOrder.m_sOrderValue))
+                                {
+                                    oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
+                                    oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                                }
 
-                                    int totalItems = 0;
-                                    var searchResults =
-                                        searcher.SearchSubscriptionAssets(request.m_nGroupID,
-                                            searchObjectsList, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate,
-                                            request.m_sMediaType, oSearchOrder, request.m_nPageIndex, request.m_nPageSize, ref totalItems);
+                                int totalItems = 0;
+                                var searchResults =
+                                    indexManager.SearchSubscriptionAssets(
+                                        searchObjectsList, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate,
+                                        request.m_sMediaType, oSearchOrder, request.m_nPageIndex, request.m_nPageSize, ref totalItems);
 
-                                    if (searchResults != null)
-                                    {
-                                        response.m_nTotalItems = totalItems;
-                                        response.searchResults = searchResults;
-                                    }
+                                if (searchResults != null)
+                                {
+                                    response.m_nTotalItems = totalItems;
+                                    response.searchResults = searchResults;
                                 }
                             }
                             catch (Exception ex)

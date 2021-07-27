@@ -117,7 +117,7 @@ namespace HealthCheck
             try
             {
                 _Logger.Info($"Checking Elasticsearch...");
-                var es = new ElasticSearchApi();
+                var es = new ElasticSearchApi(ApplicationConfiguration.Current);
                 var esIsSuccess = es.HealthCheck();
                 if (!esIsSuccess)
                 {

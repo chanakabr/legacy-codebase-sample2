@@ -4373,5 +4373,43 @@ namespace WebAPI.Clients
                 }
             }
         }
+
+        internal KalturaLabel AddLabel(int groupId, KalturaLabel label, long userId)
+        {
+            Func<LabelValue, GenericResponse<LabelValue>> addFunc = requestLabel => CatalogManager.Instance.AddLabel(groupId, requestLabel, userId);
+            var result = ClientUtils.GetResponseFromWS(label, addFunc);
+
+            return result;
+        }
+
+        internal KalturaLabel UpdateLabel(int groupId, KalturaLabel label, long userId)
+        {
+            Func<LabelValue, GenericResponse<LabelValue>> updateFunc = requestLabel => CatalogManager.Instance.UpdateLabel(groupId, requestLabel, userId);
+            var result = ClientUtils.GetResponseFromWS(label, updateFunc);
+
+            return result;
+        }
+
+        internal bool DeleteLabel(int groupId, long labelId, long userId)
+        {
+            Func<Status> deleteFunc = () => CatalogManager.Instance.DeleteLabel(groupId, labelId, userId);
+            var result = ClientUtils.GetResponseStatusFromWS(deleteFunc);
+
+            return result;
+        }
+        
+        internal KalturaLabelListResponse SearchLabels(int groupId, IEnumerable<long> idIn, string labelEqual, string labelStartWith, KalturaEntityAttribute entityAttribute, int pageIndex, int pageSize)
+        {
+            Func<GenericListResponse<LabelValue>> searchFunc = () => CatalogManager.Instance.SearchLabels(groupId, idIn.ToArray(), labelEqual, labelStartWith, (EntityAttribute)entityAttribute, pageIndex, pageSize);
+            var labels = ClientUtils.GetResponseListFromWS<KalturaLabel, LabelValue>(searchFunc);
+
+            var result = new KalturaLabelListResponse
+            {
+                Labels = labels.Objects,
+                TotalCount = labels.TotalCount
+            };
+
+            return result;
+        }
     }
 }

@@ -11,8 +11,9 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text;
 using System.Xml;
-using ApiLogic.CanaryDeployment;
 using ApiObjects.CanaryDeployment;
+using ApiObjects.CanaryDeployment.Microservices;
+using CanaryDeploymentManager;
 using TVinciShared;
 
 namespace Core.Users
@@ -123,7 +124,7 @@ namespace Core.Users
             int failedLoginCount = 0;
             DateTime lastLoginDate = DateTime.UtcNow;
 
-            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(nGroupID, CanaryDeploymentDataOwnershipEnum.AuthenticationUserLoginHistory))
+            if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(nGroupID, CanaryDeploymentDataOwnershipEnum.AuthenticationUserLoginHistory))
             {
                 var authClient = AuthenticationClient.GetClientFromTCM();
                 var failHistory = authClient.GetUserLoginHistory(nGroupID, nUserID);

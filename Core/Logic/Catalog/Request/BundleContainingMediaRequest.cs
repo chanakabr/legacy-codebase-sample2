@@ -79,108 +79,20 @@ namespace Core.Catalog.Request
 
                 if (channelIds != null && channelIds.Count > 0 && allChannels != null && allChannels.Count > 0)
                 {
-                    ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
+                    IIndexManager indexManager = IndexManagerFactory.GetInstance(groupInCache.m_nParentGroupID);
+                    List<int> lChannelIDs = allChannels.Select(channel => channel.m_nChannelID).ToList();
+                    bool bDoesMediaBelongToBundle = indexManager.DoesMediaBelongToChannels(lChannelIDs, request.m_nMediaID);
 
-                    #region searcher is LuceneWrapper
-                    if (searcher is LuceneWrapper)
+                    if (bDoesMediaBelongToBundle)
                     {
-                        List<ApiObjects.SearchObjects.MediaSearchObj> channelsSearchObjects = new List<ApiObjects.SearchObjects.MediaSearchObj>();
-
-                        // save monitor and logs context data
-                        ContextData contextData = new ContextData();
-
-                        Task[] channelsSearchObjectTasks = new Task[allChannels.Count];
-                        int[] nDeviceRuleId = null;
-
-                        if (request.m_oFilter != null)
-                            nDeviceRuleId = Api.api.GetDeviceAllowedRuleIDs(request.m_nGroupID, request.m_oFilter.m_sDeviceId, request.domainId).ToArray();
-                        #region Building search object for each channel
-                        for (int searchObjectIndex = 0; searchObjectIndex < allChannels.Count; searchObjectIndex++)
-                        {
-                            channelsSearchObjectTasks[searchObjectIndex] = new Task(
-                                 (obj) =>
-                                 {
-                                     // load monitor and logs context data
-                                     contextData.Load();
-
-                                     try
-                                     {
-                                         if (groupInCache != null)
-                                         {
-                                             GroupsCacheManager.Channel currentChannel = allChannels[(int)obj];
-                                             ApiObjects.SearchObjects.MediaSearchObj channelSearchObject = CatalogLogic.BuildBaseChannelSearchObject(currentChannel, request, null, groupInCache.m_nParentGroupID, groupInCache.m_sPermittedWatchRules, nDeviceRuleId, groupInCache.GetGroupDefaultLanguage());
-                                             channelSearchObject.m_oOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID;
-                                             channelsSearchObjects.Add(channelSearchObject);
-                                         }
-                                     }
-                                     catch (Exception ex)
-                                     {
-                                         log.Error(ex.Message, ex);
-                                     }
-                                 }, searchObjectIndex);
-                            channelsSearchObjectTasks[searchObjectIndex].Start();
-                        }
-
-                        //Wait for all parallel tasks to end
-                        Task.WaitAll(channelsSearchObjectTasks);
-                        for (int i = 0; i < channelsSearchObjectTasks.Length; i++)
-                        {
-                            if (channelsSearchObjectTasks[i] != null)
-                            {
-                                channelsSearchObjectTasks[i].Dispose();
-                            }
-                        }
-                        #endregion
-
-                        if (channelsSearchObjects != null && channelsSearchObjects.Count > 0)
-                        {
-                            try
-                            {
-                                if (searcher != null)
-                                {
-                                    // Getting all medias in Bundle
-                                    SearchResultsObj oSearchResult = null;
-                                        //searcher.SearchSubscriptionMedias(request.m_nGroupID, channelsSearchObjects, 
-                                        //request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, 
-                                        //request.m_sMediaType, new OrderObj(), request.m_nPageIndex, request.m_nPageSize);
-
-                                    if (oSearchResult != null && oSearchResult.m_resultIDs != null && oSearchResult.m_resultIDs.Count > 0)
-                                    {
-                                        bool exists = oSearchResult.m_resultIDs.Select(searchRes => searchRes.assetID).Any(searchMediaID => searchMediaID == m_nMediaID);
-
-                                        if (exists)
-                                        {
-                                            response.m_nTotalItems = 1;
-                                            response.m_bContainsMedia = true;
-                                        }
-                                    }
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                log.Error(ex.Message);
-                            }
-                        }
+                        response.m_bContainsMedia = true;
+                        response.m_nTotalItems = 1;
                     }
-                    #endregion
-                    #region searcher is ElasticSearchWrapper
                     else
                     {
-                        List<int> lChannelIDs = allChannels.Select(channel => channel.m_nChannelID).ToList();
-                        bool bDoesMediaBelongToBundle = searcher.DoesMediaBelongToChannels(groupInCache.m_nParentGroupID, lChannelIDs, request.m_nMediaID);
-
-                        if (bDoesMediaBelongToBundle)
-                        {
-                            response.m_bContainsMedia = true;
-                            response.m_nTotalItems = 1;
-                        }
-                        else
-                        {
-                            response.m_bContainsMedia = false;
-                            response.m_nTotalItems = 0;
-                        }
+                        response.m_bContainsMedia = false;
+                        response.m_nTotalItems = 0;
                     }
-                    #endregion
                 }
                 return (BaseResponse)response;
             }

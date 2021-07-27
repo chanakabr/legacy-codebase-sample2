@@ -94,6 +94,6 @@ namespace WebAPI.Models.Catalog
         count_asc,
         count_desc,
         value_asc,
-        value_desc
+        value_desc 
     }
 }

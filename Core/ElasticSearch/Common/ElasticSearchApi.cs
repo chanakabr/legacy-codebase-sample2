@@ -17,12 +17,16 @@ namespace ElasticSearch.Common
 {
     public class ElasticSearchApi : IElasticSearchApi
     {
+        private readonly IApplicationConfiguration _applicationConfiguration;
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
-        public static readonly string ES_URL = ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value;
+        
         private const string ES_LOG_FILENAME = "Elasticsearch";
 
-        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.Current.ElasticSearchHttpClientConfiguration);
+        public const int STATUS_OK = 200;
+        public const int STATUS_NOT_FOUND = 404;
+        public const int STATUS_INTERNAL_ERROR = 500;
+
+        private readonly HttpClient httpClient;
         public string baseUrl
         {
             get;
@@ -31,9 +35,12 @@ namespace ElasticSearch.Common
 
         #region Ctor
 
-        public ElasticSearchApi()
+        public ElasticSearchApi(IApplicationConfiguration applicationConfiguration)
         {
-            baseUrl = ES_URL;
+            _applicationConfiguration = applicationConfiguration;
+            
+            baseUrl =  _applicationConfiguration.ElasticSearchConfiguration.URL_V2.Value;
+            httpClient = HttpClientUtil.GetHttpClient(_applicationConfiguration.ElasticSearchHttpClientConfiguration);
         }
 
         #endregion
@@ -294,41 +301,7 @@ namespace ElasticSearch.Common
 
             return res;
         }
-
-        #region Index definitions: Analyzers, filters, tokenizers
-
-        public static string GetAnalyzerDefinition(string sAnalyzerName)
-        {
-            return ElasticSearchIndexDefinitions.Instance.GetAnalyzerDefinition(sAnalyzerName);
-        }
-
-        public static string GetFilterDefinition(string sFilterName)
-        {
-            return ElasticSearchIndexDefinitions.Instance.GetFilterDefinition(sFilterName);
-        }
-
-        public static string GetTokenizerDefinition(string tokenizerName)
-        {
-            return ElasticSearchIndexDefinitions.Instance.GetTokenizerDefinition(tokenizerName);
-        }
-
-        public static bool AnalyzerExists(string sAnalyzerName)
-        {
-            return ElasticSearchIndexDefinitions.Instance.AnalyzerExists(sAnalyzerName);
-        }
-
-        public static bool FilterExists(string sFilterName)
-        {
-            return ElasticSearchIndexDefinitions.Instance.FilterExists(sFilterName);
-        }
-
-        public static bool TokenizerExists(string tokenizerName)
-        {
-            return ElasticSearchIndexDefinitions.Instance.TokenizerExists(tokenizerName);
-        }
-
-        #endregion
-
+        
         #endregion
 
         #region Mapping

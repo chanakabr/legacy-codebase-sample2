@@ -1,6 +1,4 @@
 ﻿using ApiObjects.SearchObjects;
-using ElasticSearch.Common;
-using ElasticSearch.Common.DeleteResults;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,6 +9,7 @@ using GroupsCacheManager;
 using KLogMonitor;
 using System.Reflection;
 using APILogic.Api.Managers;
+using Core.Catalog;
 
 namespace ElasticSearchHandler.Updaters
 {
@@ -22,7 +21,7 @@ namespace ElasticSearchHandler.Updaters
         #region Data Members
 
         private int groupID;
-        private ElasticSearch.Common.ElasticSearchApi esApi;
+        private IIndexManager _indexManager;
 
         #endregion
 
@@ -31,28 +30,6 @@ namespace ElasticSearchHandler.Updaters
         public List<int> IDs { get; set; }
         public ApiObjects.eAction Action { get; set; }
 
-        public string ElasticSearchUrl
-        {
-            get
-            {
-                if (esApi != null)
-                {
-                    return esApi.baseUrl;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            set
-            {
-                if (esApi != null)
-                {
-                    esApi.baseUrl = value;
-                }
-            }
-        }
-
         #endregion
 
         #region Ctors
@@ -60,7 +37,7 @@ namespace ElasticSearchHandler.Updaters
         public MediaUpdaterV2(int groupID)
         {
             this.groupID = groupID;
-            esApi = new ElasticSearch.Common.ElasticSearchApi();
+            _indexManager = IndexManagerFactory.GetInstance(groupID);
         }
 
         #endregion
@@ -77,13 +54,6 @@ namespace ElasticSearchHandler.Updaters
             {
                 log.Debug("Info - Media id list empty");
                 result = true;
-
-                return result;
-            }
-
-            if (!esApi.IndexExists(ElasticsearchTasksCommon.Utils.GetMediaGroupAliasStr(groupID)))
-            {
-                log.Error("Error - " + string.Format("Index of type media for group {0} does not exist", groupID));
 
                 return result;
             }
@@ -116,7 +86,7 @@ namespace ElasticSearchHandler.Updaters
 
             foreach (int mediaId in mediaIds)
             {
-                bool res = Core.Catalog.CatalogManagement.IndexManager.UpsertMedia(groupID, mediaId);
+                bool res = _indexManager.UpsertMedia(mediaId);
 
                 if (res)
                 {
@@ -135,7 +105,7 @@ namespace ElasticSearchHandler.Updaters
 
             foreach (int id in mediaIDs)
             {
-                result &= Core.Catalog.CatalogManagement.IndexManager.DeleteMedia(groupID, id);
+                result &= _indexManager.DeleteMedia(id);
             }
 
             return result;

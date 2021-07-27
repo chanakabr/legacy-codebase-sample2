@@ -1,6 +1,5 @@
 ﻿using ApiObjects;
 using ConfigurationManager;
-using ElasticSearch.Common;
 using GroupsCacheManager;
 using KLogMonitor;
 using System;
@@ -9,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Core.Catalog;
 
 namespace ElasticSearchHandler.Updaters
 {
@@ -19,12 +19,10 @@ namespace ElasticSearchHandler.Updaters
         public static readonly string EPG = "epg";
         public static readonly int DAYS = 30;
 
-
         #region Data Members
 
         private int groupId;
-        private ElasticSearch.Common.ESSerializerV2 esSerializer;
-        private ElasticSearch.Common.ElasticSearchApi esApi;
+        private IIndexManager _indexManager;
 
         #endregion
 
@@ -33,28 +31,6 @@ namespace ElasticSearchHandler.Updaters
         public List<int> IDs { get; set; }
         public ApiObjects.eAction Action { get; set; }
 
-        public string ElasticSearchUrl
-        {
-            get
-            {
-                if (esApi != null)
-                {
-                    return esApi.baseUrl;
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            set
-            {
-                if (esApi != null)
-                {
-                    esApi.baseUrl = value;
-                }
-            }
-        }
-
         #endregion
 
         #region Ctors
@@ -62,9 +38,9 @@ namespace ElasticSearchHandler.Updaters
         public EpgChannelUpdaterV2(int groupId)
         {
             this.groupId = groupId;
-            esSerializer = new ElasticSearch.Common.ESSerializerV2();
-            esApi = new ElasticSearch.Common.ElasticSearchApi();
+            _indexManager = IndexManagerFactory.GetInstance(groupId);
         }
+        
 
         #endregion
 
@@ -79,12 +55,6 @@ namespace ElasticSearchHandler.Updaters
                 log.Debug("Info - EPG Id list empty");
                 result = true;
 
-                return result;
-            }
-
-            if (!esApi.IndexExists(Core.Catalog.CatalogManagement.IndexManager.GetEpgIndexAlias(groupId)))
-            {
-                log.Error("Error - " + string.Format("Index of type EPG for group {0} does not exist", groupId));
                 return result;
             }
 

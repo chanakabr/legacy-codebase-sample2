@@ -83,7 +83,7 @@ namespace Core.Catalog.CatalogManagement
                 if (!isFromIngest)
                 {
                     // UpdateIndex
-                    bool indexingResult = IndexManager.UpsertMedia(groupId, mediaAsset.Id);
+                    bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertMedia(mediaAsset.Id);
                     if (!indexingResult)
                     {
                         log.Error($"Failed UpsertMedia index for assetId: {mediaAsset.Id}, groupId: {groupId} after Ingest");

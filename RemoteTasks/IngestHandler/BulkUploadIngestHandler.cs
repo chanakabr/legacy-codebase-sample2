@@ -32,11 +32,10 @@ namespace IngestHandler
     public class BulkUploadIngestHandler : IServiceEventHandler<BulkUploadIngestEvent>
     {
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private const string REFRESH_INTERVAL_FOR_EMPTY_INDEX = "10s";
-
-        private readonly ElasticSearchApi _elasticSearchClient;
+        
         private readonly CouchbaseManager.CouchbaseManager _couchbaseManager;
 
+        private IIndexManager _indexManager;
         private TvinciEpgBL _epgBL;
         private BulkUploadIngestEvent _eventData;
         private BulkUpload _bulkUpload;
@@ -45,16 +44,17 @@ namespace IngestHandler
         private LanguageObj _defaultLanguage;
 
         private readonly RetryPolicy _ingestRetryPolicy;
-        private EpgElasticUpdater _elasticSearchUpdater;
+        // private EpgElasticUpdater _elasticSearchUpdater;
         private List<EpgProgramBulkUploadObject> _allRelevantPrograms;
         private Dictionary<string, EpgCB> _autoFillEpgsCb;
         private Lazy<IReadOnlyDictionary<long, List<int>>> _linearChannelToRegionsMap;
         private string _logPrefix;
         private readonly IEpgAssetMultilingualMutator _epgAssetMultilingualMutator;
+        
 
         public BulkUploadIngestHandler()
         {
-            _elasticSearchClient = new ElasticSearchApi();
+            
             _couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
             _ingestRetryPolicy = GetRetryPolicy<Exception>();
             _epgAssetMultilingualMutator = EpgAssetMultilingualMutator.Instance;
@@ -64,6 +64,7 @@ namespace IngestHandler
         {
             try
             {
+                _indexManager = IndexManagerFactory.GetInstance(serviceEvent.GroupId);
                 _logger.Info($"Starting ingest write handler BulkUploadId: [{serviceEvent.BulkUploadId}], Date:[{serviceEvent.DateOfProgramsToIngest}], BulkUploadId:[{serviceEvent.BulkUploadId}], crud operations: [{serviceEvent.CrudOperations}]");
                 await HandleIngestCrudOperations(serviceEvent);
             }
@@ -110,15 +111,26 @@ namespace IngestHandler
 
                 await UploadEpgImages(serviceEvent.CrudOperations);
 
-                var dailyEpgIndexName = IndexManager.GetDailyEpgIndexName(serviceEvent.GroupId, serviceEvent.DateOfProgramsToIngest);
-                EnsureEpgIndexExist(dailyEpgIndexName);
-                SetNoRefresh(dailyEpgIndexName);
+                string dailyEpgIndexName = string.Empty;
+
+                try
+                {
+                    dailyEpgIndexName = _indexManager.SetupEpgV2Index(serviceEvent.DateOfProgramsToIngest, _languages, _defaultLanguage, _ingestRetryPolicy);
+                }
+                catch
+                {
+                    _bulkUpload.AddError(eResponseStatus.Error, "Error while building new index.");
+                    throw new Exception($"index creation failed");
+                }
 
                 await BulkUploadMethods.UpdateCouchbase(serviceEvent.CrudOperations, serviceEvent.GroupId);
 
-                _elasticSearchUpdater.Update(serviceEvent.CrudOperations, dailyEpgIndexName);
+                _indexManager.DeleteProgramsFromIndex(serviceEvent.CrudOperations.ItemsToDelete, dailyEpgIndexName, _languages);
+                var programsToIndex = serviceEvent.CrudOperations.ItemsToAdd.Concat(serviceEvent.CrudOperations.ItemsToUpdate).Concat(serviceEvent.CrudOperations.AffectedItems).ToList();
+                _indexManager.UpsertProgramsToDraftIndex(programsToIndex, dailyEpgIndexName, 
+                    serviceEvent.DateOfProgramsToIngest, _defaultLanguage, _languages);
 
-                var finalizer = new IngestFinalizer(_bulkUpload, _relevantResultsDictionary, serviceEvent.DateOfProgramsToIngest, serviceEvent.RequestId);
+                var finalizer = new IngestFinalizer(_bulkUpload, _relevantResultsDictionary, serviceEvent.DateOfProgramsToIngest, serviceEvent.RequestId,_indexManager);
                 await finalizer.FinalizeEpgIngest();
                 _logger.Info($"{_logPrefix} Ingest Handler completed.");
             }
@@ -163,11 +175,7 @@ namespace IngestHandler
             ValidateServiceEvent();
             _bulkUpload = BulkUploadMethods.GetBulkUploadData(serviceEvent.GroupId, serviceEvent.BulkUploadId);
             if (_bulkUpload.Results?.Any() != true) { throw new Exception("received bulk upload without any crud operations"); }
-
             _languages = BulkUploadMethods.GetGroupLanguages(_eventData.GroupId, out _defaultLanguage);
-
-            _elasticSearchUpdater = new EpgElasticUpdater(serviceEvent.GroupId, serviceEvent.BulkUploadId, serviceEvent.DateOfProgramsToIngest, _languages);
-
             _allRelevantPrograms = _eventData.CrudOperations.ItemsToAdd
                 .Concat(_eventData.CrudOperations.ItemsToUpdate)
                 .Concat(_eventData.CrudOperations.ItemsToDelete)
@@ -408,100 +416,6 @@ namespace IngestHandler
                 //    }
                 //}
             }
-        }
-
-        private void EnsureEpgIndexExist(string dailyEpgIndexName)
-        {
-            // TODO it's possible to create new index with mappings and alias in one request,
-            // https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-create-index.html#mappings
-            // but we have huge mappings and don't know the impact on timeouts during index creation - should be tested on real environment.
-
-            // Limitation: it's not a transaction, we don't remove index when add-mapping failed =>
-            // EPGs could be added to the index without mapping (e.g. from asset.add)
-            try
-            {
-                AddEmptyIndex(dailyEpgIndexName);
-                AddMappings(dailyEpgIndexName);
-                AddAlias(dailyEpgIndexName);
-            }
-            catch (Exception e)
-            {
-                _logger.Error($"{_logPrefix} index creation failed [{dailyEpgIndexName}]", e);
-                _bulkUpload.AddError(eResponseStatus.Error, "Error while building new index.");
-                throw new Exception($"index creation failed");
-            }
-        }
-
-        private void AddEmptyIndex(string dailyEpgIndexName)
-        {
-            _ingestRetryPolicy.Execute(() =>
-            {
-                var isIndexExist = _elasticSearchClient.IndexExists(dailyEpgIndexName);
-                if (isIndexExist) return;
-                _logger.Info($"{_logPrefix} creating new index [{dailyEpgIndexName}]");
-                IndexManager.CreateEmptyIndex(dailyEpgIndexName, _languages.Values, true,
-                    true, REFRESH_INTERVAL_FOR_EMPTY_INDEX);
-            });
-        }
-
-        private void AddMappings(string dailyEpgIndexName)
-        {
-            var existingMappings = _elasticSearchClient.GetMappingsNames(dailyEpgIndexName).ToHashSet();
-            var languagesToCreate = _languages.Values.Where(language =>
-            {
-                var mappingName = IndexManager.GetIndexType(false, language);
-                return !existingMappings.Contains(mappingName);
-            }).ToList();
-            if (languagesToCreate.Count == 0) return;
-
-            _logger.Info($"{_logPrefix} creating mappings. index [{dailyEpgIndexName}], languages [{languagesToCreate.Select(_ => _.Name)}]");
-
-            CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(_eventData.GroupId, out var catalogGroupCache);
-            var groupManager = new GroupManager();
-            groupManager.RemoveGroup(_eventData.GroupId); // remove from cache
-            var group = groupManager.GetGroup(_eventData.GroupId);
-            var doesGroupUsesTemplates = GroupSettingsManager.DoesGroupUsesTemplates(_eventData.GroupId);
-
-            if (!IndexManager.GetMetasAndTagsForMapping(_eventData.GroupId, doesGroupUsesTemplates,
-                out var metas,
-                out var tags,
-                out var metasToPad,
-                new ESSerializerV2(), group, catalogGroupCache, true))
-            {
-                throw new Exception($"failed to get metas and tags");
-            }
-
-            foreach (var language in languagesToCreate)
-            {
-                _ingestRetryPolicy.Execute(() =>
-                    IndexManager.AddLanguageMapping(dailyEpgIndexName, language, _defaultLanguage, metas, tags, metasToPad));
-            }
-        }
-
-        private void AddAlias(string dailyEpgIndexName)
-        {
-            // create alias is idempotent request
-            var epgIndexAlias = IndexManager.GetEpgIndexAlias(_eventData.GroupId);
-            _logger.Info($"{_logPrefix} creating alias. index [{dailyEpgIndexName}], alias [{epgIndexAlias}]");
-            _ingestRetryPolicy.Execute(() =>
-            {
-                var isAliasAdded = _elasticSearchClient.AddAlias(dailyEpgIndexName, epgIndexAlias);
-                if (!isAliasAdded) throw new Exception($"index set alias failed [{dailyEpgIndexName}], alias [{epgIndexAlias}]");
-            });
-        }
-
-        private void SetNoRefresh(string dailyEpgIndexName)
-        {
-            // shut down refresh of index while bulk uploading
-            _ingestRetryPolicy.Execute(() =>
-            {
-                var isSetRefreshSuccess = _elasticSearchClient.UpdateIndexRefreshInterval(dailyEpgIndexName, "-1");
-                if (!isSetRefreshSuccess)
-                {
-                    _logger.Error($"{_logPrefix} index set refresh to -1 failed [false], dailyEpgIndexName [{dailyEpgIndexName}]");
-                    throw new Exception("Could not set index refresh interval");
-                }
-            });
         }
 
         private static RetryPolicy GetRetryPolicy<TException>(int retryCount = 3) where TException : Exception

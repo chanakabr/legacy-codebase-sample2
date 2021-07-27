@@ -168,16 +168,11 @@ namespace Core.Catalog.Request
         public EpgSearchObj BuildEPGSearchObject()
         {
             EpgSearchObj res = null;
-            ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
 
-            if (searcher == null)
-            {
-                throw new Exception(String.Concat("Failed to create Searcher instance. Request is: ", ToString()));
-            }
             List<List<string>> jsonizedChannelsDefinitions = null;
-            if (CatalogLogic.IsUseIPNOFiltering(this, ref searcher, ref jsonizedChannelsDefinitions))
+            if (CatalogLogic.IsUseIPNOFiltering(this, ref jsonizedChannelsDefinitions))
             {
-                m_oEPGChannelIDs = CatalogLogic.GetEpgChannelIDsForIPNOFiltering(m_nGroupID, ref searcher,
+                m_oEPGChannelIDs = CatalogLogic.GetEpgChannelIDsForIPNOFiltering(m_nGroupID,
                     this.domainId, this.m_sSiteGuid,
                     ref jsonizedChannelsDefinitions);
                 res = BuildEPGSearchObjectInner();

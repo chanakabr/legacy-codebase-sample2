@@ -3,8 +3,13 @@ using AutoMapper.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ApiObjects.CanaryDeployment.Elasticsearch;
+using ApiObjects.CanaryDeployment.Microservices;
 using WebAPI.Models.CanaryDeployment;
+using WebAPI.Models.CanaryDeployment.Elasticsearch;
+using WebAPI.Models.CanaryDeployment.Microservices;
 using WebAPI.Models.General;
+using KalturaCanaryDeploymentAuthenticationMsOwnerShip = WebAPI.Models.CanaryDeployment.Microservices.KalturaCanaryDeploymentAuthenticationMsOwnerShip;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -12,7 +17,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
     {
         public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
-            cfg.CreateMap<CanaryDeploymentDataOwnership, KalturaCanaryDeploymentDataOwnerShip>()
+            cfg.CreateMap<MicroservicesCanaryDeploymentDataOwnership, KalturaMicroservicesCanaryDeploymentDataOwnerShip>()
                 .ForMember(dest => dest.AuthenticationMsOwnerShip, opt => opt.MapFrom(src => src.AuthenticationMsOwnership));
 
             cfg.CreateMap<CanaryDeploymentAuthenticationMsOwnership, KalturaCanaryDeploymentAuthenticationMsOwnerShip>()
@@ -23,7 +28,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserLoginHistory, opt => opt.MapFrom(src => src.UserLoginHistory))
                 .ForMember(dest => dest.SessionRevocation, opt => opt.MapFrom(src => src.SessionRevocation));
 
-            cfg.CreateMap<CanaryDeploymentMigrationEvents, KalturaCanaryDeploymentMigrationEvents>()
+            cfg.CreateMap<MicroservicesCanaryDeploymentMigrationEvents, KalturaMicroservicesCanaryDeploymentMigrationEvents>()
                 .ForMember(dest => dest.AppToken, opt => opt.MapFrom(src => src.AppToken))
                 .ForMember(dest => dest.DeviceLoginHistory, opt => opt.MapFrom(src => src.DeviceLoginHistory))
                 .ForMember(dest => dest.DevicePinCode, opt => opt.MapFrom(src => src.DevicePinCode))
@@ -32,18 +37,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.UserLoginHistory, opt => opt.MapFrom(src => src.UserLoginHistory))
                 .ForMember(dest => dest.UserPinCode, opt => opt.MapFrom(src => src.UserPinCode));
 
-            cfg.CreateMap<CanaryDeploymentConfiguration, KalturaCanaryDeploymentConfiguration>()
+            cfg.CreateMap<MicroservicesCanaryDeploymentConfiguration, KalturaMicroservicesCanaryDeploymentConfiguration>()
                 .ForMember(dest => dest.DataOwnerShip, opt => opt.MapFrom(src => src.DataOwnership))
                 .ForMember(dest => dest.MigrationEvents, opt => opt.MapFrom(src => src.MigrationEvents))
                 .ForMember(dest => dest.RoutingConfiguration, opt => opt.ResolveUsing(src => ConvertRoutingConfiguration(src.RoutingConfiguration)));
+
+            cfg.CreateMap<ElasticsearchCanaryDeploymentConfiguration, KalturaElasticsearchCanaryDeploymentConfiguration>()
+                .ForMember(dest => dest.ElasticsearchActiveVersion, opt => opt.MapFrom(src => src.ElasticsearchActiveVersion))
+                .ForMember(dest => dest.EnableMigrationEvents, opt => opt.MapFrom(src => src.EnableMigrationEvents));
         }
 
-        private static SerializableDictionary<string, KalturaStringValue> ConvertRoutingConfiguration(Dictionary<string, CanaryDeploymentRoutingService> routingConfiguration)
+        private static SerializableDictionary<string, KalturaStringValue> ConvertRoutingConfiguration(Dictionary<string, MicroservicesCanaryDeploymentRoutingService> routingConfiguration)
         {
             SerializableDictionary<string, KalturaStringValue> result = new SerializableDictionary<string, KalturaStringValue>();
             if (routingConfiguration?.Count > 0)
             {
-                foreach (KeyValuePair<string, CanaryDeploymentRoutingService> pair in routingConfiguration)
+                foreach (KeyValuePair<string, MicroservicesCanaryDeploymentRoutingService> pair in routingConfiguration)
                 {
                     result[pair.Key] = new KalturaStringValue() { value = pair.Value.ToString() };
                 }
@@ -52,27 +61,27 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return result;
         }
 
-        public static CanaryDeploymentMigrationEvent ConvertMigrationEvent(KalturaCanaryDeploymentMigrationEvent migrationEvent)
+        public static CanaryDeploymentMigrationEvent ConvertMigrationEvent(KalturaCanaryDeploymentMicroservicesMigrationEvent microservicesMigrationEvent)
         {
             CanaryDeploymentMigrationEvent? res = null;
-            switch (migrationEvent)
+            switch (microservicesMigrationEvent)
             {
-                case KalturaCanaryDeploymentMigrationEvent.APPTOKEN:
+                case KalturaCanaryDeploymentMicroservicesMigrationEvent.APPTOKEN:
                     res = CanaryDeploymentMigrationEvent.AppToken;
                     break;
-                case KalturaCanaryDeploymentMigrationEvent.DEVICE_LOGIN_HISTORY:
+                case KalturaCanaryDeploymentMicroservicesMigrationEvent.DEVICE_LOGIN_HISTORY:
                     res = CanaryDeploymentMigrationEvent.DeviceLoginHistory;
                     break;
-                case KalturaCanaryDeploymentMigrationEvent.DEVICE_PIN_CODE:
+                case KalturaCanaryDeploymentMicroservicesMigrationEvent.DEVICE_PIN_CODE:
                     res = CanaryDeploymentMigrationEvent.DevicePinCode;
                     break;
-                case KalturaCanaryDeploymentMigrationEvent.REFRESHSESSION:
+                case KalturaCanaryDeploymentMicroservicesMigrationEvent.REFRESHSESSION:
                     res = CanaryDeploymentMigrationEvent.RefreshSession;
                     break;
-                case KalturaCanaryDeploymentMigrationEvent.SESSION_REVOCATION:
+                case KalturaCanaryDeploymentMicroservicesMigrationEvent.SESSION_REVOCATION:
                     res = CanaryDeploymentMigrationEvent.SessionRevocation;
                     break;
-                case KalturaCanaryDeploymentMigrationEvent.USER_LOGIN_HISTORY:
+                case KalturaCanaryDeploymentMicroservicesMigrationEvent.USER_LOGIN_HISTORY:
                     res = CanaryDeploymentMigrationEvent.UserLoginHistory;
                     break;
                 default:
@@ -82,36 +91,36 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return res.Value;
         }
 
-        public static CanaryDeploymentRoutingAction ConvertRoutingAction(KalturaCanaryDeploymentRoutingAction routingAction)
+        public static CanaryDeploymentRoutingAction ConvertRoutingAction(KalturaCanaryDeploymentMicroservicesRoutingAction microservicesRoutingAction)
         {
             CanaryDeploymentRoutingAction? res = null;
-            switch (routingAction)
+            switch (microservicesRoutingAction)
             {
-                case KalturaCanaryDeploymentRoutingAction.ANONYMOUSLOGIN:
+                case KalturaCanaryDeploymentMicroservicesRoutingAction.ANONYMOUSLOGIN:
                     res = CanaryDeploymentRoutingAction.AnonymousLogin;
                     break;
-                case KalturaCanaryDeploymentRoutingAction.APPTOKEN_CONTROLLER:
+                case KalturaCanaryDeploymentMicroservicesRoutingAction.APPTOKEN_CONTROLLER:
                     res = CanaryDeploymentRoutingAction.AppTokenController;
                     break;
-                case KalturaCanaryDeploymentRoutingAction.HOUSEHOLD_DEVICE_PIN_ACTIONS:
+                case KalturaCanaryDeploymentMicroservicesRoutingAction.HOUSEHOLD_DEVICE_PIN_ACTIONS:
                     res = CanaryDeploymentRoutingAction.HouseHoldDevicePinActions;
                     break;
-                case KalturaCanaryDeploymentRoutingAction.LOGIN:
+                case KalturaCanaryDeploymentMicroservicesRoutingAction.LOGIN:
                     res = CanaryDeploymentRoutingAction.Login;
                     break;
-                case KalturaCanaryDeploymentRoutingAction.LOGOUT:
+                case KalturaCanaryDeploymentMicroservicesRoutingAction.LOGOUT:
                     res = CanaryDeploymentRoutingAction.Logout;
                     break;
-                case KalturaCanaryDeploymentRoutingAction.REFRESHSESSION:
+                case KalturaCanaryDeploymentMicroservicesRoutingAction.REFRESHSESSION:
                     res = CanaryDeploymentRoutingAction.RefreshSession;
                     break;
-                case KalturaCanaryDeploymentRoutingAction.SESSION_CONTROLLER:
+                case KalturaCanaryDeploymentMicroservicesRoutingAction.SESSION_CONTROLLER:
                     res = CanaryDeploymentRoutingAction.SessionController;
                     break;
-                case KalturaCanaryDeploymentRoutingAction.SSO_ADAPTER_PROFILE_CONTROLLER:
+                case KalturaCanaryDeploymentMicroservicesRoutingAction.SSO_ADAPTER_PROFILE_CONTROLLER:
                     res = CanaryDeploymentRoutingAction.SsoAdapterProfileController;
                     break;
-                case KalturaCanaryDeploymentRoutingAction.USER_LOGIN_PIN_CONTROLLER:
+                case KalturaCanaryDeploymentMicroservicesRoutingAction.USER_LOGIN_PIN_CONTROLLER:
                     res = CanaryDeploymentRoutingAction.UserLoginPinController;
                     break;
                 default:
@@ -121,16 +130,16 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return res.Value;
         }
 
-        public static CanaryDeploymentRoutingService ConvertRoutingService(KalturaCanaryDeploymentRoutingService routingAction)
+        public static MicroservicesCanaryDeploymentRoutingService ConvertRoutingService(KalturaCanaryDeploymentMicroservicesRoutingService microservicesRoutingAction)
         {
-            CanaryDeploymentRoutingService? res = null;
-            switch (routingAction)
+            MicroservicesCanaryDeploymentRoutingService? res = null;
+            switch (microservicesRoutingAction)
             {
-                case KalturaCanaryDeploymentRoutingService.PHOENIX:
-                    res = CanaryDeploymentRoutingService.Phoenix;
+                case KalturaCanaryDeploymentMicroservicesRoutingService.PHOENIX:
+                    res = MicroservicesCanaryDeploymentRoutingService.Phoenix;
                     break;
-                case KalturaCanaryDeploymentRoutingService.PHOENIX_REST_PROXY:
-                    res = CanaryDeploymentRoutingService.PhoenixRestProxy;
+                case KalturaCanaryDeploymentMicroservicesRoutingService.PHOENIX_REST_PROXY:
+                    res = MicroservicesCanaryDeploymentRoutingService.PhoenixRestProxy;
                     break;
                 default:
                     throw new Exception("invalid KalturaCanaryDeploymentRoutingService type");

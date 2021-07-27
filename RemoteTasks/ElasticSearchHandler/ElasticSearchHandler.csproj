@@ -60,7 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ElasticSearchRequest.cs" />
-    <Compile Include="ElasticSearchTaskUtils.cs" />
     <Compile Include="IndexBuilders\New\ChannelIndexBuilderV2.cs" />
     <Compile Include="IndexBuilders\New\ChannelMetadataIndexBuilder.cs" />
     <Compile Include="IndexBuilders\New\EpgIndexBuilderV2.cs" />
@@ -68,13 +67,9 @@
     <Compile Include="IndexBuilders\New\RecordingIndexBuilderV2.cs" />
     <Compile Include="IndexBuilders\New\TagsIndexBuilder.cs" />
     <Compile Include="Infra\AbstractIndexBuilder.cs" />
-    <Compile Include="Infra\AbstractIndexRebaser.cs" />
     <Compile Include="Infra\IIndexBuilder.cs" />
     <Compile Include="Infra\IndexBuilderFactory.cs" />
-    <Compile Include="Infra\RebaseFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rebasers\EPGRebaser.cs" />
-    <Compile Include="Rebasers\MediaRebaser.cs" />
     <Compile Include="TaskHandler.cs" />
     <Compile Include="Updaters\New\ChannelMetadataUpdater.cs" />
     <Compile Include="Updaters\New\ChannelUpdaterV2.cs" />
@@ -110,14 +105,6 @@
     <ProjectReference Include="..\..\Core\DAL\DAL.csproj">
       <Project>{932109fa-5260-4709-bd4b-4a8d77e4cf01}</Project>
       <Name>DAL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\ElasticSearch\ElasticSearch.csproj">
-      <Project>{c9718e6d-f866-4991-80cd-4bafdf4d8878}</Project>
-      <Name>ElasticSearch</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\EpgBL\EpgBL.csproj">
-      <Project>{d458e586-6306-4111-8080-e3fcdbf82995}</Project>
-      <Name>EpgBL</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Core\GroupsCacheManager\GroupsCacheManager.csproj">
       <Project>{25037a8a-7c6d-4496-b757-6fa85abdd3cf}</Project>
@@ -155,6 +142,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Rebasers\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -50,7 +50,7 @@ namespace EventBus.Abstraction
 
         // in some cases service events will have keys to identify the message
         // e.g when sending event via kafka every  message has a key
-        [JsonIgnore] public virtual string EventKey { get; }
+        [JsonIgnore] public virtual string EventKey { get; set; }
 
         // in some cases service events need to be re-routed from their default
         // key that is calculated by reflection and get the routing key from configuration at runtime

@@ -58,7 +58,7 @@ namespace ApiLogic.Tests.Catalog
                           .Returns(fixture.Create<Topic>());
 
             var virtualAssetPartnerConfigManagerMock = Mock.Of<IVirtualAssetPartnerConfigManager>();
-            var elasticsearchWrapperMock = Mock.Of<Core.Catalog.IElasticsearchWrapper>();
+            var elasticsearchWrapperMock = Mock.Of<IIndexManagerFactory>();
             var groupsCacheMock = Mock.Of<GroupsCacheManager.IGroupsCache>();
             var conditionalAccessMock = Mock.Of<Core.ConditionalAccess.IConditionalAccessUtils>();
             var notificationCacheMock = Mock.Of<Core.Notification.INotificationCache>();
@@ -103,7 +103,7 @@ namespace ApiLogic.Tests.Catalog
                           .Returns(fixture.Create<Topic>());
 
             var virtualAssetPartnerConfigManagerMock = Mock.Of<IVirtualAssetPartnerConfigManager>();
-            var elasticsearchWrapperMock = Mock.Of<Core.Catalog.IElasticsearchWrapper>();
+            var elasticsearchWrapperMock = Mock.Of<IIndexManagerFactory>();
             var groupsCacheMock = Mock.Of<GroupsCacheManager.IGroupsCache>();
             var conditionalAccessMock = Mock.Of<Core.ConditionalAccess.IConditionalAccessUtils>();
             var notificationCacheMock = Mock.Of<Core.Notification.INotificationCache>();
@@ -147,7 +147,7 @@ namespace ApiLogic.Tests.Catalog
             virtualAssetPartnerConfigManagerMock.Setup(x => x.GetObjectVirtualAssetPartnerConfiguration(It.IsAny<int>()))
                 .Returns(new GenericListResponse<ObjectVirtualAssetPartnerConfig>() { Objects = fixture.Create<List<ObjectVirtualAssetPartnerConfig>>() });
 
-            var elasticsearchWrapperMock = Mock.Of<Core.Catalog.IElasticsearchWrapper>();
+            var elasticsearchWrapperMock = Mock.Of<IIndexManagerFactory>();
             var groupsCacheMock = Mock.Of<GroupsCacheManager.IGroupsCache>();
             var conditionalAccessMock = Mock.Of<Core.ConditionalAccess.IConditionalAccessUtils>();
             var notificationCacheMock = Mock.Of<Core.Notification.INotificationCache>();
@@ -189,7 +189,7 @@ namespace ApiLogic.Tests.Catalog
         //                  .Returns(fixture.Create<Topic>());
 
         //    var virtualAssetPartnerConfigManagerMock = Mock.Of<Api.Managers.IVirtualAssetPartnerConfigManager>();
-        //    var elasticsearchWrapperMock = Mock.Of<Core.Catalog.IElasticsearchWrapper>();
+        //    var elasticsearchWrapperMock = Mock.Of<IIndexManager>();
         //    var groupsCacheMock = Mock.Of<GroupsCacheManager.IGroupsCache>();
         //    var conditionalAccessMock = Mock.Of<Core.ConditionalAccess.IConditionalAccessUtils>();
         //    var notificationCacheMock = Mock.Of<Core.Notification.INotificationCache>();
@@ -296,7 +296,7 @@ namespace ApiLogic.Tests.Catalog
 
             var dalMock = Mock.Of<ITopicRepository>();
             var virtualAssetPartnerConfigManagerMock = Mock.Of<IVirtualAssetPartnerConfigManager>();
-            var elasticsearchWrapperMock = Mock.Of<Core.Catalog.IElasticsearchWrapper>();
+            var elasticsearchWrapperMock = Mock.Of<IIndexManagerFactory>();
             var conditionalAccessMock = Mock.Of<Core.ConditionalAccess.IConditionalAccessUtils>();
 
             //Init test data

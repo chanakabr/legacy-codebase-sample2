@@ -24,6 +24,7 @@ namespace WebAPI.Controllers
         [Action("list")]
         [ApiAuthorize]
         [Throws(eResponseStatus.InvalidUser)]
+        [Throws(StatusCode.HouseholdInvalid)]
         public static List<KalturaUserAssetsList> List(KalturaUserAssetsListFilter filter)
         {
             List<KalturaUserAssetsList> response = null;

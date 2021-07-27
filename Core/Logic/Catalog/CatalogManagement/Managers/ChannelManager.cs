@@ -108,6 +108,7 @@ namespace Core.Catalog.CatalogManagement
             channel.CreateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "CREATE_DATE");
             channel.UpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
             channel.HasMetadata = ODBCWrapper.Utils.ExtractBoolean(dr, "HAS_METADATA");
+            channel.VirtualAssetId = ODBCWrapper.Utils.GetNullableInt(dr, "VIRTUAL_ASSET_ID");
 
             #region translated names
 
@@ -475,11 +476,11 @@ namespace Core.Catalog.CatalogManagement
             return channels;
         }
 
-        private static void CreateVirtualChannel(int groupId, long userId, Channel channel)
+        private static long CreateVirtualChannel(int groupId, long userId, Channel channel)
         {
             AssetStruct assetStruct = GetAssetStructIdByChannelType(groupId, channel.m_nChannelTypeID);
 
-            CreateVirtualChannel(groupId, userId, assetStruct, channel.m_sName, channel.m_nChannelID.ToString(), channel.m_sDescription,
+            return CreateVirtualChannel(groupId, userId, assetStruct, channel.m_sName, channel.m_nChannelID.ToString(), channel.m_sDescription,
                 channel.NamesInOtherLanguages, channel.DescriptionInOtherLanguages);
         }
 
@@ -528,7 +529,14 @@ namespace Core.Catalog.CatalogManagement
 
             if (needToCreateVirtualAsset)
             {
-                CreateVirtualChannel(groupId, userId, channel);
+                long virtualAssetId = CreateVirtualChannel(groupId, userId, channel);
+                if (virtualAssetId > 0)
+                {
+                    channel.VirtualAssetId = virtualAssetId;
+
+                    CatalogDAL.UpdateChannelVirtualAssetId(groupId, channel.m_nChannelID, virtualAssetId);
+
+                }
                 return;
             }
 
@@ -608,9 +616,11 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        internal static void CreateVirtualChannel(int groupId, long userId, AssetStruct assetStruct, string name, string channelId,
+        internal static long CreateVirtualChannel(int groupId, long userId, AssetStruct assetStruct, string name, string channelId,
             string description, List<LanguageContainer> namesWithLanguages = null, List<LanguageContainer> descriptionsWithLanguages = null)
         {
+            long assetId = 0;
+
             if (assetStruct != null && assetStruct.TopicsMapBySystemName.ContainsKey(AssetManager.CHANNEL_ID_META_SYSTEM_NAME))
             {
                 MediaAsset virtualChannel = new MediaAsset()
@@ -647,16 +657,31 @@ namespace Core.Catalog.CatalogManagement
                 }
                 else
                 {
+                    assetId = virtualChannelResponse.Object.Id;
                     log.DebugFormat("Success create Virtual asset for channel id {0}, asset id : {1}", channelId, virtualChannelResponse.Object.Id);
 
                 }
             }
+
+            return assetId;
         }
 
         internal static Asset GetVirtualAsset(int groupId, long userId, Channel channel, out bool needToCreateVirtualAsset)
         {
             needToCreateVirtualAsset = false;
             Asset asset = null;
+            GenericResponse<Asset> assetResponse = null;
+
+            if (channel.VirtualAssetId.HasValue)
+            {
+                assetResponse = AssetManager.GetAsset(groupId, channel.VirtualAssetId.Value, eAssetTypes.MEDIA, true);
+
+                if (assetResponse.HasObject())
+                {
+                    return assetResponse.Object;
+                }
+            }
+
             AssetStruct assetStruct = GetAssetStructIdByChannelType(groupId, channel.m_nChannelTypeID);
 
             if (assetStruct == null)
@@ -675,7 +700,7 @@ namespace Core.Catalog.CatalogManagement
                 return asset;
             }
 
-            GenericResponse<Asset> assetResponse = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
+            assetResponse = AssetManager.GetAsset(groupId, long.Parse(assets[0].AssetId), eAssetTypes.MEDIA, true);
 
             if (!assetResponse.HasObject())
             {
@@ -736,9 +761,9 @@ namespace Core.Catalog.CatalogManagement
                     AssetUserRuleId = assetUserRuleId
                 };
 
-                ElasticsearchWrapper wrapper = new ElasticsearchWrapper();
+                var indexManager = IndexManagerFactory.GetInstance(groupId);
                 int totalItems = 0;
-                List<int> channelIds = wrapper.SearchChannels(definitions, ref totalItems);
+                List<int> channelIds = indexManager.SearchChannels(definitions, ref totalItems);
                 result = GetChannelsListResponseByChannelIds(groupId, channelIds, isAllowedToViewInactiveAssets, totalItems);
             }
             catch (Exception ex)
@@ -926,9 +951,16 @@ namespace Core.Catalog.CatalogManagement
 
                 if (response.Object != null && response.Object.m_nChannelID > 0)
                 {
-                    CreateVirtualChannel(groupId, userId, response.Object);
+                    long virtualAssetId = CreateVirtualChannel(groupId, userId, response.Object);
 
-                    bool updateResult = IndexManager.UpsertChannel(groupId, response.Object.m_nChannelID, response.Object, userId);
+                    if (virtualAssetId > 0)
+                    {
+                        response.Object.VirtualAssetId = virtualAssetId;
+
+                        CatalogDAL.UpdateChannelVirtualAssetId(groupId, response.Object.m_nChannelID, virtualAssetId);
+                    }
+
+                    bool updateResult = IndexManagerFactory.GetInstance(groupId).UpsertChannel(response.Object.m_nChannelID, response.Object, userId);
                     if (!updateResult)
                     {
                         log.ErrorFormat("Failed update channel index with id: {0} after AddChannel", response.Object.m_nChannelID);
@@ -1166,7 +1198,7 @@ namespace Core.Catalog.CatalogManagement
                             UpdateVirtualAsset(groupId, userId, response.Object);
                         }
 
-                        bool updateResult = IndexManager.UpsertChannel(groupId, response.Object.m_nChannelID, response.Object, userId);
+                        bool updateResult = IndexManagerFactory.GetInstance(groupId).UpsertChannel(response.Object.m_nChannelID, response.Object, userId);
                         if (!updateResult)
                         {
                             log.ErrorFormat("Failed update channel index with id: {0} after UpdateChannel", channelId);
@@ -1280,7 +1312,7 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
 
-                        deleteResult = IndexManager.DeleteChannel(groupId, channelId);
+                        deleteResult = IndexManagerFactory.GetInstance(groupId).DeleteChannel(channelId);
                     }
                     else
                     {

@@ -4,6 +4,7 @@ using ApiObjects.SearchObjects;
 using ApiObjects.Social;
 using ApiObjects.Statistics;
 using ConfigurationManager;
+using Core.Catalog;
 using Core.Social.SocialCommands;
 using DAL;
 using ElasticSearch.Common.DeleteResults;
@@ -209,9 +210,8 @@ namespace Core.Social
         {
             bool result = false;
 
-            string url = ApplicationConfiguration.Current.ElasticSearchConfiguration.URL.Value;
+            string url = ApplicationConfiguration.Current.ElasticSearchConfiguration.URL_V2.Value;
 
-            string statisticsIndex = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
             string normalIndex = groupId.ToString();
 
             int nMediaType = Tvinci.Core.DAL.CatalogDAL.Get_MediaTypeIdByMediaId(actionRequest.AssetID);
@@ -243,58 +243,8 @@ namespace Core.Social
 
             string sActionStatsJson = Newtonsoft.Json.JsonConvert.SerializeObject(oActionStats);
 
-            result = DeleteActionFromESV2(url, socialSearch, groupId, statisticsIndex);
-
-            return result;
-        }
-
-        private static bool DeleteActionFromESV2(string url, StatisticsActionSearchObj socialSearch, int groupId, string index)
-        {
-            bool result = false;
-
-            try
-            {
-                ElasticSearch.Common.ElasticSearchApi oESApi = new ElasticSearch.Common.ElasticSearchApi();
-
-                if (oESApi.IndexExists(index))
-                {
-                    ElasticSearch.Searcher.ESStatisticsQueryBuilder queryBuilder = new ElasticSearch.Searcher.ESStatisticsQueryBuilder(groupId, socialSearch);
-                    string queryString = queryBuilder.BuildQuery();
-                    bool deleteDocsByQueryResult = oESApi.DeleteDocsByQuery(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref queryString);
-
-                    string searchResult = oESApi.Search(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, ref queryString);
-                    string id = string.Empty;
-                    if (!string.IsNullOrEmpty(searchResult))
-                    {
-                        int totalItems = 1;
-                        List<StatisticsView> lSocialActionView = Utils.DecodeSearchJsonObject(searchResult, ref totalItems);
-                        if (lSocialActionView != null && lSocialActionView.Count > 0)
-                        {
-                            id = lSocialActionView[0].ID;
-                        }
-                    }
-
-                    if (!string.IsNullOrEmpty(id))
-                    {
-                        // double try delete
-                        ESDeleteResult deleteResult = oESApi.DeleteDoc(index, ElasticSearch.Common.Utils.ES_STATS_TYPE, id);
-
-                        if (deleteResult == null || !deleteResult.Ok)
-                        {
-                            log.Debug("DeleteActionFromESV2 - " + string.Format("Was unable to delete record from ES. index={0};type={1};",
-                                index, ElasticSearch.Common.Utils.ES_STATS_TYPE));
-                        }
-                        else
-                        {
-                            result = deleteDocsByQueryResult;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.DebugFormat("DeleteActionFromES Failed ex={0}, index={1};type={2}", ex, index, ElasticSearch.Common.Utils.ES_STATS_TYPE);
-            }
+            var indexManager = IndexManagerFactory.GetInstance(groupId);
+            result = indexManager.DeleteSocialAction(socialSearch);
 
             return result;
         }
@@ -378,7 +328,17 @@ namespace Core.Social
 
             try
             {
-                result = ElasticSearch.Utilities.ESStatisticsUtilities.InsertSocialActionStatistics(groupId, actionRequest.AssetID, mediaType, actionRequest.Action, nRateValue, date);
+                var indexManager = IndexManagerFactory.GetInstance(groupId);
+                result = indexManager.InsertSocialStatisticsData(
+                    new SocialActionStatistics()
+                    {
+                        GroupID = groupId,
+                        Action = actionRequest.Action.ToString().ToLower(),
+                        Date = date,
+                        RateValue = nRateValue,
+                        MediaID = actionRequest.AssetID,
+                        MediaType = mediaType.ToString()
+                    });
             }
             catch (Exception ex)
             {

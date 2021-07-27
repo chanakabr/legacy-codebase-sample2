@@ -8,9 +8,9 @@ using ApiLogic.Users.Managers;
 namespace WebAPI.Controllers
 {
     [Service("campaign")]
-    [AddAction(ClientThrows = new eResponseStatus[] { })]
-    [UpdateAction(ClientThrows = new eResponseStatus[] { })]
-    [DeleteAction(ClientThrows = new eResponseStatus[] { })]
+    [AddAction(ClientThrows = new[] { eResponseStatus.DiscountCodeNotExist, eResponseStatus.NotExist })]
+    [UpdateAction(ClientThrows = new[] { eResponseStatus.DiscountCodeNotExist, eResponseStatus.CampaignDoesNotExist, eResponseStatus.NotExist })]
+    [DeleteAction(ClientThrows = new[] { eResponseStatus.CampaignDoesNotExist, eResponseStatus.CanDeleteOnlyInactiveCampaign })]
     [ListAction(IsFilterOptional = false, IsPagerOptional = true, ClientThrows = new eResponseStatus[] { })]
     public class CampaignController : KalturaCrudController<KalturaCampaign, KalturaCampaignListResponse, Campaign, long, KalturaCampaignFilter>
     {
@@ -22,9 +22,8 @@ namespace WebAPI.Controllers
         /// <returns>Kaltura campaign object</returns>
         [Action("setState")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.ActionIsNotAllowed)]
-        [Throws(eResponseStatus.InternalConnectionIssue)]
-        [Throws(eResponseStatus.DeviceNotInDomain)]
+        [Throws(eResponseStatus.CampaignDoesNotExist)]
+        [Throws(eResponseStatus.ExceededMaxCapacity)]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public static void SetState(long campaignId, KalturaObjectState newState)
         {

@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using ApiObjects.Statistics;
 using Core.Catalog.Cache;
 using Core.Catalog.Response;
 using KLogMonitor;
@@ -63,7 +64,7 @@ namespace Core.Catalog.Request
                 // Check if asset is exists
                 if (this.assetType == ApiObjects.eAssetType.PROGRAM)
                 {
-                    var m_epgList = CatalogLogic.GetEPGProgramInformation(new List<long>() { this.assetId}, this.m_nGroupID, this.m_oFilter);
+                    var m_epgList = CatalogLogic.GetEPGProgramInformation(new List<long>() { this.assetId }, this.m_nGroupID, this.m_oFilter);
 
                     if (m_epgList == null || m_epgList.Count == 0 || m_epgList[0] == null)
                     {
@@ -73,7 +74,7 @@ namespace Core.Catalog.Request
                 }
                 else if (this.assetType == ApiObjects.eAssetType.MEDIA)
                 {
-                    var mediaList = CatalogLogic.CompleteMediaDetails(new List<int>() { this.assetId },this.m_nGroupID, this.m_oFilter);
+                    var mediaList = CatalogLogic.CompleteMediaDetails(new List<int>() { this.assetId }, this.m_nGroupID, this.m_oFilter);
 
                     if (mediaList == null || mediaList.Count == 0 || mediaList[0] == null)
                     {
@@ -88,10 +89,10 @@ namespace Core.Catalog.Request
                 long id = 0;
                 DateTime? createdDate = null;
                 switch (request.assetType)
-	            {
+                {
                     case ApiObjects.eAssetType.MEDIA:
                         id = CatalogDAL.InsertMediaComment(request.m_sSiteGuid, request.assetId, request.writer, request.m_nGroupID, nIsActive, 0, request.m_sUserIP,
-                                                      request.header,request.subHeader, request.contentText, request.m_oFilter.m_nLanguage, request.udid, ref createdDate);
+                                                      request.header, request.subHeader, request.contentText, request.m_oFilter.m_nLanguage, request.udid, ref createdDate);
                         break;
                     case ApiObjects.eAssetType.PROGRAM:
                         id = CatalogDAL.InsertEpgComment(request.assetId, request.m_oFilter.m_nLanguage, request.writer, request.m_nGroupID, request.m_sUserIP, request.header,
@@ -100,17 +101,17 @@ namespace Core.Catalog.Request
                     default:
                         break;
                 }
-                
+
                 if (id == 0 || !createdDate.HasValue)
                 {
                     response.Status.Message = "No ID or created_date returned from the insert stored procedure";
                     return response;
                 }
 
-                response.AssetComment = new Comments()
+                var comments = new Comments()
                 {
                     Id = (int)id,
-                    m_nAssetID = request.assetId,                    
+                    m_nAssetID = request.assetId,
                     m_sAssetType = CatalogDAL.Get_MediaTypeIdByMediaId(request.assetId).ToString(),
                     AssetType = request.assetType,
                     m_sWriter = request.writer,
@@ -120,10 +121,27 @@ namespace Core.Catalog.Request
                     m_dCreateDate = createdDate.Value,
                     m_sSiteGuid = request.m_sSiteGuid,
                     m_nLang = request.m_oFilter.m_nLanguage,
-                    m_Action = "comment"                    
-                };                
+                    m_Action = "comment"
+                };
 
-                if (!WriteCommentToES(response.AssetComment))
+                response.AssetComment = comments;
+
+                var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                if (!indexManager.InsertSocialStatisticsData(new Comment()
+                { 
+                    Date = comments.m_dCreateDate,
+                    GroupID = comments.m_nGroupID,
+                    MediaID = comments.m_nAssetID,
+                    MediaType = comments.m_sAssetType,
+                    Id = comments.Id,
+                    m_nLang = comments.m_nLang,
+                    m_sContentText = comments.m_sContentText,
+                    m_sHeader = comments.m_sHeader,
+                    m_sLangName = comments.m_sLangName,
+                    m_sSubHeader = comments.m_sSubHeader,
+                    m_sUserPicURL = comments.m_sUserPicURL,
+                    m_sWriter = comments.m_sWriter,
+                }))
                 {
                     log.DebugFormat("Failed WriteCommentToES for comment with ID: {0}, assetType: {1}", id, request.assetType.ToString());
                     response.Status = new Status((int)eResponseStatus.Error, "Failed adding comment to ES");
@@ -144,32 +162,5 @@ namespace Core.Catalog.Request
             }
 
         }
-
-        private bool WriteCommentToES(Comments comment)
-        {
-            bool bResult = false;
-
-            try
-            {
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int nParentGroupID = catalogCache.GetParentGroup(m_nGroupID);
-                comment.m_nGroupID = nParentGroupID;
-
-                string sJson = Newtonsoft.Json.JsonConvert.SerializeObject(comment);
-                ElasticSearch.Common.ElasticSearchApi esApi = new ElasticSearch.Common.ElasticSearchApi();
-                Guid guid = Guid.NewGuid();
-
-                bResult = esApi.InsertRecord(ElasticSearch.Common.Utils.GetGroupStatisticsIndex(nParentGroupID), ElasticSearch.Common.Utils.ES_STATS_TYPE, guid.ToString(), sJson);
-            }
-
-            catch (Exception ex)
-            {
-                log.Error("Failed WriteCommentToES on AssetCommentAddRequest", ex);
-                bResult = false;
-            }
-
-            return bResult;
-        }
-
     }
 }

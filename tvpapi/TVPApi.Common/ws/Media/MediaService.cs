@@ -269,9 +269,9 @@ namespace TVPApiServices
         }
 
         //Get users comments for media
-        public List<Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex)
+        public List<TVPApi.Comment> GetMediaComments(InitializationObject initObj, int mediaID, int pageSize, int pageIndex)
         {
-            List<Comment> lstComment = null;
+            List<TVPApi.Comment> lstComment = null;
 
             int groupID = ConnectionHelper.GetGroupID("tvpapi", "GetMediaComments", initObj.ApiUser, initObj.ApiPass, SiteHelper.GetClientIP());
 

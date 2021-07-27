@@ -109,6 +109,12 @@ namespace TCMClient
         public void Init(bool? fromLocal = null)
         {
             TCMConfiguration config = (TCMConfiguration)ConfigurationManager.GetSection("TCMConfig");
+
+            if (config == null)
+            {
+                config = new TCMConfiguration();
+            }
+
             if (fromLocal.HasValue)
             {
                 config.FromLocal = fromLocal.Value;
@@ -462,7 +468,7 @@ namespace TCMClient
             }
             else
             {
-                pathToLocalFile = m_LocalPath + "/config.yaml";
+                pathToLocalFile = Path.Combine( m_LocalPath ,"config.yaml");
             }
 
             return pathToLocalFile;

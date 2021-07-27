@@ -64,27 +64,13 @@ namespace Core.Catalog.Request
 
                 //GetMediaIds With Searcher
                 int nTotalItems = 0;
-                bool isLucene = false;
-                List<SearchResult> mediaIds = CatalogLogic.GetMediaIdsFromSearcher(request, ref nTotalItems, ref isLucene);
+                List<SearchResult> mediaIds = 
+                    CatalogLogic.GetMediaIdsFromSearcher(request, ref nTotalItems);
                 oMediaResponse.m_nTotalItems = nTotalItems;
 
                 if (nTotalItems > 0)
                 {
-                    if (isLucene)
-                    {
-                        //Complete max updatedate per mediaId
-                        List<SearchResult> lMediaRes = Utils.GetMediaUpdateDate(mediaIds, oBaseRequest.m_nGroupID);
-                        lMediaRes = Utils.GetMediaForPaging(lMediaRes, request);
-                        oMediaResponse.m_nMediaIds = new List<SearchResult>(lMediaRes);
-                    }
-                    else //ElasticSearch
-                    {
-                        oMediaResponse.m_nMediaIds = mediaIds;
-                    }
-
-                   
-                    
-                 
+                    oMediaResponse.m_nMediaIds = mediaIds;
                 }
                 
                 return (BaseResponse)oMediaResponse;

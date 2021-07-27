@@ -12,6 +12,7 @@ namespace ConfigurationManager
         GroupsManagerConfiguration GroupsManagerConfiguration { get; }
         ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration { get; }
         ElasticSearchConfiguration ElasticSearchConfiguration { get; }
+        ElasticSearchHttpClientConfiguration ElasticSearchHttpClientConfiguration { get; }
     }
 
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
@@ -109,6 +110,7 @@ namespace ConfigurationManager
         public WebServicesConfiguration WebServicesConfiguration = new WebServicesConfiguration();
         public ElasticSearchConfiguration _elasticSearchConfiguration = new ElasticSearchConfiguration();
         public ElasticSearchConfiguration ElasticSearchConfiguration => _elasticSearchConfiguration;
+        
         public RoleIdsConfiguration RoleIdsConfiguration = new RoleIdsConfiguration();
         public TwitterConfiguration TwitterConfiguration = new TwitterConfiguration();
         public FacebookConfiguration FacebookConfiguration = new FacebookConfiguration();
@@ -141,7 +143,8 @@ namespace ConfigurationManager
         public ProfessionalServicesTasksConfiguration ProfessionalServicesTasksConfiguration = new ProfessionalServicesTasksConfiguration();
         public NPVRHttpClientConfiguration NPVRHttpClientConfiguration = new NPVRHttpClientConfiguration();
         public KafkaClientConfiguration KafkaClientConfiguration = new KafkaClientConfiguration();
-        public ElasticSearchHttpClientConfiguration ElasticSearchHttpClientConfiguration = new ElasticSearchHttpClientConfiguration();
+        public ElasticSearchHttpClientConfiguration _elasticSearchHttpClientConfiguration = new ElasticSearchHttpClientConfiguration();
+        public ElasticSearchHttpClientConfiguration ElasticSearchHttpClientConfiguration => _elasticSearchHttpClientConfiguration;
         public MailerHttpClientConfiguration MailerHttpClientConfiguration = new MailerHttpClientConfiguration();
         public IotHttpClientConfiguration IotHttpClientConfiguration = new IotHttpClientConfiguration();
         public UdidUsageConfiguration UdidUsageConfiguration = new UdidUsageConfiguration();
@@ -170,6 +173,11 @@ namespace ConfigurationManager
         public static void Init()
         {
             TCMClient.Settings.Instance.Init();
+            Init(Current);
+        }
+
+        public static void InitDefaults()
+        {
             Init(Current);
         }
     }

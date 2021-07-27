@@ -60,6 +60,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.CurrencyIsMissing)]
         [Throws(eResponseStatus.InvalidCurrency)]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.PriceIsMissing)]
+        [Throws(eResponseStatus.AmountIsMissing)]
         static public KalturaPriceDetails Add(KalturaPriceDetails priceDetails)
         {
             KalturaPriceDetails result = null;
@@ -91,7 +94,7 @@ namespace WebAPI.Controllers
         /// <param name="id">PriceDetails identifier</param>
         [Action("delete")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.PriceCodeDoesNotExist)]
+        [Throws(eResponseStatus.PriceDetailsDoesNotExist)]
         [SchemeArgument("id", MinLong = 1)]
         static public bool Delete(long id)
         {

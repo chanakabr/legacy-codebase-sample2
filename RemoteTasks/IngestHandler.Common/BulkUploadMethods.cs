@@ -70,6 +70,7 @@ namespace IngestHandler.Common
                 );
 
             var insertResult = false;
+            // TODO: The retry policy isn't working actually, need to rewrite dal.InsertPrograms() (won't throw exception whatever) and CouchbaseManager.MultiSet()
             await policy.ExecuteAsync(async () =>
             {
                 var epgCbObjectToInsert = programsToAdd.SelectMany(p => p.EpgCbObjects).ToList();

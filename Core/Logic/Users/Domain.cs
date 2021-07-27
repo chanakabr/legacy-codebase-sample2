@@ -19,13 +19,14 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
-using ApiLogic.CanaryDeployment;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using ApiObjects.CanaryDeployment;
 using AuthenticationGrpcClientWrapper;
 using APILogic.Api.Managers;
 using ApiLogic.Users.Managers;
+using ApiObjects.CanaryDeployment.Microservices;
+using CanaryDeploymentManager;
 
 namespace Core.Users
 {
@@ -1152,7 +1153,7 @@ namespace Core.Users
 
         private static void GetDeviceIdAndBrandByPin(int groupId, string pin, ref string udid, ref int brandId)
         {
-            if (CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginPin))
+            if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(groupId, CanaryDeploymentDataOwnershipEnum.AuthenticationDeviceLoginPin))
             {
                 var authClient = AuthenticationClient.GetClientFromTCM();
                 udid = authClient.GetDeviceLoginPin(groupId, pin);
@@ -1348,7 +1349,8 @@ namespace Core.Users
             return ValidateQuantity(udid, deviceBrandId, ref dc, ref device);
         }
 
-        public DomainResponseStatus ValidateQuantity(string udid, int deviceBrandId, ref DeviceContainer dc, ref Device device)
+        public DomainResponseStatus ValidateQuantity(string udid, int deviceBrandId, ref DeviceContainer dc, ref Device device, 
+            bool skipOtherDomainCheck = false)
         {
             DomainResponseStatus res = DomainResponseStatus.UnKnown;
             if (device == null)
@@ -1397,7 +1399,7 @@ namespace Core.Users
                         }
                     }
 
-                    if (deviceAlreadyExistsInOtherDomain)
+                    if (deviceAlreadyExistsInOtherDomain && !skipOtherDomainCheck)
                     {
                         // the device is associated to a different domain.
                         res = DomainResponseStatus.DeviceExistsInOtherDomains;

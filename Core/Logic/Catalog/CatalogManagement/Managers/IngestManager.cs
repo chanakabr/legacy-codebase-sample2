@@ -417,7 +417,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static void IndexAndInvalidateTags(int groupId, List<TagToInvalidate> tagsToInvalidate, CatalogGroupCache catalogGroupCache)
         {
-            var wrapper = new ElasticsearchWrapper();
+            var indexManager = IndexManagerFactory.GetInstance(groupId);
             var assetsToInvalidate = new Dictionary<int, bool>();
 
             foreach (var tag in tagsToInvalidate)
@@ -448,7 +448,7 @@ namespace Core.Catalog.CatalogManagement
                         });
                     }
 
-                    var result = wrapper.UpdateTag(groupId, catalogGroupCache, tag.TagValue);
+                    var result = indexManager.UpdateTag(tag.TagValue);
                     if (!result.IsOkStatusCode())
                     {
                         log.ErrorFormat("Failed UpdateTag index for tag: {0}, groupId: {1}, error: {2} after IndexAndInvalidateTags", tag.TagValue.ToString(), groupId, result.ToString());
@@ -463,7 +463,7 @@ namespace Core.Catalog.CatalogManagement
         {
             foreach (var asset in assetsToInvalidate)
             {
-                if (!IndexManager.UpsertMedia(groupId, asset.Key))
+                if (!IndexManagerFactory.GetInstance(groupId).UpsertMedia(asset.Key))
                 {
                     log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after IndexAndInvalidateAssets", asset.Key, groupId);
                 }
@@ -709,6 +709,7 @@ namespace Core.Catalog.CatalogManagement
                                 FileSize = StringUtils.TryConvertTo<long>(mediaFile.FileSize),
                                 IsActive = true,
                                 CatalogEndDate = DateUtils.TryExtractDate(mediaFile.FileCatalogEndDate, ASSET_FILE_DATE_FORMAT),
+                                Labels = mediaFile.Labels
                             }, mediaFile.PpvModule));
                         }
                     }

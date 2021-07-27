@@ -146,5 +146,17 @@ namespace ApiObjects.Response
 
             return sb.ToString();
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            var status = (Status)obj;
+
+            return status.Code == Code && status.Message == Message;
+        }
     }
 }

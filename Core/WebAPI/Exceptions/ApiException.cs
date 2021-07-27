@@ -590,7 +590,7 @@ namespace WebAPI.Exceptions
         public static ClientExceptionType ASSET_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.AssetDoseNotExists, "AssetDoseNotExists");
         public static ClientExceptionType USER_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.UserDoseNotExists, "UserDoseNotExists");
         public static ClientExceptionType NO_FACEBOOK_ACTION = new ClientExceptionType(eResponseStatus.NoFacebookAction, "NoFacebookAction");
-        //public static ClientExceptionType NOT_ALLOWED = new ClientExceptionType(eResponseStatus.NotAllowed, "NotAllowed");
+        public static ClientExceptionType NOT_ALLOWED = new ClientExceptionType(eResponseStatus.NotAllowed, eResponseStatus.NotAllowed.ToString(), "Action not allowed due to roleId [@roleId@]");
         public static ClientExceptionType ASSET_ALREADY_RATED = new ClientExceptionType(eResponseStatus.AssetAlreadyRated, "AssetAlreadyRated");
         public static ClientExceptionType ASSET_NEVER_LIKED = new ClientExceptionType(eResponseStatus.AssetNeverLiked, "AssetNeverLiked");
         public static ClientExceptionType SOCIAL_ACTION_ID_DOES_NOT_EXISTS = new ClientExceptionType(eResponseStatus.SocialActionIdDoseNotExists, "SocialActionIdDoseNotExists");
@@ -683,18 +683,20 @@ namespace WebAPI.Exceptions
         public class ClientExceptionType : ExceptionType
         {
             public eResponseStatus statusCode;
-
+            public string message;
             public string description;
 
             public ClientExceptionType(eResponseStatus statusCode, string message)
             {
                 this.statusCode = statusCode;
+                this.message = message;
                 this.description = string.Empty;
             }
 
             public ClientExceptionType(eResponseStatus statusCode, string message, string description)
             {
                 this.statusCode = statusCode;
+                this.message = message;
                 this.description = description;
             }
         }

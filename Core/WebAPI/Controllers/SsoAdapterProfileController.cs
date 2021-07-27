@@ -46,14 +46,11 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Delete sso adapters by sso adapters id
         /// </summary>
-        /// <remarks>
-        /// Possible status codes:       
-        /// sso adapter not exist = 2056
-        /// </remarks>
         /// <param name="ssoAdapterId">SSO Adapter Identifier</param>
         [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.SSOAdapterNotExist)]
+        [Throws(eResponseStatus.SSOAdapterIdRequired)]
         static public bool Delete(int ssoAdapterId)
         {
             var ks = KS.GetFromRequest();
@@ -126,12 +123,13 @@ namespace WebAPI.Controllers
         /// <param name="ssoAdapter">SSO Adapter Object</param>       
         [Action("update")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.ActionIsNotAllowed)]
         [Throws(eResponseStatus.SSOAdapterIdRequired)]
+        [Throws(eResponseStatus.SSOAdapterNotExist)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.SharedSecretRequired)]
         [Throws(eResponseStatus.ExternalIdentifierRequired)]
         [Throws(eResponseStatus.ExternalIdentifierMustBeUnique)]
+        [Throws(eResponseStatus.NoSSOAdapaterToInsert)]
         static public KalturaSSOAdapterProfile Update(int ssoAdapterId, KalturaSSOAdapterProfile ssoAdapter)
         {
 

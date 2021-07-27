@@ -9,11 +9,17 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 
 namespace Core.Catalog.Cache
 {
-    public class CatalogCache
+    public interface ICatalogCache
+    {
+        Dictionary<string, LinearChannelSettings> GetLinearChannelSettings(int groupID, List<string> keys);
+    }
+
+    public class CatalogCache : ICatalogCache
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -22,6 +28,7 @@ namespace Core.Catalog.Cache
         private static readonly double SHORT_IN_CACHE_MINUTES = 10d; // 10 minutes
         private static readonly string DEFAULT_CACHE_NAME = "CatalogCache";
         protected const string CACHE_KEY = "CATALOG";
+
         #endregion
 
         #region InnerCache properties

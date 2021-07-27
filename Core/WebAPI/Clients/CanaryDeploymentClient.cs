@@ -1,11 +1,15 @@
-﻿using ApiLogic.CanaryDeployment;
-using ApiObjects.CanaryDeployment;
+﻿using ApiObjects.CanaryDeployment;
 using ApiObjects.Response;
 using KLogMonitor;
 using System;
 using System.Reflection;
+using ApiObjects.CanaryDeployment.Elasticsearch;
+using ApiObjects.CanaryDeployment.Microservices;
+using CanaryDeploymentManager;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Models.CanaryDeployment;
+using WebAPI.Models.CanaryDeployment.Elasticsearch;
+using WebAPI.Models.CanaryDeployment.Microservices;
 using WebAPI.ObjectsConvertor.Mapping;
 
 namespace WebAPI.Clients
@@ -18,54 +22,81 @@ namespace WebAPI.Clients
         {
         }
 
-        public KalturaCanaryDeploymentConfiguration GetCanaryDeploymentConfiguration(int groupId)
+        public KalturaMicroservicesCanaryDeploymentConfiguration GetMicroservicesCanaryDeploymentConfiguration(int groupId)
         {
-            Func<GenericResponse<CanaryDeploymentConfiguration>> getGroupConfiguration = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().GetGroupConfiguration(groupId);
-            return ClientUtils.GetResponseFromWS<KalturaCanaryDeploymentConfiguration, CanaryDeploymentConfiguration>(getGroupConfiguration);
+            Func<GenericResponse<MicroservicesCanaryDeploymentConfiguration>> getGroupConfiguration = () => CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().GetGroupConfiguration(groupId);
+            return ClientUtils.GetResponseFromWS<KalturaMicroservicesCanaryDeploymentConfiguration, MicroservicesCanaryDeploymentConfiguration>(getGroupConfiguration);
         }
 
-        internal bool SetMigrationEventStatus(int groupId, KalturaCanaryDeploymentMigrationEvent migrationEvent, bool status)
+        public bool SetMicroservicesMigrationEventStatus(int groupId, KalturaCanaryDeploymentMicroservicesMigrationEvent microservicesMigrationEvent, bool status)
         {
             Func<Status> setMigrationEvent = null;
-            CanaryDeploymentMigrationEvent canaryDeploymentMigrationEvent = CanaryDeploymentMapping.ConvertMigrationEvent(migrationEvent);
+            CanaryDeploymentMigrationEvent canaryDeploymentMigrationEvent = CanaryDeploymentMapping.ConvertMigrationEvent(microservicesMigrationEvent);
             if (status)
             {
-                setMigrationEvent = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().EnableMigrationEvent(groupId, canaryDeploymentMigrationEvent);
+                setMigrationEvent = () => CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().EnableMigrationEvent(groupId, canaryDeploymentMigrationEvent);
             }
             else
             {
-                setMigrationEvent = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().DisableMigrationEvent(groupId, canaryDeploymentMigrationEvent);
+                setMigrationEvent = () => CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().DisableMigrationEvent(groupId, canaryDeploymentMigrationEvent);
             }
 
             return ClientUtils.GetResponseStatusFromWS(setMigrationEvent);
         }
 
-        internal bool SetAllMigrationEventsStatus(int groupId, bool status)
+        public bool SetAllMicroservicesMigrationEventsStatus(int groupId, bool status)
         {
-            Func<Status> setAllMigrationEvents = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().SetAllMigrationEventsStatus(groupId, status);
+            Func<Status> setAllMigrationEvents = () => CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().SetAllMigrationEventsStatus(groupId, status);
             return ClientUtils.GetResponseStatusFromWS(setAllMigrationEvents);
         }
 
-        internal bool SetRoutingAction(int groupId, KalturaCanaryDeploymentRoutingAction routingAction, KalturaCanaryDeploymentRoutingService routingService)
+        public bool SetMicroservicesRoutingAction(int groupId, KalturaCanaryDeploymentMicroservicesRoutingAction microservicesRoutingAction, KalturaCanaryDeploymentMicroservicesRoutingService microservicesRoutingService)
         {
-            CanaryDeploymentRoutingAction canaryDeploymentRoutingAction = CanaryDeploymentMapping.ConvertRoutingAction(routingAction);
-            CanaryDeploymentRoutingService canaryDeploymentRoutingService = CanaryDeploymentMapping.ConvertRoutingService(routingService);
-            Func<Status> setRoutingAction = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().SetRoutingAction(groupId, canaryDeploymentRoutingAction, canaryDeploymentRoutingService);         
+            CanaryDeploymentRoutingAction canaryDeploymentRoutingAction = CanaryDeploymentMapping.ConvertRoutingAction(microservicesRoutingAction);
+            MicroservicesCanaryDeploymentRoutingService microservicesCanaryDeploymentRoutingService = CanaryDeploymentMapping.ConvertRoutingService(microservicesRoutingService);
+            Func<Status> setRoutingAction = () => CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().SetRoutingAction(groupId, canaryDeploymentRoutingAction, microservicesCanaryDeploymentRoutingService);         
 
             return ClientUtils.GetResponseStatusFromWS(setRoutingAction);
         }
 
-        internal bool SetAllRoutingActionsToMs(int groupId, bool enableMs)
+        public bool SetAllMicroservicesRoutingActionsToMs(int groupId, bool enableMs)
         {
-            Func<Status> setAllRoutingActionsToMs = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().SetAllRoutingActionsToMs(groupId, enableMs);
+            Func<Status> setAllRoutingActionsToMs = () => CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().SetAllRoutingActionsToMs(groupId, enableMs);
 
             return ClientUtils.GetResponseStatusFromWS(setAllRoutingActionsToMs);
         }
 
-        internal bool DeleteCanaryDeploymentConfiguration(int groupId)
+        public bool DeleteMicroservicesCanaryDeploymentConfiguration(int groupId)
         {
-            Func<Status> deleteGroupConfiguration = () => CanaryDeploymentFactory.Instance.GetCanaryDeploymentManager().DeleteGroupConfiguration(groupId);
+            Func<Status> deleteGroupConfiguration = () => CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().DeleteGroupConfiguration(groupId);
             return ClientUtils.GetResponseStatusFromWS(deleteGroupConfiguration);
+        }
+        
+        
+        
+        public KalturaElasticsearchCanaryDeploymentConfiguration GetElasticsearchCanaryDeploymentConfiguration(int groupId)
+        {
+            Func<GenericResponse<ElasticsearchCanaryDeploymentConfiguration>> getGroupConfiguration = () => CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().GetPartnerConfiguration(groupId);
+            return ClientUtils.GetResponseFromWS<KalturaElasticsearchCanaryDeploymentConfiguration, ElasticsearchCanaryDeploymentConfiguration>(getGroupConfiguration);
+        }
+
+        public bool SetElasticsearchMigrationEventsStatus(int groupId, bool status)
+        {
+            var res = CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().SetMigrationEventsStatus(groupId, status);
+            return res.IsOkStatusCode();
+        }
+
+        public bool SetElasticsearchActiveVersion(int groupId, KalturaElasticsearchVersion activeVersion)
+        {
+            var activeVersionToSet = (ElasticsearchVersion)((int) activeVersion);
+            var res = CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().SetElasticsearchActiveVersion(groupId, activeVersionToSet);
+            return res.IsOkStatusCode();
+        }
+
+        public bool DeleteElasticsearchCanaryDeploymentConfiguration(int groupId)
+        {
+            var res = CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().DeleteCanaryDeploymentConfiguration(groupId);
+            return res.IsOkStatusCode();
         }
     }
 }

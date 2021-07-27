@@ -58,15 +58,15 @@ namespace Core.Catalog.Request
                 switch (request.m_eBundleType)
                 {
                     case eBundleType.SUBSCRIPTION:
-                    {
-                        dataTable = SUB_DATA_TABLE;
-                        break;
-                    }
+                        {
+                            dataTable = SUB_DATA_TABLE;
+                            break;
+                        }
                     case eBundleType.COLLECTION:
-                    {
-                        dataTable = COL_DATA_TABLE;
-                        break;
-                    }
+                        {
+                            dataTable = COL_DATA_TABLE;
+                            break;
+                        }
                 }
 
                 GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
@@ -165,41 +165,40 @@ namespace Core.Catalog.Request
                             {
                                 try
                                 {
-                                    ISearcher searcher = Bootstrapper.GetInstance<ISearcher>();
-                                    if (searcher != null)
+                                    int nSubscriptionParentGroupID = catalogCache.GetParentGroup(m_nGroupID);
+
+                                    IIndexManager indexManager = IndexManagerFactory.GetInstance(nSubscriptionParentGroupID);
+
+                                    ApiObjects.SearchObjects.OrderObj oSearchOrder = new ApiObjects.SearchObjects.OrderObj();
+                                    if (request.m_oOrderObj == null)
                                     {
-                                        ApiObjects.SearchObjects.OrderObj oSearchOrder = new ApiObjects.SearchObjects.OrderObj();
-                                        if (request.m_oOrderObj == null)
-                                        {
-                                            oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
-                                            oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                                        }
-                                        CatalogLogic.GetOrderValues(ref oSearchOrder, request.m_oOrderObj);
-                                        if (oSearchOrder.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(oSearchOrder.m_sOrderValue))
-                                        {
-                                            oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
-                                            oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
-                                        }
+                                        oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
+                                        oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                                    }
+                                    CatalogLogic.GetOrderValues(ref oSearchOrder, request.m_oOrderObj);
+                                    if (oSearchOrder.m_eOrderBy == ApiObjects.SearchObjects.OrderBy.META && string.IsNullOrEmpty(oSearchOrder.m_sOrderValue))
+                                    {
+                                        oSearchOrder.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.CREATE_DATE;
+                                        oSearchOrder.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                                    }
 
+                                    // Getting all medias in bundle   
+                                    List<SearchResult> lMediaRes = null;
+                                    SearchResultsObj oSearchResults = indexManager.SearchSubscriptionMedias(channelsSearchObjects, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_sMediaType, oSearchOrder, request.m_nPageIndex, request.m_nPageSize);
 
-                                        // Getting all medias in bundle   
-                                        List<SearchResult> lMediaRes = null;
-                                        SearchResultsObj oSearchResults = searcher.SearchSubscriptionMedias(request.m_nGroupID, channelsSearchObjects, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate, request.m_sMediaType, oSearchOrder, request.m_nPageIndex, request.m_nPageSize);
+                                    if (oSearchResults != null)
+                                    {
+                                        lMediaRes = oSearchResults.m_resultIDs;
+                                    }
 
-                                        if (oSearchResults != null)
-                                        {
-                                            lMediaRes = Utils.GetMediaUpdateDate(oSearchResults.m_resultIDs, oBaseRequest.m_nGroupID);
-                                        }
-
-                                        if (lMediaRes != null && lMediaRes.Count > 0)
-                                        {
-                                            response.m_nMediaIds = new List<SearchResult>(lMediaRes);
-                                            response.m_nTotalItems = oSearchResults.n_TotalItems;
-                                        }
-                                        else
-                                        {
-                                            response.m_nMediaIds = null;
-                                        }
+                                    if (lMediaRes != null && lMediaRes.Count > 0)
+                                    {
+                                        response.m_nMediaIds = new List<SearchResult>(lMediaRes);
+                                        response.m_nTotalItems = oSearchResults.n_TotalItems;
+                                    }
+                                    else
+                                    {
+                                        response.m_nMediaIds = null;
                                     }
                                 }
                                 catch (Exception ex)

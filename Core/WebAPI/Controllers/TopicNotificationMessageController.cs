@@ -23,6 +23,7 @@ namespace WebAPI.Controllers
         /// <param name="topicNotificationMessage">The topic notification message to add</param>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.TopicNotificationNotFound)]
         static public KalturaTopicNotificationMessage Add(KalturaTopicNotificationMessage topicNotificationMessage)
         {
             try
@@ -112,6 +113,7 @@ namespace WebAPI.Controllers
         /// <param name="pager">Paging the request</param>
         [Action("list")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.TopicNotificationNotFound)]
         static public KalturaTopicNotificationMessageListResponse List(KalturaTopicNotificationMessageFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaTopicNotificationMessageListResponse response = null;

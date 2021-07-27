@@ -11,6 +11,6 @@
         Social,
         Users,
         Catalog,
-        CanaryDeployment
+        MicroservicesCanaryDeployment,
     }
 }

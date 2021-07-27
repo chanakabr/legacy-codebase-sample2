@@ -39,6 +39,7 @@ namespace ConfigurationManager.ConfigurationSettings.ConfigurationBase
                 // TODO EqualityComparer<T>.Default.Equals(ActualValue, default(T)) ? DefaultValue : ActualValue;
                 return ActualValue == null ? DefaultValue : ActualValue;
             }
+            set => ActualValue = value;
         }
 
         public T GetDefaultValue()

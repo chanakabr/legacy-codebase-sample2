@@ -288,7 +288,8 @@ namespace Core.Catalog.Request
             }
 
             //if this is not a bit rate change, log for mediahit for statistics
-            if ((!resultParse || action == MediaPlayActions.HIT) && TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
+            if ((!resultParse || action == MediaPlayActions.HIT) && 
+                TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.CROWDSOURCE))
             {
                 WriteLiveViews(this.m_nGroupID, mediaId, mediaTypeId, locationSec);
             }
@@ -303,9 +304,20 @@ namespace Core.Catalog.Request
             try
             {
                 int parentGroupID = CatalogCache.Instance().GetParentGroup(groupID);
+                var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
 
-                if (!ElasticSearch.Utilities.ESStatisticsUtilities.InsertMediaView(parentGroupID, mediaID, mediaTypeID, CatalogLogic.STAT_ACTION_MEDIA_HIT, playTime, false))
+                if (!indexManager.InsertSocialStatisticsData(
+                    new ApiObjects.Statistics.MediaView()
+                    {
+                        Action = IndexManagerV2.STAT_ACTION_MEDIA_HIT,
+                        MediaType = mediaTypeID.ToString(),
+                        GroupID = groupID,
+                        MediaID = mediaID,
+                        Location = playTime,
+                    }))
+                {
                     log.Error("Error - " + String.Concat("Failed to write mediahit into stats index. M ID: ", mediaID, " MT ID: ", mediaTypeID));
+                }
             }
             catch (Exception ex)
             {
