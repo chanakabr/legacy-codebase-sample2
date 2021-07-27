@@ -3,10 +3,11 @@ using System;
 using System.Linq;
 using System.Web;
 using System.Collections.Generic;
+using KalturaRequestContext;
+using TVinciShared;
 using WebAPI.Managers.Scheme;
 using WebAPI.Filters;
 using WebAPI.Managers;
-using TVinciShared;
 using WebAPI.Utils;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
@@ -9605,7 +9606,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(PopulationConditions != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaBatchCampaign", "PopulationConditions", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("populationConditions")))
             {
@@ -9625,7 +9626,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(PopulationConditions != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaBatchCampaign", "PopulationConditions", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("populationConditions")))
             {
@@ -9891,7 +9892,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(CollectionIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("collectionIdIn")))
             {
@@ -9955,7 +9956,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(CollectionIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("collectionIdIn")))
             {
@@ -14428,7 +14429,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(CurrentUserPermissionsContains.HasValue && (retrievedProperties == null || retrievedProperties.Contains("currentUserPermissionsContains")))
             {
@@ -14451,7 +14452,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(CurrentUserPermissionsContains.HasValue && (retrievedProperties == null || retrievedProperties.Contains("currentUserPermissionsContains")))
             {
@@ -16364,7 +16365,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("action")))
             {
@@ -16392,7 +16393,7 @@ namespace WebAPI.Models.API
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("action")))
             {
@@ -21254,7 +21255,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
             {
@@ -21395,7 +21396,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
             {
@@ -25252,7 +25253,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("idEqual")))
             {
@@ -25287,7 +25288,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("idEqual")))
             {
@@ -26324,7 +26325,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(BufferCatchUp.HasValue && (retrievedProperties == null || retrievedProperties.Contains("bufferCatchUpSetting")))
             {
@@ -26407,7 +26408,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(BufferCatchUp.HasValue && (retrievedProperties == null || retrievedProperties.Contains("bufferCatchUpSetting")))
             {
@@ -26530,7 +26531,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && CatchUpBuffer.HasValue && (retrievedProperties == null || retrievedProperties.Contains("catchUpBuffer")))
             {
@@ -26597,7 +26598,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(!DeprecatedAttribute.IsDeprecated("5.0.0.0", currentVersion) && CatchUpBuffer.HasValue && (retrievedProperties == null || retrievedProperties.Contains("catchUpBuffer")))
             {
@@ -27852,7 +27853,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(OnlyNewStandardAttribute.IsNew("5.0.0.0", currentVersion) && CatchUpEnabled.HasValue && (retrievedProperties == null || retrievedProperties.Contains("enableCatchUp")))
             {
@@ -27903,7 +27904,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(OnlyNewStandardAttribute.IsNew("5.0.0.0", currentVersion) && CatchUpEnabled.HasValue && (retrievedProperties == null || retrievedProperties.Contains("enableCatchUp")))
             {
@@ -28066,7 +28067,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(RecordingId != null && (retrievedProperties == null || retrievedProperties.Contains("recordingId")))
             {
@@ -28089,7 +28090,7 @@ namespace WebAPI.Models.Catalog
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(RecordingId != null && (retrievedProperties == null || retrievedProperties.Contains("recordingId")))
             {
@@ -30065,7 +30066,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("percentage")))
             {
@@ -30084,7 +30085,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("percentage")))
             {
@@ -30105,7 +30106,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("endDate")))
             {
@@ -30149,7 +30150,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("endDate")))
             {
@@ -31269,7 +31270,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(Amount.HasValue && (retrievedProperties == null || retrievedProperties.Contains("amount")))
             {
@@ -31304,7 +31305,7 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(Amount.HasValue && (retrievedProperties == null || retrievedProperties.Contains("amount")))
             {
@@ -35753,7 +35754,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(Address != null && (retrievedProperties == null || retrievedProperties.Contains("address")))
             {
@@ -35911,7 +35912,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(Address != null && (retrievedProperties == null || retrievedProperties.Contains("address")))
             {
@@ -36173,7 +36174,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(EmailEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "EmailEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("emailEqual")))
             {
@@ -36208,7 +36209,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(EmailEqual != null && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaOTTUserFilter", "EmailEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("emailEqual")))
             {
@@ -36683,7 +36684,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
             {
@@ -36730,7 +36731,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
             {
@@ -36779,7 +36780,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             return ret;
         }
@@ -36794,7 +36795,7 @@ namespace WebAPI.Models.Users
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             return ret;
         }
@@ -41940,7 +41941,7 @@ namespace WebAPI.Models.Domains
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(DeviceFamilyIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyIdIn")))
             {
@@ -41967,7 +41968,7 @@ namespace WebAPI.Models.Domains
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(DeviceFamilyIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("deviceFamilyIdIn")))
             {
@@ -42414,7 +42415,7 @@ namespace WebAPI.Models.Domains
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdUserFilter", "HouseholdIdEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("householdIdEqual")))
             {
@@ -42433,7 +42434,7 @@ namespace WebAPI.Models.Domains
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             if(HouseholdIdEqual.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaHouseholdUserFilter", "HouseholdIdEqual", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("householdIdEqual")))
             {
@@ -42586,7 +42587,7 @@ namespace WebAPI.Controllers
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             return ret;
         }
@@ -42601,7 +42602,7 @@ namespace WebAPI.Controllers
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
-            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
             return ret;
         }
