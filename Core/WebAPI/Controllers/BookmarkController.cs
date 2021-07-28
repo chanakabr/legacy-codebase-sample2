@@ -106,12 +106,6 @@ namespace WebAPI.Controllers
         [ApiAuthorize(true)]
         [ValidationException(SchemeValidationType.ACTION_RETURN_TYPE)]
         [Throws(eResponseStatus.ConcurrencyLimitation)]
-        [Throws(eResponseStatus.InvalidAssetType)]
-        [Throws(eResponseStatus.ProgramDoesntExist)]
-        [Throws(eResponseStatus.ActionNotRecognized)]
-        [Throws(eResponseStatus.InvalidAssetId)]
-        [Throws(eResponseStatus.RecordingNotFound)]
-        [Throws(eResponseStatus.UserNotAllowed)]
         static public bool Add(KalturaBookmark bookmark)
         {
             if (bookmark.PlayerData == null)
