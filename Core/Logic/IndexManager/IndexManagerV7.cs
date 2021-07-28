@@ -265,16 +265,8 @@ namespace Core.Catalog
 
                         // Serialize EPG object to string
                         var buildEpg = new ElasticSearchNestDataBuilder().BuildEpg(program, suffix, isOpc: _doesGroupUsesTemplates);
-                        var settings = new JsonSerializerSettings
-                        {
-                            ContractResolver = new CustomResolver(suffix)
-                        };
-
-
-                        string json = JsonConvert.SerializeObject(buildEpg, settings);
-                        IndexResponse indexResponse = _elasticClient.Index(json, x => x.Index(draftIndexName));
-
-
+                        var indexResponse = _elasticClient.Index(buildEpg, x => x.Index(draftIndexName));
+                        
                         var serializedEpg = "";//TryGetSerializedEpg(_doesGroupUsesTemplates, program, suffix);
                         var epgType = IndexManagerCommonHelpers.GetTranslationType(IndexManagerV2.EPG_INDEX_TYPE, language);
 

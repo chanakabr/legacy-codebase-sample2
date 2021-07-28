@@ -13,7 +13,7 @@ namespace ApiObjects.Nest
     
     
 
-    public class JsonSuffixNameAttribute : Attribute
+    /*public class JsonSuffixNameAttribute : Attribute
     {
         public string Name { get; set; }
         public JsonSuffixNameAttribute(string name)
@@ -40,9 +40,8 @@ namespace ApiObjects.Nest
                 prop.PropertyName = $"{nameAttribute.Name}_{_suffix}";
             }
             return prop;
-        }
-        
-    }
+        }        
+    }*/
     
   
     public class NestEpg
@@ -78,11 +77,11 @@ namespace ApiObjects.Nest
         [JsonProperty("channel_id")]
         public int ChannelID { get; set; }
         
-        [JsonSuffixName("name")]
-        public string Name { get; set; }
+        [JsonProperty("name")]
+        public Dictionary<string,string> Name { get; set; }
 
-        [JsonSuffixName("description")]
-        public string Description { get; set; }
+        [JsonProperty("description")]
+        public  Dictionary<string,string> Description { get; set; }
 
         [JsonProperty("start_date")]
         [JsonConverter(typeof(EpgTimeConverter))]
@@ -115,10 +114,10 @@ namespace ApiObjects.Nest
         public EpgExtraData ExtraData { get; set; }
 
         [JsonProperty("metas")]
-        public Dictionary<string, List<string>> Metas { get; set; }
+        public Dictionary<string,Dictionary<string, List<string>>> Metas { get; set; }
 
         [JsonProperty("tags")]
-        public Dictionary<string, List<string>> Tags { get; set; }
+        public Dictionary<string,Dictionary<string, List<string>>> Tags { get; set; }
 
         [JsonProperty("language")]
         public string Language { get; set; }
@@ -163,7 +162,6 @@ namespace ApiObjects.Nest
         [JsonProperty("suppressed")]
         public string Suppressed { get; set; }
         
-        public string Suffix { get; set; }
         #endregion
 
         #region Ctor
@@ -171,9 +169,6 @@ namespace ApiObjects.Nest
         public NestEpg(EpgCB epgCb, bool groupUsesTemplates = false, bool withRouting = true,
             string esDateOOnlyFormat = "", string suffix="")
         {
-            //set the lang suffix for the json serialization 
-            ///for example on Name with lang code suffix will add name_heb
-            Suffix = suffix;
             Initialize(epgCb, groupUsesTemplates, withRouting,esDateOOnlyFormat);
         }
         #endregion
@@ -202,10 +197,24 @@ namespace ApiObjects.Nest
             BasicData = epgCb.BasicData;
             Statistics = epgCb.Statistics;
             ExtraData = epgCb.ExtraData;
-            Metas = new Dictionary<string, List<string>>(epgCb.Metas); //lang
-            Tags = new Dictionary<string, List<string>>(epgCb.Tags); //lang
-            Name = epgCb.Name; //lang
-            Description = epgCb.Description; //lang
+
+
+            var metasDict = new Dictionary<string, Dictionary<string, List<string>>>();
+            metasDict.Add(epgCb.Language,new Dictionary<string, List<string>>(epgCb.Metas));
+            Metas = metasDict; //lang
+            
+            var tagsDict = new Dictionary<string, Dictionary<string, List<string>>>();
+            tagsDict.Add(epgCb.Language,new Dictionary<string, List<string>>(epgCb.Tags));
+            Tags = tagsDict; //lang
+
+            var nameDict = new Dictionary<string, string>();
+            nameDict.Add(epgCb.Language, epgCb.Name);
+            Name = nameDict; //lang
+            
+            var descriptionDict = new Dictionary<string, string>();
+            descriptionDict.Add(epgCb.Language, epgCb.Description);
+            Description = descriptionDict; //lang
+            
             Language = epgCb.Language;
             pictures = epgCb.pictures;
             EnableCDVR = epgCb.EnableCDVR;
