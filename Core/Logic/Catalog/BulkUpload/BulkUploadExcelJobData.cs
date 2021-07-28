@@ -68,7 +68,7 @@ namespace Core.Catalog
             {
                 int columnNameRowIndex = excelStructure.OverviewInstructions.Count > 0 ? excelStructure.OverviewInstructions.Count + 2 : 1;
                 log.Debug($"file url: {fileUrl}, id: {id}");
-                var fileBytes = FileHandler.Instance.DownloadFile(id, fileUrl);
+                var fileBytes = FileManager.Instance.DownloadFile(id, fileUrl);
                 if (fileBytes == null || fileBytes.Object == null || fileBytes.Object.Length == 0)
                 {
                     mappedObjectsResponse.SetStatus(eResponseStatus.FileDoesNotExists, $"Could not find file:{fileUrl}");

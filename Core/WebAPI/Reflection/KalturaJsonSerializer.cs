@@ -37651,6 +37651,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("singleMultilingualMode", "\"singleMultilingualMode\": " + SingleMultilingualMode.ToString().ToLower());
             }
+            if(UploadExportDatalake.HasValue && (retrievedProperties == null || retrievedProperties.Contains("uploadExportDatalake")))
+            {
+                ret.Add("uploadExportDatalake", "\"uploadExportDatalake\": " + UploadExportDatalake.ToString().ToLower());
+            }
             return ret;
         }
         
@@ -37677,6 +37681,10 @@ namespace WebAPI.Models.Partner
             if(SingleMultilingualMode.HasValue && (retrievedProperties == null || retrievedProperties.Contains("singleMultilingualMode")))
             {
                 ret.Add("singleMultilingualMode", "<singleMultilingualMode>" + SingleMultilingualMode.ToString().ToLower() + "</singleMultilingualMode>");
+            }
+            if(UploadExportDatalake.HasValue && (retrievedProperties == null || retrievedProperties.Contains("uploadExportDatalake")))
+            {
+                ret.Add("uploadExportDatalake", "<uploadExportDatalake>" + UploadExportDatalake.ToString().ToLower() + "</uploadExportDatalake>");
             }
             return ret;
         }

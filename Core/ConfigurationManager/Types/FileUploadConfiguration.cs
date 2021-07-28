@@ -15,12 +15,6 @@ namespace ConfigurationManager.Types
 
         public BaseValue<eFileUploadType> Type = new BaseValue<eFileUploadType>("type", eFileUploadType.None, false, "description");
         public BaseValue<bool> ShouldDeleteSourceFile = new BaseValue<bool>("shouldDeleteSourceFile", true, false, "shouldDeleteSourceFile  description");
-
-
-
-
-
-
     }
 
     public enum eFileUploadType
