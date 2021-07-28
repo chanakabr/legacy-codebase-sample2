@@ -1,5 +1,9 @@
 ﻿using System;
+using ApiLogic.IndexManager.Helpers;
+using ApiObjects;
+using ApiObjects.Nest;
 using Nest;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace ApiLogic.Tests.IndexManager
@@ -19,23 +23,21 @@ namespace ApiLogic.Tests.IndexManager
         [Test]
         public void TestCreateIndex()
         {
-            var tweet = new Tweet
+            var epgCb = new EpgCB();
+            epgCb.Name = "lamovie";
+            epgCb.Language = "rus";
+            var buildEpg = new ElasticSearchNestDataBuilder().BuildEpg(epgCb, epgCb.Language, isOpc: true);
+            
+            if (buildEpg != null)
             {
-                Id = 1,
-                User = "kimchy",
-                PostDate = new DateTime(2009, 11, 15),
-                Message = "Trying out NEST, so far so good?"
-            };
+                var settings = new JsonSerializerSettings
+                {
+                    ContractResolver = new CustomResolver(epgCb.Language)
+                };
 
-            var response = _client.Index(tweet, idx => idx.Index("mytweetindex"));
+                string json = JsonConvert.SerializeObject(buildEpg, settings);
+            }
         }
-
-        public class Tweet
-        {
-            public int Id { get; set; }
-            public string User { get; set; }
-            public DateTime PostDate { get; set; }
-            public string Message { get; set; }
-        }
+        
     }
 }

@@ -16,10 +16,17 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.IndexManager.Helpers;
 using ApiLogic.Tests.IndexManager.helpers;
 using Utils = ElasticSearch.Common.Utils;
 using Polly;
 using ApiLogic.Tests.IndexManager.helpers;
+using ApiObjects.Nest;
+using Elasticsearch.Net;
+using ElasticSearch.Utilities;
+using Nest;
+using Newtonsoft.Json;
+using Policy = Polly.Policy;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -50,7 +57,8 @@ namespace ApiLogic.Tests.IndexManager
                     _mockCatalogManager.Object,
                     _elasticSearchIndexDefinitions,
                     _mockChannelManager.Object,
-                    _mockCatalogCache.Object
+                    _mockCatalogCache.Object,
+                    new TtlService()
                 );
         }
         #endregion
@@ -77,8 +85,37 @@ namespace ApiLogic.Tests.IndexManager
         }
 
         [Test]
+        public void TestAttr()
+        {
+            var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
+            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            
+            IndexName indexName = $"{partnerId}_gil";
+            var epgCb = new EpgCB();
+            epgCb.Name = "lamovie";
+            epgCb.Language = "rus";
+            
+            var epgCb2 = new EpgCB();
+            epgCb2.Name = "lamovie";
+            epgCb2.Language = "heb";
+            var buildEpg = new ElasticSearchNestDataBuilder().BuildEpg(epgCb, epgCb.Language, isOpc: true);
+            
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = new CustomResolver(epgCb.Language)
+            };
+            var json = JsonConvert.SerializeObject(buildEpg, settings);
+            var indexResponse = elasticClient.Index(json, x => x.Index(indexName));
+            
+            var index = $"{partnerId}_gil";
+            var stringResponse = elasticClient.LowLevel.Index<StringResponse>(index, PostData.String(json));
+        }
+
+        [Test]
         public void TestSetupEPGV2Index()
         {
+            var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
+
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
             var language = IndexManagerMockDataCreator.GetRandomLanguage();
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
@@ -94,15 +131,27 @@ namespace ApiLogic.Tests.IndexManager
             ))
             .Returns("\"eng_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\": [\"asciifolding\",\"lowercase\",\"eng_ngram_filter\"],\"char_filter\":[\"html_strip\"]}, \"eng_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\": [\"asciifolding\",\"lowercase\"],\"char_filter\":[\"html_strip\"]},\"eng_autocomplete_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"filter\": [\"asciifolding\",\"lowercase\",\"eng_edgengram_filter\"],\"char_filter\":[\"html_strip\"]}, \"eng_autocomplete_search_analyzer\":{\"type\": \"custom\",\"tokenizer\": \"whitespace\",\"filter\": [\"asciifolding\",\"lowercase\"],\"char_filter\": [\"html_strip\"]}");
 
-            var result = indexManager.SetupEpgV2Index(DateTime.Today, policy);
-
-            Assert.IsNotEmpty(result);
+            var index = indexManager.SetupEpgV2Index(DateTime.Today, policy);
+            Assert.IsNotEmpty(index);
             
+            var updateDisableIndexRefresh = new UpdateIndexSettingsRequest(index);
+            updateDisableIndexRefresh.IndexSettings = new DynamicIndexSettings();
+            updateDisableIndexRefresh.IndexSettings.RefreshInterval = new Time(TimeSpan.FromSeconds(1));
+            var updateSettingsResult = elasticClient.Indices.UpdateSettings(updateDisableIndexRefresh);
+
+            
+         
+            
+            
+
             var res = indexManager.FinalizeEpgV2Index(DateTime.Now);
             Assert.IsTrue(res);
 
             res = indexManager.FinalizeEpgV2Indices(new List<DateTime>() {DateTime.Today, DateTime.Now.AddDays(-1)}, policy);
             Assert.IsTrue(res);
+            
+            
+            
         }
 
         [Test]

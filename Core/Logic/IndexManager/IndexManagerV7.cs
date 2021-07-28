@@ -22,10 +22,16 @@ using ElasticSearch.Common;
 using CachingProvider.LayeredCache;
 using Core.Catalog.Cache;
 using ApiLogic.Catalog;
+using ApiLogic.IndexManager.Helpers;
 using ElasticSearch.Searcher.Settings;
 using ApiObjects.CanaryDeployment.Elasticsearch;
+using ApiObjects.Nest;
+using ElasticSearch.NEST;
 using Elasticsearch.Net;
 using ElasticSearch.Searcher;
+using ElasticSearch.Utilities;
+using Newtonsoft.Json;
+using Polly;
 
 namespace Core.Catalog
 {
@@ -71,35 +77,45 @@ namespace Core.Catalog
         private readonly int _partnerId;
         private bool _doesGroupUsesTemplates;
         private readonly IGroupManager _groupManager;
+        private readonly int _sizeOfBulk;
+        private readonly int _sizeOfBulkDefaultValue;
+        private readonly ITtlService _ttlService;
+        
+        private HashSet<string> _metasToPad;
         private Group _group;
         private CatalogGroupCache _catalogGroupCache;
 
-        public IndexManagerV7(int partnerId, 
-            IElasticClient elasticClient, 
+        public IndexManagerV7(int partnerId,
+            IElasticClient elasticClient,
             IApplicationConfiguration applicationConfiguration,
             IGroupManager groupManager,
             ICatalogManager catalogManager,
             IElasticSearchIndexDefinitions esIndexDefinitions,
             IChannelManager channelManager,
-            ICatalogCache catalogCache
-            )
+            ICatalogCache catalogCache,
+            ITtlService ttlService
+        )
         {
             _elasticClient = elasticClient;
-            _partnerId = partnerId;            
+            _partnerId = partnerId;
             _applicationConfiguration = applicationConfiguration;
-
             _catalogManager = catalogManager;
             _esIndexDefinitions = esIndexDefinitions;
             _channelManager = channelManager;
             _catalogCache = catalogCache;
             _partnerId = partnerId;
             _groupManager = groupManager;
+            _ttlService = ttlService;
 
+            //init all ES const
             _numOfShards = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
             _numOfReplicas = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
             _maxResults = _applicationConfiguration.ElasticSearchConfiguration.MaxResults.Value;
+            _sizeOfBulk = _applicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.Value;
+            _sizeOfBulkDefaultValue =_applicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
 
             InitializePartnerData(_partnerId);
+            GetMetasAndTagsForMapping(out _, out _, out _metasToPad);
         }
 
         private void InitializePartnerData(int partnerId)
@@ -139,6 +155,7 @@ namespace Core.Catalog
         {
             string dailyEpgIndexName = IndexingUtils.GetDailyEpgIndexName(_partnerId, dateOfProgramsToIngest);
             EnsureEpgIndexExist(dailyEpgIndexName, retryPolicy);
+            
             SetNoRefresh(dailyEpgIndexName, retryPolicy);
 
             return dailyEpgIndexName;
@@ -215,12 +232,115 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, DateTime dateOfProgramsToIngest,
-            LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
+        public void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, 
+            string draftIndexName,
+            DateTime dateOfProgramsToIngest,
+            LanguageObj defaultLanguage,
+            IDictionary<string, LanguageObj> languages)
+        {
+            var bulkSize = _sizeOfBulk;
+            if (_sizeOfBulk == 0 || _sizeOfBulk > _sizeOfBulkDefaultValue)
+            {
+                bulkSize = _sizeOfBulkDefaultValue;
+            }
+
+            var retryCount = 5;
+            var policy = RetryPolicy.Handle<Exception>()
+            .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
+            {
+                log.Warn($"upsert attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
+            });
+
+            policy.Execute(() =>
+            {
+                var bulkRequests = new List<ESBulkRequestObj<string>>();
+                try
+                {
+                    var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
+                    foreach (var program in programTranslationsToIndex)
+                    {
+                        program.PadMetas(_metasToPad);
+                        var suffix = program.Language == defaultLanguage.Code ? "" : program.Language;
+                        var language = languages[program.Language];
+
+                        // Serialize EPG object to string
+                        var buildEpg = new ElasticSearchNestDataBuilder().BuildEpg(program, suffix, isOpc: _doesGroupUsesTemplates);
+                        var settings = new JsonSerializerSettings
+                        {
+                            ContractResolver = new CustomResolver(suffix)
+                        };
+
+
+                        string json = JsonConvert.SerializeObject(buildEpg, settings);
+                        IndexResponse indexResponse = _elasticClient.Index(json, x => x.Index(draftIndexName));
+
+
+                        var serializedEpg = "";//TryGetSerializedEpg(_doesGroupUsesTemplates, program, suffix);
+                        var epgType = IndexManagerCommonHelpers.GetTranslationType(IndexManagerV2.EPG_INDEX_TYPE, language);
+
+                        var totalMinutes = _ttlService.GetEpgTtlMinutes(program);
+                        // TODO: what should we do if someone trys to ingest something to the past ... :\
+                        totalMinutes = totalMinutes < 0 ? 10 : totalMinutes;
+
+                        var bulkRequest = new ESBulkRequestObj<string>()
+                        {
+                            docID = program.EpgID.ToString(),
+                            document = serializedEpg,
+                            index = draftIndexName,
+                            Operation = eOperation.index,
+                            routing = dateOfProgramsToIngest.Date.ToString("yyyyMMdd") /*program.StartDate.ToUniversalTime().ToString("yyyyMMdd")*/,
+                            type = epgType,
+                            ttl = $"{totalMinutes}m"
+                        };
+
+                        bulkRequests.Add(bulkRequest);
+
+                        // If we exceeded maximum size of bulk 
+                        if (bulkRequests.Count >= bulkSize)
+                        {
+                            ExecuteAndValidateBulkRequests(bulkRequests);
+                        }
+                    }
+
+                    // If we have anything left that is less than the size of the bulk
+                    if (bulkRequests.Count > 0)
+                    {
+                        ExecuteAndValidateBulkRequests(bulkRequests);
+                    }
+                }
+                finally
+                {
+                    if (bulkRequests != null && bulkRequests.Any())
+                    {
+                        log.Debug($"Clearing bulk requests");
+                        bulkRequests.Clear();
+                    }
+                }
+            });
+        }
+        
+        private void ExecuteAndValidateBulkRequests(List<ESBulkRequestObj<string>> bulkRequests)
         {
             throw new NotImplementedException();
-        }
+            /*// create bulk request now and clear list
+            var invalidResults = _elasticSearchApi.CreateBulkRequest(bulkRequests);
 
+            if (invalidResults != null && invalidResults.Count > 0)
+            {
+                foreach (var item in invalidResults)
+                {
+                    log.Error($"Could not add EPG to ES index. GroupID={_partnerId} epgId={item.Key} error={item.Value}");
+                }
+            }
+
+            if (invalidResults.Any())
+            {
+                throw new Exception($"Failed to upsert [{invalidResults.Count}] documents");
+            }
+
+            bulkRequests.Clear();*/
+        }
+        
         public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName, IDictionary<string, LanguageObj> languages)
         {
             throw new NotImplementedException();
@@ -1208,7 +1328,7 @@ namespace Core.Catalog
             out HashSet<string> metasToPad, bool isEpg = false)
         {
 
-            bool result = true;
+            var result = true;
             tags = new List<string>();
             metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();
 
@@ -1228,9 +1348,9 @@ namespace Core.Catalog
                         if (topics.Value.Keys.Any(x => x != ApiObjects.MetaType.Tag.ToString() && x != ApiObjects.MetaType.ReleatedEntity.ToString()))
                         {
                             string nullValue = string.Empty;
-                            eESFieldType metaType;
-                            ApiObjects.MetaType topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
-                            IndexingUtils.GetMetaType(topicMetaType, out metaType, out nullValue);
+                            
+                            var topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
+                            IndexingUtils.GetMetaType(topicMetaType, out var metaType, out nullValue);
 
                             if (topicMetaType == ApiObjects.MetaType.Number && !metasToPad.Contains(topics.Key.ToLower()))
                             {
