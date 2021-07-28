@@ -47,7 +47,7 @@ namespace ApiLogic.Tests.IndexManager.helpers
                         ApiObjects.MetaType.Number.ToString(),
                         new Topic()
                             {
-
+                                Type = ApiObjects.MetaType.Number
                             }
                     }
                 }
