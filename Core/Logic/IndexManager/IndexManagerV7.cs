@@ -262,12 +262,10 @@ namespace Core.Catalog
                     {
                         program.PadMetas(_metasToPad);
                         var suffix = program.Language == defaultLanguage.Code ? "" : program.Language;
-                        var language = languages[program.Language];
-
+                        
                         // Serialize EPG object to string
                         var buildEpg = new ElasticSearchNestDataBuilder().BuildEpg(program, suffix, isOpc: _doesGroupUsesTemplates);
-                        var epgType = IndexManagerCommonHelpers.GetTranslationType(IndexManagerV2.EPG_INDEX_TYPE, language);
-                        var bulkRequest = GetNestEsBulkRequest(draftIndexName, dateOfProgramsToIngest, program, buildEpg, epgType);
+                        var bulkRequest = GetNestEpgBulkRequest(draftIndexName, dateOfProgramsToIngest, program, buildEpg);
                         bulkRequests.Add(bulkRequest);
 
                         // If we exceeded maximum size of bulk 
@@ -285,7 +283,7 @@ namespace Core.Catalog
                 }
                 finally
                 {
-                    if (bulkRequests != null && bulkRequests.Any())
+                    if (bulkRequests.Any())
                     {
                         log.Debug($"Clearing bulk requests");
                         bulkRequests.Clear();
@@ -294,8 +292,8 @@ namespace Core.Catalog
             });
         }
 
-        private NestEsBulkRequest<string, NestEpg> GetNestEsBulkRequest(string draftIndexName, DateTime dateOfProgramsToIngest, EpgCB program,
-            NestEpg buildEpg, string epgType)
+        private NestEsBulkRequest<string, NestEpg> GetNestEpgBulkRequest(string draftIndexName, DateTime dateOfProgramsToIngest, EpgCB program,
+            NestEpg buildEpg)
         {
             var totalMinutes = _ttlService.GetEpgTtlMinutes(program);
             totalMinutes = totalMinutes < 0 ? 10 : totalMinutes;
@@ -307,7 +305,6 @@ namespace Core.Catalog
                 Index = draftIndexName,
                 Operation = eOperation.index,
                 Routing = dateOfProgramsToIngest.Date.ToString("yyyyMMdd"),
-                Type = epgType,
                 TTL = $"{totalMinutes}m"
             };
             return bulkRequest;
@@ -349,7 +346,8 @@ namespace Core.Catalog
                             .Routing(bulkRequest.Routing)
                             .Id(bulkRequest.DocID)
                         ;
-                });
+                })
+                    ;
             });
             return bulkResponse;
         }
