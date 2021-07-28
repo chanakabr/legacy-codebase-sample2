@@ -8502,7 +8502,8 @@ namespace Core.Catalog
                             groupId = groupId,
                             permittedWatchRules = watchRules,
                             specificAssets = new Dictionary<eAssetTypes, List<string>>(),
-                            shouldAddIsActiveTerm = true,                            
+                            shouldAddIsActiveTerm = true,
+                            shouldIgnoreDeviceRuleID = true,
                             extraReturnFields = new List<string>()
                         };
 
