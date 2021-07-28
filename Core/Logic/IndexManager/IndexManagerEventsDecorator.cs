@@ -197,11 +197,10 @@ namespace ApiLogic.Catalog.IndexManager
         }
         
         //CUD
-        public string SetupMediaIndex(List<LanguageObj> languages, LanguageObj defaultLanguage)
+        public string SetupMediaIndex()
         {
             return Execute<string>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.MEDIA, languages,
-                defaultLanguage);
+                IndexManagerMigrationEventKeys.MEDIA);
         }
         
         //CUD

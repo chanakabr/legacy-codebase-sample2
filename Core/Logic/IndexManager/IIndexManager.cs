@@ -112,7 +112,7 @@ namespace Core.Catalog
             IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes);
 
         // rebuilders
-        string SetupMediaIndex(List<ApiObjects.LanguageObj> languages, ApiObjects.LanguageObj defaultLanguage);
+        string SetupMediaIndex();
         void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, string newIndexName);
         void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
 

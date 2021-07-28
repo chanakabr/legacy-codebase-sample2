@@ -5282,7 +5282,7 @@ namespace Core.Catalog
 
         #region Rebuilding
 
-        public string SetupMediaIndex(List<ApiObjects.LanguageObj> languages, ApiObjects.LanguageObj defaultLanguage)
+        public string SetupMediaIndex()
         {
             string newIndexName = IndexingUtils.GetNewMediaIndexStr(_partnerId);
 
@@ -5298,6 +5298,8 @@ namespace Core.Catalog
                 maxResults = MAX_RESULTS;
             }
 
+            var languages = GetLanguages();
+            var defaultLanguage = GetDefaultLanguage();
             List<string> analyzers;
             List<string> filters;
             List<string> tokenizers;

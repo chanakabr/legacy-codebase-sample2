@@ -269,8 +269,8 @@ namespace Core.GroupManagers
             var languages = catalogGroupCache.LanguageMapById.Values.ToList();
 
             Task<Status>[] taskArray = {
-                Task<Status>.Factory.StartNew(() => CreateMediaIndex(groupId, catalogGroupCache, languages)),
-                Task<Status>.Factory.StartNew(() => CreateEpgIndex(groupId, catalogGroupCache, languages)),
+                Task<Status>.Factory.StartNew(() => CreateMediaIndex(groupId)),
+                Task<Status>.Factory.StartNew(() => CreateEpgIndex(groupId)),
                 Task<Status>.Factory.StartNew(() => CreateRecordingIndex(groupId, catalogGroupCache, languages)),
                 Task<Status>.Factory.StartNew(() => CreateTagsIndex(groupId)),
                 Task<Status>.Factory.StartNew(() => CreateChannelsIndex(groupId)),
@@ -281,11 +281,11 @@ namespace Core.GroupManagers
             return errorTasks.Count == 0 ? Status.Ok : Status.ErrorMessage(string.Join("; ", errorTasks.Select(_ => _.Result.Message)));
         }
 
-        private Status CreateMediaIndex(int groupId, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages)
+        private Status CreateMediaIndex(int groupId)
         {
             try
             {
-                var mediaIndex = _indexManager.SetupMediaIndex(languages, catalogGroupCache.DefaultLanguage);
+                var mediaIndex = _indexManager.SetupMediaIndex();
 
                 if (string.IsNullOrEmpty(mediaIndex))
                 {
@@ -301,7 +301,7 @@ namespace Core.GroupManagers
             }
         }
 
-        private Status CreateEpgIndex(int groupId, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages)
+        private Status CreateEpgIndex(int groupId)
         {
             try
             {

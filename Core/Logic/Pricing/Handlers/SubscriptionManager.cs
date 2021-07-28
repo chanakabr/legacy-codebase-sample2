@@ -41,7 +41,7 @@ namespace ApiLogic.Pricing.Handlers
             Utils.GetBaseImpl(ref t, groupId);
             if (t != null)
             {
-                IdsResponse result = (new SubscriptionCacheWrapper(t)).GetSubscriptionIDsContainingMediaFile(groupId, mediaFileIdEqual);
+                IdsResponse result = (new SubscriptionCacheWrapper(t)).GetSubscriptionIDsContainingMediaFile(0, mediaFileIdEqual);
                 return result?.Ids?.Count > 0 ? result.Ids : null;
             }
             else

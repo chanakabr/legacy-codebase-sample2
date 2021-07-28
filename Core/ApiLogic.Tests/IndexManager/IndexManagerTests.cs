@@ -175,7 +175,7 @@ namespace ApiLogic.Tests.IndexManager
             var dictionary = new Dictionary<int, Media>() { };
             var indexManager = GetIndexV2Manager(partnerId);
 
-            var mediaIndexName = indexManager.SetupMediaIndex(new List<ApiObjects.LanguageObj>() { language }, language);
+            var mediaIndexName = indexManager.SetupMediaIndex();
             var medias = new Dictionary<int, Dictionary<int, Media>>();
             var mediaOne = new Dictionary<int, Media>();
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
@@ -508,6 +508,7 @@ namespace ApiLogic.Tests.IndexManager
                     ApiObjects.eAssetTypes.EPG, new List<string>(){ epgId.ToString() }
                 }
             };
+
             var unifiedSearchDefinitions =
                 new UnifiedSearchDefinitions()
                 .WithPageIndex(0)
@@ -582,7 +583,7 @@ namespace ApiLogic.Tests.IndexManager
 
             // now let's combine with percolators - need media + epg indices for that
 
-            var mediaIndexName = indexManager.SetupMediaIndex(new List<LanguageObj>() { language }, language);
+            var mediaIndexName = indexManager.SetupMediaIndex();
             indexManager.PublishMediaIndex(mediaIndexName, true, true);
             var epgIndexName = indexManager.SetupEpgIndex(false);
             indexManager.FinishUpEpgIndex(epgIndexName, false, true, true);
@@ -717,7 +718,7 @@ namespace ApiLogic.Tests.IndexManager
 
 
             var indexManager = GetIndexV2Manager(partnerId);
-            var mediaIndexName = indexManager.SetupMediaIndex(new List<LanguageObj>() { language }, language);
+            var mediaIndexName = indexManager.SetupMediaIndex();
             var medias = new Dictionary<int, Dictionary<int, Media>>();
             var mediaOne = new Dictionary<int, Media>();
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
@@ -827,7 +828,7 @@ namespace ApiLogic.Tests.IndexManager
 
 
             var indexManager = GetIndexV2Manager(partnerId);
-            var mediaIndexName = indexManager.SetupMediaIndex(new List<LanguageObj>() { language }, language);
+            var mediaIndexName = indexManager.SetupMediaIndex();
             var medias = new Dictionary<int, Dictionary<int, Media>>();
             var mediaOne = new Dictionary<int, Media>();
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
@@ -910,7 +911,7 @@ namespace ApiLogic.Tests.IndexManager
             var dictionary = new Dictionary<int, Media>() { };
             var indexManager = GetIndexV2Manager(partnerId);
 
-            var mediaIndexName = indexManager.SetupMediaIndex(new List<ApiObjects.LanguageObj>() { language }, language);
+            var mediaIndexName = indexManager.SetupMediaIndex();
             var medias = new Dictionary<int, Dictionary<int, Media>>();
             var mediaOne = new Dictionary<int, Media>();
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
@@ -976,7 +977,7 @@ namespace ApiLogic.Tests.IndexManager
             var policyGroupBy = Policy.HandleResult<AggregationsResult>(x => x == null || x.results.Count == 0)
                 .WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1));
 
-            var mediaIndexName = indexManager.SetupMediaIndex(new List<LanguageObj>() { language }, language);
+            var mediaIndexName = indexManager.SetupMediaIndex();
             var medias = new Dictionary<int, Dictionary<int, Media>>();
             var media1 = new Dictionary<int, Media>();
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);

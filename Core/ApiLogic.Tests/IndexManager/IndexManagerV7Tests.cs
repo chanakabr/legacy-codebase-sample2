@@ -139,6 +139,24 @@ namespace ApiLogic.Tests.IndexManager
         }
 
         [Test]
+        public void TestMedia()
+        {
+            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
+            var indexManager = GetIndexV7Manager(partnerId);
+
+            var indexName = indexManager.SetupMediaIndex();
+
+            Assert.IsNotEmpty(indexName);
+
+            indexManager.PublishMediaIndex(indexName, true, true);
+
+            indexName = indexManager.SetupMediaIndex();
+            indexManager.PublishMediaIndex(indexName, true, true);
+        }
+
+        [Test]
         public void TestBasics()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
