@@ -6724,7 +6724,7 @@ namespace Core.Catalog
                         var language = languages[program.Language];
 
                         // Serialize EPG object to string
-                        string serializedEpg = TryGetSerializedEpg(_doesGroupUsesTemplates, program, suffix);
+                        var serializedEpg = TryGetSerializedEpg(_doesGroupUsesTemplates, program, suffix);
                         var epgType = IndexManagerCommonHelpers.GetTranslationType(IndexManagerV2.EPG_INDEX_TYPE, language);
 
                         var totalMinutes = _ttlService.GetEpgTtlMinutes(program);

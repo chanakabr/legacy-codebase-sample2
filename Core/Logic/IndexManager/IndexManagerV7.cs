@@ -254,7 +254,7 @@ namespace Core.Catalog
 
             policy.Execute(() =>
             {
-                var bulkRequests = new List<ESBulkRequestObj<string>>();
+                var bulkRequests = new List<NestEsBulkRequest<string,NestEpg>>();
                 try
                 {
                     var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
@@ -266,26 +266,8 @@ namespace Core.Catalog
 
                         // Serialize EPG object to string
                         var buildEpg = new ElasticSearchNestDataBuilder().BuildEpg(program, suffix, isOpc: _doesGroupUsesTemplates);
-                        var indexResponse = _elasticClient.Index(buildEpg, x => x.Index(draftIndexName));
-                        
-                        var serializedEpg = "";//TryGetSerializedEpg(_doesGroupUsesTemplates, program, suffix);
                         var epgType = IndexManagerCommonHelpers.GetTranslationType(IndexManagerV2.EPG_INDEX_TYPE, language);
-
-                        var totalMinutes = _ttlService.GetEpgTtlMinutes(program);
-                        // TODO: what should we do if someone trys to ingest something to the past ... :\
-                        totalMinutes = totalMinutes < 0 ? 10 : totalMinutes;
-
-                        var bulkRequest = new ESBulkRequestObj<string>()
-                        {
-                            docID = program.EpgID.ToString(),
-                            document = serializedEpg,
-                            index = draftIndexName,
-                            Operation = eOperation.index,
-                            routing = dateOfProgramsToIngest.Date.ToString("yyyyMMdd") /*program.StartDate.ToUniversalTime().ToString("yyyyMMdd")*/,
-                            type = epgType,
-                            ttl = $"{totalMinutes}m"
-                        };
-
+                        var bulkRequest = GetNestEsBulkRequest(draftIndexName, dateOfProgramsToIngest, program, buildEpg, epgType);
                         bulkRequests.Add(bulkRequest);
 
                         // If we exceeded maximum size of bulk 
@@ -311,29 +293,68 @@ namespace Core.Catalog
                 }
             });
         }
-        
-        private void ExecuteAndValidateBulkRequests(List<ESBulkRequestObj<string>> bulkRequests)
+
+        private NestEsBulkRequest<string, NestEpg> GetNestEsBulkRequest(string draftIndexName, DateTime dateOfProgramsToIngest, EpgCB program,
+            NestEpg buildEpg, string epgType)
         {
-            throw new NotImplementedException();
-            /*// create bulk request now and clear list
-            var invalidResults = _elasticSearchApi.CreateBulkRequest(bulkRequests);
+            var totalMinutes = _ttlService.GetEpgTtlMinutes(program);
+            totalMinutes = totalMinutes < 0 ? 10 : totalMinutes;
 
-            if (invalidResults != null && invalidResults.Count > 0)
+            var bulkRequest = new NestEsBulkRequest<string, NestEpg>()
             {
-                foreach (var item in invalidResults)
-                {
-                    log.Error($"Could not add EPG to ES index. GroupID={_partnerId} epgId={item.Key} error={item.Value}");
-                }
-            }
-
-            if (invalidResults.Any())
-            {
-                throw new Exception($"Failed to upsert [{invalidResults.Count}] documents");
-            }
-
-            bulkRequests.Clear();*/
+                DocID = program.EpgID.ToString(),
+                Document = buildEpg,
+                Index = draftIndexName,
+                Operation = eOperation.index,
+                Routing = dateOfProgramsToIngest.Date.ToString("yyyyMMdd"),
+                Type = epgType,
+                TTL = $"{totalMinutes}m"
+            };
+            return bulkRequest;
         }
-        
+
+        private void ExecuteAndValidateBulkRequests<K>(List<NestEsBulkRequest<string, K>> bulkRequests)
+            where K : class
+        {
+            var bulkResponse = ExecuteBulkRequest(bulkRequests);
+
+            //no errors clear and end
+            if (!bulkResponse.ItemsWithErrors.Any())
+            {
+                bulkRequests.Clear();
+                return;
+            }
+            
+            foreach (var item in bulkResponse.ItemsWithErrors)
+            {
+                log.Error($"Could not add item to ES index. GroupID={_partnerId} Id={item.Id} Index ={item.Index} error={item.Error}");
+            }
+
+            throw new Exception($"Failed to upsert [{bulkResponse.ItemsWithErrors.Count()}] documents");
+        }
+
+        private BulkResponse ExecuteBulkRequest<K>(List<NestEsBulkRequest<string, K>> bulkRequests) where K : class
+        {
+            var docToBulkReq = bulkRequests.ToDictionary(x => x.Document, x => x);
+            var docs = bulkRequests.Select(x => x.Document).ToList();
+
+            var bulkResponse = _elasticClient.Bulk(b =>
+            {
+                return b.IndexMany(docs.ToArray(), (descriptor, data) =>
+                {
+                    var bulkRequest = docToBulkReq[data];
+                    return descriptor
+                            .Index(bulkRequest.Index)
+                            .Document(data)
+                            .Routing(bulkRequest.Routing)
+                            .Id(bulkRequest.DocID)
+                        ;
+                });
+            });
+            return bulkResponse;
+        }
+
+
         public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName, IDictionary<string, LanguageObj> languages)
         {
             throw new NotImplementedException();

@@ -21,6 +21,7 @@ using ApiLogic.Tests.IndexManager.helpers;
 using Utils = ElasticSearch.Common.Utils;
 using Polly;
 using ApiLogic.Tests.IndexManager.helpers;
+using ApiObjects.BulkUpload;
 using ApiObjects.Nest;
 using Elasticsearch.Net;
 using ElasticSearch.Utilities;
@@ -106,6 +107,18 @@ namespace ApiLogic.Tests.IndexManager
         public void TestSetupEPGV2Index()
         {
             var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
+            var epgId = 1 + new Random().Next(1000);
+            var epgCb = new EpgCB();
+            epgCb.Name = "la movie";
+            epgCb.Language = "en";
+            epgCb.Description = "this is the movie description";
+            epgCb.EpgID = (ulong) epgId;
+            var crudOperations = new CRUDOperations<EpgProgramBulkUploadObject>();
+            var dateOfProgramsToIngest = DateTime.Now.AddDays(-1);
+            
+            var epgCbObjects = new List<EpgCB>();
+            epgCbObjects.Add(epgCb);
+            
 
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
             var language = IndexManagerMockDataCreator.GetRandomLanguage();
@@ -129,8 +142,46 @@ namespace ApiLogic.Tests.IndexManager
             updateDisableIndexRefresh.IndexSettings = new DynamicIndexSettings();
             updateDisableIndexRefresh.IndexSettings.RefreshInterval = new Time(TimeSpan.FromSeconds(1));
             var updateSettingsResult = elasticClient.Indices.UpdateSettings(updateDisableIndexRefresh);
+
+            var languageObjs = new List<ApiObjects.LanguageObj>() { language }.ToDictionary(x => x.Code);
             
 
+            
+            //test upsert
+
+            var epgItem = new EpgProgramBulkUploadObject()
+            {
+                GroupId = partnerId,
+                StartDate = dateOfProgramsToIngest,
+                EpgId = (ulong)epgId,
+                EpgCbObjects = epgCbObjects,
+                EpgExternalId = $"1{epgId}"
+            };
+            
+            crudOperations.ItemsToAdd.Add(epgItem);
+            var epgCbObjects2 = new List<EpgCB>();
+            var epgCb2 = new EpgCB();
+            epgCb2.Name = "la movie2";
+            epgCb2.Language = "en";
+            epgCb2.Description = "this is the movie description2";
+            epgCb2.EpgID = (ulong) epgId+2;
+            epgCbObjects.Add(epgCb2);
+            
+            var epgItem2 = new EpgProgramBulkUploadObject()
+            {
+                GroupId = partnerId,
+                StartDate = dateOfProgramsToIngest,
+                EpgId = (ulong)epgId,
+                EpgCbObjects = epgCbObjects2,
+                EpgExternalId = $"1{epgId}1"
+            };
+            crudOperations.ItemsToAdd.Add(epgItem2);
+            var programsToIndex = crudOperations.ItemsToAdd
+                .Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.AffectedItems)
+                .ToList();
+            
+            indexManager.UpsertProgramsToDraftIndex(programsToIndex, index,dateOfProgramsToIngest, language, languageObjs);
+            
             var res = indexManager.FinalizeEpgV2Index(DateTime.Now);
             Assert.IsTrue(res);
 
