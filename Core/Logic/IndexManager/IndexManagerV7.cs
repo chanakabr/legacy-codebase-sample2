@@ -41,13 +41,14 @@ namespace Core.Catalog
         protected const string LOWERCASE_ANALYZER = "lowercase_analyzer";
         protected const string DEFAULT_INDEX_ANALYZER = "index_analyzer";
         protected const string DEFAULT_SEARCH_ANALYZER = "search_analyzer";
+        protected const string AUTOCOMPLETE_ANALYZER = "autocomplete_analyzer";
+        protected const string AUTOCOMPLETE_SEARCH_ANALYZER = "autocomplete_search_analyzer";
         protected const string PHRASE_STARTS_WITH_ANALYZER = "phrase_starts_with_analyzer";
         protected const string PHRASE_STARTS_WITH_SEARCH_ANALYZER = "phrase_starts_with_search_analyzer";
         protected const string EDGENGRAM_FILTER = "edgengram_filter";
         protected const string NGRAM_FILTER = "ngram_filter";
-
-        protected const string AUTOCOMPLETE_ANALYZER = "autocomplete_analyzer";
-        protected const string AUTOCOMPLETE_SEARCH_ANALYZER = "autocomplete_search_analyzer";
+        
+        public const string META_SUPPRESSED = "suppressed";
 
         #endregion
 
@@ -433,9 +434,61 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public string SetupMediaIndex(List<LanguageObj> languages, LanguageObj defaultLanguage)
+        public string SetupMediaIndex()
         {
-            throw new NotImplementedException();
+            string newIndexName = IndexingUtils.GetNewMediaIndexStr(_partnerId);
+
+            int maxResults = 100000;
+            // Default size of max results should be 100,000
+            if (_maxResults > 0)
+            {
+                maxResults = _maxResults;
+            }
+
+            var languages = GetLanguages();
+            var defaultLanguage = GetDefaultLanguage();
+
+            // get definitions of analyzers, filters and tokenizers
+            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var filters);
+            AnalyzersDescriptor analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
+            TokenFiltersDescriptor filtersDesctiptor = GetTokenFiltersDescriptor(filters);
+
+            _groupManager.RemoveGroup(_partnerId); // remove from cache
+            _group = _groupManager.GetGroup(_partnerId);
+
+            if (!this.GetMetasAndTagsForMapping(
+                out var metas,
+                out var tags,
+                out var metasToPad))
+            {
+                throw new Exception($"failed to get metas and tags");
+            }
+
+            PropertiesDescriptor<object> propertiesDescriptor = 
+                GetMediaPropertiesDesctiptor(languages, metas, tags, metasToPad, analyzers);
+            var createResponse = _elasticClient.Indices.Create(newIndexName,
+                c => c.Settings(settings => settings
+                    .NumberOfShards(_numOfShards)
+                    .NumberOfReplicas(_numOfReplicas)
+                    .Setting("index.max_result_window", _maxResults)
+                    .Setting("index.max_ngram_diff", 20)
+                    // TODO: convert to tcm...
+                    .Setting("index.mapping.total_fields.limit", 2600)
+                    .Analysis(a => a
+                        .Analyzers(an => analyzersDescriptor)
+                        .TokenFilters(tf => filtersDesctiptor)
+                    ))
+                .Map(map => map.Properties(props => propertiesDescriptor)
+                ));
+
+            bool isIndexCreated = createResponse != null && createResponse.Acknowledged && createResponse.IsValid;
+            if (!isIndexCreated)
+            {
+                log.Error(string.Format("Failed creating index for index:{0}", newIndexName));
+                return string.Empty;
+            }
+
+            return newIndexName;
         }
 
         public void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, string newIndexName)
@@ -613,7 +666,6 @@ namespace Core.Catalog
 
             _groupManager.RemoveGroup(_partnerId); // remove from cache
             _group = _groupManager.GetGroup(_partnerId);
-            var doesGroupUsesTemplates = _doesGroupUsesTemplates;
 
             if (!this.GetMetasAndTagsForMapping(
                 out var metas,
@@ -623,8 +675,6 @@ namespace Core.Catalog
             {
                 throw new Exception($"failed to get metas and tags");
             }
-
-            var defaultLanguage = GetDefaultLanguage();
 
             PropertiesDescriptor<object> propertiesDescriptor = GetEpgPropertiesDesctiptor(languages, metas, tags, metasToPad, analyzers);
             var createResponse = _elasticClient.Indices.Create(newIndexName,
@@ -668,12 +718,11 @@ namespace Core.Catalog
                 .Text(x => x.Name("date_routing"))
                 .Number(x => x.Name("media_type_id").Type(NumberType.Integer).NullValue(0))
                 .Number(x => x.Name("language_id").Type(NumberType.Long))
-                .Text(x => InitializeDefaultTextPropertyDescriptor(x, "epg_identifier")
-                    )
+                .Text(x => InitializeDefaultTextPropertyDescriptor("epg_identifier"))
                 .Date(x => x.Name("cache_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("create_date").Format(ESUtils.ES_DATE_FORMAT))
-                .Text(x => InitializeDefaultTextPropertyDescriptor(x, "crid"))
-                .Text(x => InitializeDefaultTextPropertyDescriptor(x, "external_id"))
+                .Text(x => InitializeDefaultTextPropertyDescriptor("crid"))
+                .Text(x => InitializeDefaultTextPropertyDescriptor("external_id"))
                 ;
 
             var defaultLanguage = GetDefaultLanguage();
@@ -682,124 +731,8 @@ namespace Core.Catalog
             string defaultAutocompleteAnalyzer = $"{defaultLanguage.Code}_autocomplete_analyzer";
             string defaultAutocompleteSearchAnalyzer = $"{defaultLanguage.Code}_autocomplete_search_analyzer";
 
-            foreach (var language in languages)
-            {
-                string indexAnalyzer = $"{language.Code}_index_analyzer";
-                string searchAnalyzer = $"{language.Code}_search_analyzer";
-                string autocompleteAnalyzer = $"{language.Code}_autocomplete_analyzer";
-                string autocompleteSearchAnalyzer = $"{language.Code}_autocomplete_search_analyzer";
-                string phoneticIndexAnalyzer = $"{language.Code}_index_dbl_metaphone";
-                string phoneticSearchAnalyzer = $"{language.Code}_search_dbl_metaphone";
-
-                if (!analyzers.ContainsKey(indexAnalyzer))
-                {
-                    indexAnalyzer = defaultIndexAnalyzer;
-                }
-
-                if (!analyzers.ContainsKey(searchAnalyzer))
-                {
-                    searchAnalyzer = defaultSearchAnalyzer;
-                }
-
-                if (!analyzers.ContainsKey(autocompleteAnalyzer))
-                {
-                    autocompleteAnalyzer = defaultAutocompleteAnalyzer;
-                }
-
-                if (!analyzers.ContainsKey(autocompleteSearchAnalyzer))
-                {
-                    autocompleteSearchAnalyzer = defaultAutocompleteSearchAnalyzer;
-                }
-
-                bool shouldAddPhoneticField = analyzers.ContainsKey(phoneticIndexAnalyzer) && analyzers.ContainsKey(phoneticSearchAnalyzer);
-
-                InitializeTextField(
-                    $"name_{language.Code}",
-                    propertiesDescriptor,
-                    indexAnalyzer, 
-                    searchAnalyzer, 
-                    autocompleteAnalyzer, 
-                    autocompleteSearchAnalyzer,
-                    phoneticIndexAnalyzer,
-                    phoneticSearchAnalyzer,
-                    shouldAddPhoneticField,
-                    false
-                    );
-                InitializeTextField(
-                    $"description_{language.Code}",
-                    propertiesDescriptor,
-                    indexAnalyzer,
-                    searchAnalyzer,
-                    autocompleteAnalyzer,
-                    autocompleteSearchAnalyzer,
-                    phoneticIndexAnalyzer,
-                    phoneticSearchAnalyzer,
-                    shouldAddPhoneticField,
-                    false
-                    );
-
-                PropertiesDescriptor<object> tagsPropertiesDesctiptor = new PropertiesDescriptor<object>();
-
-                foreach (var tag in tags)
-                {
-                    InitializeTextField(tag,
-                        tagsPropertiesDesctiptor,
-                        indexAnalyzer,
-                        searchAnalyzer,
-                        autocompleteAnalyzer,
-                        autocompleteSearchAnalyzer,
-                        phoneticIndexAnalyzer,
-                        phoneticSearchAnalyzer,
-                        shouldAddPhoneticField,
-                        false
-                        );
-                }
-
-                propertiesDescriptor.Object<object>(x => x
-                    .Name($"tags_{language.Code}")
-                    .Properties(properties => tagsPropertiesDesctiptor))
-                ;
-                PropertiesDescriptor<object> metasPropertiesDesctiptor = new PropertiesDescriptor<object>();
-
-                foreach (var meta in metas)
-                {
-                    string metaName = meta.Key.ToLower();
-                    bool shouldAddPadded = metasToPad.Contains(metaName);
-
-                    var metaType = meta.Value.Key;
-                    if (metaType != eESFieldType.DATE)
-                    {
-                        if (metaType == eESFieldType.STRING)
-                        {
-                            var descriptor = InitializeTextField(metaName,
-                                metasPropertiesDesctiptor,
-                                indexAnalyzer,
-                                searchAnalyzer,
-                                autocompleteAnalyzer,
-                                autocompleteSearchAnalyzer,
-                                phoneticIndexAnalyzer,
-                                phoneticSearchAnalyzer,
-                                shouldAddPhoneticField,
-                                shouldAddPadded);
-                        }
-                        else
-                        {
-                            InitializeNumericMetaField(propertiesDescriptor, metaName, shouldAddPadded);
-                        }
-                    }
-                    else
-                    {
-                        propertiesDescriptor.Date(x => x.Name(metaName).Format(ESUtils.ES_DATE_FORMAT));
-                    }
-
-                }
-
-                propertiesDescriptor.Object<object>(x => x
-                    .Name($"metas_{language.Code}")
-                    .Properties(properties => metasPropertiesDesctiptor))
-                ;
-
-            }
+            AddLanguageSpecificMappingToPropertyDescriptor(languages, metas, tags, metasToPad, analyzers, propertiesDescriptor,
+                defaultIndexAnalyzer, defaultSearchAnalyzer, defaultAutocompleteAnalyzer, defaultAutocompleteSearchAnalyzer);
 
             return propertiesDescriptor;
         }
@@ -835,6 +768,7 @@ namespace Core.Catalog
 
             NumberPropertyDescriptor<object> numberPropertyDescriptor = new NumberPropertyDescriptor<object>()
                 .Name(metaName)
+                .Type(NumberType.Double)
                 .Fields(fields => fieldsPropertiesDesctiptor)
                 ;
             propertiesDescriptor.Number(x => numberPropertyDescriptor);
@@ -906,9 +840,7 @@ namespace Core.Catalog
             return textPropertyDescriptor;
         }
 
-        private TextPropertyDescriptor<object> InitializeDefaultTextPropertyDescriptor(
-            TextPropertyDescriptor<object> x, 
-            string fieldName)
+        private TextPropertyDescriptor<object> InitializeDefaultTextPropertyDescriptor(string fieldName)
         {
             var lowercaseSubField = new TextPropertyDescriptor<object>()
                 .Name("lowercase")
@@ -930,7 +862,7 @@ namespace Core.Catalog
                 .Analyzer(DEFAULT_INDEX_ANALYZER)
                 .SearchAnalyzer(DEFAULT_SEARCH_ANALYZER);
 
-            return x.Name(fieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER)
+            return new TextPropertyDescriptor<object>().Name(fieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER)
                 .Fields(fields => fields
                     .Text(y => y.Name(fieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER))
                     .Text(y => lowercaseSubField)
@@ -1207,7 +1139,6 @@ namespace Core.Catalog
             out List<string> tags,
             out HashSet<string> metasToPad, bool isEpg = false)
         {
-
             bool result = true;
             tags = new List<string>();
             metas = new Dictionary<string, KeyValuePair<eESFieldType, string>>();
@@ -1361,6 +1292,187 @@ namespace Core.Catalog
                 if (!isAliasAdded) throw new Exception($"index set alias failed [{dailyEpgIndexName}], alias [{epgIndexAlias}]");
             });
         }
+
+
+        private PropertiesDescriptor<object> GetMediaPropertiesDesctiptor(List<LanguageObj> languages,
+            Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
+            List<string> tags,
+            HashSet<string> metasToPad,
+            Dictionary<string, Analyzer> analyzers)
+        {
+            PropertiesDescriptor<object> propertiesDescriptor = new PropertiesDescriptor<object>();
+
+            var defaultLanguage = GetDefaultLanguage();
+            string defaultIndexAnalyzer = $"{defaultLanguage.Code}_index_analyzer";
+            string defaultSearchAnalyzer = $"{defaultLanguage.Code}_search_analyzer";
+            string defaultAutocompleteAnalyzer = $"{defaultLanguage.Code}_autocomplete_analyzer";
+            string defaultAutocompleteSearchAnalyzer = $"{defaultLanguage.Code}_autocomplete_search_analyzer";
+
+            propertiesDescriptor
+                .Number(x => x.Name("media_id").Type(NumberType.Long).NullValue(0))
+                .Number(x => x.Name("group_id").Type(NumberType.Integer).NullValue(0))
+                .Number(x => x.Name("media_type_id").Type(NumberType.Integer).NullValue(0))
+                .Number(x => x.Name("epg_channel_id").Type(NumberType.Integer).NullValue(0))
+                .Number(x => x.Name("wp_type_id").Type(NumberType.Integer).NullValue(0))
+                .Number(x => x.Name("device_rule_id").Type(NumberType.Integer).NullValue(0))
+                .Boolean(x => x.Name("is_active"))
+                .Number(x => x.Name("like_counter").Type(NumberType.Integer).NullValue(0))
+                .Number(x => x.Name("user_types").Type(NumberType.Integer))
+                .Date(x => x.Name("start_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Date(x => x.Name("catalog_start_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Date(x => x.Name("end_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Date(x => x.Name("final_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Number(x => x.Name("language_id").Type(NumberType.Long))
+                .Number(x => x.Name("allowed_countries").Type(NumberType.Integer))
+                .Number(x => x.Name("blocked_countries").Type(NumberType.Integer))
+                .Number(x => x.Name("inheritence_policy").Type(NumberType.Integer))
+                .Date(x => x.Name("cache_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Date(x => x.Name("create_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Date(x => x.Name("update_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Percolator(x => x.Name("query"))
+                ;
+
+            InitializeTextField("external_id", propertiesDescriptor, defaultIndexAnalyzer, defaultSearchAnalyzer, defaultAutocompleteAnalyzer, defaultAutocompleteSearchAnalyzer,
+                string.Empty, string.Empty, false, false);
+            InitializeTextField("entry_id", propertiesDescriptor, defaultIndexAnalyzer, defaultSearchAnalyzer, defaultAutocompleteAnalyzer, defaultAutocompleteSearchAnalyzer,
+                string.Empty, string.Empty, false, false);
+
+            if (!metas.ContainsKey(META_SUPPRESSED))
+            {
+                metas.Add(META_SUPPRESSED, new KeyValuePair<eESFieldType, string>(eESFieldType.STRING, string.Empty));//new meta for suppressed value
+            }
+
+            AddLanguageSpecificMappingToPropertyDescriptor(languages, metas, tags, metasToPad, analyzers, propertiesDescriptor, 
+                defaultIndexAnalyzer, defaultSearchAnalyzer, defaultAutocompleteAnalyzer, defaultAutocompleteSearchAnalyzer);
+
+            return propertiesDescriptor;
+        }
+
+        private void AddLanguageSpecificMappingToPropertyDescriptor(List<LanguageObj> languages,
+            Dictionary<string, KeyValuePair<eESFieldType, string>> metas, List<string> tags, HashSet<string> metasToPad, 
+            Dictionary<string, Analyzer> analyzers, 
+            PropertiesDescriptor<object> propertiesDescriptor, 
+            string defaultIndexAnalyzer, string defaultSearchAnalyzer, string defaultAutocompleteAnalyzer, string defaultAutocompleteSearchAnalyzer)
+        {
+            foreach (var language in languages)
+            {
+                string indexAnalyzer = $"{language.Code}_index_analyzer";
+                string searchAnalyzer = $"{language.Code}_search_analyzer";
+                string autocompleteAnalyzer = $"{language.Code}_autocomplete_analyzer";
+                string autocompleteSearchAnalyzer = $"{language.Code}_autocomplete_search_analyzer";
+                string phoneticIndexAnalyzer = $"{language.Code}_index_dbl_metaphone";
+                string phoneticSearchAnalyzer = $"{language.Code}_search_dbl_metaphone";
+
+                if (!analyzers.ContainsKey(indexAnalyzer))
+                {
+                    indexAnalyzer = defaultIndexAnalyzer;
+                }
+
+                if (!analyzers.ContainsKey(searchAnalyzer))
+                {
+                    searchAnalyzer = defaultSearchAnalyzer;
+                }
+
+                if (!analyzers.ContainsKey(autocompleteAnalyzer))
+                {
+                    autocompleteAnalyzer = defaultAutocompleteAnalyzer;
+                }
+
+                if (!analyzers.ContainsKey(autocompleteSearchAnalyzer))
+                {
+                    autocompleteSearchAnalyzer = defaultAutocompleteSearchAnalyzer;
+                }
+
+                bool shouldAddPhoneticField = analyzers.ContainsKey(phoneticIndexAnalyzer) && analyzers.ContainsKey(phoneticSearchAnalyzer);
+
+                InitializeTextField(
+                    $"name_{language.Code}",
+                    propertiesDescriptor,
+                    indexAnalyzer,
+                    searchAnalyzer,
+                    autocompleteAnalyzer,
+                    autocompleteSearchAnalyzer,
+                    phoneticIndexAnalyzer,
+                    phoneticSearchAnalyzer,
+                    shouldAddPhoneticField,
+                    false
+                    );
+                InitializeTextField(
+                    $"description_{language.Code}",
+                    propertiesDescriptor,
+                    indexAnalyzer,
+                    searchAnalyzer,
+                    autocompleteAnalyzer,
+                    autocompleteSearchAnalyzer,
+                    phoneticIndexAnalyzer,
+                    phoneticSearchAnalyzer,
+                    shouldAddPhoneticField,
+                    false
+                    );
+
+                PropertiesDescriptor<object> tagsPropertiesDesctiptor = new PropertiesDescriptor<object>();
+
+                foreach (var tag in tags)
+                {
+                    InitializeTextField(tag,
+                        tagsPropertiesDesctiptor,
+                        indexAnalyzer,
+                        searchAnalyzer,
+                        autocompleteAnalyzer,
+                        autocompleteSearchAnalyzer,
+                        phoneticIndexAnalyzer,
+                        phoneticSearchAnalyzer,
+                        shouldAddPhoneticField,
+                        false
+                        );
+                }
+
+                propertiesDescriptor.Object<object>(x => x
+                    .Name($"tags_{language.Code}")
+                    .Properties(properties => tagsPropertiesDesctiptor))
+                ;
+                PropertiesDescriptor<object> metasPropertiesDesctiptor = new PropertiesDescriptor<object>();
+
+                foreach (var meta in metas)
+                {
+                    string metaName = meta.Key.ToLower();
+                    bool shouldAddPadded = metasToPad.Contains(metaName);
+
+                    var metaType = meta.Value.Key;
+
+                    if (metaType != eESFieldType.DATE)
+                    {
+                        if (metaType == eESFieldType.STRING)
+                        {
+                            var descriptor = InitializeTextField(metaName,
+                                metasPropertiesDesctiptor,
+                                indexAnalyzer,
+                                searchAnalyzer,
+                                autocompleteAnalyzer,
+                                autocompleteSearchAnalyzer,
+                                phoneticIndexAnalyzer,
+                                phoneticSearchAnalyzer,
+                                shouldAddPhoneticField,
+                                shouldAddPadded);
+                        }
+                        else
+                        {
+                            InitializeNumericMetaField(propertiesDescriptor, metaName, shouldAddPadded);
+                        }
+                    }
+                    else
+                    {
+                        propertiesDescriptor.Date(x => x.Name(metaName).Format(ESUtils.ES_DATE_FORMAT));
+                    }
+                }
+
+                propertiesDescriptor.Object<object>(x => x
+                    .Name($"metas_{language.Code}")
+                    .Properties(properties => metasPropertiesDesctiptor))
+                ;
+            }
+        }
+
         #endregion
     }
 }
