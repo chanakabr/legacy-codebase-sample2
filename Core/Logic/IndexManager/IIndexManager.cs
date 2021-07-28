@@ -132,7 +132,7 @@ namespace Core.Catalog
             Dictionary<ulong, Dictionary<string, EpgCB>> programs,
             Dictionary<long, List<int>> linearChannelsRegionsMapping,
             Dictionary<long, long> epgToRecordingMapping);
-        bool FinishUpEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
+        bool PublishEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
 
         // updaters 
         bool UpdateEpgs(List<EpgCB> epgObjects, 

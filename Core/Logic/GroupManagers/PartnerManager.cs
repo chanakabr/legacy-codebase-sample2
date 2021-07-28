@@ -312,7 +312,7 @@ namespace Core.GroupManagers
                     return new Status(eResponseStatus.Error, $"error creating epg index for partner {groupId}");
                 }
 
-                bool publishResult = _indexManager.FinishUpEpgIndex(epgIndex, isRecording: false, true, true);
+                bool publishResult = _indexManager.PublishEpgIndex(epgIndex, isRecording: false, true, true);
                 if (!publishResult)
                 {
                     Log.Warn($"create epg index - failed publishing epg index for partner {groupId}");
@@ -339,7 +339,7 @@ namespace Core.GroupManagers
                     return new Status(eResponseStatus.Error, $"error creating recording index for partner {groupId}");
                 }
 
-                bool publishResult = _indexManager.FinishUpEpgIndex(indexName, isRecording: true, true, true);
+                bool publishResult = _indexManager.PublishEpgIndex(indexName, isRecording: true, true, true);
                 if (!publishResult)
                 {
                     Log.Warn($"create recording index - failed publishing recording index for partner {groupId}");

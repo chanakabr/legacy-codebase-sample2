@@ -6443,7 +6443,7 @@ namespace Core.Catalog
         }
 
 
-        public bool FinishUpEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        public bool PublishEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
             string alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
 

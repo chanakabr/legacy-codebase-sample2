@@ -164,9 +164,12 @@ namespace ApiLogic.Tests.IndexManager
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
 
-            var result = indexManager.SetupEpgIndex(true);
+            var indexName = indexManager.SetupEpgIndex(true);
 
-            Assert.IsNotEmpty(result);
+            Assert.IsNotEmpty(indexName);
+
+            bool publishResult = indexManager.PublishEpgIndex(indexName, true, true, true);
+            Assert.IsTrue(publishResult);
         }
 
         [Test]

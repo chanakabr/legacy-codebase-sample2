@@ -612,35 +612,7 @@ namespace Core.Catalog
         {
             string alias = IndexingUtils.GetMediaIndexAlias(_partnerId);
 
-            if (shouldSwitchIndexAlias)
-            {
-                var currentIndices = _elasticClient.GetIndicesPointingToAlias(alias);
-
-                var aliasResult = _elasticClient.Indices.BulkAlias(aliases => 
-                {
-                    if (currentIndices?.Count > 0)
-                    {
-                        aliases.Remove(a => a.Alias(alias).Index("*"));
-                    }
-                    aliases.Add(a => a.Alias(alias).Index(newIndexName));
-                    return aliases;
-                });
-
-                if (aliasResult != null && aliasResult.IsValid)
-                {
-                    log.Debug($"Set new alias {alias} for index {newIndexName}");
-
-                    if (shouldDeleteOldIndices && currentIndices?.Count > 0)
-                    {
-                        var deleteResult = _elasticClient.Indices.Delete(Nest.Indices.Index(currentIndices));
-
-                        if (deleteResult != null && deleteResult.IsValid)
-                        {
-                            log.Debug($"Deleted indices {string.Join(",", currentIndices)}");
-                        }
-                    }
-                }
-            }
+            SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }
 
         public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, string newIndexName, bool shouldCleanupInvalidChannels = false)
@@ -697,9 +669,16 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public bool FinishUpEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        public bool PublishEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            throw new NotImplementedException();
+            string alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+
+            if (isRecording)
+            {
+                alias = IndexingUtils.GetRecordingGroupAliasStr(_partnerId);
+            }
+
+            return SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }
 
         public bool UpdateEpgs(List<EpgCB> epgObjects, bool isRecording, Dictionary<long, long> epgToRecordingMapping = null)
@@ -1637,6 +1616,52 @@ namespace Core.Catalog
             int refreshInterval = 0)
         {
             CreateEmptyEpgIndex(newIndexName, shouldBuildWithReplicas, shouldUseNumOfConfiguredShards, refreshInterval);
+        }
+
+        private bool SwitchIndexAlias(string newIndexName, string alias, bool shouldDeleteOldIndices, bool shouldSwitchIndex)
+        {
+            bool result = false;
+
+            try
+            {
+                var currentIndices = _elasticClient.GetIndicesPointingToAlias(alias);
+
+                if (shouldSwitchIndex || currentIndices?.Count == 0)
+                {
+                    var aliasResult = _elasticClient.Indices.BulkAlias(aliases =>
+                    {
+                        if (currentIndices?.Count > 0)
+                        {
+                            aliases.Remove(a => a.Alias(alias).Index("*"));
+                        }
+                        aliases.Add(a => a.Alias(alias).Index(newIndexName));
+                        return aliases;
+                    });
+
+                    if (aliasResult != null && aliasResult.IsValid)
+                    {
+                        log.Debug($"Set new alias {alias} for index {newIndexName}");
+
+                        if (shouldDeleteOldIndices && currentIndices?.Count > 0)
+                        {
+                            var deleteResult = _elasticClient.Indices.Delete(Nest.Indices.Index(currentIndices));
+
+                            if (deleteResult != null && deleteResult.IsValid)
+                            {
+                                log.Debug($"Deleted indices {string.Join(",", currentIndices)}");
+                            }
+                        }
+                    }
+                }
+
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed switching index alias for {newIndexName} and {alias}", ex);
+            }
+
+            return result;
         }
 
         #endregion
