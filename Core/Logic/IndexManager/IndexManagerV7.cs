@@ -498,7 +498,37 @@ namespace Core.Catalog
 
         public void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            throw new NotImplementedException();
+            string alias = IndexingUtils.GetMediaIndexAlias(_partnerId);
+
+            if (shouldSwitchIndexAlias)
+            {
+                var currentIndices = _elasticClient.GetIndicesPointingToAlias(alias);
+
+                var aliasResult = _elasticClient.Indices.BulkAlias(aliases => 
+                {
+                    if (currentIndices?.Count > 0)
+                    {
+                        aliases.Remove(a => a.Alias(alias).Index("*"));
+                    }
+                    aliases.Add(a => a.Alias(alias).Index(newIndexName));
+                    return aliases;
+                });
+
+                if (aliasResult != null && aliasResult.IsValid)
+                {
+                    log.Debug($"Set new alias {alias} for index {newIndexName}");
+
+                    if (shouldDeleteOldIndices && currentIndices?.Count > 0)
+                    {
+                        var deleteResult = _elasticClient.Indices.Delete(Nest.Indices.Index(currentIndices));
+
+                        if (deleteResult != null && deleteResult.IsValid)
+                        {
+                            log.Debug($"Deleted indices {string.Join(",", currentIndices)}");
+                        }
+                    }
+                }
+            }
         }
 
         public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, string newIndexName, bool shouldCleanupInvalidChannels = false)

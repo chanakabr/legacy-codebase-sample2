@@ -113,11 +113,16 @@ namespace ApiLogic.Tests.IndexManager
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
 
-            var result = indexManager.SetupMediaIndex();
+            var indexName = indexManager.SetupMediaIndex();
 
-            Assert.IsNotEmpty(result);
+            Assert.IsNotEmpty(indexName);
 
+            indexManager.PublishMediaIndex(indexName, true, true);
+
+            indexName = indexManager.SetupMediaIndex();
+            indexManager.PublishMediaIndex(indexName, true, true);
         }
+
         [Test]
         public void TestBasics()
         {
