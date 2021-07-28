@@ -16,7 +16,7 @@ namespace CouchbaseManager
         
         private static readonly KLogger Log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private readonly CouchbaseManager _manager;
+        private readonly ICouchbaseManager _manager;
 
         private readonly Compression.Compression _defaultCompression = Compression.Compression.Gzip;
 
@@ -31,12 +31,12 @@ namespace CouchbaseManager
             TypeNameHandling = TypeNameHandling.Auto
         };
 
-        public CompressionCouchbaseManager(CouchbaseManager manager)
+        public CompressionCouchbaseManager(ICouchbaseManager manager)
         {
             _manager = manager;
         }
         
-        public CompressionCouchbaseManager(CouchbaseManager manager, Compression.Compression defaultCompression) : this(manager)
+        public CompressionCouchbaseManager(ICouchbaseManager manager, Compression.Compression defaultCompression) : this(manager)
         {
             _defaultCompression = defaultCompression;
         }
@@ -108,6 +108,35 @@ namespace CouchbaseManager
             return this.GetWithVersion<T>(key, out version, out status);
         }
 
+        public IDictionary<string, T> GetValues<T>(List<string> keys, JsonSerializerSettings jsonSerializerSettings, bool shouldAllowPartialQuery = false)
+        {
+            IDictionary<string, T> result = null;
+
+            try
+            {
+                var values = _manager.GetValues<string>(keys, shouldAllowPartialQuery);
+                if (values != null && values.Count > 0)
+                {
+                    result = new Dictionary<string, T>();
+                    foreach (var value in values)
+                    {
+                        result.Add(value.Key, CompressionCouchbaseManager.DeserializeData<T>(value.Key, out _, jsonSerializerSettings, value.Value));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"{nameof(CompressionCouchbaseManager)} - Failed Get on keys = {string.Join(",", keys)}", ex);
+            }
+
+            return result;
+        }
+
+        public IDictionary<string, T> GetValues<T>(List<string> keys, bool shouldAllowPartialQuery = false, bool asJson = false)
+        {
+            return GetValues<T>(keys, null, shouldAllowPartialQuery);
+        }
+        
         public bool IsKeyExists(string key)
         {
             return _manager.IsKeyExists(key);
@@ -129,38 +158,7 @@ namespace CouchbaseManager
 
             try
             {
-                var parsedToken = JToken.Parse(serializedResult);
-                if (parsedToken.IsObject())
-                {
-                    var parsedObject = parsedToken as JObject;
-                    if (parsedObject == null)
-                    {
-                        status = eResultStatus.ERROR;
-                        Log.Error($"Failed to deserialize object, key = {key}");
-                        return default;
-                    }
-                    
-                    var isSuccess = parsedObject.TryGetValue(InternalCouchbaseRecord<T>.HeadersPropertyName, out var headers);
-                    if (!isSuccess)
-                    {
-                        return DeserializeObject<T>(serializedResult, settings);
-                    }
-
-                    var compression = (int?)headers[Headers.CompressionPropertyName];
-                    if (!compression.HasValue)
-                    {
-                        status = eResultStatus.ERROR;
-                        Log.Error($"Missing parameter for Compression property, key = {key}");
-                        return default;
-                    }
-                
-                    if (compression.GetValueOrDefault() != (int)Compression.Compression.None)
-                    {
-                        return HandleCompressedObject<T>(key, (Compression.Compression)compression, out status, settings, parsedObject);
-                    }
-                }
-                
-                return DeserializeObject<T>(serializedResult, settings);
+                return CompressionCouchbaseManager.DeserializeData<T>(key, out status, settings, serializedResult);
             }
             catch (Exception ex)
             {
@@ -170,9 +168,41 @@ namespace CouchbaseManager
             return default;
         }
 
-        private static T DeserializeObject<T>(string serializedResult, JsonSerializerSettings settings = null)
+        private static T DeserializeData<T>(string key, out eResultStatus status, JsonSerializerSettings settings, string serializedResult)
         {
-            return JsonConvert.DeserializeObject<T>(serializedResult, settings ?? DefaultJsonSerializerSettings);
+            var parsedToken = JToken.Parse(serializedResult);
+            if (parsedToken.IsObject())
+            {
+                if (!(parsedToken is JObject parsedObject))
+                {
+                    status = eResultStatus.ERROR;
+                    Log.Error($"Failed to deserialize object, key = {key}");
+                    return default;
+                }
+
+                var isSuccess = parsedObject.TryGetValue(InternalCouchbaseRecord<T>.HeadersPropertyName, out var headers);
+                if (!isSuccess)
+                {
+                    status = eResultStatus.SUCCESS;
+                    return DeserializeObject<T>(serializedResult, settings);
+                }
+
+                var compression = (int?) headers[Headers.CompressionPropertyName];
+                if (!compression.HasValue)
+                {
+                    status = eResultStatus.ERROR;
+                    Log.Error($"Missing parameter for Compression property, key = {key}");
+                    return default;
+                }
+
+                if (compression.GetValueOrDefault() != (int) Compression.Compression.None)
+                {
+                    return CompressionCouchbaseManager.HandleCompressedObject<T>(key, (Compression.Compression) compression, out status, settings, parsedObject);
+                }
+            }
+
+            status = eResultStatus.SUCCESS;
+            return DeserializeObject<T>(serializedResult, settings);
         }
 
         private static T HandleCompressedObject<T>(
@@ -206,6 +236,11 @@ namespace CouchbaseManager
             var result = DeserializeObject<T>(decompressedValue, settings);
             status = eResultStatus.SUCCESS;
             return result;
+        }
+
+        private static T DeserializeObject<T>(string serializedResult, JsonSerializerSettings settings = null)
+        {
+            return JsonConvert.DeserializeObject<T>(serializedResult, settings ?? DefaultJsonSerializerSettings);
         }
     }
 }
