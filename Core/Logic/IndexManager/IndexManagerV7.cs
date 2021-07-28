@@ -1384,6 +1384,11 @@ namespace Core.Catalog
             PropertiesDescriptor<object> propertiesDescriptor, 
             string defaultIndexAnalyzer, string defaultSearchAnalyzer, string defaultAutocompleteAnalyzer, string defaultAutocompleteSearchAnalyzer)
         {
+            PropertiesDescriptor<object> namePropertiesDescriptor = new PropertiesDescriptor<object>();
+            PropertiesDescriptor<object> descriptionPropertiesDescriptor = new PropertiesDescriptor<object>();
+            PropertiesDescriptor<object> tagsPropertiesDescriptor = new PropertiesDescriptor<object>();
+            PropertiesDescriptor<object> metasPropertiesDescriptor = new PropertiesDescriptor<object>();
+
             foreach (var language in languages)
             {
                 string indexAnalyzer = $"{language.Code}_index_analyzer";
@@ -1416,8 +1421,8 @@ namespace Core.Catalog
                 bool shouldAddPhoneticField = analyzers.ContainsKey(phoneticIndexAnalyzer) && analyzers.ContainsKey(phoneticSearchAnalyzer);
 
                 InitializeTextField(
-                    $"name_{language.Code}",
-                    propertiesDescriptor,
+                    $"{language.Code}",
+                    namePropertiesDescriptor,
                     indexAnalyzer,
                     searchAnalyzer,
                     autocompleteAnalyzer,
@@ -1428,8 +1433,8 @@ namespace Core.Catalog
                     false
                     );
                 InitializeTextField(
-                    $"description_{language.Code}",
-                    propertiesDescriptor,
+                    $"{language.Code}",
+                    descriptionPropertiesDescriptor,
                     indexAnalyzer,
                     searchAnalyzer,
                     autocompleteAnalyzer,
@@ -1440,12 +1445,10 @@ namespace Core.Catalog
                     false
                     );
 
-                PropertiesDescriptor<object> tagsPropertiesDesctiptor = new PropertiesDescriptor<object>();
-
                 foreach (var tag in tags)
                 {
-                    InitializeTextField(tag,
-                        tagsPropertiesDesctiptor,
+                    InitializeTextField($"{tag}_{language.Code}",
+                        tagsPropertiesDescriptor,
                         indexAnalyzer,
                         searchAnalyzer,
                         autocompleteAnalyzer,
@@ -1456,12 +1459,6 @@ namespace Core.Catalog
                         false
                         );
                 }
-
-                propertiesDescriptor.Object<object>(x => x
-                    .Name($"tags_{language.Code}")
-                    .Properties(properties => tagsPropertiesDesctiptor))
-                ;
-                PropertiesDescriptor<object> metasPropertiesDesctiptor = new PropertiesDescriptor<object>();
 
                 foreach (var meta in metas)
                 {
@@ -1474,8 +1471,8 @@ namespace Core.Catalog
                     {
                         if (metaType == eESFieldType.STRING)
                         {
-                            var descriptor = InitializeTextField(metaName,
-                                metasPropertiesDesctiptor,
+                            var descriptor = InitializeTextField($"{metaName}_{language.Code}",
+                                metasPropertiesDescriptor,
                                 indexAnalyzer,
                                 searchAnalyzer,
                                 autocompleteAnalyzer,
@@ -1487,20 +1484,33 @@ namespace Core.Catalog
                         }
                         else
                         {
-                            InitializeNumericMetaField(propertiesDescriptor, metaName, shouldAddPadded);
+                            InitializeNumericMetaField(metasPropertiesDescriptor, metaName, shouldAddPadded);
                         }
                     }
                     else
                     {
-                        propertiesDescriptor.Date(x => x.Name(metaName).Format(ESUtils.ES_DATE_FORMAT));
+                        metasPropertiesDescriptor.Date(x => x.Name(metaName).Format(ESUtils.ES_DATE_FORMAT));
                     }
                 }
 
-                propertiesDescriptor.Object<object>(x => x
-                    .Name($"metas_{language.Code}")
-                    .Properties(properties => metasPropertiesDesctiptor))
-                ;
             }
+
+            propertiesDescriptor.Object<object>(x => x
+                .Name($"name")
+                .Properties(properties => namePropertiesDescriptor))
+            ;
+            propertiesDescriptor.Object<object>(x => x
+                .Name($"description")
+                .Properties(properties => descriptionPropertiesDescriptor))
+            ;
+            propertiesDescriptor.Object<object>(x => x
+                .Name($"metas")
+                .Properties(properties => metasPropertiesDescriptor))
+            ;
+            propertiesDescriptor.Object<object>(x => x
+                .Name($"tag")
+                .Properties(properties => tagsPropertiesDescriptor))
+            ;
         }
 
         #endregion
