@@ -106,7 +106,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected override bool FinishUpEpgIndex(string newIndexName)
         {
-            return _IndexManager.FinishUpEpgIndex(newIndexName, isRecording: true, this.SwitchIndexAlias, this.DeleteOldIndices);
+            return _IndexManager.PublishEpgIndex(newIndexName, isRecording: true, this.SwitchIndexAlias, this.DeleteOldIndices);
         }
 
         #endregion

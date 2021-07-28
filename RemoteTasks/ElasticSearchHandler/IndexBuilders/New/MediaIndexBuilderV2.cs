@@ -50,7 +50,7 @@ namespace ElasticSearchHandler.IndexBuilders
             ApiObjects.LanguageObj defaultLanguage;
             GetGroupData(out catalogGroupCache, out group, out languages, out defaultLanguage);
 
-            string newIndexName = _IndexManager.SetupMediaIndex(languages, defaultLanguage);
+            string newIndexName = _IndexManager.SetupMediaIndex();
             log.DebugFormat("Start GetGroupMediasTotal for group {0}", groupId);
 
             if (doesGroupUsesTemplates)

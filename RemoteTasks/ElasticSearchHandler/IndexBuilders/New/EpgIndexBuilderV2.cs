@@ -110,7 +110,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected virtual bool FinishUpEpgIndex(string newIndexName)
         {
-            return _IndexManager.FinishUpEpgIndex(newIndexName, isRecording: false, this.SwitchIndexAlias, this.DeleteOldIndices);
+            return _IndexManager.PublishEpgIndex(newIndexName, isRecording: false, this.SwitchIndexAlias, this.DeleteOldIndices);
         }
 
         private void GetGroupAndLanguages(out CatalogGroupCache catalogGroupCache, out Group group, out List<LanguageObj> languages, out GroupManager groupManager, out bool doesGroupUsesTemplates, out LanguageObj defaultLanguage)
