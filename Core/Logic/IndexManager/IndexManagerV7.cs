@@ -568,7 +568,15 @@ namespace Core.Catalog
 
         public string SetupEpgIndex(bool isRecording)
         {
-            throw new NotImplementedException();
+            var indexName = IndexingUtils.GetNewEpgIndexStr(_partnerId);
+
+            if (isRecording)
+            {
+                indexName = IndexingUtils.GetNewRecordingIndexStr(_partnerId);
+            }
+
+            CreateNewEpgIndex(indexName, isRecording);
+            return indexName;
         }
 
         public void AddEPGsToIndex(string index, bool isRecording, Dictionary<ulong, Dictionary<string, EpgCB>> programs, Dictionary<long, List<int>> linearChannelsRegionsMapping,
@@ -1511,6 +1519,12 @@ namespace Core.Catalog
                 .Name($"tag")
                 .Properties(properties => tagsPropertiesDescriptor))
             ;
+        }
+
+        private void CreateNewEpgIndex(string newIndexName, bool isRecording = false, bool shouldBuildWithReplicas = true, bool shouldUseNumOfConfiguredShards = true,
+            int refreshInterval = 0)
+        {
+            CreateEmptyEpgIndex(newIndexName, shouldBuildWithReplicas, shouldUseNumOfConfiguredShards, refreshInterval);
         }
 
         #endregion

@@ -124,6 +124,19 @@ namespace ApiLogic.Tests.IndexManager
         }
 
         [Test]
+        public void TestRecording()
+        {
+            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
+            var indexManager = GetIndexV7Manager(partnerId);
+
+            var result = indexManager.SetupEpgIndex(true);
+
+            Assert.IsNotEmpty(result);
+        }
+
+        [Test]
         public void TestBasics()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
