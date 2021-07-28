@@ -13,6 +13,7 @@ using Core.Catalog.CatalogManagement;
 using ApiLogic.Catalog;
 using ApiObjects.CanaryDeployment.Elasticsearch;
 using ElasticSearch.NEST;
+using ElasticSearch.Utilities;
 
 namespace Core.Catalog
 {
@@ -37,7 +38,7 @@ namespace Core.Catalog
                     CatalogManager.Instance,
                     ElasticSearchIndexDefinitions.Instance,
                     ChannelManager.Instance,
-                    CatalogCache.Instance());
+                    CatalogCache.Instance(), new TtlService());
             }
                 
             var indexManagerV2 = new IndexManagerV2(partnerId,

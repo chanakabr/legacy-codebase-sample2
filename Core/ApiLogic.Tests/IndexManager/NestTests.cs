@@ -1,5 +1,9 @@
 ﻿using System;
+using ApiLogic.IndexManager.Helpers;
+using ApiObjects;
+using ApiObjects.Nest;
 using Nest;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace ApiLogic.Tests.IndexManager
@@ -15,27 +19,37 @@ namespace ApiLogic.Tests.IndexManager
              //es7 client
              _client = new ElasticClient(new Uri("http://localhost:9200"));
         }
-        
+
         [Test]
         public void TestCreateIndex()
         {
-            var tweet = new Tweet
-            {
-                Id = 1,
-                User = "kimchy",
-                PostDate = new DateTime(2009, 11, 15),
-                Message = "Trying out NEST, so far so good?"
-            };
-
-            var response = _client.Index(tweet, idx => idx.Index("mytweetindex"));
         }
-
-        public class Tweet
+        
+        public void TEstAttrWithLowLevel()
         {
-            public int Id { get; set; }
-            public string User { get; set; }
-            public DateTime PostDate { get; set; }
-            public string Message { get; set; }
+            /*var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
+            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            
+            IndexName indexName = $"{partnerId}_gil";
+            var epgCb = new EpgCB();
+            epgCb.Name = "lamovie";
+            epgCb.Language = "rus";
+            
+            var epgCb2 = new EpgCB();
+            epgCb2.Name = "lamovie";
+            epgCb2.Language = "heb";
+            var buildEpg = new ElasticSearchNestDataBuilder().BuildEpg(epgCb, epgCb.Language, isOpc: true);
+            
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = new CustomResolver(epgCb.Language)
+            };
+            var json = JsonConvert.SerializeObject(buildEpg, settings);
+            var indexResponse = elasticClient.Index(json, x => x.Index(indexName));
+            
+            var index = $"{partnerId}_gil";
+            var stringResponse = elasticClient.LowLevel.Index<StringResponse>(index, PostData.String(json));*/
         }
+
     }
 }

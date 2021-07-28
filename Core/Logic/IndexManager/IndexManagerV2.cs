@@ -41,6 +41,7 @@ using ApiObjects.BulkUpload;
 using Polly;
 using ESUtils = ElasticSearch.Common.Utils;
 using ApiLogic.Catalog;
+using ApiLogic.IndexManager.Helpers;
 
 namespace Core.Catalog
 {
@@ -133,11 +134,11 @@ namespace Core.Catalog
             _groupManager = groupManager;
             _watchRuleManager = watchRuleManager;
 
-            HandleOpcAccount(partnerId);
+            InitializePartnerData(partnerId);
             GetMetasAndTagsForMapping(out _, out _, out _metasToPad);
         }
 
-        private void HandleOpcAccount(int partnerId)
+        private void InitializePartnerData(int partnerId)
         {
             if (partnerId <= 0)
             {
@@ -222,7 +223,7 @@ namespace Core.Catalog
                                 media.PadMetas(metasToPad);
 
                                 string serializedMedia = _serializer.SerializeMediaObject(media, suffix);
-                                string type = GetTanslationType(MEDIA, language);
+                                string type = IndexManagerCommonHelpers.GetTranslationType(MEDIA, language);
                                 if (!string.IsNullOrEmpty(serializedMedia))
                                 {
                                     result = _elasticSearchApi.InsertRecord(_partnerId.ToString(), type, media.m_nMediaID.ToString(), serializedMedia);
@@ -286,7 +287,7 @@ namespace Core.Catalog
 
                     foreach (LanguageObj lang in languages)
                     {
-                        string type = GetTanslationType(MEDIA, lang);
+                        string type = IndexManagerCommonHelpers.GetTranslationType(MEDIA, lang);
                         ESDeleteResult deleteResult = _elasticSearchApi.DeleteDoc(index, type, assetId.ToString());
 
                         if (!deleteResult.Found)
@@ -669,7 +670,7 @@ namespace Core.Catalog
                                 {
                                     docID = epg.EpgID,
                                     index = alias,
-                                    type = GetTanslationType(EPG_INDEX_TYPE, language),
+                                    type = IndexManagerCommonHelpers.GetTranslationType(EPG_INDEX_TYPE, language),
                                     Operation = eOperation.index,
                                     document = serializedEpg,
                                     routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
@@ -763,7 +764,7 @@ namespace Core.Catalog
                 
                 foreach (var lang in languages)
                 {
-                    string type = GetTanslationType(EPG_INDEX_TYPE, lang);
+                    string type = IndexManagerCommonHelpers.GetTranslationType(EPG_INDEX_TYPE, lang);
                     _elasticSearchApi.DeleteDocsByQuery(alias, type, ref queryString);
                 }
 
@@ -6723,8 +6724,8 @@ namespace Core.Catalog
                         var language = languages[program.Language];
 
                         // Serialize EPG object to string
-                        string serializedEpg = HanlderSerializedEpg(_doesGroupUsesTemplates, program, suffix);
-                        var epgType = GetTanslationType(IndexManagerV2.EPG_INDEX_TYPE, language);
+                        string serializedEpg = TryGetSerializedEpg(_doesGroupUsesTemplates, program, suffix);
+                        var epgType = IndexManagerCommonHelpers.GetTranslationType(IndexManagerV2.EPG_INDEX_TYPE, language);
 
                         var totalMinutes = _ttlService.GetEpgTtlMinutes(program);
                         // TODO: what should we do if someone trys to ingest something to the past ... :\
@@ -6766,6 +6767,31 @@ namespace Core.Catalog
                 }
             });
 
+        }
+        
+        private string TryGetSerializedEpg(bool isOpc, EpgCB program, string suffix)
+        {
+            try
+            {
+                return _serializer.SerializeEpgObject(program, suffix, isOpc);
+            }
+            catch (Exception e)
+            {
+                string msg = "";
+                if (program != null && program.Crid != null)
+                {
+                    msg += $" program_crid: {program.Crid} ";
+                    msg += $" program_epg_id: {program.EpgID} ";
+                }
+
+                if (e.InnerException != null && e.InnerException.Message != null)
+                {
+                    msg += $" InnerException: {e.InnerException.Message} ";
+                }
+
+                log.Debug($"Error while calling SerializeEpgObject {msg} {e.Message}", e);
+                throw;
+            }
         }
 
         public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName,
@@ -6991,31 +7017,7 @@ namespace Core.Catalog
             return searchQuery;
         }
 
-        private string HanlderSerializedEpg(bool isOpc, EpgCB program, string suffix)
-        {
-            try
-            {
-                return _serializer.SerializeEpgObject(program, suffix, isOpc);
-            }
-            catch (Exception e)
-            {
-                string msg = "";
-                if (program != null && program.Crid != null)
-                {
-                    msg += $" program_crid: {program.Crid} ";
-                    msg += $" program_epg_id: {program.EpgID} ";
-                }
-
-                if (e.InnerException != null && e.InnerException.Message != null)
-                {
-                    msg += $" InnerException: {e.InnerException.Message} ";
-                }
-
-                log.Debug($"Error while calling SerializeEpgObject {msg} {e.Message}", e);
-                throw;
-            }
-
-        }
+        
 
         private void ExecuteAndValidateBulkRequests(List<ESBulkRequestObj<string>> bulkRequests)
         {
@@ -7351,17 +7353,6 @@ namespace Core.Catalog
             }
         }
 
-        private string GetTanslationType(string type, LanguageObj language)
-        {
-            if (language.IsDefault)
-            {
-                return type;
-            }
-            else
-            {
-                return string.Concat(type, "_", language.Code);
-            }
-        }
 
         private bool UpdateChannelPercolator(Channel channel, List<string> mediaAliases, List<string> epgAliases)
         {
