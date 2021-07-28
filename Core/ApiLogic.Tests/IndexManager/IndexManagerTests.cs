@@ -492,7 +492,7 @@ namespace ApiLogic.Tests.IndexManager
             _mockCatalogCache.Setup(x => x.GetLinearChannelSettings(It.IsAny<int>(), It.IsAny<List<string>>()))
                 .Returns(new Dictionary<string, ApiObjects.Catalog.LinearChannelSettings>());
             indexManager.AddEPGsToIndex(indexName, false, epgs, new Dictionary<long, List<int>>(), null);
-            indexManager.FinishUpEpgIndex(indexName, false, true, true);
+            indexManager.PublishEpgIndex(indexName, false, true, true);
 
             var totalItems = 0;
             var notInUse = 0;
@@ -586,7 +586,7 @@ namespace ApiLogic.Tests.IndexManager
             var mediaIndexName = indexManager.SetupMediaIndex();
             indexManager.PublishMediaIndex(mediaIndexName, true, true);
             var epgIndexName = indexManager.SetupEpgIndex(false);
-            indexManager.FinishUpEpgIndex(epgIndexName, false, true, true);
+            indexManager.PublishEpgIndex(epgIndexName, false, true, true);
 
             var secondRandomChannel = IndexManagerMockDataCreator.GetRandomChannel(randomPartnerId);
             var upsertResult = indexManager.UpsertChannel(secondRandomChannel.m_nChannelID, secondRandomChannel);

@@ -289,7 +289,7 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public bool FinishUpEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        public bool PublishEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
             var eventKey = isRecording ? IndexManagerMigrationEventKeys.RECORDING : IndexManagerMigrationEventKeys.EPG;
             return Execute<bool>(MethodBase.GetCurrentMethod(), eventKey,
