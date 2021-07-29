@@ -88,6 +88,7 @@ namespace Core.Catalog
         private CatalogGroupCache _catalogGroupCache;
         private Dictionary<string, LanguageObj> _groupCodePerLang;
         private Dictionary<string, LanguageObj> _catalogGroupCacheCodePerLang;
+        private Dictionary<string,LanguageObj> _catalogGroupCacheCodePerLang2;
 
         public IndexManagerV7(int partnerId,
             IElasticClient elasticClient,
