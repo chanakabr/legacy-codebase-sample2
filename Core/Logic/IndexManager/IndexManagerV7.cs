@@ -775,7 +775,9 @@ namespace Core.Catalog
 
         public bool PublishTagsIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            throw new NotImplementedException();
+            string alias = IndexingUtils.GetMetadataGroupAliasStr(_partnerId);
+
+            return SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }
 
         public string SetupEpgIndex(bool isRecording)
