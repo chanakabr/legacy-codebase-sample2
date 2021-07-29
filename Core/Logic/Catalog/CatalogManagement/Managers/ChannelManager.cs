@@ -412,10 +412,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (result.Objects != null)
                 {
-                    if (totalItems.HasValue)
-                    {
-                        result.TotalItems = totalItems.Value;
-                    }
+                    result.TotalItems = totalItems.HasValue ? totalItems.Value : result.Objects.Count;
                     result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
             }
