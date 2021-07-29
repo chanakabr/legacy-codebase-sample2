@@ -98,7 +98,7 @@ namespace ApiLogic.Tests.IndexManager
             epgCb.Name = "la movie";
             epgCb.Language = "rus";
             epgCb.Description = "this is the movie description";
-            var buildEpg = NestDataCreator.GetEpg(epgCb, epgCb.Language, isOpc: true);            
+            var buildEpg = NestDataCreator.GetEpg(epgCb, 1, isOpc: true);            
             var indexResponse = elasticClient.Index(buildEpg, x => x.Index(indexName));
             var getResponse = elasticClient.Get<NestEpg>(indexResponse.Id,i=>i.Index(indexName)).Source;
         }
@@ -239,6 +239,8 @@ namespace ApiLogic.Tests.IndexManager
         public void TestInsertSocialStatisticsData()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var stat1 = IndexManagerMockDataCreator.GetRandomSocialActionStat(partnerId);
             
             var indexManager = GetIndexV7Manager(partnerId);
