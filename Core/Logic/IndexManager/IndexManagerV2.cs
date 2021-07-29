@@ -6120,7 +6120,6 @@ namespace Core.Catalog
 
             List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
 
-            // For each tag value
             foreach (var tagValue in allTagValues)
             {
                 if (!_catalogGroupCache.LanguageMapById.ContainsKey(tagValue.languageId))

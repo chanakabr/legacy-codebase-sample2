@@ -716,7 +716,61 @@ namespace Core.Catalog
 
         public void AddTagsToIndex(string newIndexName, List<TagValue> allTagValues)
         {
-            throw new NotImplementedException();
+            int sizeOfBulk = _applicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.Value;
+
+            // Default for size of bulk should be 50, if not stated otherwise in TCM
+            if (sizeOfBulk == 0)
+            {
+                sizeOfBulk = 50;
+            }
+
+            var bulkRequests = new List<NestEsBulkRequest<string, Tag>>();
+            try
+            {
+
+                foreach (var tagValue in allTagValues)
+                {
+                    if (!_catalogGroupCache.LanguageMapById.ContainsKey(tagValue.languageId))
+                    {
+                        log.WarnFormat("Found tag value with non existing language ID. tagId = {0}, tagText = {1}, languageId = {2}",
+                            tagValue.tagId, tagValue.value, tagValue.languageId);
+
+                        continue;
+                    }
+                    string languageCode = _catalogGroupCache.LanguageMapById[tagValue.languageId].Code;
+
+                    // Serialize EPG object to string
+                    var tag = new Tag(tagValue, languageCode);
+                    var bulkRequest = new NestEsBulkRequest<string, Tag>()
+                    {
+                        DocID = $"{tag.tagId}_{tag.languageId}",
+                        Document = tag,
+                        Index = newIndexName,
+                        Operation = eOperation.index
+                    };
+                    bulkRequests.Add(bulkRequest);
+
+                    // If we exceeded maximum size of bulk 
+                    if (bulkRequests.Count >= sizeOfBulk)
+                    {
+                        ExecuteAndValidateBulkRequests(bulkRequests);
+                    }
+                }
+
+                // If we have anything left that is less than the size of the bulk
+                if (bulkRequests.Any())
+                {
+                    ExecuteAndValidateBulkRequests(bulkRequests);
+                }
+            }
+            finally
+            {
+                if (bulkRequests.Any())
+                {
+                    log.Debug($"Clearing bulk requests");
+                    bulkRequests.Clear();
+                }
+            }
         }
 
         public bool PublishTagsIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
@@ -1640,31 +1694,6 @@ namespace Core.Catalog
                 InitializeTextField($"{language.Code}",
                     tagValuePropertiesDescriptor,
                     indexAnalyzer, searchAnalyzer, autocompleteAnalyzer, autocompleteSearchAnalyzer, false);
-                //var lowercaseSubField = new TextPropertyDescriptor<object>()
-                //.Name("lowercase")
-                //.Analyzer(PHRASE_STARTS_WITH_ANALYZER)
-                //.SearchAnalyzer(PHRASE_STARTS_WITH_SEARCH_ANALYZER);
-
-                //var autocompleteSubField = new TextPropertyDescriptor<object>()
-                //    .Name("autocomplete")
-                //    .Analyzer(autocompleteAnalyzer)
-                //    .SearchAnalyzer(autocompleteSearchAnalyzer);
-
-                //var analyzedField = new TextPropertyDescriptor<object>()
-                //    .Name("analyzed")
-                //    .Analyzer(indexAnalyzer)
-                //    .SearchAnalyzer(searchAnalyzer);
-
-                //PropertiesDescriptor<object> fieldsPropertiesDesctiptor = new PropertiesDescriptor<object>()
-                //    .Text(y => y.Name($"{language.Code}").SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER))
-                //            .Text(y => lowercaseSubField)
-                //            .Text(y => autocompleteSubField)
-                //            .Text(y => analyzedField)
-                //    ;
-
-                //propertiesDescriptor.Text(x => new TextPropertyDescriptor<object>()
-                //.Name($"{language.Code}").SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER)
-                //    .Fields(fields => fieldsPropertiesDesctiptor));
             }
 
             propertiesDescriptor.Object<object>(x => x
