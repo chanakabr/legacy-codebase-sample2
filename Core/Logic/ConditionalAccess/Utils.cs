@@ -4226,8 +4226,9 @@ namespace Core.ConditionalAccess
                                 }
                             }
 
-                            if (response.m_user.m_eSuspendState == DAL.DomainSuspentionStatus.Suspended && 
-                                !ignoreSuspend && !PartnerConfigurationManager.Instance.AllowSuspendedAction(groupId, !operatorDefaultSuspendBlock))
+                            if (response.m_user.m_eSuspendState == DAL.DomainSuspentionStatus.Suspended
+                                && !ignoreSuspend
+                                && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupId, long.Parse(siteGuid), !operatorDefaultSuspendBlock))
                             {
                                 status = ResponseStatus.UserSuspended;
                             }

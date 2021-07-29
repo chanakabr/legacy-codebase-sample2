@@ -79,7 +79,7 @@ namespace Core.ConditionalAccess
             bool ignoreUnifiedBillingCycle = statusVerifications.Code != (int)eResponseStatus.OK || paymentDetails == null || paymentDetails.PaymentGatewayId == 0;
 
             if (statusVerifications.Code != (int)eResponseStatus.PaymentGatewayNotValid &&
-                !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, renewDetails.UserId, RolePermissions.RENEW_SUBSCRIPTION))
+                !APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(groupId, renewDetails.UserId, RolePermissions.RENEW_SUBSCRIPTION))
             {
                 // mark this subscription in special status 
                 if (!ConditionalAccessDAL.UpdateMPPRenewalSubscriptionStatus(new List<int>() { (int)purchaseId }, (int)SubscriptionPurchaseStatus.Suspended))
@@ -1005,7 +1005,7 @@ namespace Core.ConditionalAccess
             // check if this user permitted to renew 
             if (domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0)
             {
-                if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, domain.m_masterGUIDs[0].ToString(), RolePermissions.RENEW_SUBSCRIPTION))
+                if (!APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(groupId, domain.m_masterGUIDs[0].ToString(), RolePermissions.RENEW_SUBSCRIPTION))
                 {
                     // mark this subscription in special status 
                     // get all purchases ids by process ids 

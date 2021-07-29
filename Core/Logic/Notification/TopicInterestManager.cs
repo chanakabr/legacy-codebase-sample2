@@ -22,6 +22,7 @@ using System.Threading;
 using TVinciShared;
 using KeyValuePair = ApiObjects.KeyValuePair;
 using ApiLogic.Api.Managers;
+using APILogic.Api.Managers;
 
 namespace APILogic.Notification
 {
@@ -757,8 +758,7 @@ namespace APILogic.Notification
                     if (userResponseObject.m_RespStatus == ResponseStatus.OK)
                     {
                         //check user suspend
-                        if (userResponseObject.m_user.m_eSuspendState == DAL.DomainSuspentionStatus.Suspended 
-                            && !PartnerConfigurationManager.Instance.AllowSuspendedAction(partnerId))
+                        if (userResponseObject.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(partnerId, userId))
                         {
                             return new ApiObjects.Response.Status() { Code = (int)eResponseStatus.UserSuspended, Message = eResponseStatus.UserSuspended.ToString() };
                         }
