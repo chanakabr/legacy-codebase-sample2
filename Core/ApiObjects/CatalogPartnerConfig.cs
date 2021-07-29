@@ -8,6 +8,8 @@
 
         public bool? EpgMultilingualFallbackSupport { get; set; }
 
+        public bool? UploadExportDatalake { get; set; }
+
         public bool SetUnchangedProperties(CatalogPartnerConfig oldConfig)
         {
             var needToUpdate = false;
@@ -36,6 +38,15 @@
             else
             {
                 this.EpgMultilingualFallbackSupport = oldConfig.EpgMultilingualFallbackSupport;
+            }
+
+            if (this.UploadExportDatalake.HasValue)
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                this.UploadExportDatalake = oldConfig.UploadExportDatalake;
             }
 
             return needToUpdate;

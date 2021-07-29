@@ -513,14 +513,14 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // update Epg metas and tags 
-                    RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
+                    var epgsToUpdate = RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
 
                     // invalidate asset
                     AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
 
                     var epgCb = CreateEpgCbFromEpgAsset(epgAsset, groupId, epgAsset.CreateDate.Value, epgAsset.UpdateDate.Value);
                     // UpdateIndex
-                    bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertProgram(new List<EpgCB>() { epgCb }, GetLinearChannelSettingsForEpgCB(groupId, epgCb));
+                    bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertProgram(epgsToUpdate, GetLinearChannelSettingsForEpgCB(groupId, epgCb));
                     if (!indexingResult)
                     {
                         log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromProgram", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
@@ -1657,12 +1657,12 @@ namespace Core.Catalog.CatalogManagement
             return row;
         }
 
-        private static void RemoveTopicsFromProgramEpgCBs(int groupId, long epgId, List<string> programMetas, List<string> programTags)
+        private static List<EpgCB> RemoveTopicsFromProgramEpgCBs(int groupId, long epgId, List<string> programMetas, List<string> programTags)
         {
             if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache))
             {
                 log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling RemoveTopicsFromProgramEpgCBs", groupId);
-                return;
+                return new List<EpgCB>();
             }
 
             var languages = GetLanguagesObj(new List<string>() { "*" }, catalogGroupCache);
@@ -1673,6 +1673,8 @@ namespace Core.Catalog.CatalogManagement
             {
                 RemoveTopicsFromProgramEpgCB(epgCB, programMetas, programTags, catalogGroupCache.GetDefaultLanguage().Code);
             }
+
+            return epgCbList;
         }
 
         private static void RemoveTopicsFromProgramEpgCB(EpgCB epgCB, List<string> programMetas, List<string> programTags, string defaultLanguageCode)

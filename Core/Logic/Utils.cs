@@ -33,6 +33,8 @@ namespace APILogic
 
         private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient();
 
+        public const string CompressedFileExtension = ".gz";
+
         public static int GetIntSafeVal(DataRow dr, string sField)
         {
             try
@@ -258,11 +260,11 @@ namespace APILogic
                     // already compressed files.
                     if ((File.GetAttributes(fi.FullName)
                         & FileAttributes.Hidden)
-                        != FileAttributes.Hidden & fi.Extension != ".gz")
+                        != FileAttributes.Hidden & fi.Extension != CompressedFileExtension)
                     {
                         // Create the compressed file.
                         using (FileStream outFile =
-                                    File.Create((compressedFileLocation.EndsWith("\\") ? compressedFileLocation : compressedFileLocation + "\\") + fi.Name + ".gz"))
+                                    File.Create((compressedFileLocation.EndsWith("\\") ? compressedFileLocation : compressedFileLocation + "\\") + fi.Name + CompressedFileExtension))
                         {
                             using (GZipStream Compress =
                                 new GZipStream(outFile,

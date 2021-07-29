@@ -32124,6 +32124,16 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute UploadExportDatalakeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCatalogPartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaCatalogPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -32160,6 +32170,14 @@ namespace WebAPI.Models.Partner
                         EpgMultilingualFallbackSupportSchemaProperty.Validate("epgMultilingualFallbackSupport", parameters["epgMultilingualFallbackSupport"]);
                     }
                     EpgMultilingualFallbackSupport = (Boolean) Convert.ChangeType(parameters["epgMultilingualFallbackSupport"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("uploadExportDatalake") && parameters["uploadExportDatalake"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UploadExportDatalakeSchemaProperty.Validate("uploadExportDatalake", parameters["uploadExportDatalake"]);
+                    }
+                    UploadExportDatalake = (Boolean) Convert.ChangeType(parameters["uploadExportDatalake"], typeof(Boolean));
                 }
             }
         }
