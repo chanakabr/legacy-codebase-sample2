@@ -32,6 +32,7 @@ using ElasticSearch.Searcher;
 using ElasticSearch.Utilities;
 using Newtonsoft.Json;
 using Polly;
+using ApiLogic.NestData;
 
 namespace Core.Catalog
 {
@@ -53,7 +54,7 @@ namespace Core.Catalog
         protected const string PHRASE_STARTS_WITH_SEARCH_ANALYZER = "phrase_starts_with_search_analyzer";
         protected const string EDGENGRAM_FILTER = "edgengram_filter";
         protected const string NGRAM_FILTER = "ngram_filter";
-        
+
         public const string META_SUPPRESSED = "suppressed";
 
         #endregion
@@ -81,12 +82,12 @@ namespace Core.Catalog
         private readonly int _sizeOfBulk;
         private readonly int _sizeOfBulkDefaultValue;
         private readonly ITtlService _ttlService;
-        
+
         private HashSet<string> _metasToPad;
         private Group _group;
         private CatalogGroupCache _catalogGroupCache;
-        private Dictionary<string,LanguageObj> _groupCodePerLang;
-        private Dictionary<string,LanguageObj> _catalogGroupCacheCodePerLang;
+        private Dictionary<string, LanguageObj> _groupCodePerLang;
+        private Dictionary<string, LanguageObj> _catalogGroupCacheCodePerLang;
 
         public IndexManagerV7(int partnerId,
             IElasticClient elasticClient,
@@ -115,7 +116,7 @@ namespace Core.Catalog
             _numOfReplicas = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
             _maxResults = _applicationConfiguration.ElasticSearchConfiguration.MaxResults.Value;
             _sizeOfBulk = _applicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.Value;
-            _sizeOfBulkDefaultValue =_applicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
+            _sizeOfBulkDefaultValue = _applicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.GetDefaultValue();
 
             InitializePartnerData(_partnerId);
             GetMetasAndTagsForMapping(out _, out _, out _metasToPad);
@@ -125,7 +126,7 @@ namespace Core.Catalog
         {
             _groupCodePerLang = new Dictionary<string, LanguageObj>();
             _catalogGroupCacheCodePerLang = new Dictionary<string, LanguageObj>();
-            
+
             if (partnerId <= 0)
             {
                 return;
@@ -141,7 +142,7 @@ namespace Core.Catalog
             else
             {
                 _group = _groupManager.GetGroup(partnerId);
-                 _groupCodePerLang = _group.GetLangauges().ToDictionary(x=>x.Code,x=>x);
+                _groupCodePerLang = _group.GetLangauges().ToDictionary(x => x.Code, x => x);
             }
 
             if (_catalogGroupCache == null && _group == null)
@@ -163,7 +164,7 @@ namespace Core.Catalog
         {
             string dailyEpgIndexName = IndexingUtils.GetDailyEpgIndexName(_partnerId, dateOfProgramsToIngest);
             EnsureEpgIndexExist(dailyEpgIndexName, retryPolicy);
-            
+
             SetNoRefresh(dailyEpgIndexName, retryPolicy);
 
             return dailyEpgIndexName;
@@ -185,14 +186,14 @@ namespace Core.Catalog
             {
                 var response = _elasticClient.Indices.UpdateSettings(Indices.Index(index),
                     x => x.IndexSettings(y => y.RefreshInterval(INDEX_REFRESH_INTERVAL)));
-                
+
                 if (!response.IsValid)
                 {
                     retryPolicy.Execute(() =>
                     {
                         var isSetRefreshSuccess = _elasticClient.Indices.UpdateSettings(Indices.Index(index),
                             x => x.IndexSettings(y => y.RefreshInterval(INDEX_REFRESH_INTERVAL))).IsValid;
-                        
+
                         if (!isSetRefreshSuccess)
                         {
                             log.Error($"index {index} set refresh to -1 failed [{isSetRefreshSuccess}]]");
@@ -201,7 +202,7 @@ namespace Core.Catalog
                     });
                 }
             }
-            
+
             return true;
         }
 
@@ -240,7 +241,7 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, 
+        public void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms,
             string draftIndexName,
             DateTime dateOfProgramsToIngest,
             LanguageObj defaultLanguage,
@@ -261,17 +262,17 @@ namespace Core.Catalog
 
             policy.Execute(() =>
             {
-                var bulkRequests = new List<NestEsBulkRequest<string,NestEpg>>();
+                var bulkRequests = new List<NestEsBulkRequest<string, NestEpg>>();
                 try
                 {
                     var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
                     foreach (var program in programTranslationsToIndex)
                     {
                         program.PadMetas(_metasToPad);
-                        var langId=GetLanguageIdByCode(program);
-                        
+                        var langId = GetLanguageIdByCode(program);
+
                         // Serialize EPG object to string
-                        var buildEpg = NestDataCreator.GetEpg(program,langId, isOpc: _groupUsesTemplates);
+                        var buildEpg = NestDataCreator.GetEpg(program, langId, isOpc: _groupUsesTemplates);
                         var bulkRequest = GetNestEpgBulkRequest(draftIndexName, dateOfProgramsToIngest, program, buildEpg);
                         bulkRequests.Add(bulkRequest);
 
@@ -335,7 +336,7 @@ namespace Core.Catalog
                 bulkRequests.Clear();
                 return;
             }
-            
+
             foreach (var item in bulkResponse.ItemsWithErrors)
             {
                 log.Error($"Could not add item to ES index. GroupID={_partnerId} Id={item.Id} Index ={item.Index} error={item.Error}");
@@ -360,8 +361,7 @@ namespace Core.Catalog
                             .Routing(bulkRequest.Routing)
                             .Id(bulkRequest.DocID)
                         ;
-                })
-                    ;
+                });
             });
             return bulkResponse;
         }
@@ -487,7 +487,7 @@ namespace Core.Catalog
                     )
                 );
             bool result = createIndexResponse != null && createIndexResponse.Acknowledged && createIndexResponse.IsValid;
-            
+
             return result;
         }
 
@@ -500,14 +500,14 @@ namespace Core.Catalog
                 var nestSocialActionStatistics = NestDataCreator.GetSocialActionStatistics(action);
                 var response = _elasticClient.Index(nestSocialActionStatistics, i => i.Index(statisticsIndex));
                 var result = response != null && response.IsValid && response.Result == Result.Created;
-                
+
                 if (result)
                     return true;
-                
+
                 var actionStatsJson = JsonConvert.SerializeObject(action);
                 log.Debug("InsertStatisticsToES " + string.Format("Was unable to insert record to ES. index={0};doc={1}",
                     statisticsIndex, actionStatsJson));
-                
+
             }
             catch (Exception ex)
             {
@@ -605,7 +605,7 @@ namespace Core.Catalog
                 throw new Exception($"failed to get metas and tags");
             }
 
-            PropertiesDescriptor<object> propertiesDescriptor = 
+            PropertiesDescriptor<object> propertiesDescriptor =
                 GetMediaPropertiesDesctiptor(languages, metas, tags, metasToPad, analyzers);
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                 c => c.Settings(settings => settings
@@ -697,7 +697,10 @@ namespace Core.Catalog
                         .TokenFilters(tf => filtersDesctiptor)
                         .Tokenizers(t => tokenizersDescriptor)
                     ))
-                .Map<TagValue>(map => map.AutoMap<TagValue>()
+                .Map<Tag>(map => map
+                    .AutoMap<Tag>()
+                    .Properties(properties => properties
+                )
                 ));
 
             bool isIndexCreated = createResponse != null && createResponse.Acknowledged && createResponse.IsValid;
@@ -898,7 +901,7 @@ namespace Core.Catalog
             if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
         }
 
-        private PropertiesDescriptor<object> GetEpgPropertiesDesctiptor(List<LanguageObj> languages, 
+        private PropertiesDescriptor<object> GetEpgPropertiesDesctiptor(List<LanguageObj> languages,
             Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
             List<string> tags,
             HashSet<string> metasToPad,
@@ -938,8 +941,8 @@ namespace Core.Catalog
             return propertiesDescriptor;
         }
 
-        private static void InitializeNumericMetaField(PropertiesDescriptor<object> propertiesDescriptor, 
-            string metaName, 
+        private static void InitializeNumericMetaField(PropertiesDescriptor<object> propertiesDescriptor,
+            string metaName,
             bool shouldAddPaddedField)
         {
             var lowercaseSubField = new TextPropertyDescriptor<object>()
@@ -978,9 +981,9 @@ namespace Core.Catalog
         private TextPropertyDescriptor<object> InitializeTextField(
             string nameFieldName,
             PropertiesDescriptor<object> propertiesDescriptor,
-            string indexAnalyzer, 
+            string indexAnalyzer,
             string searchAnalyzer,
-            string autocompleteAnalyzer, 
+            string autocompleteAnalyzer,
             string autocompleteSearchAnalyzer,
             string phoneticIndexAnalyzer,
             string phoneticSearchAnalyzer,
@@ -1173,8 +1176,8 @@ namespace Core.Catalog
             return tokenizersDescriptor;
         }
 
-        private void GetAnalyzersWithLowercaseAndPhraseStartsWith(IEnumerable<LanguageObj> languages, 
-            out Dictionary<string, Analyzer> analyzers, 
+        private void GetAnalyzersWithLowercaseAndPhraseStartsWith(IEnumerable<LanguageObj> languages,
+            out Dictionary<string, Analyzer> analyzers,
             out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters,
             out Dictionary<string, Tokenizer> tokeniezrs)
         {
@@ -1254,8 +1257,8 @@ namespace Core.Catalog
             }
         }
 
-        private void GetAnalyzersWithLowercase(IEnumerable<LanguageObj> languages, 
-            out Dictionary<string, Analyzer> analyzers, 
+        private void GetAnalyzersWithLowercase(IEnumerable<LanguageObj> languages,
+            out Dictionary<string, Analyzer> analyzers,
             out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters,
             out Dictionary<string, Tokenizer> tokenizers)
         {
@@ -1280,8 +1283,8 @@ namespace Core.Catalog
             );
         }
 
-        private void GetAnalyzersAndFiltersFromConfiguration(IEnumerable<LanguageObj> languages, 
-            out Dictionary<string, Analyzer> analyzers, 
+        private void GetAnalyzersAndFiltersFromConfiguration(IEnumerable<LanguageObj> languages,
+            out Dictionary<string, Analyzer> analyzers,
             out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters,
             out Dictionary<string, Tokenizer> tokenizers)
         {
@@ -1419,7 +1422,7 @@ namespace Core.Catalog
                         if (topics.Value.Keys.Any(x => x != ApiObjects.MetaType.Tag.ToString() && x != ApiObjects.MetaType.ReleatedEntity.ToString()))
                         {
                             string nullValue = string.Empty;
-                            
+
                             var topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
                             IndexingUtils.GetMetaType(topicMetaType, out var metaType, out nullValue);
 
@@ -1602,7 +1605,7 @@ namespace Core.Catalog
                 metas.Add(META_SUPPRESSED, new KeyValuePair<eESFieldType, string>(eESFieldType.STRING, string.Empty));//new meta for suppressed value
             }
 
-            AddLanguageSpecificMappingToPropertyDescriptor(languages, metas, tags, metasToPad, analyzers, propertiesDescriptor, 
+            AddLanguageSpecificMappingToPropertyDescriptor(languages, metas, tags, metasToPad, analyzers, propertiesDescriptor,
                 defaultIndexAnalyzer, defaultSearchAnalyzer, defaultAutocompleteAnalyzer, defaultAutocompleteSearchAnalyzer);
 
             return propertiesDescriptor;
@@ -1615,9 +1618,9 @@ namespace Core.Catalog
         }
 
         private void AddLanguageSpecificMappingToPropertyDescriptor(List<LanguageObj> languages,
-            Dictionary<string, KeyValuePair<eESFieldType, string>> metas, List<string> tags, HashSet<string> metasToPad, 
-            Dictionary<string, Analyzer> analyzers, 
-            PropertiesDescriptor<object> propertiesDescriptor, 
+            Dictionary<string, KeyValuePair<eESFieldType, string>> metas, List<string> tags, HashSet<string> metasToPad,
+            Dictionary<string, Analyzer> analyzers,
+            PropertiesDescriptor<object> propertiesDescriptor,
             string defaultIndexAnalyzer, string defaultSearchAnalyzer, string defaultAutocompleteAnalyzer, string defaultAutocompleteSearchAnalyzer)
         {
             PropertiesDescriptor<object> namePropertiesDescriptor = new PropertiesDescriptor<object>();
@@ -1728,7 +1731,6 @@ namespace Core.Catalog
                         metasPropertiesDescriptor.Date(x => x.Name(metaName).Format(ESUtils.ES_DATE_FORMAT));
                     }
                 }
-
             }
 
             propertiesDescriptor.Object<object>(x => x

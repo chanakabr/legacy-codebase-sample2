@@ -86,21 +86,21 @@ namespace ApiLogic.Tests.IndexManager
         }
 
 
-       
+
         [Test]
         public void TestAttr()
         {
             var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-            
+
             IndexName indexName = $"{partnerId}_gil";
             var epgCb = new EpgCB();
             epgCb.Name = "la movie";
             epgCb.Language = "rus";
             epgCb.Description = "this is the movie description";
-            var buildEpg = NestDataCreator.GetEpg(epgCb, 1, isOpc: true);            
+            var buildEpg = NestDataCreator.GetEpg(epgCb, 1, isOpc: true);
             var indexResponse = elasticClient.Index(buildEpg, x => x.Index(indexName));
-            var getResponse = elasticClient.Get<NestEpg>(indexResponse.Id,i=>i.Index(indexName)).Source;
+            var getResponse = elasticClient.Get<NestEpg>(indexResponse.Id, i => i.Index(indexName)).Source;
         }
 
         [Test]
@@ -112,19 +112,19 @@ namespace ApiLogic.Tests.IndexManager
             epgCb.Name = "la movie";
             epgCb.Language = "en";
             epgCb.Description = "this is the movie description";
-            epgCb.EpgID = (ulong) epgId;
+            epgCb.EpgID = (ulong)epgId;
             var crudOperations = new CRUDOperations<EpgProgramBulkUploadObject>();
             var dateOfProgramsToIngest = DateTime.Now.AddDays(-1);
-            
+
             var epgCbObjects = new List<EpgCB>();
             epgCbObjects.Add(epgCb);
-            
+
 
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
             var language = IndexManagerMockDataCreator.GetRandomLanguage();
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
-             var policy = Policy.Handle<Exception>().WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1));
+            var policy = Policy.Handle<Exception>().WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1));
 
             _mockElasticSearchCommonUtils.Setup(x => x.GetTcmValue(
                 It.Is<string>(a => a.ToLower().Contains("filter"))
@@ -141,7 +141,7 @@ namespace ApiLogic.Tests.IndexManager
             var refreshInterval = new Time(TimeSpan.FromSeconds(1));
             setIndexRefreshTime(index, refreshInterval, elasticClient);
             var languageObjs = new List<ApiObjects.LanguageObj>() { language }.ToDictionary(x => x.Code);
-            
+
             //test upsert
             var epgItem = new EpgProgramBulkUploadObject()
             {
@@ -151,16 +151,16 @@ namespace ApiLogic.Tests.IndexManager
                 EpgCbObjects = epgCbObjects,
                 EpgExternalId = $"1{epgId}"
             };
-            
+
             crudOperations.ItemsToAdd.Add(epgItem);
             var epgCbObjects2 = new List<EpgCB>();
             var epgCb2 = new EpgCB();
             epgCb2.Name = "la movie2";
             epgCb2.Language = "en";
             epgCb2.Description = "this is the movie description2";
-            epgCb2.EpgID = (ulong) epgId+2;
+            epgCb2.EpgID = (ulong)epgId + 2;
             epgCbObjects.Add(epgCb2);
-            
+
             var epgItem2 = new EpgProgramBulkUploadObject()
             {
                 GroupId = partnerId,
@@ -169,19 +169,19 @@ namespace ApiLogic.Tests.IndexManager
                 EpgCbObjects = epgCbObjects2,
                 EpgExternalId = $"1{epgId}1"
             };
-            
+
             crudOperations.ItemsToAdd.Add(epgItem2);
             var programsToIndex = crudOperations.ItemsToAdd
                 .Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.AffectedItems)
                 .ToList();
-            
-            indexManager.UpsertProgramsToDraftIndex(programsToIndex, index,dateOfProgramsToIngest, language, languageObjs);
-            
+
+            indexManager.UpsertProgramsToDraftIndex(programsToIndex, index, dateOfProgramsToIngest, language, languageObjs);
+
             var res = indexManager.FinalizeEpgV2Index(DateTime.Now);
             Assert.IsTrue(res);
 
-            res = indexManager.FinalizeEpgV2Indices(new List<DateTime>() {DateTime.Today, DateTime.Now.AddDays(-1)}, policy);
-            Assert.IsTrue(res);                                    
+            res = indexManager.FinalizeEpgV2Indices(new List<DateTime>() { DateTime.Today, DateTime.Now.AddDays(-1) }, policy);
+            Assert.IsTrue(res);
         }
 
         private static void setIndexRefreshTime(string index, Time refreshInterval, IElasticClient elasticClient)
@@ -234,7 +234,7 @@ namespace ApiLogic.Tests.IndexManager
             var result = indexManager.SetupSocialStatisticsDataIndex();
             Assert.IsTrue(result);
         }
-        
+
         [Test]
         public void TestInsertSocialStatisticsData()
         {
@@ -242,11 +242,11 @@ namespace ApiLogic.Tests.IndexManager
             var language = IndexManagerMockDataCreator.GetRandomLanguage();
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var stat1 = IndexManagerMockDataCreator.GetRandomSocialActionStat(partnerId);
-            
+
             var indexManager = GetIndexV7Manager(partnerId);
             var result = indexManager.SetupSocialStatisticsDataIndex();
-            
-            var res=indexManager.InsertSocialStatisticsData(stat1);
+
+            var res = indexManager.InsertSocialStatisticsData(stat1);
             Assert.True(res);
             var socialSearch = new StatisticsActionSearchObj()
             {

@@ -42,7 +42,7 @@ namespace ApiObjects.Nest
         public int ChannelID { get; set; }
         
         [PropertyName("name")]
-        public Dictionary<string,string> Name { get; set; }
+        public Dictionary<string, string> Name { get; set; }
 
         [PropertyName("description")]
         public  Dictionary<string,string> Description { get; set; }
