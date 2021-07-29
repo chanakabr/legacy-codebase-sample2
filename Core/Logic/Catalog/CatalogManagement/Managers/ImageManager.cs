@@ -1117,7 +1117,7 @@ namespace Core.Catalog.CatalogManagement
 
                         try
                         {
-                            var imageBytes = ApiLogic.FileHandler.Instance.DownloadImage(groupId, url, image.ContentId, image);
+                            var imageBytes = ApiLogic.FileManager.Instance.DownloadImage(groupId, url, image.ContentId, image);
 
                             if (!imageBytes.IsOkStatusCode())
                             {

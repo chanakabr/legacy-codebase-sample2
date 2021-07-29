@@ -66,7 +66,7 @@ namespace Core.Catalog.CatalogManagement
             var response = new GenericListResponse<BulkUpload>();
             try
             {
-                var fileObjectTypeName = FileHandler.Instance.GetFileObjectTypeName(bulkObjectType);
+                var fileObjectTypeName = ApiLogic.FileManager.Instance.GetFileObjectTypeName(bulkObjectType);
                 if (!fileObjectTypeName.HasObject())
                 {
                     response.SetStatus(fileObjectTypeName.Status);
@@ -176,7 +176,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // save the bulkUpload file to server (cut it from iis) and set fileURL                                
-                GenericResponse<string> saveFileResponse = fileData.SaveFile(response.Object.Id,"KalturaBulkUpload");
+                GenericResponse<string> saveFileResponse = ApiLogic.FileManager.Instance.SaveFile(response.Object.Id.ToString(), fileData, "KalturaBulkUpload");
                 if (!saveFileResponse.HasObject())
                 {
                     log.ErrorFormat("Error while saving BulkUpload File to file server. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);
@@ -185,7 +185,7 @@ namespace Core.Catalog.CatalogManagement
                 }
                 response.Object.FileURL = saveFileResponse.Object;
 
-                var objectTypeNameWithoutKalturaPrefix = FileHandler.Instance.GetFileObjectTypeName(objectTypeName);
+                var objectTypeNameWithoutKalturaPrefix = ApiLogic.FileManager.Instance.GetFileObjectTypeName(objectTypeName);
                 response.Object.BulkObjectType = objectTypeNameWithoutKalturaPrefix.Object;
                 response = UpdateBulkUpload(response.Object, BulkUploadJobStatus.Uploaded);
 

@@ -1,62 +1,75 @@
-﻿using ApiObjects.Response;
-using System;
-using System.Collections.Generic;
+﻿using Amazon.S3.Transfer;
 using System.IO;
-using System.Text;
 
 namespace ApiLogic.Catalog
 {
     public abstract class OTTBasicFile
     {
-        public abstract GenericResponse<string> SaveFile(string id, string objectTypeName);
-        public abstract GenericResponse<string> SaveFile(long id, string objectTypeName);
+        public bool ShouldDeleteSourceFile { get; protected set; }
         public string Name { get; set; }
+        public abstract TransferUtilityUploadRequest GetTransferUtilityUploadRequest();
+        public abstract void SaveToFileSystem(string destPath, bool shouldDelete);
+        public abstract FileInfo GetFileInfo();
     }
 
     public class OTTStreamFile : OTTBasicFile
     {
-       
-        public Stream File { get; set; }
-
-        public Stream GetFileStream()
-        {
-            return File;
-        }
-
-        public override GenericResponse<string> SaveFile(string id, string objectTypeName)
-        {
-           return FileHandler.Instance.SaveFile(id, this, objectTypeName);
-        }
-
-        public override GenericResponse<string> SaveFile(long id, string objectTypeName)
-        {
-            return FileHandler.Instance.SaveFile(id, this, objectTypeName);
-        }
+        private Stream file;
 
         public OTTStreamFile(Stream formFile, string fileName)
         {
-            File = formFile;            
+            file = formFile;            
             Name = fileName;
+            ShouldDeleteSourceFile = false;
+        }
+
+        public override FileInfo GetFileInfo()
+        {
+            return new FileInfo(Name);
+        }
+
+        public override TransferUtilityUploadRequest GetTransferUtilityUploadRequest()
+        {
+            return new TransferUtilityUploadRequest { InputStream = this.file };
+        }
+
+        public override void SaveToFileSystem(string destPath, bool shouldDelete)
+        {
+            using (Stream tempFile = File.Create(destPath))
+            {
+                this.file.CopyTo(tempFile);
+            }
         }
     }
 
     public class OTTFile: OTTBasicFile
     {
-        public OTTFile(string filePath, string fileName)
+        private string Path;
+        public OTTFile(string filePath, string fileName, bool shouldDeleteSourceFile = true)
         {
             Path = filePath;
             Name = fileName;
-        }        
-        public string Path { get; set; }
-
-        public override GenericResponse<string> SaveFile(string id, string objectTypeName)
-        {
-            return FileHandler.Instance.SaveFile(id, this, objectTypeName);
+            ShouldDeleteSourceFile = shouldDeleteSourceFile;
         }
 
-        public override GenericResponse<string> SaveFile(long id, string objectTypeName)
+        public override FileInfo GetFileInfo()
         {
-            return FileHandler.Instance.SaveFile(id, this, objectTypeName);
+            return new FileInfo(Path);
+        }
+
+        public override TransferUtilityUploadRequest GetTransferUtilityUploadRequest()
+        {
+            var fileInfo = new FileInfo(Path);
+            return new TransferUtilityUploadRequest { FilePath = fileInfo.FullName };
+        }
+
+        public override void SaveToFileSystem(string destPath, bool shouldDelete)
+        {
+            var fullName = GetTransferUtilityUploadRequest().FilePath;
+            if (shouldDelete)
+                File.Move(fullName, destPath);
+            else
+                File.Copy(fullName, destPath);
         }
     }
 }

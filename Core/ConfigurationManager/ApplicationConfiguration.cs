@@ -90,6 +90,7 @@ namespace ConfigurationManager
 
         public AuthorizationManagerConfiguration AuthorizationManagerConfiguration = new AuthorizationManagerConfiguration();
         public FileUploadConfiguration FileUpload = new FileUploadConfiguration();
+        public DataLakeConfiguration DataLake = new DataLakeConfiguration();
         public ElasticSearchHandlerConfiguration _elasticSearchHandlerConfiguration = new ElasticSearchHandlerConfiguration();
         public ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration => _elasticSearchHandlerConfiguration;
         public AnnouncementManagerConfiguration AnnouncementManagerConfiguration = new AnnouncementManagerConfiguration();

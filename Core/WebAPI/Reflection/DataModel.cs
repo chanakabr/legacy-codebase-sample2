@@ -1366,6 +1366,8 @@ namespace WebAPI.Reflection
                             return "epgMultilingualFallbackSupport";
                         case "SingleMultilingualMode":
                             return "singleMultilingualMode";
+                        case "UploadExportDatalake":
+                            return "uploadExportDatalake";
                     }
                     break;
                     

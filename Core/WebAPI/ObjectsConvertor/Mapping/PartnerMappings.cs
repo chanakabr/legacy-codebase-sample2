@@ -312,12 +312,14 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaCatalogPartnerConfig, CatalogPartnerConfig>()
                .ForMember(dest => dest.SingleMultilingualMode, opt => opt.MapFrom(src => src.SingleMultilingualMode))
                .ForMember(dest => dest.EpgMultilingualFallbackSupport, opt => opt.MapFrom(src => src.EpgMultilingualFallbackSupport))
-               .ForMember(dest => dest.CategoryManagement, opt => opt.MapFrom(src => src.CategoryManagement));               
+               .ForMember(dest => dest.CategoryManagement, opt => opt.MapFrom(src => src.CategoryManagement))
+               .ForMember(dest => dest.UploadExportDatalake, opt => opt.MapFrom(src => src.UploadExportDatalake));               
 
             cfg.CreateMap<CatalogPartnerConfig, KalturaCatalogPartnerConfig>()
                .ForMember(dest => dest.SingleMultilingualMode, opt => opt.MapFrom(src => src.SingleMultilingualMode))
                .ForMember(dest => dest.EpgMultilingualFallbackSupport, opt => opt.MapFrom(src => src.EpgMultilingualFallbackSupport))
-               .ForMember(dest => dest.CategoryManagement, opt => opt.MapFrom(src => src.CategoryManagement));
+               .ForMember(dest => dest.CategoryManagement, opt => opt.MapFrom(src => src.CategoryManagement))
+               .ForMember(dest => dest.UploadExportDatalake, opt => opt.MapFrom(src => src.UploadExportDatalake));
 
             cfg.CreateMap<KalturaCategoryManagement, CategoryManagement>()
                 .ForMember(dest => dest.DefaultCategoryTree, opt => opt.MapFrom(src => src.DefaultCategoryTreeId))

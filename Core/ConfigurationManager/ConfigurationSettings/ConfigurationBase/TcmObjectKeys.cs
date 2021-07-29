@@ -2,6 +2,7 @@
 {
 	public class TcmObjectKeys
 	{
+		public const string DataLake = "DataLake";
 		public const string FileUpload = "FileUpload";
 		public const string KestrelConfiguration = "kestrel_configuration";
 		public const string S3 = "S3";
