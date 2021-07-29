@@ -151,7 +151,10 @@ namespace ApiLogic.Tests.IndexManager.helpers
             epgCb.Description = description == "" ? "this is the movie description" : description;
             epgCb.EpgID = (ulong) epgId;
             epgCb.Language = "en";
-            epgCb.CreateDate=DateTime.Now;
+            epgCb.CreateDate=DateTime.Now.ToUniversalTime();
+            epgCb.EndDate=DateTime.Now.ToUniversalTime();
+            epgCb.StartDate=DateTime.Now.ToUniversalTime();
+            epgCb.CreateDate=DateTime.Now.ToUniversalTime();
             return epgCb;
         }
     }
