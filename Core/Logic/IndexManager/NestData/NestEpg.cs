@@ -26,12 +26,6 @@ namespace ApiObjects.Nest
         [PropertyName("status")]
         public int Status { get; set; }
 
-        [PropertyName("create_date")]
-        public DateTime CreateDate { get; set; }
-
-        [PropertyName("update_date")]
-        public DateTime UpdateDate { get; set; }
-
         [PropertyName("group_id")]
         public int GroupID { get; set; }
 
@@ -47,14 +41,20 @@ namespace ApiObjects.Nest
         [PropertyName("description")]
         public  Dictionary<string,string> Description { get; set; }
 
-        [PropertyName("start_date")]
-        [JsonConverter(typeof(EpgTimeConverter))]
+        public DateTime CreateDate { get; set; }
+
+        /*[Date(Format = "yyyyMMddHHmmss")]*/
+        public DateTime UpdateDate { get; set; }
+
+        
+        [Date(Format = "yyyyMMddHHmmss" ,Name = "start_date")]
         public DateTime StartDate { get; set; }
 
-        [PropertyName("end_date")]
-        [JsonConverter(typeof(EpgTimeConverter))]
+        /*[PropertyName("end_date")]*/
         public DateTime EndDate { get; set; }
 
+        public DateTime SearchEndDate { get; set; }
+        
         [PropertyName("co_guid")]
         public string CoGuid { get; set; }
 
@@ -64,7 +64,6 @@ namespace ApiObjects.Nest
         [PropertyName("pic_id")]
         public int PicID { get; set; }
 
-        // TODO: Lior - only temporary solution for linear media id until we handle new epg ingest
         [PropertyName("linear_media_id")]
         public long LinearMediaId { get; set; }
 
@@ -85,18 +84,16 @@ namespace ApiObjects.Nest
 
         [PropertyName("language")]
         public string Language { get; set; }
-        
+
         [PropertyName("language_id")]
         public int LanguageId { get; set; }
-        
+
         [PropertyName("date_routing")]
         public string DateRouting { get; set; }
 
-        // from LUNA version
         [PropertyName("pictures")]
         public List<EpgPicture> pictures { get; set; }
 
-        //from ROBIN version
         [PropertyName("enable_cdvr")]
         public int EnableCDVR { get; set; }
 
@@ -109,10 +106,6 @@ namespace ApiObjects.Nest
         [PropertyName("enable_trick_play")]
         public int EnableTrickPlay { get; set; }
 
-        [PropertyName("search_end_date")]
-        public DateTime SearchEndDate { get; set; }
-
-        //from Storm version
         [PropertyName ("crid")]
         public string Crid { get; set; }
 

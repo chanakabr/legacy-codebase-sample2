@@ -6797,7 +6797,8 @@ namespace Core.Catalog
         public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName,
             IDictionary<string, LanguageObj> languages)
         {
-            if (programsToDelete.Count() == 0) { return; }
+            if (!programsToDelete.Any())
+                return;
 
             var programIds = programsToDelete.Select(program => program.EpgId);
             var channelIds = programsToDelete.Select(x => x.ChannelId).Distinct().ToList();
@@ -6806,9 +6807,8 @@ namespace Core.Catalog
             // We will retry deletion until the sum of all deleted programs is equal to the total docs deleted, this is becasue
             // there is an issue in elastic 2.3 where we cannot be sure it will find the item to delete
             // right after re-index.
-            var totalDocumentsToDelete = programsToDelete.Count * languages.Count;
             var totalDocumentsDeleted = 0;
-            log.Debug($"Update elasticsearch index completed, delteting required docuements. documents.leng:[{programsToDelete.Count}]");
+            log.Debug($"Update elasticsearch index completed, deleting required documents. documents.length:[{programsToDelete.Count}]");
             if (programIds.Any())
             {
                 var retryCount = 5;
@@ -6823,10 +6823,6 @@ namespace Core.Catalog
                     var deleteQuery = GetElasticsearchQueryForEpgIDs(programIds, externalIds ?? new List<string>(), channelIds);
                     _elasticSearchApi.DeleteDocsByQuery(epgIndexName, string.Empty, ref deleteQuery, out var deletedDocsCount);
                     totalDocumentsDeleted += deletedDocsCount;
-                    if (totalDocumentsDeleted < programIds.Count())
-                    {
-                        // throw new Exception($"requested to delete {programIds.Count()} programs but actually deleted so far {totalDocumentsDeleted} program ids are: {string.Join(",", programIds)}");
-                    }
                 });
             }
         }
@@ -6983,10 +6979,10 @@ namespace Core.Catalog
             return result;
         }
 
-        private string GetElasticsearchQueryForEpgIDs(IEnumerable<ulong> programIds, IEnumerable<string> externalIds, List<int> channelIds)
+        public string GetElasticsearchQueryForEpgIDs(IEnumerable<ulong> programIds, IEnumerable<string> externalIds, List<int> channelIds)
         {
             // Build query for getting programs
-            var query = new FilteredQuery(true);
+            var query = new FilteredQuery();
             var filter = new QueryFilter();
 
             // basic initialization

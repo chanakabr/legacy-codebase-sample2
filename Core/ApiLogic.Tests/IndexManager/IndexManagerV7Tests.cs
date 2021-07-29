@@ -23,6 +23,7 @@ using Polly;
 using ApiLogic.Tests.IndexManager.helpers;
 using ApiObjects.BulkUpload;
 using ApiObjects.Nest;
+using ChannelsSchema;
 using Elasticsearch.Net;
 using ElasticSearch.Utilities;
 using Nest;
@@ -62,7 +63,27 @@ namespace ApiLogic.Tests.IndexManager
                     new TtlService()
                 );
         }
+        
+        private static string GetAnalyzerFromMockTcm()
+        {
+            return "\"eng_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\": [\"asciifolding\",\"lowercase\",\"eng_ngram_filter\"],\"char_filter\":[\"html_strip\"]}, \"eng_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\": [\"asciifolding\",\"lowercase\"],\"char_filter\":[\"html_strip\"]},\"eng_autocomplete_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"filter\": [\"asciifolding\",\"lowercase\",\"eng_edgengram_filter\"],\"char_filter\":[\"html_strip\"]}, \"eng_autocomplete_search_analyzer\":{\"type\": \"custom\",\"tokenizer\": \"whitespace\",\"filter\": [\"asciifolding\",\"lowercase\"],\"char_filter\": [\"html_strip\"]}";
+        }
+        
+        private string GetFilterFromMockTcm()
+        {
+            return "\"eng_ngram_filter\":{\"type\":\"nGram\",\"min_gram\":2,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}, \"eng_edgengram_filter\":{\"type\":\"edgeNGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}";
+        }
+        
+        private static void SetIndexRefreshTime(string index, Time refreshInterval, IElasticClient elasticClient)
+        {
+            var updateDisableIndexRefresh = new UpdateIndexSettingsRequest(index);
+            updateDisableIndexRefresh.IndexSettings = new DynamicIndexSettings();
+            updateDisableIndexRefresh.IndexSettings.RefreshInterval = refreshInterval;
+            var updateSettingsResult = elasticClient.Indices.UpdateSettings(updateDisableIndexRefresh);
+        }
+        
         #endregion
+
 
         [SetUp]
         public void SetUp()
@@ -84,41 +105,13 @@ namespace ApiLogic.Tests.IndexManager
             _mockElasticSearchCommonUtils = _mockRepository.Create<IElasticSearchCommonUtils>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(_mockElasticSearchCommonUtils.Object, ApplicationConfiguration.Current);
         }
-
-
-
+        
         [Test]
-        public void TestAttr()
+        public void TestSetupEpgv2Index()
         {
             var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
-            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-
-            IndexName indexName = $"{partnerId}_gil";
-            var epgCb = new EpgCB();
-            epgCb.Name = "la movie";
-            epgCb.Language = "rus";
-            epgCb.Description = "this is the movie description";
-            var buildEpg = NestDataCreator.GetEpg(epgCb, 1, isOpc: true);
-            var indexResponse = elasticClient.Index(buildEpg, x => x.Index(indexName));
-            var getResponse = elasticClient.Get<NestEpg>(indexResponse.Id, i => i.Index(indexName)).Source;
-        }
-
-        [Test]
-        public void TestSetupEPGV2Index()
-        {
-            var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
-            var epgId = 1 + new Random().Next(1000);
-            var epgCb = new EpgCB();
-            epgCb.Name = "la movie";
-            epgCb.Language = "en";
-            epgCb.Description = "this is the movie description";
-            epgCb.EpgID = (ulong)epgId;
             var crudOperations = new CRUDOperations<EpgProgramBulkUploadObject>();
             var dateOfProgramsToIngest = DateTime.Now.AddDays(-1);
-
-            var epgCbObjects = new List<EpgCB>();
-            epgCbObjects.Add(epgCb);
-
 
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
             var language = IndexManagerMockDataCreator.GetRandomLanguage();
@@ -128,54 +121,43 @@ namespace ApiLogic.Tests.IndexManager
 
             _mockElasticSearchCommonUtils.Setup(x => x.GetTcmValue(
                 It.Is<string>(a => a.ToLower().Contains("filter"))
-            ))
-            .Returns("\"eng_ngram_filter\":{\"type\":\"nGram\",\"min_gram\":2,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}, \"eng_edgengram_filter\":{\"type\":\"edgeNGram\",\"min_gram\":1,\"max_gram\":20,\"token_chars\":[\"letter\",\"digit\",\"punctuation\",\"symbol\"]}");
+            )).Returns(GetFilterFromMockTcm());
+
             _mockElasticSearchCommonUtils.Setup(x => x.GetTcmValue(
                 It.Is<string>(a => a.ToLower().Contains("analyzer"))
-            ))
-            .Returns("\"eng_index_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\": [\"asciifolding\",\"lowercase\",\"eng_ngram_filter\"],\"char_filter\":[\"html_strip\"]}, \"eng_search_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"keyword\",\"filter\": [\"asciifolding\",\"lowercase\"],\"char_filter\":[\"html_strip\"]},\"eng_autocomplete_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"filter\": [\"asciifolding\",\"lowercase\",\"eng_edgengram_filter\"],\"char_filter\":[\"html_strip\"]}, \"eng_autocomplete_search_analyzer\":{\"type\": \"custom\",\"tokenizer\": \"whitespace\",\"filter\": [\"asciifolding\",\"lowercase\"],\"char_filter\": [\"html_strip\"]}");
+            )).Returns(GetAnalyzerFromMockTcm());
 
             var index = indexManager.SetupEpgV2Index(DateTime.Today, policy);
             Assert.IsNotEmpty(index);
 
             var refreshInterval = new Time(TimeSpan.FromSeconds(1));
-            setIndexRefreshTime(index, refreshInterval, elasticClient);
-            var languageObjs = new List<ApiObjects.LanguageObj>() { language }.ToDictionary(x => x.Code);
+            SetIndexRefreshTime(index, refreshInterval, elasticClient);
+            var languageObjs = new List<LanguageObj>() {language}.ToDictionary(x => x.Code);
 
             //test upsert
-            var epgItem = new EpgProgramBulkUploadObject()
-            {
-                GroupId = partnerId,
-                StartDate = dateOfProgramsToIngest,
-                EpgId = (ulong)epgId,
-                EpgCbObjects = epgCbObjects,
-                EpgExternalId = $"1{epgId}"
-            };
 
-            crudOperations.ItemsToAdd.Add(epgItem);
+            //Create 2 EPG bulk objects
+            var epgCb = IndexManagerMockDataCreator.GeRandomEpgCb();
+            var epgCbObjects = new List<EpgCB>();
+            epgCbObjects.Add(epgCb);
+            var epgBulk1 = GetEpgProgramBulkUploadObject(partnerId, dateOfProgramsToIngest, epgCb, epgCbObjects);
+
+            var epgCb2 = IndexManagerMockDataCreator.GeRandomEpgCb("la movie2","this is the movie description2");
             var epgCbObjects2 = new List<EpgCB>();
-            var epgCb2 = new EpgCB();
-            epgCb2.Name = "la movie2";
-            epgCb2.Language = "en";
-            epgCb2.Description = "this is the movie description2";
-            epgCb2.EpgID = (ulong)epgId + 2;
             epgCbObjects.Add(epgCb2);
+            var epgBulk2 = GetEpgProgramBulkUploadObject(partnerId, dateOfProgramsToIngest, epgCb2, epgCbObjects2);
 
-            var epgItem2 = new EpgProgramBulkUploadObject()
-            {
-                GroupId = partnerId,
-                StartDate = dateOfProgramsToIngest,
-                EpgId = (ulong)epgId,
-                EpgCbObjects = epgCbObjects2,
-                EpgExternalId = $"1{epgId}1"
-            };
-
-            crudOperations.ItemsToAdd.Add(epgItem2);
+            crudOperations.ItemsToAdd.Add(epgBulk1);
+            crudOperations.ItemsToAdd.Add(epgBulk2);
+            
             var programsToIndex = crudOperations.ItemsToAdd
                 .Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.AffectedItems)
                 .ToList();
 
+            //call upsert
             indexManager.UpsertProgramsToDraftIndex(programsToIndex, index, dateOfProgramsToIngest, language, languageObjs);
+            
+            indexManager.DeleteProgramsFromIndex(programsToIndex,index,languageObjs);
 
             var res = indexManager.FinalizeEpgV2Index(DateTime.Now);
             Assert.IsTrue(res);
@@ -184,12 +166,18 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsTrue(res);
         }
 
-        private static void setIndexRefreshTime(string index, Time refreshInterval, IElasticClient elasticClient)
+        private static EpgProgramBulkUploadObject GetEpgProgramBulkUploadObject(int partnerId, DateTime dateOfProgramsToIngest,
+            EpgCB epgCb, List<EpgCB> epgCbObjects)
         {
-            var updateDisableIndexRefresh = new UpdateIndexSettingsRequest(index);
-            updateDisableIndexRefresh.IndexSettings = new DynamicIndexSettings();
-            updateDisableIndexRefresh.IndexSettings.RefreshInterval = refreshInterval;
-            var updateSettingsResult = elasticClient.Indices.UpdateSettings(updateDisableIndexRefresh);
+            var epgItem = new EpgProgramBulkUploadObject()
+            {
+                GroupId = partnerId,
+                StartDate = dateOfProgramsToIngest,
+                EpgId = epgCb.EpgID,
+                EpgCbObjects = epgCbObjects,
+                EpgExternalId = $"1{epgCb.EpgID}"
+            };
+            return epgItem;
         }
 
         [Test]

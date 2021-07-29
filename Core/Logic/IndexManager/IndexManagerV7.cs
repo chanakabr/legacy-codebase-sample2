@@ -33,6 +33,7 @@ using ElasticSearch.Utilities;
 using Newtonsoft.Json;
 using Polly;
 using ApiLogic.NestData;
+using Policy = Polly.Policy;
 
 namespace Core.Catalog
 {
@@ -262,7 +263,7 @@ namespace Core.Catalog
 
             policy.Execute(() =>
             {
-                var bulkRequests = new List<NestEsBulkRequest<string, NestEpg>>();
+                var bulkRequests = new List<NestEsBulkRequest<NestEpg>>();
                 try
                 {
                     var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
@@ -307,25 +308,21 @@ namespace Core.Catalog
                 : _groupCodePerLang[program.Language].ID;
         }
 
-        private NestEsBulkRequest<string, NestEpg> GetNestEpgBulkRequest(string draftIndexName, DateTime dateOfProgramsToIngest, EpgCB program,
+        private NestEsBulkRequest< NestEpg> GetNestEpgBulkRequest(string draftIndexName, DateTime dateOfProgramsToIngest, EpgCB program,
             NestEpg buildEpg)
         {
-            var totalMinutes = _ttlService.GetEpgTtlMinutes(program);
-            totalMinutes = totalMinutes < 0 ? 10 : totalMinutes;
-
-            var bulkRequest = new NestEsBulkRequest<string, NestEpg>()
+            var bulkRequest = new NestEsBulkRequest< NestEpg>()
             {
                 DocID = $"{program.EpgID.ToString()}_{program.Language}",
                 Document = buildEpg,
                 Index = draftIndexName,
                 Operation = eOperation.index,
-                Routing = dateOfProgramsToIngest.Date.ToString("yyyyMMdd"),
-                TTL = $"{totalMinutes}m"
+                Routing = dateOfProgramsToIngest.Date.ToString("yyyyMMdd")
             };
             return bulkRequest;
         }
 
-        private void ExecuteAndValidateBulkRequests<K>(List<NestEsBulkRequest<string, K>> bulkRequests)
+        private void ExecuteAndValidateBulkRequests<K>(List<NestEsBulkRequest<K>> bulkRequests)
             where K : class
         {
             var bulkResponse = ExecuteBulkRequest(bulkRequests);
@@ -345,7 +342,7 @@ namespace Core.Catalog
             throw new Exception($"Failed to upsert [{bulkResponse.ItemsWithErrors.Count()}] documents");
         }
 
-        private BulkResponse ExecuteBulkRequest<K>(List<NestEsBulkRequest<string, K>> bulkRequests) where K : class
+        private BulkResponse ExecuteBulkRequest<K>(List<NestEsBulkRequest<K>> bulkRequests) where K : class
         {
             var docToBulkReq = bulkRequests.ToDictionary(x => x.Document, x => x);
             var docs = bulkRequests.Select(x => x.Document).ToList();
@@ -367,9 +364,46 @@ namespace Core.Catalog
         }
 
 
-        public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName, IDictionary<string, LanguageObj> languages)
+        public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, 
+            string epgIndexName, 
+            IDictionary<string, LanguageObj> languages)
         {
-            throw new NotImplementedException();
+            if (!programsToDelete.Any())
+                return;
+
+            var programIds = programsToDelete.Select(program => program.EpgId).ToList();
+            var channelIds = programsToDelete.Select(x => x.ChannelId).Distinct().ToList();
+            var externalIds = programsToDelete.Select(program => program.EpgExternalId).Distinct().ToList();
+
+            log.Debug($"Update elasticsearch index completed, deleting required documents. documents length:[{programsToDelete.Count}]");
+            var retryCount = 5;
+            var policy = Policy.Handle<Exception>()
+                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
+                {
+                    log.Warn($"delete attempt [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
+                });
+
+            policy.Execute(() =>
+            {
+                //get the the query new version
+                var response = _elasticClient.DeleteByQuery<object>(dbq => dbq
+                    .Index(epgIndexName)
+                    .Query(q => q
+                    .Bool(b => b
+                        .Should( //equivalent to OR
+                            should => should.Terms(t => t.Field("epg_id").Terms<ulong>(programIds)),
+                            should => should.Bool(bs => bs
+                                .Must( //equivalent to AND
+                                    mu => mu.Terms(t => t.Field("epg_identifier").Terms<string>(externalIds)),
+                                    mu => mu.Terms(t => t.Field("epg_channel_id").Terms<int>(channelIds))
+                                )
+                            )
+                        )
+                    )
+                ));
+                
+                log.Debug("");
+            });
         }
 
         public IList<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(int channelId, DateTime fromDate, DateTime toDate)

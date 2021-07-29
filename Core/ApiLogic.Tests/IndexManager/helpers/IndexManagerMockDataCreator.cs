@@ -142,5 +142,17 @@ namespace ApiLogic.Tests.IndexManager.helpers
                 updateDate = 1000
             };
         }
+        
+        public static EpgCB GeRandomEpgCb(string name = "", string description="")
+        {
+            var epgCb = new EpgCB();
+            var epgId = 1 + new Random().Next(1000);
+            epgCb.Name = name == string.Empty ? "la movie" : name;
+            epgCb.Description = description == "" ? "this is the movie description" : description;
+            epgCb.EpgID = (ulong) epgId;
+            epgCb.Language = "en";
+            epgCb.CreateDate=DateTime.Now;
+            return epgCb;
+        }
     }
 }
