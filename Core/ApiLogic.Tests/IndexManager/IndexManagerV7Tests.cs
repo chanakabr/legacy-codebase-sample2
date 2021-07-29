@@ -258,6 +258,8 @@ namespace ApiLogic.Tests.IndexManager
 
             var indexName = indexManager.SetupTagsIndex();
             Assert.IsNotEmpty(indexName);
+            var randomTag = IndexManagerMockDataCreator.GetRandomTag(language.ID);
+            indexManager.AddTagsToIndex(indexName, new List<TagValue>() { randomTag });
         }
     }
 }
