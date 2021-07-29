@@ -76,7 +76,7 @@ namespace Core.Catalog
         private readonly IWatchRuleManager _watchRuleManager;
 
         private readonly int _partnerId;
-        private bool _doesGroupUsesTemplates;
+        private bool _groupUsesTemplates;
         private readonly IGroupManager _groupManager;
         private readonly int _sizeOfBulk;
         private readonly int _sizeOfBulkDefaultValue;
@@ -85,6 +85,8 @@ namespace Core.Catalog
         private HashSet<string> _metasToPad;
         private Group _group;
         private CatalogGroupCache _catalogGroupCache;
+        private Dictionary<string,LanguageObj> _groupCodePerLang;
+        private Dictionary<string,LanguageObj> _catalogGroupCacheCodePerLang;
 
         public IndexManagerV7(int partnerId,
             IElasticClient elasticClient,
@@ -121,20 +123,25 @@ namespace Core.Catalog
 
         private void InitializePartnerData(int partnerId)
         {
+            _groupCodePerLang = new Dictionary<string, LanguageObj>();
+            _catalogGroupCacheCodePerLang = new Dictionary<string, LanguageObj>();
+            
             if (partnerId <= 0)
             {
                 return;
             }
 
-            _doesGroupUsesTemplates = _catalogManager.DoesGroupUsesTemplates(partnerId);
+            _groupUsesTemplates = _catalogManager.DoesGroupUsesTemplates(partnerId);
 
-            if (_doesGroupUsesTemplates)
+            if (_groupUsesTemplates)
             {
                 _catalogManager.TryGetCatalogGroupCacheFromCache(partnerId, out _catalogGroupCache);
+                _catalogGroupCacheCodePerLang = _catalogGroupCache.LanguageMapByCode;
             }
             else
             {
                 _group = _groupManager.GetGroup(partnerId);
+                 _groupCodePerLang = _group.GetLangauges().ToDictionary(x=>x.Code,x=>x);
             }
 
             if (_catalogGroupCache == null && _group == null)
@@ -261,10 +268,10 @@ namespace Core.Catalog
                     foreach (var program in programTranslationsToIndex)
                     {
                         program.PadMetas(_metasToPad);
-                        var suffix = program.Language == defaultLanguage.Code ? "" : program.Language;
+                        var langId=GetLanguageIdByCode(program);
                         
                         // Serialize EPG object to string
-                        var buildEpg = NestDataCreator.GetEpg(program, suffix, isOpc: _doesGroupUsesTemplates);
+                        var buildEpg = NestDataCreator.GetEpg(program,langId, isOpc: _groupUsesTemplates);
                         var bulkRequest = GetNestEpgBulkRequest(draftIndexName, dateOfProgramsToIngest, program, buildEpg);
                         bulkRequests.Add(bulkRequest);
 
@@ -276,7 +283,7 @@ namespace Core.Catalog
                     }
 
                     // If we have anything left that is less than the size of the bulk
-                    if (bulkRequests.Count > 0)
+                    if (bulkRequests.Any())
                     {
                         ExecuteAndValidateBulkRequests(bulkRequests);
                     }
@@ -290,6 +297,13 @@ namespace Core.Catalog
                     }
                 }
             });
+        }
+
+        private int GetLanguageIdByCode(EpgCB program)
+        {
+            return _groupUsesTemplates
+                ? _catalogGroupCacheCodePerLang[program.Language].ID
+                : _groupCodePerLang[program.Language].ID;
         }
 
         private NestEsBulkRequest<string, NestEpg> GetNestEpgBulkRequest(string draftIndexName, DateTime dateOfProgramsToIngest, EpgCB program,
@@ -482,29 +496,28 @@ namespace Core.Catalog
 
         public bool InsertSocialStatisticsData(SocialActionStatistics action)
         {
-            var result = false;
-            var guid = Guid.NewGuid();
             var statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
 
             try
             {
-                var response = _elasticClient.Index(action, i => i.Index(statisticsIndex));
-                result = response != null && response.IsValid && response.Result == Result.Created;
+                var nestSocialActionStatistics = NestDataCreator.GetSocialActionStatistics(action);
+                var response = _elasticClient.Index(nestSocialActionStatistics, i => i.Index(statisticsIndex));
+                var result = response != null && response.IsValid && response.Result == Result.Created;
                 
-                if (!result)
-                {
-                    var actionStatsJson = Newtonsoft.Json.JsonConvert.SerializeObject(action);
-                    log.Debug("InsertStatisticsToES " + string.Format("Was unable to insert record to ES. index={0};doc={1}",
-                        statisticsIndex, actionStatsJson));
-                }
+                if (result)
+                    return true;
+                
+                var actionStatsJson = JsonConvert.SerializeObject(action);
+                log.Debug("InsertStatisticsToES " + string.Format("Was unable to insert record to ES. index={0};doc={1}",
+                    statisticsIndex, actionStatsJson));
+                
             }
             catch (Exception ex)
             {
                 log.Error($"InsertStatisticsToES - Failed ex={ex.Message}, group={_partnerId}", ex);
-                result = false;
             }
 
-            return result;
+            return false;
         }
 
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)
@@ -737,12 +750,12 @@ namespace Core.Catalog
 
         private List<LanguageObj> GetLanguages()
         {
-            return _doesGroupUsesTemplates ? _catalogGroupCache.LanguageMapById.Values.ToList() : _group.GetLangauges();
+            return _groupUsesTemplates ? _catalogGroupCache.LanguageMapById.Values.ToList() : _group.GetLangauges();
         }
 
         private LanguageObj GetDefaultLanguage()
         {
-            return _doesGroupUsesTemplates ? _catalogGroupCache.GetDefaultLanguage() : _group.GetGroupDefaultLanguage();
+            return _groupUsesTemplates ? _catalogGroupCache.GetDefaultLanguage() : _group.GetGroupDefaultLanguage();
         }
 
         private void EnsureEpgIndexExist(string dailyEpgIndexName, RetryPolicy retryPolicy)
@@ -1294,7 +1307,7 @@ namespace Core.Catalog
             // Padded with zero prefix metas to sort numbers by text without issues in elastic (Brilliant!)
             metasToPad = new HashSet<string>();
 
-            if (_doesGroupUsesTemplates && _catalogGroupCache != null)
+            if (_groupUsesTemplates && _catalogGroupCache != null)
             {
                 try
                 {
