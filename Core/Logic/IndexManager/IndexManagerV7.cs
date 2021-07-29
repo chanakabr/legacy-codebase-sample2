@@ -264,7 +264,7 @@ namespace Core.Catalog
                         var suffix = program.Language == defaultLanguage.Code ? "" : program.Language;
                         
                         // Serialize EPG object to string
-                        var buildEpg = new ElasticSearchNestDataBuilder().BuildEpg(program, suffix, isOpc: _doesGroupUsesTemplates);
+                        var buildEpg = NestDataCreator.GetEpg(program, suffix, isOpc: _doesGroupUsesTemplates);
                         var bulkRequest = GetNestEpgBulkRequest(draftIndexName, dateOfProgramsToIngest, program, buildEpg);
                         bulkRequests.Add(bulkRequest);
 
@@ -300,7 +300,7 @@ namespace Core.Catalog
 
             var bulkRequest = new NestEsBulkRequest<string, NestEpg>()
             {
-                DocID = program.EpgID.ToString(),
+                DocID = $"{program.EpgID.ToString()}_{program.Language}",
                 Document = buildEpg,
                 Index = draftIndexName,
                 Operation = eOperation.index,

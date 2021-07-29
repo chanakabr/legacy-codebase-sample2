@@ -98,7 +98,7 @@ namespace ApiLogic.Tests.IndexManager
             epgCb.Name = "la movie";
             epgCb.Language = "rus";
             epgCb.Description = "this is the movie description";
-            var buildEpg = new ElasticSearchNestDataBuilder().BuildEpg(epgCb, epgCb.Language, isOpc: true);            
+            var buildEpg = NestDataCreator.GetEpg(epgCb, epgCb.Language, isOpc: true);            
             var indexResponse = elasticClient.Index(buildEpg, x => x.Index(indexName));
             var getResponse = elasticClient.Get<NestEpg>(indexResponse.Id,i=>i.Index(indexName)).Source;
         }
@@ -137,18 +137,12 @@ namespace ApiLogic.Tests.IndexManager
 
             var index = indexManager.SetupEpgV2Index(DateTime.Today, policy);
             Assert.IsNotEmpty(index);
-            
-            var updateDisableIndexRefresh = new UpdateIndexSettingsRequest(index);
-            updateDisableIndexRefresh.IndexSettings = new DynamicIndexSettings();
-            updateDisableIndexRefresh.IndexSettings.RefreshInterval = new Time(TimeSpan.FromSeconds(1));
-            var updateSettingsResult = elasticClient.Indices.UpdateSettings(updateDisableIndexRefresh);
 
+            var refreshInterval = new Time(TimeSpan.FromSeconds(1));
+            setIndexRefreshTime(index, refreshInterval, elasticClient);
             var languageObjs = new List<ApiObjects.LanguageObj>() { language }.ToDictionary(x => x.Code);
             
-
-            
             //test upsert
-
             var epgItem = new EpgProgramBulkUploadObject()
             {
                 GroupId = partnerId,
@@ -175,6 +169,7 @@ namespace ApiLogic.Tests.IndexManager
                 EpgCbObjects = epgCbObjects2,
                 EpgExternalId = $"1{epgId}1"
             };
+            
             crudOperations.ItemsToAdd.Add(epgItem2);
             var programsToIndex = crudOperations.ItemsToAdd
                 .Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.AffectedItems)
@@ -187,6 +182,14 @@ namespace ApiLogic.Tests.IndexManager
 
             res = indexManager.FinalizeEpgV2Indices(new List<DateTime>() {DateTime.Today, DateTime.Now.AddDays(-1)}, policy);
             Assert.IsTrue(res);                                    
+        }
+
+        private static void setIndexRefreshTime(string index, Time refreshInterval, IElasticClient elasticClient)
+        {
+            var updateDisableIndexRefresh = new UpdateIndexSettingsRequest(index);
+            updateDisableIndexRefresh.IndexSettings = new DynamicIndexSettings();
+            updateDisableIndexRefresh.IndexSettings.RefreshInterval = refreshInterval;
+            var updateSettingsResult = elasticClient.Indices.UpdateSettings(updateDisableIndexRefresh);
         }
 
         [Test]

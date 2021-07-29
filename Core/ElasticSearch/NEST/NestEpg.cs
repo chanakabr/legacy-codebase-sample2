@@ -166,18 +166,16 @@ namespace ApiObjects.Nest
 
         #region Ctor
         
-        public NestEpg(EpgCB epgCb, bool groupUsesTemplates = false, bool withRouting = true,
-            string esDateOOnlyFormat = "", string suffix="")
+        public NestEpg(EpgCB epgCb, bool isOpc = false, bool withRouting = true,string esDateOnlyFormat = "")
         {
-            Initialize(epgCb, groupUsesTemplates, withRouting,esDateOOnlyFormat);
+            Initialize(epgCb, isOpc, withRouting,esDateOnlyFormat);
         }
         #endregion
 
         #region Initialize
 
-        private void Initialize(EpgCB epgCb, bool groupUsesTemplates, bool withRouting, string esDateonlyFormat)
+        private void Initialize(EpgCB epgCb, bool isOpc, bool withRouting, string esDateOnlyFormat)
         {
-            
             EpgID = epgCb.EpgID;
             EpgIdentifier = epgCb.EpgIdentifier;
             IsActive = epgCb.IsActive;
@@ -186,7 +184,7 @@ namespace ApiObjects.Nest
             UpdateDate = epgCb.UpdateDate;
             PicUrl = epgCb.PicUrl;
             PicID = epgCb.PicID;
-            GroupID = groupUsesTemplates ? epgCb.ParentGroupID : epgCb.GroupID;
+            GroupID = isOpc ? epgCb.ParentGroupID : epgCb.GroupID;
             ParentGroupID = epgCb.ParentGroupID;
             ChannelID = epgCb.ChannelID;
 
@@ -226,7 +224,7 @@ namespace ApiObjects.Nest
             
             if (withRouting)
             {
-                DateRouting = epgCb.StartDate.ToUniversalTime().ToString(esDateonlyFormat);
+                DateRouting = epgCb.StartDate.ToUniversalTime().ToString(esDateOnlyFormat);
             }
         }
 
