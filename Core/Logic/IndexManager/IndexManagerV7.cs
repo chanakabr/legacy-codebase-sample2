@@ -467,14 +467,11 @@ namespace Core.Catalog
         {
             var statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
             var createIndexResponse = _elasticClient.Indices.Create(statisticsIndex,
-                c => c.Settings(settings => 
-                    settings.
-                    NumberOfShards(_numOfShards).
-                    NumberOfReplicas(_numOfReplicas)
-
-                    //.Analysis(analysis => analysis.Analyzers(b => b.Custom("harta", new CustomAnalyzer())
-
-                    ));
+                c => c.Settings(settings => settings
+                    .NumberOfShards(_numOfShards)
+                    .NumberOfReplicas(_numOfReplicas)
+                    )
+                );
             bool result = createIndexResponse != null && createIndexResponse.Acknowledged && createIndexResponse.IsValid;
             
             return result;
@@ -657,12 +654,47 @@ namespace Core.Catalog
 
         public string SetupTagsIndex()
         {
-            string indexName = IndexingUtils.GetNewMetadataIndexName(_partnerId);
+            string newIndexName = IndexingUtils.GetNewMetadataIndexName(_partnerId);
 
-            var languages = _catalogGroupCache.LanguageMapById.Values.ToList();
-            GetAnalyzersWithLowercase(languages, out var analyzers, out var filters, out var tokenizers);
+            var languages = _catalogGroupCache.LanguageMapById.Values;
+            GetAnalyzersWithLowercase(languages.ToList(), out var analyzers, out var filters, out var tokenizers);
+            // Basic TCM configurations for indexing - number of shards/replicas, size of bulks 
+            int numOfShards = _numOfShards;
+            int numOfReplicas = _numOfReplicas;
+            int maxResults = _maxResults;
 
-            return indexName;
+            // Default size of max results should be 100,000
+            if (maxResults == 0)
+            {
+                maxResults = 100000;
+            }
+            AnalyzersDescriptor analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
+            TokenFiltersDescriptor filtersDesctiptor = GetTokenFiltersDescriptor(filters);
+            TokenizersDescriptor tokenizersDescriptor = GetTokenizersDesctiptor(tokenizers);
+            var propertiesDescriptor = GetTagsPropertiesDescriptor(languages.ToList(), analyzers);
+
+            var createResponse = _elasticClient.Indices.Create(newIndexName,
+                c => c.Settings(settings => settings
+                    .NumberOfShards(_numOfShards)
+                    .NumberOfReplicas(_numOfReplicas)
+                    .Setting("index.max_result_window", _maxResults)
+                    .Setting("index.max_ngram_diff", 20)
+                    .Analysis(a => a
+                        .Analyzers(an => analyzersDescriptor)
+                        .TokenFilters(tf => filtersDesctiptor)
+                        .Tokenizers(t => tokenizersDescriptor)
+                    ))
+                .Map<TagValue>(map => map.AutoMap<TagValue>()
+                ));
+
+            bool isIndexCreated = createResponse != null && createResponse.Acknowledged && createResponse.IsValid;
+
+            if (!isIndexCreated)
+            {
+                log.Error($"Failed creating tags index for partner {_partnerId}, response = {createResponse}");
+                return string.Empty;
+            }
+            return newIndexName;
         }
 
         public void AddTagsToIndex(string newIndexName, List<TagValue> allTagValues)
@@ -1560,6 +1592,12 @@ namespace Core.Catalog
             AddLanguageSpecificMappingToPropertyDescriptor(languages, metas, tags, metasToPad, analyzers, propertiesDescriptor, 
                 defaultIndexAnalyzer, defaultSearchAnalyzer, defaultAutocompleteAnalyzer, defaultAutocompleteSearchAnalyzer);
 
+            return propertiesDescriptor;
+        }
+
+        private PropertiesDescriptor<TagValue> GetTagsPropertiesDescriptor(List<LanguageObj> languages, Dictionary<string, Analyzer> analyzers)
+        {
+            PropertiesDescriptor<TagValue> propertiesDescriptor = new PropertiesDescriptor<TagValue>();
             return propertiesDescriptor;
         }
 

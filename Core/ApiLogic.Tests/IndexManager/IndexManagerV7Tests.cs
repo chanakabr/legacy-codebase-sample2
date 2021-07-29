@@ -257,5 +257,17 @@ namespace ApiLogic.Tests.IndexManager
 
             var deleteSocialAction = indexManager.DeleteSocialAction(socialSearch);
         }
+
+        [Test]
+        public void TestTags()
+        {
+            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
+            var indexManager = GetIndexV7Manager(partnerId);
+
+            var indexName = indexManager.SetupTagsIndex();
+            Assert.IsNotEmpty(indexName);
+        }
     }
 }
