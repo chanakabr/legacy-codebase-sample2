@@ -580,10 +580,10 @@ namespace Core.Catalog
             var defaultLanguage = GetDefaultLanguage();
 
             // get definitions of analyzers, filters and tokenizers
-            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var filters);
+            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var filters, out var tokenizers);
             AnalyzersDescriptor analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
             TokenFiltersDescriptor filtersDesctiptor = GetTokenFiltersDescriptor(filters);
-
+            TokenizersDescriptor tokenizersDescriptor = GetTokenizersDesctiptor(tokenizers);
             _groupManager.RemoveGroup(_partnerId); // remove from cache
             _group = _groupManager.GetGroup(_partnerId);
 
@@ -608,6 +608,7 @@ namespace Core.Catalog
                     .Analysis(a => a
                         .Analyzers(an => analyzersDescriptor)
                         .TokenFilters(tf => filtersDesctiptor)
+                        .Tokenizers(t => tokenizersDescriptor)
                     ))
                 .Map(map => map.Properties(props => propertiesDescriptor)
                 ));
@@ -656,7 +657,12 @@ namespace Core.Catalog
 
         public string SetupTagsIndex()
         {
-            throw new NotImplementedException();
+            string indexName = IndexingUtils.GetNewMetadataIndexName(_partnerId);
+
+            var languages = _catalogGroupCache.LanguageMapById.Values.ToList();
+            GetAnalyzersWithLowercase(languages, out var analyzers, out var filters, out var tokenizers);
+
+            return indexName;
         }
 
         public void AddTagsToIndex(string newIndexName, List<TagValue> allTagValues)
@@ -805,12 +811,13 @@ namespace Core.Catalog
             bool shouldUseNumOfConfiguredShards = true, int refreshIntervalSeconds = 0)
         {
             List<LanguageObj> languages = GetLanguages();
-            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var filters);
+            GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var filters, out var tokenizers);
             int replicas = shouldBuildWithReplicas ? _numOfReplicas : 0;
             int shards = shouldUseNumOfConfiguredShards ? _numOfShards : 1;
             var isIndexCreated = false;
             AnalyzersDescriptor analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
             TokenFiltersDescriptor filtersDesctiptor = GetTokenFiltersDescriptor(filters);
+            TokenizersDescriptor tokenizersDescriptor = GetTokenizersDesctiptor(tokenizers);
 
             _groupManager.RemoveGroup(_partnerId); // remove from cache
             _group = _groupManager.GetGroup(_partnerId);
@@ -837,6 +844,7 @@ namespace Core.Catalog
                     .Analysis(a => a
                         .Analyzers(an => analyzersDescriptor)
                         .TokenFilters(tf => filtersDesctiptor)
+                        .Tokenizers(t => tokenizersDescriptor)
                     ))
                 .Map(map => map.RoutingField(rf => new RoutingField() { Required = false }).Properties(props => propertiesDescriptor)
                 ));
@@ -1075,16 +1083,63 @@ namespace Core.Catalog
             return analyzersDescriptor;
         }
 
+        private TokenizersDescriptor GetTokenizersDesctiptor(Dictionary<string, Tokenizer> tokenizers)
+        {
+            TokenizersDescriptor tokenizersDescriptor = new TokenizersDescriptor();
+
+            foreach (var t in tokenizers)
+            {
+                switch (t.Value.type)
+                {
+                    case "kuromoji_tokenizer":
+                        {
+                            var casted = t.Value as ElasticSearch.Searcher.Settings.KuromojiTokenizer;
+                            KuromojiTokenizationMode mode = KuromojiTokenizationMode.Normal;
+
+                            if (casted.mode == KuromojiTokenizationMode.Extended.GetStringValue().ToLower())
+                            {
+                                mode = KuromojiTokenizationMode.Extended;
+                            }
+                            else if (casted.mode == KuromojiTokenizationMode.Search.GetStringValue().ToLower())
+                            {
+                                mode = KuromojiTokenizationMode.Search;
+                            }
+
+                            tokenizersDescriptor =
+                                tokenizersDescriptor.Kuromoji(t.Key,
+                                    kt =>
+                                    {
+                                        kt = kt.Mode(mode).DiscardPunctuation(casted.discard_punctuation);
+                                        if (casted.user_dictionary?.Count > 0)
+                                        {
+                                            kt = kt.UserDictionary(string.Join(",", casted.user_dictionary));
+                                        }
+
+                                        return kt;
+                                    }
+                                );
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
+
+            return tokenizersDescriptor;
+        }
+
         private void GetAnalyzersWithLowercaseAndPhraseStartsWith(IEnumerable<LanguageObj> languages, 
             out Dictionary<string, Analyzer> analyzers, 
-            out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
+            out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters,
+            out Dictionary<string, Tokenizer> tokeniezrs)
         {
             analyzers = new Dictionary<string, Analyzer>();
             filters = new Dictionary<string, ElasticSearch.Searcher.Settings.Filter>();
+            tokeniezrs = new Dictionary<string, Tokenizer>();
 
             if (languages != null)
             {
-                GetAnalyzersWithLowercase(languages, out analyzers, out filters);
+                GetAnalyzersWithLowercase(languages, out analyzers, out filters, out tokeniezrs);
 
                 var defaultCharFilter = new List<string>() { "html_strip" };
 
@@ -1156,9 +1211,10 @@ namespace Core.Catalog
 
         private void GetAnalyzersWithLowercase(IEnumerable<LanguageObj> languages, 
             out Dictionary<string, Analyzer> analyzers, 
-            out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
+            out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters,
+            out Dictionary<string, Tokenizer> tokenizers)
         {
-            GetAnalyzersAndFiltersFromConfiguration(languages, out analyzers, out filters);
+            GetAnalyzersAndFiltersFromConfiguration(languages, out analyzers, out filters, out tokenizers);
 
             // we always want a lowercase analyzer
             // we always want "autocomplete" ability
@@ -1181,16 +1237,19 @@ namespace Core.Catalog
 
         private void GetAnalyzersAndFiltersFromConfiguration(IEnumerable<LanguageObj> languages, 
             out Dictionary<string, Analyzer> analyzers, 
-            out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters)
+            out Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters,
+            out Dictionary<string, Tokenizer> tokenizers)
         {
             analyzers = new Dictionary<string, Analyzer>();
             filters = new Dictionary<string, ElasticSearch.Searcher.Settings.Filter>();
+            tokenizers = new Dictionary<string, Tokenizer>();
             SetDefaultAnalyzersAndFilters(analyzers, filters);
 
             foreach (LanguageObj language in languages)
             {
                 var currentAnalyzers = _esIndexDefinitions.GetAnalyzers(ElasticsearchVersion.ES_7_13, language.Code);
                 var currentFilters = _esIndexDefinitions.GetFilters(ElasticsearchVersion.ES_7_13, language.Code);
+                var currentTokenizers = _esIndexDefinitions.GetTokenizers(ElasticsearchVersion.ES_7_13, language.Code);
 
                 if (currentAnalyzers == null)
                 {
@@ -1209,6 +1268,14 @@ namespace Core.Catalog
                     foreach (var filter in currentFilters)
                     {
                         filters[filter.Key] = filter.Value;
+                    }
+                }
+
+                if (currentTokenizers != null)
+                {
+                    foreach (var tokenizer in currentTokenizers)
+                    {
+                        tokenizers[tokenizer.Key] = tokenizer.Value;
                     }
                 }
             }

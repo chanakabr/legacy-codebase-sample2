@@ -21,7 +21,7 @@ namespace ElasticSearch.Common
         bool TokenizerExists(string tokenizerName);
 
         Dictionary<string, Analyzer> GetAnalyzers(ElasticsearchVersion version, string languageCode);
-        //List<Tokenizer> GetTokenizers(ElasticsearchVersion version, string languageCode);
+        Dictionary<string, Tokenizer> GetTokenizers(ElasticsearchVersion version, string languageCode);
         Dictionary<string, Filter> GetFilters(ElasticsearchVersion version, string languageCode);
 
     }
@@ -117,6 +117,12 @@ namespace ElasticSearch.Common
             {
                 string tcmKey = Utils.GetLangCodeAnalyzerKey(languageCode, versionString);
                 string analyzerString = GetAnalyzerDefinition(tcmKey);
+
+                if (string.IsNullOrEmpty(analyzerString))
+                {
+                    return result;
+                }
+
                 string jsonAnalyzerString = $"{{{analyzerString}}}";
                 result = JsonConvert.DeserializeObject<Dictionary<string, Analyzer>>(jsonAnalyzerString);
             }
@@ -151,6 +157,12 @@ namespace ElasticSearch.Common
             {
                 string tcmKey = Utils.GetLangCodeFilterKey(languageCode, versionString);
                 string filterString = GetFilterDefinition(tcmKey);
+
+                if (string.IsNullOrEmpty(filterString))
+                {
+                    return result;
+                }
+
                 string jsonFilterString = $"{{{filterString}}}";
                 JObject jObject = JObject.Parse(jsonFilterString);
 
@@ -167,6 +179,58 @@ namespace ElasticSearch.Common
                             result.Add(jsonFilter.Key, parsedFilter);
                             break;
                         }
+                        default:
+                            break;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public Dictionary<string, Tokenizer> GetTokenizers(ElasticsearchVersion version, string languageCode)
+        {
+            var result = new Dictionary<string, Tokenizer>();
+            string versionString = string.Empty;
+            switch (version)
+            {
+                case ElasticsearchVersion.ES_7_13:
+                    versionString = "7";
+                    break;
+                default:
+                    versionString = "7";
+                    break;
+            }
+
+            if (_configuration.ElasticSearchConfiguration.ShouldUseClassAnalyzerDefinitions.Value)
+            {
+                // TODO: future implementation
+            }
+            else
+            {
+                string tcmKey = Utils.GetLangCodeFilterKey(languageCode, versionString);
+                string tokenizerString = GetTokenizerDefinition(tcmKey);
+
+                if (string.IsNullOrEmpty(tokenizerString))
+                {
+                    return result;
+                }
+
+                string jsonTokenizerString = $"{{{tokenizerString}}}";
+                JObject jObject = JObject.Parse(jsonTokenizerString);
+
+                foreach (var jsonTokenizer in jObject)
+                {
+                    string type = jsonTokenizer.Value.Value<string>("type");
+
+                    switch (type.ToLower())
+                    {
+                        case "kuromoji_tokenizer":
+                            {
+                                var parsedObject = jsonTokenizer.Value.ToObject<KuromojiTokenizer>();
+                                result.Add(jsonTokenizer.Key, parsedObject);
+                                break;
+                            }
                         default:
                             break;
                     }
