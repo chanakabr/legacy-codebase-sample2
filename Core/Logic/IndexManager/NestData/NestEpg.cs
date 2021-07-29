@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -7,9 +8,13 @@ using ApiObjects.Epg;
 using Nest;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using RestSharp;
+using ESUtils = ElasticSearch.Common.Utils;
 
 namespace ApiObjects.Nest
 {
+    [ElasticsearchType(RelationName = "epg")]
     public class NestEpg
     {
         #region DataMembers
@@ -47,7 +52,10 @@ namespace ApiObjects.Nest
         public DateTime UpdateDate { get; set; }
 
         
-        [Date(Format = "yyyyMMddHHmmss" ,Name = "start_date")]
+        [Text(Name="start_date")]
+        public string StartDateStr => StartDate.ToString(ESUtils.ES_DATE_FORMAT);
+
+        [Ignore]
         public DateTime StartDate { get; set; }
 
         /*[PropertyName("end_date")]*/
@@ -147,15 +155,13 @@ namespace ApiObjects.Nest
             GroupID = isOpc ? epgCb.ParentGroupID : epgCb.GroupID;
             ParentGroupID = epgCb.ParentGroupID;
             ChannelID = epgCb.ChannelID;
-
-            StartDate = epgCb.StartDate;
             EndDate = epgCb.EndDate;
             SearchEndDate = epgCb.SearchEndDate;
             CoGuid = epgCb.CoGuid;
             BasicData = epgCb.BasicData;
             Statistics = epgCb.Statistics;
             ExtraData = epgCb.ExtraData;
-
+            StartDate = epgCb.StartDate;
 
             var metasDict = new Dictionary<string, Dictionary<string, List<string>>>();
             metasDict.Add(epgCb.Language,new Dictionary<string, List<string>>(epgCb.Metas));

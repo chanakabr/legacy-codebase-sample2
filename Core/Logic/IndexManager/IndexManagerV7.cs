@@ -758,7 +758,7 @@ namespace Core.Catalog
                 sizeOfBulk = 50;
             }
 
-            var bulkRequests = new List<NestEsBulkRequest<string, Tag>>();
+            var bulkRequests = new List<NestEsBulkRequest<Tag>>();
             try
             {
 
@@ -775,7 +775,7 @@ namespace Core.Catalog
 
                     // Serialize EPG object to string
                     var tag = new Tag(tagValue, languageCode);
-                    var bulkRequest = new NestEsBulkRequest<string, Tag>()
+                    var bulkRequest = new NestEsBulkRequest<Tag>()
                     {
                         DocID = $"{tag.tagId}_{tag.languageId}",
                         Document = tag,
@@ -970,7 +970,7 @@ namespace Core.Catalog
                 throw new Exception($"failed to get metas and tags");
             }
 
-            PropertiesDescriptor<object> propertiesDescriptor = GetEpgPropertiesDesctiptor(languages, metas, tags, metasToPad, analyzers);
+            PropertiesDescriptor<object> propertiesDescriptor = GetEpgPropertiesDescriptor(languages, metas, tags, metasToPad, analyzers);
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                 c => c.Settings(settings => settings
                     .NumberOfShards(shards)
@@ -985,6 +985,7 @@ namespace Core.Catalog
                         .TokenFilters(tf => filtersDesctiptor)
                         .Tokenizers(t => tokenizersDescriptor)
                     ))
+                    .Map(x=>x.AutoMap())
                 .Map(map => map.RoutingField(rf => new RoutingField() { Required = false }).Properties(props => propertiesDescriptor)
                 ));
 
@@ -992,7 +993,7 @@ namespace Core.Catalog
             if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
         }
 
-        private PropertiesDescriptor<object> GetEpgPropertiesDesctiptor(List<LanguageObj> languages,
+        private PropertiesDescriptor<object> GetEpgPropertiesDescriptor(List<LanguageObj> languages,
             Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
             List<string> tags,
             HashSet<string> metasToPad,
@@ -1008,12 +1009,12 @@ namespace Core.Catalog
                 .Number(x => x.Name("wp_type_id").Type(NumberType.Integer).NullValue(0))
                 .Boolean(x => x.Name("is_active"))
                 .Number(x => x.Name("user_types").Type(NumberType.Integer))
-                .Date(x => x.Name("start_date").Format(ESUtils.ES_DATE_FORMAT))
-                .Date(x => x.Name("end_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Text(x => x.Name("date_routing"))
                 .Number(x => x.Name("media_type_id").Type(NumberType.Integer).NullValue(0))
                 .Number(x => x.Name("language_id").Type(NumberType.Long))
                 .Text(x => InitializeDefaultTextPropertyDescriptor("epg_identifier"))
+                .Date(x => x.Name("start_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Date(x => x.Name("end_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("cache_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("create_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Text(x => InitializeDefaultTextPropertyDescriptor("crid"))
@@ -1678,7 +1679,6 @@ namespace Core.Catalog
                 .Boolean(x => x.Name("is_active"))
                 .Number(x => x.Name("like_counter").Type(NumberType.Integer).NullValue(0))
                 .Number(x => x.Name("user_types").Type(NumberType.Integer))
-                .Date(x => x.Name("start_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("catalog_start_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("end_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("final_date").Format(ESUtils.ES_DATE_FORMAT))
@@ -1686,9 +1686,11 @@ namespace Core.Catalog
                 .Number(x => x.Name("allowed_countries").Type(NumberType.Integer))
                 .Number(x => x.Name("blocked_countries").Type(NumberType.Integer))
                 .Number(x => x.Name("inheritence_policy").Type(NumberType.Integer))
+                
+                /*.Date(x => x.Name("start_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("cache_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("create_date").Format(ESUtils.ES_DATE_FORMAT))
-                .Date(x => x.Name("update_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Date(x => x.Name("update_date").Format(ESUtils.ES_DATE_FORMAT))*/
                 .Percolator(x => x.Name("query"))
                 ;
 
