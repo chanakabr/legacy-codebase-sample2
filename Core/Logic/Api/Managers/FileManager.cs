@@ -60,9 +60,14 @@ namespace ApiLogic
             }
 
             var fileInfo = file.GetFileInfo();
-            var validationResponse = Validate(file.ShouldDeleteSourceFile, objectTypeName, fileInfo);
+            var validationResponse = GetFileObjectTypeName(objectTypeName); 
 
-            if (validationResponse.HasObject())
+            if (file is OTTFile)
+            {
+                Validate(file.ShouldDeleteSourceFile, fileInfo, ref validationResponse);
+            }
+            
+            if (validationResponse.HasObject() && validationResponse.IsOkStatusCode())
             {
                 saveFileResponse = _handler.GetSubDir(id, validationResponse.Object);
                 if (saveFileResponse.HasObject())
@@ -112,23 +117,18 @@ namespace ApiLogic
             return $"{id}{fileExtension}";
         }
 
-        private GenericResponse<string> Validate(bool shouldValidateContent, string objectTypeName, FileInfo fileInfo)
+        private void Validate(bool shouldValidateContent, FileInfo fileInfo, ref GenericResponse<string> validationStatus)
         {
-            var validationStatus = new GenericResponse<string>();
-            if (fileInfo != null && !fileInfo.Exists)
+            if ((fileInfo != null && !fileInfo.Exists))
             {
                 validationStatus.SetStatus(eResponseStatus.FileDoesNotExists, string.Format("file:{0} does not exists.", fileInfo.Name));
-                return validationStatus;
+                return;
             }
-
-            validationStatus = GetFileObjectTypeName(objectTypeName);
 
             if (shouldValidateContent && validationStatus.IsOkStatusCode())
             {
                 validationStatus.SetStatus(_handler.ValidateFileContent(fileInfo, fileInfo.FullName));
             }
-
-            return validationStatus;
         }
 
         public GenericResponse<string> GetFileObjectTypeName(string objectTypeName)
