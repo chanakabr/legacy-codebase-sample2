@@ -176,7 +176,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // save the bulkUpload file to server (cut it from iis) and set fileURL                                
-                GenericResponse<string> saveFileResponse = ApiLogic.FileManager.Instance.SaveFile(response.Object.Id.ToString(), fileData, "KalturaBulkUpload");
+                GenericResponse<string> saveFileResponse = ApiLogic.FileManager.Instance.SaveFile(response.Object.Id, fileData, "KalturaBulkUpload");
                 if (!saveFileResponse.HasObject())
                 {
                     log.ErrorFormat("Error while saving BulkUpload File to file server. groupId: {0}, BulkUpload.Id:{1}", groupId, response.Object.Id);

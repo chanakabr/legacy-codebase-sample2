@@ -264,11 +264,11 @@ namespace APILogic
 
                 if (IsDataLakeConfiguredInTCM())
                 {
-                    response = dataLakeFileManager.SaveFile(taskId.ToString(), newFile, "KalturaExportTask", prefix, fileName);
+                    response = dataLakeFileManager.SaveFile(taskId, newFile, "KalturaExportTask", prefix, fileName);
                 }
                 else if (ApplicationConfiguration.Current.FileUpload.Type.Value == eFileUploadType.S3)
                 {
-                    response = dataLakeFileManager.SaveFile(taskId.ToString(), newFile, "KalturaExportTask", prefix, fileName);
+                    response = dataLakeFileManager.SaveFile(taskId, newFile, "KalturaExportTask", prefix, fileName);
                 }
             }
 
