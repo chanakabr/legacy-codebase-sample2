@@ -293,29 +293,34 @@ namespace ApiLogic.Tests.IndexManager
                 3,
                 retryAttempt => TimeSpan.FromSeconds(1));
 
-            //// israel
-            //var country = policy.Execute(() => indexManager.GetCountryByIp("0.0.0.40", out searchSuccess));
-            //Assert.IsTrue(searchSuccess);
-            //Assert.IsNotNull(country);
-            //Assert.AreEqual(israel, country.Name);
+            // israel
+            var country = policy.Execute(() => indexManager.GetCountryByIp("0.0.0.40", out searchSuccess));
+            Assert.IsTrue(searchSuccess);
+            Assert.IsNotNull(country);
+            Assert.AreEqual(israel, country.Name);
 
-            //// still israel
-            //country = indexManager.GetCountryByIp("0.0.1.40", out searchSuccess);
+            // still israel
+            country = indexManager.GetCountryByIp("0.0.1.40", out searchSuccess);
 
-            //Assert.IsTrue(searchSuccess);
-            //Assert.IsNotNull(country);
-            //Assert.AreEqual(israel, country.Name);
+            Assert.IsTrue(searchSuccess);
+            Assert.IsNotNull(country);
+            Assert.AreEqual(israel, country.Name);
 
             var country2 = indexManager.GetCountryByCountryName(usa.ToLower());
             Assert.IsNotNull(country2);
             Assert.AreEqual(country2.Id, usaId);
 
-            //// no country
-            //country = indexManager.GetCountryByIp("1.2.3.4", out searchSuccess);
+            // no country
+            country = indexManager.GetCountryByIp("1.2.3.4", out searchSuccess);
 
-            //Assert.IsTrue(searchSuccess);
-            //Assert.IsNull(country);
+            Assert.IsTrue(searchSuccess);
+            Assert.IsNull(country);
+
+            // no country - ipv6
+            country = indexManager.GetCountryByIp("2001:0db8:85a3:0000:0000:8a2e:0370:7334", out searchSuccess);
+
+            Assert.IsTrue(searchSuccess);
+            Assert.IsNull(country);
         }
-
     }
 }

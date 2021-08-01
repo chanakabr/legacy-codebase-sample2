@@ -22,6 +22,8 @@ using Core.Catalog.CatalogManagement;
 using ConfigurationManager;
 using ApiObjects.Catalog;
 using ApiLogic.Catalog.IndexManager.GroupBy;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Core.Catalog
 {
@@ -263,6 +265,27 @@ namespace Core.Catalog
             }
         }
 
+        public static bool CheckIpIsPrivate(IPAddress address)
+        {
+            if (address.AddressFamily == AddressFamily.InterNetwork)
+            {
+                //https://stackoverflow.com/questions/8113546/how-to-determine-whether-an-ip-address-in-private
+                byte[] bytes = address.GetAddressBytes();
+                switch (bytes[0])
+                {
+                    case 10:
+                        return true;
+                    case 172:
+                        return bytes[1] < 32 && bytes[1] >= 16;
+                    case 192:
+                        return bytes[1] == 168;
+                    default:
+                        return false;
+                }
+            }
+
+            return false;
+        }
         public enum eESFeederType
         {
             MEDIA,

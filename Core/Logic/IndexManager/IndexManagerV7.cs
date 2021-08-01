@@ -34,6 +34,8 @@ using Newtonsoft.Json;
 using Polly;
 using Policy = Polly.Policy;
 using ApiLogic.IndexManager.NestData;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Core.Catalog
 {
@@ -742,7 +744,53 @@ namespace Core.Catalog
 
         public ApiObjects.Country GetCountryByIp(string ip, out bool searchSuccess)
         {
-            throw new NotImplementedException();
+            ApiObjects.Country result = null;
+            searchSuccess = false;
+            if (string.IsNullOrEmpty(ip)) { return null; }
+
+            if (IPAddress.TryParse(ip, out IPAddress address))
+            {
+                if (IndexingUtils.CheckIpIsPrivate(address))
+                {
+                    searchSuccess = true;
+                    return null;
+                }
+
+                IpToCountryHandler handler = null;
+                if (address.AddressFamily == AddressFamily.InterNetworkV6 && !address.IsIPv4MappedToIPv6)
+                {
+                    handler = IpToCountryHandler.Handlers[AddressFamily.InterNetworkV6];
+                }
+                else
+                {
+                    handler = IpToCountryHandler.Handlers[AddressFamily.InterNetwork];
+                }
+
+                var ipValue = handler.ConvertIpToValidString(address);
+                log.DebugFormat("GetCountryByIp: ip={0} was converted to ipValue={1}.", ip, ipValue);
+
+                string index = IndexingUtils.GetUtilsIndexName();
+
+                // Perform search
+                var searchResult = _elasticClient.Search<ApiLogic.IndexManager.NestData.Country>(search => search
+                    .Index(index)
+                    .Size(1)
+                    .Fields(fields => fields
+                        .Fields("country_id", "name", "code"))
+                    .Query(q => handler.BuildNestQueryForIp(q, ipValue))
+                    );
+
+                searchSuccess = searchResult.IsValid;
+                //try get result
+                var nestCountry = searchResult?.Hits?.FirstOrDefault()?.Source;
+
+                if (nestCountry != null)
+                {
+                    result = nestCountry.ToApiObject();
+                }
+            }
+
+            return result;
         }
 
         public List<string> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs)

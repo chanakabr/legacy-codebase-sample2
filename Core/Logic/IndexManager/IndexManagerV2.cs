@@ -4986,7 +4986,7 @@ namespace Core.Catalog
 
             if (IPAddress.TryParse(ip, out IPAddress address))
             {
-                if (CheckIpIsPrivate(address))
+                if (IndexingUtils.CheckIpIsPrivate(address))
                 {
                     searchSuccess = true;
                     return null;
@@ -5026,27 +5026,6 @@ namespace Core.Catalog
             return null;
         }
 
-        private static bool CheckIpIsPrivate(IPAddress address)
-        {
-            if (address.AddressFamily == AddressFamily.InterNetwork)
-            {
-                //https://stackoverflow.com/questions/8113546/how-to-determine-whether-an-ip-address-in-private
-                byte[] bytes = address.GetAddressBytes();
-                switch (bytes[0])
-                {
-                    case 10:
-                        return true;
-                    case 172:
-                        return bytes[1] < 32 && bytes[1] >= 16;
-                    case 192:
-                        return bytes[1] == 168;
-                    default:
-                        return false;
-                }
-            }
-
-            return false;
-        }
 
         private static Country ParseSearchResultToCountry(string searchResult)
         {

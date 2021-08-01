@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Net;
 using System.Collections;
 using System.Net.Sockets;
+using Nest;
 
 namespace Core.Catalog
 {
@@ -48,6 +49,13 @@ namespace Core.Catalog
         /// <param name="network"></param>
         /// <returns>item1=fromAddress; item2=toAddress</returns>
         internal abstract Tuple<string, string> GetIpRangesByNetwork(string network);
+
+        internal virtual QueryContainer BuildNestQueryForIp(QueryContainerDescriptor<ApiLogic.IndexManager.NestData.Country> q, string ipValue)
+        {
+            return q.TermRange(range => range.Field("ip_to").GreaterThanOrEquals(ipValue)) &&
+                    q.TermRange(range => range.Field("ip_from").LessThanOrEquals(ipValue))
+                ;
+        }
     }
 
     internal class IpV4ToCountryHandler : IpToCountryHandler
@@ -95,6 +103,7 @@ namespace Core.Catalog
 
             return query;
         }
+
 
         internal override string ConvertIpToValidString(IPAddress ipAddress)
         {
