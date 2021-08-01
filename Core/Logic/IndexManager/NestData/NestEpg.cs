@@ -46,21 +46,19 @@ namespace ApiObjects.Nest
         [PropertyName("description")]
         public  Dictionary<string,string> Description { get; set; }
 
+        [Date(Name = "create_date" )]
         public DateTime CreateDate { get; set; }
-
-        /*[Date(Format = "yyyyMMddHHmmss")]*/
-        public DateTime UpdateDate { get; set; }
-
         
-        [Text(Name="start_date")]
-        public string StartDateStr => StartDate.ToString(ESUtils.ES_DATE_FORMAT);
-
-        [Ignore]
+        [Date(Name = "update_date" )]
+        public DateTime UpdateDate { get; set; }
+        
+        [Date(Name = "start_date" )]
         public DateTime StartDate { get; set; }
-
-        /*[PropertyName("end_date")]*/
+        
+        [Date(Name = "end_date" )]
         public DateTime EndDate { get; set; }
 
+        [Date(Name = "end_date" )]
         public DateTime SearchEndDate { get; set; }
         
         [PropertyName("co_guid")]

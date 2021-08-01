@@ -137,15 +137,18 @@ namespace ApiLogic.Tests.IndexManager
             //test upsert
 
             //Create 2 EPG bulk objects
+            
+            //EPG1
             var epgCb = IndexManagerMockDataCreator.GeRandomEpgCb();
             var epgCbObjects = new List<EpgCB>();
             epgCbObjects.Add(epgCb);
             var epgBulk1 = GetEpgProgramBulkUploadObject(partnerId, dateOfProgramsToIngest, epgCb, epgCbObjects);
 
+            //EPG2
             var epgCb2 = IndexManagerMockDataCreator.GeRandomEpgCb("la movie2","this is the movie description2");
             var epgCbObjects2 = new List<EpgCB>();
             epgCbObjects.Add(epgCb2);
-            var epgBulk2 = GetEpgProgramBulkUploadObject(partnerId, dateOfProgramsToIngest, epgCb2, epgCbObjects2);
+            var epgBulk2 = GetEpgProgramBulkUploadObject(partnerId, dateOfProgramsToIngest.AddDays(1), epgCb2, epgCbObjects2);
 
             crudOperations.ItemsToAdd.Add(epgBulk1);
             crudOperations.ItemsToAdd.Add(epgBulk2);

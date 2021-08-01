@@ -401,8 +401,9 @@ namespace Core.Catalog
                         )
                     )
                 ));
-                
-                log.Debug("");
+
+                if (!response.IsValid)
+                    throw new Exception($"could not delete programs from index:{epgIndexName}");
             });
         }
 
@@ -1125,10 +1126,10 @@ namespace Core.Catalog
                 .Number(x => x.Name("media_type_id").Type(NumberType.Integer).NullValue(0))
                 .Number(x => x.Name("language_id").Type(NumberType.Long))
                 .Text(x => InitializeDefaultTextPropertyDescriptor<string>("epg_identifier"))
-                .Date(x => x.Name("start_date").Format(ESUtils.ES_DATE_FORMAT))
-                .Date(x => x.Name("end_date").Format(ESUtils.ES_DATE_FORMAT))
-                .Date(x => x.Name("cache_date").Format(ESUtils.ES_DATE_FORMAT))
-                .Date(x => x.Name("create_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Date(x => x.Name("start_date"))
+                .Date(x => x.Name("end_date"))
+                .Date(x => x.Name("cache_date"))
+                .Date(x => x.Name("create_date"))
                 .Text(x => InitializeDefaultTextPropertyDescriptor<string>("crid"))
                 .Text(x => InitializeDefaultTextPropertyDescriptor<string>("external_id"))
                 ;
@@ -1801,11 +1802,10 @@ namespace Core.Catalog
                 .Number(x => x.Name("allowed_countries").Type(NumberType.Integer))
                 .Number(x => x.Name("blocked_countries").Type(NumberType.Integer))
                 .Number(x => x.Name("inheritence_policy").Type(NumberType.Integer))
-                
-                /*.Date(x => x.Name("start_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Date(x => x.Name("start_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("cache_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("create_date").Format(ESUtils.ES_DATE_FORMAT))
-                .Date(x => x.Name("update_date").Format(ESUtils.ES_DATE_FORMAT))*/
+                .Date(x => x.Name("update_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Percolator(x => x.Name("query"))
                 ;
 
