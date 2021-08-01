@@ -91,7 +91,7 @@
 							    </table>
 						    </td>
 						    <td style="width:10px; white-space:nowrap;" nowrap>&nbsp;</td>
-						    <td style="width:800px;" valign=top nowrap>
+						    <td style="width:100%;" valign=top nowrap>
 							    <table style="border-collapse:collapse;">
 								    <tr>
 									    <td class="adm_main_header">

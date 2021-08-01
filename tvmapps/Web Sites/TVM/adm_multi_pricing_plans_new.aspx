@@ -116,7 +116,7 @@
 						<!-- empty area -->
 						<td style="width:10px; white-space:nowrap;" nowrap>&nbsp;</td>
 						<!-- main working area -->
-						<td style="width:800px;" valign=top nowrap>
+						<td style="width:100%;" valign=top nowrap>
 							<!-- working area -->
 							<table style="border-collapse:collapse;">
 								<!-- header -->
