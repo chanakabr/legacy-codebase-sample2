@@ -217,7 +217,7 @@ namespace WebAPI.Utils
         
         public static bool IsAllowedToViewInactiveAssets(int groupId, string userId, bool ignoreDoesGroupUsesTemplates = false)
         {
-            return APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS)
+            return APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS)
                    && (DoesGroupUsesTemplates(groupId) || ignoreDoesGroupUsesTemplates);
         }
 

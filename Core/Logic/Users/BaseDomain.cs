@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using ApiLogic.Api.Managers;
+using APILogic.Api.Managers;
 using ApiLogic.Users;
 using ApiLogic.Users.Services;
 using KeyValuePair = ApiObjects.KeyValuePair;
@@ -1047,7 +1048,7 @@ namespace Core.Users
                     domain.InvalidateDomainUsersRoles();
 
                     // check if this new roleId excluded renew subscription if so- insert messages to queue
-                    if (APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, domain.m_masterGUIDs[0].ToString(), RolePermissions.RENEW_SUBSCRIPTION))
+                    if (APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(m_nGroupID, domain.m_masterGUIDs[0].ToString(), RolePermissions.RENEW_SUBSCRIPTION))
                     {
                         ResumeDomainSubscriptions(nDomainID);
                     }
@@ -1998,7 +1999,7 @@ namespace Core.Users
             }
 
             Domain domain = DomainInitializer(groupID, domainID, false);
-            if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(userID)))
             {
                 if (domain.roleId == 0 || !APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermissionItem(m_nGroupID, userID, PermissionItems.HOUSEHOLDDEVICE_ADD.ToString()))
                 {

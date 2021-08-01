@@ -1006,7 +1006,8 @@ namespace ApiObjects
         VIEW_INACTIVE_ASSETS = 8,
         PLAYBACK_EPG = 9,
         PLAYBACK_RECORDING = 10,
-        PURCHASE_COLLECTION = 11
+        PURCHASE_COLLECTION = 11,
+        ALLOW_ACTION_IN_SUSPENDED_DOMAIN = 12
     }
 
     public enum PermissionItems

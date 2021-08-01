@@ -791,7 +791,7 @@ namespace Core.ConditionalAccess
             if (t != null)
             {
                 BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK;
-                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupID, sUserGUID, RolePermissions.PLAYBACK_PPV);
+                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(groupID, sUserGUID, RolePermissions.PLAYBACK_PPV);
 
                 if (!permittedPpv)
                 {
@@ -3044,8 +3044,8 @@ namespace Core.ConditionalAccess
                 // get permitted by userId
 
                 BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK;
-                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupID, userId, RolePermissions.PLAYBACK_PPV);
-                bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupID, userId, RolePermissions.PLAYBACK_SUBSCRIPTION);
+                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(groupID, userId, RolePermissions.PLAYBACK_PPV);
+                bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(groupID, userId, RolePermissions.PLAYBACK_SUBSCRIPTION);
 
                 if (!permittedPpv && !permittedSubscription)
                 {

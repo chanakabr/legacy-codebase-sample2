@@ -471,6 +471,7 @@ namespace ApiLogic.Api.Managers
                             int? downgradePolicy = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DOWNGRADE_POLICY");
                             int? defaultRegion = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "DEFAULT_REGION");
                             int? enableRegionFiltering = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "IS_REGIONALIZATION_ENABLED");
+                            int? suspensionProfileInheritanceType = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "SUSPENSION_PROFILE_INHERITANCE_TYPE");
 
                             if (deleteMediaPolicy.HasValue)
                             {
@@ -490,6 +491,15 @@ namespace ApiLogic.Api.Managers
                             if (defaultRegion.HasValue && defaultRegion.Value > 0)
                             {
                                 generalPartnerConfig.DefaultRegion = defaultRegion.Value;
+                            }
+
+                            if (suspensionProfileInheritanceType.HasValue)
+                            {
+                                generalPartnerConfig.SuspensionProfileInheritanceType = (SuspensionProfileInheritanceType)suspensionProfileInheritanceType;
+                            }
+                            else
+                            {
+                                generalPartnerConfig.SuspensionProfileInheritanceType = SuspensionProfileInheritanceType.Default;
                             }
                         }
 

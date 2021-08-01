@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using APILogic.Api.Managers;
 using TVinciShared;
 
 namespace Core.ConditionalAccess
@@ -814,10 +815,10 @@ namespace Core.ConditionalAccess
                         break;
                 }
 
-                if (!PartnerConfigurationManager.Instance.AllowSuspendedAction(contextData.GroupId) && 
-                    !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(contextData.GroupId, contextData.UserId.ToString(), rolePermission))
+                if (!RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(contextData.GroupId, contextData.UserId.Value)
+                    && !RolesPermissionsManager.Instance.IsPermittedPermission(contextData.GroupId, contextData.UserId.ToString(), rolePermission))
                 {
-                    response.Status = APILogic.Api.Managers.RolesPermissionsManager.GetSuspentionStatus(contextData.GroupId, (int)contextData.DomainId.Value);
+                    response.Status = RolesPermissionsManager.GetSuspentionStatus(contextData.GroupId, (int)contextData.DomainId.Value);
                     log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);
                     return response;
                 }
@@ -1122,7 +1123,7 @@ namespace Core.ConditionalAccess
                 // check permission for subscription with premium services - by roles 
                 if (subscription.m_lServices != null && subscription.m_lServices.Count() > 0)
                 {
-                    if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(contextData.GroupId, userId, RolePermissions.PURCHASE_SERVICE))
+                    if (!RolesPermissionsManager.Instance.IsPermittedPermission(contextData.GroupId, userId, RolePermissions.PURCHASE_SERVICE))
                     {
                         response.Status = APILogic.Api.Managers.RolesPermissionsManager.GetSuspentionStatus(contextData.GroupId, (int)householdId);
                         log.ErrorFormat("User validation failed: {0}, data: {1}", response.Status.Message, logString);

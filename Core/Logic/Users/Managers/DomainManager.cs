@@ -1,5 +1,4 @@
-﻿using ApiLogic.Api.Managers;
-using ApiObjects;
+﻿using ApiObjects;
 using DAL;
 using KLogMonitor;
 using System;
@@ -8,6 +7,7 @@ using System.Threading;
 using APILogic.Api.Managers;
 using Core.Users;
 using System.Linq;
+using ApiLogic.Api.Managers;
 using ApiObjects.Response;
 
 namespace ApiLogic.Users.Managers
@@ -21,24 +21,13 @@ namespace ApiLogic.Users.Managers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly Lazy<DomainManager> lazy = new Lazy<DomainManager>(() =>
-            new DomainManager(DomainDal.Instance,
-                       PartnerConfigurationManager.Instance,
-                       RolesPermissionsManager.Instance),
-            LazyThreadSafetyMode.PublicationOnly);
+        private static readonly Lazy<DomainManager> lazy = new Lazy<DomainManager>(() => new DomainManager(RolesPermissionsManager.Instance), LazyThreadSafetyMode.PublicationOnly);
+        public static DomainManager Instance => lazy.Value;
 
-        private readonly IDomainDal _repository;
-        private readonly IPartnerConfigurationManager _partnerConfigurationManager;
         private readonly IRolesPermissionsManager _rolesPermissionsManager;
 
-        public static DomainManager Instance { get { return lazy.Value; } }
-
-        public DomainManager(IDomainDal repository,
-                      IPartnerConfigurationManager partnerConfigurationManager,
-                      IRolesPermissionsManager rolesPermissionsManager)
+        public DomainManager(IRolesPermissionsManager rolesPermissionsManager)
         {
-            _repository = repository;
-            _partnerConfigurationManager = partnerConfigurationManager;
             _rolesPermissionsManager = rolesPermissionsManager;
         }
 
@@ -52,7 +41,7 @@ namespace ApiLogic.Users.Managers
             long nDbDomainDeviceID = 0;
 
             //BEO-4478
-            if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !_partnerConfigurationManager.AllowSuspendedAction(nGroupID))
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !_rolesPermissionsManager.AllowActionInSuspendedDomain(nGroupID, domain.m_masterGUIDs[0], false))
             {
                 if (domain.roleId == 0 || (domain.m_masterGUIDs != null && domain.m_masterGUIDs.Count > 0
                                                           && !_rolesPermissionsManager.IsPermittedPermissionItem(domain.m_nGroupID, domain.m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADD.ToString())))
@@ -258,6 +247,7 @@ namespace ApiLogic.Users.Managers
 
         private bool ValidateDeviceMobilityPolicy(int groupId)
         {
+            
             var generalPartnerConfig = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(groupId);
             if (generalPartnerConfig != null)
             {
