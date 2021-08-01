@@ -6107,7 +6107,7 @@ namespace Core.Catalog
             #endregion
         }
 
-        public void AddTagsToIndex(string newIndexName, List<ApiObjects.SearchObjects.TagValue> allTagValues)
+        public void InsertTagsToIndex(string newIndexName, List<ApiObjects.SearchObjects.TagValue> allTagValues)
         {
             ContextData cd = new ContextData();
             int sizeOfBulk = TVinciShared.WS_Utils.GetTcmIntValue("ES_BULK_SIZE");

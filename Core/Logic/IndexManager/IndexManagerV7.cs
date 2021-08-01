@@ -32,8 +32,8 @@ using ElasticSearch.Searcher;
 using ElasticSearch.Utilities;
 using Newtonsoft.Json;
 using Polly;
-using ApiLogic.NestData;
 using Policy = Polly.Policy;
+using ApiLogic.IndexManager.NestData;
 
 namespace Core.Catalog
 {
@@ -576,17 +576,128 @@ namespace Core.Catalog
 
         public string SetupIPToCountryIndex()
         {
-            throw new NotImplementedException();
+            string newIndexName = IndexingUtils.GetNewUtilsIndexString();
+
+            var createResponse = _elasticClient.Indices.Create(newIndexName,
+                 c => c.Settings(settings => settings
+                     .NumberOfShards(_numOfShards)
+                     .NumberOfReplicas(_numOfReplicas)
+                     .Analysis(a => a
+                         .Analyzers(an => an.Custom(LOWERCASE_ANALYZER,
+                        ca => ca
+                        .CharFilters("html_strip")
+                        .Tokenizer("keyword")
+                        .Filters("lowercase", "asciifolding")
+                     ))))
+                 .Map<object>(map => map
+                     .AutoMap<Tag>()
+                     .Properties(properties => properties
+                        .Text(name => name.Name("name").Analyzer(LOWERCASE_ANALYZER))
+                     )
+                 ));
+
+            bool isIndexCreated = createResponse != null && createResponse.Acknowledged && createResponse.IsValid;
+            if (!isIndexCreated)
+            {
+                log.Error(string.Format("Failed creating index for index:{0}", newIndexName));
+                return string.Empty;
+            }
+
+            return newIndexName;
         }
 
         public bool InsertDataToIPToCountryIndex(string newIndexName, List<IPV4> ipV4ToCountryMapping, List<IPV6> ipV6ToCountryMapping)
         {
-            throw new NotImplementedException();
+            bool result = false;
+            int sizeOfBulk = 5000;
+
+            var bulkRequestsIpv4 = new List<NestEsBulkRequest<IPv4>>();
+            var bulkRequestsIpv6 = new List<NestEsBulkRequest<IPv6>>();
+            try
+            {
+                if (ipV4ToCountryMapping != null)
+                {
+                    foreach (var ipv4 in ipV4ToCountryMapping)
+                    {
+                        var nestObject = new IPv4(ipv4);
+
+                        var bulkRequest = new NestEsBulkRequest<IPv4>()
+                        {
+                            DocID = nestObject.id,
+                            Document = nestObject,
+                            Index = newIndexName,
+                            Operation = eOperation.index
+                        };
+                        bulkRequestsIpv4.Add(bulkRequest);
+
+                        // If we exceeded maximum size of bulk 
+                        if (bulkRequestsIpv4.Count >= sizeOfBulk)
+                        {
+                            ExecuteAndValidateBulkRequests(bulkRequestsIpv4);
+                        }
+                    }
+
+                    // If we have anything left that is less than the size of the bulk
+                    if (bulkRequestsIpv4.Any())
+                    {
+                        ExecuteAndValidateBulkRequests(bulkRequestsIpv4);
+                    }
+                }
+
+                if (ipV6ToCountryMapping != null)
+                {
+                    foreach (var ipv6 in ipV6ToCountryMapping)
+                    {
+                        var nestObject = new IPv6(ipv6);
+
+                        var bulkRequest = new NestEsBulkRequest<IPv6>()
+                        {
+                            DocID = nestObject.id,
+                            Document = nestObject,
+                            Index = newIndexName,
+                            Operation = eOperation.index
+                        };
+                        bulkRequestsIpv6.Add(bulkRequest);
+
+                        // If we exceeded maximum size of bulk 
+                        if (bulkRequestsIpv6.Count >= sizeOfBulk)
+                        {
+                            ExecuteAndValidateBulkRequests(bulkRequestsIpv6);
+                        }
+                    }
+
+                    // If we have anything left that is less than the size of the bulk
+                    if (bulkRequestsIpv6.Any())
+                    {
+                        ExecuteAndValidateBulkRequests(bulkRequestsIpv6);
+                    }
+                }
+
+                result = true;
+            }
+            finally
+            {
+                if (bulkRequestsIpv4.Any())
+                {
+                    log.Debug($"Clearing bulk requests");
+                    bulkRequestsIpv4.Clear();
+                }
+
+                if (bulkRequestsIpv6.Any())
+                {
+                    log.Debug($"Clearing bulk requests");
+                    bulkRequestsIpv6.Clear();
+                }
+            }
+
+            return result;
         }
 
         public bool PublishIPToCountryIndex(string newIndexName)
         {
-            throw new NotImplementedException();
+            string alias = "utils";
+
+            return this.SwitchIndexAlias(newIndexName, alias, true, true);
         }
 
         public Country GetCountryByCountryName(string countryName)
@@ -748,7 +859,7 @@ namespace Core.Catalog
             return newIndexName;
         }
 
-        public void AddTagsToIndex(string newIndexName, List<TagValue> allTagValues)
+        public void InsertTagsToIndex(string newIndexName, List<TagValue> allTagValues)
         {
             int sizeOfBulk = _applicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.Value;
 

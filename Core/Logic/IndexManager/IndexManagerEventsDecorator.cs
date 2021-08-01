@@ -239,7 +239,7 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public void AddTagsToIndex(string newIndexName, List<TagValue> allTagValues)
+        public void InsertTagsToIndex(string newIndexName, List<TagValue> allTagValues)
         {
             Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.TAG,
                 newIndexName, allTagValues);

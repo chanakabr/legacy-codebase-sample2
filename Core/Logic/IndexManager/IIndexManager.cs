@@ -123,7 +123,7 @@ namespace Core.Catalog
         void PublishChannelsMetadataIndex(string newIndexName, bool shouldSwitchAlias, bool shouldDeleteOldIndices);
 
         string SetupTagsIndex();
-        void AddTagsToIndex(string newIndexName, List<ApiObjects.SearchObjects.TagValue> allTagValues);
+        void InsertTagsToIndex(string newIndexName, List<ApiObjects.SearchObjects.TagValue> allTagValues);
         bool PublishTagsIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
 
         string SetupEpgIndex(bool isRecording);
