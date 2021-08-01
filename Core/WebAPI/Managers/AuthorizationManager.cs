@@ -809,7 +809,7 @@ namespace WebAPI.Managers
                 return false;
             }
 
-            if (CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(ks.GroupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSessionRevocation))
+            if (ks.IsKsFormat && CanaryDeploymentFactory.Instance.GetMicroservicesCanaryDeploymentManager().IsDataOwnershipFlagEnabled(ks.GroupId, CanaryDeploymentDataOwnershipEnum.AuthenticationSessionRevocation))
             {
                 //use cache if not found
                 //call GRPC         
