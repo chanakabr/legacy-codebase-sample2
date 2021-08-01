@@ -75,6 +75,11 @@ namespace Core.Catalog
             return string.Format("utils_{0}", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));        
         }
 
+        public static string GetUtilsIndexName()
+        {
+            return "utils";
+        }
+        
         public static string GetNewIPv6IndexString()
         {
             return string.Format("ipv6_{0}", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));

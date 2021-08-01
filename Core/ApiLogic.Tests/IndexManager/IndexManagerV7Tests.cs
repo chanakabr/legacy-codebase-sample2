@@ -306,9 +306,9 @@ namespace ApiLogic.Tests.IndexManager
             //Assert.IsNotNull(country);
             //Assert.AreEqual(israel, country.Name);
 
-            //country = indexManager.GetCountryByCountryName(usa);
-            //Assert.IsNotNull(country);
-            //Assert.AreEqual(country.Id, usaId);
+            var country2 = indexManager.GetCountryByCountryName(usa.ToLower());
+            Assert.IsNotNull(country2);
+            Assert.AreEqual(country2.Id, usaId);
 
             //// no country
             //country = indexManager.GetCountryByIp("1.2.3.4", out searchSuccess);

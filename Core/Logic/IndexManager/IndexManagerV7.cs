@@ -696,17 +696,51 @@ namespace Core.Catalog
 
         public bool PublishIPToCountryIndex(string newIndexName)
         {
-            string alias = "utils";
+            string alias = IndexingUtils.GetUtilsIndexName();
 
             return this.SwitchIndexAlias(newIndexName, alias, true, true);
         }
 
-        public Country GetCountryByCountryName(string countryName)
+        public ApiObjects.Country GetCountryByCountryName(string countryName)
         {
-            throw new NotImplementedException();
+            ApiObjects.Country result = null;
+
+            try
+            {
+                if (string.IsNullOrEmpty(countryName))
+                {
+                    return result;
+                }
+
+                string index = IndexingUtils.GetUtilsIndexName();
+
+                var searchResult = _elasticClient.Search<ApiLogic.IndexManager.NestData.Country>(search => search
+                    .Index(index)
+                    .Size(1)
+                    .Fields(fields => fields
+                        .Fields("country_id", "name", "code"))
+                    .Query(q => q
+                        .Term(term => term.name, countryName)
+                        )
+                    );
+
+                //try get result
+                var nestCountry = searchResult?.Hits?.FirstOrDefault()?.Source;
+
+                if (nestCountry != null)
+                {
+                    result = nestCountry.ToApiObject();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed GetCountryByCountryName for countryName: {countryName}", ex);
+            }
+
+            return result;
         }
 
-        public Country GetCountryByIp(string ip, out bool searchSuccess)
+        public ApiObjects.Country GetCountryByIp(string ip, out bool searchSuccess)
         {
             throw new NotImplementedException();
         }
