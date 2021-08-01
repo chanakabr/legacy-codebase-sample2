@@ -17,12 +17,14 @@ using Status = ApiObjects.Response.Status;
 using System.Linq;
 using KLogMonitor;
 using System.Reflection;
+using System.Threading.Tasks;
 using Core.Catalog.CatalogManagement;
 using ElasticSearch.Common;
 using CachingProvider.LayeredCache;
 using Core.Catalog.Cache;
 using ApiLogic.Catalog;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.NestData;
 using ElasticSearch.Searcher.Settings;
 using ApiObjects.CanaryDeployment.Elasticsearch;
 using ApiObjects.Nest;
@@ -33,6 +35,7 @@ using ElasticSearch.Utilities;
 using Newtonsoft.Json;
 using Polly;
 using ApiLogic.NestData;
+using KlogMonitorHelper;
 using Policy = Polly.Policy;
 
 namespace Core.Catalog
@@ -248,11 +251,7 @@ namespace Core.Catalog
             LanguageObj defaultLanguage,
             IDictionary<string, LanguageObj> languages)
         {
-            var bulkSize = _sizeOfBulk;
-            if (_sizeOfBulk == 0 || _sizeOfBulk > _sizeOfBulkDefaultValue)
-            {
-                bulkSize = _sizeOfBulkDefaultValue;
-            }
+            var bulkSize = GetBulkSize();
 
             var retryCount = 5;
             var policy = RetryPolicy.Handle<Exception>()
@@ -270,7 +269,7 @@ namespace Core.Catalog
                     foreach (var program in programTranslationsToIndex)
                     {
                         program.PadMetas(_metasToPad);
-                        var langId = GetLanguageIdByCode(program);
+                        var langId = GetLanguageIdByCode(program.Language);
 
                         // Serialize EPG object to string
                         var buildEpg = NestDataCreator.GetEpg(program, langId, isOpc: _groupUsesTemplates);
@@ -301,11 +300,15 @@ namespace Core.Catalog
             });
         }
 
-        private int GetLanguageIdByCode(EpgCB program)
+        private int GetBulkSize()
         {
-            return _groupUsesTemplates
-                ? _catalogGroupCacheCodePerLang[program.Language].ID
-                : _groupCodePerLang[program.Language].ID;
+            var bulkSize = _sizeOfBulk;
+            if (_sizeOfBulk == 0 || _sizeOfBulk > _sizeOfBulkDefaultValue)
+            {
+                bulkSize = _sizeOfBulkDefaultValue;
+            }
+
+            return bulkSize;
         }
 
         private NestEsBulkRequest< NestEpg> GetNestEpgBulkRequest(string draftIndexName, DateTime dateOfProgramsToIngest, EpgCB program,
@@ -641,7 +644,7 @@ namespace Core.Catalog
             }
 
             PropertiesDescriptor<object> propertiesDescriptor =
-                GetMediaPropertiesDesctiptor(languages, metas, tags, metasToPad, analyzers);
+                GetMediaPropertiesDescriptor(languages, metas, tags, metasToPad, analyzers);
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                 c => c.Settings(settings => settings
                     .NumberOfShards(_numOfShards)
@@ -670,7 +673,106 @@ namespace Core.Catalog
 
         public void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, string newIndexName)
         {
-            throw new NotImplementedException();
+            var sizeOfBulk = GetBulkSize();
+
+            log.DebugFormat("Start indexing medias. total medias={0}", groupMedias.Count);
+            // save current value to restore at the end
+            var currentDefaultConnectionLimit = System.Net.ServicePointManager.DefaultConnectionLimit;
+            try
+            {
+                var numOfBulkRequests = 0;
+
+                var bulkRequests =
+                    new Dictionary<int, List<NestEsBulkRequest<NestMedia>>>(){{numOfBulkRequests, new List<NestEsBulkRequest<NestMedia>>()}};
+
+                // For each media
+                foreach (var groupMedia in groupMedias)
+                {
+                    // For each language
+                    foreach (var languageId in groupMedia.Value.Keys.Distinct())
+                    {
+                        var language = GetLanguageById(languageId);
+                        var media = groupMedia.Value[languageId];
+                        
+                        if (media == null)
+                            continue;
+                        
+                        media.PadMetas(_metasToPad);
+                        
+                        // Serialize media and create a bulk request for it
+                        var nestMedia = NestDataCreator.GetMedia(media, language.Code);
+                        
+                        // If we exceeded the size of a single bulk request then create another list
+                        if (bulkRequests[numOfBulkRequests].Count >= sizeOfBulk)
+                        {
+                            numOfBulkRequests++;
+                            bulkRequests.Add(numOfBulkRequests, new List<NestEsBulkRequest<NestMedia>>());
+                        }
+                        var bulkRequest = new NestEsBulkRequest<NestMedia>(media.m_nMediaID,newIndexName,nestMedia);
+                        
+                        bulkRequests[numOfBulkRequests].Add(bulkRequest);
+                        
+                    }
+                }
+                var maxDegreeOfParallelism = GetMaxDegreeOfParallelism();
+
+                var options = new ParallelOptions() {MaxDegreeOfParallelism = maxDegreeOfParallelism};
+                var contextData = new ContextData();
+                System.Net.ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
+                var failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<NestEsBulkRequest<NestMedia>>>();
+                // Send request to elastic search in a different thread
+                Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
+                {
+                    contextData.Load();
+                    var bulkResult = _elasticSearchApi.CreateBulkRequests(bulkRequest.Value,
+                        out List<NestEsBulkRequest<NestMedia>> invalidResults);
+
+                    // Log invalid results
+                    if (!bulkResult && invalidResults != null && invalidResults.Count > 0)
+                    {
+                        log.Warn($"Bulk request when indexing media for partner {_partnerId} has invalid results. Will retry soon.");
+                        // add entire failed retry requests to failedBulkRequests, will try again not in parallel (maybe ES is loaded)
+                        failedBulkRequests.Add(invalidResults);
+                    }
+                });
+
+                // retry on all failed bulk requests (this time not in parallel)
+                if (failedBulkRequests.Count > 0)
+                {
+                    foreach (List<NestEsBulkRequest<NestMedia>> bulkRequest in failedBulkRequests)
+                    {
+                        List<NestEsBulkRequest<NestMedia>> invalidResults;
+                        bool bulkResult = _elasticSearchApi.CreateBulkRequests(bulkRequest, out invalidResults);
+
+                        // Log invalid results
+                        if (!bulkResult && invalidResults != null && invalidResults.Count > 0)
+                        {
+                            foreach (var item in invalidResults)
+                            {
+                                log.ErrorFormat(
+                                    "Error - Could not add Media to ES index, additional retry will not be attempted. GroupID={0};Type={1};ID={2};error={3};",
+                                    _partnerId, MEDIA, item.docID, item.error);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed during InsertMedias", ex);
+            }
+            finally
+            {
+                System.Net.ServicePointManager.DefaultConnectionLimit = currentDefaultConnectionLimit;
+            }
+        }
+
+        private static int GetMaxDegreeOfParallelism()
+        {
+            var maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
+            if (maxDegreeOfParallelism == 0)
+                maxDegreeOfParallelism = 5;
+            return maxDegreeOfParallelism;
         }
 
         public void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
@@ -884,12 +986,24 @@ namespace Core.Catalog
 
         private List<LanguageObj> GetLanguages()
         {
-            return _groupUsesTemplates ? _catalogGroupCache.LanguageMapById.Values.ToList() : _group.GetLangauges();
+            return _groupUsesTemplates ?_catalogGroupCacheCodePerLang.Values.ToList() : _groupCodePerLang.Values.ToList();
         }
 
         private LanguageObj GetDefaultLanguage()
         {
             return _groupUsesTemplates ? _catalogGroupCache.GetDefaultLanguage() : _group.GetGroupDefaultLanguage();
+        }
+        
+        private int GetLanguageIdByCode(string languageCode)
+        {
+            return _groupUsesTemplates
+                ? _catalogGroupCacheCodePerLang[languageCode].ID
+                : _groupCodePerLang[languageCode].ID;
+        }
+
+        private LanguageObj GetLanguageById(int id)
+        {
+            return GetLanguages().FirstOrDefault(x => x.ID == id);
         }
 
         private void EnsureEpgIndexExist(string dailyEpgIndexName, RetryPolicy retryPolicy)
@@ -1660,7 +1774,7 @@ namespace Core.Catalog
         }
 
 
-        private PropertiesDescriptor<object> GetMediaPropertiesDesctiptor(List<LanguageObj> languages,
+        private PropertiesDescriptor<object> GetMediaPropertiesDescriptor(List<LanguageObj> languages,
             Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
             List<string> tags,
             HashSet<string> metasToPad,
@@ -1684,17 +1798,17 @@ namespace Core.Catalog
                 .Boolean(x => x.Name("is_active"))
                 .Number(x => x.Name("like_counter").Type(NumberType.Integer).NullValue(0))
                 .Number(x => x.Name("user_types").Type(NumberType.Integer))
-                .Date(x => x.Name("catalog_start_date").Format(ESUtils.ES_DATE_FORMAT))
-                .Date(x => x.Name("end_date").Format(ESUtils.ES_DATE_FORMAT))
-                .Date(x => x.Name("final_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Number(x => x.Name("language_id").Type(NumberType.Long))
                 .Number(x => x.Name("allowed_countries").Type(NumberType.Integer))
                 .Number(x => x.Name("blocked_countries").Type(NumberType.Integer))
-                .Number(x => x.Name("inheritence_policy").Type(NumberType.Integer))
-                .Date(x => x.Name("start_date").Format(ESUtils.ES_DATE_FORMAT))
-                .Date(x => x.Name("cache_date").Format(ESUtils.ES_DATE_FORMAT))
-                .Date(x => x.Name("create_date").Format(ESUtils.ES_DATE_FORMAT))
-                .Date(x => x.Name("update_date").Format(ESUtils.ES_DATE_FORMAT))
+                .Number(x => x.Name("inheritance_policy").Type(NumberType.Integer))
+                .Date(x => x.Name("start_date"))
+                .Date(x => x.Name("end_date"))
+                .Date(x => x.Name("cache_date"))
+                .Date(x => x.Name("create_date"))
+                .Date(x => x.Name("update_date"))
+                .Date(x => x.Name("catalog_start_date"))
+                .Date(x => x.Name("final_date"))
                 .Percolator(x => x.Name("query"))
                 ;
 

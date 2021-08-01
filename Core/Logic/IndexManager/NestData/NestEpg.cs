@@ -162,22 +162,23 @@ namespace ApiObjects.Nest
             StartDate = epgCb.StartDate;
 
             var metasDict = new Dictionary<string, Dictionary<string, List<string>>>();
-            metasDict.Add(epgCb.Language,new Dictionary<string, List<string>>(epgCb.Metas));
+            string langCode = epgCb.Language;
+            metasDict.Add(langCode,new Dictionary<string, List<string>>(epgCb.Metas));
             Metas = metasDict; //lang
             
             var tagsDict = new Dictionary<string, Dictionary<string, List<string>>>();
-            tagsDict.Add(epgCb.Language,new Dictionary<string, List<string>>(epgCb.Tags));
+            tagsDict.Add(langCode,new Dictionary<string, List<string>>(epgCb.Tags));
             Tags = tagsDict; //lang
 
             var nameDict = new Dictionary<string, string>();
-            nameDict.Add(epgCb.Language, epgCb.Name);
+            nameDict.Add(langCode, epgCb.Name);
             Name = nameDict; //lang
             
             var descriptionDict = new Dictionary<string, string>();
-            descriptionDict.Add(epgCb.Language, epgCb.Description);
+            descriptionDict.Add(langCode, epgCb.Description);
             Description = descriptionDict; //lang
             
-            Language = epgCb.Language;
+            Language = langCode;
             LanguageId = languageId;
             pictures = epgCb.pictures;
             EnableCDVR = epgCb.EnableCDVR;

@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ApiLogic.IndexManager.NestData;
 using ApiObjects;
 using ApiObjects.Nest;
+using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using RestSharp.Serializers;
 
@@ -14,6 +16,11 @@ namespace ApiLogic.IndexManager.Helpers
         public static NestEpg GetEpg(EpgCB epgCb,int languageId, bool withRouting = true, bool isOpc = false)
         {
             return new NestEpg(epgCb,languageId, isOpc, withRouting, ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
+        }
+
+        public static NestMedia GetMedia(Media media, string languageCode)
+        {
+            return new NestMedia(media, languageCode);
         }
 
 
