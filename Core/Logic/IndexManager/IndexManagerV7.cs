@@ -771,6 +771,7 @@ namespace Core.Catalog
 
                         continue;
                     }
+
                     string languageCode = _catalogGroupCache.LanguageMapById[tagValue.languageId].Code;
 
                     // Serialize EPG object to string
@@ -1012,13 +1013,13 @@ namespace Core.Catalog
                 .Text(x => x.Name("date_routing"))
                 .Number(x => x.Name("media_type_id").Type(NumberType.Integer).NullValue(0))
                 .Number(x => x.Name("language_id").Type(NumberType.Long))
-                .Text(x => InitializeDefaultTextPropertyDescriptor("epg_identifier"))
+                .Text(x => InitializeDefaultTextPropertyDescriptor<string>("epg_identifier"))
                 .Date(x => x.Name("start_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("end_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("cache_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Date(x => x.Name("create_date").Format(ESUtils.ES_DATE_FORMAT))
-                .Text(x => InitializeDefaultTextPropertyDescriptor("crid"))
-                .Text(x => InitializeDefaultTextPropertyDescriptor("external_id"))
+                .Text(x => InitializeDefaultTextPropertyDescriptor<string>("crid"))
+                .Text(x => InitializeDefaultTextPropertyDescriptor<string>("external_id"))
                 ;
 
             var defaultLanguage = GetDefaultLanguage();
@@ -1033,9 +1034,10 @@ namespace Core.Catalog
             return propertiesDescriptor;
         }
 
-        private static void InitializeNumericMetaField(PropertiesDescriptor<object> propertiesDescriptor,
+        private static void InitializeNumericMetaField<K>(PropertiesDescriptor<K> propertiesDescriptor,
             string metaName,
             bool shouldAddPaddedField)
+            where K : class
         {
             var lowercaseSubField = new TextPropertyDescriptor<object>()
                 .Name("lowercase")
@@ -1070,9 +1072,9 @@ namespace Core.Catalog
             propertiesDescriptor.Number(x => numberPropertyDescriptor);
         }
 
-        private TextPropertyDescriptor<object> InitializeTextField(
+        private TextPropertyDescriptor<K> InitializeTextField<K>(
             string nameFieldName,
-            PropertiesDescriptor<object> propertiesDescriptor,
+            PropertiesDescriptor<K> propertiesDescriptor,
             string indexAnalyzer,
             string searchAnalyzer,
             string autocompleteAnalyzer,
@@ -1082,6 +1084,7 @@ namespace Core.Catalog
             string phoneticSearchAnalyzer = null,
             bool shouldAddPhoneticField = false,
             bool shouldAddPaddedField = false)
+            where K : class
         {
             var lowercaseSubField = new TextPropertyDescriptor<object>()
                 .Name("lowercase")
@@ -1133,7 +1136,7 @@ namespace Core.Catalog
                     .SearchAnalyzer(LOWERCASE_ANALYZER);
                 fieldsPropertiesDesctiptor.Text(y => padded);
             }
-            var textPropertyDescriptor = new TextPropertyDescriptor<object>()
+            var textPropertyDescriptor = new TextPropertyDescriptor<K>()
                 .Name(nameFieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER)
                     .Fields(fields => fieldsPropertiesDesctiptor)
                 ;
@@ -1142,7 +1145,8 @@ namespace Core.Catalog
             return textPropertyDescriptor;
         }
 
-        private TextPropertyDescriptor<object> InitializeDefaultTextPropertyDescriptor(string fieldName)
+        private TextPropertyDescriptor<K> InitializeDefaultTextPropertyDescriptor<K>(string fieldName) 
+            where K : class
         {
             var lowercaseSubField = new TextPropertyDescriptor<object>()
                 .Name("lowercase")
@@ -1164,7 +1168,7 @@ namespace Core.Catalog
                 .Analyzer(DEFAULT_INDEX_ANALYZER)
                 .SearchAnalyzer(DEFAULT_SEARCH_ANALYZER);
 
-            return new TextPropertyDescriptor<object>().Name(fieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER)
+            return new TextPropertyDescriptor<K>().Name(fieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER)
                 .Fields(fields => fields
                     .Text(y => y.Name(fieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER))
                     .Text(y => lowercaseSubField)
