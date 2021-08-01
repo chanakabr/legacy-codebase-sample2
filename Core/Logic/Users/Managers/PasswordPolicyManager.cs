@@ -208,7 +208,7 @@ namespace ApiLogic.Users.Managers
             {
                 if (filter.RoleIdsIn == null || filter.RoleIdsIn.Count == 0)
                 {
-                    var roles = RolesPermissionsManager.GetRolesByGroupId(contextData.GroupId);
+                    var roles = RolesPermissionsManager.Instance.GetRolesByGroupId(contextData.GroupId);
                     if (roles != null && roles.Count > 0)
                     {
                         filter.RoleIdsIn = new List<long>(roles.Select(x => x.Id));
@@ -356,7 +356,7 @@ namespace ApiLogic.Users.Managers
 
                 if (objectToValidate != null && objectToValidate.UserRoleIds != null)
                 {
-                    var allExistingRoles = RolesPermissionsManager.GetRolesByGroupId(contextData.GroupId);
+                    var allExistingRoles = RolesPermissionsManager.Instance.GetRolesByGroupId(contextData.GroupId);
                     if (!(objectToValidate.UserRoleIds.IsSubsetOf(allExistingRoles.Select(r => r.Id))))
                     {
                         response.SetStatus(eResponseStatus.RoleDoesNotExists);

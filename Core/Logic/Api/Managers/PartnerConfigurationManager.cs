@@ -3,54 +3,33 @@ using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.Api;
-using Core.Catalog;
-using Core.Catalog.CatalogManagement;
-using Core.Pricing;
 using CouchbaseManager;
 using DAL;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using TVinciShared;
 
 namespace ApiLogic.Api.Managers
 {
     public interface IPartnerConfigurationManager
-    {
-        bool AllowSuspendedAction(int groupId, bool isDefault = false);        
+    {        
     }
 
     public class PartnerConfigurationManager: IPartnerConfigurationManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly Lazy<PartnerConfigurationManager> lazy = new Lazy<PartnerConfigurationManager>(() =>
-        new PartnerConfigurationManager(LayeredCache.Instance,
-                            ApiDAL.Instance,
-                            RequestContextUtils.Instance,
-                            GeneralPartnerConfigManager.Instance),
-        LazyThreadSafetyMode.PublicationOnly);
+
+        private static readonly Lazy<PartnerConfigurationManager> lazy = new Lazy<PartnerConfigurationManager>(() => new PartnerConfigurationManager(LayeredCache.Instance), LazyThreadSafetyMode.PublicationOnly);
+        public static PartnerConfigurationManager Instance => lazy.Value;
 
         private readonly ILayeredCache _layeredCache;
-        private readonly IRequestContextUtils _requestContextUtils;
-        private readonly IVirtualAssetPartnerConfigRepository _repository;
-        private readonly IGeneralPartnerConfigManager _generalPartnerConfigManager;
 
-        public static PartnerConfigurationManager Instance { get { return lazy.Value; } }
-
-        public PartnerConfigurationManager(
-                               ILayeredCache layeredCache,
-                               IVirtualAssetPartnerConfigRepository repository,
-                               IRequestContextUtils requestContextUtils,
-                               IGeneralPartnerConfigManager generalPartnerConfigManager)
+        public PartnerConfigurationManager(ILayeredCache layeredCache)
         {
             _layeredCache = layeredCache;
-            _repository = repository;
-            _requestContextUtils = requestContextUtils;
-            _generalPartnerConfigManager = generalPartnerConfigManager;
         }
 
         #region internal methods 
@@ -555,20 +534,6 @@ namespace ApiLogic.Api.Managers
             }
 
             return new Status(eResponseStatus.OK);
-        }
-
-        public bool AllowSuspendedAction(int groupId, bool isDefault = false)
-        {
-            if (!_requestContextUtils.IsPartnerRequest())
-                return false;
-
-            var inheritanceType = _generalPartnerConfigManager.GetGeneralPartnerConfig(groupId)?.SuspensionProfileInheritanceType;
-
-            if (inheritanceType == SuspensionProfileInheritanceType.Default && isDefault)
-                return true;
-
-            //If default or 'always' set as false
-            return inheritanceType == SuspensionProfileInheritanceType.Never;
         }
 
         private static Tuple<PaymentPartnerConfig, bool> GetPaymentPartnerConfigDB(Dictionary<string, object> funcParams)

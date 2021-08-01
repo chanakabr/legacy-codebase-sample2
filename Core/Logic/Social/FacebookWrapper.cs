@@ -1647,7 +1647,7 @@ namespace Core.Social
                 if (uObj.m_RespStatus == ResponseStatus.OK)
                 {
                     if (uObj.m_user != null &&
-                       !APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, uObj.m_user.m_sSiteGUID, RolePermissions.LOGIN))
+                       !APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(m_nGroupID, uObj.m_user.m_sSiteGUID, RolePermissions.LOGIN))
                     {
                         fbs.status = APILogic.Api.Managers.RolesPermissionsManager.GetSuspentionStatus(m_nGroupID, uObj.m_user.m_domianID);
                         return fbs;

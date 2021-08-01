@@ -504,8 +504,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        if (uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
-                            && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
+                        if (uObj.m_user?.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, uObj.m_user.Id))
                         {
                             ret.m_oStatus = BillingResponseStatus.UserSuspended;
                             ret.m_sRecieptCode = string.Empty;
@@ -822,8 +821,7 @@ namespace Core.ConditionalAccess
                         InAppRes.m_oBillingResponse.m_sStatusDescription = "Cant charge an unknown user";
                         return InAppRes.m_oBillingResponse;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
-                        && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
+                    else if (uObj.m_user?.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, uObj.m_user.Id))
                     {
                         InAppRes.m_oBillingResponse.m_oStatus = BillingResponseStatus.UserSuspended;
                         InAppRes.m_oBillingResponse.m_sRecieptCode = string.Empty;
@@ -1745,7 +1743,7 @@ namespace Core.ConditionalAccess
                 {
                     if (domain.m_DomainStatus != DomainStatus.OK && domain.m_DomainStatus != DomainStatus.DomainCreatedWithoutNPVRAccount)
                     {
-                        if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
+                        if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(userId)))
                         {
                             if (!RolesPermissionsManager.Instance.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
                             {
@@ -4088,8 +4086,7 @@ namespace Core.ConditionalAccess
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                         return ret;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
-                        && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
+                    else if (uObj.m_user?.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, uObj.m_user.Id))
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -4247,8 +4244,7 @@ namespace Core.ConditionalAccess
                         ret.m_sRecieptCode = "";
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
-                        && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
+                    else if (uObj.m_user?.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, uObj.m_user.Id))
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -5292,8 +5288,7 @@ namespace Core.ConditionalAccess
                         oResponse.m_sStatusDescription = "Cant charge an unknown user";
                         return oResponse;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
-                        && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
+                    else if (uObj.m_user?.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, uObj.m_user.Id))
                     {
                         oResponse.m_oStatus = BillingResponseStatus.UserSuspended;
                         oResponse.m_sRecieptCode = string.Empty;
@@ -6253,8 +6248,7 @@ namespace Core.ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended &&
-                        !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
+                    else if (uObj.m_user?.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, uObj.m_user.Id))
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -6575,7 +6569,7 @@ namespace Core.ConditionalAccess
                 if (subscriptions != null && subscriptions.Length > 0)
                 {
                     BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK;
-                    if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, userId, RolePermissions.PURCHASE_SUBSCRIPTION))
+                    if (!APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(m_nGroupID, userId, RolePermissions.PURCHASE_SUBSCRIPTION))
                     {
                         blockEntitlement = BlockEntitlementType.BLOCK_SUBSCRIPTION;
                     }
@@ -9565,8 +9559,7 @@ namespace Core.ConditionalAccess
                         WriteToUserLog(sSiteGUID, "while trying to purchase media file id(Cellular): " + nMediaFileID.ToString() + " error returned: " + ret.m_sStatusDescription);
                         return ret;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
-                        && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
+                    else if (uObj.m_user?.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, uObj.m_user.Id))
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -9783,8 +9776,7 @@ namespace Core.ConditionalAccess
                         ret.m_sRecieptCode = string.Empty;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended
-                        && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
+                    else if (uObj.m_user?.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, uObj.m_user.Id))
                     {
                         ret.m_oStatus = BillingResponseStatus.UserSuspended;
                         ret.m_sRecieptCode = string.Empty;
@@ -10272,8 +10264,8 @@ namespace Core.ConditionalAccess
                         if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
                         {
                             // check is permitted to login because if domain suspended to cancel or force cancel it should be done via Phoenix (service_action )
-                            if (!PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID, isForce) &&
-                                !RolesPermissionsManager.Instance.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
+                            if (!RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(this.m_nGroupID, domain.m_masterGUIDs[0], isForce)
+                                && !RolesPermissionsManager.Instance.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
                             {
                                 result.Code = (int)eResponseStatus.DomainSuspended;
                                 result.Message = "Domain suspended";
@@ -11082,8 +11074,8 @@ namespace Core.ConditionalAccess
 
                 BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK; // default value 
                 // check permissions                     
-                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, userId, RolePermissions.PLAYBACK_PPV);
-                bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(m_nGroupID, userId, RolePermissions.PLAYBACK_SUBSCRIPTION);
+                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(m_nGroupID, userId, RolePermissions.PLAYBACK_PPV);
+                bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(m_nGroupID, userId, RolePermissions.PLAYBACK_SUBSCRIPTION);
 
                 if (!permittedPpv && !permittedSubscription)
                 {
