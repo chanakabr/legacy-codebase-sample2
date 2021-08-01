@@ -123,6 +123,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 case KalturaCanaryDeploymentMicroservicesRoutingAction.USER_LOGIN_PIN_CONTROLLER:
                     res = CanaryDeploymentRoutingAction.UserLoginPinController;
                     break;
+                case KalturaCanaryDeploymentMicroservicesRoutingAction.MULTIREQUEST:
+                    res = CanaryDeploymentRoutingAction.MultiRequestController;
+                    break;
                 default:
                     throw new Exception("invalid KalturaCanaryDeploymentRoutingAction type");
             }
