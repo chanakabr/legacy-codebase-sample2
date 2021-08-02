@@ -874,86 +874,36 @@ namespace Core.Catalog
 
             log.DebugFormat("Start indexing medias. total medias={0}", groupMedias.Count);
             // save current value to restore at the end
-            var currentDefaultConnectionLimit = System.Net.ServicePointManager.DefaultConnectionLimit;
+            var currentDefaultConnectionLimit = ServicePointManager.DefaultConnectionLimit;
             try
             {
-                var numOfBulkRequests = 0;
-
-                var bulkRequests =
-                    new Dictionary<int, List<NestEsBulkRequest<Media>>>(){{numOfBulkRequests, new List<NestEsBulkRequest<Media>>()}};
-
-                // For each media
-                foreach (var groupMedia in groupMedias)
-                {
-                    // For each language
-                    foreach (var languageId in groupMedia.Value.Keys.Distinct())
-                    {
-                        var language = GetLanguageById(languageId);
-                        var media = groupMedia.Value[languageId];
-                        
-                        if (media == null)
-                            continue;
-                        
-                        media.PadMetas(_metasToPad);
-                        
-                        // Serialize media and create a bulk request for it
-                        var nestMedia = NestDataCreator.GetMedia(media, language);
-                        
-                        // If we exceeded the size of a single bulk request then create another list
-                        if (bulkRequests[numOfBulkRequests].Count >= sizeOfBulk)
-                        {
-                            numOfBulkRequests++;
-                            bulkRequests.Add(numOfBulkRequests, new List<NestEsBulkRequest<Media>>());
-                        }
-                        var bulkRequest = new NestEsBulkRequest<Media>(media.m_nMediaID,newIndexName,nestMedia);
-                        
-                        bulkRequests[numOfBulkRequests].Add(bulkRequest);
-                        
-                    }
-                }
                 var maxDegreeOfParallelism = GetMaxDegreeOfParallelism();
 
                 var options = new ParallelOptions() {MaxDegreeOfParallelism = maxDegreeOfParallelism};
                 var contextData = new ContextData();
-                System.Net.ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
-                var failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<NestEsBulkRequest<Media>>>();
+                ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
+                
+                // For each media
+                var bulkRequests = GetMediaBulkRequests(groupMedias, newIndexName, sizeOfBulk);
                 // Send request to elastic search in a different thread
                 Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
                 {
                     contextData.Load();
-                    
-                    
-                    List<NestEsBulkRequest<Media>> nestEsBulkRequests = bulkRequest.Value;
-                    BulkResponse response = ExecuteBulkRequest(nestEsBulkRequests);
+                    var nestEsBulkRequests = bulkRequest.Value;
+                    var response = ExecuteBulkRequest(nestEsBulkRequests);
 
                     // Log invalid results
                     if (!response.IsValid && response.ItemsWithErrors.Any())
                     {
-                        log.Warn($"Bulk request when indexing media for partner {_partnerId} has invalid results. Will retry soon.");
-                        //TODO gil figure oput how to save the data for the failed 
-                        //failedBulkRequests.Add(response.ItemsWithErrors.First().);
-                    }
-                });
-
-                
-                // retry on all failed bulk requests (this time not in parallel)
-                if (failedBulkRequests.Count <= 0) return;
-                
-                foreach (var bulkRequest in failedBulkRequests)
-                {
-                    var response = ExecuteBulkRequest(bulkRequest);
-                    // Log invalid results
-                    if (!response.IsValid && response.ItemsWithErrors.Any())
-                    {
-                        foreach (var item in  response.ItemsWithErrors)
+                        foreach (var item in response.ItemsWithErrors)
                         {
                             log.ErrorFormat(
                                 "Error - Could not add Media to ES index, additional retry will not be attempted. GroupID={0};ID={2};error={3};",
-                                _partnerId,  item.Id, item.Error);
+                                _partnerId, item.Id, item.Error);
                         }
                     }
-                }
-                
+                });
+
             }
             catch (Exception ex)
             {
@@ -961,8 +911,60 @@ namespace Core.Catalog
             }
             finally
             {
-                System.Net.ServicePointManager.DefaultConnectionLimit = currentDefaultConnectionLimit;
+                ServicePointManager.DefaultConnectionLimit = currentDefaultConnectionLimit;
             }
+        }
+
+        private Dictionary<int, List<NestEsBulkRequest<Media>>> GetMediaBulkRequests(Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMedias,
+            string newIndexName,
+            int sizeOfBulk)
+        {
+            var numOfBulkRequests = 0;
+            var bulkRequests = new Dictionary<int, List<NestEsBulkRequest<Media>>>(){{numOfBulkRequests, new List<NestEsBulkRequest<Media>>()}};
+            
+            foreach (var groupMedia in groupMedias)
+            {
+                // For each language
+                foreach (var languageId in groupMedia.Value.Keys.Distinct())
+                {
+                    var language = GetLanguageById(languageId);
+                    var media = groupMedia.Value[languageId];
+
+                    if (media == null)
+                        continue;
+
+                    media.PadMetas(_metasToPad);
+
+                    var bulkRequest =
+                        GetMediaNestEsBulkRequest(newIndexName,
+                            media,
+                            language,
+                            bulkRequests,
+                            sizeOfBulk,
+                            ref numOfBulkRequests);
+
+                    bulkRequests[numOfBulkRequests].Add(bulkRequest);
+                }
+            }
+
+            return bulkRequests;
+        }
+
+        private NestEsBulkRequest<Media> GetMediaNestEsBulkRequest(string newIndexName, ApiObjects.SearchObjects.Media media,
+            LanguageObj language, Dictionary<int, List<NestEsBulkRequest<Media>>> bulkRequests, int sizeOfBulk, ref int numOfBulkRequests)
+        {
+            // Serialize media and create a bulk request for it
+            var nestMedia = NestDataCreator.GetMedia(media, language);
+
+            // If we exceeded the size of a single bulk request then create another list
+            if (bulkRequests[numOfBulkRequests].Count >= sizeOfBulk)
+            {
+                numOfBulkRequests++;
+                bulkRequests.Add(numOfBulkRequests, new List<NestEsBulkRequest<Media>>());
+            }
+
+            var bulkRequest = new NestEsBulkRequest<Media>(media.m_nMediaID, newIndexName, nestMedia);
+            return bulkRequest;
         }
 
         private static int GetMaxDegreeOfParallelism()
