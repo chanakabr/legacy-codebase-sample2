@@ -29,6 +29,7 @@ using ApiLogic.Catalog;
 using ApiLogic.Tests.ConfigurationMocks;
 using ApiObjects.Nest;
 using ElasticSearch.NEST;
+using ApiLogic.IndexManager.Helpers;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -45,6 +46,7 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<ILayeredCache> _mockLayeredCache;
         private Mock<ICatalogCache> _mockCatalogCache;
         private Mock<IWatchRuleManager> _mockWatchRuleManager;
+        private Mock<IChannelQueryBuilder> _mockChannelQueryBuilder;
 
         private IndexManagerV2 GetIndexV2Manager(int partnerId)
         {
@@ -57,7 +59,8 @@ namespace ApiLogic.Tests.IndexManager
                 _mockLayeredCache.Object,
                 _mockChannelManager.Object,
                 _mockCatalogCache.Object,
-                _mockWatchRuleManager.Object
+                _mockWatchRuleManager.Object,
+                _mockChannelQueryBuilder.Object
             );
         }
 
@@ -76,6 +79,7 @@ namespace ApiLogic.Tests.IndexManager
             _mockCatalogCache = _mockRepository.Create<ICatalogCache>();
             _mockLayeredCache = _mockRepository.Create<ILayeredCache>();
             _mockWatchRuleManager = _mockRepository.Create<IWatchRuleManager>();
+            _mockChannelQueryBuilder = _mockRepository.Create<IChannelQueryBuilder>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance, ApplicationConfiguration.Current);
 
         }

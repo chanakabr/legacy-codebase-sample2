@@ -83,6 +83,7 @@ namespace Core.Catalog
         private readonly IChannelManager _channelManager;
         private readonly ICatalogCache _catalogCache;
         private readonly IWatchRuleManager _watchRuleManager;
+        private readonly IChannelQueryBuilder _channelQueryBuilder;
 
         private readonly int _partnerId;
         private bool _groupUsesTemplates;
@@ -106,7 +107,8 @@ namespace Core.Catalog
             IChannelManager channelManager,
             ICatalogCache catalogCache,
             ITtlService ttlService,
-            IWatchRuleManager watchRuleManager
+            IWatchRuleManager watchRuleManager,
+            IChannelQueryBuilder channelQueryBuilder
         )
         {
             _elasticClient = elasticClient;
@@ -120,6 +122,7 @@ namespace Core.Catalog
             _groupManager = groupManager;
             _ttlService = ttlService;
             _watchRuleManager = watchRuleManager;
+            _channelQueryBuilder = channelQueryBuilder;
 
             //init all ES const
             _numOfShards = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
@@ -982,28 +985,29 @@ namespace Core.Catalog
 
                 var mediaQueryParser = new ESMediaQueryBuilder() { QueryType = eQueryType.EXACT };
                 var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, _partnerId);
-                var bulkRequests = new List<NestEsBulkRequest<JObject>>();
+                var bulkRequests = new List<NestEsBulkRequest<PercolatedQuery>>();
                 int sizeOfBulk = 50;
 
                 foreach (var channel in groupChannels)
                 {
-                    string query = IndexingUtils.GetChannelQuery(mediaQueryParser, unifiedQueryBuilder, channel, 
-                        _watchRuleManager, _catalogManager, _group, _groupUsesTemplates);
+                    //string query = _channelQueryBuilder.GetChannelQueryString(mediaQueryParser, unifiedQueryBuilder, channel);
 
-                    if (!string.IsNullOrEmpty(query))
-                    {
-                        JObject json = JObject.Parse(query);
-                        JObject fatherJson = new JObject();
-                        fatherJson["query"] = json;
+                    var query = _channelQueryBuilder.GetChannelQuery(mediaQueryParser, unifiedQueryBuilder, channel);
+                    
+                    //if (!string.IsNullOrEmpty(query))
+                    //{
+                    //    JObject json = JObject.Parse(query);
+                    //    JObject fatherJson = new JObject();
+                    //    fatherJson["query"] = json;
 
-                        bulkRequests.Add(new NestEsBulkRequest<JObject>()
+                    bulkRequests.Add(new NestEsBulkRequest<PercolatedQuery>()
                         {
                             DocID = $"{channel.m_nChannelID}",
-                            Document = fatherJson,
+                            Document = query,
                             Index = newIndexName,
                             Operation = eOperation.index
                         });
-                    }
+                    //}
 
                     // If we exceeded maximum size of bulk 
                     if (bulkRequests.Count >= sizeOfBulk)

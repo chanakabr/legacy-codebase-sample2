@@ -30,6 +30,7 @@ using Nest;
 using Newtonsoft.Json;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using Policy = Polly.Policy;
+using ApiLogic.IndexManager.NestData;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -46,6 +47,7 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<ILayeredCache> _mockLayeredCache;
         private Mock<ICatalogCache> _mockCatalogCache;
         private Mock<IWatchRuleManager> _mockWatchRuleManager;
+        private Mock<IChannelQueryBuilder> _mockChannelQueryBuilder;
         private Mock<IElasticSearchCommonUtils> _mockElasticSearchCommonUtils;
         private static int _nextPartnerId = 10000;
         private Random _random;
@@ -62,7 +64,8 @@ namespace ApiLogic.Tests.IndexManager
                     _mockChannelManager.Object,
                     _mockCatalogCache.Object,
                     new TtlService(),
-                    _mockWatchRuleManager.Object
+                    _mockWatchRuleManager.Object,
+                    _mockChannelQueryBuilder.Object
                 );
         }
         
@@ -104,6 +107,7 @@ namespace ApiLogic.Tests.IndexManager
             _mockCatalogCache = _mockRepository.Create<ICatalogCache>();
             _mockLayeredCache = _mockRepository.Create<ILayeredCache>();
             _mockWatchRuleManager = _mockRepository.Create<IWatchRuleManager>();
+            _mockChannelQueryBuilder = _mockRepository.Create<IChannelQueryBuilder>();
             _mockElasticSearchCommonUtils = _mockRepository.Create<IElasticSearchCommonUtils>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(_mockElasticSearchCommonUtils.Object, ApplicationConfiguration.Current);
         }
@@ -307,7 +311,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsTrue(publishResult);
 
             bool searchSuccess = false;
-            var policy = Policy.HandleResult<Country>(x => x == null).WaitAndRetry(
+            var policy = Policy.HandleResult<ApiObjects.Country>(x => x == null).WaitAndRetry(
                 3,
                 retryAttempt => TimeSpan.FromSeconds(1));
 
@@ -356,12 +360,27 @@ namespace ApiLogic.Tests.IndexManager
             bool out1;
             Type out2;
 
+            QueryContainerDescriptor<object> queryContainerDescriptor = new QueryContainerDescriptor<object>();
+
+            var percolatdQuery = new PercolatedQuery()
+            {
+                Query = queryContainerDescriptor.Term(term => term.Field("is_active").Value(true))
+            };
+
             _mockChannelManager.Setup(setup => setup
                     .GetGroupChannels(partnerId))
                 .Returns(new List<Channel>() { channel });
             _mockCatalogManager.Setup(setup => setup
                     .GetUnifiedSearchKey(partnerId, It.IsAny<string>(), out out1, out out2))
                 .Returns<int, string, bool, Type>((one, two, three, four) => new HashSet<string>() { two });
+            _mockChannelQueryBuilder.Setup(s => s
+                .GetChannelQuery(
+                    It.IsAny<ElasticSearch.Searcher.ESMediaQueryBuilder>(),
+                    It.IsAny<ElasticSearch.Searcher.ESUnifiedQueryBuilder>(),
+                    It.IsAny<Channel>()))
+                .Returns(percolatdQuery)
+            ;
+
             var indexManager = GetIndexV7Manager(partnerId);
 
             var indexName = indexManager.SetupMediaIndex();

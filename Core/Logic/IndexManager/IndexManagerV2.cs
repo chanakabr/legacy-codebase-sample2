@@ -103,6 +103,7 @@ namespace Core.Catalog
         private readonly IChannelManager _channelManager;
         private readonly ICatalogCache _catalogCache;
         private readonly IWatchRuleManager _watchRuleManager;
+        private readonly IChannelQueryBuilder _channelQueryBuilder;
 
         private bool _doesGroupUsesTemplates;
         private readonly IGroupManager _groupManager;
@@ -121,7 +122,8 @@ namespace Core.Catalog
             ILayeredCache layeredCache,
             IChannelManager channelManager,
             ICatalogCache catalogCache,
-            IWatchRuleManager watchRuleManager)
+            IWatchRuleManager watchRuleManager,
+            IChannelQueryBuilder channelQueryBuilder)
         {
             _elasticSearchApi = elasticSearchClient;
             _serializer = eSSerializerV2;
@@ -133,6 +135,7 @@ namespace Core.Catalog
             _partnerId = partnerId;
             _groupManager = groupManager;
             _watchRuleManager = watchRuleManager;
+            _channelQueryBuilder = channelQueryBuilder;
 
             InitializePartnerData(partnerId);
             GetMetasAndTagsForMapping(out _, out _, out _metasToPad);
@@ -5578,9 +5581,7 @@ namespace Core.Catalog
 
                     foreach (Channel currentChannel in groupChannels)
                     {
-                        string channelQuery = IndexingUtils.GetChannelQuery(
-                            mediaQueryParser, unifiedQueryBuilder, currentChannel, 
-                            _watchRuleManager, _catalogManager, _group, _doesGroupUsesTemplates);
+                        string channelQuery = _channelQueryBuilder.GetChannelQueryString(mediaQueryParser, unifiedQueryBuilder, currentChannel);
 
                         if (!string.IsNullOrEmpty(channelQuery))
                         {
@@ -7279,7 +7280,7 @@ namespace Core.Catalog
                         channel.filterQuery = builder.ToString();
                     }
 
-                    UnifiedSearchDefinitions definitions = IndexingUtils.BuildSearchDefinitions(_group, channel, true, _watchRuleManager, _catalogManager);
+                    UnifiedSearchDefinitions definitions = _channelQueryBuilder.BuildSearchDefinitions(channel, true);
 
                     isMedia = definitions.shouldSearchMedia;
                     isEpg = definitions.shouldSearchEpg;
@@ -7310,7 +7311,7 @@ namespace Core.Catalog
                     };
 
                     mediaQueryParser.m_nGroupID = channel.m_nGroupID;
-                    MediaSearchObj mediaSearchObject = IndexingUtils.BuildBaseChannelSearchObject(channel, _watchRuleManager);
+                    MediaSearchObj mediaSearchObject = _channelQueryBuilder.BuildBaseChannelSearchObject(channel);
 
                     mediaQueryParser.oSearchObject = mediaSearchObject;
                     channelQueryForMedia = mediaQueryParser.BuildSearchQueryString(true);
