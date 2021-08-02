@@ -263,7 +263,7 @@ namespace Core.Catalog
             var policy = RetryPolicy.Handle<Exception>()
             .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
             {
-                log.Warn($"upsert attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
+                log.Warn($"upsert attempt [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
             });
 
             policy.Execute(() =>
@@ -279,7 +279,7 @@ namespace Core.Catalog
 
                         // Serialize EPG object to string
                         var buildEpg = NestDataCreator.GetEpg(program, langId, isOpc: _groupUsesTemplates);
-                        var bulkRequest = GetNestEpgBulkRequest(draftIndexName, dateOfProgramsToIngest, program, buildEpg);
+                        var bulkRequest = GetEpgBulkRequest(draftIndexName, dateOfProgramsToIngest, buildEpg);
                         bulkRequests.Add(bulkRequest);
 
                         // If we exceeded maximum size of bulk 
@@ -317,16 +317,17 @@ namespace Core.Catalog
             return bulkSize;
         }
 
-        private NestEsBulkRequest< Epg> GetNestEpgBulkRequest(string draftIndexName, DateTime dateOfProgramsToIngest, EpgCB program,
+        private NestEsBulkRequest<Epg> GetEpgBulkRequest(string draftIndexName,
+            DateTime routingDate,
             Epg buildEpg)
         {
-            var bulkRequest = new NestEsBulkRequest< Epg>()
+            var bulkRequest = new NestEsBulkRequest<Epg>()
             {
-                DocID = $"{program.EpgID.ToString()}_{program.Language}",
+                DocID = $"{buildEpg.EpgIdentifier}_{buildEpg.Language}",
                 Document = buildEpg,
                 Index = draftIndexName,
                 Operation = eOperation.index,
-                Routing = dateOfProgramsToIngest.Date.ToString("yyyyMMdd")
+                Routing = routingDate.Date.ToString("yyyyMMdd")
             };
             return bulkRequest;
         }
@@ -878,7 +879,6 @@ namespace Core.Catalog
             try
             {
                 var maxDegreeOfParallelism = GetMaxDegreeOfParallelism();
-
                 var options = new ParallelOptions() {MaxDegreeOfParallelism = maxDegreeOfParallelism};
                 var contextData = new ContextData();
                 ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
@@ -889,21 +889,8 @@ namespace Core.Catalog
                 Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
                 {
                     contextData.Load();
-                    var nestEsBulkRequests = bulkRequest.Value;
-                    var response = ExecuteBulkRequest(nestEsBulkRequests);
-
-                    // Log invalid results
-                    if (!response.IsValid && response.ItemsWithErrors.Any())
-                    {
-                        foreach (var item in response.ItemsWithErrors)
-                        {
-                            log.ErrorFormat(
-                                "Error - Could not add Media to ES index, additional retry will not be attempted. GroupID={0};ID={2};error={3};",
-                                _partnerId, item.Id, item.Error);
-                        }
-                    }
+                    ExecuteAndValidateBulkRequests(bulkRequest.Value);
                 });
-
             }
             catch (Exception ex)
             {
@@ -950,10 +937,9 @@ namespace Core.Catalog
             return bulkRequests;
         }
 
-        private NestEsBulkRequest<Media> GetMediaNestEsBulkRequest(string newIndexName, ApiObjects.SearchObjects.Media media,
+        private NestEsBulkRequest<Media> GetMediaNestEsBulkRequest(string indexName, ApiObjects.SearchObjects.Media media,
             LanguageObj language, Dictionary<int, List<NestEsBulkRequest<Media>>> bulkRequests, int sizeOfBulk, ref int numOfBulkRequests)
         {
-            // Serialize media and create a bulk request for it
             var nestMedia = NestDataCreator.GetMedia(media, language);
 
             // If we exceeded the size of a single bulk request then create another list
@@ -962,9 +948,8 @@ namespace Core.Catalog
                 numOfBulkRequests++;
                 bulkRequests.Add(numOfBulkRequests, new List<NestEsBulkRequest<Media>>());
             }
-
-            var bulkRequest = new NestEsBulkRequest<Media>(media.m_nMediaID, newIndexName, nestMedia);
-            return bulkRequest;
+            var docId = $"{nestMedia.MediaId}_{language.Code}";
+            return new NestEsBulkRequest<Media>(docId, indexName, nestMedia);
         }
 
         private static int GetMaxDegreeOfParallelism()
@@ -1187,10 +1172,121 @@ namespace Core.Catalog
             return indexName;
         }
 
-        public void AddEPGsToIndex(string index, bool isRecording, Dictionary<ulong, Dictionary<string, EpgCB>> programs, Dictionary<long, List<int>> linearChannelsRegionsMapping,
+        public void AddEPGsToIndex(string index,
+            bool isRecording, 
+            Dictionary<ulong, Dictionary<string, EpgCB>> programs,
+            Dictionary<long, List<int>> linearChannelsRegionsMapping,
             Dictionary<long, long> epgToRecordingMapping)
         {
-            throw new NotImplementedException();
+            // Basic validation
+            if (programs == null || programs.Count == 0)
+            {
+                log.ErrorFormat($"AddEPGsToIndex {index} for group {_partnerId}: programs is null or empty!");
+                return;
+            }
+
+            // save current value to restore at the end
+            var currentDefaultConnectionLimit = ServicePointManager.DefaultConnectionLimit;
+            try
+            {
+                int numOfBulkRequests = 0;
+                var bulkRequests = 
+                    new Dictionary<int, List<NestEsBulkRequest<Epg>>>() { { numOfBulkRequests, 
+                        new List<NestEsBulkRequest<Epg>>() } };
+
+                // GetLinear Channel Values 
+                var programsList = programs.SelectMany(x => x.Value.Values).ToList();
+                
+                _catalogManager.GetLinearChannelValues(programsList, _partnerId, _ => { });
+
+                // used only to support linear media id search on elastic search
+                List<string> epgChannelIds = programsList.Select(item => item.ChannelID.ToString()).ToList<string>();
+                
+                var linearChannelSettings = _catalogCache.GetLinearChannelSettings(_partnerId, epgChannelIds);
+
+                // prevent from size of bulk to be more than the default value of 500 (currently as of 23.06.20)
+                int sizeOfBulk = GetBulkSize();
+
+                // Run on all programs
+                foreach (ulong epgId in programs.Keys)
+                {
+                    foreach (string languageCode in programs[epgId].Keys)
+                    {
+                        string suffix = null;
+
+                        LanguageObj language = null;
+                        language = GetLanguageByCode(languageCode);
+                        // Validate language
+                        if (language == null)
+                        {
+                            log.ErrorFormat("AddEPGsToIndex: Epg {0} has invalid language code {1}", epgId,
+                                languageCode);
+                            continue;
+                        }
+                        
+                        var epgCb = programs[epgId][languageCode];
+
+                        if (epgCb == null)
+                        {
+                            continue;
+                        }
+
+                        epgCb.PadMetas(_metasToPad);
+
+                        // used only to currently support linear media id search on elastic search
+                        if (linearChannelSettings.ContainsKey(epgCb.ChannelID.ToString()))
+                        {
+                            epgCb.LinearMediaId = linearChannelSettings[epgCb.ChannelID.ToString()].LinearMediaId;
+                        }
+
+                        if (epgCb.LinearMediaId > 0 && linearChannelsRegionsMapping != null &&
+                            linearChannelsRegionsMapping.ContainsKey(epgCb.LinearMediaId))
+                        {
+                            epgCb.regions = linearChannelsRegionsMapping[epgCb.LinearMediaId];
+                        }
+
+                        // Serialize EPG object to string
+                        var epg = NestDataCreator.GetEpg(epgCb, language.ID, true, _groupUsesTemplates);
+                        var documentId = GetEpgDocumentId(epgCb, isRecording, epgToRecordingMapping);
+                        
+                        // If we exceeded the size of a single bulk reuquest then create another list
+                        if (bulkRequests[numOfBulkRequests].Count >= sizeOfBulk)
+                        {
+                            numOfBulkRequests++;
+                            bulkRequests.Add(numOfBulkRequests, new List<NestEsBulkRequest<Epg>>());
+                        }
+                        var bulkRequest = GetEpgBulkRequest(index, epgCb.StartDate, epg);
+                        bulkRequest.DocID = $"{documentId}_{epg.Language}";//override the doc id 
+                        bulkRequests[numOfBulkRequests].Add(bulkRequest);
+                    }
+                }
+
+                var maxDegreeOfParallelism = GetMaxDegreeOfParallelism();
+                var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                var contextData = new ContextData();
+                ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
+                // Send request to elastic search in a different thread
+                Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
+                {
+                    contextData.Load();
+                    ExecuteAndValidateBulkRequests(bulkRequest.Value);
+                });
+            }
+            catch (Exception ex)
+            {
+                log.Error("Failed during AddEPGsToIndex", ex);
+            }
+            finally
+            {
+                ServicePointManager.DefaultConnectionLimit = currentDefaultConnectionLimit;
+            }
+
+        }
+        private string GetEpgDocumentId(EpgCB epg, bool isRecording, Dictionary<long, long> epgToRecordingMapping)
+        {
+            if (isRecording)
+                return epgToRecordingMapping[(long)epg.EpgID].ToString();
+            return epg.EpgID.ToString();
         }
 
         public bool PublishEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
@@ -1250,11 +1346,16 @@ namespace Core.Catalog
             return _groupUsesTemplates ? _catalogGroupCache.GetDefaultLanguage() : _group.GetGroupDefaultLanguage();
         }
         
-        private int GetLanguageIdByCode(string languageCode)
+        private LanguageObj GetLanguageByCode(string languageCode)
         {
             return _groupUsesTemplates
-                ? _catalogGroupCacheCodePerLang[languageCode].ID
-                : _groupCodePerLang[languageCode].ID;
+                ? _catalogGroupCacheCodePerLang[languageCode]
+                : _groupCodePerLang[languageCode];
+        }
+        
+        private int GetLanguageIdByCode(string languageCode)
+        {
+            return GetLanguageByCode(languageCode).ID;
         }
 
         private LanguageObj GetLanguageById(int id)

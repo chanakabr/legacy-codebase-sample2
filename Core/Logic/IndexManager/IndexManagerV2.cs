@@ -6390,26 +6390,14 @@ namespace Core.Catalog
             {
                 return epgId;
             }
-            else
-            {
-                return (ulong)(epgToRecordingMapping[(int)epgId]); 
-            }
+            return (ulong)(epgToRecordingMapping[(int)epgId]);
         }
 
         protected virtual ulong GetDocumentId(EpgCB epg, bool isRecording, Dictionary<long, long> epgToRecordingMapping)
         {
-            if (!isRecording)
-            {
-                return epg.EpgID;
-            }
-            else
-            {
-                ulong result = GetDocumentId(epg, false, epgToRecordingMapping);
-
-                result = (ulong)(epgToRecordingMapping[(long)epg.EpgID]);
-
-                return result;
-            }
+            if (isRecording)
+                return (ulong)epgToRecordingMapping[(long)epg.EpgID];
+            return epg.EpgID;
         }
 
         protected virtual string SerializeEPGObject(EpgCB epg, bool isRecording, Dictionary<long, long> epgToRecordingMapping, string suffix = null, bool doesGroupUsesTemplates = false)
