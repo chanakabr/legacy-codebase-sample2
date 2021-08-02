@@ -100,7 +100,8 @@ namespace Core.Catalog
             IElasticSearchIndexDefinitions esIndexDefinitions,
             IChannelManager channelManager,
             ICatalogCache catalogCache,
-            ITtlService ttlService
+            ITtlService ttlService,
+            IWatchRuleManager watchRuleManager
         )
         {
             _elasticClient = elasticClient;
@@ -113,6 +114,7 @@ namespace Core.Catalog
             _partnerId = partnerId;
             _groupManager = groupManager;
             _ttlService = ttlService;
+            _watchRuleManager = watchRuleManager;
 
             //init all ES const
             _numOfShards = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
@@ -875,7 +877,58 @@ namespace Core.Catalog
 
         public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, string newIndexName, bool shouldCleanupInvalidChannels = false)
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            if (string.IsNullOrEmpty(newIndexName))
+            {
+                newIndexName = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            }
+
+            try
+            {
+                List<Channel> groupChannels = IndexingUtils.GetGroupChannels(_partnerId, _channelManager, _groupUsesTemplates, ref channelIds);
+
+                var mediaQueryParser = new ESMediaQueryBuilder() { QueryType = eQueryType.EXACT };
+                var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, _partnerId);
+                var bulkRequests = new List<NestEsBulkRequest<string>>();
+                int sizeOfBulk = 50;
+
+                foreach (var channel in groupChannels)
+                {
+                    string query = IndexingUtils.GetChannelQuery(mediaQueryParser, unifiedQueryBuilder, channel, _watchRuleManager, _group, _groupUsesTemplates);
+
+                    if (!string.IsNullOrEmpty(query))
+                    {
+                        bulkRequests.Add(new NestEsBulkRequest<string>()
+                        {
+                            DocID = $"{channel.m_nChannelID}",
+                            Document = query,
+                            Index = newIndexName,
+                            Operation = eOperation.index
+                        });
+                    }
+
+                    // If we exceeded maximum size of bulk 
+                    if (bulkRequests.Count >= sizeOfBulk)
+                    {
+                        ExecuteAndValidateBulkRequests(bulkRequests);
+                    }
+                }
+
+                // If we have anything left that is less than the size of the bulk
+                if (bulkRequests.Any())
+                {
+                    ExecuteAndValidateBulkRequests(bulkRequests);
+                }
+
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error when indexing percolators on partner {_partnerId}", ex);
+            }
+
+            return result;
         }
 
         public string SetupChannelMetadataIndex()
@@ -1890,7 +1943,7 @@ namespace Core.Catalog
                 .Date(x => x.Name("update_date").Format(ESUtils.ES_DATE_FORMAT))
                 .Percolator(x => x.Name("query"))
                 ;
-
+            
             InitializeTextField("external_id", propertiesDescriptor, 
                 defaultIndexAnalyzer, defaultSearchAnalyzer, defaultAutocompleteAnalyzer, defaultAutocompleteSearchAnalyzer, true);
             InitializeTextField("entry_id", propertiesDescriptor, 

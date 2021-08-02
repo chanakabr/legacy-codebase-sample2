@@ -435,7 +435,7 @@ namespace Core.Catalog
                 {
                     if (channel != null)
                     {
-                        result = UpdateChannelPercolator( channel, mediaAliases, epgAliases);
+                        result = UpdateChannelPercolator(channel, mediaAliases, epgAliases);
                     }
                     else
                     {
@@ -5543,11 +5543,10 @@ namespace Core.Catalog
             string newIndexName, bool shouldCleanupInvalidChannels = false)
         {
             var channelsToRemove = new HashSet<string>();
-            List<Channel> groupChannels = null;
 
             if (string.IsNullOrEmpty(newIndexName))
             {
-                newIndexName = $"{_partnerId}";
+                newIndexName = IndexingUtils.GetMediaIndexAlias(_partnerId);
             }
 
             if (_doesGroupUsesTemplates || channelIds != null)
@@ -5558,19 +5557,7 @@ namespace Core.Catalog
                 try
                 {
                     List<int> subGroups = new List<int>();
-
-                    if (_doesGroupUsesTemplates)
-                    {
-                        groupChannels = ChannelManager.GetGroupChannels(_partnerId);
-                        channelIds = new HashSet<int>(groupChannels.Select(x => x.m_nChannelID));
-                    }
-                    // means that channelIds != null
-                    else
-                    {
-                        GroupManager groupManager = new GroupManager();
-                        groupManager.RemoveGroup(_partnerId);
-                        groupChannels = groupManager.GetChannels(channelIds.ToList(), _partnerId);
-                    }
+                    List<Channel> groupChannels = IndexingUtils.GetGroupChannels(_partnerId, _channelManager, _doesGroupUsesTemplates, ref channelIds);
 
                     ESMediaQueryBuilder mediaQueryParser = new ESMediaQueryBuilder()
                     {
@@ -5582,74 +5569,9 @@ namespace Core.Catalog
 
                     foreach (Channel currentChannel in groupChannels)
                     {
-                        if (currentChannel == null)
-                        {
-                            log.ErrorFormat("BuildChannelQueries - All channels list has null or in-active channel, continuing");
-                            continue;
-                        }
-
-                        // if group uses templates - index inactive channel as well
-                        if (!_doesGroupUsesTemplates && currentChannel.m_nIsActive != 1)
-                        {
-                            log.ErrorFormat("BuildChannelQueries - All channels list has null or in-active channel, continuing");
-                            continue;
-                        }
-
-                        string channelQuery = string.Empty;
-
-                        try
-                        {
-                            log.DebugFormat("BuildChannelQueries - Current channel  = {0}", currentChannel.m_nChannelID);
-
-                            if ((currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL) ||
-                               (currentChannel.m_nChannelTypeID == (int)ChannelType.Manual && _doesGroupUsesTemplates && currentChannel.AssetUserRuleId > 0))
-                            {
-                                try
-                                {
-                                    if (currentChannel.m_nChannelTypeID == (int)ChannelType.Manual && currentChannel.AssetUserRuleId > 0)
-                                    {
-                                        StringBuilder builder = new StringBuilder();
-                                        builder.Append("(or ");
-
-                                        foreach (var item in currentChannel.m_lChannelTags)
-                                        {
-                                            builder.AppendFormat("media_id='{0}' ", item.m_lValue);
-                                        }
-
-                                        builder.Append(")");
-
-                                        currentChannel.filterQuery = builder.ToString();
-                                    }
-
-                                    UnifiedSearchDefinitions definitions = BuildSearchDefinitions(currentChannel, true);
-
-                                    definitions.shouldSearchEpg = false;
-
-                                    unifiedQueryBuilder.SearchDefinitions = definitions;
-                                    channelQuery = unifiedQueryBuilder.BuildSearchQueryString(true);
-                                }
-                                catch (KalturaException ex)
-                                {
-                                    log.ErrorFormat("Tried to index an invalid KSQL Channel. ID = {0}, message = {1}", currentChannel.m_nChannelID, ex.Message, ex);
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw ex;
-                                }
-                            }
-                            else
-                            {
-                                mediaQueryParser.m_nGroupID = currentChannel.m_nGroupID;
-                                MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(currentChannel);
-
-                                mediaQueryParser.oSearchObject = mediaSearchObject;
-                                channelQuery = mediaQueryParser.BuildSearchQueryString(true);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            log.ErrorFormat("BuildChannelQueries - building query for channel {0} has failed, ex = {1}", currentChannel.m_nChannelID, ex);
-                        }
+                        string channelQuery = IndexingUtils.GetChannelQuery(
+                            mediaQueryParser, unifiedQueryBuilder, currentChannel, 
+                            _watchRuleManager, _group, _doesGroupUsesTemplates);
 
                         if (!string.IsNullOrEmpty(channelQuery))
                         {
@@ -5734,7 +5656,7 @@ namespace Core.Catalog
                             {
                                 foreach (var item in invalidResults)
                                 {
-                                    log.ErrorFormat("Error - Could not add channel to ES index. GroupID={0};ID={1};error={2};",
+                                    log.ErrorFormat("Error - Could not delete channel from ES index. GroupID={0};ID={1};error={2};",
                                         _partnerId, item.Key, item.Value);
                                 }
                             }
@@ -7360,7 +7282,7 @@ namespace Core.Catalog
                         channel.filterQuery = builder.ToString();
                     }
 
-                    UnifiedSearchDefinitions definitions = BuildSearchDefinitions(channel, true);
+                    UnifiedSearchDefinitions definitions = IndexingUtils.BuildSearchDefinitions(_group, channel, true, _watchRuleManager);
 
                     isMedia = definitions.shouldSearchMedia;
                     isEpg = definitions.shouldSearchEpg;
@@ -7391,7 +7313,7 @@ namespace Core.Catalog
                     };
 
                     mediaQueryParser.m_nGroupID = channel.m_nGroupID;
-                    MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(channel);
+                    MediaSearchObj mediaSearchObject = IndexingUtils.BuildBaseChannelSearchObject(channel, _watchRuleManager);
 
                     mediaQueryParser.oSearchObject = mediaSearchObject;
                     channelQueryForMedia = mediaQueryParser.BuildSearchQueryString(true);
@@ -7454,208 +7376,6 @@ namespace Core.Catalog
                         log.Error(string.Concat("Could not create mapping of type epg for language ", language.Name));
                     }
                 }
-            }
-        }
-
-
-        private UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel, bool useMediaTypes)
-        {
-            UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
-
-            definitions.groupId = channel.m_nGroupID;
-
-            if (useMediaTypes)
-            {
-                definitions.mediaTypes = new List<int>(channel.m_nMediaType);
-            }
-
-            if (channel.m_nMediaType != null)
-            {
-                // Nothing = all
-                if (channel.m_nMediaType.Count == 0)
-                {
-                    definitions.shouldSearchEpg = true;
-                    definitions.shouldSearchMedia = true;
-                }
-                else
-                {
-                    if (channel.m_nMediaType.Contains(Channel.EPG_ASSET_TYPE))
-                    {
-                        definitions.shouldSearchEpg = true;
-                    }
-
-                    // If there's anything besides EPG
-                    if (channel.m_nMediaType.Count(type => type != Channel.EPG_ASSET_TYPE) > 0)
-                    {
-                        definitions.shouldSearchMedia = true;
-                    }
-                }
-            }
-
-            definitions.permittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
-            definitions.order = new OrderObj();
-
-            definitions.shouldUseStartDateForMedia = false;
-            definitions.shouldUseFinalEndDate = false;
-
-            BaseRequest dummyRequest = new BaseRequest()
-            {
-                domainId = 0,
-                m_nGroupID = channel.m_nParentGroupID,
-                m_nPageIndex = 0,
-                m_nPageSize = 0,
-                m_oFilter = new Filter(),
-                m_sSiteGuid = string.Empty,
-                m_sUserIP = string.Empty
-            };
-
-            if (channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
-            {
-                var assetUserRule = AssetUserRuleManager.GetAssetUserRuleByRuleId(channel.m_nGroupID, channel.AssetUserRuleId.Value);
-
-                if (assetUserRule != null && assetUserRule.Status != null && assetUserRule.Status.Code == (int)eResponseStatus.OK && assetUserRule.Object != null)
-                {
-                    BooleanPhraseNode phrase = null;
-
-                    var rulesIds = new List<long>();
-                    string queryString = string.Empty;
-
-                    UnifiedSearchDefinitionsBuilder.GetQueryStringFromAssetUserRules(new List<ApiObjects.Rules.AssetUserRule>()
-                        {
-                            assetUserRule.Object
-                        },
-                        out rulesIds,
-                        out queryString);
-
-                    BooleanPhrase.ParseSearchExpression(queryString, ref phrase);
-
-                    CatalogLogic.UpdateNodeTreeFields(dummyRequest, ref phrase, definitions, _group, _group.m_nParentGroupID);
-
-                    definitions.assetUserRuleFilterPhrase = phrase;
-                }
-            }
-
-            if (!string.IsNullOrEmpty(channel.filterQuery))
-            {
-                BooleanPhraseNode filterTree = null;
-                Status parseStatus = BooleanPhraseNode.ParseSearchExpression(channel.filterQuery, ref filterTree);
-
-                if (parseStatus.Code != (int)eResponseStatus.OK)
-                {
-                    throw new KalturaException(parseStatus.Message, parseStatus.Code);
-                }
-                else
-                {
-                    definitions.filterPhrase = filterTree;
-                }
-
-                CatalogLogic.UpdateNodeTreeFields(dummyRequest,
-                    ref definitions.filterPhrase, definitions, _group, channel.m_nParentGroupID);
-            }
-
-            return definitions;
-        }
-
-        private MediaSearchObj BuildBaseChannelSearchObject(Channel channel)
-        {
-            MediaSearchObj searchObject = new MediaSearchObj();
-            searchObject.m_nGroupId = channel.m_nGroupID;
-            searchObject.m_bExact = true;
-            searchObject.m_eCutWith = channel.m_eCutWith;
-
-            if (channel.m_nMediaType != null)
-            {
-                searchObject.m_sMediaTypes = string.Join(";", channel.m_nMediaType.Select(type => type.ToString()));
-            }
-
-            searchObject.m_sPermittedWatchRules = GetPermittedWatchRules(channel.m_nGroupID);
-            searchObject.m_oOrder = new ApiObjects.SearchObjects.OrderObj();
-
-            searchObject.m_bUseStartDate = false;
-            searchObject.m_bUseFinalEndDate = false;
-
-            CopySearchValuesToSearchObjects(ref searchObject, channel.m_eCutWith, channel.m_lChannelTags);
-
-            // If it is a manual channel without media, make it an empty request
-            if (channel.m_nChannelTypeID == (int)ChannelType.Manual &&
-                (channel.m_lChannelTags == null || channel.m_lChannelTags.Count == 0))
-            {
-                searchObject.m_eCutWith = CutWith.AND;
-                searchObject.m_eFilterTagsAndMetasCutWith = CutWith.AND;
-                searchObject.m_lFilterTagsAndMetas = new List<SearchValue>()
-                {
-                    new SearchValue("media_id", "0")
-                    {
-                        m_eInnerCutWith = CutWith.AND,
-                        m_lValue = new List<string>()
-                        {
-                            "0"
-                        }
-                    }
-                };
-            }
-
-            return searchObject;
-        }
-
-        private string GetPermittedWatchRules(int nGroupId)
-        {
-            List<string> groupPermittedWatchRules = _watchRuleManager.GetGroupPermittedWatchRules(nGroupId);
-            string sRules = string.Empty;
-
-            if (groupPermittedWatchRules != null && groupPermittedWatchRules.Count > 0)
-            {
-                sRules = string.Join(" ", groupPermittedWatchRules);
-            }
-
-            return sRules;
-        }
-
-        private static void CopySearchValuesToSearchObjects(ref MediaSearchObj searchObject, CutWith cutWith, List<SearchValue> channelSearchValues)
-        {
-            List<SearchValue> m_dAnd = new List<SearchValue>();
-            List<SearchValue> m_dOr = new List<SearchValue>();
-
-            SearchValue search = new SearchValue();
-            if (channelSearchValues != null && channelSearchValues.Count > 0)
-            {
-                foreach (SearchValue searchValue in channelSearchValues)
-                {
-                    if (!string.IsNullOrEmpty(searchValue.m_sKey))
-                    {
-                        search = new SearchValue();
-                        search.m_sKey = searchValue.m_sKey;
-                        search.m_lValue = searchValue.m_lValue;
-                        search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
-                        search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
-
-                        switch (cutWith)
-                        {
-                            case ApiObjects.SearchObjects.CutWith.OR:
-                                {
-                                    m_dOr.Add(search);
-                                    break;
-                                }
-                            case ApiObjects.SearchObjects.CutWith.AND:
-                                {
-                                    m_dAnd.Add(search);
-                                    break;
-                                }
-                            default:
-                                break;
-                        }
-                    }
-                }
-            }
-
-            if (m_dOr.Count > 0)
-            {
-                searchObject.m_dOr = m_dOr;
-            }
-
-            if (m_dAnd.Count > 0)
-            {
-                searchObject.m_dAnd = m_dAnd;
             }
         }
 

@@ -60,7 +60,8 @@ namespace ApiLogic.Tests.IndexManager
                     _elasticSearchIndexDefinitions,
                     _mockChannelManager.Object,
                     _mockCatalogCache.Object,
-                    new TtlService()
+                    new TtlService(),
+                    _mockWatchRuleManager.Object
                 );
         }
         
@@ -328,5 +329,30 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsTrue(searchSuccess);
             Assert.IsNull(country);
         }
+
+        //[Test]
+        //public void TestChannelPercolator()
+        //{
+        //    var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+        //    var language = IndexManagerMockDataCreator.GetRandomLanguage();
+        //    IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
+
+        //    var channel = IndexManagerMockDataCreator.GetRandomChannel(partnerId);
+        //    channel.filterQuery = "name!~'aa'";
+
+        //    _mockChannelManager.Setup(setup => setup
+        //            .GetGroupChannels(partnerId))
+        //        .Returns(new List<Channel>() { channel });
+        //    var indexManager = GetIndexV7Manager(partnerId);
+
+
+        //    var indexName = indexManager.SetupMediaIndex();
+
+        //    bool addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, indexName);
+
+        //    Assert.IsTrue(addResult);
+
+        //    indexManager.PublishMediaIndex(indexName, true, true);
+        //}
     }
 }

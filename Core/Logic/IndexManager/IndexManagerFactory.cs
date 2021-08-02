@@ -38,7 +38,8 @@ namespace Core.Catalog
                     CatalogManager.Instance,
                     ElasticSearchIndexDefinitions.Instance,
                     ChannelManager.Instance,
-                    CatalogCache.Instance(), new TtlService());
+                    CatalogCache.Instance(), new TtlService(),
+                    WatchRuleManager.Instance);
             }
                 
             var indexManagerV2 = new IndexManagerV2(partnerId,
