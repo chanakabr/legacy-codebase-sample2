@@ -1346,7 +1346,7 @@ namespace Core.Catalog
                     .Setting("index.max_result_window", _maxResults)
                     .Setting("index.max_ngram_diff", 20)
                     // TODO: convert to tcm...
-                    .Setting("index.mapping.total_fields.limit", 2600)
+                    .Setting("index.mapping.total_fields.limit", 10000)
                     .Analysis(a => a
                         .Analyzers(an => analyzersDescriptor)
                         .TokenFilters(tf => filtersDesctiptor)
