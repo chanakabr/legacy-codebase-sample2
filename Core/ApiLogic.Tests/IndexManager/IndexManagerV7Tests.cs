@@ -282,7 +282,13 @@ namespace ApiLogic.Tests.IndexManager
                 new IPV4("3", usaId, "us", usa, 620, 625),
             };
 
-            bool insertResult = indexManager.InsertDataToIPToCountryIndex(indexName, ipv4, null);
+            var tuple = IpToCountryHandler.GetIpRangesByNetworkStatic("2a00:801:300:d000::/52");
+            List<IPV6> ipv6 = new List<IPV6>()
+            {
+               new IPV6(tuple, 1, "GB", "United Kingdom")
+            };
+
+            bool insertResult = indexManager.InsertDataToIPToCountryIndex(indexName, ipv4, ipv6);
             Assert.IsTrue(insertResult);
 
             bool publishResult = indexManager.PublishIPToCountryIndex(indexName);

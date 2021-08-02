@@ -50,16 +50,24 @@ namespace Core.Catalog
         /// <returns>item1=fromAddress; item2=toAddress</returns>
         internal abstract Tuple<string, string> GetIpRangesByNetwork(string network);
 
+        protected abstract string FromField { get; }
+        protected abstract string ToField { get; }
+
         internal virtual QueryContainer BuildNestQueryForIp(QueryContainerDescriptor<ApiLogic.IndexManager.NestData.Country> q, string ipValue)
         {
-            return q.TermRange(range => range.Field("ip_to").GreaterThanOrEquals(ipValue)) &&
-                    q.TermRange(range => range.Field("ip_from").LessThanOrEquals(ipValue))
+            return q.TermRange(range => range.Field(this.ToField).GreaterThanOrEquals(ipValue)) &&
+                    q.TermRange(range => range.Field(this.FromField).LessThanOrEquals(ipValue))
                 ;
         }
     }
 
     internal class IpV4ToCountryHandler : IpToCountryHandler
     {
+        protected override string FromField { get { return "ip_from"; } }
+
+        protected override string ToField { get { return "ip_to"; } }
+
+
         internal override string IndexType { get { return "iptocountry"; } }
 
         internal override FilteredQuery BuildFilteredQueryForIp(string ipValue)
@@ -148,6 +156,10 @@ namespace Core.Catalog
     internal class IpV6ToCountryHandler : IpToCountryHandler
     {
         internal override string IndexType { get { return "ipv6tocountry"; } }
+        protected override string FromField { get { return "ipv6_from"; } }
+
+        protected override string ToField { get { return "ipv6_to"; } }
+
 
         internal override FilteredQuery BuildFilteredQueryForIp(string ipValue)
         {
