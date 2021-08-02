@@ -7987,6 +7987,7 @@ namespace Core.Catalog
             Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
 
             definitions.isGroupingOptionInclude = request.searchGroupBy != null && request.searchGroupBy.isGroupingOptionInclude;
+            definitions.trendingAssetWindow = request.order.trendingAssetWindow;
 
             #endregion
 

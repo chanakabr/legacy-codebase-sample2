@@ -16,7 +16,8 @@ namespace WebAPI.Models.Catalog
         }
 
         internal virtual void Validate()
-        {   
+        {
+            this.ValidateTrending();
         }
 
         /// <summary>
@@ -28,6 +29,15 @@ namespace WebAPI.Models.Catalog
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public KalturaDynamicOrderBy DynamicOrderBy { get; set; }
 
+        /// <summary>
+        /// Trending Days Equal
+        /// </summary>
+        [DataMember(Name = "trendingDaysEqual")]
+        [JsonProperty("trendingDaysEqual")]
+        [XmlElement(ElementName = "trendingDaysEqual", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MinInteger = 1, MaxInteger = 366)]
+        public int? TrendingDaysEqual { get; set; }
+
         internal virtual KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             // TODO refactoring. duplicate with KalturaSearchAssetFilter
@@ -35,26 +45,37 @@ namespace WebAPI.Models.Catalog
             var domainId = (int)(contextData.DomainId ?? 0);
             var isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
 
-            var response = ClientsManager.CatalogClient().SearchAssets(
-                contextData.GroupId, 
-                userId,
-                domainId,
-                contextData.Udid,
-                contextData.Language,
-                pager.getPageIndex(),
-                pager.PageSize, 
-                null,
-                OrderBy, 
-                null, 
-                null,
-                contextData.ManagementData,
-                DynamicOrderBy,
-                null,
-                responseProfile,
-                isAllowedToViewInactiveAssets,
-                null);
+            var searchAssetsFilter = new ApiLogic.Catalog.SearchAssetsFilter
+            {
+                GroupId = contextData.GroupId,
+                SiteGuid = userId,
+                DomainId = domainId,
+                Udid = contextData.Udid,
+                Language = contextData.Language,
+                PageIndex = pager.getPageIndex(),
+                PageSize = pager.PageSize,
+                Filter = null,
+                AssetTypes = null,
+                EpgChannelIds = null,
+                ManagementData = contextData.ManagementData,
+                GroupBy = null,
+                IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                IgnoreEndDate = false,
+                GroupByType = ApiObjects.SearchObjects.GroupingOption.Omit,
+                IsPersonalListSearch = false,
+                UseFinal = false,
+                TrendingDays = TrendingDaysEqual
+            };
 
+            var response = ClientsManager.CatalogClient().SearchAssets(searchAssetsFilter, OrderBy, DynamicOrderBy, responseProfile);
             return response;
+        }
+
+        internal void ValidateTrending()
+        {
+            if (this.OrderBy != KalturaAssetOrderBy.VIEWS_DESC && this.TrendingDaysEqual.HasValue)
+                throw new Exceptions.BadRequestException(Exceptions.BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER,
+                    "KalturaSearchAssetFilter.orderBy", "KalturaSearchAssetFilter.TrendingDaysEqual");
         }
     }
 }

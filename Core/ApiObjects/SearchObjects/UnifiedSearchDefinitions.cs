@@ -441,6 +441,10 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public bool isGroupingOptionInclude;
+
+        [JsonProperty()]
+        [DataMember]
+        public DateTime? trendingAssetWindow;
         
         [JsonProperty()]
         [DataMember]

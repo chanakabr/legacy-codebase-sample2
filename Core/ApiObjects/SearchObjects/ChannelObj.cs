@@ -105,6 +105,10 @@ namespace ApiObjects.SearchObjects
             m_sOrderValue = string.Empty;
         }
 
+        [DataMember]
+        [JsonProperty()]
+        public DateTime? trendingAssetWindow { get; set; }
+
         private static DateTime GetSlidingWindowStart(int minPeriodId)
         {
             switch (minPeriodId)
