@@ -178,6 +178,11 @@ namespace Core.Catalog
                     definitions.shouldSearchMedia = true;
                 }
 
+                if (definitions.hasMediaIdTerm && !definitions.hasOrNode)
+                {
+                    definitions.shouldSearchEpg = false;
+                }
+
                 HashSet<int> mediaTypes = null;
                 if (doesGroupUsesTemplates)
                 {
