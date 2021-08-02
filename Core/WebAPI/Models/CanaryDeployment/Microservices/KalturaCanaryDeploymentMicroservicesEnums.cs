@@ -18,6 +18,8 @@
         LOGIN = 6, // ottuser/action/login
         LOGOUT = 7, // ottuser/action/logout
         ANONYMOUSLOGIN = 8, // ottuser/action/anonymousLogin
+        MULTIREQUEST = 9, // ottuser/action/multirequest
+        
     }
 
     public enum KalturaCanaryDeploymentMicroservicesMigrationEvent

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.ClientManagers.Client;
@@ -85,9 +86,31 @@ namespace WebAPI.Models.Catalog
             int domainId = (int)(contextData.DomainId ?? 0);
             bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
 
-            var response = ClientsManager.CatalogClient().SearchAssets(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(), pager.PageSize, this.Ksql,
-                this.OrderBy, this.getTypeIn(), this.getEpgChannelIdIn(), contextData.ManagementData, this.DynamicOrderBy,
-                this.getGroupByValue(), responseProfile, isAllowedToViewInactiveAssets, this.GroupByOrder, false, this.GroupingOptionEqual ?? KalturaGroupingOption.Omit);
+            var searchAssetFilter = new ApiLogic.Catalog.SearchAssetsFilter
+            {
+                GroupId = contextData.GroupId,
+                UserId = userId,
+                DomainId = domainId,
+                Udid = contextData.Udid,
+                Language = contextData.Language,
+                PageIndex = pager.getPageIndex(),
+                PageSize = pager.PageSize,
+                Filter = Ksql,
+                AssetTypes = getTypeIn(),
+                EpgChannelIds = getEpgChannelIdIn(),
+                ManagementData = contextData.ManagementData,
+                GroupBy = getGroupByValue(),
+                IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                IgnoreEndDate = false,
+                GroupByType = this.GroupingOptionEqual == null 
+                    ? ApiObjects.SearchObjects.GroupingOption.Omit : 
+                    AutoMapper.Mapper.Map<ApiObjects.SearchObjects.GroupingOption>(GroupingOptionEqual),
+                IsPersonalListSearch = false,
+                UseFinal = false,
+                TrendingDays = this.TrendingDaysEqual
+            };
+            
+            var response = ClientsManager.CatalogClient().SearchAssets(searchAssetFilter, OrderBy, DynamicOrderBy, responseProfile, GroupByOrder);
 
             return response;
         }

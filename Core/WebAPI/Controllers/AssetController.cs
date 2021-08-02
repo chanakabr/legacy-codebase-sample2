@@ -179,7 +179,7 @@ namespace WebAPI.Controllers
             }
 
             return response;
-        }        
+        }
 
         /// <summary>
         /// Returns media or EPG asset by media / EPG internal or external identifier
@@ -231,8 +231,28 @@ namespace WebAPI.Controllers
                             KalturaAssetUserRuleListResponse rules = ClientsManager.ApiClient().GetAssetUserRules(groupId, userId, KalturaRuleActionType.FILTER);
                             if (rules != null && rules.Objects != null && rules.Objects.Count > 0)
                             {
-                                KalturaAssetListResponse assetListResponse = ClientsManager.CatalogClient().SearchAssets(groupId, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
-                                    udid, language, 0, 1, $"(and asset_type='media' media_id = '{id}')", KalturaAssetOrderBy.RELEVANCY_DESC, null, null, false, null, null, null, isAllowedToViewInactiveAssets, null, true);
+                                var searchAssetsFilter = new ApiLogic.Catalog.SearchAssetsFilter
+                                {
+                                    GroupId = groupId,
+                                    SiteGuid = userID,
+                                    DomainId = (int)HouseholdUtils.GetHouseholdIDByKS(groupId),
+                                    Udid = udid,
+                                    Language = language,
+                                    PageIndex = 0,
+                                    PageSize = 1,
+                                    Filter = $"(and asset_type='media' media_id = '{id}')",
+                                    AssetTypes = null,
+                                    EpgChannelIds = null,
+                                    ManagementData = false,
+                                    GroupBy = null,
+                                    IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                                    IgnoreEndDate = true,
+                                    GroupByType = ApiObjects.SearchObjects.GroupingOption.Omit,
+                                    IsPersonalListSearch = false,
+                                    UseFinal = false
+                                };
+
+                                KalturaAssetListResponse assetListResponse = ClientsManager.CatalogClient().SearchAssets(searchAssetsFilter, KalturaAssetOrderBy.RELEVANCY_DESC);
 
                                 if (assetListResponse != null && assetListResponse.TotalCount == 1 && assetListResponse.Objects.Count == 1)
                                 {
@@ -317,7 +337,7 @@ namespace WebAPI.Controllers
                 if (Utils.Utils.DoesGroupUsesTemplates(groupId))
                 {
                     var epgAsset = ClientsManager.CatalogClient().GetEpgAsset(groupId, epgId, isAllowedToViewInactiveAssets);
-                    return new KalturaRecordingAsset(epgAsset) { RecordingId = id.ToString(), RecordingType = recording.Type};
+                    return new KalturaRecordingAsset(epgAsset) { RecordingId = id.ToString(), RecordingType = recording.Type };
                 }
                 else
                 {
@@ -866,7 +886,7 @@ namespace WebAPI.Controllers
                     DrmUtils.BuildSourcesDrmData(assetId, assetType, contextDataParams, ks, ref response);
 
                     // Check and get PlaybackAdapter in case asset set rule and action.
-                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId, ks.UserId, assetId, assetType, 
+                    KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterContext(ks.GroupId, ks.UserId, assetId, assetType,
                         KSUtils.ExtractKSPayload().UDID, Utils.Utils.GetClientIP(), response, contextDataParams);
                     if (adapterResponse != null)
                     {
@@ -1297,14 +1317,14 @@ namespace WebAPI.Controllers
                 var assetType = bulkUploadAssetData.GetBulkUploadObjectType();
 
                 bulkUpload =
-                    ClientsManager.CatalogClient().AddBulkUpload(groupId, userId,assetType, bulkUploadJobData, bulkUploadAssetData,fileData);
+                    ClientsManager.CatalogClient().AddBulkUpload(groupId, userId, assetType, bulkUploadJobData, bulkUploadAssetData, fileData);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return bulkUpload;        
+            return bulkUpload;
         }
 
         /// <summary>

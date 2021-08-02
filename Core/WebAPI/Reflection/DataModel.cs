@@ -458,6 +458,8 @@ namespace WebAPI.Reflection
                     {
                         case "DynamicOrderBy":
                             return "dynamicOrderBy";
+                        case "TrendingDaysEqual":
+                            return "trendingDaysEqual";
                     }
                     break;
                     

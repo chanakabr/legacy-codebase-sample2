@@ -6850,6 +6850,10 @@ namespace Core.Catalog
                     {
                         BooleanPhrase phrase = node as BooleanPhrase;
 
+                        if (phrase.operand == eCutType.Or)
+                        {
+                            definitions.hasOrNode = true;
+                        }
                         // Run on tree - enqueue all child nodes to continue going deeper
                         foreach (var childNode in phrase.nodes)
                         {
@@ -7333,6 +7337,11 @@ namespace Core.Catalog
                                 throw new KalturaException(string.Format("Invalid search value was sent for numeric field: {0}", originalKey), (int)eResponseStatus.BadSearchRequest);
                             }
                         }
+
+                        if (leaf.field == "media_id") 
+                        {
+                            definitions.hasMediaIdTerm = true;
+                        }
                     }
                     else if (internalReservedUnifiedSearchNumericFields.Contains(searchKeyLowered))
                     {
@@ -7675,6 +7684,11 @@ namespace Core.Catalog
                 {
                     definitions.shouldSearchMedia = true;
                 }
+                
+                if (definitions.hasMediaIdTerm && !definitions.hasOrNode)
+                {
+                    definitions.shouldSearchEpg = false;
+                }
 
                 HashSet<int> mediaTypes = null;
                 if (doesGroupUsesTemplates)
@@ -7984,6 +7998,7 @@ namespace Core.Catalog
             Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
 
             definitions.isGroupingOptionInclude = request.searchGroupBy != null && request.searchGroupBy.isGroupingOptionInclude;
+            definitions.trendingAssetWindow = request.order.trendingAssetWindow;
 
             #endregion
 

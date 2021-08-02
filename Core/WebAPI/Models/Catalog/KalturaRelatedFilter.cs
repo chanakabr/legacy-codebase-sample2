@@ -86,13 +86,13 @@ namespace WebAPI.Models.Catalog
 
                 response = ClientsManager.CatalogClient().GetRelatedMediaExcludeWatched(contextData.GroupId, userId, domainId, contextData.Udid,
                     contextData.Language, pager.getPageIndex(), pager.PageSize, this.getMediaId(), this.Ksql, this.getTypeIn(),
-                    this.OrderBy, this.DynamicOrderBy);
+                    this.OrderBy, this.DynamicOrderBy, this.TrendingDaysEqual);
             }
             else
             {
                 response = ClientsManager.CatalogClient().GetRelatedMedia(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid,
                     contextData.Language, pager.getPageIndex(), pager.PageSize, this.getMediaId(), this.Ksql, this.getTypeIn(),
-                    this.OrderBy, this.DynamicOrderBy, this.getGroupByValue(), responseProfile);
+                    this.OrderBy, this.DynamicOrderBy, this.getGroupByValue(), responseProfile, this.TrendingDaysEqual);
             }
 
             return response;

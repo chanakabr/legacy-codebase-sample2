@@ -5,6 +5,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
+using WebAPI.Exceptions;
 
 namespace WebAPI.Models.Catalog
 {
@@ -72,10 +74,9 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "groupingOptionEqual", IsNullable = true)]
         public KalturaGroupingOption? GroupingOptionEqual
         {
-            get; 
+            get;
             set;
         }
-
 
         internal List<string> getGroupByValue()
         {

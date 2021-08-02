@@ -2042,7 +2042,16 @@ namespace Core.Catalog
                                 }
                                 else
                                 {
-                                    orderedIds = SortAssetsByStats(assetIds, orderBy, order.m_eOrderDir);
+                                    if (unifiedSearchDefinitions.trendingAssetWindow.HasValue)
+                                    {
+                                        //BEO-9415
+                                        orderedIds = SortAssetsByStats(assetIds, orderBy, order.m_eOrderDir,
+                                            unifiedSearchDefinitions.trendingAssetWindow, DateTime.UtcNow);
+                                    }
+                                    else
+                                    {
+                                        orderedIds = SortAssetsByStats(assetIds, orderBy, order.m_eOrderDir);
+                                    }
                                 }
 
                                 if (!string.IsNullOrEmpty(distinctGroup.Key))

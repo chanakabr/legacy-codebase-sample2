@@ -42,8 +42,9 @@ namespace WebAPI.Models.Catalog
         {
             string deviceType = System.Web.HttpContext.Current.Request.GetUserAgentString();
             int domainId = (int)(contextData.DomainId ?? 0);
+
             var response = ClientsManager.CatalogClient().GetExternalChannelAssets(contextData.GroupId, this.IdEqual.ToString(), contextData.UserId.ToString(), domainId, contextData.Udid,
-                contextData.Language, pager.getPageIndex(), pager.PageSize, this.OrderBy, deviceType, this.UtcOffsetEqual.ToString(), this.FreeText, this.DynamicOrderBy);
+                contextData.Language, pager.getPageIndex(), pager.PageSize, this.OrderBy, deviceType, this.UtcOffsetEqual.ToString(), this.FreeText, this.DynamicOrderBy, this.TrendingDaysEqual);
             return response;
         }
     }

@@ -21946,6 +21946,10 @@ namespace WebAPI.Models.Catalog
                 propertyValue = DynamicOrderBy.ToJson(currentVersion, omitObsolete);
                 ret.Add("dynamicOrderBy", "\"dynamicOrderBy\": " + propertyValue);
             }
+            if(TrendingDaysEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("trendingDaysEqual")))
+            {
+                ret.Add("trendingDaysEqual", "\"trendingDaysEqual\": " + TrendingDaysEqual);
+            }
             return ret;
         }
         
@@ -21964,6 +21968,10 @@ namespace WebAPI.Models.Catalog
             {
                 propertyValue = DynamicOrderBy.ToXml(currentVersion, omitObsolete);
                 ret.Add("dynamicOrderBy", "<dynamicOrderBy>" + propertyValue + "</dynamicOrderBy>");
+            }
+            if(TrendingDaysEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("trendingDaysEqual")))
+            {
+                ret.Add("trendingDaysEqual", "<trendingDaysEqual>" + TrendingDaysEqual + "</trendingDaysEqual>");
             }
             return ret;
         }

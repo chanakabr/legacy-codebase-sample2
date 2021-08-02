@@ -51,7 +51,7 @@ namespace WebAPI.Models.Catalog
 
             var response = ClientsManager.CatalogClient().GetBundleAssets(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language,
                pager.getPageIndex(), pager.PageSize, this.IdEqual, this.OrderBy, this.getTypeIn(), this.BundleTypeEqual,
-               isAllowedToViewInactiveAssets, this.DynamicOrderBy);
+               isAllowedToViewInactiveAssets, this.DynamicOrderBy, this.TrendingDaysEqual);
             
             return response;
         }

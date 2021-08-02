@@ -441,6 +441,18 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public bool isGroupingOptionInclude;
+
+        [JsonProperty()]
+        [DataMember]
+        public DateTime? trendingAssetWindow;
+        
+        [JsonProperty()]
+        [DataMember]
+        public bool hasMediaIdTerm;
+        
+        [JsonProperty()]
+        [DataMember]
+        public bool hasOrNode;
         #endregion
 
         #region Ctor

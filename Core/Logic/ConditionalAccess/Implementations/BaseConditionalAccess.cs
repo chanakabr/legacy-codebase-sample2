@@ -14976,7 +14976,7 @@ namespace Core.ConditionalAccess
                                                 }
 
                                                 // global record
-                                                Recording serieRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, channelId, startDate, endDate, epg.CRID, domainIds, out failedDomainIds);
+                                                Recording serieRecording = RecordingsManager.Instance.Record(m_nGroupID, epg.EPG_ID, channelId, paddedStartDate, paddedEndDate, epg.CRID, domainIds, out failedDomainIds);
                                                 if (serieRecording == null || serieRecording.Status == null || serieRecording.Status.Code != (int)eResponseStatus.OK || serieRecording.Id == 0)
                                                 {
                                                     log.ErrorFormat("failed to record epg as series on IngestRecording, epgId = {0}", epg.EPG_ID);
@@ -16405,6 +16405,7 @@ namespace Core.ConditionalAccess
 
                     DateTime epgPaddedStartDate = epg.StartDate.AddSeconds(-1 * paddingBeforeProgramStarts);
                     DateTime epgPaddedEndDate = epg.EndDate.AddSeconds(paddingAfterProgramEnds);
+
                     long recordingId = 0;
 
                     List<long> domainIds = new List<long>() { };
@@ -16429,6 +16430,7 @@ namespace Core.ConditionalAccess
                     {
                         // add message which will add the recording to all the following domains
                         DateTime distributeTime = epgPaddedStartDate.AddMinutes(1);
+
                         eRecordingTask task = eRecordingTask.DistributeRecording;
                         RecordingsManager.EnqueueMessage(m_nGroupID, epgId, recordingId, epgPaddedStartDate, distributeTime, task);
                     }
@@ -17278,8 +17280,10 @@ namespace Core.ConditionalAccess
                 }
 
                 HashSet<long> failedDomainIds;
+                var paddedEpgStartDate = sharedRecording.EpgStartDate.AddSeconds(-1 * accountSettings.PaddingBeforeProgramStarts ?? 0);
+                var paddedEpgEndDate = sharedRecording.EpgEndDate.AddSeconds(accountSettings.PaddingAfterProgramEnds ?? 0);
 
-                sharedRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, sharedRecording.ChannelId, sharedRecording.EpgStartDate, sharedRecording.EpgEndDate, sharedRecording.Crid,
+                sharedRecording = RecordingsManager.Instance.Record(m_nGroupID, epgId, sharedRecording.ChannelId, paddedEpgStartDate, paddedEpgEndDate, sharedRecording.Crid,
                                                                 domains.Select(x => x.Item1).ToList(), out failedDomainIds, RecordingContext.PrivateDistribute);
 
                 if (sharedRecording != null && sharedRecording.Status != null && sharedRecording.Status.Code == (int)eResponseStatus.OK
