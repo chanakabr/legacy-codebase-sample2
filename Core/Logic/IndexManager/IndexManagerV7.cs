@@ -844,7 +844,7 @@ namespace Core.Catalog
                     .Setting("index.max_result_window", _maxResults)
                     .Setting("index.max_ngram_diff", 20)
                     // TODO: convert to tcm...
-                    .Setting("index.mapping.total_fields.limit", 2600)
+                    .Setting("index.mapping.total_fields.limit", 10000)
                     .Analysis(a => a
                         .Analyzers(an => analyzersDescriptor)
                         .TokenFilters(tf => filtersDesctiptor)
@@ -890,19 +890,24 @@ namespace Core.Catalog
 
                 var mediaQueryParser = new ESMediaQueryBuilder() { QueryType = eQueryType.EXACT };
                 var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, _partnerId);
-                var bulkRequests = new List<NestEsBulkRequest<string>>();
+                var bulkRequests = new List<NestEsBulkRequest<JObject>>();
                 int sizeOfBulk = 50;
 
                 foreach (var channel in groupChannels)
                 {
-                    string query = IndexingUtils.GetChannelQuery(mediaQueryParser, unifiedQueryBuilder, channel, _watchRuleManager, _group, _groupUsesTemplates);
+                    string query = IndexingUtils.GetChannelQuery(mediaQueryParser, unifiedQueryBuilder, channel, 
+                        _watchRuleManager, _catalogManager, _group, _groupUsesTemplates);
 
                     if (!string.IsNullOrEmpty(query))
                     {
-                        bulkRequests.Add(new NestEsBulkRequest<string>()
+                        JObject json = JObject.Parse(query);
+                        JObject fatherJson = new JObject();
+                        fatherJson["query"] = json;
+
+                        bulkRequests.Add(new NestEsBulkRequest<JObject>()
                         {
                             DocID = $"{channel.m_nChannelID}",
-                            Document = query,
+                            Document = fatherJson,
                             Index = newIndexName,
                             Operation = eOperation.index
                         });
@@ -1227,7 +1232,7 @@ namespace Core.Catalog
                     .Setting("index.max_result_window", _maxResults)
                     .Setting("index.max_ngram_diff", 20)
                     // TODO: convert to tcm...
-                    .Setting("index.mapping.total_fields.limit", 2600)
+                    .Setting("index.mapping.total_fields.limit", 10000)
                     .Analysis(a => a
                         .Analyzers(an => analyzersDescriptor)
                         .TokenFilters(tf => filtersDesctiptor)

@@ -330,29 +330,36 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsNull(country);
         }
 
-        //[Test]
-        //public void TestChannelPercolator()
-        //{
-        //    var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-        //    var language = IndexManagerMockDataCreator.GetRandomLanguage();
-        //    IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
+        [Test]
+        public void TestChannelPercolator()
+        {
+            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
 
-        //    var channel = IndexManagerMockDataCreator.GetRandomChannel(partnerId);
-        //    channel.filterQuery = "name!~'aa'";
+            var channel = IndexManagerMockDataCreator.GetRandomChannel(partnerId);
+            channel.filterQuery = "name!~'aa'";
+            channel.m_nChannelTypeID = (int)ChannelType.KSQL;
+            channel.AssetUserRuleId = null;
 
-        //    _mockChannelManager.Setup(setup => setup
-        //            .GetGroupChannels(partnerId))
-        //        .Returns(new List<Channel>() { channel });
-        //    var indexManager = GetIndexV7Manager(partnerId);
+            bool out1;
+            Type out2;
 
+            _mockChannelManager.Setup(setup => setup
+                    .GetGroupChannels(partnerId))
+                .Returns(new List<Channel>() { channel });
+            _mockCatalogManager.Setup(setup => setup
+                    .GetUnifiedSearchKey(partnerId, It.IsAny<string>(), out out1, out out2))
+                .Returns<int, string, bool, Type>((one, two, three, four) => new HashSet<string>() { two });
+            var indexManager = GetIndexV7Manager(partnerId);
 
-        //    var indexName = indexManager.SetupMediaIndex();
+            var indexName = indexManager.SetupMediaIndex();
 
-        //    bool addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, indexName);
+            bool addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, indexName);
 
-        //    Assert.IsTrue(addResult);
+            Assert.IsTrue(addResult);
 
-        //    indexManager.PublishMediaIndex(indexName, true, true);
-        //}
+            indexManager.PublishMediaIndex(indexName, true, true);
+        }
     }
 }

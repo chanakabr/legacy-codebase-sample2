@@ -5571,7 +5571,7 @@ namespace Core.Catalog
                     {
                         string channelQuery = IndexingUtils.GetChannelQuery(
                             mediaQueryParser, unifiedQueryBuilder, currentChannel, 
-                            _watchRuleManager, _group, _doesGroupUsesTemplates);
+                            _watchRuleManager, _catalogManager, _group, _doesGroupUsesTemplates);
 
                         if (!string.IsNullOrEmpty(channelQuery))
                         {
@@ -7282,7 +7282,7 @@ namespace Core.Catalog
                         channel.filterQuery = builder.ToString();
                     }
 
-                    UnifiedSearchDefinitions definitions = IndexingUtils.BuildSearchDefinitions(_group, channel, true, _watchRuleManager);
+                    UnifiedSearchDefinitions definitions = IndexingUtils.BuildSearchDefinitions(_group, channel, true, _watchRuleManager, _catalogManager);
 
                     isMedia = definitions.shouldSearchMedia;
                     isEpg = definitions.shouldSearchEpg;

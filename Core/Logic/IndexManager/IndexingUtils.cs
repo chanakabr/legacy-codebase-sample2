@@ -310,9 +310,8 @@ namespace Core.Catalog
             return groupChannels;
         }
 
-
         public static string GetChannelQuery(ESMediaQueryBuilder mediaQueryParser, ESUnifiedQueryBuilder unifiedQueryBuilder,
-            Channel currentChannel, IWatchRuleManager watchRuleManager, Group group, bool doesGroupUseTemplates)
+            Channel currentChannel, IWatchRuleManager watchRuleManager, ICatalogManager catalogManager, Group group, bool doesGroupUseTemplates)
         {
             string channelQuery = string.Empty;
 
@@ -353,7 +352,7 @@ namespace Core.Catalog
                             currentChannel.filterQuery = builder.ToString();
                         }
 
-                        UnifiedSearchDefinitions definitions = BuildSearchDefinitions(group, currentChannel, true, watchRuleManager);
+                        UnifiedSearchDefinitions definitions = BuildSearchDefinitions(group, currentChannel, true, watchRuleManager, catalogManager);
 
                         definitions.shouldSearchEpg = false;
 
@@ -386,7 +385,8 @@ namespace Core.Catalog
             return channelQuery;
         }
 
-        public static UnifiedSearchDefinitions BuildSearchDefinitions(Group group, Channel channel, bool useMediaTypes, IWatchRuleManager watchRuleManager)
+        public static UnifiedSearchDefinitions BuildSearchDefinitions(Group group, Channel channel, bool useMediaTypes, 
+            IWatchRuleManager watchRuleManager, ICatalogManager catalogManager)
         {
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
 
@@ -457,7 +457,7 @@ namespace Core.Catalog
 
                     BooleanPhrase.ParseSearchExpression(queryString, ref phrase);
 
-                    CatalogLogic.UpdateNodeTreeFields(dummyRequest, ref phrase, definitions, group, group.m_nParentGroupID);
+                    CatalogLogic.UpdateNodeTreeFields(dummyRequest, ref phrase, definitions, group, group.m_nParentGroupID, catalogManager);
 
                     definitions.assetUserRuleFilterPhrase = phrase;
                 }
@@ -478,7 +478,7 @@ namespace Core.Catalog
                 }
 
                 CatalogLogic.UpdateNodeTreeFields(dummyRequest,
-                    ref definitions.filterPhrase, definitions, group, channel.m_nParentGroupID);
+                    ref definitions.filterPhrase, definitions, group, channel.m_nParentGroupID, catalogManager);
             }
 
             return definitions;

@@ -6813,7 +6813,11 @@ namespace Core.Catalog
             return status;
         }
 
-
+        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree,
+            UnifiedSearchDefinitions definitions, Group group, int groupId)
+        {
+            UpdateNodeTreeFields(request, ref filterTree, definitions, group, groupId, CatalogManager.Instance);
+        }
 
         /// <summary>
         /// Update filter tree fields for specific fields/values.
@@ -6822,7 +6826,8 @@ namespace Core.Catalog
         /// <param name="filterTree"></param>
         /// <param name="definitions"></param>
         /// <param name="group"></param>
-        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group, int groupId)
+        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, 
+            UnifiedSearchDefinitions definitions, Group group, int groupId, ICatalogManager catalogManager)
         {
             if (filterTree != null)
             {
@@ -6839,7 +6844,7 @@ namespace Core.Catalog
                     // If it is a leaf, just replace the field name
                     if (node.type == BooleanNodeType.Leaf)
                     {
-                        TreatLeaf(request, ref filterTree, definitions, group, node, parentMapping, groupId);
+                        TreatLeaf(request, ref filterTree, definitions, group, node, parentMapping, groupId, catalogManager);
                     }
                     else if (node.type == BooleanNodeType.Parent)
                     {
@@ -6856,6 +6861,12 @@ namespace Core.Catalog
             }
         }
 
+        public static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
+            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, int groupId)
+        {
+            TreatLeaf(request, ref filterTree, definitions, group, node, parentMapping, groupId, CatalogManager.Instance);
+        }
+
         /// <summary>
         /// Update filter tree node fields for specific fields/values.
         /// </summary>
@@ -6865,7 +6876,7 @@ namespace Core.Catalog
         /// <param name="group"></param>
         /// <param name="node"></param>
         public static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
-            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, int groupId)
+            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, int groupId, ICatalogManager catalogManager)
         {
             bool shouldUseCache = ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
 
@@ -6885,9 +6896,9 @@ namespace Core.Catalog
             // Add prefix (meta/tag) e.g. metas.{key}
             Type metaType;
             HashSet<string> searchKeys = new HashSet<string>();
-            if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
+            if (catalogManager.DoesGroupUsesTemplates(groupId))
             {
-                searchKeys = CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, leaf.field, out isTagOrMeta, out metaType);
+                searchKeys = catalogManager.GetUnifiedSearchKey(groupId, leaf.field, out isTagOrMeta, out metaType);
             }
             else
             {
