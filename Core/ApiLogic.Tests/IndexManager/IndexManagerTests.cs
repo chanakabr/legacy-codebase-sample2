@@ -236,7 +236,6 @@ namespace ApiLogic.Tests.IndexManager
                 .Setup(x => x.GetGroupMedia(It.IsAny<int>(), randomMedia.m_nMediaID, It.IsAny<CatalogGroupCache>()))
                 .Returns(dictionary);
 
-            //todo gil,check with sunny about query to see that media updated
             var upsertMedia = indexManager.UpsertMedia(randomMedia.m_nMediaID);
             Assert.True(upsertMedia);
 
