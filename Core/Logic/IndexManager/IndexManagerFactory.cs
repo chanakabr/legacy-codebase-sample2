@@ -14,6 +14,7 @@ using ApiLogic.Catalog;
 using ApiObjects.CanaryDeployment.Elasticsearch;
 using ElasticSearch.NEST;
 using ElasticSearch.Utilities;
+using ApiLogic.IndexManager.Helpers;
 
 namespace Core.Catalog
 {
@@ -39,7 +40,8 @@ namespace Core.Catalog
                     ElasticSearchIndexDefinitions.Instance,
                     ChannelManager.Instance,
                     CatalogCache.Instance(), new TtlService(),
-                    WatchRuleManager.Instance);
+                    WatchRuleManager.Instance,
+                    ChannelQueryBuilder.Instance);
             }
                 
             var indexManagerV2 = new IndexManagerV2(partnerId,
@@ -51,7 +53,8 @@ namespace Core.Catalog
                 LayeredCache.Instance,
                 ChannelManager.Instance, 
                 CatalogCache.Instance(),
-                WatchRuleManager.Instance);
+                WatchRuleManager.Instance,
+                ChannelQueryBuilder.Instance);
             
             if (CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().IsMigrationEventsEnabled(partnerId))
             {
