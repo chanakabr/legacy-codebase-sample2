@@ -57,7 +57,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
                 if (allTagValues != null)
                 {
-                    _IndexManager.AddTagsToIndex(newIndexName, allTagValues);
+                    _IndexManager.InsertTagsToIndex(newIndexName, allTagValues);
                 }
 
                 #endregion

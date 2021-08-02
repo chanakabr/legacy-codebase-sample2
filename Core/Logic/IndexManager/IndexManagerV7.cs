@@ -37,6 +37,9 @@ using Polly;
 using ApiLogic.NestData;
 using KlogMonitorHelper;
 using Policy = Polly.Policy;
+using ApiLogic.IndexManager.NestData;
+using System.Net;
+using System.Net.Sockets;
 
 namespace Core.Catalog
 {
@@ -101,7 +104,8 @@ namespace Core.Catalog
             IElasticSearchIndexDefinitions esIndexDefinitions,
             IChannelManager channelManager,
             ICatalogCache catalogCache,
-            ITtlService ttlService
+            ITtlService ttlService,
+            IWatchRuleManager watchRuleManager
         )
         {
             _elasticClient = elasticClient;
@@ -114,6 +118,7 @@ namespace Core.Catalog
             _partnerId = partnerId;
             _groupManager = groupManager;
             _ttlService = ttlService;
+            _watchRuleManager = watchRuleManager;
 
             //init all ES const
             _numOfShards = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
@@ -580,27 +585,218 @@ namespace Core.Catalog
 
         public string SetupIPToCountryIndex()
         {
-            throw new NotImplementedException();
+            string newIndexName = IndexingUtils.GetNewUtilsIndexString();
+
+            var createResponse = _elasticClient.Indices.Create(newIndexName,
+                 c => c.Settings(settings => settings
+                     .NumberOfShards(_numOfShards)
+                     .NumberOfReplicas(_numOfReplicas)
+                     .Analysis(a => a
+                         .Analyzers(an => an.Custom(LOWERCASE_ANALYZER,
+                        ca => ca
+                        .CharFilters("html_strip")
+                        .Tokenizer("keyword")
+                        .Filters("lowercase", "asciifolding")
+                     ))))
+                 .Map<object>(map => map
+                     .AutoMap<Tag>()
+                     .Properties(properties => properties
+                        .Text(name => name.Name("name").Analyzer(LOWERCASE_ANALYZER))
+                     )
+                 ));
+
+            bool isIndexCreated = createResponse != null && createResponse.Acknowledged && createResponse.IsValid;
+            if (!isIndexCreated)
+            {
+                log.Error(string.Format("Failed creating index for index:{0}", newIndexName));
+                return string.Empty;
+            }
+
+            return newIndexName;
         }
 
         public bool InsertDataToIPToCountryIndex(string newIndexName, List<IPV4> ipV4ToCountryMapping, List<IPV6> ipV6ToCountryMapping)
         {
-            throw new NotImplementedException();
+            bool result = false;
+            int sizeOfBulk = 5000;
+
+            var bulkRequestsIpv4 = new List<NestEsBulkRequest<IPv4>>();
+            var bulkRequestsIpv6 = new List<NestEsBulkRequest<IPv6>>();
+            try
+            {
+                if (ipV4ToCountryMapping != null)
+                {
+                    foreach (var ipv4 in ipV4ToCountryMapping)
+                    {
+                        var nestObject = new IPv4(ipv4);
+
+                        var bulkRequest = new NestEsBulkRequest<IPv4>()
+                        {
+                            DocID = nestObject.id,
+                            Document = nestObject,
+                            Index = newIndexName,
+                            Operation = eOperation.index
+                        };
+                        bulkRequestsIpv4.Add(bulkRequest);
+
+                        // If we exceeded maximum size of bulk 
+                        if (bulkRequestsIpv4.Count >= sizeOfBulk)
+                        {
+                            ExecuteAndValidateBulkRequests(bulkRequestsIpv4);
+                        }
+                    }
+
+                    // If we have anything left that is less than the size of the bulk
+                    if (bulkRequestsIpv4.Any())
+                    {
+                        ExecuteAndValidateBulkRequests(bulkRequestsIpv4);
+                    }
+                }
+
+                if (ipV6ToCountryMapping != null)
+                {
+                    foreach (var ipv6 in ipV6ToCountryMapping)
+                    {
+                        var nestObject = new IPv6(ipv6);
+
+                        var bulkRequest = new NestEsBulkRequest<IPv6>()
+                        {
+                            DocID = nestObject.id,
+                            Document = nestObject,
+                            Index = newIndexName,
+                            Operation = eOperation.index
+                        };
+                        bulkRequestsIpv6.Add(bulkRequest);
+
+                        // If we exceeded maximum size of bulk 
+                        if (bulkRequestsIpv6.Count >= sizeOfBulk)
+                        {
+                            ExecuteAndValidateBulkRequests(bulkRequestsIpv6);
+                        }
+                    }
+
+                    // If we have anything left that is less than the size of the bulk
+                    if (bulkRequestsIpv6.Any())
+                    {
+                        ExecuteAndValidateBulkRequests(bulkRequestsIpv6);
+                    }
+                }
+
+                result = true;
+            }
+            finally
+            {
+                if (bulkRequestsIpv4.Any())
+                {
+                    log.Debug($"Clearing bulk requests");
+                    bulkRequestsIpv4.Clear();
+                }
+
+                if (bulkRequestsIpv6.Any())
+                {
+                    log.Debug($"Clearing bulk requests");
+                    bulkRequestsIpv6.Clear();
+                }
+            }
+
+            return result;
         }
 
         public bool PublishIPToCountryIndex(string newIndexName)
         {
-            throw new NotImplementedException();
+            string alias = IndexingUtils.GetUtilsIndexName();
+
+            return this.SwitchIndexAlias(newIndexName, alias, true, true);
         }
 
-        public Country GetCountryByCountryName(string countryName)
+        public ApiObjects.Country GetCountryByCountryName(string countryName)
         {
-            throw new NotImplementedException();
+            ApiObjects.Country result = null;
+
+            try
+            {
+                if (string.IsNullOrEmpty(countryName))
+                {
+                    return result;
+                }
+
+                string index = IndexingUtils.GetUtilsIndexName();
+
+                var searchResult = _elasticClient.Search<ApiLogic.IndexManager.NestData.Country>(search => search
+                    .Index(index)
+                    .Size(1)
+                    .Fields(fields => fields
+                        .Fields("country_id", "name", "code"))
+                    .Query(q => q
+                        .Term(term => term.name, countryName)
+                        )
+                    );
+
+                //try get result
+                var nestCountry = searchResult?.Hits?.FirstOrDefault()?.Source;
+
+                if (nestCountry != null)
+                {
+                    result = nestCountry.ToApiObject();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed GetCountryByCountryName for countryName: {countryName}", ex);
+            }
+
+            return result;
         }
 
-        public Country GetCountryByIp(string ip, out bool searchSuccess)
+        public ApiObjects.Country GetCountryByIp(string ip, out bool searchSuccess)
         {
-            throw new NotImplementedException();
+            ApiObjects.Country result = null;
+            searchSuccess = false;
+            if (string.IsNullOrEmpty(ip)) { return null; }
+
+            if (IPAddress.TryParse(ip, out IPAddress address))
+            {
+                if (IndexingUtils.CheckIpIsPrivate(address))
+                {
+                    searchSuccess = true;
+                    return null;
+                }
+
+                IpToCountryHandler handler = null;
+                if (address.AddressFamily == AddressFamily.InterNetworkV6 && !address.IsIPv4MappedToIPv6)
+                {
+                    handler = IpToCountryHandler.Handlers[AddressFamily.InterNetworkV6];
+                }
+                else
+                {
+                    handler = IpToCountryHandler.Handlers[AddressFamily.InterNetwork];
+                }
+
+                var ipValue = handler.ConvertIpToValidString(address);
+                log.DebugFormat("GetCountryByIp: ip={0} was converted to ipValue={1}.", ip, ipValue);
+
+                string index = IndexingUtils.GetUtilsIndexName();
+
+                // Perform search
+                var searchResult = _elasticClient.Search<ApiLogic.IndexManager.NestData.Country>(search => search
+                    .Index(index)
+                    .Size(1)
+                    .Fields(fields => fields
+                        .Fields("country_id", "name", "code"))
+                    .Query(q => handler.BuildNestQueryForIp(q, ipValue))
+                    );
+
+                searchSuccess = searchResult.IsValid;
+                //try get result
+                var nestCountry = searchResult?.Hits?.FirstOrDefault()?.Source;
+
+                if (nestCountry != null)
+                {
+                    result = nestCountry.ToApiObject();
+                }
+            }
+
+            return result;
         }
 
         public List<string> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs)
@@ -785,7 +981,58 @@ namespace Core.Catalog
 
         public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, string newIndexName, bool shouldCleanupInvalidChannels = false)
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            if (string.IsNullOrEmpty(newIndexName))
+            {
+                newIndexName = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            }
+
+            try
+            {
+                List<Channel> groupChannels = IndexingUtils.GetGroupChannels(_partnerId, _channelManager, _groupUsesTemplates, ref channelIds);
+
+                var mediaQueryParser = new ESMediaQueryBuilder() { QueryType = eQueryType.EXACT };
+                var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, _partnerId);
+                var bulkRequests = new List<NestEsBulkRequest<string>>();
+                int sizeOfBulk = 50;
+
+                foreach (var channel in groupChannels)
+                {
+                    string query = IndexingUtils.GetChannelQuery(mediaQueryParser, unifiedQueryBuilder, channel, _watchRuleManager, _group, _groupUsesTemplates);
+
+                    if (!string.IsNullOrEmpty(query))
+                    {
+                        bulkRequests.Add(new NestEsBulkRequest<string>()
+                        {
+                            DocID = $"{channel.m_nChannelID}",
+                            Document = query,
+                            Index = newIndexName,
+                            Operation = eOperation.index
+                        });
+                    }
+
+                    // If we exceeded maximum size of bulk 
+                    if (bulkRequests.Count >= sizeOfBulk)
+                    {
+                        ExecuteAndValidateBulkRequests(bulkRequests);
+                    }
+                }
+
+                // If we have anything left that is less than the size of the bulk
+                if (bulkRequests.Any())
+                {
+                    ExecuteAndValidateBulkRequests(bulkRequests);
+                }
+
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error when indexing percolators on partner {_partnerId}", ex);
+            }
+
+            return result;
         }
 
         public string SetupChannelMetadataIndex()
@@ -852,7 +1099,7 @@ namespace Core.Catalog
             return newIndexName;
         }
 
-        public void AddTagsToIndex(string newIndexName, List<TagValue> allTagValues)
+        public void InsertTagsToIndex(string newIndexName, List<TagValue> allTagValues)
         {
             int sizeOfBulk = _applicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.Value;
 
@@ -1812,7 +2059,7 @@ namespace Core.Catalog
                 .Date(x => x.Name("final_date"))
                 .Percolator(x => x.Name("query"))
                 ;
-
+            
             InitializeTextField("external_id", propertiesDescriptor, 
                 defaultIndexAnalyzer, defaultSearchAnalyzer, defaultAutocompleteAnalyzer, defaultAutocompleteSearchAnalyzer, true);
             InitializeTextField("entry_id", propertiesDescriptor, 

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ApiLogic.NestData
+namespace ApiLogic.IndexManager.NestData
 {
     public class Tag
     {

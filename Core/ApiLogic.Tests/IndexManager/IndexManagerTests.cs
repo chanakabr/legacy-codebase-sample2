@@ -93,7 +93,7 @@ namespace ApiLogic.Tests.IndexManager
             {
                 randomTag
             };
-            indexManager.AddTagsToIndex(tagsIndexName, allTagValues);
+            indexManager.InsertTagsToIndex(tagsIndexName, allTagValues);
 
             var publishResult = indexManager.PublishTagsIndex(tagsIndexName, true, true);
 
@@ -151,7 +151,7 @@ namespace ApiLogic.Tests.IndexManager
 
             //test delete tag by topic
             //add tags and remove by topic right after
-            indexManager.AddTagsToIndex(tagsIndexName, allTagValues);
+            indexManager.InsertTagsToIndex(tagsIndexName, allTagValues);
             searchDefinitions.ExactSearchValue = randomTag.value;
             searchTags = searchPolicy.Execute(() =>
               {

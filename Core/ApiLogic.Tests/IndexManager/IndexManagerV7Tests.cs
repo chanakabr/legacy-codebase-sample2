@@ -61,7 +61,8 @@ namespace ApiLogic.Tests.IndexManager
                     _elasticSearchIndexDefinitions,
                     _mockChannelManager.Object,
                     _mockCatalogCache.Object,
-                    new TtlService()
+                    new TtlService(),
+                    _mockWatchRuleManager.Object
                 );
         }
         
@@ -273,7 +274,96 @@ namespace ApiLogic.Tests.IndexManager
             var indexName = indexManager.SetupTagsIndex();
             Assert.IsNotEmpty(indexName);
             var randomTag = IndexManagerMockDataCreator.GetRandomTag(language.ID);
-            indexManager.AddTagsToIndex(indexName, new List<TagValue>() { randomTag });
+            indexManager.InsertTagsToIndex(indexName, new List<TagValue>() { randomTag });
         }
+
+        [Test]
+        public void TestIp2Country()
+        {
+            //var randomPartnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var indexManager = GetIndexV7Manager(0);
+            string indexName = indexManager.SetupIPToCountryIndex();
+            string israel = "Israel";
+            string usa = "USA";
+            int usaId = 321;
+
+            List<IPV4> ipv4 = new List<IPV4>()
+            {
+                new IPV4("1", 123, "il", israel, 26, 50),
+                new IPV4("2", 123, "il", israel, 260, 500),
+                new IPV4("3", usaId, "us", usa, 620, 625),
+            };
+
+            var tuple = IpToCountryHandler.GetIpRangesByNetworkStatic("2a00:801:300:d000::/52");
+            List<IPV6> ipv6 = new List<IPV6>()
+            {
+               new IPV6(tuple, 1, "GB", "United Kingdom")
+            };
+
+            bool insertResult = indexManager.InsertDataToIPToCountryIndex(indexName, ipv4, ipv6);
+            Assert.IsTrue(insertResult);
+
+            bool publishResult = indexManager.PublishIPToCountryIndex(indexName);
+            Assert.IsTrue(publishResult);
+
+            bool searchSuccess = false;
+            var policy = Policy.HandleResult<Country>(x => x == null).WaitAndRetry(
+                3,
+                retryAttempt => TimeSpan.FromSeconds(1));
+
+            // israel
+            var country = policy.Execute(() => indexManager.GetCountryByIp("0.0.0.40", out searchSuccess));
+            Assert.IsTrue(searchSuccess);
+            Assert.IsNotNull(country);
+            Assert.AreEqual(israel, country.Name);
+
+            // still israel
+            country = indexManager.GetCountryByIp("0.0.1.40", out searchSuccess);
+
+            Assert.IsTrue(searchSuccess);
+            Assert.IsNotNull(country);
+            Assert.AreEqual(israel, country.Name);
+
+            var country2 = indexManager.GetCountryByCountryName(usa.ToLower());
+            Assert.IsNotNull(country2);
+            Assert.AreEqual(country2.Id, usaId);
+
+            // no country
+            country = indexManager.GetCountryByIp("1.2.3.4", out searchSuccess);
+
+            Assert.IsTrue(searchSuccess);
+            Assert.IsNull(country);
+
+            // no country - ipv6
+            country = indexManager.GetCountryByIp("2001:0db8:85a3:0000:0000:8a2e:0370:7334", out searchSuccess);
+
+            Assert.IsTrue(searchSuccess);
+            Assert.IsNull(country);
+        }
+
+        //[Test]
+        //public void TestChannelPercolator()
+        //{
+        //    var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+        //    var language = IndexManagerMockDataCreator.GetRandomLanguage();
+        //    IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
+
+        //    var channel = IndexManagerMockDataCreator.GetRandomChannel(partnerId);
+        //    channel.filterQuery = "name!~'aa'";
+
+        //    _mockChannelManager.Setup(setup => setup
+        //            .GetGroupChannels(partnerId))
+        //        .Returns(new List<Channel>() { channel });
+        //    var indexManager = GetIndexV7Manager(partnerId);
+
+
+        //    var indexName = indexManager.SetupMediaIndex();
+
+        //    bool addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, indexName);
+
+        //    Assert.IsTrue(addResult);
+
+        //    indexManager.PublishMediaIndex(indexName, true, true);
+        //}
     }
 }
