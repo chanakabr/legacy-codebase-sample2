@@ -6,6 +6,7 @@ using MoreLinq;
 using MoreLinq.Extensions;
 using Nest;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
+using TVinciShared;
 using ESUtils = ElasticSearch.Common.Utils;
 
 namespace ApiLogic.IndexManager.NestData
@@ -129,7 +130,7 @@ namespace ApiLogic.IndexManager.NestData
             Views = media.m_nViews;
             Votes = media.m_nVotes;
             Rating = media.m_dRating;
-            MediaFileTypes = media.m_sMFTypes.Split(';').Select(x=> long.Parse(x)).ToArray();
+            MediaFileTypes = media.m_sMFTypes.IsNullOrEmpty()? null: media.m_sMFTypes.Split(';').Select(x=> long.Parse(x)).ToArray();
             UserTypes = media.m_sUserTypes;
             CoGuid = media.CoGuid;
             EntryId = media.EntryId;
