@@ -2,24 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ApiLogic.IndexManager.NestData;
 using ApiObjects;
 using ApiObjects.Nest;
+using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using RestSharp.Serializers;
+using Media = ApiLogic.IndexManager.NestData.Media;
+using SocialActionStatistics = ApiObjects.Nest.SocialActionStatistics;
 
 namespace ApiLogic.IndexManager.Helpers
 {
     public static class NestDataCreator
     {
-        public static NestEpg GetEpg(EpgCB epgCb,int languageId, bool withRouting = true, bool isOpc = false)
+        public static Epg GetEpg(EpgCB epgCb,int languageId, bool withRouting = true, bool isOpc = false)
         {
-            return new NestEpg(epgCb,languageId, isOpc, withRouting, ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
+            return new Epg(epgCb,languageId, isOpc, withRouting, ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
+        }
+
+        public static Media GetMedia(ApiObjects.SearchObjects.Media media, LanguageObj language)
+        {
+            return new Media(media, language.Code,language.ID);
         }
 
 
-        public static NestSocialActionStatistics GetSocialActionStatistics(SocialActionStatistics statistics)
+        public static SocialActionStatistics GetSocialActionStatistics(ApiObjects.Statistics.SocialActionStatistics statistics)
         {
-            return new NestSocialActionStatistics()
+            return new SocialActionStatistics()
             {
                 Action = statistics.Action,
                 Count = statistics.Count,

@@ -28,6 +28,7 @@ using Elasticsearch.Net;
 using ElasticSearch.Utilities;
 using Nest;
 using Newtonsoft.Json;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using Policy = Polly.Policy;
 
 namespace ApiLogic.Tests.IndexManager
@@ -140,19 +141,28 @@ namespace ApiLogic.Tests.IndexManager
             //Create 2 EPG bulk objects
             
             //EPG1
-            var epgCb = IndexManagerMockDataCreator.GeRandomEpgCb();
+            var today = DateTime.Now;
+            var epgCb = IndexManagerMockDataCreator.GeRandomEpgCb(today);
             var epgCbObjects = new List<EpgCB>();
             epgCbObjects.Add(epgCb);
             var epgBulk1 = GetEpgProgramBulkUploadObject(partnerId, dateOfProgramsToIngest, epgCb, epgCbObjects);
 
             //EPG2
-            var epgCb2 = IndexManagerMockDataCreator.GeRandomEpgCb("la movie2","this is the movie description2");
+            var tomorrow = today.AddDays(1);
+            var epgCb2 = IndexManagerMockDataCreator.GeRandomEpgCb(tomorrow,name: "la movie2",description: "this is the movie description2");
             var epgCbObjects2 = new List<EpgCB>();
-            epgCbObjects.Add(epgCb2);
+            epgCbObjects2.Add(epgCb2);
             var epgBulk2 = GetEpgProgramBulkUploadObject(partnerId, dateOfProgramsToIngest.AddDays(1), epgCb2, epgCbObjects2);
+            
+            //EPG3
+            var epgCb3 = IndexManagerMockDataCreator.GeRandomEpgCb(tomorrow.AddDays(2),name: "la movie2",description: "this is the movie description2");
+            var epgCbObjects3 = new List<EpgCB>();
+            epgCbObjects3.Add(epgCb3);
+            var epgBulk3 = GetEpgProgramBulkUploadObject(partnerId, dateOfProgramsToIngest.AddDays(2), epgCb3, epgCbObjects3);
 
             crudOperations.ItemsToAdd.Add(epgBulk1);
             crudOperations.ItemsToAdd.Add(epgBulk2);
+            crudOperations.ItemsToAdd.Add(epgBulk3);
             
             var programsToIndex = crudOperations.ItemsToAdd
                 .Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.AffectedItems)
@@ -160,6 +170,7 @@ namespace ApiLogic.Tests.IndexManager
 
             //call upsert
             indexManager.UpsertProgramsToDraftIndex(programsToIndex, index, dateOfProgramsToIngest, language, languageObjs);
+            
             
             indexManager.DeleteProgramsFromIndex(programsToIndex,index,languageObjs);
 

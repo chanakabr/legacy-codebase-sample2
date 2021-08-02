@@ -19,6 +19,8 @@
             Routing = string.Empty;
         }
 
+        
+        
         public NestEsBulkRequest(string docId, string index, K document)
         {
             DocID = docId;
@@ -27,5 +29,7 @@
             Operation = eOperation.index;
             Routing = string.Empty;
         }
+        
+        public NestEsBulkRequest(int docId, string index, K document):this(docId.ToString(),index,document) { }
     }
 }

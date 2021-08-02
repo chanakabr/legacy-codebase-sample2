@@ -15,7 +15,7 @@ using ESUtils = ElasticSearch.Common.Utils;
 namespace ApiObjects.Nest
 {
     [ElasticsearchType(RelationName = "epg")]
-    public class NestEpg
+    public class Epg
     {
         #region DataMembers
 
@@ -131,7 +131,7 @@ namespace ApiObjects.Nest
 
         #region Ctor
         
-        public NestEpg(EpgCB epgCb, int languageId, bool isOpc = false, bool withRouting = true,
+        public Epg(EpgCB epgCb, int languageId, bool isOpc = false, bool withRouting = true,
             string esDateOnlyFormat = "")
         {
             Initialize(epgCb, isOpc, withRouting,esDateOnlyFormat,languageId);
@@ -162,22 +162,35 @@ namespace ApiObjects.Nest
             StartDate = epgCb.StartDate;
 
             var metasDict = new Dictionary<string, Dictionary<string, List<string>>>();
-            metasDict.Add(epgCb.Language,new Dictionary<string, List<string>>(epgCb.Metas));
+            var langCode = epgCb.Language;
+
+            var metas = new Dictionary<string, List<string>>();
+            foreach (var epgCbMeta in epgCb.Metas)
+            {
+                metas[epgCbMeta.Key] = 
+                    epgCbMeta.Value.Select(x => ESUtils.ReplaceDocumentReservedCharacters(x, false)).ToList();
+            }
+            metasDict.Add(langCode,new Dictionary<string, List<string>>(metas));
             Metas = metasDict; //lang
             
             var tagsDict = new Dictionary<string, Dictionary<string, List<string>>>();
-            tagsDict.Add(epgCb.Language,new Dictionary<string, List<string>>(epgCb.Tags));
+            var tags = new Dictionary<string, List<string>>();
+            foreach (var tag in epgCb.Tags)
+            {
+                tags[tag.Key]=tag.Value.Select(x=> ESUtils.ReplaceDocumentReservedCharacters(x, false)).ToList();
+            }
+            tagsDict.Add(langCode,new Dictionary<string, List<string>>(tags));
             Tags = tagsDict; //lang
 
             var nameDict = new Dictionary<string, string>();
-            nameDict.Add(epgCb.Language, epgCb.Name);
+            nameDict.Add(langCode, ESUtils.ReplaceDocumentReservedCharacters(epgCb.Name,false));
             Name = nameDict; //lang
             
             var descriptionDict = new Dictionary<string, string>();
-            descriptionDict.Add(epgCb.Language, epgCb.Description);
+            descriptionDict.Add(langCode, ESUtils.ReplaceDocumentReservedCharacters(epgCb.Description,false));
             Description = descriptionDict; //lang
             
-            Language = epgCb.Language;
+            Language = langCode;
             LanguageId = languageId;
             pictures = epgCb.pictures;
             EnableCDVR = epgCb.EnableCDVR;

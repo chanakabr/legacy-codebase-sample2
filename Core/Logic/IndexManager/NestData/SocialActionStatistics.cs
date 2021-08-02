@@ -3,7 +3,7 @@ using Nest;
 
 namespace ApiObjects.Nest
 {
-    public class NestSocialActionStatistics
+    public class SocialActionStatistics
     {
         [PropertyName("media_id")]
         public int MediaID { get; set; }
@@ -26,7 +26,7 @@ namespace ApiObjects.Nest
         [PropertyName("count")]
         public int? Count { get; set; }
 
-        public NestSocialActionStatistics()
+        public SocialActionStatistics()
         {
             GroupID = 0;
             MediaType = string.Empty;

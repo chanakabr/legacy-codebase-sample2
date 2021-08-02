@@ -5359,8 +5359,7 @@ namespace Core.Catalog
                 {
                     int numOfBulkRequests = 0;
 
-                    Dictionary<int, List<ESBulkRequestObj<int>>> bulkRequests = 
-                        new Dictionary<int, List<ESBulkRequestObj<int>>>() { { numOfBulkRequests, new List<ESBulkRequestObj<int>>() } };
+                    var bulkRequests =  new Dictionary<int, List<ESBulkRequestObj<int>>>() { { numOfBulkRequests, new List<ESBulkRequestObj<int>>() } };
 
                     // For each media
                     foreach (var groupMedia in groupMedias)
@@ -5395,22 +5394,23 @@ namespace Core.Catalog
                                     bulkRequests.Add(numOfBulkRequests, new List<ESBulkRequestObj<int>>());
                                 }
 
-                                ESBulkRequestObj<int> bulkRequest = new ESBulkRequestObj<int>(media.m_nMediaID, newIndexName, documentType, serializedMedia);
+                                var bulkRequest = new ESBulkRequestObj<int>(media.m_nMediaID, newIndexName, documentType, serializedMedia);
                                 bulkRequests[numOfBulkRequests].Add(bulkRequest);
                             }
                         }
                     }
 
-                    int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
+                    var maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                     if (maxDegreeOfParallelism == 0)
                     {
                         maxDegreeOfParallelism = 5;
                     }
-
-                    ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                    ContextData contextData = new ContextData();
-                    System.Net.ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
-                    System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<int>>> failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<int>>>();
+                    
+                    var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                    var contextData = new ContextData();
+                    ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
+                    
+                    var failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<int>>>();
                     // Send request to elastic search in a different thread
                     Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
                     {

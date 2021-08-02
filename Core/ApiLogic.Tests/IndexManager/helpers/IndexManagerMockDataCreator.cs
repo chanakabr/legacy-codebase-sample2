@@ -143,7 +143,7 @@ namespace ApiLogic.Tests.IndexManager.helpers
             };
         }
         
-        public static EpgCB GeRandomEpgCb(string name = "", string description="")
+        public static EpgCB GeRandomEpgCb(DateTime? startDate=null, string name = "",string description="")
         {
             var epgCb = new EpgCB();
             var epgId = 1 + new Random().Next(1000);
@@ -151,9 +151,9 @@ namespace ApiLogic.Tests.IndexManager.helpers
             epgCb.Description = description == "" ? "this is the movie description" : description;
             epgCb.EpgID = (ulong) epgId;
             epgCb.Language = "en";
-            epgCb.CreateDate=DateTime.Now.ToUniversalTime();
+            epgCb.CreateDate= DateTime.Now.ToUniversalTime();
             epgCb.EndDate=DateTime.Now.ToUniversalTime();
-            epgCb.StartDate=DateTime.Now.ToUniversalTime();
+            epgCb.StartDate=startDate ??DateTime.Now.ToUniversalTime();
             epgCb.CreateDate=DateTime.Now.ToUniversalTime();
             return epgCb;
         }
