@@ -18,9 +18,9 @@ namespace ApiLogic.IndexManager.Helpers
             return new NestEpg(epgCb,languageId, isOpc, withRouting, ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
         }
 
-        public static NestMedia GetMedia(Media media, string languageCode)
+        public static NestMedia GetMedia(Media media, LanguageObj language)
         {
-            return new NestMedia(media, languageCode);
+            return new NestMedia(media, language.Code,language.ID);
         }
 
 

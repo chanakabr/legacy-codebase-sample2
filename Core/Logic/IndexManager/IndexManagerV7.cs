@@ -700,7 +700,7 @@ namespace Core.Catalog
                         media.PadMetas(_metasToPad);
                         
                         // Serialize media and create a bulk request for it
-                        var nestMedia = NestDataCreator.GetMedia(media, language.Code);
+                        var nestMedia = NestDataCreator.GetMedia(media, language);
                         
                         // If we exceeded the size of a single bulk request then create another list
                         if (bulkRequests[numOfBulkRequests].Count >= sizeOfBulk)
@@ -724,38 +724,39 @@ namespace Core.Catalog
                 Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
                 {
                     contextData.Load();
-                    var bulkResult = _elasticSearchApi.CreateBulkRequests(bulkRequest.Value,
-                        out List<NestEsBulkRequest<NestMedia>> invalidResults);
+                    
+                    
+                    List<NestEsBulkRequest<NestMedia>> nestEsBulkRequests = bulkRequest.Value;
+                    BulkResponse response = ExecuteBulkRequest(nestEsBulkRequests);
 
                     // Log invalid results
-                    if (!bulkResult && invalidResults != null && invalidResults.Count > 0)
+                    if (!response.IsValid && response.ItemsWithErrors.Any())
                     {
                         log.Warn($"Bulk request when indexing media for partner {_partnerId} has invalid results. Will retry soon.");
-                        // add entire failed retry requests to failedBulkRequests, will try again not in parallel (maybe ES is loaded)
-                        failedBulkRequests.Add(invalidResults);
+                        //TODO gil figure oput how to save the data for the failed 
+                        //failedBulkRequests.Add(response.ItemsWithErrors.First().);
                     }
                 });
 
+                
                 // retry on all failed bulk requests (this time not in parallel)
-                if (failedBulkRequests.Count > 0)
+                if (failedBulkRequests.Count <= 0) return;
+                
+                foreach (var bulkRequest in failedBulkRequests)
                 {
-                    foreach (List<NestEsBulkRequest<NestMedia>> bulkRequest in failedBulkRequests)
+                    var response = ExecuteBulkRequest(bulkRequest);
+                    // Log invalid results
+                    if (!response.IsValid && response.ItemsWithErrors.Any())
                     {
-                        List<NestEsBulkRequest<NestMedia>> invalidResults;
-                        bool bulkResult = _elasticSearchApi.CreateBulkRequests(bulkRequest, out invalidResults);
-
-                        // Log invalid results
-                        if (!bulkResult && invalidResults != null && invalidResults.Count > 0)
+                        foreach (var item in  response.ItemsWithErrors)
                         {
-                            foreach (var item in invalidResults)
-                            {
-                                log.ErrorFormat(
-                                    "Error - Could not add Media to ES index, additional retry will not be attempted. GroupID={0};Type={1};ID={2};error={3};",
-                                    _partnerId, MEDIA, item.docID, item.error);
-                            }
+                            log.ErrorFormat(
+                                "Error - Could not add Media to ES index, additional retry will not be attempted. GroupID={0};ID={2};error={3};",
+                                _partnerId,  item.Id, item.Error);
                         }
                     }
                 }
+                
             }
             catch (Exception ex)
             {

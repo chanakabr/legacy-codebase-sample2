@@ -162,20 +162,32 @@ namespace ApiObjects.Nest
             StartDate = epgCb.StartDate;
 
             var metasDict = new Dictionary<string, Dictionary<string, List<string>>>();
-            string langCode = epgCb.Language;
-            metasDict.Add(langCode,new Dictionary<string, List<string>>(epgCb.Metas));
+            var langCode = epgCb.Language;
+
+            var metas = new Dictionary<string, List<string>>();
+            foreach (var epgCbMeta in epgCb.Metas)
+            {
+                metas[epgCbMeta.Key] = 
+                    epgCbMeta.Value.Select(x => ESUtils.ReplaceDocumentReservedCharacters(x, false)).ToList();
+            }
+            metasDict.Add(langCode,new Dictionary<string, List<string>>(metas));
             Metas = metasDict; //lang
             
             var tagsDict = new Dictionary<string, Dictionary<string, List<string>>>();
-            tagsDict.Add(langCode,new Dictionary<string, List<string>>(epgCb.Tags));
+            var tags = new Dictionary<string, List<string>>();
+            foreach (var tag in epgCb.Tags)
+            {
+                tags[tag.Key]=tag.Value.Select(x=> ESUtils.ReplaceDocumentReservedCharacters(x, false)).ToList();
+            }
+            tagsDict.Add(langCode,new Dictionary<string, List<string>>(tags));
             Tags = tagsDict; //lang
 
             var nameDict = new Dictionary<string, string>();
-            nameDict.Add(langCode, epgCb.Name);
+            nameDict.Add(langCode, ESUtils.ReplaceDocumentReservedCharacters(epgCb.Name,false));
             Name = nameDict; //lang
             
             var descriptionDict = new Dictionary<string, string>();
-            descriptionDict.Add(langCode, epgCb.Description);
+            descriptionDict.Add(langCode, ESUtils.ReplaceDocumentReservedCharacters(epgCb.Description,false));
             Description = descriptionDict; //lang
             
             Language = langCode;
