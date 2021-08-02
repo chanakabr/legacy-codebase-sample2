@@ -34,12 +34,13 @@ using ElasticSearch.Searcher;
 using ElasticSearch.Utilities;
 using Newtonsoft.Json;
 using Polly;
-using ApiLogic.NestData;
 using KlogMonitorHelper;
 using Policy = Polly.Policy;
 using ApiLogic.IndexManager.NestData;
 using System.Net;
 using System.Net.Sockets;
+using Media = ApiLogic.IndexManager.NestData.Media;
+using SocialActionStatistics = ApiObjects.Statistics.SocialActionStatistics;
 
 namespace Core.Catalog
 {
@@ -267,7 +268,7 @@ namespace Core.Catalog
 
             policy.Execute(() =>
             {
-                var bulkRequests = new List<NestEsBulkRequest<NestEpg>>();
+                var bulkRequests = new List<NestEsBulkRequest<Epg>>();
                 try
                 {
                     var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
@@ -316,10 +317,10 @@ namespace Core.Catalog
             return bulkSize;
         }
 
-        private NestEsBulkRequest< NestEpg> GetNestEpgBulkRequest(string draftIndexName, DateTime dateOfProgramsToIngest, EpgCB program,
-            NestEpg buildEpg)
+        private NestEsBulkRequest< Epg> GetNestEpgBulkRequest(string draftIndexName, DateTime dateOfProgramsToIngest, EpgCB program,
+            Epg buildEpg)
         {
-            var bulkRequest = new NestEsBulkRequest< NestEpg>()
+            var bulkRequest = new NestEsBulkRequest< Epg>()
             {
                 DocID = $"{program.EpgID.ToString()}_{program.Language}",
                 Document = buildEpg,
@@ -867,7 +868,7 @@ namespace Core.Catalog
             return newIndexName;
         }
 
-        public void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, string newIndexName)
+        public void InsertMedias(Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMedias, string newIndexName)
         {
             var sizeOfBulk = GetBulkSize();
 
@@ -879,7 +880,7 @@ namespace Core.Catalog
                 var numOfBulkRequests = 0;
 
                 var bulkRequests =
-                    new Dictionary<int, List<NestEsBulkRequest<NestMedia>>>(){{numOfBulkRequests, new List<NestEsBulkRequest<NestMedia>>()}};
+                    new Dictionary<int, List<NestEsBulkRequest<Media>>>(){{numOfBulkRequests, new List<NestEsBulkRequest<Media>>()}};
 
                 // For each media
                 foreach (var groupMedia in groupMedias)
@@ -902,9 +903,9 @@ namespace Core.Catalog
                         if (bulkRequests[numOfBulkRequests].Count >= sizeOfBulk)
                         {
                             numOfBulkRequests++;
-                            bulkRequests.Add(numOfBulkRequests, new List<NestEsBulkRequest<NestMedia>>());
+                            bulkRequests.Add(numOfBulkRequests, new List<NestEsBulkRequest<Media>>());
                         }
-                        var bulkRequest = new NestEsBulkRequest<NestMedia>(media.m_nMediaID,newIndexName,nestMedia);
+                        var bulkRequest = new NestEsBulkRequest<Media>(media.m_nMediaID,newIndexName,nestMedia);
                         
                         bulkRequests[numOfBulkRequests].Add(bulkRequest);
                         
@@ -915,14 +916,14 @@ namespace Core.Catalog
                 var options = new ParallelOptions() {MaxDegreeOfParallelism = maxDegreeOfParallelism};
                 var contextData = new ContextData();
                 System.Net.ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
-                var failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<NestEsBulkRequest<NestMedia>>>();
+                var failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<NestEsBulkRequest<Media>>>();
                 // Send request to elastic search in a different thread
                 Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
                 {
                     contextData.Load();
                     
                     
-                    List<NestEsBulkRequest<NestMedia>> nestEsBulkRequests = bulkRequest.Value;
+                    List<NestEsBulkRequest<Media>> nestEsBulkRequests = bulkRequest.Value;
                     BulkResponse response = ExecuteBulkRequest(nestEsBulkRequests);
 
                     // Log invalid results

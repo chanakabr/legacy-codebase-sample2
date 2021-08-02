@@ -15,7 +15,7 @@ using ESUtils = ElasticSearch.Common.Utils;
 namespace ApiObjects.Nest
 {
     [ElasticsearchType(RelationName = "epg")]
-    public class NestEpg
+    public class Epg
     {
         #region DataMembers
 
@@ -131,7 +131,7 @@ namespace ApiObjects.Nest
 
         #region Ctor
         
-        public NestEpg(EpgCB epgCb, int languageId, bool isOpc = false, bool withRouting = true,
+        public Epg(EpgCB epgCb, int languageId, bool isOpc = false, bool withRouting = true,
             string esDateOnlyFormat = "")
         {
             Initialize(epgCb, isOpc, withRouting,esDateOnlyFormat,languageId);
