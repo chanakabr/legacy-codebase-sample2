@@ -1,5 +1,6 @@
 ﻿using ApiLogic.Catalog;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.QueryBuilders;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;

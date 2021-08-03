@@ -31,6 +31,7 @@ using Newtonsoft.Json;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using Policy = Polly.Policy;
 using ApiLogic.IndexManager.NestData;
+using ApiLogic.IndexManager.QueryBuilders;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -419,8 +420,8 @@ namespace ApiLogic.Tests.IndexManager
                 .Returns<int, string, bool, Type>((one, two, three, four) => new HashSet<string>() { two });
             _mockChannelQueryBuilder.Setup(s => s
                 .GetChannelQuery(
-                    It.IsAny<ElasticSearch.Searcher.ESMediaQueryBuilder>(),
-                    It.IsAny<ElasticSearch.Searcher.ESUnifiedQueryBuilder>(),
+                    It.IsAny<ESMediaQueryBuilder>(),
+                    It.IsAny<ESUnifiedQueryBuilder>(),
                     It.IsAny<Channel>()))
                 .Returns(percolatdQuery)
             ;

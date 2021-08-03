@@ -15,6 +15,7 @@ using ApiObjects.CanaryDeployment.Elasticsearch;
 using ElasticSearch.NEST;
 using ElasticSearch.Utilities;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.QueryBuilders;
 
 namespace Core.Catalog
 {

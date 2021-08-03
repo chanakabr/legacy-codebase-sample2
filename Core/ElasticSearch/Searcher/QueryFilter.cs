@@ -293,7 +293,7 @@ namespace ElasticSearch.Searcher
             return sb.ToString();
 
         }
-        internal List<ESTerms> Split()
+        public List<ESTerms> Split()
         {
             List<ESTerms> result = new List<ESTerms>();
 

@@ -42,6 +42,7 @@ using Polly;
 using ESUtils = ElasticSearch.Common.Utils;
 using ApiLogic.Catalog;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.QueryBuilders;
 
 namespace Core.Catalog
 {
@@ -4692,7 +4693,7 @@ namespace Core.Catalog
                 if (_elasticSearchApi.IndexExists(index))
                 {
                     var queryBuilder = new ESStatisticsQueryBuilder(_partnerId, socialSearch);
-                    var queryString = queryBuilder.BuildQuery();
+                    var queryString = queryBuilder.BuildQueryString();
                     return _elasticSearchApi.DeleteDocsByQuery(index, ESUtils.ES_STATS_TYPE, ref queryString);
                 }
             }

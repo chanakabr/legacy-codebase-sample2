@@ -41,6 +41,7 @@ using System.Net;
 using System.Net.Sockets;
 using Media = ApiLogic.IndexManager.NestData.Media;
 using SocialActionStatistics = ApiObjects.Statistics.SocialActionStatistics;
+using ApiLogic.IndexManager.QueryBuilders;
 
 namespace Core.Catalog
 {
@@ -737,6 +738,7 @@ namespace Core.Catalog
 
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)
         {
+            bool result = false;
             var index = ESUtils.GetGroupStatisticsIndex(_partnerId);
 
             try
@@ -744,10 +746,17 @@ namespace Core.Catalog
                 if (_elasticClient.Indices.Exists(index).Exists)
                 {
                     var queryBuilder = new ESStatisticsQueryBuilder(_partnerId, socialSearch);
-                    var queryString = queryBuilder.BuildQuery();
-                    //TODO IMPLEMENT THIS METHOD!
-                    throw new NotImplementedException();
-                    //return _elasticSearchApi.DeleteDocsByQuery(index, ESUtils.ES_STATS_TYPE, ref queryString);
+                    var query = queryBuilder.BuildQuery();
+
+                    var deleteResponse = _elasticClient.DeleteByQuery<ApiObjects.Nest.SocialActionStatistics>(request => request
+                        .Index(index)
+                        .Query(q =>
+                            {
+                                return query;
+                            }
+                        ));
+
+                    result = deleteResponse.IsValid;
                 }
             }
             catch (Exception ex)
@@ -755,7 +764,7 @@ namespace Core.Catalog
                 log.DebugFormat("DeleteActionFromES Failed ex={0}, index={1};type={2}", ex, index, ESUtils.ES_STATS_TYPE);
             }
 
-            return false;
+            return result;
         }
 
         public string SetupIPToCountryIndex()
