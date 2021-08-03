@@ -305,7 +305,27 @@ namespace Core.Catalog
 
         public bool DeleteChannel(int channelId)
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            if (channelId <= 0)
+            {
+                log.Warn($"Received channel request of invalid channel id {channelId} when calling DeleteChannel");
+                return result;
+            }
+            string index = ESUtils.GetGroupChannelIndex(_partnerId);
+            var deleteResponse = _elasticClient.DeleteByQuery<ChannelMetadata>(request => request
+                .Index(index)
+                .Query(query => query
+                    .Terms(terms => terms.Field(channel => channel).Term<long>(channelId))
+                    ));
+
+            result = deleteResponse.IsValid;
+
+            if (!deleteResponse.IsValid)
+            {
+                log.Error($"Failed deleting channel percoaltor, id = {channelId}, index = {index}");
+            }
+            return result;
         }
 
         public bool UpsertChannel(int channelId, Channel channel = null, long userId = 0)
