@@ -1032,10 +1032,6 @@ namespace Core.Catalog
             return result;
         }
 
-        public string SetupChannelMetadataIndex()
-        {
-            throw new NotImplementedException();
-        }
 
         public void AddChannelsMetadataToIndex(string newIndexName, List<Channel> allChannels)
         {
@@ -1047,53 +1043,55 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public string SetupTagsIndex()
+        private string SetupIndex<T>(string newIndexName)
+        where T :class
         {
-            string newIndexName = IndexingUtils.GetNewMetadataIndexName(_partnerId);
-
-            var languages = _catalogGroupCache.LanguageMapById.Values;
-            GetAnalyzersWithLowercase(languages.ToList(), out var analyzers, out var filters, out var tokenizers);
-            // Basic TCM configurations for indexing - number of shards/replicas, size of bulks 
-            int numOfShards = _numOfShards;
-            int numOfReplicas = _numOfReplicas;
-            int maxResults = _maxResults;
-
-            // Default size of max results should be 100,000
-            if (maxResults == 0)
-            {
-                maxResults = 100000;
-            }
-            AnalyzersDescriptor analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
-            TokenFiltersDescriptor filtersDesctiptor = GetTokenFiltersDescriptor(filters);
-            TokenizersDescriptor tokenizersDescriptor = GetTokenizersDesctiptor(tokenizers);
+            Dictionary<string, Analyzer> analyzers;
+            Dictionary<string, Tokenizer> tokenizers;
+            Dictionary<string, ElasticSearch.Searcher.Settings.Filter> filters;
+            var languages = GetLanguages();
+            GetAnalyzersWithLowercase(languages.ToList(), out analyzers, out filters, out tokenizers);
+            var analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
+            var filtersDescriptor = GetTokenFiltersDescriptor(filters);
+            var tokenizersDescriptor = GetTokenizersDesctiptor(tokenizers);
 
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                 c => c.Settings(settings => settings
-                    .NumberOfShards(_numOfShards)
-                    .NumberOfReplicas(_numOfReplicas)
-                    .Setting("index.max_result_window", _maxResults)
-                    .Setting("index.max_ngram_diff", 20)
-                    .Analysis(a => a
-                        .Analyzers(an => analyzersDescriptor)
-                        .TokenFilters(tf => filtersDesctiptor)
-                        .Tokenizers(t => tokenizersDescriptor)
-                    ))
-                .Map<Tag>(map => map
-                    .AutoMap<Tag>()
-                    .Properties(properties =>
-                        GetTagsPropertiesDescriptor(properties, languages.ToList(), analyzers)
-                    )
-                ));
+                        .NumberOfShards(_numOfShards)
+                        .NumberOfReplicas(_numOfReplicas)
+                        .Setting("index.max_result_window", _maxResults)
+                        .Setting("index.max_ngram_diff", 20)
+                        .Analysis(a => a
+                            .Analyzers(an => analyzersDescriptor)
+                            .TokenFilters(tf => filtersDescriptor)
+                            .Tokenizers(t => tokenizersDescriptor)
+                        ))
+                    .Map<T>(map => map
+                        .AutoMap<T>()
+                        .Properties(properties =>
+                            GetPropertiesDescriptor(properties, languages.ToList(), analyzers)
+                        )
+                    ));
 
-            bool isIndexCreated = createResponse != null && createResponse.Acknowledged && createResponse.IsValid;
-
+            var isIndexCreated = createResponse != null && createResponse.Acknowledged && createResponse.IsValid;
             if (!isIndexCreated)
             {
-                log.Error($"Failed creating tags index for partner {_partnerId}, response = {createResponse}");
+                log.Error($"Failed creating index for partner {_partnerId}, response = {createResponse}");
                 return string.Empty;
             }
 
             return newIndexName;
+        }
+
+
+        public string SetupChannelMetadataIndex() 
+        {
+            return SetupIndex<ChannelMetadata>(IndexingUtils.GetNewChannelMetadataIndexName(_partnerId));
+        }
+        
+        public string SetupTagsIndex()
+        {
+            return SetupIndex<Tag>(IndexingUtils.GetNewMetadataIndexName(_partnerId));
         }
 
         public void InsertTagsToIndex(string newIndexName, List<TagValue> allTagValues)
@@ -2189,7 +2187,10 @@ namespace Core.Catalog
             return propertiesDescriptor;
         }
 
-        private PropertiesDescriptor<Tag> GetTagsPropertiesDescriptor(PropertiesDescriptor<Tag> propertiesDescriptor, List<LanguageObj> languages, Dictionary<string, Analyzer> analyzers)
+        private PropertiesDescriptor<T> GetPropertiesDescriptor<T>(PropertiesDescriptor<T> propertiesDescriptor,
+            List<LanguageObj> languages, 
+            Dictionary<string, Analyzer> analyzers)
+        where T :class
         {
             var tagValuePropertiesDescriptor = new PropertiesDescriptor<object>();
 

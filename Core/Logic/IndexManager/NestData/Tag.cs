@@ -1,8 +1,6 @@
-﻿using ApiObjects.SearchObjects;
+﻿using System.Collections.Generic;
+using ApiObjects.SearchObjects;
 using Nest;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ApiLogic.IndexManager.NestData
 {
@@ -28,15 +26,15 @@ namespace ApiLogic.IndexManager.NestData
 
         public Tag(TagValue tagValue, string languageCode)
         {
-            this.tagId = tagValue.tagId;
-            this.topicId = tagValue.topicId;
-            this.languageId = tagValue.languageId;
-            this.value = new Dictionary<string, string>()
+            tagId = tagValue.tagId;
+            topicId = tagValue.topicId;
+            languageId = tagValue.languageId;
+            value = new Dictionary<string, string>
             {
                 { languageCode, tagValue.value }
             };
-            this.createDate = tagValue.createDate;
-            this.updateDate = tagValue.updateDate;
+            createDate = tagValue.createDate;
+            updateDate = tagValue.updateDate;
         }
     }
 }
