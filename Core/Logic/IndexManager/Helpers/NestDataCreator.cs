@@ -7,6 +7,7 @@ using ApiObjects;
 using ApiObjects.Nest;
 using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
+using GroupsCacheManager;
 using RestSharp.Serializers;
 using Media = ApiLogic.IndexManager.NestData.Media;
 using SocialActionStatistics = ApiObjects.Nest.SocialActionStatistics;
@@ -39,6 +40,11 @@ namespace ApiLogic.IndexManager.Helpers
                 MediaID = statistics.MediaID
             };
             
+        }
+
+        public static ChannelMetadata GetChannelMetadata(Channel channel)
+        {
+            return new ChannelMetadata(channel);
         }
     }
 }

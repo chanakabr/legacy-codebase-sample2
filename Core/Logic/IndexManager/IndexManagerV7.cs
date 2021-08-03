@@ -393,12 +393,17 @@ namespace Core.Catalog
             });
         }
 
-        private int GetBulkSize()
+        private int GetBulkSize(int? defaultValueOnZero=null)
         {
             var bulkSize = _sizeOfBulk;
             if (_sizeOfBulk == 0 || _sizeOfBulk > _sizeOfBulkDefaultValue)
             {
                 bulkSize = _sizeOfBulkDefaultValue;
+            }
+
+            if (bulkSize == 0 && defaultValueOnZero.HasValue)
+            {
+                return defaultValueOnZero.Value;
             }
 
             return bulkSize;
@@ -1110,7 +1115,41 @@ namespace Core.Catalog
 
         public void AddChannelsMetadataToIndex(string newIndexName, List<Channel> allChannels)
         {
-            throw new NotImplementedException();
+            var bulkList = new List<NestEsBulkRequest<ChannelMetadata>>();
+            var sizeOfBulk = GetBulkSize(50);
+            var cd = new ContextData();
+            var channelMetadatas = allChannels.Select(x=>NestDataCreator.GetChannelMetadata(x));
+            foreach (var channelMetadata in channelMetadatas)
+            {
+                var nestEsBulkRequest =
+                    new NestEsBulkRequest<ChannelMetadata>(channelMetadata.ChannelId, newIndexName, channelMetadata);
+                bulkList.Add(nestEsBulkRequest);
+                // If we exceeded the size of a single bulk request
+                if (bulkList.Count >= sizeOfBulk)
+                {
+                    // Send request to elastic search in a different thread
+                    var t = Task.Run(() =>
+                    {
+                        cd.Load();
+                        ExecuteAndValidateBulkRequests(bulkList);
+                    });
+
+                    t.Wait();
+                    bulkList.Clear();
+                }
+            }
+
+            // If we have a final bulk pending
+            if (bulkList.Count > 0)
+            {
+                // Send request to elastic search in a different thread
+                var t = Task.Run(() =>
+                {
+                    cd.Load();
+                    ExecuteAndValidateBulkRequests(bulkList);
+                });
+                t.Wait();
+            }
         }
 
         public void PublishChannelsMetadataIndex(string newIndexName, bool shouldSwitchAlias, bool shouldDeleteOldIndices)
@@ -1119,7 +1158,7 @@ namespace Core.Catalog
         }
 
         private string SetupIndex<T>(string newIndexName)
-        where T :class
+        where T : class 
         {
             Dictionary<string, Analyzer> analyzers;
             Dictionary<string, Tokenizer> tokenizers;
@@ -1171,29 +1210,20 @@ namespace Core.Catalog
 
         public void InsertTagsToIndex(string newIndexName, List<TagValue> allTagValues)
         {
-            int sizeOfBulk = _applicationConfiguration.ElasticSearchHandlerConfiguration.BulkSize.Value;
-
-            // Default for size of bulk should be 50, if not stated otherwise in TCM
-            if (sizeOfBulk == 0)
-            {
-                sizeOfBulk = 50;
-            }
-
+            var sizeOfBulk = GetBulkSize(50);
             var bulkRequests = new List<NestEsBulkRequest<Tag>>();
             try
             {
-
                 foreach (var tagValue in allTagValues)
                 {
                     if (!_catalogGroupCache.LanguageMapById.ContainsKey(tagValue.languageId))
                     {
                         log.WarnFormat("Found tag value with non existing language ID. tagId = {0}, tagText = {1}, languageId = {2}",
                             tagValue.tagId, tagValue.value, tagValue.languageId);
-
                         continue;
                     }
 
-                    string languageCode = _catalogGroupCache.LanguageMapById[tagValue.languageId].Code;
+                    var languageCode = _catalogGroupCache.LanguageMapById[tagValue.languageId].Code;
 
                     // Serialize EPG object to string
                     var tag = new Tag(tagValue, languageCode);
@@ -1204,6 +1234,7 @@ namespace Core.Catalog
                         Index = newIndexName,
                         Operation = eOperation.index
                     };
+                    
                     bulkRequests.Add(bulkRequest);
 
                     // If we exceeded maximum size of bulk 
