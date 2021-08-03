@@ -434,6 +434,9 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsTrue(addResult);
 
             indexManager.PublishMediaIndex(indexName, true, true);
+
+            var deleteResult = indexManager.DeleteChannelPercolator(new List<int>() { channel.m_nChannelID });
+            Assert.IsTrue(deleteResult);
         }
     }
 }

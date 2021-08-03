@@ -261,7 +261,41 @@ namespace Core.Catalog
 
         public bool DeleteChannelPercolator(List<int> channelIds)
         {
-            throw new NotImplementedException();
+            bool result = false;
+            bool allValid = true;
+
+            try
+            {
+                string mediaIndex = IndexingUtils.GetMediaIndexAlias(_partnerId);
+
+                var indices = _elasticClient.GetIndicesPointingToAlias(mediaIndex);
+
+                foreach (var index in indices)
+                {
+                    foreach (var channelId in channelIds)
+                    {
+                        var deleteResponse = _elasticClient.Delete<PercolatedQuery>(
+                            // id
+                            GetChannelDocumentId(channelId), 
+                            // request
+                            request => request.Index(index));
+
+                        if (!deleteResponse.IsValid)
+                        {
+                            log.Error($"Failed deleting channel percoaltor, id = {channelId}, index = {index}");
+                            allValid = false;
+                        }
+                    }
+                }
+
+                result = allValid;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error deleting channel percolator for partner {_partnerId}", ex);
+            }
+
+            return result;
         }
 
         public bool UpdateChannelPercolator(List<int> channelIds, Channel channel = null)
@@ -1020,24 +1054,15 @@ namespace Core.Catalog
 
                 foreach (var channel in groupChannels)
                 {
-                    //string query = _channelQueryBuilder.GetChannelQueryString(mediaQueryParser, unifiedQueryBuilder, channel);
-
                     var query = _channelQueryBuilder.GetChannelQuery(mediaQueryParser, unifiedQueryBuilder, channel);
-                    
-                    //if (!string.IsNullOrEmpty(query))
-                    //{
-                    //    JObject json = JObject.Parse(query);
-                    //    JObject fatherJson = new JObject();
-                    //    fatherJson["query"] = json;
 
                     bulkRequests.Add(new NestEsBulkRequest<PercolatedQuery>()
-                        {
-                            DocID = $"{channel.m_nChannelID}",
-                            Document = query,
-                            Index = newIndexName,
-                            Operation = eOperation.index
-                        });
-                    //}
+                    {
+                        DocID = GetChannelDocumentId(channel),
+                        Document = query,
+                        Index = newIndexName,
+                        Operation = eOperation.index
+                    });
 
                     // If we exceeded maximum size of bulk 
                     if (bulkRequests.Count >= sizeOfBulk)
@@ -2467,6 +2492,16 @@ namespace Core.Catalog
             }
 
             return result;
+        }
+
+        private static string GetChannelDocumentId(Channel channel)
+        {
+            return GetChannelDocumentId(channel.m_nChannelID);
+        }
+
+        private static string GetChannelDocumentId(long channelId)
+        {
+            return $"channel_{channelId}";
         }
 
         #endregion
