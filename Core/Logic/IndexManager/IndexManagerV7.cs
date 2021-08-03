@@ -1248,7 +1248,7 @@ namespace Core.Catalog
                     var tag = new Tag(tagValue, languageCode);
                     var bulkRequest = new NestEsBulkRequest<Tag>()
                     {
-                        DocID = $"{tag.tagId}_{tag.languageId}",
+                        DocID = $"{tag.tagId}_{languageCode}",
                         Document = tag,
                         Index = newIndexName,
                         Operation = eOperation.index
