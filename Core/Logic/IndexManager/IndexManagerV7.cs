@@ -312,19 +312,38 @@ namespace Core.Catalog
                 log.Warn($"Received channel request of invalid channel id {channelId} when calling DeleteChannel");
                 return result;
             }
-            string index = ESUtils.GetGroupChannelIndex(_partnerId);
-            var deleteResponse = _elasticClient.DeleteByQuery<ChannelMetadata>(request => request
-                .Index(index)
-                .Query(query => query
-                    .Terms(terms => terms.Field(channel => channel).Term<long>(channelId))
-                    ));
 
-            result = deleteResponse.IsValid;
-
-            if (!deleteResponse.IsValid)
+            try
             {
-                log.Error($"Failed deleting channel percoaltor, id = {channelId}, index = {index}");
+                string index = ESUtils.GetGroupChannelIndex(_partnerId);
+                var deleteResponse = _elasticClient.DeleteByQuery<ChannelMetadata>(request => request
+                    .Index(index)
+                    .Query(query => query.Term(channel => channel.ChannelId, channelId)
+                        ));
+
+                result = deleteResponse.IsValid;
+
+                if (!deleteResponse.IsValid)
+                {
+                    log.Error($"Failed deleting channel metadata, id = {channelId}, index = {index}");
+                }
+                else
+                {
+                    result = true;
+
+                    bool deletePercolatorResult = this.DeleteChannelPercolator(new List<int>() { channelId });
+
+                    if (!deletePercolatorResult)
+                    {
+                        log.Error($"Error deleting channel percolator for channel {channelId}");
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                log.Error($"Error deleting channel with id {channelId}", ex);
+            }
+
             return result;
         }
 
