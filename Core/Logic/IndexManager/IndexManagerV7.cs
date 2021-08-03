@@ -635,12 +635,40 @@ namespace Core.Catalog
 
         public Status DeleteTag(long tagId)
         {
-            throw new NotImplementedException();
+            var status = new ApiObjects.Response.Status();
+            string index = ESUtils.GetGroupMetadataIndex(_partnerId);
+
+            var deleteResponse = _elasticClient.DeleteByQuery<Tag>(request => request
+                .Index(index)
+                .Query(query => query.Term(tag => tag.tagId, tagId)
+                    ));
+
+            if (!deleteResponse.IsValid)
+            {
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Failed performing delete query";
+            }
+
+            return status;
         }
 
         public Status DeleteTagsByTopic(long topicId)
         {
-            throw new NotImplementedException();
+            var status = new ApiObjects.Response.Status();
+            string index = ESUtils.GetGroupMetadataIndex(_partnerId);
+
+            var deleteResponse = _elasticClient.DeleteByQuery<Tag>(request => request
+                .Index(index)
+                .Query(query => query.Term(tag => tag.topicId, topicId)
+                    ));
+
+            if (!deleteResponse.IsValid)
+            {
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Failed performing delete query";
+            }
+
+            return status;
         }
 
         //DO NOT IMPLEMENT THIS METHOD
