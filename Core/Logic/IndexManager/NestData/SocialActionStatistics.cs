@@ -25,6 +25,9 @@ namespace ApiObjects.Nest
 
         [PropertyName("count")]
         public int? Count { get; set; }
+        
+        [PropertyName("__expiration")]
+        public ulong? Expiration { get; set; }
 
         public SocialActionStatistics()
         {

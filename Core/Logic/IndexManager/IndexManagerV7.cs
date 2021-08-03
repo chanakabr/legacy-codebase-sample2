@@ -831,12 +831,12 @@ namespace Core.Catalog
             // get definitions of analyzers, filters and tokenizers
             GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var filters, out var tokenizers);
             AnalyzersDescriptor analyzersDescriptor = GetAnalyzersDesctiptor(analyzers);
-            TokenFiltersDescriptor filtersDesctiptor = GetTokenFiltersDescriptor(filters);
+            TokenFiltersDescriptor filtersDescriptor = GetTokenFiltersDescriptor(filters);
             TokenizersDescriptor tokenizersDescriptor = GetTokenizersDesctiptor(tokenizers);
             _groupManager.RemoveGroup(_partnerId); // remove from cache
             _group = _groupManager.GetGroup(_partnerId);
 
-            if (!this.GetMetasAndTagsForMapping(
+            if (!GetMetasAndTagsForMapping(
                 out var metas,
                 out var tags,
                 out var metasToPad))
@@ -856,7 +856,7 @@ namespace Core.Catalog
                     .Setting("index.mapping.total_fields.limit", 10000)
                     .Analysis(a => a
                         .Analyzers(an => analyzersDescriptor)
-                        .TokenFilters(tf => filtersDesctiptor)
+                        .TokenFilters(tf => filtersDescriptor)
                         .Tokenizers(t => tokenizersDescriptor)
                     ))
                 .Map(map => map.Properties(props => propertiesDescriptor)

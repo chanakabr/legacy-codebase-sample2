@@ -126,6 +126,9 @@ namespace ApiObjects.Nest
 
         [PropertyName ("suppressed")]
         public string Suppressed { get; set; }
+
+        [PropertyName("__expiration")]
+        public ulong? Expiration { get; set; }
         
         #endregion
 
