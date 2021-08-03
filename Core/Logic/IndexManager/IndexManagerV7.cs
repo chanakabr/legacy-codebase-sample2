@@ -221,7 +221,37 @@ namespace Core.Catalog
 
         public bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds)
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            if (epgIds == null || epgIds.Count == 0)
+            {
+                return result;
+            }
+
+            string index = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var deleteResponse = _elasticClient.DeleteByQuery<Epg>(request => request
+                .Index(index)
+                .Query(query => query
+                    .Terms(terms => terms.Field(epg => epg.EpgID).Terms<long>(epgIds))
+                    ));
+
+            result = deleteResponse.IsValid;
+
+            try
+            {
+                // support for old invalidation keys
+                if (result)
+                {
+                    // invalidate epg's for OPC and NON-OPC accounts
+                    EpgAssetManager.InvalidateEpgs(_partnerId, epgIds, _groupUsesTemplates, epgChannelIds, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed invalidating Epgs on partner {_partnerId}", ex);
+            }
+
+            return result;
         }
 
         public bool UpsertProgram(List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings)
@@ -231,7 +261,41 @@ namespace Core.Catalog
 
         public bool DeleteChannelPercolator(List<int> channelIds)
         {
-            throw new NotImplementedException();
+            bool result = false;
+            bool allValid = true;
+
+            try
+            {
+                string mediaIndex = IndexingUtils.GetMediaIndexAlias(_partnerId);
+
+                var indices = _elasticClient.GetIndicesPointingToAlias(mediaIndex);
+
+                foreach (var index in indices)
+                {
+                    foreach (var channelId in channelIds)
+                    {
+                        var deleteResponse = _elasticClient.Delete<PercolatedQuery>(
+                            // id
+                            GetChannelDocumentId(channelId), 
+                            // request
+                            request => request.Index(index));
+
+                        if (!deleteResponse.IsValid)
+                        {
+                            log.Error($"Failed deleting channel percoaltor, id = {channelId}, index = {index}");
+                            allValid = false;
+                        }
+                    }
+                }
+
+                result = allValid;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error deleting channel percolator for partner {_partnerId}", ex);
+            }
+
+            return result;
         }
 
         public bool UpdateChannelPercolator(List<int> channelIds, Channel channel = null)
@@ -995,24 +1059,15 @@ namespace Core.Catalog
 
                 foreach (var channel in groupChannels)
                 {
-                    //string query = _channelQueryBuilder.GetChannelQueryString(mediaQueryParser, unifiedQueryBuilder, channel);
-
                     var query = _channelQueryBuilder.GetChannelQuery(mediaQueryParser, unifiedQueryBuilder, channel);
-                    
-                    //if (!string.IsNullOrEmpty(query))
-                    //{
-                    //    JObject json = JObject.Parse(query);
-                    //    JObject fatherJson = new JObject();
-                    //    fatherJson["query"] = json;
 
                     bulkRequests.Add(new NestEsBulkRequest<PercolatedQuery>()
-                        {
-                            DocID = $"{channel.m_nChannelID}",
-                            Document = query,
-                            Index = newIndexName,
-                            Operation = eOperation.index
-                        });
-                    //}
+                    {
+                        DocID = GetChannelDocumentId(channel),
+                        Document = query,
+                        Index = newIndexName,
+                        Operation = eOperation.index
+                    });
 
                     // If we exceeded maximum size of bulk 
                     if (bulkRequests.Count >= sizeOfBulk)
@@ -1453,7 +1508,7 @@ namespace Core.Catalog
         }
 
         private void CreateEmptyEpgIndex(string newIndexName, bool shouldBuildWithReplicas = true,
-            bool shouldUseNumOfConfiguredShards = true, int refreshIntervalSeconds = 0)
+            bool shouldUseNumOfConfiguredShards = true, int? refreshIntervalSeconds = null)
         {
             List<LanguageObj> languages = GetLanguages();
             GetAnalyzersWithLowercaseAndPhraseStartsWith(languages, out var analyzers, out var filters, out var tokenizers);
@@ -1478,20 +1533,29 @@ namespace Core.Catalog
 
             PropertiesDescriptor<object> propertiesDescriptor = GetEpgPropertiesDescriptor(languages, metas, tags, metasToPad, analyzers);
             var createResponse = _elasticClient.Indices.Create(newIndexName,
-                c => c.Settings(settings => settings
-                    .NumberOfShards(shards)
-                    .NumberOfReplicas(replicas)
-                    .RefreshInterval(new Time(refreshIntervalSeconds, TimeUnit.Second))
-                    .Setting("index.max_result_window", _maxResults)
-                    .Setting("index.max_ngram_diff", 20)
-                    // TODO: convert to tcm...
-                    .Setting("index.mapping.total_fields.limit", 10000)
-                    .Analysis(a => a
-                        .Analyzers(an => analyzersDescriptor)
-                        .TokenFilters(tf => filtersDesctiptor)
-                        .Tokenizers(t => tokenizersDescriptor)
-                    ))
-                    .Map(x=>x.AutoMap())
+                c => c
+                    .Settings(settings => {
+                        settings
+                        .NumberOfShards(shards)
+                        .NumberOfReplicas(replicas)
+                        .Setting("index.max_result_window", _maxResults)
+                        .Setting("index.max_ngram_diff", 20)
+                        // TODO: convert to tcm...
+                        .Setting("index.mapping.total_fields.limit", 10000)
+                        .Analysis(a => a
+                            .Analyzers(an => analyzersDescriptor)
+                            .TokenFilters(tf => filtersDesctiptor)
+                            .Tokenizers(t => tokenizersDescriptor)
+                        );
+
+                        if (refreshIntervalSeconds.HasValue)
+                        {
+                            settings.RefreshInterval(new Time(refreshIntervalSeconds.Value, TimeUnit.Second));
+                        }
+
+                        return settings;
+                    })
+                    .Map(x => x.AutoMap())
                 .Map(map => map.RoutingField(rf => new RoutingField() { Required = false }).Properties(props => propertiesDescriptor)
                 ));
 
@@ -2411,7 +2475,7 @@ namespace Core.Catalog
         }
 
         private void CreateNewEpgIndex(string newIndexName, bool isRecording = false, bool shouldBuildWithReplicas = true, bool shouldUseNumOfConfiguredShards = true,
-            int refreshInterval = 0)
+            int? refreshInterval = null)
         {
             CreateEmptyEpgIndex(newIndexName, shouldBuildWithReplicas, shouldUseNumOfConfiguredShards, refreshInterval);
         }
@@ -2460,6 +2524,16 @@ namespace Core.Catalog
             }
 
             return result;
+        }
+
+        private static string GetChannelDocumentId(Channel channel)
+        {
+            return GetChannelDocumentId(channel.m_nChannelID);
+        }
+
+        private static string GetChannelDocumentId(long channelId)
+        {
+            return $"channel_{channelId}";
         }
 
         #endregion

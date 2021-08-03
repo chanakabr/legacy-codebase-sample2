@@ -111,9 +111,9 @@ namespace ApiLogic.Tests.IndexManager
             _mockElasticSearchCommonUtils = _mockRepository.Create<IElasticSearchCommonUtils>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(_mockElasticSearchCommonUtils.Object, ApplicationConfiguration.Current);
         }
-        
+
         [Test]
-        public void TestSetupEpgv2Index()
+        public void TestEpgv2Index()
         {
             var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
             var crudOperations = new CRUDOperations<EpgProgramBulkUploadObject>();
@@ -138,12 +138,12 @@ namespace ApiLogic.Tests.IndexManager
 
             var refreshInterval = new Time(TimeSpan.FromSeconds(1));
             SetIndexRefreshTime(index, refreshInterval, elasticClient);
-            var languageObjs = new List<LanguageObj>() {language}.ToDictionary(x => x.Code);
+            var languageObjs = new List<LanguageObj>() { language }.ToDictionary(x => x.Code);
 
             //test upsert
 
             //Create 2 EPG bulk objects
-            
+
             //EPG1
             var today = DateTime.Now;
             var epgCb = IndexManagerMockDataCreator.GeRandomEpgCb(today);
@@ -153,13 +153,13 @@ namespace ApiLogic.Tests.IndexManager
 
             //EPG2
             var tomorrow = today.AddDays(1);
-            var epgCb2 = IndexManagerMockDataCreator.GeRandomEpgCb(tomorrow,name: "la movie2",description: "this is the movie description2");
+            var epgCb2 = IndexManagerMockDataCreator.GeRandomEpgCb(tomorrow, name: "la movie2", description: "this is the movie description2");
             var epgCbObjects2 = new List<EpgCB>();
             epgCbObjects2.Add(epgCb2);
             var epgBulk2 = GetEpgProgramBulkUploadObject(partnerId, dateOfProgramsToIngest.AddDays(1), epgCb2, epgCbObjects2);
-            
+
             //EPG3
-            var epgCb3 = IndexManagerMockDataCreator.GeRandomEpgCb(tomorrow.AddDays(2),name: "la movie2",description: "this is the movie description2");
+            var epgCb3 = IndexManagerMockDataCreator.GeRandomEpgCb(tomorrow.AddDays(2), name: "la movie2", description: "this is the movie description2");
             var epgCbObjects3 = new List<EpgCB>();
             epgCbObjects3.Add(epgCb3);
             var epgBulk3 = GetEpgProgramBulkUploadObject(partnerId, dateOfProgramsToIngest.AddDays(2), epgCb3, epgCbObjects3);
@@ -167,16 +167,15 @@ namespace ApiLogic.Tests.IndexManager
             crudOperations.ItemsToAdd.Add(epgBulk1);
             crudOperations.ItemsToAdd.Add(epgBulk2);
             crudOperations.ItemsToAdd.Add(epgBulk3);
-            
+
             var programsToIndex = crudOperations.ItemsToAdd
                 .Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.AffectedItems)
                 .ToList();
 
             //call upsert
             indexManager.UpsertProgramsToDraftIndex(programsToIndex, index, dateOfProgramsToIngest, language, languageObjs);
-            
-            
-            indexManager.DeleteProgramsFromIndex(programsToIndex,index,languageObjs);
+
+            indexManager.DeleteProgramsFromIndex(programsToIndex, index, languageObjs);
 
             var res = indexManager.FinalizeEpgV2Index(DateTime.Now);
             Assert.IsTrue(res);
@@ -231,6 +230,51 @@ namespace ApiLogic.Tests.IndexManager
 
             bool publishResult = indexManager.PublishEpgIndex(indexName, true, true, true);
             Assert.IsTrue(publishResult);
+        }
+
+        [Test]
+        public void TestEpg()
+        {
+            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
+            var indexManager = GetIndexV7Manager(partnerId);
+            ulong epgId = (ulong)(1 + new Random().Next(10000));
+
+            var indexName = indexManager.SetupEpgIndex(false);
+
+            Assert.IsNotEmpty(indexName);
+
+            var randomChannel = IndexManagerMockDataCreator.GetRandomChannel(partnerId);
+            Dictionary<ulong, Dictionary<string, EpgCB>> epgs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
+            epgs[epgId] = new Dictionary<string, EpgCB>();
+            epgs[epgId][language.Code] = new EpgCB()
+            {
+                EpgID = epgId,
+                Name = $"test epg {epgId}",
+                IsActive = true,
+                ChannelID = randomChannel.m_nChannelID,
+                StartDate = DateTime.UtcNow.AddHours(-1),
+                EndDate = DateTime.UtcNow.AddHours(1),
+                Status = 1,
+                UpdateDate = DateTime.UtcNow,
+                CreateDate = DateTime.UtcNow,
+                EpgIdentifier = $"1{epgId}",
+                Crid = $"2{epgId}",
+                GroupID = partnerId,
+                ParentGroupID = partnerId,
+                Language = language.Code
+
+            };
+
+            _mockCatalogCache.Setup(x => x.GetLinearChannelSettings(It.IsAny<int>(), It.IsAny<List<string>>()))
+                .Returns(new Dictionary<string, ApiObjects.Catalog.LinearChannelSettings>());
+            indexManager.AddEPGsToIndex(indexName, false, epgs, new Dictionary<long, List<int>>(), null);
+            bool publishResult = indexManager.PublishEpgIndex(indexName, false, true, true);
+            Assert.IsTrue(publishResult);
+
+            bool deleteResult = indexManager.DeleteProgram(new List<long>() { Convert.ToInt64(epgId) }, null);
+            Assert.IsTrue(deleteResult);
         }
 
         [Test]
@@ -390,6 +434,9 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsTrue(addResult);
 
             indexManager.PublishMediaIndex(indexName, true, true);
+
+            var deleteResult = indexManager.DeleteChannelPercolator(new List<int>() { channel.m_nChannelID });
+            Assert.IsTrue(deleteResult);
         }
     }
 }
