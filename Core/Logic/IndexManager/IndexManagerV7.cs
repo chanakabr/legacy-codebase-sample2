@@ -354,7 +354,41 @@ namespace Core.Catalog
 
         public bool DeleteMedia(long assetId)
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            if (assetId <= 0)
+            {
+                log.WarnFormat("Received media request of invalid media id {0} when calling DeleteMedia", assetId);
+                return result;
+            }
+
+            string index = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            var deleteResponse = _elasticClient.DeleteByQuery<Media>(request => request
+                .Index(index)
+                .Query(query => query.Term(media => media.MediaId, assetId)
+                    ));
+
+            result = deleteResponse.IsValid;
+
+            if (!result)
+            {
+                log.ErrorFormat("Delete media with id {0} failed", assetId);
+            }
+            else
+            {
+                try
+                {
+                    // support for old invalidation keys
+                        // invalidate epg's for OPC and NON-OPC accounts
+                        _layeredCache.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(_partnerId, assetId));
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Failed invalidating media {assetId} on partner {_partnerId}", ex);
+                }
+            }
+
+            return result;
         }
 
         public void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms,
