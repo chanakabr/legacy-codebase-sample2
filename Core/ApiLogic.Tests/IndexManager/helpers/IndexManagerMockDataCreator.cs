@@ -69,7 +69,7 @@ namespace ApiLogic.Tests.IndexManager.helpers
             _mockCatalogManager.Setup(x => x.TryGetCatalogGroupCacheFromCache(partnerId, out catalogGroupCache)).Returns(true);
         }
 
-        public static LanguageObj GetRandomLanguage()
+        public static LanguageObj GetEnglishLanguageWithRandomId()
         {
             var language = new ApiObjects.LanguageObj()
             {

@@ -121,7 +121,7 @@ namespace ApiLogic.Tests.IndexManager
             var dateOfProgramsToIngest = DateTime.Now.AddDays(-1);
 
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
             var policy = Policy.Handle<Exception>().WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1));
@@ -203,7 +203,7 @@ namespace ApiLogic.Tests.IndexManager
         public void TestMedia()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
 
@@ -221,7 +221,7 @@ namespace ApiLogic.Tests.IndexManager
         public void TestRecording()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
 
@@ -237,7 +237,7 @@ namespace ApiLogic.Tests.IndexManager
         public void TestEpg()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
             ulong epgId = (ulong)(1 + new Random().Next(10000));
@@ -291,7 +291,7 @@ namespace ApiLogic.Tests.IndexManager
         public void TestSocialStatisticsData()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
             var stat1 = IndexManagerMockDataCreator.GetRandomSocialActionStat(partnerId);
 
@@ -317,14 +317,28 @@ namespace ApiLogic.Tests.IndexManager
         public void TestTags()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-            var language = IndexManagerMockDataCreator.GetRandomLanguage();
-            IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
+            var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
+            var language2 = new ApiObjects.LanguageObj()
+            {
+                ID = _random.Next(1000) + 1,
+                Code = "he",
+                Name = "Hebrew",
+                IsDefault = false,
+            };
+            IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language, language2 }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(partnerId);
 
             var indexName = indexManager.SetupTagsIndex();
             Assert.IsNotEmpty(indexName);
             var randomTag = IndexManagerMockDataCreator.GetRandomTag(language.ID);
             indexManager.InsertTagsToIndex(indexName, new List<TagValue>() { randomTag });
+
+            var publishResult = indexManager.PublishTagsIndex(indexName, true, true);
+            Assert.IsTrue(publishResult);
+
+            var secondTag  = IndexManagerMockDataCreator.GetRandomTag(language2.ID);
+            var updateResult = indexManager.UpdateTag(secondTag);
+            Assert.AreEqual((int)ApiObjects.Response.eResponseStatus.OK, updateResult.Code);
         }
 
         [Test]
@@ -395,7 +409,7 @@ namespace ApiLogic.Tests.IndexManager
         public void TestChannelPercolator()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
 
             var channel = IndexManagerMockDataCreator.GetRandomChannel(partnerId);
