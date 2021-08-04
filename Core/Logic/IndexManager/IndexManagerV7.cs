@@ -990,6 +990,47 @@ namespace Core.Catalog
                 return response;
             }
 
+            /*
+                {
+                    "size": 500,
+                    "from": 0,
+                    "fields": [
+                        "media_id",
+                        "update_date"
+                    ],
+                    "query": {
+                        "terms": {
+                            "media_id": [
+                                762870,
+                                762874
+                            ]
+                        }
+                    }
+                }
+                */
+
+            for (int from = 0; from < assetIds.Count; from += 500)
+            {
+                var searchResult = _elasticClient.Search<Media>(searchDescriptor => searchDescriptor
+                .Index(index)
+                .Size(500)
+                .From(from)
+                .Fields(fields => fields.Field(idField).Field("update_date"))
+                .Query(query => query
+                    .Terms(terms => terms.Field(idField).Terms<int>(assetIds))
+                    )
+                );
+
+                foreach (var item in searchResult.Hits)
+                {
+                    response.Add(new SearchResult()
+                    {
+                        assetID = item.Source.MediaId,
+                        UpdateDate = item.Source.UpdateDate
+                    });
+                }
+            }
+
             return response;
         }
 

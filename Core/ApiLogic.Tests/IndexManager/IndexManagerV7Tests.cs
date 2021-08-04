@@ -229,6 +229,12 @@ namespace ApiLogic.Tests.IndexManager
 
             var upsertMedia = indexManager.UpsertMedia(randomMedia.m_nMediaID);
             Assert.True(upsertMedia);
+
+            var updateDates = indexManager.GetAssetsUpdateDate(eObjectType.Media, new List<int>() { randomMedia.m_nMediaID });
+
+            Assert.IsNotEmpty(updateDates);
+            Assert.AreEqual(randomMedia.m_nMediaID, updateDates[0].assetID);
+            Assert.AreEqual(randomMedia.m_sUpdateDate, updateDates[0].UpdateDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
         }
 
         [Test]
