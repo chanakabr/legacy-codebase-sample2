@@ -670,16 +670,21 @@ namespace Core.Catalog
 
         private NestEsBulkRequest<Epg> GetEpgBulkRequest(string draftIndexName,
             DateTime routingDate,
-            Epg buildEpg)
+            Epg buildEpg,
+            string documentId="")
         {
+            //override the doc id    
+            var docId = string.IsNullOrEmpty(documentId) ? buildEpg.EpgIdentifier:documentId;
+            
             var bulkRequest = new NestEsBulkRequest<Epg>()
             {
-                DocID = $"{buildEpg.EpgIdentifier}_{buildEpg.Language}",
+                DocID = $"{docId}_{buildEpg.Language}",
                 Document = buildEpg,
                 Index = draftIndexName,
                 Operation = eOperation.index,
                 Routing = routingDate.Date.ToString("yyyyMMdd")
             };
+            
             return bulkRequest;
         }
 
@@ -1725,7 +1730,14 @@ namespace Core.Catalog
                         }
 
                         // Serialize EPG object to string
-                        var epg = NestDataCreator.GetEpg(epgCb, language.ID, true, _groupUsesTemplates);
+                        long? recodingId=null;
+                        if (isRecording)
+                        {
+                            recodingId = epgToRecordingMapping[(int) epgCb.EpgID];
+                        }
+
+                        var epg = NestDataCreator.GetEpg(epgCb, language.ID, true, _groupUsesTemplates, recodingId);
+                        
                         var documentId = GetEpgDocumentId(epgCb, isRecording, epgToRecordingMapping);
                         
                         // If we exceeded the size of a single bulk reuquest then create another list
@@ -1734,8 +1746,8 @@ namespace Core.Catalog
                             numOfBulkRequests++;
                             bulkRequests.Add(numOfBulkRequests, new List<NestEsBulkRequest<Epg>>());
                         }
-                        var bulkRequest = GetEpgBulkRequest(index, epgCb.StartDate, epg);
-                        bulkRequest.DocID = $"{documentId}_{epg.Language}";//override the doc id 
+                        var bulkRequest = GetEpgBulkRequest(index, epgCb.StartDate, epg,documentId);
+                         
                         bulkRequests[numOfBulkRequests].Add(bulkRequest);
                     }
                 }
@@ -1782,7 +1794,92 @@ namespace Core.Catalog
 
         public bool UpdateEpgs(List<EpgCB> epgObjects, bool isRecording, Dictionary<long, long> epgToRecordingMapping = null)
         {
-            throw new NotImplementedException();
+            var result = false;
+            var bulkRequests = new List<NestEsBulkRequest<Epg>>();
+            
+            var sizeOfBulk = GetBulkSize(500);
+            var languages = GetLanguages();
+
+            Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
+
+            if (_groupUsesTemplates ? _catalogGroupCache.IsRegionalizationEnabled : _group.isRegionalizationEnabled)
+            {
+                linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(_partnerId);
+            }
+
+            var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+
+            if (isRecording)
+            {
+                alias = IndexingUtils.GetRecordingGroupAliasStr(_partnerId);
+            }
+            
+            if (!_elasticClient.Indices.Exists(alias).Exists)
+            {
+                log.Error($"Error - Index {alias} for group {_partnerId} does not exist");
+                return false;
+            }
+
+            var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
+
+            _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
+
+            List<string> epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList();
+            Dictionary<string, LinearChannelSettings> linearChannelSettings = _catalogCache.GetLinearChannelSettings(_partnerId, epgChannelIds);
+
+            // Create dictionary by languages
+            foreach (LanguageObj language in languages)
+            {
+                // Filter programs to current language
+                var currentLanguageEpgs = epgObjects.Where(epg =>
+                    epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
+
+                if (currentLanguageEpgs.Any())
+                {
+                    // Create bulk request object for each program
+                    foreach (EpgCB epgCb in currentLanguageEpgs)
+                    {
+                        // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
+                        // in that case we need to use the specific date alias for each epg item to update
+                        if (!isRecording && isIngestV2)
+                        {
+                            alias = IndexingUtils.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
+                        }
+
+                        epgCb.PadMetas(_metasToPad);
+                        UpdateEpgLinearMediaId(linearChannelSettings, epgCb);
+                        UpdateEpgRegions(epgCb, linearChannelsRegionsMapping);
+
+                        long? recodingId=null;
+                        if (isRecording && epgToRecordingMapping!=null )
+                        {
+                            recodingId = epgToRecordingMapping[(int) epgCb.EpgID];
+                        }
+
+                        var epg = NestDataCreator.GetEpg(epgCb, language.ID, true, _groupUsesTemplates, recodingId);
+                        var shouldSetTTL = !isRecording;
+                        var documentId = GetEpgDocumentId(epgCb, isRecording, epgToRecordingMapping);
+                        var bulkRequest = GetEpgBulkRequest(alias, epgCb.StartDate.ToUniversalTime(), epg,documentId);
+                        bulkRequests.Add(bulkRequest);
+
+                        if (bulkRequests.Count > sizeOfBulk)
+                        {
+                            var isValid = ExecuteAndValidateBulkRequests(bulkRequests);
+                            result &= isValid;
+                            bulkRequests.Clear();
+                        }
+                    }
+                }
+            }
+
+            if (bulkRequests.Count > 0)
+            {
+                var isValid = ExecuteAndValidateBulkRequests(bulkRequests);
+                result &= isValid;
+                bulkRequests.Clear();
+            }
+            
+            return result;
         }
 
         public SearchResultsObj SearchMedias(MediaSearchObj oSearch, int nLangID, bool bUseStartDate)
