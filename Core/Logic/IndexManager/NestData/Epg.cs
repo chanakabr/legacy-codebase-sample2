@@ -126,6 +126,10 @@ namespace ApiObjects.Nest
 
         [PropertyName ("suppressed")]
         public string Suppressed { get; set; }
+        
+        
+        [PropertyName ("recording_id")]
+        public long? RecordingId { get; set; }
 
         [PropertyName("__expiration")]
         public ulong? Expiration { get; set; }
@@ -135,15 +139,16 @@ namespace ApiObjects.Nest
         #region Ctor
         
         public Epg(EpgCB epgCb, int languageId, bool isOpc = false, bool withRouting = true,
-            string esDateOnlyFormat = "")
+            string esDateOnlyFormat = "", long? recordingId=null)
         {
-            Initialize(epgCb, isOpc, withRouting,esDateOnlyFormat,languageId);
+            Initialize(epgCb, isOpc, withRouting,esDateOnlyFormat,languageId,recordingId);
         }
         #endregion
 
         #region Initialize
 
-        private void Initialize(EpgCB epgCb, bool isOpc, bool withRouting, string esDateOnlyFormat, int languageId)
+        private void Initialize(EpgCB epgCb, bool isOpc, bool withRouting, string esDateOnlyFormat, int languageId,
+            long? recordingId)
         {
             EpgID = epgCb.EpgID;
             EpgIdentifier = epgCb.EpgIdentifier;
@@ -206,6 +211,11 @@ namespace ApiObjects.Nest
             if (withRouting)
             {
                 DateRouting = epgCb.StartDate.ToUniversalTime().ToString(esDateOnlyFormat);
+            }
+
+            if (recordingId.HasValue)
+            {
+                RecordingId = recordingId.Value;
             }
         }
 
