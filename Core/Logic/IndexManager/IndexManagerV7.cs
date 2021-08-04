@@ -265,22 +265,22 @@ namespace Core.Catalog
                     log.Warn($"upsert attempt [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
                 });
         }
-        public bool UpsertProgram(List<EpgCB> epgObjects,Dictionary<string, LinearChannelSettings> linearChannelSettings)
+        public bool UpsertProgram(List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings)
         {
             if (!epgObjects.Any())
             {
                 return true;
             }
-            
+
             var result = true;
-            
+
             try
             {
                 var sizeOfBulk = GetBulkSize();
                 var languages = GetLanguages();
                 var epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList();
                 linearChannelSettings = linearChannelSettings ?? new Dictionary<string, LinearChannelSettings>();
-                
+
                 var bulkRequests = new List<NestEsBulkRequest<Epg>>();
 
                 var isRationalizationEnabled = _groupUsesTemplates
@@ -290,10 +290,10 @@ namespace Core.Catalog
                 var linearChannelsRegionsMapping = isRationalizationEnabled
                     ? RegionManager.GetLinearMediaRegions(_partnerId)
                     : new Dictionary<long, List<int>>();
-                
+
                 var createdAliases = new HashSet<string>();
                 _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
-                
+
                 var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
                 var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
 
@@ -330,12 +330,12 @@ namespace Core.Catalog
                         {
                             continue;
                         }
-                        
+
                         var isValid = ExecuteAndValidateBulkRequests(bulkRequests);
                         if (isValid)
                         {
                             EpgAssetManager.InvalidateEpgs(_partnerId,
-                                bulkRequests.Select(x => (long) x.Document.EpgID), _groupUsesTemplates, epgChannelIds,
+                                bulkRequests.Select(x => (long)x.Document.EpgID), _groupUsesTemplates, epgChannelIds,
                                 false);
                         }
 
@@ -349,7 +349,7 @@ namespace Core.Catalog
                     if (isValid)
                     {
                         EpgAssetManager.InvalidateEpgs(_partnerId,
-                            bulkRequests.Select(x => (long) x.Document.EpgID), _groupUsesTemplates,
+                            bulkRequests.Select(x => (long)x.Document.EpgID), _groupUsesTemplates,
                             epgChannelIds, false);
                     }
                     result &= isValid;
@@ -360,6 +360,7 @@ namespace Core.Catalog
                 log.ErrorFormat("Error: Update EPGs threw an exception. Exception={0}", ex);
                 throw;
             }
+
             return result;
         }
 
