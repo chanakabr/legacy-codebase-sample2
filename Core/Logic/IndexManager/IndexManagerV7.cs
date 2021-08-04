@@ -44,6 +44,7 @@ using Core.GroupManagers;
 using Media = ApiLogic.IndexManager.NestData.Media;
 using SocialActionStatistics = ApiObjects.Statistics.SocialActionStatistics;
 using ApiLogic.IndexManager.QueryBuilders;
+using ApiObjects.Response;
 
 namespace Core.Catalog
 {
@@ -485,12 +486,81 @@ namespace Core.Catalog
 
         public bool UpsertChannel(int channelId, Channel channel = null, long userId = 0)
         {
-            throw new NotImplementedException();
+            var result = false;
+            if (channelId <= 0)
+            {
+                log.WarnFormat("Received channel request of invalid channel id {0} when calling UpsertChannel",channelId);
+                return false;
+            }
+
+            try
+            {
+                if (channel == null)
+                {
+                    var response = _channelManager.GetChannelById(_partnerId, channelId, true, userId);
+                    if (response != null && response.Status != null && response.Status.Code != (int) eResponseStatus.OK)
+                    {
+                        return false;
+                    }
+
+                    if (response != null)
+                    {
+                        channel = response.Object;
+                    }
+                    
+                    if (channel == null)
+                    {
+                        log.ErrorFormat(
+                            "failed to get channel object for _partnerId: {0}, channelId: {1} when calling UpsertChannel",
+                            _partnerId, channelId);
+                        return false;
+                    }
+                }
+
+                var index = ESUtils.GetGroupChannelIndex(_partnerId);
+
+                if (!_elasticClient.Indices.Exists(index).Exists)
+                {
+                    log.Error($"channel metadata index doesn't exist for group {_partnerId}");
+                    return false;
+                }
+                
+                var channelMetadata = NestDataCreator.GetChannelMetadata(channel);
+
+                var indexResponse = _elasticClient.Index(channelMetadata, x => x.Index(index));
+
+                if (indexResponse.IsValid && indexResponse.Result == Result.Created)
+                {
+                    result = true;
+                    if ((channel.m_nChannelTypeID != (int) ChannelType.Manual ||
+                         (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0))
+                        && !UpdateChannelPercolator(new List<int>() {channelId}, channel))
+                    {
+                        log.ErrorFormat("Update channel percolator failed for Upsert Channel with channelId: {0}",
+                            channelId);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(
+                    "Error - " +
+                    string.Format("Upsert Channel threw an exception. channelId: {0}, Exception={1};Stack={2}",
+                        channelId, ex.Message, ex.StackTrace), ex);
+            }
+
+            if (!result)
+            {
+                log.ErrorFormat("Upsert channel with id {0} failed", channelId);
+            }
+
+            return result;
+         
         }
 
         public bool DeleteMedia(long assetId)
         {
-            bool result = false;
+            var result = false;
 
             if (assetId <= 0)
             {
