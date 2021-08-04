@@ -47,7 +47,14 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 return null;
             }
 
-            return new QueryContainer();
+            var result = Query<ApiObjects.Nest.SocialActionStatistics>.Bool(b => b
+                .Filter(
+                    filter => filter.Term(field => field.MediaID, oSearchObject.MediaID),
+                    filter => filter.Term(field => field.MediaType, oSearchObject.MediaType),
+                    filter => filter.Term(field => field.Date, oSearchObject.Date),
+                    filter => filter.Term(field => field.Action, oSearchObject.Action))
+                );
+            return result;
         }
 
         public string BuildQueryString()
