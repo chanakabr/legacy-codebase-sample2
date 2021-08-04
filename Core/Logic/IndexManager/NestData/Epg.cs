@@ -132,23 +132,23 @@ namespace ApiObjects.Nest
         public long? RecordingId { get; set; }
 
         [PropertyName("__expiration")]
-        public ulong? Expiration { get; set; }
+        public long? Expiration { get; set; }
         
         #endregion
 
         #region Ctor
         
         public Epg(EpgCB epgCb, int languageId, bool isOpc = false, bool withRouting = true,
-            string esDateOnlyFormat = "", long? recordingId=null)
+            string esDateOnlyFormat = "", long? recordingId = null, long? expiryUnixTimeStamp=null)
         {
-            Initialize(epgCb, isOpc, withRouting,esDateOnlyFormat,languageId,recordingId);
+            Initialize(epgCb, isOpc, withRouting,esDateOnlyFormat,languageId,recordingId,expiryUnixTimeStamp);
         }
         #endregion
 
         #region Initialize
 
         private void Initialize(EpgCB epgCb, bool isOpc, bool withRouting, string esDateOnlyFormat, int languageId,
-            long? recordingId)
+            long? recordingId, long? expiryUnixTimeStamp)
         {
             EpgID = epgCb.EpgID;
             EpgIdentifier = epgCb.EpgIdentifier;
@@ -216,6 +216,11 @@ namespace ApiObjects.Nest
             if (recordingId.HasValue)
             {
                 RecordingId = recordingId.Value;
+            }
+
+            if (expiryUnixTimeStamp.HasValue)
+            {
+                Expiration = expiryUnixTimeStamp.Value;
             }
         }
 
