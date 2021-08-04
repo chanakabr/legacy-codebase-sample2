@@ -32,6 +32,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using Policy = Polly.Policy;
 using ApiLogic.IndexManager.NestData;
 using ApiLogic.IndexManager.QueryBuilders;
+using ApiObjects.Response;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -454,5 +455,92 @@ namespace ApiLogic.Tests.IndexManager
             var deleteResult = indexManager.DeleteChannelPercolator(new List<int>() { channel.m_nChannelID });
             Assert.IsTrue(deleteResult);
         }
+        
+        
+        [Test]
+        public void TestChannelMeteDataCrud()
+        {
+            /*var randomPartnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var indexV7Manager = GetIndexV7Manager(randomPartnerId);
+            string index = indexV7Manager.SetupChannelMetadataIndex();
+            indexV7Manager.AddChannelsMetadataToIndex(index,new List<Channel>(){new Channel(){m_sName = "test chanlel"}});*/
+            
+                        var randomPartnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var randomChannel = IndexManagerMockDataCreator.GetRandomChannel(randomPartnerId);
+            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            IndexManagerMockDataCreator.SetupOpcPartnerMocks(randomPartnerId, new[] { language }, ref _mockCatalogManager);
+            var indexManager = GetIndexV7Manager(randomPartnerId);
+
+            var channelIndexName = indexManager.SetupChannelMetadataIndex();
+            indexManager.AddChannelsMetadataToIndex(channelIndexName, new List<Channel>() { randomChannel });
+            indexManager.PublishChannelsMetadataIndex(channelIndexName, true, true);
+
+            var response = new GenericResponse<Channel>();
+            response.Object = randomChannel;
+            response.SetStatus(eResponseStatus.OK);
+
+            _mockChannelManager
+                .Setup(x => x.GetChannelById(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<long>()))
+                .Returns(response);
+
+            var total = 0;
+            var channelSearchDefinitions = new ChannelSearchDefinitions()
+            {
+                GroupId = randomPartnerId,
+                PageIndex = 0,
+                PageSize = 1,
+                ExactSearchValue = randomChannel.m_sName
+            };
+
+            var searchPolicy = Policy.HandleResult<List<int>>(x => x == null || x.Count == 0).WaitAndRetry(
+                3,
+                retryAttempt => TimeSpan.FromSeconds(1));
+
+            var channels = searchPolicy.Execute(() =>
+            {
+                return indexManager.SearchChannels(channelSearchDefinitions, ref total);
+            });
+
+            Assert.AreEqual(1, total);
+            Assert.IsNotNull(channels);
+            Assert.IsNotEmpty(channels);
+            Assert.AreEqual(randomChannel.m_nChannelID, channels[0]);
+
+            // now let's combine with percolators - need media + epg indices for that
+
+            var mediaIndexName = indexManager.SetupMediaIndex();
+            indexManager.PublishMediaIndex(mediaIndexName, true, true);
+            var epgIndexName = indexManager.SetupEpgIndex(false);
+            indexManager.PublishEpgIndex(epgIndexName, false, true, true);
+
+            var secondRandomChannel = IndexManagerMockDataCreator.GetRandomChannel(randomPartnerId);
+            var upsertResult = indexManager.UpsertChannel(secondRandomChannel.m_nChannelID, secondRandomChannel);
+
+            channelSearchDefinitions.ExactSearchValue = secondRandomChannel.m_sName;
+
+            channels = searchPolicy.Execute(() =>
+            {
+                return indexManager.SearchChannels(channelSearchDefinitions, ref total);
+            });
+
+            Assert.AreEqual(1, total);
+            Assert.IsNotNull(channels);
+            Assert.IsNotEmpty(channels);
+            Assert.AreEqual(secondRandomChannel.m_nChannelID, channels[0]);
+
+            indexManager.DeleteChannel(secondRandomChannel.m_nChannelID);
+
+            var deletePolicy = Policy.HandleResult<List<int>>(x => x != null && x.Count > 0).WaitAndRetry(3,
+                retryAttempt => TimeSpan.FromSeconds(1));
+
+            channels = deletePolicy.Execute(() =>
+            {
+                return indexManager.SearchChannels(channelSearchDefinitions, ref total);
+            });
+
+            Assert.AreEqual(0, total);
+
+        }
+        
     }
 }

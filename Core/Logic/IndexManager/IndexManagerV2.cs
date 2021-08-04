@@ -5910,7 +5910,7 @@ namespace Core.Catalog
 
                 if (shouldDeleteOldIndices && taskSwitchIndex.Result && oldIndices.Count > 0)
                 {
-                    Task t = Task.Run(() =>
+                    var t = Task.Run(() =>
                     {
                         cd.Load();
                         _elasticSearchApi.DeleteIndices(oldIndices);
