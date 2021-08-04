@@ -18,7 +18,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace ApiLogic.IndexManager.Helpers
+namespace ApiLogic.IndexManager.QueryBuilders
 {
     public interface IChannelQueryBuilder
     {

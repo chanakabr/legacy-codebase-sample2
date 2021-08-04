@@ -1,4 +1,5 @@
-﻿using ApiObjects.SearchObjects;
+﻿using ApiLogic.IndexManager.QueryBuilders;
+using ApiObjects.SearchObjects;
 using ElasticSearch.Searcher;
 
 namespace ApiLogic.Catalog.IndexManager.GroupBy

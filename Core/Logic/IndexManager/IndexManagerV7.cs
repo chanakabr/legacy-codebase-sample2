@@ -43,6 +43,7 @@ using ApiLogic.Api.Managers;
 using Core.GroupManagers;
 using Media = ApiLogic.IndexManager.NestData.Media;
 using SocialActionStatistics = ApiObjects.Statistics.SocialActionStatistics;
+using ApiLogic.IndexManager.QueryBuilders;
 
 namespace Core.Catalog
 {
@@ -439,7 +440,46 @@ namespace Core.Catalog
 
         public bool DeleteChannel(int channelId)
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            if (channelId <= 0)
+            {
+                log.Warn($"Received channel request of invalid channel id {channelId} when calling DeleteChannel");
+                return result;
+            }
+
+            try
+            {
+                string index = ESUtils.GetGroupChannelIndex(_partnerId);
+                var deleteResponse = _elasticClient.DeleteByQuery<ChannelMetadata>(request => request
+                    .Index(index)
+                    .Query(query => query.Term(channel => channel.ChannelId, channelId)
+                        ));
+
+                result = deleteResponse.IsValid;
+
+                if (!deleteResponse.IsValid)
+                {
+                    log.Error($"Failed deleting channel metadata, id = {channelId}, index = {index}");
+                }
+                else
+                {
+                    result = true;
+
+                    bool deletePercolatorResult = this.DeleteChannelPercolator(new List<int>() { channelId });
+
+                    if (!deletePercolatorResult)
+                    {
+                        log.Error($"Error deleting channel percolator for channel {channelId}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error deleting channel with id {channelId}", ex);
+            }
+
+            return result;
         }
 
         public bool UpsertChannel(int channelId, Channel channel = null, long userId = 0)
@@ -449,7 +489,41 @@ namespace Core.Catalog
 
         public bool DeleteMedia(long assetId)
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            if (assetId <= 0)
+            {
+                log.WarnFormat("Received media request of invalid media id {0} when calling DeleteMedia", assetId);
+                return result;
+            }
+
+            string index = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            var deleteResponse = _elasticClient.DeleteByQuery<Media>(request => request
+                .Index(index)
+                .Query(query => query.Term(media => media.MediaId, assetId)
+                    ));
+
+            result = deleteResponse.IsValid;
+
+            if (!result)
+            {
+                log.ErrorFormat("Delete media with id {0} failed", assetId);
+            }
+            else
+            {
+                try
+                {
+                    // support for old invalidation keys
+                        // invalidate epg's for OPC and NON-OPC accounts
+                        _layeredCache.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(_partnerId, assetId));
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Failed invalidating media {assetId} on partner {_partnerId}", ex);
+                }
+            }
+
+            return result;
         }
 
         public void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms,
@@ -704,12 +778,40 @@ namespace Core.Catalog
 
         public Status DeleteTag(long tagId)
         {
-            throw new NotImplementedException();
+            var status = new ApiObjects.Response.Status();
+            string index = ESUtils.GetGroupMetadataIndex(_partnerId);
+
+            var deleteResponse = _elasticClient.DeleteByQuery<Tag>(request => request
+                .Index(index)
+                .Query(query => query.Term(tag => tag.tagId, tagId)
+                    ));
+
+            if (!deleteResponse.IsValid)
+            {
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Failed performing delete query";
+            }
+
+            return status;
         }
 
         public Status DeleteTagsByTopic(long topicId)
         {
-            throw new NotImplementedException();
+            var status = new ApiObjects.Response.Status();
+            string index = ESUtils.GetGroupMetadataIndex(_partnerId);
+
+            var deleteResponse = _elasticClient.DeleteByQuery<Tag>(request => request
+                .Index(index)
+                .Query(query => query.Term(tag => tag.topicId, topicId)
+                    ));
+
+            if (!deleteResponse.IsValid)
+            {
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Failed performing delete query";
+            }
+
+            return status;
         }
 
         //DO NOT IMPLEMENT THIS METHOD
@@ -778,6 +880,7 @@ namespace Core.Catalog
 
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)
         {
+            bool result = false;
             var index = ESUtils.GetGroupStatisticsIndex(_partnerId);
 
             try
@@ -785,10 +888,19 @@ namespace Core.Catalog
                 if (_elasticClient.Indices.Exists(index).Exists)
                 {
                     var queryBuilder = new ESStatisticsQueryBuilder(_partnerId, socialSearch);
-                    var queryString = queryBuilder.BuildQuery();
-                    //TODO IMPLEMENT THIS METHOD!
-                    throw new NotImplementedException();
-                    //return _elasticSearchApi.DeleteDocsByQuery(index, ESUtils.ES_STATS_TYPE, ref queryString);
+                    var query = queryBuilder.BuildQuery();
+
+                    var deleteResponse = _elasticClient.DeleteByQuery<ApiObjects.Nest.SocialActionStatistics>(request => request
+                        .Index(index)
+                        .Query(q =>
+                            {
+                                return query;
+                            }
+                        ));
+
+                    result = deleteResponse.IsValid;
+
+                    log.Debug($"DeleteSocialAction. Deleted = {deleteResponse.Deleted}, Failed = {deleteResponse.Failures.Count}");
                 }
             }
             catch (Exception ex)
@@ -796,7 +908,7 @@ namespace Core.Catalog
                 log.DebugFormat("DeleteActionFromES Failed ex={0}, index={1};type={2}", ex, index, ESUtils.ES_STATS_TYPE);
             }
 
-            return false;
+            return result;
         }
 
         public string SetupIPToCountryIndex()

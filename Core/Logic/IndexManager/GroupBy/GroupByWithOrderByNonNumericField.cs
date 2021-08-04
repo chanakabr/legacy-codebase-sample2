@@ -7,6 +7,7 @@ using ElasticSearch.Common;
 using ElasticSearch.Searcher;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using TVinciShared;
+using ApiLogic.IndexManager.QueryBuilders;
 
 namespace ApiLogic.Catalog.IndexManager.GroupBy
 {

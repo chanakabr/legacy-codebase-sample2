@@ -46,6 +46,7 @@ using System.Web;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using Status = ApiObjects.Response.Status;
+using ApiLogic.IndexManager.QueryBuilders;
 
 namespace Core.Catalog
 {
@@ -132,7 +133,7 @@ namespace Core.Catalog
             "epg_id",
             STATUS,
             "linear_media_id",
-            ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID,
+            ESUnifiedQueryBuilder.RECORDING_ID,
             ESUnifiedQueryBuilder.ENABLE_CDVR,
             ESUnifiedQueryBuilder.ENABLE_CATCHUP,
         };
@@ -7317,7 +7318,7 @@ namespace Core.Catalog
                             }
                         }
 
-                        if (searchKeyLowered == ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID)
+                        if (searchKeyLowered == ESUnifiedQueryBuilder.RECORDING_ID)
                         {
                             definitions.shouldSearchRecordings = true;
                             // I mock a "in" operator so that the query builder will know it is a not-exact search

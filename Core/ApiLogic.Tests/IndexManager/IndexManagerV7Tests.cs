@@ -31,6 +31,7 @@ using Newtonsoft.Json;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using Policy = Polly.Policy;
 using ApiLogic.IndexManager.NestData;
+using ApiLogic.IndexManager.QueryBuilders;
 using ApiObjects.Response;
 
 namespace ApiLogic.Tests.IndexManager
@@ -288,7 +289,7 @@ namespace ApiLogic.Tests.IndexManager
         }
 
         [Test]
-        public void TestInsertSocialStatisticsData()
+        public void TestSocialStatisticsData()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
             var language = IndexManagerMockDataCreator.GetRandomLanguage();
@@ -310,6 +311,7 @@ namespace ApiLogic.Tests.IndexManager
             };
 
             var deleteSocialAction = indexManager.DeleteSocialAction(socialSearch);
+            Assert.IsTrue(deleteSocialAction);
         }
 
         [Test]
@@ -420,8 +422,8 @@ namespace ApiLogic.Tests.IndexManager
                 .Returns<int, string, bool, Type>((one, two, three, four) => new HashSet<string>() { two });
             _mockChannelQueryBuilder.Setup(s => s
                 .GetChannelQuery(
-                    It.IsAny<ElasticSearch.Searcher.ESMediaQueryBuilder>(),
-                    It.IsAny<ElasticSearch.Searcher.ESUnifiedQueryBuilder>(),
+                    It.IsAny<ESMediaQueryBuilder>(),
+                    It.IsAny<ESUnifiedQueryBuilder>(),
                     It.IsAny<Channel>()))
                 .Returns(percolatdQuery)
             ;

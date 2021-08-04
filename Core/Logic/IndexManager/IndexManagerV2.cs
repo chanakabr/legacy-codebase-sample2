@@ -42,6 +42,7 @@ using Polly;
 using ESUtils = ElasticSearch.Common.Utils;
 using ApiLogic.Catalog;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.QueryBuilders;
 
 namespace Core.Catalog
 {
@@ -4692,7 +4693,7 @@ namespace Core.Catalog
                 if (_elasticSearchApi.IndexExists(index))
                 {
                     var queryBuilder = new ESStatisticsQueryBuilder(_partnerId, socialSearch);
-                    var queryString = queryBuilder.BuildQuery();
+                    var queryString = queryBuilder.BuildQueryString();
                     return _elasticSearchApi.DeleteDocsByQuery(index, ESUtils.ES_STATS_TYPE, ref queryString);
                 }
             }
@@ -6489,7 +6490,7 @@ namespace Core.Catalog
                     {
                         // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
                         // in that case we need to use the specific date alias for each epg item to update
-                        if (isIngestV2)
+                        if (!isRecording && isIngestV2)
                         {
                             alias = IndexingUtils.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
                         }

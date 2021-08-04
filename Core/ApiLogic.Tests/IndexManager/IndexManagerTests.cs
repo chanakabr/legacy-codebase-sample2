@@ -30,6 +30,7 @@ using ApiLogic.Tests.ConfigurationMocks;
 using ApiObjects.Nest;
 using ElasticSearch.NEST;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.QueryBuilders;
 
 namespace ApiLogic.Tests.IndexManager
 {
