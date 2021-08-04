@@ -25,6 +25,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         MediaSearchObj BuildBaseChannelSearchObject(Channel channel);
         UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel, bool useMediaTypes);
         PercolatedQuery GetChannelQuery(ESMediaQueryBuilder mediaQueryParser, ESUnifiedQueryBuilder unifiedQueryBuilder, Channel currentChannel);
+        PercolatedQuery GetChannelQuery(Channel currentChannel);
         string GetChannelQueryString(ESMediaQueryBuilder mediaQueryParser, ESUnifiedQueryBuilder unifiedQueryBuilder, Channel currentChannel);
     }
 
@@ -139,8 +140,25 @@ namespace ApiLogic.IndexManager.QueryBuilders
         }
 
         public PercolatedQuery GetChannelQuery(ESMediaQueryBuilder mediaQueryParser, ESUnifiedQueryBuilder unifiedQueryBuilder,
-            Channel currentChannel)
+            Channel channel)
         {
+            int groupId = channel.m_nParentGroupID;
+            bool doesGroupUseTemplates = _catalogManager.DoesGroupUsesTemplates(groupId);
+
+            if ((channel.m_nChannelTypeID == (int)ChannelType.KSQL) ||
+                (channel.m_nChannelTypeID == (int)ChannelType.Manual && doesGroupUseTemplates && channel.AssetUserRuleId > 0))
+            {
+                if (channel.m_nChannelTypeID == (int)ChannelType.Manual && channel.AssetUserRuleId > 0)
+                {
+                    string joinedString = string.Join(" ", channel.m_lChannelTags.Select(item => $"media_id='{item}'"));
+                    channel.filterQuery = $"(or {joinedString})";
+                }
+
+                UnifiedSearchDefinitions definitions = BuildSearchDefinitions(channel, true);
+                definitions.shouldSearchEpg = false;
+
+            }
+
             QueryContainerDescriptor<object> queryContainerDescriptor = new QueryContainerDescriptor<object>();
 
             var result = new PercolatedQuery()
@@ -354,5 +372,12 @@ namespace ApiLogic.IndexManager.QueryBuilders
             }
         }
 
+        public PercolatedQuery GetChannelQuery(Channel currentChannel)
+        {
+            var mediaQueryParser = new ESMediaQueryBuilder() { QueryType = eQueryType.EXACT };
+            var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, currentChannel.m_nGroupID);
+
+            return this.GetChannelQuery(mediaQueryParser, unifiedQueryBuilder, currentChannel);
+        }
     }
 }

@@ -465,9 +465,9 @@ namespace ApiLogic.Tests.IndexManager
             string index = indexV7Manager.SetupChannelMetadataIndex();
             indexV7Manager.AddChannelsMetadataToIndex(index,new List<Channel>(){new Channel(){m_sName = "test chanlel"}});*/
             
-                        var randomPartnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var randomPartnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
             var randomChannel = IndexManagerMockDataCreator.GetRandomChannel(randomPartnerId);
-            var language = IndexManagerMockDataCreator.GetRandomLanguage();
+            var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(randomPartnerId, new[] { language }, ref _mockCatalogManager);
             var indexManager = GetIndexV7Manager(randomPartnerId);
 

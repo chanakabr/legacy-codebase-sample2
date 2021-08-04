@@ -10,6 +10,7 @@ using KLogMonitor;
 using TVinciShared;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using ElasticSearch.Searcher;
+using Nest;
 
 namespace ApiLogic.IndexManager.QueryBuilders
 {
@@ -111,7 +112,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         /// <summary>
         /// A bool query containing all
         /// </summary>
-        public BoolQuery SubscriptionsQuery
+        public ElasticSearch.Searcher.BoolQuery SubscriptionsQuery
         {
             get;
             set;
@@ -515,6 +516,10 @@ namespace ApiLogic.IndexManager.QueryBuilders
             return fullQuery;
         }
 
+        public virtual QueryContainer BuildSearchQuery(bool ignoreDeviceRuleId = false, bool shouldAddIsActive = true, bool shouldAddMissingToGroupByAgg = false)
+        {
+            return null;
+        }
         private ESFunctionScore BuildFunctionScore(string filteredQuery)
         {
             var functions = new List<ESFunctionScoreFunction>();
@@ -1239,12 +1244,12 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                 if (queryTerm == null)
                 {
-                    queryTerm = new BoolQuery();
-                    (queryTerm as BoolQuery).AddNot(notPhraseQuery);
+                    queryTerm = new ElasticSearch.Searcher.BoolQuery();
+                    (queryTerm as ElasticSearch.Searcher.BoolQuery).AddNot(notPhraseQuery);
                 }
                 else
                 {
-                    BoolQuery boolQuery = queryTerm as BoolQuery;
+                    ElasticSearch.Searcher.BoolQuery boolQuery = queryTerm as ElasticSearch.Searcher.BoolQuery;
 
                     if (boolQuery != null)
                     {
@@ -1252,7 +1257,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     }
                     else
                     {
-                        boolQuery = new BoolQuery();
+                        boolQuery = new ElasticSearch.Searcher.BoolQuery();
                         boolQuery.AddChild(queryTerm, CutWith.AND);
                         boolQuery.AddNot(notPhraseQuery);
 
@@ -1267,12 +1272,12 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                 if (queryTerm == null)
                 {
-                    queryTerm = new BoolQuery();
-                    (queryTerm as BoolQuery).AddChild(phraseQuery, CutWith.AND);
+                    queryTerm = new ElasticSearch.Searcher.BoolQuery();
+                    (queryTerm as ElasticSearch.Searcher.BoolQuery).AddChild(phraseQuery, CutWith.AND);
                 }
                 else
                 {
-                    BoolQuery boolQuery = queryTerm as BoolQuery;
+                    ElasticSearch.Searcher.BoolQuery boolQuery = queryTerm as ElasticSearch.Searcher.BoolQuery;
 
                     if (boolQuery != null)
                     {
@@ -1280,7 +1285,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     }
                     else
                     {
-                        boolQuery = new BoolQuery();
+                        boolQuery = new ElasticSearch.Searcher.BoolQuery();
                         boolQuery.AddChild(queryTerm, CutWith.AND);
                         boolQuery.AddChild(phraseQuery, CutWith.AND);
 
@@ -1720,7 +1725,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             filteredQuery.Filter = new QueryFilter();
             filteredQuery.Filter.FilterSettings = new FilterCompositeType(CutWith.OR);
 
-            BoolQuery boolquery = new BoolQuery();
+            ElasticSearch.Searcher.BoolQuery boolquery = new ElasticSearch.Searcher.BoolQuery();
 
             ESUnifiedQueryBuilder innerQueryBuilder = new ESUnifiedQueryBuilder(null, this.GroupID);
 
@@ -1993,9 +1998,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         string field = string.Format("{0}.analyzed", leaf.field);
 
-                        term = new BoolQuery();
+                        term = new ElasticSearch.Searcher.BoolQuery();
 
-                        (term as BoolQuery).AddNot(
+                        (term as ElasticSearch.Searcher.BoolQuery).AddNot(
                             new ESMatchQuery(null)
                             {
                                 Field = field,
@@ -2008,9 +2013,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         string field = string.Format("{0}.lowercase", leaf.field);
 
-                        term = new BoolQuery();
+                        term = new ElasticSearch.Searcher.BoolQuery();
 
-                        (term as BoolQuery).AddNot(
+                        (term as ElasticSearch.Searcher.BoolQuery).AddNot(
                             new ESMatchQuery(null)
                             {
                                 Field = field,
@@ -2080,9 +2085,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 // If this leaf is relevant only to certain asset types - create a bool query connecting the types and the term
                 if (leaf.assetTypes != null && leaf.assetTypes.Count > 0)
                 {
-                    BoolQuery fatherBool = new BoolQuery();
-                    BoolQuery subBool = new BoolQuery();
-                    BoolQuery notTypesBool = new BoolQuery();
+                    ElasticSearch.Searcher.BoolQuery fatherBool = new ElasticSearch.Searcher.BoolQuery();
+                    ElasticSearch.Searcher.BoolQuery subBool = new ElasticSearch.Searcher.BoolQuery();
+                    ElasticSearch.Searcher.BoolQuery notTypesBool = new ElasticSearch.Searcher.BoolQuery();
 
                     // the original term is a MUST (and)
                     subBool.AddChild(term, CutWith.AND);
@@ -2111,7 +2116,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             // If it is a phrase, join all children in a bool query with the corresponding operand
             else if (root.type == BooleanNodeType.Parent)
             {
-                term = new BoolQuery();
+                term = new ElasticSearch.Searcher.BoolQuery();
                 CutWith cut = CutWith.AND;
 
                 // Simply conversion of enums: I could use casting but I don't want to trust it. 
@@ -2155,21 +2160,21 @@ namespace ApiLogic.IndexManager.QueryBuilders
                             // If the cut is "AND", simply add the child to the "must_not" list. ES cuts "must" and "must_not" with an AND
                             if (cut == CutWith.AND)
                             {
-                                (term as BoolQuery).AddNot(newChild);
+                                (term as ElasticSearch.Searcher.BoolQuery).AddNot(newChild);
                             }
                             else
                             {
                                 // If the cut is "OR", we need to wrap it with a boolean query, so that the "should" clause still checks each
                                 // term separately 
-                                BoolQuery booleanWrapper = new BoolQuery();
+                                ElasticSearch.Searcher.BoolQuery booleanWrapper = new ElasticSearch.Searcher.BoolQuery();
                                 booleanWrapper.AddNot(newChild);
 
-                                (term as BoolQuery).AddChild(booleanWrapper, cut);
+                                (term as ElasticSearch.Searcher.BoolQuery).AddChild(booleanWrapper, cut);
                             }
                         }
                         else
                         {
-                            (term as BoolQuery).AddChild(newChild, cut);
+                            (term as ElasticSearch.Searcher.BoolQuery).AddChild(newChild, cut);
                         }
                     }
                 }
@@ -2274,7 +2279,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         private IESTerm BuildUserInterestsQuery()
         {
-            IESTerm result = new BoolQuery();
+            IESTerm result = new ElasticSearch.Searcher.BoolQuery();
 
             var userPreferences = this.SearchDefinitions.userPreferences;
 
@@ -2296,7 +2301,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                         terms.Value.AddRange(tag.Value.Select(s => s.ToLower()));
 
-                        (result as BoolQuery).AddChild(terms, CutWith.OR);
+                        (result as ElasticSearch.Searcher.BoolQuery).AddChild(terms, CutWith.OR);
                     }
                 }
 
@@ -2311,7 +2316,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                         terms.Value.AddRange(meta.Value.Select(s => s.ToLower()));
 
-                        (result as BoolQuery).AddChild(terms, CutWith.OR);
+                        (result as ElasticSearch.Searcher.BoolQuery).AddChild(terms, CutWith.OR);
                     }
                 }
             }
@@ -2332,7 +2337,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         {
             IESTerm result = null;
 
-            BoolQuery boolQuery = new BoolQuery();
+            ElasticSearch.Searcher.BoolQuery boolQuery = new ElasticSearch.Searcher.BoolQuery();
 
             BaseFilterCompositeType assetsFilter = new FilterCompositeType(CutWith.OR);
 

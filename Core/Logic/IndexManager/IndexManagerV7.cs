@@ -45,6 +45,7 @@ using Media = ApiLogic.IndexManager.NestData.Media;
 using SocialActionStatistics = ApiObjects.Statistics.SocialActionStatistics;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiObjects.Response;
+using System.Text;
 
 namespace Core.Catalog
 {
@@ -438,9 +439,74 @@ namespace Core.Catalog
 
         public bool UpdateChannelPercolator(List<int> channelIds, Channel channel = null)
         {
-            throw new NotImplementedException();
+            bool result = true;
+
+            string mediaIndex = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            var indices = _elasticClient.GetIndicesPointingToAlias(mediaIndex);
+
+            List<Channel> channels = new List<Channel>();
+
+            if (channel != null)
+            {
+                channels.Add(channel);
+            }
+            else
+            {
+                if (_group == null || _group.channelIDs == null || _group.channelIDs.Count == 0)
+                {
+                    return result;
+                }
+
+                foreach (int channelId in channelIds)
+                {
+                    //todo gil tests how can we remove it???
+                    Channel channelToUpdate = ChannelRepository.GetChannel(channelId, _group);
+
+                    if (channelToUpdate != null)
+                    {
+                        channels.Add(channelToUpdate);
+                    }
+                }
+            }
+
+            foreach (var currentChannel in channels)
+            {
+                result &= UpdateChannelPercolator(channel, indices.ToList());
+            }
+
+            return result;
         }
 
+        private bool UpdateChannelPercolator(Channel channel, List<string> mediaAliases)
+        {
+            bool result = true;
+
+            var query = _channelQueryBuilder.GetChannelQuery(channel);
+
+            foreach (string alias in mediaAliases)
+            {
+                try
+                {
+                    var indexResponse = _elasticClient.Index(query,
+                        request => request
+                            .Index(alias)
+                            .Id(GetChannelDocumentId(channel))
+                            );
+
+                    if (indexResponse == null || !indexResponse.IsValid)
+                    {
+                        result = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    result = false;
+                    log.Error($"Error indexing channel percolator for channel {channel.m_nChannelID}", ex);
+                }
+            }
+
+            return result;
+        }
         public bool DeleteChannel(int channelId)
         {
             bool result = false;

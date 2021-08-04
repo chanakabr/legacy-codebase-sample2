@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.IndexManager.QueryBuilders;
+using ApiObjects;
 using ApiObjects.SearchObjects;
 using Catalog.Response;
 using Core.Catalog;
@@ -466,7 +467,7 @@ namespace WebAPI.Utils
             List<BaseObject> assetsBaseDataList = new List<BaseObject>();
             foreach (AggregationResult aggregationResult in aggregationResults)
             {
-                if (aggregationResult.topHits != null && aggregationResult.value == ElasticSearch.Searcher.ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
+                if (aggregationResult.topHits != null && aggregationResult.value == ESUnifiedQueryBuilder.MissedHitBucketKey.ToString())
                 {
                     //take all hits from 'missing' bucket
                     var _hits = aggregationResult.topHits.Select(x => x as BaseObject).ToList();
