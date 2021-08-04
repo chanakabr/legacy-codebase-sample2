@@ -842,9 +842,74 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public Status UpdateTag(TagValue tag)
+        public Status UpdateTag(TagValue tagValue)
         {
-            throw new NotImplementedException();
+            ApiObjects.Response.Status status = new ApiObjects.Response.Status();
+            string index = ESUtils.GetGroupMetadataIndex(_partnerId);
+
+            if (!_elasticClient.Indices.Exists(index).Exists)
+            {
+                log.Error($"Error - Index of type metadata for group {_partnerId} does not exist");
+                status.Message = "Index does not exist";
+
+                return status;
+            }
+
+            var bulkRequests = new List<NestEsBulkRequest<Tag>>();
+            try
+            {
+                if (!_catalogGroupCache.LanguageMapById.ContainsKey(tagValue.languageId))
+                {
+                    log.WarnFormat("Found tag value with non existing language ID. tagId = {0}, tagText = {1}, languageId = {2}",
+                        tagValue.tagId, tagValue.value, tagValue.languageId);
+                }
+                else
+                {
+                    var languageCode = _catalogGroupCache.LanguageMapById[tagValue.languageId].Code;
+                    var tag = new Tag(tagValue, languageCode);
+                    var bulkRequest = new NestEsBulkRequest<Tag>()
+                    {
+                        DocID = $"{tag.tagId}_{languageCode}",
+                        Document = tag,
+                        Index = index,
+                        Operation = eOperation.index
+                    };
+                    bulkRequests.Add(bulkRequest);
+                }
+
+                foreach (var languageContainer in tagValue.TagsInOtherLanguages)
+                {
+                    int languageId = 0;
+
+                    if (_catalogGroupCache.LanguageMapByCode.ContainsKey(languageContainer.m_sLanguageCode3))
+                    {
+                        languageId = _catalogGroupCache.LanguageMapByCode[languageContainer.m_sLanguageCode3].ID;
+
+                        if (languageId > 0)
+                        {
+                            var tag = new Tag(tagValue.tagId, tagValue.topicId, languageId, languageContainer.m_sValue, languageContainer.m_sLanguageCode3, tagValue.createDate, tagValue.updateDate);
+                            var bulkRequest = new NestEsBulkRequest<Tag>()
+                            {
+                                DocID = $"{tag.tagId}_{languageContainer.m_sLanguageCode3}",
+                                Document = tag,
+                                Index = index,
+                                Operation = eOperation.index
+                            };
+                            bulkRequests.Add(bulkRequest);
+                        }
+                    }
+                }
+
+                ExecuteAndValidateBulkRequests(bulkRequests);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error updating tag", ex);
+                status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
+                status.Message = "Failed performing insert query";
+            }
+
+            return status;
         }
 
         public Status DeleteTag(long tagId)

@@ -36,5 +36,18 @@ namespace ApiLogic.IndexManager.NestData
             createDate = tagValue.createDate;
             updateDate = tagValue.updateDate;
         }
+
+        public Tag(long tagId, int topicId, int languageId, string value, string languageCode, long createDate, long updateDate)
+        {
+            this.tagId = tagId;
+            this.topicId = topicId;
+            this.languageId = languageId;
+            this.value = new Dictionary<string, string>()
+            {
+                { languageCode, value }
+            };
+            this.createDate = createDate;
+            this.updateDate = updateDate;
+        }
     }
 }
