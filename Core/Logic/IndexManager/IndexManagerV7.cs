@@ -961,7 +961,36 @@ namespace Core.Catalog
 
         public List<SearchResult> GetAssetsUpdateDate(eObjectType assetType, List<int> assetIds)
         {
-            throw new NotImplementedException();
+            List<SearchResult> response = new List<SearchResult>();
+
+            string index = string.Empty;
+            string idField = string.Empty;
+
+            switch (assetType)
+            {
+                case eObjectType.Media:
+                    index = IndexingUtils.GetMediaIndexAlias(_partnerId);
+                    idField = "media_id";
+                    break;
+                case eObjectType.EPG:
+                    index = IndexingUtils.GetEpgIndexAlias(_partnerId);
+                    idField = "epg_id";
+                    break;
+                case eObjectType.Recording:
+                    index = IndexingUtils.GetRecordingIndexAlias(_partnerId);
+                    idField = "recording_id";
+                    break;
+                default:
+                    break;
+            }
+
+            if (string.IsNullOrEmpty(index))
+            {
+                log.Error($"Got invalid asset type when trying to get assets update date. type = {assetType}");
+                return response;
+            }
+
+            return response;
         }
 
         public List<int> SearchChannels(ChannelSearchDefinitions definitions, ref int totalItems)
@@ -1921,7 +1950,7 @@ namespace Core.Catalog
 
             if (isRecording)
             {
-                alias = IndexingUtils.GetRecordingGroupAliasStr(_partnerId);
+                alias = IndexingUtils.GetRecordingIndexAlias(_partnerId);
             }
 
             return SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
@@ -1946,7 +1975,7 @@ namespace Core.Catalog
 
             if (isRecording)
             {
-                alias = IndexingUtils.GetRecordingGroupAliasStr(_partnerId);
+                alias = IndexingUtils.GetRecordingIndexAlias(_partnerId);
             }
             
             if (!_elasticClient.Indices.Exists(alias).Exists)

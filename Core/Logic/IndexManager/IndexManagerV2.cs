@@ -6360,7 +6360,7 @@ namespace Core.Catalog
 
             if (isRecording)
             {
-                alias = IndexingUtils.GetRecordingGroupAliasStr(_partnerId);
+                alias = IndexingUtils.GetRecordingIndexAlias(_partnerId);
             }
 
             bool indexExists = _elasticSearchApi.IndexExists(alias);
@@ -6460,7 +6460,7 @@ namespace Core.Catalog
 
             if (isRecording)
             {
-                alias = IndexingUtils.GetRecordingGroupAliasStr(_partnerId);
+                alias = IndexingUtils.GetRecordingIndexAlias(_partnerId);
             }
 
             if (!_elasticSearchApi.IndexExists(alias))

@@ -110,7 +110,7 @@ namespace Core.Catalog
             return string.Format("{0}_channel", groupId);
         }
 
-        public static string GetRecordingGroupAliasStr(int nGroupID)
+        public static string GetRecordingIndexAlias(int nGroupID)
         {
             return string.Format("{0}_recording", nGroupID);
         }

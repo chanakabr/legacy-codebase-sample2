@@ -229,7 +229,6 @@ namespace ApiLogic.Tests.IndexManager
 
             var upsertMedia = indexManager.UpsertMedia(randomMedia.m_nMediaID);
             Assert.True(upsertMedia);
-
         }
 
         [Test]
