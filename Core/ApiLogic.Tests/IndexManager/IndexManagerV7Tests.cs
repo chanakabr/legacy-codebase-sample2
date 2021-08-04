@@ -214,8 +214,22 @@ namespace ApiLogic.Tests.IndexManager
 
             indexManager.PublishMediaIndex(indexName, true, true);
 
+            // test switch alias
             indexName = indexManager.SetupMediaIndex();
             indexManager.PublishMediaIndex(indexName, true, true);
+
+            var dictionary = new Dictionary<int, ApiObjects.SearchObjects.Media>() { };
+            var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
+
+            randomMedia.m_sName = "upsert_test";
+            dictionary[language.ID] = randomMedia;
+            _mockCatalogManager
+                .Setup(x => x.GetGroupMedia(It.IsAny<int>(), randomMedia.m_nMediaID, It.IsAny<CatalogGroupCache>()))
+                .Returns(dictionary);
+
+            var upsertMedia = indexManager.UpsertMedia(randomMedia.m_nMediaID);
+            Assert.True(upsertMedia);
+
         }
 
         [Test]

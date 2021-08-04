@@ -171,11 +171,71 @@ namespace Core.Catalog
 
         public bool UpsertMedia(long assetId)
         {
-            var doc = new JObject();
+            bool result = false;
 
-            var indexResponse = _elasticClient.Index(doc, d => d.Index("index_name").Id("test_id"));
+            if (assetId <= 0)
+            {
+                log.WarnFormat("Received media request of invalid media id {0} when calling UpsertMedia", assetId);
+                return result;
+            }
 
-            return true;
+            string index = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            if (!_elasticClient.Indices.Exists(index).Exists)
+            {
+                log.Error($"Index of type media for group {_partnerId} does not exist");
+                return false;
+            }
+
+            Dictionary<int, LanguageObj> languagesMap = null;
+
+            var metasToPad = _metasToPad;
+            if (_groupUsesTemplates)
+            {
+                languagesMap = new Dictionary<int, LanguageObj>(_catalogGroupCache.LanguageMapById);
+
+                var metas = _catalogGroupCache.TopicsMapById.Values.Where(x => x.Type == ApiObjects.MetaType.Number).Select(y => y.SystemName).ToList();
+                if (metas?.Count > 0)
+                {
+                    metasToPad = new HashSet<string>(metas);
+                }
+            }
+            else
+            {
+                List<LanguageObj> languages = _group.GetLangauges();
+                languagesMap = languages.ToDictionary(x => x.ID, x => x);
+            }
+
+            try
+            {
+                //Create Media Object
+                var mediaDictionary = _catalogManager.GetGroupMedia(_partnerId, assetId, _catalogGroupCache);
+                if (mediaDictionary != null && mediaDictionary.Count > 0)
+                {
+                    var numOfBulkRequests = 0;
+                    var bulkRequests = new Dictionary<int, List<NestEsBulkRequest<Media>>>() { { numOfBulkRequests, new List<NestEsBulkRequest<Media>>() } };
+
+                    GetMediaNestEsBulkRequest(index, int.MaxValue, 0, bulkRequests, mediaDictionary);
+
+                    result = true;
+                    foreach (var item in bulkRequests.Values)
+                    {
+                        result &= ExecuteAndValidateBulkRequests(item);
+                    }
+                }
+                else
+                {
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                result = false;
+                log.Error($"Error on upsert media for asste {assetId}", ex);
+            }
+
+            log.Debug($"Upsert Media result {result}");
+
+            return result;
         }
 
         public string SetupEpgV2Index(DateTime dateOfProgramsToIngest, RetryPolicy retryPolicy)
@@ -1445,30 +1505,38 @@ namespace Core.Catalog
             
             foreach (var groupMedia in groupMedias)
             {
-                // For each language
-                foreach (var languageId in groupMedia.Value.Keys.Distinct())
-                {
-                    var language = GetLanguageById(languageId);
-                    var media = groupMedia.Value[languageId];
-
-                    if (media == null)
-                        continue;
-
-                    media.PadMetas(_metasToPad);
-
-                    var bulkRequest =
-                        GetMediaNestEsBulkRequest(newIndexName,
-                            media,
-                            language,
-                            bulkRequests,
-                            sizeOfBulk,
-                            ref numOfBulkRequests);
-
-                    bulkRequests[numOfBulkRequests].Add(bulkRequest);
-                }
+                var groupMediaValue = groupMedia.Value;
+                numOfBulkRequests = GetMediaNestEsBulkRequest(newIndexName, sizeOfBulk, numOfBulkRequests, bulkRequests, groupMediaValue);
             }
 
             return bulkRequests;
+        }
+
+        private int GetMediaNestEsBulkRequest(string newIndexName, int sizeOfBulk, int numOfBulkRequests, Dictionary<int, List<NestEsBulkRequest<Media>>> bulkRequests, Dictionary<int, ApiObjects.SearchObjects.Media> groupMediaValue)
+        {
+            // For each language
+            foreach (var languageId in groupMediaValue.Keys.Distinct())
+            {
+                var language = GetLanguageById(languageId);
+                var media = groupMediaValue[languageId];
+
+                if (media == null)
+                    continue;
+
+                media.PadMetas(_metasToPad);
+
+                var bulkRequest =
+                    GetMediaNestEsBulkRequest(newIndexName,
+                        media,
+                        language,
+                        bulkRequests,
+                        sizeOfBulk,
+                        ref numOfBulkRequests);
+
+                bulkRequests[numOfBulkRequests].Add(bulkRequest);
+            }
+
+            return numOfBulkRequests;
         }
 
         private NestEsBulkRequest<Media> GetMediaNestEsBulkRequest(string indexName, ApiObjects.SearchObjects.Media media,
