@@ -288,7 +288,7 @@ namespace ApiLogic.Tests.IndexManager
         }
 
         [Test]
-        public void TestInsertSocialStatisticsData()
+        public void TestSocialStatisticsData()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
             var language = IndexManagerMockDataCreator.GetRandomLanguage();
@@ -310,6 +310,7 @@ namespace ApiLogic.Tests.IndexManager
             };
 
             var deleteSocialAction = indexManager.DeleteSocialAction(socialSearch);
+            Assert.IsTrue(deleteSocialAction);
         }
 
         [Test]

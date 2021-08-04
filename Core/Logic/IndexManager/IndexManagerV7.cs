@@ -757,6 +757,8 @@ namespace Core.Catalog
                         ));
 
                     result = deleteResponse.IsValid;
+
+                    log.Debug($"DeleteSocialAction. Deleted = {deleteResponse.Deleted}, Failed = {deleteResponse.Failures.Count}");
                 }
             }
             catch (Exception ex)
