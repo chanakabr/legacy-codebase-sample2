@@ -223,7 +223,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("Failed UpsertProgram index for epg ExternalId: {0}, groupId: {1} after AddEpgAsset", epgAssetToAdd.EpgIdentifier, groupId);
                 }
 
-                EPGChannelProgrammeObject programToIngest = TvinciEpgBL.ConvertEpgCBtoEpgProgramm(epgCbToAdd);
+                EPGChannelProgrammeObject programToIngest = TvinciEpgBL.ConvertEpgCBtoEpgProgramm(epgsToIndex[0]);
 
                 SendActionEvent(groupId, newEpgId, eAction.On, programToIngest);
                 result = AssetManager.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);

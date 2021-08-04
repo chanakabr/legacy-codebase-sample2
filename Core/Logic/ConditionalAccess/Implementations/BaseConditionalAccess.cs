@@ -14897,7 +14897,8 @@ namespace Core.ConditionalAccess
                 {
                     epgs = new List<EPGChannelProgrammeObject>() { program };
                 }
-                else
+
+                if (epgs == null)
                 {
                     epgs = Utils.GetEpgsByIds(m_nGroupID, epgIds);
                 }
