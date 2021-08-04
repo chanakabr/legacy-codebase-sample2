@@ -39,6 +39,8 @@ using Policy = Polly.Policy;
 using ApiLogic.IndexManager.NestData;
 using System.Net;
 using System.Net.Sockets;
+using ApiLogic.Api.Managers;
+using Core.GroupManagers;
 using Media = ApiLogic.IndexManager.NestData.Media;
 using SocialActionStatistics = ApiObjects.Statistics.SocialActionStatistics;
 
@@ -254,9 +256,141 @@ namespace Core.Catalog
             return result;
         }
 
-        public bool UpsertProgram(List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings)
+        private static RetryPolicy GetRetryPolicy<TException>(int retryCount = 3) where TException : Exception
         {
-            throw new NotImplementedException();
+            return Policy.Handle<TException>()
+                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
+                {
+                    log.Warn($"upsert attempt [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
+                });
+        }
+        public bool UpsertProgram(List<EpgCB> epgObjects,Dictionary<string, LinearChannelSettings> linearChannelSettings)
+        {
+            var result = true;
+            try
+            {
+                var sizeOfBulk = GetBulkSize();
+                var languages = GetLanguages();
+                var epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList();
+                linearChannelSettings = linearChannelSettings ?? new Dictionary<string, LinearChannelSettings>();
+                
+                if (!epgObjects.Any())
+                {
+                    return true;
+                }
+                
+                var bulkRequests = new List<NestEsBulkRequest<Epg>>();
+
+                var isRationalizationEnabled = _groupUsesTemplates
+                    ? _catalogGroupCache.IsRegionalizationEnabled
+                    : _group.isRegionalizationEnabled;
+
+                var linearChannelsRegionsMapping = isRationalizationEnabled
+                    ? RegionManager.GetLinearMediaRegions(_partnerId)
+                    : new Dictionary<long, List<int>>();
+                
+                var createdAliases = new HashSet<string>();
+                _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
+
+                // Create dictionary by languages
+                foreach (var language in languages)
+                {
+                    // Filter programs to current language
+                    var currentLanguageEpgs = epgObjects.Where(epg =>
+                        epg.Language.ToLower() == language.Code.ToLower() ||
+                        language.IsDefault && string.IsNullOrEmpty(epg.Language)).ToList();
+
+                    if (!currentLanguageEpgs.Any())
+                        continue;
+
+                    var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+                    var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
+
+                    // Create bulk request object for each program
+                    foreach (var epgCb in currentLanguageEpgs)
+                    {
+                        // Epg V2 has multiple indices connected to the global alias {groupID}_epg
+                        // in that case we need to use the specific date alias for each epg item to update
+                        if (isIngestV2)
+                        {
+                            alias = HandleEpgV2Alias(epgCb, createdAliases);
+                        }
+
+                        UpdateEpgLinearMediaId(linearChannelSettings, epgCb);
+                        UpdateEpgRegions(epgCb, linearChannelsRegionsMapping);
+
+                        var epg = NestDataCreator.GetEpg(epgCb, language.ID, true, _groupUsesTemplates);
+                        var nestEsBulkRequest = GetEpgBulkRequest(alias, epgCb.StartDate.ToUniversalTime(), epg);
+                        bulkRequests.Add(nestEsBulkRequest);
+
+                        //prepare next bulk
+                        if (bulkRequests.Count <= sizeOfBulk)
+                        {
+                            continue;
+                        }
+                        
+                        var isValid = ExecuteAndValidateBulkRequests(bulkRequests);
+                        if (isValid)
+                        {
+                            EpgAssetManager.InvalidateEpgs(_partnerId,
+                                bulkRequests.Select(x => (long) x.Document.EpgID), _groupUsesTemplates, epgChannelIds,
+                                false);
+                        }
+
+                        result &= isValid;
+                    }
+                }
+
+                if (bulkRequests.Any())
+                {
+                    var isValid = ExecuteAndValidateBulkRequests(bulkRequests);
+                    if (isValid)
+                    {
+                        EpgAssetManager.InvalidateEpgs(_partnerId,
+                            bulkRequests.Select(x => (long) x.Document.EpgID), _groupUsesTemplates,
+                            epgChannelIds, false);
+                    }
+                    result &= isValid;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Error: Update EPGs threw an exception. Exception={0}", ex);
+                throw;
+            }
+            return result;
+        }
+
+        private static void UpdateEpgRegions(EpgCB epgCb, Dictionary<long, List<int>> linearChannelsRegionsMapping)
+        {
+            if (epgCb.LinearMediaId > 0 &&
+                linearChannelsRegionsMapping != null &&
+                linearChannelsRegionsMapping.ContainsKey(epgCb.LinearMediaId))
+            {
+                epgCb.regions = linearChannelsRegionsMapping[epgCb.LinearMediaId];
+            }
+        }
+
+        private void UpdateEpgLinearMediaId(Dictionary<string, LinearChannelSettings> linearChannelSettings, EpgCB epgCb)
+        {
+            if (linearChannelSettings.ContainsKey(epgCb.ChannelID.ToString()))
+            {
+                epgCb.LinearMediaId = linearChannelSettings[epgCb.ChannelID.ToString()].LinearMediaId;
+            }
+        }
+
+        private string HandleEpgV2Alias(EpgCB epgCb, HashSet<string> createdAliases)
+        {
+            var alias = IndexingUtils.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
+
+            //in case alias already created ,no need to check in ES
+            if (!createdAliases.Contains(alias))
+            {
+                EnsureEpgIndexExist(alias, GetRetryPolicy<Exception>());
+                createdAliases.Add(alias);
+            }
+
+            return alias;
         }
 
         public bool DeleteChannelPercolator(List<int> channelIds)
@@ -373,7 +507,7 @@ namespace Core.Catalog
             });
         }
 
-        private int GetBulkSize(int? defaultValueOnZero=null)
+        private int GetBulkSize(int? defaultValueWhenZero=null)
         {
             var bulkSize = _sizeOfBulk;
             if (_sizeOfBulk == 0 || _sizeOfBulk > _sizeOfBulkDefaultValue)
@@ -381,9 +515,9 @@ namespace Core.Catalog
                 bulkSize = _sizeOfBulkDefaultValue;
             }
 
-            if (bulkSize == 0 && defaultValueOnZero.HasValue)
+            if (bulkSize == 0 && defaultValueWhenZero.HasValue)
             {
-                return defaultValueOnZero.Value;
+                return defaultValueWhenZero.Value;
             }
 
             return bulkSize;
@@ -404,24 +538,32 @@ namespace Core.Catalog
             return bulkRequest;
         }
 
-        private void ExecuteAndValidateBulkRequests<K>(List<NestEsBulkRequest<K>> bulkRequests)
+        private bool ExecuteAndValidateBulkRequests<K>(List<NestEsBulkRequest<K>> bulkRequests)
             where K : class
         {
-            var bulkResponse = ExecuteBulkRequest(bulkRequests);
+            try
+            {
+                var bulkResponse = ExecuteBulkRequest(bulkRequests);
 
-            //no errors clear and end
-            if (!bulkResponse.ItemsWithErrors.Any())
+                //no errors clear and end
+                if (!bulkResponse.ItemsWithErrors.Any())
+                {
+                    return true;
+                }
+
+                foreach (var item in bulkResponse.ItemsWithErrors)
+                {
+                    log.Error($"Could not add item to ES index. GroupID={_partnerId} Id={item.Id} Index ={item.Index} error={item.Error}");
+                }
+
+                log.Error($"Failed to upsert [{bulkResponse.ItemsWithErrors.Count()}] documents");
+            }
+            finally
             {
                 bulkRequests.Clear();
-                return;
             }
 
-            foreach (var item in bulkResponse.ItemsWithErrors)
-            {
-                log.Error($"Could not add item to ES index. GroupID={_partnerId} Id={item.Id} Index ={item.Index} error={item.Error}");
-            }
-
-            throw new Exception($"Failed to upsert [{bulkResponse.ItemsWithErrors.Count()}] documents");
+            return false;
         }
 
         private BulkResponse ExecuteBulkRequest<K>(List<NestEsBulkRequest<K>> bulkRequests) where K : class
@@ -1132,9 +1274,10 @@ namespace Core.Catalog
             }
         }
 
-        public void PublishChannelsMetadataIndex(string newIndexName, bool shouldSwitchAlias, bool shouldDeleteOldIndices)
+        public void PublishChannelsMetadataIndex(string newIndexName, bool shouldSwitchAlias,bool shouldDeleteOldIndices)
         {
-            throw new NotImplementedException();
+            var alias = IndexingUtils.GetChannelMetadataIndexName(_partnerId);
+            SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchAlias);
         }
 
         private string SetupIndex<T>(string newIndexName)
@@ -2506,7 +2649,7 @@ namespace Core.Catalog
 
                         if (shouldDeleteOldIndices && currentIndices?.Count > 0)
                         {
-                            var deleteResult = _elasticClient.Indices.Delete(Nest.Indices.Index(currentIndices));
+                            var deleteResult = _elasticClient.Indices.Delete(Indices.Index(currentIndices));
 
                             if (deleteResult != null && deleteResult.IsValid)
                             {

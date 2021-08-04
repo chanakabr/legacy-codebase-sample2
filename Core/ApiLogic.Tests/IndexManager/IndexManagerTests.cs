@@ -1034,37 +1034,6 @@ namespace ApiLogic.Tests.IndexManager
             Assert.AreEqual(1, result.results.Where(x => x.value == randomMedia2.m_sName).Count());
             Assert.AreEqual(0, result.results.Where(x => x.value == "NAME NOT EXISTS").Count());
         }
-
-
-        [Test]
-        public void TestESQ()
-        {
-            int partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-            var indexManager = GetIndexV2Manager(partnerId);
-            var programIds = new List<ulong> {1, 2, 3}.ToList();
-            var externalIds = new[] {"id1", "id2", "id3"};
-            var channelIds = new List<int>() {1, 3, 4};
-            
-            //get the query from old version 
-            var elasticsearchQueryForEpgIDs = indexManager.GetElasticsearchQueryForEpgIDs(programIds, externalIds,channelIds);
-            
-            //get the the query new version
-            var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
-            
-            var response = elasticClient.DeleteByQuery<object>(dbq => dbq.Index("newIndexName").Query(q => q
-                .Bool(b => b
-                    .Should(
-                        should => should.Terms(t => t.Field("epg_id").Terms<ulong>(programIds)),
-                        should => should.Bool(bs => bs
-                            .Must(
-                                mu => mu.Terms(t => t.Field("epg_identifier").Terms<string>(externalIds)),
-                                mu => mu.Terms(t => t.Field("epg_channel_id").Terms<int>(channelIds))
-                            )
-                        )
-                    )
-                )
-            ));
-
-        }
+        
     }
 }
