@@ -267,18 +267,19 @@ namespace Core.Catalog
         }
         public bool UpsertProgram(List<EpgCB> epgObjects,Dictionary<string, LinearChannelSettings> linearChannelSettings)
         {
+            if (!epgObjects.Any())
+            {
+                return true;
+            }
+            
             var result = true;
+            
             try
             {
                 var sizeOfBulk = GetBulkSize();
                 var languages = GetLanguages();
                 var epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList();
                 linearChannelSettings = linearChannelSettings ?? new Dictionary<string, LinearChannelSettings>();
-                
-                if (!epgObjects.Any())
-                {
-                    return true;
-                }
                 
                 var bulkRequests = new List<NestEsBulkRequest<Epg>>();
 
@@ -292,6 +293,9 @@ namespace Core.Catalog
                 
                 var createdAliases = new HashSet<string>();
                 _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
+                
+                var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+                var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
 
                 // Create dictionary by languages
                 foreach (var language in languages)
@@ -303,9 +307,6 @@ namespace Core.Catalog
 
                     if (!currentLanguageEpgs.Any())
                         continue;
-
-                    var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
-                    var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
 
                     // Create bulk request object for each program
                     foreach (var epgCb in currentLanguageEpgs)
