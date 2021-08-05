@@ -14895,7 +14895,9 @@ namespace Core.ConditionalAccess
                 
                 if (program != null)
                 {
+                    log.Debug($"IngestRecording program not null {epgIds[0]}");
                     epgs = new List<EPGChannelProgrammeObject>() { program };
+                    Catalog.CatalogLogic.GetLinearChannelSettings(m_nGroupID, epgs);
                 }
 
                 if (epgs == null)
