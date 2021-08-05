@@ -36,7 +36,6 @@ using Newtonsoft.Json;
 using Polly;
 using KlogMonitorHelper;
 using Policy = Polly.Policy;
-using ApiLogic.IndexManager.NestData;
 using System.Net;
 using System.Net.Sockets;
 using ApiLogic.Api.Managers;
@@ -47,6 +46,8 @@ using ApiLogic.IndexManager.QueryBuilders;
 using ApiObjects.Response;
 using System.Text;
 using Index = Nest.Index;
+using TVinciShared;
+using Channel = GroupsCacheManager.Channel;
 
 namespace Core.Catalog
 {
