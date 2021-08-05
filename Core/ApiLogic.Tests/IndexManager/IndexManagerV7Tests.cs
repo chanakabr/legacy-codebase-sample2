@@ -218,23 +218,51 @@ namespace ApiLogic.Tests.IndexManager
             indexName = indexManager.SetupMediaIndex();
             indexManager.PublishMediaIndex(indexName, true, true);
 
-            var dictionary = new Dictionary<int, ApiObjects.SearchObjects.Media>() { };
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
+            var randomMedia2 = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
 
             randomMedia.m_sName = "upsert_test";
+            var dictionary = new Dictionary<int, ApiObjects.SearchObjects.Media>() { };
             dictionary[language.ID] = randomMedia;
             _mockCatalogManager
                 .Setup(x => x.GetGroupMedia(It.IsAny<int>(), randomMedia.m_nMediaID, It.IsAny<CatalogGroupCache>()))
                 .Returns(dictionary);
+            _mockCatalogManager
+                .Setup(x => x.GetGroupMedia(It.IsAny<int>(), randomMedia2.m_nMediaID, It.IsAny<CatalogGroupCache>()))
+                .Returns(new Dictionary<int, ApiObjects.SearchObjects.Media>()
+                {
+                    { language.ID, randomMedia2 }
+                });
+
 
             var upsertMedia = indexManager.UpsertMedia(randomMedia.m_nMediaID);
             Assert.True(upsertMedia);
+            
+            indexManager.UpsertMedia(randomMedia2.m_nMediaID);
 
-            var updateDates = indexManager.GetAssetsUpdateDate(eObjectType.Media, new List<int>() { randomMedia.m_nMediaID });
+            var policy = Policy.HandleResult<List<SearchResult>>(x => x == null || x.Count == 0).WaitAndRetry(
+                3,
+                retryAttempt => TimeSpan.FromSeconds(1));
+            var updateDates = policy.Execute(() => indexManager.GetAssetsUpdateDate(eObjectType.Media, new List<int>() { randomMedia.m_nMediaID }));
 
             Assert.IsNotEmpty(updateDates);
             Assert.AreEqual(randomMedia.m_nMediaID, updateDates[0].assetID);
             Assert.AreEqual(randomMedia.m_sUpdateDate, updateDates[0].UpdateDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
+
+            int totalItems = 0;
+            var updateDates2 = indexManager.GetAssetsUpdateDates(new List<Core.Catalog.Response.UnifiedSearchResult>()
+            {
+                new Core.Catalog.Response.UnifiedSearchResult()
+                {
+                    AssetId = randomMedia.m_nMediaID.ToString(),
+                    AssetType = eAssetTypes.MEDIA
+                },
+                new Core.Catalog.Response.UnifiedSearchResult()
+                {
+                    AssetId = randomMedia2.m_nMediaID.ToString(),
+                    AssetType = eAssetTypes.MEDIA
+                }
+            }, ref totalItems, 10, 0);
         }
 
         [Test]
