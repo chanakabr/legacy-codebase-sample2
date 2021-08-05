@@ -152,9 +152,11 @@ namespace ApiLogic.Tests.IndexManager.helpers
             epgCb.EpgID = (ulong) epgId;
             epgCb.Language = "en";
             epgCb.CreateDate= DateTime.Now.ToUniversalTime();
-            epgCb.EndDate=DateTime.Now.ToUniversalTime();
+            epgCb.EndDate = startDate.HasValue ? startDate.Value : DateTime.Now.AddDays(1).ToUniversalTime();
             epgCb.StartDate=startDate ??DateTime.Now.ToUniversalTime();
             epgCb.CreateDate=DateTime.Now.ToUniversalTime();
+            epgCb.EpgIdentifier = epgId.ToString();
+            epgCb.DocumentId = $"TEST_{epgId}";
             return epgCb;
         }
     }

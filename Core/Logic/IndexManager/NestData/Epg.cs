@@ -151,6 +151,7 @@ namespace ApiObjects.Nest
             long? recordingId, long? expiryUnixTimeStamp)
         {
             EpgID = epgCb.EpgID;
+            DocumentId = epgCb.DocumentId;
             EpgIdentifier = epgCb.EpgIdentifier;
             IsActive = epgCb.IsActive;
             Status = epgCb.Status;

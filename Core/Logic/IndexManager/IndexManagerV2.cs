@@ -5217,7 +5217,7 @@ namespace Core.Catalog
             var except = epgIds.ToList().Except(resultsEpgIds).ToList();
             if (except?.Count > 0)
             {
-                results.AddRange(GetEpgsCBKeysV1(epgIds, langCodes));
+                results.AddRange(IndexManagerCommonHelpers.GetEpgsCBKeysV1(epgIds, langCodes));
             }
 
             return results;
@@ -5237,31 +5237,13 @@ namespace Core.Catalog
             }
             else
             {
-                result.AddRange(GetEpgsCBKeysV1(epgIds, langCodes));
+                result.AddRange(IndexManagerCommonHelpers.GetEpgsCBKeysV1(epgIds, langCodes));
             }
 
             return result;
         }
 
-        private List<string> GetEpgsCBKeysV1(IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes)
-        {
-            var result = new List<string>();
-            if (langCodes == null)
-            {
-                result = epgIds.Select(x => x.ToString()).ToList();
-            }
-            else
-            {
-                foreach (var epgId in epgIds)
-                {
-                    var keys = langCodes.Select(langCode => langCode.IsDefault ? epgId.ToString() : $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
-
-                    result.AddRange(keys.ToList());
-                }
-            }
-
-            return result;
-        }
+        
 
         private string GetEpgCBKey(long epgId, string langCode = null, bool isAddAction = false)
         {

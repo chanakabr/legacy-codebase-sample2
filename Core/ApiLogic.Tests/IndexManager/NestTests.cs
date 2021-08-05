@@ -2,6 +2,9 @@
 using ApiLogic.IndexManager.Helpers;
 using ApiObjects;
 using ApiObjects.Nest;
+using ApiObjects.SearchObjects;
+using Core.Catalog;
+using ElasticSearch.Searcher;
 using Nest;
 using Newtonsoft.Json;
 using NUnit.Framework;
@@ -23,6 +26,24 @@ namespace ApiLogic.Tests.IndexManager
         [Test]
         public void TestCreateIndex()
         {
+            // Build query for getting programs
+            var query = new FilteredQuery();
+            var filter = new QueryFilter();
+
+            // basic initialization
+            query.PageIndex = 0;
+            query.PageSize = 0;
+            query.ReturnFields.Clear();
+            query.AddReturnField("epg_id");
+            query.AddReturnField("document_id");
+
+            var composite = new FilterCompositeType(CutWith.AND);
+            var terms = new ESTerms("epg_id", new long[]{1,2,3});
+            composite.AddChild(terms);
+            filter.FilterSettings = composite;
+            query.Filter = filter;
+            var searchQuery = query.ToString();
+            Console.WriteLine();
             
         }
   

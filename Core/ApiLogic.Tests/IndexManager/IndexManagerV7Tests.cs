@@ -560,6 +560,67 @@ namespace ApiLogic.Tests.IndexManager
             Assert.AreEqual(0, total);
 
         }
-        
+
+        [Test]
+        public void TestEpgV2Crud()
+        {
+            var randomPartnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
+            var languageRus = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
+            languageRus.Code = "rus";
+            languageRus.Name = "russs";
+            var languageObjs = new List<ApiObjects.LanguageObj>() { language,languageRus }.ToDictionary(x => x.Code);
+            IndexManagerMockDataCreator.SetupOpcPartnerMocks(randomPartnerId, new[] { language,languageRus }, ref _mockCatalogManager);
+            var indexManager = GetIndexV7Manager(randomPartnerId);
+            var policy = Policy.Handle<Exception>().WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1));
+            
+
+            //act
+            var setupEpgV2Index = indexManager.SetupEpgV2Index(DateTime.Now, policy);
+
+            var refreshInterval = new Time(TimeSpan.FromSeconds(1));
+            var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
+            SetIndexRefreshTime(setupEpgV2Index, refreshInterval, elasticClient);
+            //assert
+            Assert.IsNotEmpty(setupEpgV2Index);
+
+            var dateOfProgramsToIngest = DateTime.Now.AddDays(-1);
+            var crudOperations = new CRUDOperations<EpgProgramBulkUploadObject>();
+            var epgCbObjects = new List<EpgCB>();
+            var randomChannel = IndexManagerMockDataCreator.GetRandomChannel(randomPartnerId);
+            var today = DateTime.Now;
+            var epgCb = IndexManagerMockDataCreator.GeRandomEpgCb(today);
+            epgCbObjects.Add(epgCb);
+            var epgCb2 = IndexManagerMockDataCreator.GeRandomEpgCb(today);
+            epgCb2.Language = "rus";
+            epgCb2.EpgID = epgCb.EpgID;
+            
+            epgCbObjects.Add(epgCb2);
+            
+            var epgId = epgCb.EpgID;
+
+            var epgItem = new EpgProgramBulkUploadObject()
+            {
+                GroupId = randomPartnerId,
+                StartDate = dateOfProgramsToIngest,
+                EpgId = epgId,
+                EpgCbObjects = epgCbObjects,
+                EpgExternalId = $"{epgId}"
+            };
+            crudOperations.ItemsToAdd.Add(epgItem);
+
+
+            indexManager.DeleteProgramsFromIndex(crudOperations.ItemsToDelete, setupEpgV2Index, languageObjs);
+
+            var programsToIndex = crudOperations.ItemsToAdd
+                .Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.AffectedItems)
+                .ToList();
+
+            indexManager.UpsertProgramsToDraftIndex(programsToIndex, setupEpgV2Index,
+                dateOfProgramsToIngest, language, languageObjs);
+
+            List<string> epgCbDocumentIdsByEpgId = indexManager.GetEpgCBDocumentIdsByEpgId(new[] { (long)epgId }, languageObjs.Values);
+            Assert.AreEqual(epgCbDocumentIdsByEpgId.First(), epgId.ToString(), "Expected document id and epg id to be the same");
+        }
     }
 }
