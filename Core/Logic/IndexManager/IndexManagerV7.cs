@@ -36,6 +36,7 @@ using Newtonsoft.Json;
 using Polly;
 using KlogMonitorHelper;
 using Policy = Polly.Policy;
+using ApiLogic.IndexManager.NestData;
 using System.Net;
 using System.Net.Sockets;
 using ApiLogic.Api.Managers;
@@ -46,8 +47,6 @@ using ApiLogic.IndexManager.QueryBuilders;
 using ApiObjects.Response;
 using System.Text;
 using Index = Nest.Index;
-using TVinciShared;
-using Channel = GroupsCacheManager.Channel;
 
 namespace Core.Catalog
 {
@@ -1022,19 +1021,14 @@ namespace Core.Catalog
             int pageSize = 500;
             for (int from = 0; from < assetIds.Count; from += pageSize)
             {
-                var searchResult = _elasticClient.Search<object>(searchDescriptor => searchDescriptor
+                var searchResult = _elasticClient.Search<Media>(searchDescriptor => searchDescriptor
                 .Index(index)
                 .Size(pageSize)
                 .From(from)
                 .Source(false)
                 .Fields(fields => fields.Fields(idField, "update_date"))
                 .Query(query => query
-                    .Bool(boolQuery => boolQuery
-                        .Filter(
-                            filter => filter.Terms(terms => terms.Field(idField).Terms<int>(assetIds)),
-                            filter => filter.Term("language_id", GetDefaultLanguage().ID)
-                            )
-                        )
+                    .Terms(terms => terms.Field(idField).Terms<int>(assetIds))
                     )
                 );
 
@@ -1044,7 +1038,7 @@ namespace Core.Catalog
                     {
                         assetID = item.Value<int>(idField),
                         UpdateDate = item.Value<DateTime>("update_date")
-                    });
+                    }) ;
                 }
             }
 
@@ -1184,14 +1178,13 @@ namespace Core.Catalog
             // Realize what asset types do we have
             var mediaIds = assets.Where(asset => asset.AssetType == eAssetTypes.MEDIA).Select(asset => long.Parse(asset.AssetId));
             bool shouldSearchMedia = mediaIds.Any();
-            var epgIds = assets.Where(asset => asset.AssetType == eAssetTypes.EPG).Select(asset => long.Parse(asset.AssetId));
+            var epgIds = assets.Where(asset => asset.AssetType == eAssetTypes.EPG).Select(asset => asset.AssetId);
             bool shouldSearchEpg = epgIds.Any();
 
             List<string> indices = new List<string>();
 
             var mediaAlias = IndexingUtils.GetMediaIndexAlias(_partnerId);
             var epgAlias = IndexingUtils.GetEpgIndexAlias(_partnerId);
-
             if (shouldSearchMedia) 
             {
                 indices.Add(mediaAlias);
@@ -1215,73 +1208,20 @@ namespace Core.Catalog
                 .Size(_maxResults)
                 .Query(query => query
                     .Bool(boolQuery => boolQuery
-                        .Should(should =>
-                        {
-                            if (shouldSearchMedia)
-                            {
-                                should
-                                  .Bool(b => b
-                                      .Filter(filter => filter.Prefix(prefix => prefix.Field("_index").Value(mediaAlias)),
-                                              filter => filter.Terms(terms => terms.Field("media_id").Terms<long>(mediaIds)))
-                                  );
-                            }
-
-                            if (shouldSearchEpg)
-                            {
-                                should
-                                  .Bool(b => b
-                                      .Filter(filter => filter.Prefix(prefix => prefix.Field("_index").Value(epgAlias)),
-                                              filter => filter.Terms(terms => terms.Field("epg_id").Terms<long>(epgIds)))
-                                  );
-                            }
-
-                            return should;
-                        })
-                        .Filter(filter => filter.Term("language_id", GetDefaultLanguage().ID))
+                        .Should(should => should
+                            .Bool(b => b
+                                .Filter(filter => filter.Prefix(prefix => prefix.Field("_index").Value(mediaAlias)),
+                                        filter => filter.Terms(terms => terms.Field("media_id").Terms<long>(mediaIds)))
+                            )
+                        )
                     )
                 )
             );
 
             if (searchResult.IsValid)
             {
-                foreach (var item in searchResult.Fields)
-                {
-                    eAssetTypes type = eAssetTypes.MEDIA;
-                    long? assetId = item.Value<long?>("media_id");
-
-                    if (!assetId.HasValue)
-                    {
-                        assetId = item.Value<long?>("epg_id");
-                        type = eAssetTypes.EPG;
-                    }
-
-                    if (!assetId.HasValue)
-                    {
-                        log.Warn($"Could not get asset id from search request");
-                        continue;
-                    }
-
-                    var updateDate = item.Value<DateTime>("update_date");
-
-                    // Find the asset in the list with this ID, set its update date
-                    assets.First(result => result.AssetId == assetId.ToString() && result.AssetType == type).m_dUpdateDate = updateDate;
-                }
             }
 
-            foreach (UnifiedSearchResult asset in assets)
-            {
-                if (asset.m_dUpdateDate != DateTime.MinValue || (shouldIgnoreRecordings && asset.AssetType == eAssetTypes.NPVR))
-                {
-                    validAssets.Add(asset);
-                }
-                else
-                {
-                    log.WarnFormat("Received invalid asset from recommendation engine. ID = {0}, type = {1}", asset.AssetId, asset.AssetType.ToString());
-                }
-            }
-
-            bool illegalRequest = false;
-            var pagedList = validAssets.Page(pageSize, pageIndex, out illegalRequest);
             return validAssets;
         }
 
@@ -1591,41 +1531,44 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public List<string> GetEpgCBDocumentIdsByEpgId(IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes)
+        public List<string> GetEpgCBDocumentIdsByEpgId(IEnumerable<long> epgIds, IEnumerable<LanguageObj> languages)
         {
-            langCodes = langCodes ?? Enumerable.Empty<LanguageObj>();
+            languages = languages ?? Enumerable.Empty<LanguageObj>();
             var epgIdsList = epgIds.ToList();
             var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
             var searchResult = _elasticClient.Search<Epg>(searchDescriptor => searchDescriptor
                 .Index(alias)
                 .Source(false)
+                .Size(_maxResults)
                 .Fields(sf => sf.Fields(fs => fs.DocumentId, fs => fs.EpgID))
                 .Query(q => q.Bool(b =>
                         b.Filter(f =>
                             f.Bool(b2 =>
-                                b2.Must(m =>
-                                    m.Terms(t =>
-                                        t.Field(f1 => f1.EpgID).Terms(epgIdsList)
-                                    )
+                                b2.Must(
+                                    m =>m.Terms(t => t.Field(f1 => f1.EpgID).Terms(epgIdsList)),
+                                    m=>m.Terms(t=>t.Field(f1=>f1.LanguageId).Terms(languages.Select(x=>x.ID)))
                                 )
                             )
                         )
                     )
                 )
             );
-            
-            var resultEpgIds = searchResult.Fields.Select(x => x.Value<long>("epg_id")).Distinct().ToList();
-            var resultEpgDocIds = searchResult.Fields.Select(x => x.Value<string>("document_id")).Distinct().ToList();
+
+
             if (!searchResult.IsValid)
             { 
                 throw new Exception($"GetEpgCBDocumentIdByEpgIdFromElasticsearch > " +
                     $"Got empty results from elasticsearch epgIds:[{string.Join(",", epgIdsList)}], " +
-                    $"_partnerId:[{_partnerId}], langCodes:[{string.Join(",", langCodes)}]");
+                    $"_partnerId:[{_partnerId}], langCodes:[{string.Join(",", languages)}]");
             }
+
+            var resultEpgIds = searchResult.Fields.Select(x => x.Value<long>("epg_id")).Distinct().ToList();
+            var resultEpgDocIds = searchResult.Fields.Select(x => x.Value<string>("document_id")).Distinct().ToList();
+            
             var except = epgIdsList.Except(resultEpgIds);
             if (except.Any())
             {
-                resultEpgDocIds.AddRange(IndexManagerCommonHelpers.GetEpgsCBKeysV1(epgIdsList, langCodes));
+                resultEpgDocIds.AddRange(IndexManagerCommonHelpers.GetEpgsCBKeysV1(epgIdsList, languages));
             }
 
             return  resultEpgDocIds.Distinct().ToList();

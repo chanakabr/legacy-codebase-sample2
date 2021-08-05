@@ -657,7 +657,7 @@ namespace ApiLogic.Tests.IndexManager
                 return indexManager.GetEpgCBDocumentIdsByEpgId(new[] {(long) epgId}, languageObjs.Values);
             });
 
-            Assert.AreEqual(epgCbDocumentIdsByEpgId.First(), epgId.ToString(),"Expected document id and epg id to be the same");
+            Assert.Contains(epgId.ToString(),epgCbDocumentIdsByEpgId,"Expected document id and epg id to be the same");
         }
     }
 }

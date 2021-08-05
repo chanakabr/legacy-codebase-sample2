@@ -109,7 +109,7 @@ namespace Core.Catalog
 
         List<string> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs);
         List<string> GetEpgCBDocumentIdsByEpgId(
-            IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes);
+            IEnumerable<long> epgIds, IEnumerable<LanguageObj> languages);
 
         // rebuilders
         string SetupMediaIndex();

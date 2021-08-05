@@ -375,9 +375,9 @@ namespace ApiLogic.Catalog.IndexManager
             return _indexManager.GetChannelPrograms(channelId, startDate, endDate, esOrderObjs);
         }
         
-        public List<string> GetEpgCBDocumentIdsByEpgId(IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes)
+        public List<string> GetEpgCBDocumentIdsByEpgId(IEnumerable<long> epgIds, IEnumerable<LanguageObj> languages)
         {
-            return _indexManager.GetEpgCBDocumentIdsByEpgId( epgIds, langCodes);
+            return _indexManager.GetEpgCBDocumentIdsByEpgId( epgIds, languages);
         }
         
         public List<UnifiedSearchResult> GetAssetsUpdateDates(List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex,

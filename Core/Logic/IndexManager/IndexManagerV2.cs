@@ -5169,9 +5169,9 @@ namespace Core.Catalog
             return $"{groupId}_epg";
         }
 
-        public List<string> GetEpgCBDocumentIdsByEpgId(IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes)
+        public List<string> GetEpgCBDocumentIdsByEpgId(IEnumerable<long> epgIds, IEnumerable<LanguageObj> languages)
         {
-            langCodes = langCodes ?? Enumerable.Empty<LanguageObj>();
+            languages = languages ?? Enumerable.Empty<LanguageObj>();
 
             // Build query for getting programs
             var query = new FilteredQuery(true);
@@ -5194,8 +5194,8 @@ namespace Core.Catalog
             string searchQuery = query.ToString();
 
             var alias = GetProgramIndexAlias(_partnerId);
-            var languageIndexes = langCodes.Select(langCode => langCode.IsDefault ? "epg" : $"epg_{langCode.Code}");
-            var indexType = langCodes.Any() ? string.Join(",", languageIndexes) : "epg";
+            var languageIndexes = languages.Select(langCode => langCode.IsDefault ? "epg" : $"epg_{langCode.Code}");
+            var indexType = languages.Any() ? string.Join(",", languageIndexes) : "epg";
 
             var searchResult = _elasticSearchApi.Search(alias, indexType, ref searchQuery);
 
@@ -5203,7 +5203,7 @@ namespace Core.Catalog
             { 
                 throw new Exception($"GetEpgCBDocumentIdByEpgIdFromElasticsearch > " +
                     $"Got empty results from elasticsearch epgIds:[{string.Join(",", epgIds)}], " +
-                    $"_partnerId:[{_partnerId}], langCodes:[{string.Join(",", langCodes)}]");
+                    $"_partnerId:[{_partnerId}], langCodes:[{string.Join(",", languages)}]");
             }
 
             var json = JObject.Parse(searchResult);
@@ -5217,7 +5217,7 @@ namespace Core.Catalog
             var except = epgIds.ToList().Except(resultsEpgIds).ToList();
             if (except?.Count > 0)
             {
-                results.AddRange(IndexManagerCommonHelpers.GetEpgsCBKeysV1(epgIds, langCodes));
+                results.AddRange(IndexManagerCommonHelpers.GetEpgsCBKeysV1(epgIds, languages));
             }
 
             return results;

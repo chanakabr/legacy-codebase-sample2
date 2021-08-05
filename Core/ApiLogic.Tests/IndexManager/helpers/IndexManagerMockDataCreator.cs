@@ -156,7 +156,7 @@ namespace ApiLogic.Tests.IndexManager.helpers
             epgCb.StartDate=startDate ??DateTime.Now.ToUniversalTime();
             epgCb.CreateDate=DateTime.Now.ToUniversalTime();
             epgCb.EpgIdentifier = epgId.ToString();
-            epgCb.DocumentId = $"TEST_{epgId}";
+            epgCb.DocumentId = $"{epgId}";
             return epgCb;
         }
     }
