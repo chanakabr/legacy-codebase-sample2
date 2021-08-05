@@ -383,7 +383,8 @@ namespace Core.Catalog
                         UpdateEpgLinearMediaId(linearChannelSettings, epgCb);
                         UpdateEpgRegions(epgCb, linearChannelsRegionsMapping);
 
-                        var epg = NestDataCreator.GetEpg(epgCb, language.ID, true, _groupUsesTemplates);
+                        var expiry = GetEpgExpiry(epgCb);
+                        var epg = NestDataCreator.GetEpg(epgCb, language.ID, true, _groupUsesTemplates,expiry);
                         var nestEsBulkRequest = GetEpgBulkRequest(alias, epgCb.StartDate.ToUniversalTime(), epg);
                         bulkRequests.Add(nestEsBulkRequest);
 
@@ -749,9 +750,9 @@ namespace Core.Catalog
                     {
                         program.PadMetas(_metasToPad);
                         var langId = GetLanguageIdByCode(program.Language);
-
-                        // Serialize EPG object to string
-                        var buildEpg = NestDataCreator.GetEpg(program, langId, isOpc: _groupUsesTemplates);
+                        
+                        var expiry = GetEpgExpiry(program);
+                        var buildEpg = NestDataCreator.GetEpg(program, langId, isOpc: _groupUsesTemplates,expiryUnixTimeStamp:expiry);
                         var bulkRequest = GetEpgBulkRequest(draftIndexName, dateOfProgramsToIngest, buildEpg);
                         bulkRequests.Add(bulkRequest);
 
@@ -777,6 +778,13 @@ namespace Core.Catalog
                     }
                 }
             });
+        }
+
+        private long GetEpgExpiry(EpgCB program)
+        {
+            var totalMinutes = _ttlService.GetEpgTtlMinutes(program);
+            var expiry = ODBCWrapper.Utils.DateTimeToUtcUnixTimestampSeconds(program.EndDate.AddMinutes(totalMinutes));
+            return expiry;
         }
 
         private int GetBulkSize(int? defaultValueWhenZero=null)
@@ -1942,7 +1950,13 @@ namespace Core.Catalog
                             recodingId = epgToRecordingMapping[(int) epgCb.EpgID];
                         }
 
-                        var epg = NestDataCreator.GetEpg(epgCb, language.ID, true, _groupUsesTemplates, recodingId);
+                        var expiry = GetEpgExpiry(epgCb);
+                        var epg = NestDataCreator.GetEpg(epgCb,
+                            language.ID,
+                            true,
+                            _groupUsesTemplates,
+                            recordingId: recodingId,
+                            expiryUnixTimeStamp: expiry);
                         
                         var documentId = GetEpgDocumentId(epgCb, isRecording, epgToRecordingMapping);
                         
@@ -2062,8 +2076,20 @@ namespace Core.Catalog
                             recodingId = epgToRecordingMapping[(int) epgCb.EpgID];
                         }
 
-                        var epg = NestDataCreator.GetEpg(epgCb, language.ID, true, _groupUsesTemplates, recodingId);
-                        var shouldSetTTL = !isRecording;
+                        var shouldSetTtl = !isRecording;
+                        long? expiry = null;
+                        if (shouldSetTtl)
+                        {
+                            expiry = GetEpgExpiry(epgCb);
+                        }
+
+                        var epg = NestDataCreator.GetEpg(epgCb,
+                            language.ID,
+                            true,
+                            _groupUsesTemplates,
+                            expiry,
+                            recodingId);
+
                         var documentId = GetEpgDocumentId(epgCb, isRecording, epgToRecordingMapping);
                         var bulkRequest = GetEpgBulkRequest(alias, epgCb.StartDate.ToUniversalTime(), epg,documentId);
                         bulkRequests.Add(bulkRequest);

@@ -16,9 +16,16 @@ namespace ApiLogic.IndexManager.Helpers
 {
     public static class NestDataCreator
     {
-        public static Epg GetEpg(EpgCB epgCb,int languageId, bool withRouting = true, bool isOpc = false,long? recordingId=null)
+        public static Epg GetEpg(EpgCB epgCb, int languageId, bool withRouting = true, bool isOpc = false,
+            long? expiryUnixTimeStamp=null, long? recordingId = null)
         {
-            return new Epg(epgCb,languageId, isOpc, withRouting, ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT,recordingId);
+            return new Epg(epgCb,
+                languageId,
+                isOpc,
+                withRouting,
+                ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT,
+                recordingId,
+                expiryUnixTimeStamp);
         }
 
         public static Media GetMedia(ApiObjects.SearchObjects.Media media, LanguageObj language)
