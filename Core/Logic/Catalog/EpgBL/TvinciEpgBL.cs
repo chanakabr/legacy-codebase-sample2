@@ -340,6 +340,12 @@ namespace EpgBL
             }
             else
             {
+                if (string.IsNullOrEmpty(docKey))
+                {
+                    log.Debug($"GetEpgCB docKey is empty for epgId:{nProgramID}");
+                    docKey = nProgramID.ToString();
+                }
+
                 oRes = m_oEpgCouchbase.GetProgram(docKey);
             }
 

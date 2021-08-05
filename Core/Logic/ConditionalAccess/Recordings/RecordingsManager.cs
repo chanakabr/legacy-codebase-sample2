@@ -1110,6 +1110,10 @@ namespace Core.Recordings
 
                     RecordingsDAL.UpdateRecording_CB(recording);
                 }
+                else
+                {
+                    log.Error($"recording UpdateCouchbase failed epgId:{programId}");
+                }
             }
         }
 
