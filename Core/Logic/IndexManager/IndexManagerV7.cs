@@ -1011,23 +1011,24 @@ namespace Core.Catalog
 
             for (int from = 0; from < assetIds.Count; from += 500)
             {
-                var searchResult = _elasticClient.Search<Media>(searchDescriptor => searchDescriptor
+                var searchResult = _elasticClient.Search<SearchResult, Media>(searchDescriptor => searchDescriptor
                 .Index(index)
                 .Size(500)
                 .From(from)
+                .Source(false)
                 .Fields(fields => fields.Field(idField).Field("update_date"))
                 .Query(query => query
                     .Terms(terms => terms.Field(idField).Terms<int>(assetIds))
                     )
                 );
 
-                foreach (var item in searchResult.Hits)
+                foreach (var item in searchResult.Fields)
                 {
                     response.Add(new SearchResult()
                     {
-                        assetID = item.Source.MediaId,
-                        UpdateDate = item.Source.UpdateDate
-                    });
+                        assetID = item.Value<int>(idField),
+                        UpdateDate = item.Value<DateTime>("update_date")
+                    }) ;
                 }
             }
 
