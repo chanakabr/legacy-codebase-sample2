@@ -1534,29 +1534,9 @@ namespace Core.Catalog
         public List<string> GetEpgCBDocumentIdsByEpgId(IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes)
         {
             langCodes = langCodes ?? Enumerable.Empty<LanguageObj>();
-
-            // Build query for getting programs
-            /*var query = new FilteredQuery();
-            var filter = new QueryFilter();
-
-            // basic initialization
-            query.PageIndex = 0;
-            query.PageSize = 0;
-            query.ReturnFields.Clear();
-            query.AddReturnField("epg_id");
-            query.AddReturnField("document_id");
-
-            var composite = new FilterCompositeType(CutWith.AND);
-            var terms = new ESTerms("epg_id", epgIds.ToArray());
-            composite.AddChild(terms);
-            filter.FilterSettings = composite;
-            query.Filter = filter;
-            var searchQuery = query.ToString();*/
-            
+            var epgIdsList = epgIds.ToList();
             var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
-            var longs = epgIds.ToList();
-
-            ISearchResponse<Epg> searchResult = _elasticClient.Search<Epg>(searchDescriptor => searchDescriptor
+            var searchResult = _elasticClient.Search<Epg>(searchDescriptor => searchDescriptor
                 .Index(alias)
                 .Source(false)
                 .Fields(sf => sf.Fields(fs => fs.DocumentId, fs => fs.EpgID))
@@ -1565,7 +1545,7 @@ namespace Core.Catalog
                             f.Bool(b2 =>
                                 b2.Must(m =>
                                     m.Terms(t =>
-                                        t.Field(f1 => f1.EpgID).Terms(longs)
+                                        t.Field(f1 => f1.EpgID).Terms(epgIdsList)
                                     )
                                 )
                             )
@@ -1573,22 +1553,22 @@ namespace Core.Catalog
                     )
                 )
             );
-            var resultEpgIds = searchResult.Fields.Select(x => x.Value<long>("epg_id")).ToList();
-            var resultEpgDocIds = searchResult.Fields.Select(x => x.Value<string>("document_id")).ToList();
-
+            
+            var resultEpgIds = searchResult.Fields.Select(x => x.Value<long>("epg_id")).Distinct().ToList();
+            var resultEpgDocIds = searchResult.Fields.Select(x => x.Value<string>("document_id")).Distinct().ToList();
             if (!searchResult.IsValid)
             { 
                 throw new Exception($"GetEpgCBDocumentIdByEpgIdFromElasticsearch > " +
-                    $"Got empty results from elasticsearch epgIds:[{string.Join(",", epgIds)}], " +
+                    $"Got empty results from elasticsearch epgIds:[{string.Join(",", epgIdsList)}], " +
                     $"_partnerId:[{_partnerId}], langCodes:[{string.Join(",", langCodes)}]");
             }
-            var except = epgIds.ToList().Except(resultEpgIds).ToList();
-            if (except?.Count > 0)
+            var except = epgIdsList.Except(resultEpgIds);
+            if (except.Any())
             {
-                resultEpgDocIds.AddRange(IndexManagerCommonHelpers.GetEpgsCBKeysV1(epgIds, langCodes));
+                resultEpgDocIds.AddRange(IndexManagerCommonHelpers.GetEpgsCBKeysV1(epgIdsList, langCodes));
             }
 
-            return resultEpgDocIds;
+            return  resultEpgDocIds.Distinct().ToList();
         }
 
         public string SetupMediaIndex()
