@@ -1018,25 +1018,27 @@ namespace Core.Catalog
                 }
                 */
 
-            for (int from = 0; from < assetIds.Count; from += 500)
+            int pageSize = 500;
+            for (int from = 0; from < assetIds.Count; from += pageSize)
             {
                 var searchResult = _elasticClient.Search<Media>(searchDescriptor => searchDescriptor
                 .Index(index)
-                .Size(500)
+                .Size(pageSize)
                 .From(from)
-                .Fields(fields => fields.Field(idField).Field("update_date"))
+                .Source(false)
+                .Fields(fields => fields.Fields(idField, "update_date"))
                 .Query(query => query
                     .Terms(terms => terms.Field(idField).Terms<int>(assetIds))
                     )
                 );
 
-                foreach (var item in searchResult.Hits)
+                foreach (var item in searchResult.Fields)
                 {
                     response.Add(new SearchResult()
                     {
-                        assetID = item.Source.MediaId,
-                        UpdateDate = item.Source.UpdateDate
-                    });
+                        assetID = item.Value<int>(idField),
+                        UpdateDate = item.Value<DateTime>("update_date")
+                    }) ;
                 }
             }
 
@@ -1170,7 +1172,57 @@ namespace Core.Catalog
         public List<UnifiedSearchResult> GetAssetsUpdateDates(List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex,
             bool shouldIgnoreRecordings = false)
         {
-            throw new NotImplementedException();
+            List<UnifiedSearchResult> validAssets = new List<UnifiedSearchResult>();
+            totalItems = 0;
+
+            // Realize what asset types do we have
+            var mediaIds = assets.Where(asset => asset.AssetType == eAssetTypes.MEDIA).Select(asset => long.Parse(asset.AssetId));
+            bool shouldSearchMedia = mediaIds.Any();
+            var epgIds = assets.Where(asset => asset.AssetType == eAssetTypes.EPG).Select(asset => asset.AssetId);
+            bool shouldSearchEpg = epgIds.Any();
+
+            List<string> indices = new List<string>();
+
+            var mediaAlias = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            var epgAlias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            if (shouldSearchMedia) 
+            {
+                indices.Add(mediaAlias);
+            }
+
+            if (shouldSearchEpg)
+            {
+                indices.Add(epgAlias);
+            }
+
+            if (indices.Count == 0)
+            {
+                return validAssets;
+            }
+
+            var searchResult = _elasticClient.Search<object>(searchDescriptor => searchDescriptor
+                .Index(Indices.Index(indices))
+                .Source(false)
+                .Fields(fields => fields.Fields("media_id", "epg_id", "update_date"))
+                .From(0)
+                .Size(_maxResults)
+                .Query(query => query
+                    .Bool(boolQuery => boolQuery
+                        .Should(should => should
+                            .Bool(b => b
+                                .Filter(filter => filter.Prefix(prefix => prefix.Field("_index").Value(mediaAlias)),
+                                        filter => filter.Terms(terms => terms.Field("media_id").Terms<long>(mediaIds)))
+                            )
+                        )
+                    )
+                )
+            );
+
+            if (searchResult.IsValid)
+            {
+            }
+
+            return validAssets;
         }
 
         public void GetAssetStats(List<int> assetIDs, DateTime startDate, DateTime endDate, StatsType type,
