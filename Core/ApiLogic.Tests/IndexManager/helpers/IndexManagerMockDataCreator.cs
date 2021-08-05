@@ -132,10 +132,11 @@ namespace ApiLogic.Tests.IndexManager.helpers
         
         public static TagValue GetRandomTag(int languageId)
         {
+            var random = _random.Next(1000) + 1;
             return new TagValue()
             {
-                tagId = _random.Next(1000) + 1,
-                value = "test",
+                tagId = random,
+                value = $"test-{random}",
                 topicId = 2,
                 languageId = languageId,
                 createDate = 1000,

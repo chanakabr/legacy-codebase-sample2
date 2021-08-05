@@ -1057,7 +1057,107 @@ namespace Core.Catalog
 
         public List<TagValue> SearchTags(TagSearchDefinitions definitions, out int totalItems)
         {
-            throw new NotImplementedException();
+            List<TagValue> result = new List<TagValue>();
+            totalItems = 0;
+            string index = IndexingUtils.GetMetadataIndexAlias(_partnerId);
+            var searchResponse = _elasticClient.Search<Tag>(searchDescriptor => searchDescriptor
+                .Index(index)
+                .Size(definitions.PageSize)
+                .From(definitions.PageSize * definitions.PageIndex)
+                // ah.....
+                //.Sort(sort => sort.Ascending($"value.{GetDefaultLanguage().Code}"))
+                .Query(query => query
+                    .Bool(boolQuery =>
+                    {
+                        if (definitions.TopicId != 0)
+                        {
+                            boolQuery.Must(must => must.Term(tag => tag.topicId, definitions.TopicId));
+                        }
+
+                        if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue) || !string.IsNullOrEmpty(definitions.ExactSearchValue))
+                        {
+                            // if we have a specific language - we will search it only
+                            if (definitions.Language != null)
+                            {
+                                CreateTagValueBool(definitions, definitions.Language, boolQuery, isMust: true);
+                            }
+                            else
+                            {
+                                boolQuery.Must(must => must
+                                    .Bool(innerBoolQuery =>
+                                    {
+                                        foreach (var language in _catalogGroupCache.LanguageMapByCode.Values)
+                                        {
+                                            CreateTagValueBool(definitions, language, innerBoolQuery, isMust: false);
+                                        }
+
+                                        return innerBoolQuery;
+                                    })
+                                );
+                            }
+                        }
+
+                        if (definitions.TagIds?.Count > 0)
+                        {
+                            boolQuery.Must(must => must.Terms(terms => terms.Field(tag => tag.tagId).Terms<long>(definitions.TagIds)));
+                        }
+
+                        if (definitions.Language != null)
+                        {
+                            boolQuery.Must(must => must.Term(tag => tag.languageId, definitions.Language.ID));
+                        }
+                        else
+                        {
+                        }
+
+                        return boolQuery;
+                    })
+                )
+            );
+
+            Dictionary<long, TagValue> tagsDictionary = new Dictionary<long, TagValue>();
+
+            foreach (var tagHit in searchResponse.Hits)
+            {
+                var tag = tagHit.Source;
+            }
+            result = tagsDictionary.Values.ToList();  
+            return result;
+        }
+
+        private static void CreateTagValueBool(TagSearchDefinitions definitions, LanguageObj language, BoolQueryDescriptor<Tag> boolQuery, bool isMust)
+        {
+            if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue))
+            {
+                string field = $"value.{definitions.Language.Code}.autocomplete";
+
+                if (isMust)
+                {
+                    boolQuery.Must(must => CreateTagValueTerm(definitions, must, field, definitions.AutocompleteSearchValue.ToLower()));
+                }
+                else
+                {
+                    boolQuery.Should(must => CreateTagValueTerm(definitions, must, field, definitions.AutocompleteSearchValue.ToLower()));
+                }
+            }
+            else if (!string.IsNullOrEmpty(definitions.ExactSearchValue))
+            {
+                string field = $"value.{language.Code}";
+
+                if (isMust)
+                {
+                    boolQuery.Must(must => CreateTagValueTerm(definitions, must, field, definitions.ExactSearchValue.ToLower()));
+                }
+                else
+                {
+                    boolQuery.Should(must => CreateTagValueTerm(definitions, must, field, definitions.ExactSearchValue.ToLower()));
+                }
+            }
+        }
+
+        private static QueryContainer CreateTagValueTerm(TagSearchDefinitions definitions, QueryContainerDescriptor<Tag> must, string field, string value)
+        {
+            return must.Match(match => match.Field(field).Query(value));
         }
 
         public Status UpdateTag(TagValue tagValue)
@@ -2000,7 +2100,7 @@ namespace Core.Catalog
 
         public bool PublishTagsIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            string alias = IndexingUtils.GetMetadataGroupAliasStr(_partnerId);
+            string alias = IndexingUtils.GetMetadataIndexAlias(_partnerId);
 
             return SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }

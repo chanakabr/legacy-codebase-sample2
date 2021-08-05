@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ApiObjects.SearchObjects;
 using Nest;
 
@@ -48,6 +49,19 @@ namespace ApiLogic.IndexManager.NestData
             };
             this.createDate = createDate;
             this.updateDate = updateDate;
+        }
+
+        internal TagValue ToTagValue()
+        {
+            return new TagValue()
+            {
+                createDate = this.createDate,
+                languageId = this.languageId,
+                tagId = this.tagId,
+                topicId = topicId,
+                updateDate = updateDate,
+                value = string.Empty
+            };
         }
     }
 }

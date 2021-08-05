@@ -90,7 +90,7 @@ namespace Core.Catalog
             return string.Format("ipv6_{0}", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
         }
 
-        internal static string GetMetadataGroupAliasStr(int groupId)
+        internal static string GetMetadataIndexAlias(int groupId)
         {
             return string.Format("{0}_metadata", groupId);
         }
