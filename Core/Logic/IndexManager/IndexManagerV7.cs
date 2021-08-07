@@ -935,38 +935,6 @@ namespace Core.Catalog
 
             log.Debug(
                 $"GetCurrentProgramsByDate > index alias:[{index}] found, searching current programs, minStartDate:[{fromDate}], maxEndDate:[{toDate}]");
-            var query = new FilteredQuery();
-
-            // Program end date > minimum start date
-            // program start date < maximum end date
-            var minimumRange =
-                new ESRange(false, "end_date", eRangeComp.GTE, fromDate.ToString(ESUtils.ES_DATE_FORMAT));
-            var maximumRange =
-                new ESRange(false, "start_date", eRangeComp.LTE, toDate.ToString(ESUtils.ES_DATE_FORMAT));
-            var channelFilter = ESTerms.GetSimpleNumericTerm("epg_channel_id", new[] {channelId});
-
-
-            var filterCompositeType = new FilterCompositeType(CutWith.AND);
-            filterCompositeType.AddChild(minimumRange);
-            filterCompositeType.AddChild(maximumRange);
-            filterCompositeType.AddChild(channelFilter);
-
-
-            query.Filter = new QueryFilter()
-            {
-                FilterSettings = filterCompositeType
-            };
-
-            query.ReturnFields.Clear();
-            query.AddReturnField("_index");
-            query.AddReturnField("epg_id");
-            query.AddReturnField("start_date");
-            query.AddReturnField("end_date");
-            query.AddReturnField("epg_identifier");
-            query.AddReturnField("is_auto_fill");
-            query.AddReturnField("linear_media_id");
-            query.AddReturnField("group_id");
-            
             
             var searchResponse = _elasticClient.Search<Epg>(s => s
                 .Index(index)
@@ -992,7 +960,6 @@ namespace Core.Catalog
                 return searchResponse.Hits?.Select(x=> GetEpgProgramBulkUploadObject( x.Source)).ToList();
             }
             return result;
-
         }
 
         private EpgProgramBulkUploadObject GetEpgProgramBulkUploadObject(Epg epg)
@@ -1004,8 +971,8 @@ namespace Core.Catalog
             epgItem.EpgId = epg.EpgID;
             epgItem.IsAutoFill = epg.IsAutoFill;
             epgItem.ChannelId = epg.ChannelID;
-            epgItem.LinearMediaId = epg.LinearMediaId;
-            epgItem.ParentGroupId = epg.ParentGroupID;
+            epgItem.LinearMediaId = epg.LinearMediaId.Value;
+            epgItem.ParentGroupId = epg.GroupID;
             epgItem.GroupId = _partnerId;
             return epgItem;
         }
