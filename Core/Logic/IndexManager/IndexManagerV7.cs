@@ -918,9 +918,96 @@ namespace Core.Catalog
             });
         }
 
-        public IList<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(int channelId, DateTime fromDate, DateTime toDate)
+        public IList<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(int channelId, DateTime fromDate,
+            DateTime toDate)
         {
-            throw new NotImplementedException();
+            log.Debug($"GetCurrentProgramsByDate > fromDate:[{fromDate}], toDate:[{toDate}]");
+            var result = new List<EpgProgramBulkUploadObject>();
+            var index = IndexingUtils.GetEpgIndexAlias(_partnerId);
+
+            // if index does not exist - then we have a fresh start, we have 0 programs currently
+            if (!_elasticClient.Indices.Exists(index).Exists)
+            {
+                log.Debug(
+                    $"GetCurrentProgramsByDate > index alias:[{index}] does not exits, assuming no current programs");
+                return result;
+            }
+
+            log.Debug(
+                $"GetCurrentProgramsByDate > index alias:[{index}] found, searching current programs, minStartDate:[{fromDate}], maxEndDate:[{toDate}]");
+            var query = new FilteredQuery();
+
+            // Program end date > minimum start date
+            // program start date < maximum end date
+            var minimumRange =
+                new ESRange(false, "end_date", eRangeComp.GTE, fromDate.ToString(ESUtils.ES_DATE_FORMAT));
+            var maximumRange =
+                new ESRange(false, "start_date", eRangeComp.LTE, toDate.ToString(ESUtils.ES_DATE_FORMAT));
+            var channelFilter = ESTerms.GetSimpleNumericTerm("epg_channel_id", new[] {channelId});
+
+
+            var filterCompositeType = new FilterCompositeType(CutWith.AND);
+            filterCompositeType.AddChild(minimumRange);
+            filterCompositeType.AddChild(maximumRange);
+            filterCompositeType.AddChild(channelFilter);
+
+
+            query.Filter = new QueryFilter()
+            {
+                FilterSettings = filterCompositeType
+            };
+
+            query.ReturnFields.Clear();
+            query.AddReturnField("_index");
+            query.AddReturnField("epg_id");
+            query.AddReturnField("start_date");
+            query.AddReturnField("end_date");
+            query.AddReturnField("epg_identifier");
+            query.AddReturnField("is_auto_fill");
+            query.AddReturnField("linear_media_id");
+            query.AddReturnField("group_id");
+            
+            
+            var searchResponse = _elasticClient.Search<Epg>(s => s
+                .Index(index)
+                .Size(_maxResults)
+                .Query(q =>q
+                    .Bool(b => b.Filter(f =>f
+                            .Bool(b1 => 
+                                b1.Must(
+                                    m => m.Terms(t=>t.Field(f1=>f1.ChannelID).Terms(channelId)),
+                                    m=>m.DateRange(dr=>dr.Field(f1=>f1.StartDate).GreaterThanOrEquals(toDate)),
+                                    m=>m.DateRange(dr=>dr.Field(f1=>f1.EndDate).LessThanOrEquals(fromDate))
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+            
+            
+            // get the programs - epg ids from elasticsearch, information from EPG DAL
+            if (searchResponse.IsValid)
+            {
+                return searchResponse.Hits?.Select(x=> GetEpgProgramBulkUploadObject( x.Source)).ToList();
+            }
+            return result;
+
+        }
+
+        private EpgProgramBulkUploadObject GetEpgProgramBulkUploadObject(Epg epg)
+        {
+            var epgItem = new EpgProgramBulkUploadObject();
+            epgItem.EpgExternalId = epg.EpgIdentifier;
+            epgItem.StartDate = epg.StartDate;
+            epgItem.EndDate = epg.EndDate;
+            epgItem.EpgId = epg.EpgID;
+            epgItem.IsAutoFill = epg.IsAutoFill;
+            epgItem.ChannelId = epg.ChannelID;
+            epgItem.LinearMediaId = epg.LinearMediaId;
+            epgItem.ParentGroupId = epg.ParentGroupID;
+            epgItem.GroupId = _partnerId;
+            return epgItem;
         }
 
         public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to)
