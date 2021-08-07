@@ -20,7 +20,6 @@ using ApiLogic.IndexManager.Helpers;
 using ApiLogic.Tests.IndexManager.helpers;
 using Utils = ElasticSearch.Common.Utils;
 using Polly;
-using ApiLogic.Tests.IndexManager.helpers;
 using ApiObjects.BulkUpload;
 using ApiObjects.Nest;
 using ChannelsSchema;
@@ -387,6 +386,18 @@ namespace ApiLogic.Tests.IndexManager
             var secondTag  = IndexManagerMockDataCreator.GetRandomTag(language2.ID);
             var updateResult = indexManager.UpdateTag(secondTag);
             Assert.AreEqual((int)ApiObjects.Response.eResponseStatus.OK, updateResult.Code);
+
+            TagSearchDefinitions tagSearchDefinitions = new TagSearchDefinitions()
+            {
+                ExactSearchValue = randomTag.value,
+                PageSize = 10,
+                TopicId = randomTag.topicId,
+                GroupId = partnerId
+            };
+
+            var searchResult = indexManager.SearchTags(tagSearchDefinitions, out int totalItems);
+
+            int i = 1;
         }
 
         [Test]

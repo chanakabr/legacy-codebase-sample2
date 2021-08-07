@@ -6100,7 +6100,7 @@ namespace Core.Catalog
 
             #region Switch index alias + Delete old indices handling
 
-            string alias = IndexingUtils.GetMetadataGroupAliasStr(_partnerId);
+            string alias = IndexingUtils.GetMetadataIndexAlias(_partnerId);
             bool indexExists = _elasticSearchApi.IndexExists(alias);
 
             if (shouldSwitchIndexAlias || !indexExists)
