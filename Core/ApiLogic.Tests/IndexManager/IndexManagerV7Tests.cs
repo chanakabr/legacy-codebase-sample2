@@ -443,12 +443,28 @@ namespace ApiLogic.Tests.IndexManager
                 ExactSearchValue = randomTag.value,
                 PageSize = 10,
                 TopicId = randomTag.topicId,
-                GroupId = partnerId
+                GroupId = partnerId,
             };
 
             var searchResult = indexManager.SearchTags(tagSearchDefinitions, out int totalItems);
 
-            int i = 1;
+            Assert.IsNotEmpty(searchResult);
+            Assert.AreEqual(randomTag.value, searchResult[0].value);
+
+            tagSearchDefinitions = new TagSearchDefinitions()
+            {
+                AutocompleteSearchValue = randomTag.value.Substring(0, 3),
+                TagIds = new List<long>() { randomTag.tagId },
+                Language = language,
+                PageSize = 10,
+                TopicId = randomTag.topicId,
+                GroupId = partnerId,
+            };
+
+            searchResult = indexManager.SearchTags(tagSearchDefinitions, out totalItems);
+
+            Assert.IsNotEmpty(searchResult);
+            Assert.AreEqual(randomTag.value, searchResult[0].value);
         }
 
         [Test]
