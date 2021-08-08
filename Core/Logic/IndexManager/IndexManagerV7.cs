@@ -1123,9 +1123,13 @@ namespace Core.Catalog
                 .Query(query => query
                     .Bool(boolQuery =>
                     {
+                        List<QueryContainer> mustQueryContainers = new List<QueryContainer>();
+                        var queryContainerDescriptor = new QueryContainerDescriptor<Tag>();
+
                         if (definitions.TopicId != 0)
                         {
-                            boolQuery.Must(must => must.Term(tag => tag.topicId, definitions.TopicId));
+                            var queryContainer = queryContainerDescriptor.Term(tag => tag.topicId, definitions.TopicId);
+                            mustQueryContainers.Add(queryContainer);
                         }
 
                         if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue) || !string.IsNullOrEmpty(definitions.ExactSearchValue))
@@ -1133,37 +1137,37 @@ namespace Core.Catalog
                             // if we have a specific language - we will search it only
                             if (definitions.Language != null)
                             {
-                                CreateTagValueBool(definitions, definitions.Language, boolQuery, isMust: true);
+                                var valueTerms = CreateTagValueBool(definitions, new List<LanguageObj>() { definitions.Language });
+                                mustQueryContainers.AddRange(valueTerms);
                             }
                             else
                             {
-                                boolQuery.Must(must => must
-                                    .Bool(innerBoolQuery =>
-                                    {
-                                        foreach (var language in _catalogGroupCache.LanguageMapByCode.Values)
-                                        {
-                                            CreateTagValueBool(definitions, language, innerBoolQuery, isMust: false);
-                                        }
+                                var queryContainer = queryContainerDescriptor.Bool(innerBoolQuery =>
+                                  {
+                                      var languagesTerms = CreateTagValueBool(definitions, _catalogGroupCache.LanguageMapByCode.Values.ToList());
 
-                                        return innerBoolQuery;
-                                    })
-                                );
+                                      return innerBoolQuery.Should(languagesTerms.ToArray());
+                                  });
+
+                                mustQueryContainers.Add(queryContainer);
                             }
                         }
 
                         if (definitions.TagIds?.Count > 0)
                         {
-                            boolQuery.Must(must => must.Terms(terms => terms.Field(tag => tag.tagId).Terms<long>(definitions.TagIds)));
+                            mustQueryContainers.Add(
+                                queryContainerDescriptor.Terms(terms => terms.Field(tag => tag.tagId).Terms<long>(definitions.TagIds))
+                            );
                         }
 
                         if (definitions.Language != null)
                         {
-                            boolQuery.Must(must => must.Term(tag => tag.languageId, definitions.Language.ID));
-                        }
-                        else
-                        {
+                            mustQueryContainers.Add(
+                                queryContainerDescriptor.Term(tag => tag.languageId, definitions.Language.ID)
+                            );
                         }
 
+                        boolQuery.Must(mustQueryContainers.ToArray());
                         return boolQuery;
                     })
                 )
@@ -1174,44 +1178,76 @@ namespace Core.Catalog
             foreach (var tagHit in searchResponse.Hits)
             {
                 var tag = tagHit.Source;
+                TagValue tagValue = null;
+
+                if (!tagsDictionary.TryGetValue(tag.tagId, out tagValue))
+                {
+                    tagValue = new TagValue()
+                    {
+                        createDate = tag.createDate,
+                        languageId = tag.languageId,
+                        tagId = tag.tagId,
+                        topicId = tag.topicId,
+                        updateDate = tag.updateDate,
+                    };
+
+                    tagsDictionary[tag.tagId] = tagValue;
+                }
+
+                foreach (var value in tag.value)
+                {
+                    if (_catalogGroupCache.LanguageMapByCode[value.Key].IsDefault)
+                    {
+                        tagValue.value = value.Value;
+                    }
+                    else
+                    {
+                        tagValue.TagsInOtherLanguages.Add(new LanguageContainer(value.Key, value.Value));
+                    }
+                }
             }
+
             result = tagsDictionary.Values.ToList();  
             return result;
         }
 
-        private static void CreateTagValueBool(TagSearchDefinitions definitions, LanguageObj language, BoolQueryDescriptor<Tag> boolQuery, bool isMust)
+        private static List<QueryContainer> CreateTagValueBool(TagSearchDefinitions definitions, List<LanguageObj> languages)
         {
+            List<QueryContainer> queryContainers = new List<QueryContainer>();
+
+            string field = string.Empty;
+            string value = string.Empty;
+
             if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue))
             {
-                string field = $"value.{definitions.Language.Code}.autocomplete";
-
-                if (isMust)
-                {
-                    boolQuery.Must(must => CreateTagValueTerm(definitions, must, field, definitions.AutocompleteSearchValue.ToLower()));
-                }
-                else
-                {
-                    boolQuery.Should(must => CreateTagValueTerm(definitions, must, field, definitions.AutocompleteSearchValue.ToLower()));
-                }
+                value = definitions.AutocompleteSearchValue.ToLower();
             }
-            else if (!string.IsNullOrEmpty(definitions.ExactSearchValue))
+            else
             {
-                string field = $"value.{language.Code}";
+                value = definitions.ExactSearchValue.ToLower();
+            }
 
-                if (isMust)
+            foreach (var language in languages)
+            {
+                if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue))
                 {
-                    boolQuery.Must(must => CreateTagValueTerm(definitions, must, field, definitions.ExactSearchValue.ToLower()));
+                    field = $"value.{definitions.Language.Code}.autocomplete";
                 }
                 else
                 {
-                    boolQuery.Should(must => CreateTagValueTerm(definitions, must, field, definitions.ExactSearchValue.ToLower()));
+                    field = $"value.{language.Code}";
                 }
+
+                queryContainers.Add(CreateValueMatchQueryContainer<Tag>(field, value));
             }
+
+            return queryContainers;
         }
 
-        private static QueryContainer CreateTagValueTerm(TagSearchDefinitions definitions, QueryContainerDescriptor<Tag> must, string field, string value)
+        private static QueryContainer CreateValueMatchQueryContainer<K>(string field, string value) 
+            where K : class
         {
-            return must.Match(match => match.Field(field).Query(value));
+            return new QueryContainerDescriptor<K>().Match(match => match.Field(field).Query(value));
         }
 
         public Status UpdateTag(TagValue tagValue)
@@ -3060,6 +3096,7 @@ namespace Core.Catalog
                 {
                     "asciifolding",
                     "lowercase",
+                    $"{defaultLanguage.Code}_edgengram_filter"
                 },
                 tokenizer = "whitespace"
             });
@@ -3070,9 +3107,8 @@ namespace Core.Catalog
                 {
                     "asciifolding",
                     "lowercase",
-                    $"{defaultLanguage.Code}_edgengram_filter"
                 },
-                tokenizer = "whitespace"
+                tokenizer = "keyword"
             });
             filters.Add($"{defaultLanguage.Code}_ngram_filter", new NgramFilter()
             {
