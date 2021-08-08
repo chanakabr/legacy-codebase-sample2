@@ -6877,7 +6877,7 @@ namespace Core.ConditionalAccess
                             }
                             else
                             {
-                                log.WarnFormat("alias for series_id was not found - no tags on epg. group_id = {0}", groupId);
+                                log.Warn($"alias for {field} was not found - no tags on epg. group_id = {groupId}");
                             }
                         }
                         else
@@ -6888,7 +6888,7 @@ namespace Core.ConditionalAccess
                             }
                             else
                             {
-                                log.WarnFormat("alias for series_id was not found - no metas on epg. group_id = {0}", groupId);
+                                log.Warn($"alias for {field} was not found - no metas on epg. group_id = {groupId}");
                             }
                         }
                     }

@@ -2595,11 +2595,11 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static ApiObjects.Response.Status IngestRecording(int groupID, long[] epgs, ApiObjects.eAction action)
+        public static ApiObjects.Response.Status IngestRecording(int groupID, long[] epgs, ApiObjects.eAction action, EPGChannelProgrammeObject epg = null)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
-            ApiObjects.Response.Status status = t.IngestRecording(epgs.ToList(), action);
+            ApiObjects.Response.Status status = t.IngestRecording(epgs.ToList(), action, epg);
 
             return status;
         }
