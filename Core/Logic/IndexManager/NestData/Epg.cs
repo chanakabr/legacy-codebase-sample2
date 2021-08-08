@@ -34,7 +34,7 @@ namespace ApiObjects.Nest
         [PropertyName("group_id")]
         public int GroupID { get; set; }
 
-        [PropertyName("channel_id")]
+        [PropertyName("epg_channel_id")]
         public int ChannelID { get; set; }
         
         [PropertyName("name")]
