@@ -688,5 +688,54 @@ namespace ApiLogic.Tests.IndexManager
         }
         
 
+        
+          [Test]
+        public void TestEpgV1Crud()
+        {
+            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
+            var languageObjs = new List<ApiObjects.LanguageObj>() { language }.ToDictionary(x => x.Code);
+            IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
+            var indexManager = GetIndexV7Manager(partnerId);
+            var policy = Policy.Handle<Exception>().WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1));
+            ulong epgId = (ulong)(1 + new Random().Next(10000));
+
+            string indexName = indexManager.SetupEpgIndex(false);
+
+            var randomChannel = IndexManagerMockDataCreator.GetRandomChannel(partnerId);
+            Dictionary<ulong, Dictionary<string, EpgCB>> epgs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
+            epgs[epgId] = new Dictionary<string, EpgCB>();
+            epgs[epgId][language.Code] = new EpgCB()
+            {
+                EpgID = epgId,
+                Name = $"test epg {epgId}",
+                IsActive = true,
+                ChannelID = randomChannel.m_nChannelID,
+                StartDate = DateTime.UtcNow.AddHours(-1),
+                EndDate = DateTime.UtcNow.AddHours(1),
+                Status = 1,
+                UpdateDate = DateTime.UtcNow,
+                CreateDate = DateTime.UtcNow,
+                EpgIdentifier = $"1{epgId}",
+                Crid = $"2{epgId}",
+                GroupID = partnerId,
+                ParentGroupID = partnerId,
+                Language = "en"
+
+            };
+
+            _mockCatalogCache.Setup(x => x.GetLinearChannelSettings(It.IsAny<int>(), It.IsAny<List<string>>()))
+                .Returns(new Dictionary<string, ApiObjects.Catalog.LinearChannelSettings>());
+            indexManager.AddEPGsToIndex(indexName, false, epgs, new Dictionary<long, List<int>>(), null);
+            indexManager.PublishEpgIndex(indexName, false, true, true);
+            
+            var epgProgramBulkUploadObjects = indexManager.GetCurrentProgramsByDate(randomChannel.m_nChannelID, DateTime.Now.AddDays(-2),
+                DateTime.Now.AddDays(1));
+            Assert.IsNotEmpty(epgProgramBulkUploadObjects);
+            Assert.AreEqual(epgId, epgProgramBulkUploadObjects[0].EpgId);
+        }
+        
+        
+        
     }
 }
