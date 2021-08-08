@@ -24,7 +24,11 @@ namespace ApiObjects
             { (long) TvmDurationUnit.FourMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 4) },
             { (long) TvmDurationUnit.FiveMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 5) },
             { (long) TvmDurationUnit.SixMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 6) },
+            { (long) TvmDurationUnit.SevenMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 7) },
+            { (long) TvmDurationUnit.EightMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 8) },
             { (long) TvmDurationUnit.NineMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 9) },
+            { (long) TvmDurationUnit.TenMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 10) },
+            { (long) TvmDurationUnit.ElevenMonths, new Tuple<DurationUnit, long>(DurationUnit.Months, 11)},
             { (long) TvmDurationUnit.OneWeeks, new Tuple<DurationUnit, long>(DurationUnit.Weeks, 1) },
             { (long) TvmDurationUnit.TwoWeeks, new Tuple<DurationUnit, long>(DurationUnit.Weeks, 2) },
             { (long) TvmDurationUnit.ThreeWeeks, new Tuple<DurationUnit, long>(DurationUnit.Weeks, 3) },
@@ -57,6 +61,9 @@ namespace ApiObjects
         [JsonProperty]
         public long Value { get; set; }
 
+        [JsonIgnore]
+        public long TvmCode { get; set; }
+
         public Duration()
         {
         }
@@ -65,10 +72,13 @@ namespace ApiObjects
         {
             this.Unit = durationUnit;
             this.Value = value;
+            this.TvmCode = this.GetTvmDuration();
         }
 
         public Duration(long tvmDuration)
         {
+            this.TvmCode = tvmDuration;
+
             if (!map.ContainsKey(tvmDuration))
             {
                 this.Unit = DurationUnit.Minutes;
@@ -102,6 +112,58 @@ namespace ApiObjects
 
             return (this.Value == other.Value) && (this.Unit == other.Unit);
         }
+
+        public static List<Duration> GetDurationsByUnit(DurationUnit unit)
+        {
+            return map.Where(x => x.Value.Item1 == unit).Select(x => new Duration(x.Value.Item1, x.Value.Item2)).ToList();
+        }
+
+        public bool IsMonthlyLifeCycle()
+        {
+           return this.Unit == DurationUnit.Months;
+        }
+
+        // Canot get Duration object because by defult its Minutes DurationUnit and nedded different treatment in case code not exists 
+        public static DateTime GetSlidingWindowStart(long minPeriodId)
+        {
+            var duration = new Duration(minPeriodId);
+            switch (duration.Unit)
+            {
+                case DurationUnit.Minutes:
+                    return DateTime.UtcNow.AddMinutes(-duration.Value);
+                case DurationUnit.Hours:
+                    return DateTime.UtcNow.AddHours(-duration.Value);
+                case DurationUnit.Days:
+                    return DateTime.UtcNow.AddDays(-duration.Value);
+                case DurationUnit.Weeks:
+                    return DateTime.UtcNow.AddDays(-(int)(duration.Value * 7));
+                case DurationUnit.Months:
+                    return DateTime.UtcNow.AddMonths(-(int)duration.Value);
+                case DurationUnit.Years:
+                    return DateTime.UtcNow.AddYears(-(int)duration.Value);
+                default:
+                    return DateTime.MinValue;
+            }
+        }
+
+        public static int GetDaysFromDuration(int minPeriodId)
+        {
+            var duration = new Duration(minPeriodId);
+            if (duration.Unit == DurationUnit.Months)
+            {
+                TimeSpan ts = (DateTime.Today - DateTime.Today.AddMonths(-(int)duration.Value));
+                return ts.Days;
+            }
+            else if (duration.Unit == DurationUnit.Years)
+            {
+                TimeSpan ts = (DateTime.Today - DateTime.Today.AddYears(-(int)duration.Value));
+                return ts.Days;
+            }
+            else
+            {
+                return (int)duration.TvmCode / 1440;
+            }
+        }
     }
 
     public enum DurationUnit
@@ -116,43 +178,47 @@ namespace ApiObjects
 
     public enum TvmDurationUnit
     {
-        OneMonth = 1111111,
-        TwoMonths = 2222222,
-        ThreeMonths = 3333333,
-        FourMonths = 4444444,
-        FiveMonths = 5555555,
-        SixMonths = 6666666,
-        NineMonths = 9999999,
-        OneYear = 11111111,
-        TwoYears = 22222222,
-        ThreeYears = 33333333,
-        FourYears = 44444444,
-        FiveYears = 55555555,
-        TenYears = 100000000,
-        OneHundredYears = 999999999,
-        OneMinutes = 1,
-        ThreeMinutes = 3,
-        FiveMinutes = 5,
-        TenMinutes = 10,
-        FifteenMinutes = 15,
-        ThirtyMinutes = 30,// mins
-        OneHours = 60,
-        TwoHours = 120,
-        ThreeHours = 180,
-        SixHours = 360,
-        NineHours = 540,
-        TwelveHours = 720,
-        EighteenHours = 1080,//hours
-        OneDays = 1440,
-        TwoDays = 2880,
-        ThreeDays = 4320,
-        FiveDays = 7200,
-        TenDays = 14400,
-        ThirtyDays = 43200,
-        ThirtyOneDays = 44600,//days
-        OneWeeks = 10080,
-        TwoWeeks = 20160,
-        ThreeWeeks = 30240,
-        FourWeeks = 40320// weeks
+        OneMinutes      = 1, // mins
+        ThreeMinutes    = 3,
+        FiveMinutes     = 5,
+        TenMinutes      = 10,
+        FifteenMinutes  = 15,
+        ThirtyMinutes   = 30, 
+        OneHours        = 60, //hours
+        TwoHours        = 120,
+        ThreeHours      = 180,
+        SixHours        = 360,
+        NineHours       = 540,
+        TwelveHours     = 720,
+        EighteenHours   = 1080, 
+        OneDays         = 1440, //Days
+        TwoDays         = 2880,
+        ThreeDays       = 4320,
+        FiveDays        = 7200,
+        TenDays         = 14400,
+        ThirtyDays      = 43200,
+        ThirtyOneDays   = 44600, 
+        OneWeeks        = 10080,//weeks
+        TwoWeeks        = 20160,
+        ThreeWeeks      = 30240,
+        FourWeeks       = 40320, 
+        OneMonth        = 1111111, //Month bigger then 1111111 and smaller then 11111111
+        TwoMonths       = 2222222,
+        ThreeMonths     = 3333333,
+        FourMonths      = 4444444,
+        FiveMonths      = 5555555,
+        SixMonths       = 6666666,
+        SevenMonths     = 7777777,
+        EightMonths     = 8888888,
+        NineMonths      = 9999999,
+        TenMonths       = 10000000,
+        ElevenMonths    = 11000000,
+        OneYear         = 11111111, //Years bigget then 11111111
+        TwoYears        = 22222222,
+        ThreeYears      = 33333333,
+        FourYears       = 44444444,
+        FiveYears       = 55555555,
+        TenYears        = 100000000,
+        OneHundredYears = 999999999
     }
 }
