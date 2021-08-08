@@ -1160,8 +1160,8 @@ namespace Core.Catalog
                 .Index(index)
                 .Size(definitions.PageSize)
                 .From(definitions.PageSize * definitions.PageIndex)
-                // ah.....
-                //.Sort(sort => sort.Ascending($"value.{GetDefaultLanguage().Code}"))
+                 //ah.....
+                .Sort(sort => sort.Ascending($"value.{GetDefaultLanguage().Code}"))
                 .Query(query => query
                     .Bool(boolQuery =>
                     {
@@ -2682,13 +2682,13 @@ namespace Core.Catalog
                 .Text(x => x.Name("date_routing"))
                 .Number(x => x.Name("media_type_id").Type(NumberType.Integer).NullValue(0))
                 .Number(x => x.Name("language_id").Type(NumberType.Long))
-                .Text(x => InitializeDefaultTextPropertyDescriptor<string>("epg_identifier"))
+                .Keyword(x => InitializeDefaultTextPropertyDescriptor<string>("epg_identifier"))
                 .Date(x => x.Name("start_date"))
                 .Date(x => x.Name("end_date"))
                 .Date(x => x.Name("cache_date"))
                 .Date(x => x.Name("create_date"))
-                .Text(x => InitializeDefaultTextPropertyDescriptor<string>("crid"))
-                .Text(x => InitializeDefaultTextPropertyDescriptor<string>("external_id"))
+                .Keyword(x => InitializeDefaultTextPropertyDescriptor<string>("crid"))
+                .Keyword(x => InitializeDefaultTextPropertyDescriptor<string>("external_id"))
                 ;
 
             var defaultLanguage = GetDefaultLanguage();
@@ -2741,7 +2741,7 @@ namespace Core.Catalog
             propertiesDescriptor.Number(x => numberPropertyDescriptor);
         }
 
-        private TextPropertyDescriptor<K> InitializeTextField<K>(
+        private KeywordPropertyDescriptor<K> InitializeTextField<K>(
             string nameFieldName,
             PropertiesDescriptor<K> propertiesDescriptor,
             string indexAnalyzer,
@@ -2758,7 +2758,8 @@ namespace Core.Catalog
             var lowercaseSubField = new TextPropertyDescriptor<object>()
                 .Name("lowercase")
                 .Analyzer(LOWERCASE_ANALYZER)
-                .SearchAnalyzer(LOWERCASE_ANALYZER);
+                .SearchAnalyzer(LOWERCASE_ANALYZER)
+                ;
 
             var autocompleteSubField = new TextPropertyDescriptor<object>()
                 .Name("autocomplete")
@@ -2771,10 +2772,10 @@ namespace Core.Catalog
                 .SearchAnalyzer(searchAnalyzer);
 
             PropertiesDescriptor<object> fieldsPropertiesDesctiptor = new PropertiesDescriptor<object>()
-                .Text(y => y.Name(nameFieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER))
-                        .Text(y => lowercaseSubField)
-                        .Text(y => autocompleteSubField)
-                        .Text(y => analyzedField)
+                .Keyword(y => y.Name(nameFieldName))
+                .Text(y => lowercaseSubField)
+                .Text(y => autocompleteSubField)
+                .Text(y => analyzedField)
                 ;
 
             if (shouldAddPhraseAutocompleteField)
@@ -2805,16 +2806,16 @@ namespace Core.Catalog
                     .SearchAnalyzer(LOWERCASE_ANALYZER);
                 fieldsPropertiesDesctiptor.Text(y => padded);
             }
-            var textPropertyDescriptor = new TextPropertyDescriptor<K>()
-                .Name(nameFieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER)
-                    .Fields(fields => fieldsPropertiesDesctiptor)
+            var keywordPropertyDescriptor = new KeywordPropertyDescriptor<K>()
+                .Name(nameFieldName)
+                .Fields(fields => fieldsPropertiesDesctiptor)
                 ;
-            propertiesDescriptor.Text(x => textPropertyDescriptor);
+            propertiesDescriptor.Keyword(x => keywordPropertyDescriptor);
 
-            return textPropertyDescriptor;
+            return keywordPropertyDescriptor;
         }
 
-        private TextPropertyDescriptor<K> InitializeDefaultTextPropertyDescriptor<K>(string fieldName) 
+        private KeywordPropertyDescriptor<K> InitializeDefaultTextPropertyDescriptor<K>(string fieldName) 
             where K : class
         {
             var lowercaseSubField = new TextPropertyDescriptor<object>()
@@ -2837,9 +2838,15 @@ namespace Core.Catalog
                 .Analyzer(DEFAULT_INDEX_ANALYZER)
                 .SearchAnalyzer(DEFAULT_SEARCH_ANALYZER);
 
-            return new TextPropertyDescriptor<K>().Name(fieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER)
+            return new KeywordPropertyDescriptor<K>()
+                .Name(fieldName)
                 .Fields(fields => fields
-                    .Text(y => y.Name(fieldName).SearchAnalyzer(LOWERCASE_ANALYZER).Analyzer(LOWERCASE_ANALYZER))
+                    .Text(y => y
+                        .Name(fieldName)
+                        .SearchAnalyzer(LOWERCASE_ANALYZER)
+                        .Analyzer(LOWERCASE_ANALYZER)
+                        .Fielddata(true)
+                    )
                     .Text(y => lowercaseSubField)
                     .Text(y => phraseAutocompleteSubField)
                     .Text(y => autocompleteSubField)
