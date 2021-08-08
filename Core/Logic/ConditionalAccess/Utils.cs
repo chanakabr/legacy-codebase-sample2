@@ -2387,11 +2387,6 @@ namespace Core.ConditionalAccess
             return dRet;
         }
 
-        public static bool isMonthlyLifeCycle(long lifeCycle)
-        {
-            return (lifeCycle == 1111111 || lifeCycle == 2222222 || lifeCycle == 3333333 || lifeCycle == 4444444 || lifeCycle == 5555555 || lifeCycle == 6666666 || lifeCycle == 9999999);
-        }
-
         public static string GetLocaleStringForCache(string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME)
         {
 

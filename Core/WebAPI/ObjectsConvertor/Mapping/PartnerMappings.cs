@@ -267,6 +267,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             cfg.CreateMap<Duration, KalturaDuration>()
               .ForMember(dest => dest.Unit, opt => opt.MapFrom(src => src.Unit))
+              .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.TvmCode))
               .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
 
             cfg.CreateMap<KalturaDurationUnit, DurationUnit>()
