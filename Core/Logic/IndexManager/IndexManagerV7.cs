@@ -216,7 +216,7 @@ namespace Core.Catalog
                     var numOfBulkRequests = 0;
                     var bulkRequests = new Dictionary<int, List<NestEsBulkRequest<Media>>>() { { numOfBulkRequests, new List<NestEsBulkRequest<Media>>() } };
 
-                    GetMediaNestEsBulkRequest(index, int.MaxValue, 0, bulkRequests, mediaDictionary);
+                    GetMediaNestEsBulkRequest(index, GetBulkSize(), 0, bulkRequests, mediaDictionary);
 
                     result = true;
                     foreach (var item in bulkRequests.Values)
@@ -476,7 +476,7 @@ namespace Core.Catalog
                 {
                     foreach (var channelId in channelIds)
                     {
-                        var deleteResponse = _elasticClient.Delete<PercolatedQuery>(
+                        var deleteResponse = _elasticClient.Delete<ChannelPercolatedQuery>(
                             // id
                             GetChannelDocumentId(channelId), 
                             // request
@@ -1010,49 +1010,41 @@ namespace Core.Catalog
 
         public List<int> GetMediaChannels(int mediaId)
         {
-            /*
-            List<int> lResult = new List<int>();
-            string sIndex = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            var result = new List<int>();
+            var index = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            var mediaDocId = $"{mediaId}_{GetDefaultLanguage().Code}";
+            var response = _elasticClient.Get<Media>(mediaDocId,x=>x.Index(index));
+            
 
-            string sMediaDoc = _elasticSearchApi.GetDoc(sIndex, ES_MEDIA_TYPE, mediaId.ToString());
-
-            if (!string.IsNullOrEmpty(sMediaDoc))
+            if (response.IsValid && response.Found)
             {
                 try
                 {
-                    var jsonObj = JObject.Parse(sMediaDoc);
-                    sMediaDoc = jsonObj.SelectToken("_source").ToString();
+                    var searchResponse = _elasticClient.Search<ChannelPercolatedQuery>(
+                        x => x.Index(index)
+                            .Query(q =>
+                                q.Percolate(p => p.Documents(response.Source)
+                                    .Field(f => f.Query)
+                                )
+                            )
+                    );
 
-                    StringBuilder sbMediaDoc = new StringBuilder();
-                    sbMediaDoc.Append("{\"doc\":");
-                    sbMediaDoc.Append(sMediaDoc);
-                    sbMediaDoc.Append("}");
-
-                    sMediaDoc = sbMediaDoc.ToString();
-                    List<string> lRetVal = _elasticSearchApi.SearchPercolator(sIndex, ES_MEDIA_TYPE, ref sMediaDoc);
-
-                    if (lRetVal != null && lRetVal.Count > 0)
+                    if (searchResponse.IsValid && searchResponse.Hits.Any())
                     {
-                        int nID;
-                        foreach (string match in lRetVal)
-                        {
-                            if (int.TryParse(match, out nID))
-                            {
-                                lResult.Add(nID);
-                            }
-                        }
+                        var mediaChannels = searchResponse.Hits?.Select(x => x.Source.ChannelId).ToList();
+                        return mediaChannels;
                     }
                 }
                 catch (Exception ex)
                 {
-                    log.Error("Error - " + string.Format("GetMediaChannels - Could not parse response. Ex={0}, ST: {1}", ex.Message, ex.StackTrace), ex);
+                    log.Error(
+                        "Error - " + string.Format("GetMediaChannels - Could not parse response. Ex={0}, ST: {1}",
+                            ex.Message, ex.StackTrace), ex);
                 }
             }
 
-            return lResult;
-            */
+            return result;
 
-            throw new NotImplementedException();            
         }
 
         public List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch)
@@ -2007,14 +1999,14 @@ namespace Core.Catalog
 
                 var mediaQueryParser = new ESMediaQueryBuilder() { QueryType = eQueryType.EXACT };
                 var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, _partnerId);
-                var bulkRequests = new List<NestEsBulkRequest<PercolatedQuery>>();
+                var bulkRequests = new List<NestEsBulkRequest<ChannelPercolatedQuery>>();
                 int sizeOfBulk = 50;
 
                 foreach (var channel in groupChannels)
                 {
                     var query = _channelQueryBuilder.GetChannelQuery(mediaQueryParser, unifiedQueryBuilder, channel);
 
-                    bulkRequests.Add(new NestEsBulkRequest<PercolatedQuery>()
+                    bulkRequests.Add(new NestEsBulkRequest<ChannelPercolatedQuery>()
                     {
                         DocID = GetChannelDocumentId(channel),
                         Document = query,
