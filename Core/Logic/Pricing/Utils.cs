@@ -35,39 +35,6 @@ namespace Core.Pricing
         {
         }
 
-        public static TimeSpan GetEndDateTimeSpan(Int32 nVal)
-        {
-            DateTime dEnd = DateTime.UtcNow;
-            DateTime dStart = DateTime.UtcNow;
-            if (nVal == 1111111)
-                dEnd = dEnd.AddMonths(1);
-            else if (nVal == 2222222)
-                dEnd = dEnd.AddMonths(2);
-            else if (nVal == 3333333)
-                dEnd = dEnd.AddMonths(3);
-            else if (nVal == 4444444)
-                dEnd = dEnd.AddMonths(4);
-            else if (nVal == 5555555)
-                dEnd = dEnd.AddMonths(5);
-            else if (nVal == 6666666)
-                dEnd = dEnd.AddMonths(6);
-            else if (nVal == 9999999)
-                dEnd = dEnd.AddMonths(9);
-            else if (nVal == 11111111)
-                dEnd = dEnd.AddYears(1);
-            else if (nVal == 22222222)
-                dEnd = dEnd.AddYears(2);
-            else if (nVal == 33333333)
-                dEnd = dEnd.AddYears(3);
-            else if (nVal == 44444444)
-                dEnd = dEnd.AddYears(4);
-            else if (nVal == 55555555)
-                dEnd = dEnd.AddYears(5);
-            else
-                dEnd = dEnd.AddMinutes(nVal);
-            return dEnd - dStart;
-        }
-
         public static int GetGroupID(string sWSUserName, string sWSPassword)
         {
             Credentials wsc = new Credentials(sWSUserName, sWSPassword);

@@ -562,7 +562,7 @@ namespace Core.ConditionalAccess
                 // end wasn't retuned - get next end date from MPP
                 renewDetails.EndDate = Utils.GetEndDateTime(renewDetails.EndDate.Value, renewDetails.MaxVLCOfSelectedUsageModule);
 
-                if (Utils.isMonthlyLifeCycle(renewDetails.MaxVLCOfSelectedUsageModule) && renewDetails.EndDate.Value.Day >= 28 && renewDetails.StartDate.Value.Day > renewDetails.EndDate.Value.Day)
+                if (new Duration(renewDetails.MaxVLCOfSelectedUsageModule).IsMonthlyLifeCycle() && renewDetails.EndDate.Value.Day >= 28 && renewDetails.StartDate.Value.Day > renewDetails.EndDate.Value.Day)
                 {
                     int newDay = Math.Min(DateTime.DaysInMonth(renewDetails.EndDate.Value.Year, renewDetails.EndDate.Value.Month), renewDetails.StartDate.Value.Day);
                     renewDetails.EndDate = renewDetails.EndDate.Value.AddDays(newDay - renewDetails.EndDate.Value.Day);
