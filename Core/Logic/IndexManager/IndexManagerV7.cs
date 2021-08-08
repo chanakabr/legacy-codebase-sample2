@@ -1148,108 +1148,234 @@ namespace Core.Catalog
         }
         public List<int> SearchChannels(ChannelSearchDefinitions definitions, ref int totalItems)
         {
-            throw new NotImplementedException();
+            List<int> result = new List<int>();
+            totalItems = 0;
+
+            try
+            {
+                string index = IndexingUtils.GetChannelMetadataIndexName(_partnerId);
+                var searchResponse = _elasticClient.Search<ChannelMetadata>(searchDescriptor => searchDescriptor
+                    .Index(index)
+                    .Size(definitions.PageSize)
+                    .From(definitions.PageSize * definitions.PageIndex)
+                    .Sort(sort =>
+                    {
+                        string orderValue = "_id";
+
+                        switch (definitions.OrderBy)
+                        {
+                            case ChannelOrderBy.Name:
+                                {
+                                    orderValue = "name";
+                                    break;
+                                }
+                            case ChannelOrderBy.CreateDate:
+                                {
+                                    orderValue = "create_date";
+                                    break;
+                                }
+                            case ChannelOrderBy.UpdateDate:
+                                {
+                                    orderValue = "update_date";
+                                    break;
+                                }
+                            case ChannelOrderBy.Id:
+                                {
+                                    orderValue = "_id";
+                                    break;
+                                }
+                            default:
+                                break;
+                        }
+
+                        if (definitions.OrderDirection == ApiObjects.SearchObjects.OrderDir.ASC)
+                        {
+                            sort.Ascending(orderValue);
+                        }
+                        else
+                        {
+                            sort.Descending(orderValue);
+                        }
+
+                        return sort;
+                    })
+                    .Query(query => query
+                        .Bool(boolQuery =>
+                        {
+                            QueryContainerDescriptor<ChannelMetadata> queryContainerDescriptor = new QueryContainerDescriptor<ChannelMetadata>();
+                            List<QueryContainer> mustQueryContainers = new List<QueryContainer>();
+
+                            if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue))
+                            {
+                                string value = definitions.AutocompleteSearchValue.ToLower();
+                                string field = "name.autocomplete";
+                                mustQueryContainers.Add(queryContainerDescriptor.
+                                    Match(match => match.Field(field).Query(value)));
+                            }
+                            else if (!string.IsNullOrEmpty(definitions.ExactSearchValue))
+                            {
+                                string value = definitions.ExactSearchValue;
+                                string field = "name.lowercase";
+                                mustQueryContainers.Add(queryContainerDescriptor.
+                                    Match(match => match.Field(field).Query(value)));
+                            }
+                            else if (definitions.SpecificChannelIds?.Count > 0)
+                            {
+                                mustQueryContainers.Add(queryContainerDescriptor.
+                                    Terms(terms => 
+                                        terms
+                                        .Field(c => c.ChannelId)
+                                        .Terms<int>(definitions.SpecificChannelIds)
+                                        )
+                                );
+                            }
+
+                            if (!definitions.isAllowedToViewInactiveAssets)
+                            {
+                                var termContainer = queryContainerDescriptor.Term(term => term.
+                                    Field(c => c.IsActive).
+                                    Value(true)
+                                );
+                                mustQueryContainers.Add(termContainer);
+                            }
+
+                            if (definitions.AssetUserRuleId > 0)
+                            {
+                                var termContainer = queryContainerDescriptor.Term(term => term.
+                                    Field(c => c.AssetUserRuleId).
+                                    Value(definitions.AssetUserRuleId)
+                                );
+                                mustQueryContainers.Add(termContainer);
+                            }
+
+                            boolQuery.Must(mustQueryContainers.ToArray());
+                            return boolQuery;
+                        })
+                    )
+                );
+
+                if (searchResponse.IsValid)
+                {
+                    totalItems = (int)searchResponse.Total;
+                    result.AddRange(searchResponse.Hits.Select(channel => int.Parse(channel.Id)));
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Error searching channels on partner {_partnerId}", ex);
+            }
+
+            return result;
         }
 
         public List<TagValue> SearchTags(TagSearchDefinitions definitions, out int totalItems)
         {
             List<TagValue> result = new List<TagValue>();
             totalItems = 0;
-            string index = IndexingUtils.GetMetadataIndexAlias(_partnerId);
-            var searchResponse = _elasticClient.Search<Tag>(searchDescriptor => searchDescriptor
-                .Index(index)
-                .Size(definitions.PageSize)
-                .From(definitions.PageSize * definitions.PageIndex)
-                 //ah.....
-                .Sort(sort => sort.Ascending($"value.{GetDefaultLanguage().Code}"))
-                .Query(query => query
-                    .Bool(boolQuery =>
-                    {
-                        List<QueryContainer> mustQueryContainers = new List<QueryContainer>();
-                        var queryContainerDescriptor = new QueryContainerDescriptor<Tag>();
 
-                        if (definitions.TopicId != 0)
+            try
+            {
+                string index = IndexingUtils.GetMetadataIndexAlias(_partnerId);
+                var searchResponse = _elasticClient.Search<Tag>(searchDescriptor => searchDescriptor
+                    .Index(index)
+                    .Size(definitions.PageSize)
+                    .From(definitions.PageSize * definitions.PageIndex)
+                    //ah.....
+                    .Sort(sort => sort.Ascending($"value.{GetDefaultLanguage().Code}"))
+                    .Query(query => query
+                        .Bool(boolQuery =>
                         {
-                            var queryContainer = queryContainerDescriptor.Term(tag => tag.topicId, definitions.TopicId);
-                            mustQueryContainers.Add(queryContainer);
-                        }
+                            List<QueryContainer> mustQueryContainers = new List<QueryContainer>();
+                            var queryContainerDescriptor = new QueryContainerDescriptor<Tag>();
 
-                        if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue) || !string.IsNullOrEmpty(definitions.ExactSearchValue))
-                        {
-                            // if we have a specific language - we will search it only
-                            if (definitions.Language != null)
+                            if (definitions.TopicId != 0)
                             {
-                                var valueTerms = CreateTagValueBool(definitions, new List<LanguageObj>() { definitions.Language });
-                                mustQueryContainers.AddRange(valueTerms);
-                            }
-                            else
-                            {
-                                var queryContainer = queryContainerDescriptor.Bool(innerBoolQuery =>
-                                  {
-                                      var languagesTerms = CreateTagValueBool(definitions, _catalogGroupCache.LanguageMapByCode.Values.ToList());
-
-                                      return innerBoolQuery.Should(languagesTerms.ToArray());
-                                  });
-
+                                var queryContainer = queryContainerDescriptor.Term(tag => tag.topicId, definitions.TopicId);
                                 mustQueryContainers.Add(queryContainer);
                             }
-                        }
 
-                        if (definitions.TagIds?.Count > 0)
-                        {
-                            mustQueryContainers.Add(
-                                queryContainerDescriptor.Terms(terms => terms.Field(tag => tag.tagId).Terms<long>(definitions.TagIds))
-                            );
-                        }
+                            if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue) || !string.IsNullOrEmpty(definitions.ExactSearchValue))
+                            {
+                                // if we have a specific language - we will search it only
+                                if (definitions.Language != null)
+                                {
+                                    var valueTerms = CreateTagValueBool(definitions, new List<LanguageObj>() { definitions.Language });
+                                    mustQueryContainers.AddRange(valueTerms);
+                                }
+                                else
+                                {
+                                    var queryContainer = queryContainerDescriptor.Bool(innerBoolQuery =>
+                                      {
+                                          var languagesTerms = CreateTagValueBool(definitions, _catalogGroupCache.LanguageMapByCode.Values.ToList());
 
-                        if (definitions.Language != null)
-                        {
-                            mustQueryContainers.Add(
-                                queryContainerDescriptor.Term(tag => tag.languageId, definitions.Language.ID)
-                            );
-                        }
+                                          return innerBoolQuery.Should(languagesTerms.ToArray());
+                                      });
 
-                        boolQuery.Must(mustQueryContainers.ToArray());
-                        return boolQuery;
-                    })
-                )
-            );
+                                    mustQueryContainers.Add(queryContainer);
+                                }
+                            }
 
-            Dictionary<long, TagValue> tagsDictionary = new Dictionary<long, TagValue>();
+                            if (definitions.TagIds?.Count > 0)
+                            {
+                                mustQueryContainers.Add(
+                                    queryContainerDescriptor.Terms(terms => terms.Field(tag => tag.tagId).Terms<long>(definitions.TagIds))
+                                );
+                            }
 
-            foreach (var tagHit in searchResponse.Hits)
-            {
-                var tag = tagHit.Source;
-                TagValue tagValue = null;
+                            if (definitions.Language != null)
+                            {
+                                mustQueryContainers.Add(
+                                    queryContainerDescriptor.Term(tag => tag.languageId, definitions.Language.ID)
+                                );
+                            }
 
-                if (!tagsDictionary.TryGetValue(tag.tagId, out tagValue))
+                            boolQuery.Must(mustQueryContainers.ToArray());
+                            return boolQuery;
+                        })
+                    )
+                );
+
+                Dictionary<long, TagValue> tagsDictionary = new Dictionary<long, TagValue>();
+
+                foreach (var tagHit in searchResponse.Hits)
                 {
-                    tagValue = new TagValue()
-                    {
-                        createDate = tag.createDate,
-                        languageId = tag.languageId,
-                        tagId = tag.tagId,
-                        topicId = tag.topicId,
-                        updateDate = tag.updateDate,
-                    };
+                    var tag = tagHit.Source;
+                    TagValue tagValue = null;
 
-                    tagsDictionary[tag.tagId] = tagValue;
+                    if (!tagsDictionary.TryGetValue(tag.tagId, out tagValue))
+                    {
+                        tagValue = new TagValue()
+                        {
+                            createDate = tag.createDate,
+                            languageId = tag.languageId,
+                            tagId = tag.tagId,
+                            topicId = tag.topicId,
+                            updateDate = tag.updateDate,
+                        };
+
+                        tagsDictionary[tag.tagId] = tagValue;
+                    }
+
+                    foreach (var value in tag.value)
+                    {
+                        if (_catalogGroupCache.LanguageMapByCode[value.Key].IsDefault)
+                        {
+                            tagValue.value = value.Value;
+                        }
+                        else
+                        {
+                            tagValue.TagsInOtherLanguages.Add(new LanguageContainer(value.Key, value.Value));
+                        }
+                    }
                 }
 
-                foreach (var value in tag.value)
-                {
-                    if (_catalogGroupCache.LanguageMapByCode[value.Key].IsDefault)
-                    {
-                        tagValue.value = value.Value;
-                    }
-                    else
-                    {
-                        tagValue.TagsInOtherLanguages.Add(new LanguageContainer(value.Key, value.Value));
-                    }
-                }
+                totalItems = (int)searchResponse.Total;
+                result = tagsDictionary.Values.ToList();
             }
-
-            result = tagsDictionary.Values.ToList();  
+            catch (Exception ex)
+            {
+                log.Error($"Erorr searching for tags on partner {_partnerId}", ex);
+            }
             return result;
         }
 
