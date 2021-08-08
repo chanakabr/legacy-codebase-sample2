@@ -48,6 +48,7 @@ using System.Text;
 using Index = Nest.Index;
 using TVinciShared;
 using Channel = GroupsCacheManager.Channel;
+using OrderDir = ApiObjects.SearchObjects.OrderDir;
 
 namespace Core.Catalog
 {
@@ -1003,9 +1004,20 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
-        public bool DoesMediaBelongToChannels(List<int> lChannelIDs, int nMediaID)
+        public bool DoesMediaBelongToChannels(List<int> channelIDs, int mediaId)
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            if (channelIDs == null || channelIDs.Count < 1)
+                return result;
+
+            var channels = GetMediaChannels(mediaId);
+            if (channels.IsEmpty())
+            {
+                return result;
+            }
+
+            return channels.Any(x => channelIDs.Contains(x));
         }
 
         public List<int> GetMediaChannels(int mediaId)
@@ -1809,8 +1821,104 @@ namespace Core.Catalog
 
         public List<string> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs)
         {
-            throw new NotImplementedException();
+            var index = IndexingUtils.GetEpgIndexAlias(_partnerId);
+
+
+            var searchResponse = _elasticClient.Search<Epg>(s => s
+                .Index(index)
+                .Size(_maxResults)
+                .Fields(sf => sf.Fields(fs => fs.DocumentId, fs => fs.EpgID))
+                .Source(false)
+                .Query(q => q
+                    .Bool(b => b.Filter(f => f
+                            .Bool(b1 =>
+                                b1.Must(
+                                    m => m.Terms(t => t.Field(f1 => f1.ChannelID).Terms(channelId)),
+                                    m => m.DateRange(dr => dr.Field(f1 => f1.StartDate).GreaterThanOrEquals(startDate)),
+                                    m => m.DateRange(dr => dr.Field(f1 => f1.EndDate).LessThanOrEquals(endDate))
+                                )
+                            )
+                        )
+                    )
+                )
+                .Sort(x =>
+                {
+                    return BuildSortDescriptorFromOrderObj(esOrderObjs);
+                })
+            );
+
+            if (!searchResponse.IsValid)
+            {
+                log.Debug($"{searchResponse.DebugInformation}");
+                return new List<string>();
+            }
+
+            if (searchResponse.IsValid && !searchResponse.Hits.Any())
+            {
+                return new List<string>();
+            }
+
+
+            // Checking is new Epg ingest here as well to avoid calling GetEpgCBKey if we already called elastic and have all required coument Ids
+            var isNewEpgIngest = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(_partnerId, GroupFeature.EPG_INGEST_V2);
+            if (isNewEpgIngest)
+            {
+                return searchResponse.Fields.Select(x => x.Value<string>("document_id")).Distinct().ToList();
+            }
+            
+            var resultEpgIds = searchResponse.Fields.Select(x => x.Value<long>("epg_id")).Distinct().ToList();
+            return resultEpgIds.Select(epgId => GetEpgCbKey(epgId)).ToList();
         }
+
+        private static IPromise<IList<ISort>> BuildSortDescriptorFromOrderObj(List<ESOrderObj> esOrderObjs)
+        {
+            var descriptor = new SortDescriptor<Epg>();
+            foreach (var order in esOrderObjs)
+            {
+                switch (order.m_eOrderDir)
+                {
+                    case OrderDir.ASC:
+                        descriptor = descriptor.Ascending(new Field(order.m_sOrderValue));
+                        break;
+                    case OrderDir.DESC:
+                        descriptor = descriptor.Descending(new Field(order.m_sOrderValue));
+                        break;
+                }
+            }
+
+            return descriptor;
+        }
+
+
+        private List<string> GetEpgsCbKeys(IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes,
+            bool isAddAction)
+        {
+            var result = new List<string>();
+            var isNewEpgIngestEnabled =
+                TvinciCache.GroupsFeatures.GetGroupFeatureStatus(_partnerId, GroupFeature.EPG_INGEST_V2);
+
+            if (isNewEpgIngestEnabled && !isAddAction)
+            {
+                // elasticsearch holds the current document in CB so we go there to take it
+                return  GetEpgCBDocumentIdsByEpgId(epgIds, langCodes);
+            }
+
+            result.AddRange(IndexManagerCommonHelpers.GetEpgsCBKeysV1(epgIds, langCodes));
+
+            return result;
+        }
+
+
+
+        private string GetEpgCbKey(long epgId, string langCode = null, bool isAddAction = false)
+        {
+            var langs = string.IsNullOrEmpty(langCode) ? null : new[] {new LanguageObj {Code = langCode}};
+            var keys = GetEpgsCbKeys(new[] {epgId}, langs, isAddAction);
+            return keys.FirstOrDefault();
+        }
+        
+        
+        
 
         public List<string> GetEpgCBDocumentIdsByEpgId(IEnumerable<long> epgIds, IEnumerable<LanguageObj> languages)
         {

@@ -185,7 +185,6 @@ namespace Core.Catalog
             return sRules;
         }
 
-
         public static List<LanguageObj> GetLanguages(int nGroupID)
         {
             List<LanguageObj> lLang = new List<LanguageObj>();
@@ -203,7 +202,6 @@ namespace Core.Catalog
         }
 
         public static bool GroupBySearchIsSupportedForOrder(OrderBy orderBy) => GetStrategy(orderBy) != null;
-
 
         internal static IGroupBySearch GetStrategy(OrderBy orderBy)
         {

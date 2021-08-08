@@ -281,8 +281,8 @@ namespace ApiLogic.Tests.IndexManager
                 .Returns(percolateQuery);
 
 
-
             var addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, indexName);
+            Assert.IsTrue(addResult);
             var searchPolicy = Policy.HandleResult<List<int>>(x => x == null || x.Count == 0).WaitAndRetry(
                 3,
                 retryAttempt => TimeSpan.FromSeconds(1));
@@ -293,12 +293,20 @@ namespace ApiLogic.Tests.IndexManager
             });
 
             Assert.Contains(channel.m_nChannelID,mediaChannels);
-            Assert.IsTrue(addResult);
+            var mediaBelongToChannels =
+                indexManager.DoesMediaBelongToChannels(new List<int>() {channel.m_nChannelID}, randomMedia.m_nMediaID);
+            Assert.IsTrue(mediaBelongToChannels);
 
             indexManager.PublishMediaIndex(indexName, true, true);
-            
-            
+            var esOrderObjs = new List<ESOrderObj>();
+            esOrderObjs.Add(new ESOrderObj() { m_eOrderDir = OrderDir.ASC, m_sOrderValue = "start_date" });
+            esOrderObjs.Add(new ESOrderObj() { m_eOrderDir = OrderDir.DESC, m_sOrderValue = "end_date" });
 
+            indexManager.GetChannelPrograms(channel.m_nChannelID,
+                DateTime.Now.AddDays(-2),
+                DateTime.Now.AddDays(3),
+                esOrderObjs);
+            
             int totalItems = 0;
             var updateDates2 = indexManager.GetAssetsUpdateDates(new List<Core.Catalog.Response.UnifiedSearchResult>()
             {

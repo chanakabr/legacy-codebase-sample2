@@ -1480,20 +1480,20 @@ namespace Core.Catalog
             return finalSearchResults;
         }
 
-        public bool DoesMediaBelongToChannels(List<int> lChannelIDs, int nMediaID)
+        public bool DoesMediaBelongToChannels(List<int> channelIDs, int mediaId)
         {
             bool bResult = false;
 
-            if (lChannelIDs == null || lChannelIDs.Count < 1)
+            if (channelIDs == null || channelIDs.Count < 1)
                 return bResult;
 
-            List<int> lChannelsFound = GetMediaChannels(nMediaID);
+            List<int> lChannelsFound = GetMediaChannels(mediaId);
 
             if (lChannelsFound != null && lChannelsFound.Count > 0)
             {
                 foreach (int channelId in lChannelsFound)
                 {
-                    if (lChannelIDs.Contains(channelId))
+                    if (channelIDs.Contains(channelId))
                     {
                         bResult = true;
                         break;
@@ -6400,7 +6400,7 @@ namespace Core.Catalog
 
         #endregion
 
-        #region Updaters
+        #region 
 
         public bool UpdateEpgs(List<EpgCB> epgObjects, 
             bool isRecording,
