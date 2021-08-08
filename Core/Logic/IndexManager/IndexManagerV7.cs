@@ -1031,8 +1031,7 @@ namespace Core.Catalog
 
                     if (searchResponse.IsValid && searchResponse.Hits.Any())
                     {
-                        var mediaChannels = searchResponse.Hits?.Select(x => x.Source.ChannelId).ToList();
-                        return mediaChannels;
+                        return searchResponse.Hits?.Select(x => x.Source.ChannelId).ToList();
                     }
                 }
                 catch (Exception ex)
