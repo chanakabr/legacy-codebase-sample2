@@ -944,8 +944,8 @@ namespace Core.Catalog
                             .Bool(b1 => 
                                 b1.Must(
                                     m => m.Terms(t=>t.Field(f1=>f1.ChannelID).Terms(channelId)),
-                                    m=>m.DateRange(dr=>dr.Field(f1=>f1.StartDate).GreaterThanOrEquals(toDate)),
-                                    m=>m.DateRange(dr=>dr.Field(f1=>f1.EndDate).LessThanOrEquals(fromDate))
+                                    m=>m.DateRange(dr=>dr.Field(f1=>f1.StartDate).LessThanOrEquals(toDate)),
+                                    m=>m.DateRange(dr=>dr.Field(f1=>f1.EndDate).GreaterThanOrEquals(fromDate))
                                 )
                             )
                         )
@@ -971,7 +971,7 @@ namespace Core.Catalog
             epgItem.EpgId = epg.EpgID;
             epgItem.IsAutoFill = epg.IsAutoFill;
             epgItem.ChannelId = epg.ChannelID;
-            epgItem.LinearMediaId = epg.LinearMediaId.Value;
+            epgItem.LinearMediaId = epg.LinearMediaId.HasValue ?epg.LinearMediaId.Value: 0;
             epgItem.ParentGroupId = epg.GroupID;
             epgItem.GroupId = _partnerId;
             return epgItem;
@@ -1010,7 +1010,49 @@ namespace Core.Catalog
 
         public List<int> GetMediaChannels(int mediaId)
         {
-            throw new NotImplementedException();
+            /*
+            List<int> lResult = new List<int>();
+            string sIndex = IndexingUtils.GetMediaIndexAlias(_partnerId);
+
+            string sMediaDoc = _elasticSearchApi.GetDoc(sIndex, ES_MEDIA_TYPE, mediaId.ToString());
+
+            if (!string.IsNullOrEmpty(sMediaDoc))
+            {
+                try
+                {
+                    var jsonObj = JObject.Parse(sMediaDoc);
+                    sMediaDoc = jsonObj.SelectToken("_source").ToString();
+
+                    StringBuilder sbMediaDoc = new StringBuilder();
+                    sbMediaDoc.Append("{\"doc\":");
+                    sbMediaDoc.Append(sMediaDoc);
+                    sbMediaDoc.Append("}");
+
+                    sMediaDoc = sbMediaDoc.ToString();
+                    List<string> lRetVal = _elasticSearchApi.SearchPercolator(sIndex, ES_MEDIA_TYPE, ref sMediaDoc);
+
+                    if (lRetVal != null && lRetVal.Count > 0)
+                    {
+                        int nID;
+                        foreach (string match in lRetVal)
+                        {
+                            if (int.TryParse(match, out nID))
+                            {
+                                lResult.Add(nID);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Error - " + string.Format("GetMediaChannels - Could not parse response. Ex={0}, ST: {1}", ex.Message, ex.StackTrace), ex);
+                }
+            }
+
+            return lResult;
+            */
+
+            throw new NotImplementedException();            
         }
 
         public List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch)
