@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ApiLogic.IndexManager.Helpers;
 using ApiObjects;
 using ApiObjects.Nest;
@@ -26,7 +27,7 @@ namespace ApiLogic.Tests.IndexManager
         [Test]
         public void TestCreateIndex()
         {
-            // Build query for getting programs
+            /*// Build query for getting programs
             var query = new FilteredQuery();
             var filter = new QueryFilter();
 
@@ -42,7 +43,45 @@ namespace ApiLogic.Tests.IndexManager
             composite.AddChild(terms);
             filter.FilterSettings = composite;
             query.Filter = filter;
+            var searchQuery = query.ToString();*/
+            
+            string type = "epg";
+
+            var query = new FilteredQuery(true);
+
+            var channelTerm = new ESTerm(true) {Key = "epg_channel_id", Value = "11111"};
+
+            var endDateRange = new ESRange(false, "end_date", eRangeComp.LTE, DateTime.Now.AddDays(1).ToString("yyyyMMMMdd"));
+            var startDateRange = new ESRange(false, "start_date", eRangeComp.GTE, DateTime.Now.ToString("yyyyMMMMdd"));
+
+            var filterCompositeType = new FilterCompositeType(CutWith.AND);
+            filterCompositeType.AddChild(endDateRange);
+            filterCompositeType.AddChild(startDateRange);
+            filterCompositeType.AddChild(channelTerm);
+
+            query.Filter = new QueryFilter()
+            {
+                FilterSettings = filterCompositeType
+            };
+
+            query.ReturnFields.Clear();
+            query.AddReturnField("document_id");
+            query.AddReturnField("epg_id");
+            var esOrderObjs = new List<ESOrderObj>();
+            esOrderObjs.Add(new ESOrderObj() { m_eOrderDir = OrderDir.ASC, m_sOrderValue = "start_date" });
+            esOrderObjs.Add(new ESOrderObj() { m_eOrderDir = OrderDir.DESC, m_sOrderValue = "end_date" });
+
+            
+            foreach (var item in esOrderObjs)
+            {
+                query.ESSort.Add(item);
+            }
+            
+            // get the epg document ids from elasticsearch
             var searchQuery = query.ToString();
+            
+            
+            
             Console.WriteLine();
             
         }

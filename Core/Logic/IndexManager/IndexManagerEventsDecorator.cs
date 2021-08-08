@@ -440,9 +440,9 @@ namespace ApiLogic.Catalog.IndexManager
             return _indexManager.GetEntitledEpgLinearChannels(definitions);
         }
 
-        public bool DoesMediaBelongToChannels( List<int> lChannelIDs, int nMediaID)
+        public bool DoesMediaBelongToChannels( List<int> channelIDs, int mediaId)
         {
-            return _indexManager.DoesMediaBelongToChannels( lChannelIDs, nMediaID);
+            return _indexManager.DoesMediaBelongToChannels( channelIDs, mediaId);
         }
 
         public List<int> GetMediaChannels(  int mediaId)

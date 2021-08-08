@@ -247,7 +247,66 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsNotEmpty(updateDates);
             Assert.AreEqual(randomMedia.m_nMediaID, updateDates[0].assetID);
             Assert.AreEqual(randomMedia.m_sUpdateDate, updateDates[0].UpdateDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
+            
+            
+            
+            
+            var channel = IndexManagerMockDataCreator.GetRandomChannel(partnerId);
+            channel.filterQuery = "name!~'aa'";
+            channel.m_nChannelTypeID = (int)ChannelType.KSQL;
+            channel.AssetUserRuleId = null;
 
+            bool out1;
+            Type out2;
+
+            QueryContainerDescriptor<object> queryContainerDescriptor = new QueryContainerDescriptor<object>();
+
+            var percolateQuery = new ChannelPercolatedQuery()
+            {
+                Query = queryContainerDescriptor.Term(term => term.Field("is_active").Value(true)),
+                ChannelId = channel.m_nChannelID
+            };
+
+            _mockChannelManager.Setup(setup => setup
+                    .GetGroupChannels(partnerId))
+                .Returns(new List<Channel>() { channel });
+            _mockCatalogManager.Setup(setup => setup
+                    .GetUnifiedSearchKey(partnerId, It.IsAny<string>(), out out1, out out2))
+                .Returns<int, string, bool, Type>((one, two, three, four) => new HashSet<string>() { two });
+            _mockChannelQueryBuilder.Setup(s => s
+                    .GetChannelQuery(
+                        It.IsAny<ESMediaQueryBuilder>(),
+                        It.IsAny<ESUnifiedQueryBuilder>(),
+                        It.IsAny<Channel>()))
+                .Returns(percolateQuery);
+
+
+            var addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, indexName);
+            Assert.IsTrue(addResult);
+            var searchPolicy = Policy.HandleResult<List<int>>(x => x == null || x.Count == 0).WaitAndRetry(
+                3,
+                retryAttempt => TimeSpan.FromSeconds(1));
+
+            var mediaChannels = searchPolicy.Execute(() =>
+            {
+                return indexManager.GetMediaChannels(randomMedia.m_nMediaID);
+            });
+
+            Assert.Contains(channel.m_nChannelID,mediaChannels);
+            var mediaBelongToChannels =
+                indexManager.DoesMediaBelongToChannels(new List<int>() {channel.m_nChannelID}, randomMedia.m_nMediaID);
+            Assert.IsTrue(mediaBelongToChannels);
+
+            indexManager.PublishMediaIndex(indexName, true, true);
+            var esOrderObjs = new List<ESOrderObj>();
+            esOrderObjs.Add(new ESOrderObj() { m_eOrderDir = OrderDir.ASC, m_sOrderValue = "start_date" });
+            esOrderObjs.Add(new ESOrderObj() { m_eOrderDir = OrderDir.DESC, m_sOrderValue = "end_date" });
+
+            indexManager.GetChannelPrograms(channel.m_nChannelID,
+                DateTime.Now.AddDays(-2),
+                DateTime.Now.AddDays(3),
+                esOrderObjs);
+            
             int totalItems = 0;
             var updateDates2 = indexManager.GetAssetsUpdateDates(new List<Core.Catalog.Response.UnifiedSearchResult>()
             {
@@ -497,7 +556,7 @@ namespace ApiLogic.Tests.IndexManager
 
             QueryContainerDescriptor<object> queryContainerDescriptor = new QueryContainerDescriptor<object>();
 
-            var percolatdQuery = new PercolatedQuery()
+            var percolatdQuery = new ChannelPercolatedQuery()
             {
                 Query = queryContainerDescriptor.Term(term => term.Field("is_active").Value(true))
             };
@@ -525,6 +584,8 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsTrue(addResult);
 
             indexManager.PublishMediaIndex(indexName, true, true);
+            
+          
 
             var deleteResult = indexManager.DeleteChannelPercolator(new List<int>() { channel.m_nChannelID });
             Assert.IsTrue(deleteResult);
@@ -686,8 +747,6 @@ namespace ApiLogic.Tests.IndexManager
 
             Assert.Contains(epgId.ToString(),epgCbDocumentIdsByEpgId,"Expected document id and epg id to be the same");
         }
-        
-
         
           [Test]
         public void TestEpgV1Crud()
