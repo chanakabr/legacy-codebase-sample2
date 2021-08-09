@@ -113,8 +113,11 @@ namespace Core.Catalog
 
         // rebuilders
         string SetupMediaIndex();
+        string SetupChannelPercolatorIndex();
+
         void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, string newIndexName);
         void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
+        void PublishChannelPercolatorIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
 
         bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, string newIndexName, bool shouldCleanupInvalidChannels = false);
 

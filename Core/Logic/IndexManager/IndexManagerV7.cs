@@ -468,9 +468,9 @@ namespace Core.Catalog
 
             try
             {
-                string mediaIndex = IndexingUtils.GetMediaIndexAlias(_partnerId);
+                string alias = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
 
-                var indices = _elasticClient.GetIndicesPointingToAlias(mediaIndex);
+                var indices = _elasticClient.GetIndicesPointingToAlias(alias);
 
                 foreach (var index in indices)
                 {
@@ -504,8 +504,8 @@ namespace Core.Catalog
         {
             bool result = true;
 
-            string mediaIndex = IndexingUtils.GetMediaIndexAlias(_partnerId);
-            var indices = _elasticClient.GetIndicesPointingToAlias(mediaIndex);
+            string alias = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
+            var indices = _elasticClient.GetIndicesPointingToAlias(alias);
 
             List<Channel> channels = new List<Channel>();
 
@@ -540,13 +540,13 @@ namespace Core.Catalog
             return result;
         }
 
-        private bool UpdateChannelPercolator(Channel channel, List<string> mediaAliases)
+        private bool UpdateChannelPercolator(Channel channel, List<string> aliases)
         {
             bool result = true;
 
             var query = _channelQueryBuilder.GetChannelQuery(channel);
 
-            foreach (string alias in mediaAliases)
+            foreach (string alias in aliases)
             {
                 try
                 {
@@ -1023,16 +1023,16 @@ namespace Core.Catalog
         {
             var result = new List<int>();
             var index = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            var percolatorIndex = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
             var mediaDocId = $"{mediaId}_{GetDefaultLanguage().Code}";
-            var response = _elasticClient.Get<Media>(mediaDocId,x=>x.Index(index));
+            var response = _elasticClient.Get<Media>(mediaDocId, x => x.Index(index));
             
-
             if (response.IsValid && response.Found)
             {
                 try
                 {
                     var searchResponse = _elasticClient.Search<ChannelPercolatedQuery>(
-                        x => x.Index(index)
+                        x => x.Index(percolatorIndex)
                             .Query(q =>
                                 q.Percolate(p => p.Documents(response.Source)
                                     .Field(f => f.Query)
@@ -1054,7 +1054,6 @@ namespace Core.Catalog
             }
 
             return result;
-
         }
 
         public List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch)
@@ -2089,8 +2088,20 @@ namespace Core.Catalog
 
         public string SetupMediaIndex()
         {
-            string newIndexName = IndexingUtils.GetNewMediaIndexStr(_partnerId);
+            string newIndexName = IndexingUtils.GetNewMediaIndex(_partnerId);
+            bool isIndexCreated = CreateMediaIndex(newIndexName);
+            
+            if (!isIndexCreated)
+            {
+                log.Error(string.Format("Failed creating index for index:{0}", newIndexName));
+                return string.Empty;
+            }
 
+            return newIndexName;
+        }
+
+        private bool CreateMediaIndex(string newIndexName, bool shouldAddPercolators = false)
+        {
             int maxResults = 100000;
             // Default size of max results should be 100,000
             if (_maxResults > 0)
@@ -2132,17 +2143,47 @@ namespace Core.Catalog
                         .TokenFilters(tf => filtersDescriptor)
                         .Tokenizers(t => tokenizersDescriptor)
                     ))
-                .Map(map => map.Properties(props => propertiesDescriptor)
-                ));
+                .Map(map =>
+                {
+                    if (shouldAddPercolators)
+                    {
+                        map = map.AutoMap<ChannelPercolatedQuery>();
+                    }
 
+                    return map.Properties(props =>
+                    {
+                        if (shouldAddPercolators)
+                        {
+                            propertiesDescriptor = propertiesDescriptor.Percolator(x => x.Name("query"));
+                        }
+
+                        return propertiesDescriptor; 
+                    });
+                }
+                ));
+            
             bool isIndexCreated = createResponse != null && createResponse.Acknowledged && createResponse.IsValid;
+            return isIndexCreated;
+        }
+
+        public string SetupChannelPercolatorIndex()
+        {
+            string percolatorsIndexName = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
+            bool isIndexCreated = CreateMediaIndex(percolatorsIndexName, true);
+
             if (!isIndexCreated)
             {
-                log.Error(string.Format("Failed creating index for index:{0}", newIndexName));
+                log.Error(string.Format("Failed creating index for index:{0}", percolatorsIndexName));
                 return string.Empty;
             }
 
-            return newIndexName;
+            return percolatorsIndexName;
+        }
+
+        public void PublishChannelPercolatorIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        {
+            string alias = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
+            this.SwitchIndexAlias(newIndexName, alias, shouldSwitchIndexAlias, shouldDeleteOldIndices);
         }
 
         public void InsertMedias(Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMedias, string newIndexName)
@@ -2257,7 +2298,7 @@ namespace Core.Catalog
 
             if (string.IsNullOrEmpty(newIndexName))
             {
-                newIndexName = IndexingUtils.GetMediaIndexAlias(_partnerId);
+                newIndexName = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
             }
 
             try
@@ -3593,7 +3634,6 @@ namespace Core.Catalog
                 .Date(x => x.Name("update_date"))
                 .Date(x => x.Name("catalog_start_date"))
                 .Date(x => x.Name("final_date"))
-                .Percolator(x => x.Name("query"))
                 ;
             
             InitializeTextField("external_id", propertiesDescriptor, 
@@ -3883,7 +3923,7 @@ namespace Core.Catalog
 
         private static string GetChannelDocumentId(long channelId)
         {
-            return $"channel_{channelId}";
+            return $"{channelId}";
         }
 
         #endregion

@@ -22,7 +22,7 @@ using Channel = GroupsCacheManager.Channel;
 
 namespace ApiLogic.Catalog.IndexManager
 {
-    
+
     public class IndexManagerEventsDecorator : IIndexManager
     {
         private readonly IIndexManager _indexManager;
@@ -45,62 +45,62 @@ namespace ApiLogic.Catalog.IndexManager
 
         #region Execute Decoration
 
-        
-        private T Execute<T>(MethodBase methodBase,string eventKey, params object[] methodParameters)
+
+        private T Execute<T>(MethodBase methodBase, string eventKey, params object[] methodParameters)
         {
             var methodBaseName = methodBase.Name;
             var methodInfo = _indexManagerType.GetMethod(methodBaseName);
             var result = (T)methodInfo.Invoke(_indexManager, methodParameters);
-            CallMigrateEvent(methodBaseName,eventKey,methodParameters);
+            CallMigrateEvent(methodBaseName, eventKey, methodParameters);
             return result;
-        } 
-        
-        private void Execute(MethodBase methodBase,string eventKey,params object[] methodParameters)
+        }
+
+        private void Execute(MethodBase methodBase, string eventKey, params object[] methodParameters)
         {
             var methodBaseName = methodBase.Name;
             var methodInfo = _indexManagerType.GetMethod(methodBaseName);
             methodInfo.Invoke(_indexManager, methodParameters);
-            CallMigrateEvent(methodBaseName,eventKey,methodParameters);
-        } 
-        
-        private void CallMigrateEvent(string methodName,string eventKey, params object[] methodParameters)
+            CallMigrateEvent(methodBaseName, eventKey, methodParameters);
+        }
+
+        private void CallMigrateEvent(string methodName, string eventKey, params object[] methodParameters)
         {
-            var migrationEvent = new ApiObjects.DataMigrationEvents.ElasticSearchMigrationEvent(_indexManagerVersion.ToString(),_partnerId)
+            var migrationEvent = new ApiObjects.DataMigrationEvents.ElasticSearchMigrationEvent(_indexManagerVersion.ToString(), _partnerId)
             {
                 MethodName = methodName,
                 Parameters = methodParameters,
                 EventKey = eventKey
             };
-            
+
             _eventBusPublisher.Publish(migrationEvent);
         }
 
         #endregion
 
         #region CUD
-        
+
         //CUD
         public bool UpsertMedia(long assetId)
         {
-            return Execute<bool>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.MEDIA,assetId);
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.MEDIA, assetId);
         }
-        
+
         //CUD
         public bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds)
         {
-            return Execute<bool>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.EPG, epgIds,  epgChannelIds);
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, epgIds, epgChannelIds);
         }
 
         //CUD
         public bool UpsertProgram(List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings)
         {
-            return Execute<bool>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.EPG, epgObjects, linearChannelSettings);
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, epgObjects, linearChannelSettings);
         }
 
         //CUD
         public bool DeleteChannel(int channelId)
         {
-            return Execute<bool>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.CHANNEL, channelId);
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.CHANNEL, channelId);
         }
 
         //CUD
@@ -113,9 +113,9 @@ namespace ApiLogic.Catalog.IndexManager
         //CUD
         public bool DeleteMedia(long assetId)
         {
-            return Execute<bool>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.MEDIA, assetId); 
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.MEDIA, assetId);
         }
-        
+
         //CUD
         public void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, DateTime dateOfProgramsToIngest,
             LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
@@ -130,26 +130,26 @@ namespace ApiLogic.Catalog.IndexManager
             Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, programsToDelete, epgIndexName,
                 languages);
         }
-        
+
         //CUD
-        public bool DeleteChannelPercolator( List<int> channelIds)
+        public bool DeleteChannelPercolator(List<int> channelIds)
         {
-            return Execute<bool>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.CHANNEL,  channelIds);
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.CHANNEL, channelIds);
         }
 
         //CUD
-        public bool UpdateChannelPercolator(  List<int> channelIds, Channel channel = null)
+        public bool UpdateChannelPercolator(List<int> channelIds, Channel channel = null)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(),
                 IndexManagerMigrationEventKeys.CHANNEL, channelIds, channel);
-        } 
+        }
 
         //CUD
         public Status UpdateTag(TagValue tag)
         {
-            return Execute<Status>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.TAG, tag);
+            return Execute<Status>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.TAG, tag);
         }
-        
+
         //CUD
         public Status DeleteTag(long tagId)
         {
@@ -161,24 +161,24 @@ namespace ApiLogic.Catalog.IndexManager
         {
             return Execute<Status>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.TAG, topicId);
         }
-        
+
         //CUD
         public Status DeleteStatistics(DateTime until)
         {
-            return Execute<Status>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.STATS, until);
+            return Execute<Status>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.STATS, until);
         }
-        
+
         //CUD
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(),
                 IndexManagerMigrationEventKeys.STATS, socialSearch);
         }
-        
+
         //CUD
         public string SetupIPToCountryIndex()
         {
-            return Execute<string>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.IP_TO_COUNTRY);
+            return Execute<string>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.IP_TO_COUNTRY);
         }
 
         //CUD
@@ -195,14 +195,14 @@ namespace ApiLogic.Catalog.IndexManager
             return Execute<bool>(MethodBase.GetCurrentMethod(),
                 IndexManagerMigrationEventKeys.IP_TO_COUNTRY, newIndexName);
         }
-        
+
         //CUD
         public string SetupMediaIndex()
         {
             return Execute<string>(MethodBase.GetCurrentMethod(),
                 IndexManagerMigrationEventKeys.MEDIA);
         }
-        
+
         //CUD
         public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, string newIndexName, bool shouldCleanupInvalidChannels = false)
         {
@@ -221,14 +221,14 @@ namespace ApiLogic.Catalog.IndexManager
         public void AddChannelsMetadataToIndex(string newIndexName, List<Channel> allChannels)
         {
             Execute(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.CHANNEL_METADATA,newIndexName, allChannels);
+                IndexManagerMigrationEventKeys.CHANNEL_METADATA, newIndexName, allChannels);
         }
 
         //CUD
         public void PublishChannelsMetadataIndex(string newIndexName, bool shouldSwitchAlias, bool shouldDeleteOldIndices)
         {
             Execute(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.CHANNEL_METADATA,newIndexName, shouldSwitchAlias, shouldDeleteOldIndices);
+                IndexManagerMigrationEventKeys.CHANNEL_METADATA, newIndexName, shouldSwitchAlias, shouldDeleteOldIndices);
         }
 
         //CUD
@@ -266,7 +266,7 @@ namespace ApiLogic.Catalog.IndexManager
             Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.MEDIA,
                 newIndexName, shouldSwitchIndexAlias, shouldDeleteOldIndices);
         }
-        
+
         //CUD
         public string SetupEpgIndex(bool isRecording)
         {
@@ -280,7 +280,7 @@ namespace ApiLogic.Catalog.IndexManager
             Dictionary<long, long> epgToRecordingMapping)
         {
             var eventKey = isRecording ? IndexManagerMigrationEventKeys.RECORDING : IndexManagerMigrationEventKeys.EPG;
-            Execute(MethodBase.GetCurrentMethod(),eventKey,
+            Execute(MethodBase.GetCurrentMethod(), eventKey,
                 index,
                 isRecording,
                 programs,
@@ -295,16 +295,16 @@ namespace ApiLogic.Catalog.IndexManager
             return Execute<bool>(MethodBase.GetCurrentMethod(), eventKey,
                 newIndexName, isRecording, shouldSwitchIndexAlias, shouldDeleteOldIndices);
         }
-        
+
         //CUD
         public bool UpdateEpgs(List<EpgCB> epgObjects, bool isRecording,
             Dictionary<long, long> epgToRecordingMapping = null)
         {
             var eventKey = isRecording ? IndexManagerMigrationEventKeys.RECORDING : IndexManagerMigrationEventKeys.EPG;
-            return Execute<bool>(MethodBase.GetCurrentMethod(), eventKey, 
+            return Execute<bool>(MethodBase.GetCurrentMethod(), eventKey,
                 epgObjects, isRecording, epgToRecordingMapping);
         }
-        
+
         //CUD
         public string SetupEpgV2Index(DateTime dateOfProgramsToIngest,
             RetryPolicy retryPolicy)
@@ -316,19 +316,19 @@ namespace ApiLogic.Catalog.IndexManager
         //CUD
         public bool SetupSocialStatisticsDataIndex()
         {
-            return Execute<bool>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.STATS);
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.STATS);
         }
-        
+
         public bool InsertSocialStatisticsData(SocialActionStatistics action)
         {
-            return Execute<bool>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.STATS,action);
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.STATS, action);
         }
-        
-        
+
+
         //CUD
         public bool FinalizeEpgV2Index(DateTime date)
         {
-            return Execute<bool>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.EPG,date);
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, date);
         }
 
         //CUD
@@ -338,8 +338,20 @@ namespace ApiLogic.Catalog.IndexManager
                 IndexManagerMigrationEventKeys.EPG, date, retryPolicy);
         }
 
+
+        public string SetupChannelPercolatorIndex()
+        {
+            return Execute<string>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.CHANNEL);
+        }
+
+        public void PublishChannelPercolatorIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        {
+            Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.CHANNEL,
+                newIndexName, shouldSwitchIndexAlias, shouldDeleteOldIndices);
+        }
+
         #endregion
-        
+
         #region READ
         public SearchResultsObj SearchEpgs(EpgSearchObj epgSearch)
         {
@@ -359,7 +371,7 @@ namespace ApiLogic.Catalog.IndexManager
                 jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
                 jsonizedChannelsDefinitionsMediasMustNotAppearInAll);
         }
-        
+
         public Country GetCountryByCountryName(string countryName)
         {
             return _indexManager.GetCountryByCountryName(countryName);
@@ -367,19 +379,19 @@ namespace ApiLogic.Catalog.IndexManager
 
         public Country GetCountryByIp(string ip, out bool searchSuccess)
         {
-            return _indexManager.GetCountryByIp(ip,out searchSuccess);
+            return _indexManager.GetCountryByIp(ip, out searchSuccess);
         }
 
         public List<string> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs)
         {
             return _indexManager.GetChannelPrograms(channelId, startDate, endDate, esOrderObjs);
         }
-        
+
         public List<string> GetEpgCBDocumentIdsByEpgId(IEnumerable<long> epgIds, IEnumerable<LanguageObj> languages)
         {
-            return _indexManager.GetEpgCBDocumentIdsByEpgId( epgIds, languages);
+            return _indexManager.GetEpgCBDocumentIdsByEpgId(epgIds, languages);
         }
-        
+
         public List<UnifiedSearchResult> GetAssetsUpdateDates(List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex,
             bool shouldIgnoreRecordings = false)
         {
@@ -395,7 +407,7 @@ namespace ApiLogic.Catalog.IndexManager
         public void GetAssetStats(List<int> assetIDs, DateTime startDate, DateTime endDate, StatsType type,
             ref Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
         {
-            _indexManager.GetAssetStats(assetIDs, startDate, endDate, type,ref assetIDsToStatsMapping);
+            _indexManager.GetAssetStats(assetIDs, startDate, endDate, type, ref assetIDsToStatsMapping);
         }
 
         public List<int> OrderMediaBySlidingWindow(OrderBy orderBy, bool isDesc, int pageSize, int PageIndex, List<int> media,
@@ -403,16 +415,16 @@ namespace ApiLogic.Catalog.IndexManager
         {
             return _indexManager.OrderMediaBySlidingWindow(orderBy, isDesc, pageSize, PageIndex, media, windowTime);
         }
-        
+
         public IList<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(int channelId, DateTime fromDate,
             DateTime toDate)
         {
             return _indexManager.GetCurrentProgramsByDate(channelId, fromDate, toDate);
         }
-        
+
         public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to)
         {
-            return  _indexManager.UnifiedSearch(unifiedSearch, ref totalItems, ref to);
+            return _indexManager.UnifiedSearch(unifiedSearch, ref totalItems, ref to);
         }
 
         public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch,
@@ -440,14 +452,14 @@ namespace ApiLogic.Catalog.IndexManager
             return _indexManager.GetEntitledEpgLinearChannels(definitions);
         }
 
-        public bool DoesMediaBelongToChannels( List<int> channelIDs, int mediaId)
+        public bool DoesMediaBelongToChannels(List<int> channelIDs, int mediaId)
         {
-            return _indexManager.DoesMediaBelongToChannels( channelIDs, mediaId);
+            return _indexManager.DoesMediaBelongToChannels(channelIDs, mediaId);
         }
 
-        public List<int> GetMediaChannels(  int mediaId)
+        public List<int> GetMediaChannels(int mediaId)
         {
-            return _indexManager.GetMediaChannels( mediaId);
+            return _indexManager.GetMediaChannels(mediaId);
         }
 
         public List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch)
@@ -470,17 +482,17 @@ namespace ApiLogic.Catalog.IndexManager
 
             return _indexManager.SearchChannels(definitions, ref totalItems);
         }
-        
+
         public List<TagValue> SearchTags(TagSearchDefinitions definitions, out int totalItems)
         {
             return _indexManager.SearchTags(definitions, out totalItems);
         }
-        
+
         public SearchResultsObj SearchMedias(MediaSearchObj oSearch, int nLangID, bool bUseStartDate)
         {
             return _indexManager.SearchMedias(oSearch, nLangID, bUseStartDate);
         }
-        
+
         public SearchResultsObj SearchSubscriptionMedias(List<MediaSearchObj> oSearch, int nLangID, bool shouldUseStartDate, string sMediaTypes,
             OrderObj oOrderObj, int nPageIndex, int nPageSize)
         {

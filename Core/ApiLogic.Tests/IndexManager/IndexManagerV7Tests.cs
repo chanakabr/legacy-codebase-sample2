@@ -563,7 +563,8 @@ namespace ApiLogic.Tests.IndexManager
 
             var percolatdQuery = new ChannelPercolatedQuery()
             {
-                Query = queryContainerDescriptor.Term(term => term.Field("is_active").Value(true))
+                Query = queryContainerDescriptor.Term(term => term.Field("is_active").Value(true)),
+                ChannelId = channel.m_nChannelID
             };
 
             _mockChannelManager.Setup(setup => setup
@@ -583,12 +584,40 @@ namespace ApiLogic.Tests.IndexManager
             var indexManager = GetIndexV7Manager(partnerId);
 
             var indexName = indexManager.SetupMediaIndex();
-
-            bool addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, indexName);
+            var percolatorIndex = indexManager.SetupChannelPercolatorIndex();
+            bool addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, percolatorIndex);
 
             Assert.IsTrue(addResult);
 
             indexManager.PublishMediaIndex(indexName, true, true);
+            indexManager.PublishChannelPercolatorIndex(percolatorIndex, true, true);
+
+            var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
+            var randomMedia2 = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
+
+            randomMedia.m_sName = "upsert_test";
+            var dictionary = new Dictionary<int, ApiObjects.SearchObjects.Media>() { };
+            dictionary[language.ID] = randomMedia;
+            _mockCatalogManager
+                .Setup(x => x.GetGroupMedia(It.IsAny<int>(), randomMedia.m_nMediaID, It.IsAny<CatalogGroupCache>()))
+                .Returns(dictionary);
+            _mockCatalogManager
+                .Setup(x => x.GetGroupMedia(It.IsAny<int>(), randomMedia2.m_nMediaID, It.IsAny<CatalogGroupCache>()))
+                .Returns(new Dictionary<int, ApiObjects.SearchObjects.Media>()
+                {
+                    { language.ID, randomMedia2 }
+                });
+
+            var upsertResult = indexManager.UpsertMedia(randomMedia.m_nMediaID);
+            Assert.IsTrue(upsertResult);
+
+            var searchPolicy = Policy.HandleResult<List<int>>(x => x == null || x.Count == 0).WaitAndRetry(
+                3,
+                retryAttempt => TimeSpan.FromSeconds(1));
+
+            var mediaChannels = searchPolicy.Execute(() => indexManager.GetMediaChannels(randomMedia.m_nMediaID));
+            Assert.IsNotEmpty(mediaChannels);
+            Assert.AreEqual(channel.m_nChannelID, mediaChannels.First());
 
             var deleteResult = indexManager.DeleteChannelPercolator(new List<int>() { channel.m_nChannelID });
             Assert.IsTrue(deleteResult);

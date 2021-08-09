@@ -51,6 +51,13 @@ namespace ElasticSearchHandler.IndexBuilders
             GetGroupData(out catalogGroupCache, out group, out languages, out defaultLanguage);
 
             string newIndexName = _IndexManager.SetupMediaIndex();
+            string channelPercolatorIndexName = _IndexManager.SetupChannelPercolatorIndex();
+
+            if (string.IsNullOrEmpty(channelPercolatorIndexName))
+            {
+                channelPercolatorIndexName = newIndexName;
+            }
+
             log.DebugFormat("Start GetGroupMediasTotal for group {0}", groupId);
 
             if (doesGroupUsesTemplates)
@@ -92,13 +99,17 @@ namespace ElasticSearchHandler.IndexBuilders
                 channelIds = group.channelIDs;
             }
 
-            _IndexManager.AddChannelsPercolatorsToIndex(channelIds, newIndexName);
+            _IndexManager.AddChannelsPercolatorsToIndex(channelIds, channelPercolatorIndexName);
 
             #endregion
 
             // Switch index alias + Delete old indices handling
             _IndexManager.PublishMediaIndex(newIndexName, this.SwitchIndexAlias, this.DeleteOldIndices);
 
+            if (channelPercolatorIndexName != newIndexName)
+            {
+                _IndexManager.PublishChannelPercolatorIndex(channelPercolatorIndexName, this.SwitchIndexAlias, this.DeleteOldIndices);
+            }
             return true;
         }
 

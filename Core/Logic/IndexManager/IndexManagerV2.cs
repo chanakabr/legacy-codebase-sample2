@@ -5258,7 +5258,7 @@ namespace Core.Catalog
 
         public string SetupMediaIndex()
         {
-            string newIndexName = IndexingUtils.GetNewMediaIndexStr(_partnerId);
+            string newIndexName = IndexingUtils.GetNewMediaIndex(_partnerId);
 
             #region Build new index and specify number of nodes/shards
 
@@ -7526,6 +7526,16 @@ namespace Core.Catalog
             if (!orderBy.HasValue) return false;
 
             return orderBy == OrderBy.META || orderBy == OrderBy.NAME;
+        }
+
+        public string SetupChannelPercolatorIndex()
+        {
+            return string.Empty;
+        }
+
+        public void PublishChannelPercolatorIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        {
+            
         }
 
         #endregion

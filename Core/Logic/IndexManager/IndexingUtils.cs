@@ -60,6 +60,10 @@ namespace Core.Catalog
             return nGroupID.ToString();
         }
 
+        public static string GetChannelPercolatorIndexAlias(int partnerId)
+        {
+            return $"{partnerId}_channel_percolator";
+        }
         public static string GetNewEpgIndexStr(int nGroupID)
         {
             return string.Format("{0}_epg_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
@@ -70,9 +74,14 @@ namespace Core.Catalog
             return string.Format("{0}_recording_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
         }
 
-        public static string GetNewMediaIndexStr(int nGroupID)
+        public static string GetNewMediaIndex(int nGroupID)
         {
             return string.Format("{0}_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
+        }
+
+        public static string GetNewChannelPercolatorIndex(int partnerId)
+        {
+            return $"{partnerId}_channel_percolator_{DateTime.UtcNow.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT)}";
         }
 
         public static string GetNewUtilsIndexString()
