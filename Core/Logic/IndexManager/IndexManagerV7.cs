@@ -1995,6 +1995,7 @@ namespace Core.Catalog
 
         private static IPromise<IList<ISort>> BuildSortDescriptorFromOrderObj(List<ESOrderObj> esOrderObjs)
         {
+            // TODO: gil make generic
             var descriptor = new SortDescriptor<Epg>();
             foreach (var order in esOrderObjs)
             {
