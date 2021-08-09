@@ -147,20 +147,20 @@ namespace ApiLogic.Tests.IndexManager
 
             //EPG1
             var today = DateTime.Now;
-            var epgCb = IndexManagerMockDataCreator.GeRandomEpgCb(today);
+            var epgCb = IndexManagerMockDataCreator.GetRandomEpgCb(today);
             var epgCbObjects = new List<EpgCB>();
             epgCbObjects.Add(epgCb);
             var epgBulk1 = GetEpgProgramBulkUploadObject(partnerId, dateOfProgramsToIngest, epgCb, epgCbObjects);
 
             //EPG2
             var tomorrow = today.AddDays(1);
-            var epgCb2 = IndexManagerMockDataCreator.GeRandomEpgCb(tomorrow, name: "la movie2", description: "this is the movie description2");
+            var epgCb2 = IndexManagerMockDataCreator.GetRandomEpgCb(tomorrow, name: "la movie2", description: "this is the movie description2");
             var epgCbObjects2 = new List<EpgCB>();
             epgCbObjects2.Add(epgCb2);
             var epgBulk2 = GetEpgProgramBulkUploadObject(partnerId, dateOfProgramsToIngest.AddDays(1), epgCb2, epgCbObjects2);
 
             //EPG3
-            var epgCb3 = IndexManagerMockDataCreator.GeRandomEpgCb(tomorrow.AddDays(2), name: "la movie2", description: "this is the movie description2");
+            var epgCb3 = IndexManagerMockDataCreator.GetRandomEpgCb(tomorrow.AddDays(2), name: "la movie2", description: "this is the movie description2");
             var epgCbObjects3 = new List<EpgCB>();
             epgCbObjects3.Add(epgCb3);
             var epgBulk3 = GetEpgProgramBulkUploadObject(partnerId, dateOfProgramsToIngest.AddDays(2), epgCb3, epgCbObjects3);
@@ -298,15 +298,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsTrue(mediaBelongToChannels);
 
             indexManager.PublishMediaIndex(indexName, true, true);
-            var esOrderObjs = new List<ESOrderObj>();
-            esOrderObjs.Add(new ESOrderObj() { m_eOrderDir = OrderDir.ASC, m_sOrderValue = "start_date" });
-            esOrderObjs.Add(new ESOrderObj() { m_eOrderDir = OrderDir.DESC, m_sOrderValue = "end_date" });
 
-            indexManager.GetChannelPrograms(channel.m_nChannelID,
-                DateTime.Now.AddDays(-2),
-                DateTime.Now.AddDays(3),
-                esOrderObjs);
-            
             int totalItems = 0;
             var updateDates2 = indexManager.GetAssetsUpdateDates(new List<Core.Catalog.Response.UnifiedSearchResult>()
             {
@@ -379,6 +371,15 @@ namespace ApiLogic.Tests.IndexManager
             indexManager.AddEPGsToIndex(indexName, false, epgs, new Dictionary<long, List<int>>(), null);
             bool publishResult = indexManager.PublishEpgIndex(indexName, false, true, true);
             Assert.IsTrue(publishResult);
+            
+            var esOrderObjs = new List<ESOrderObj>();
+            esOrderObjs.Add(new ESOrderObj() { m_eOrderDir = OrderDir.ASC, m_sOrderValue = "start_date" });
+            esOrderObjs.Add(new ESOrderObj() { m_eOrderDir = OrderDir.DESC, m_sOrderValue = "end_date" });
+            var channelPrograms = indexManager.GetChannelPrograms(randomChannel.m_nChannelID,
+                DateTime.Now.AddDays(-2),
+                DateTime.Now.AddDays(3),
+                esOrderObjs);
+            Assert.Equals(epgId, channelPrograms.FirstOrDefault());
 
             bool deleteResult = indexManager.DeleteProgram(new List<long>() { Convert.ToInt64(epgId) }, null);
             Assert.IsTrue(deleteResult);
@@ -706,9 +707,9 @@ namespace ApiLogic.Tests.IndexManager
             var epgCbObjects = new List<EpgCB>();
             var randomChannel = IndexManagerMockDataCreator.GetRandomChannel(randomPartnerId);
             var today = DateTime.Now;
-            var epgCb = IndexManagerMockDataCreator.GeRandomEpgCb(today);
+            var epgCb = IndexManagerMockDataCreator.GetRandomEpgCb(today);
             epgCbObjects.Add(epgCb);
-            var epgCb2 = IndexManagerMockDataCreator.GeRandomEpgCb(today);
+            var epgCb2 = IndexManagerMockDataCreator.GetRandomEpgCb(today);
             epgCb2.Language = "rus";
             epgCb2.EpgID = epgCb.EpgID;
 

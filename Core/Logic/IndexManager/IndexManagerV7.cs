@@ -126,7 +126,6 @@ namespace Core.Catalog
             _esIndexDefinitions = esIndexDefinitions;
             _channelManager = channelManager;
             _catalogCache = catalogCache;
-            _partnerId = partnerId;
             _groupManager = groupManager;
             _ttlService = ttlService;
             _watchRuleManager = watchRuleManager;
@@ -1822,8 +1821,6 @@ namespace Core.Catalog
         public List<string> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs)
         {
             var index = IndexingUtils.GetEpgIndexAlias(_partnerId);
-
-
             var searchResponse = _elasticClient.Search<Epg>(s => s
                 .Index(index)
                 .Size(_maxResults)
