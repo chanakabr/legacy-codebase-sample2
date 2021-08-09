@@ -1642,6 +1642,7 @@ namespace Core.Catalog
             var pagedList = validAssets.Page(pageSize, pageIndex, out illegalRequest);
             return validAssets;
         }
+
         public void GetAssetStats(List<int> assetIDs, DateTime startDate, DateTime endDate, StatsType type,
             ref Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
         {
@@ -1651,7 +1652,20 @@ namespace Core.Catalog
                 .Size(0)
                 .From(0)
                 .Query(query => query
+                    .Bool(boolQuery =>
+                    {
+                        List<QueryContainer> mustContainers = new List<QueryContainer>();
+
+                        // TODO: THIS
+
+                        boolQuery.Must(mustContainers.ToArray());
+                        return boolQuery;
+                    })
                 )
+                .Aggregations(aggs =>
+                {
+                    return aggs;
+                })
             );
         }
 
