@@ -589,8 +589,6 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsTrue(addResult);
 
             indexManager.PublishMediaIndex(indexName, true, true);
-            
-          
 
             var deleteResult = indexManager.DeleteChannelPercolator(new List<int>() { channel.m_nChannelID });
             Assert.IsTrue(deleteResult);
@@ -600,11 +598,6 @@ namespace ApiLogic.Tests.IndexManager
         [Test]
         public void TestChannelMeteDataCrud()
         {
-            /*var randomPartnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-            var indexV7Manager = GetIndexV7Manager(randomPartnerId);
-            string index = indexV7Manager.SetupChannelMetadataIndex();
-            indexV7Manager.AddChannelsMetadataToIndex(index,new List<Channel>(){new Channel(){m_sName = "test chanlel"}});*/
-            
             var randomPartnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
             var randomChannel = IndexManagerMockDataCreator.GetRandomChannel(randomPartnerId);
             var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();

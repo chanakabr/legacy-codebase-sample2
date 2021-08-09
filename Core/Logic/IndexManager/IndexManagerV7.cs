@@ -3217,6 +3217,44 @@ namespace Core.Catalog
                     },
                     char_filter = defaultCharFilter
                 });
+                analyzers.Add(AUTOCOMPLETE_ANALYZER, new Analyzer()
+                {
+                    tokenizer = "whitespace",
+                    filter = new List<string>()
+                    {
+                        "lowercase",
+                        EDGENGRAM_FILTER,
+                        "icu_folding",
+                        "icu_normalizer",
+                        "asciifolding"
+                    },
+                    char_filter = defaultCharFilter
+                });
+                analyzers.Add(AUTOCOMPLETE_SEARCH_ANALYZER, new Analyzer()
+                {
+                    tokenizer = "whitespace",
+                    filter = new List<string>()
+                    {
+                        "lowercase",
+                        "icu_folding",
+                        "icu_normalizer",
+                        "asciifolding"
+                    },
+                    char_filter = defaultCharFilter
+                });
+                filters.Add(EDGENGRAM_FILTER, new ElasticSearch.Searcher.Settings.NgramFilter()
+                {
+                    type = "edgeNGram",
+                    min_gram = 1,
+                    max_gram = 20,
+                    token_chars = new List<string>()
+                    {
+                        "letter",
+                        "digit",
+                        "punctuation",
+                        "symbol"
+                    }
+                });
             }
         }
 
@@ -3357,45 +3395,6 @@ namespace Core.Catalog
                 min_gram = 2,
                 max_gram = 20,
                 token_chars = defaultTokenChars
-            });
-
-            analyzers.Add(AUTOCOMPLETE_ANALYZER, new Analyzer()
-            {
-                tokenizer = "whitespace",
-                filter = new List<string>()
-                    {
-                        "lowercase",
-                        EDGENGRAM_FILTER,
-                        "icu_folding",
-                        "icu_normalizer",
-                        "asciifolding"
-                    },
-                char_filter = defaultCharFilter
-            });
-            analyzers.Add(AUTOCOMPLETE_SEARCH_ANALYZER, new Analyzer()
-            {
-                tokenizer = "whitespace",
-                filter = new List<string>()
-                    {
-                        "lowercase",
-                        "icu_folding",
-                        "icu_normalizer",
-                        "asciifolding"
-                    },
-                char_filter = defaultCharFilter
-            });
-            filters.Add(EDGENGRAM_FILTER, new ElasticSearch.Searcher.Settings.NgramFilter()
-            {
-                type = "edgeNGram",
-                min_gram = 1,
-                max_gram = 20,
-                token_chars = new List<string>()
-                    {
-                        "letter",
-                        "digit",
-                        "punctuation",
-                        "symbol"
-                    }
             });
         }
 
@@ -3653,9 +3652,15 @@ namespace Core.Catalog
 
             if (simpleFields != null)
             {
+                var defaultLanguage = GetDefaultLanguage();
+                var defaultLanguageCode = defaultLanguage.Code;
+
                 foreach (var field in simpleFields)
                 {
-                    propertiesDescriptor.Keyword(t => InitializeTextField<T>(field, propertiesDescriptor, DEFAULT_INDEX_ANALYZER, DEFAULT_SEARCH_ANALYZER, AUTOCOMPLETE_ANALYZER, AUTOCOMPLETE_SEARCH_ANALYZER, false));
+                    propertiesDescriptor.Keyword(t => 
+                        InitializeTextField<T>(field, propertiesDescriptor, 
+                            $"{defaultLanguageCode}_{DEFAULT_INDEX_ANALYZER}", $"{defaultLanguageCode}_{DEFAULT_SEARCH_ANALYZER}", 
+                            $"{defaultLanguageCode}_{AUTOCOMPLETE_ANALYZER}", $"{defaultLanguageCode}_{AUTOCOMPLETE_SEARCH_ANALYZER}", false));
                 }
             }
 
