@@ -470,7 +470,11 @@ namespace ApiLogic.Tests.IndexManager
                 GroupId = partnerId,
             };
 
-            searchResult = indexManager.SearchTags(tagSearchDefinitions, out totalItems);
+            var searchPolicy = Policy.HandleResult<List<TagValue>>(x => x == null || x.Count == 0).WaitAndRetry(
+                3,
+                retryAttempt => TimeSpan.FromSeconds(1));
+
+            searchResult = searchPolicy.Execute(() => indexManager.SearchTags(tagSearchDefinitions, out totalItems));
 
             Assert.IsNotEmpty(searchResult);
             Assert.AreEqual(randomTag.value, searchResult[0].value);
