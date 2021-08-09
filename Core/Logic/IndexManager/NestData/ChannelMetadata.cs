@@ -7,6 +7,7 @@ using Nest;
 
 namespace ApiLogic.IndexManager.NestData
 {
+    [ElasticsearchType(IdProperty = nameof(ChannelId))]
     public class ChannelMetadata
     {
         public ChannelMetadata(Channel channel)

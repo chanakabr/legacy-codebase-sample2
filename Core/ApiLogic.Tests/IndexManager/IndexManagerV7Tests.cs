@@ -649,6 +649,22 @@ namespace ApiLogic.Tests.IndexManager
             indexManager.PublishEpgIndex(epgIndexName, false, true, true);
 
             var secondRandomChannel = IndexManagerMockDataCreator.GetRandomChannel(randomPartnerId);
+
+            QueryContainerDescriptor<object> queryContainerDescriptor = new QueryContainerDescriptor<object>();
+
+            var percolateQuery = new ChannelPercolatedQuery()
+            {
+                Query = queryContainerDescriptor.Term(term => term.Field("is_active").Value(true)),
+                ChannelId = secondRandomChannel.m_nChannelID
+            };
+
+            _mockChannelQueryBuilder.Setup(s => s
+                    .GetChannelQuery(
+                        It.IsAny<ESMediaQueryBuilder>(),
+                        It.IsAny<ESUnifiedQueryBuilder>(),
+                        It.IsAny<Channel>()))
+                .Returns(percolateQuery);
+
             var upsertResult = indexManager.UpsertChannel(secondRandomChannel.m_nChannelID, secondRandomChannel);
 
             channelSearchDefinitions.ExactSearchValue = secondRandomChannel.m_sName;
