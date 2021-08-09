@@ -1645,7 +1645,14 @@ namespace Core.Catalog
         public void GetAssetStats(List<int> assetIDs, DateTime startDate, DateTime endDate, StatsType type,
             ref Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
         {
-            throw new NotImplementedException();
+            string index = IndexingUtils.GetStatisticsIndexName(_partnerId);
+            _elasticClient.Search<ApiLogic.IndexManager.NestData.SocialActionStatistics>(searchRequest => searchRequest
+                .Index(index)
+                .Size(0)
+                .From(0)
+                .Query(query => query
+                )
+            );
         }
 
         public List<int> OrderMediaBySlidingWindow(OrderBy orderBy, bool isDesc, int pageSize, int PageIndex, List<int> media,
@@ -1656,7 +1663,7 @@ namespace Core.Catalog
 
         public bool SetupSocialStatisticsDataIndex()
         {
-            var statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
+            var statisticsIndex = IndexingUtils.GetStatisticsIndexName(_partnerId);
             var createIndexResponse = _elasticClient.Indices.Create(statisticsIndex,
                 c => c.Settings(settings => settings
                     .NumberOfShards(_numOfShards)
@@ -1670,7 +1677,7 @@ namespace Core.Catalog
 
         public bool InsertSocialStatisticsData(SocialActionStatistics action)
         {
-            var statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
+            var statisticsIndex = IndexingUtils.GetStatisticsIndexName(_partnerId);
 
             try
             {
@@ -1697,7 +1704,7 @@ namespace Core.Catalog
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)
         {
             bool result = false;
-            var index = ESUtils.GetGroupStatisticsIndex(_partnerId);
+            var index = IndexingUtils.GetStatisticsIndexName(_partnerId);
 
             try
             {
@@ -1706,7 +1713,7 @@ namespace Core.Catalog
                     var queryBuilder = new ESStatisticsQueryBuilder(_partnerId, socialSearch);
                     var query = queryBuilder.BuildQuery();
 
-                    var deleteResponse = _elasticClient.DeleteByQuery<ApiObjects.Nest.SocialActionStatistics>(request => request
+                    var deleteResponse = _elasticClient.DeleteByQuery<SocialActionStatistics>(request => request
                         .Index(index)
                         .Query(q =>
                             {

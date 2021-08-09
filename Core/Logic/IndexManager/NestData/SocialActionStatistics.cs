@@ -1,7 +1,7 @@
 ﻿using System;
 using Nest;
 
-namespace ApiObjects.Nest
+namespace ApiLogic.IndexManager.NestData
 {
     public class SocialActionStatistics
     {

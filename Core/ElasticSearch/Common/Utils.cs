@@ -190,11 +190,6 @@ namespace ElasticSearch.Common
             return string.Format("{0}_epg", groupID);
         }
 
-        public static string GetGroupStatisticsIndex(int nParentGroupId)
-        {
-            return string.Concat(nParentGroupId, "_statistics");
-        }
-
         public static string GetGroupMetadataIndex(int groupId)
         {
             return string.Concat(groupId, "_metadata");

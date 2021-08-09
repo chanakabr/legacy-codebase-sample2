@@ -2939,7 +2939,7 @@ namespace Core.Catalog
 
                 string aggregationsRequestBody = filteredQuery.ToString();
 
-                string index = ESUtils.GetGroupStatisticsIndex(_partnerId);
+                string index = IndexingUtils.GetStatisticsIndexName(_partnerId);
 
                 try
                 {
@@ -3406,7 +3406,7 @@ namespace Core.Catalog
             try
             {                
 
-                string index = ESUtils.GetGroupStatisticsIndex(_partnerId);
+                string index = IndexingUtils.GetStatisticsIndexName(_partnerId);
                 string type = ESUtils.ES_STATS_TYPE;
 
                 #region Build Query
@@ -4072,7 +4072,7 @@ namespace Core.Catalog
         public void GetAssetStats(List<int> assetIDs, DateTime startDate,
             DateTime endDate, StatsType type, ref Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
         {
-            string index = ESUtils.GetGroupStatisticsIndex(_partnerId);
+            string index = IndexingUtils.GetStatisticsIndexName(_partnerId);
             
             switch (type)
             {
@@ -4280,7 +4280,7 @@ namespace Core.Catalog
             string aggregationsQuery = BuildSlidingWindowCountAggregationRequest(_partnerId, lMediaIds, dtStartDate, dtEndDate, action);
 
             //Search
-            string index = ESUtils.GetGroupStatisticsIndex(_partnerId);
+            string index = IndexingUtils.GetStatisticsIndexName(_partnerId);
             
             string retval = _elasticSearchApi.Search(index, ESUtils.ES_STATS_TYPE, ref aggregationsQuery);
 
@@ -4607,7 +4607,7 @@ namespace Core.Catalog
 
 
             //Search
-            string index = ESUtils.GetGroupStatisticsIndex(_partnerId);
+            string index = IndexingUtils.GetStatisticsIndexName(_partnerId);
             
             string retval = _elasticSearchApi.Search(index, ESUtils.ES_STATS_TYPE, ref aggregationsQuery);
 
@@ -4649,7 +4649,7 @@ namespace Core.Catalog
 
         public bool SetupSocialStatisticsDataIndex()
         {
-            var statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
+            var statisticsIndex = IndexingUtils.GetStatisticsIndexName(_partnerId);
 
             var analyzers = new List<string>();
             var filters = new List<string>();
@@ -4661,7 +4661,7 @@ namespace Core.Catalog
             bool result = false;
 
             Guid guid = Guid.NewGuid();
-            string statisticsIndex = ESUtils.GetGroupStatisticsIndex(_partnerId);
+            string statisticsIndex = IndexingUtils.GetStatisticsIndexName(_partnerId);
 
             try
             {
@@ -4686,7 +4686,7 @@ namespace Core.Catalog
 
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)
         {
-            string index = ESUtils.GetGroupStatisticsIndex(_partnerId);
+            string index = IndexingUtils.GetStatisticsIndexName(_partnerId);
 
             try
             {

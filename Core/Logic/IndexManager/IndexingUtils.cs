@@ -93,7 +93,12 @@ namespace Core.Catalog
         {
             return "utils";
         }
-        
+
+        public static string GetStatisticsIndexName(int groupId)
+        {
+            return string.Concat(groupId, "_statistics");
+        }
+
         public static string GetNewIPv6IndexString()
         {
             return string.Format("ipv6_{0}", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));

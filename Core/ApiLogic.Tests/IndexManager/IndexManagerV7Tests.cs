@@ -32,6 +32,7 @@ using Policy = Polly.Policy;
 using ApiLogic.IndexManager.NestData;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiObjects.Response;
+using Core.Catalog.Response;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -405,8 +406,12 @@ namespace ApiLogic.Tests.IndexManager
             var indexManager = GetIndexV7Manager(partnerId);
             var result = indexManager.SetupSocialStatisticsDataIndex();
 
-            var res = indexManager.InsertSocialStatisticsData(stat1);
-            Assert.True(res);
+            var insertSocialStatisticsData = indexManager.InsertSocialStatisticsData(stat1);
+            Assert.True(insertSocialStatisticsData);
+
+            insertSocialStatisticsData = indexManager.InsertSocialStatisticsData(stat1);
+            Assert.True(insertSocialStatisticsData);
+
             var socialSearch = new StatisticsActionSearchObj()
             {
                 Action = stat1.Action,
@@ -416,8 +421,33 @@ namespace ApiLogic.Tests.IndexManager
                 Date = stat1.Date
             };
 
+            var assetIDsToStatsMapping = new Dictionary<int, AssetStatsResult>();
+            assetIDsToStatsMapping[stat1.MediaID] = new AssetStatsResult();
+            var endDate = DateTime.Now.AddDays(1);
+            var startDate = DateTime.Now.AddDays(-2);
+            var assetIDs = new List<int>() { stat1.MediaID };
+            var statsType = StatsType.MEDIA;
+
+            var searchPolicy = Policy.HandleResult<Dictionary<int, AssetStatsResult>>(x =>
+                x.Values == null || x.Values.Count == 0 ||
+                (x.ContainsKey(stat1.MediaID) && x[stat1.MediaID].m_nLikes <= 0)).WaitAndRetry(
+                3,
+                retryAttempt => TimeSpan.FromSeconds(1));
+
+            var res = searchPolicy.Execute(() =>
+            {
+                indexManager.GetAssetStats(assetIDs, startDate, endDate, statsType, ref assetIDsToStatsMapping);
+                return assetIDsToStatsMapping;
+            });
+
+            Assert.IsNotEmpty(res);
+            Assert.AreEqual(2, res[stat1.MediaID].m_nLikes);
+
             var deleteSocialAction = indexManager.DeleteSocialAction(socialSearch);
             Assert.IsTrue(deleteSocialAction);
+
+
+
         }
 
         [Test]

@@ -691,7 +691,6 @@ namespace ApiLogic.Tests.IndexManager
                 10,
                 retryAttempt => TimeSpan.FromSeconds(1));
 
-
             res = deletePolicy.Execute(() =>
               {
                   assetIDsToStatsMapping = new Dictionary<int, AssetStatsResult>();

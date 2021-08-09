@@ -10,7 +10,6 @@ using ApiObjects.Statistics;
 using GroupsCacheManager;
 using RestSharp.Serializers;
 using Media = ApiLogic.IndexManager.NestData.Media;
-using SocialActionStatistics = ApiObjects.Nest.SocialActionStatistics;
 
 namespace ApiLogic.IndexManager.Helpers
 {
@@ -34,9 +33,9 @@ namespace ApiLogic.IndexManager.Helpers
         }
 
 
-        public static SocialActionStatistics GetSocialActionStatistics(ApiObjects.Statistics.SocialActionStatistics statistics)
+        public static NestData.SocialActionStatistics GetSocialActionStatistics(ApiObjects.Statistics.SocialActionStatistics statistics)
         {
-            return new SocialActionStatistics()
+            return new NestData.SocialActionStatistics()
             {
                 Action = statistics.Action,
                 Count = statistics.Count,

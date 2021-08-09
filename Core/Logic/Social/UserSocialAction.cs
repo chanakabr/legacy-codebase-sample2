@@ -342,9 +342,7 @@ namespace Core.Social
             }
             catch (Exception ex)
             {
-                string index = ElasticSearch.Common.Utils.GetGroupStatisticsIndex(groupId);
-                log.WarnFormat("WriteLikeToES Was unable to insert record to ES. index={0}; type={1}; id{2}; ex={3}",
-                    index, ElasticSearch.Common.Utils.ES_STATS_TYPE, actionRequest.AssetID, ex);
+                log.Warn("WriteLikeToES Was unable to insert record to ES", ex);
             }
 
             return result;
