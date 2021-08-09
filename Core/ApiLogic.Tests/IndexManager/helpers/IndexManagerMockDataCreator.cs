@@ -144,7 +144,7 @@ namespace ApiLogic.Tests.IndexManager.helpers
             };
         }
         
-        public static EpgCB GeRandomEpgCb(DateTime? startDate=null, string name = "",string description="")
+        public static EpgCB GetRandomEpgCb(DateTime? startDate=null, string name = "",string description="")
         {
             var epgCb = new EpgCB();
             var epgId = 1 + new Random().Next(1000);

@@ -45,7 +45,7 @@ namespace ApiLogic.Tests.IndexManager
             query.Filter = filter;
             var searchQuery = query.ToString();*/
             
-            string type = "epg";
+            /*string type = "epg";
 
             var query = new FilteredQuery(true);
 
@@ -78,7 +78,7 @@ namespace ApiLogic.Tests.IndexManager
             }
             
             // get the epg document ids from elasticsearch
-            var searchQuery = query.ToString();
+            var searchQuery = query.ToString();*/
             
             
             
