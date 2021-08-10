@@ -401,8 +401,11 @@ namespace ApiLogic.Tests.IndexManager
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
             var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
             IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language }, ref _mockCatalogManager);
-            var stat1 = IndexManagerMockDataCreator.GetRandomSocialActionStat(partnerId);
 
+            #region Populate data
+
+            var stat1 = IndexManagerMockDataCreator.GetRandomSocialActionStat(partnerId);
+            
             var indexManager = GetIndexV7Manager(partnerId);
             var result = indexManager.SetupSocialStatisticsDataIndex();
 
@@ -411,6 +414,61 @@ namespace ApiLogic.Tests.IndexManager
 
             insertSocialStatisticsData = indexManager.InsertSocialStatisticsData(stat1);
             Assert.True(insertSocialStatisticsData);
+
+            indexManager.InsertSocialStatisticsData(new ApiObjects.Statistics.SocialActionStatistics()
+            {
+                Action = "firstplay",
+                Date = DateTime.UtcNow.AddHours(-1),
+                GroupID = partnerId,
+                MediaID = stat1.MediaID,
+                MediaType = stat1.MediaType,
+                Count = 2
+            });
+
+            indexManager.InsertSocialStatisticsData(new ApiObjects.Statistics.SocialActionStatistics()
+            {
+                Action = "firstplay",
+                Date = DateTime.UtcNow.AddHours(-2),
+                GroupID = partnerId,
+                MediaID = stat1.MediaID,
+                MediaType = stat1.MediaType,
+                Count = 6
+            });
+
+            int randomMediaId = _random.Next(1000) + 1000;
+            indexManager.InsertSocialStatisticsData(new ApiObjects.Statistics.SocialActionStatistics()
+            {
+                Action = "firstplay",
+                Date = DateTime.UtcNow.AddHours(-2),
+                GroupID = partnerId,
+                MediaID = randomMediaId,
+                MediaType = stat1.MediaType,
+                Count = 4
+            });
+
+            indexManager.InsertSocialStatisticsData(new ApiObjects.Statistics.SocialActionStatistics()
+            {
+                Action = "rates",
+                Date = DateTime.UtcNow.AddHours(-2),
+                GroupID = partnerId,
+                MediaID = stat1.MediaID,
+                MediaType = stat1.MediaType,
+                Count = 1,
+                RateValue = 4
+            });
+
+            indexManager.InsertSocialStatisticsData(new ApiObjects.Statistics.SocialActionStatistics()
+            {
+                Action = "rates",
+                Date = DateTime.UtcNow.AddHours(-3),
+                GroupID = partnerId,
+                MediaID = stat1.MediaID,
+                MediaType = stat1.MediaType,
+                Count = 1,
+                RateValue = 5
+            });
+
+            #endregion
 
             var socialSearch = new StatisticsActionSearchObj()
             {
@@ -423,9 +481,10 @@ namespace ApiLogic.Tests.IndexManager
 
             var assetIDsToStatsMapping = new Dictionary<int, AssetStatsResult>();
             assetIDsToStatsMapping[stat1.MediaID] = new AssetStatsResult();
+            assetIDsToStatsMapping[randomMediaId] = new AssetStatsResult();
             var endDate = DateTime.Now.AddDays(1);
             var startDate = DateTime.Now.AddDays(-2);
-            var assetIDs = new List<int>() { stat1.MediaID };
+            var assetIDs = new List<int>() { stat1.MediaID, randomMediaId };
             var statsType = StatsType.MEDIA;
 
             var searchPolicy = Policy.HandleResult<Dictionary<int, AssetStatsResult>>(x =>
@@ -442,6 +501,8 @@ namespace ApiLogic.Tests.IndexManager
 
             Assert.IsNotEmpty(res);
             Assert.AreEqual(2, res[stat1.MediaID].m_nLikes);
+            Assert.AreEqual(8, res[stat1.MediaID].m_nViews);
+            Assert.AreEqual(4.5, res[stat1.MediaID].m_dRate);
 
             var deleteSocialAction = indexManager.DeleteSocialAction(socialSearch);
             Assert.IsTrue(deleteSocialAction);

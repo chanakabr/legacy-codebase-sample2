@@ -1646,7 +1646,6 @@ namespace Core.Catalog
             ref Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
         {
             string index = IndexingUtils.GetStatisticsIndexName(_partnerId);
-            //string action = IndexingUtils.STAT_ACTION_FIRST_PLAY;
 
             string firstPlayAggregationName = "first_play_aggregation";
             string likesAggregationName = "likes_aggregation";
@@ -1660,15 +1659,10 @@ namespace Core.Catalog
                 .Query(query => query
                     .Bool(boolQuery =>
                     {
-                        // TODO: THIS
-
                         List<QueryContainer> mustContainers = new List<QueryContainer>();
 
                         // group_id = 1234
                         mustContainers.Add(descriptor.Term(field => field.GroupID, _partnerId));
-
-                        //// MAYBE WILL BE FILTERED IN AGGREGATION
-                        //mustContainers.Add(descriptor.Term(field => field.Action, action));
 
                         // action_date <= max and action_date >= min
                         if (!startDate.Equals(DateTime.MinValue) || !endDate.Equals(DateTime.MaxValue))
@@ -1702,43 +1696,74 @@ namespace Core.Catalog
                 )
                 .Aggregations(rootAggs =>
                 {
-                    rootAggs.Terms(firstPlayAggregationName, firstPlayAggregation =>
+                    rootAggs.Filter(firstPlayAggregationName, firstPlayAggregation =>
                     {
-                        firstPlayAggregation = firstPlayAggregation
-                          .Field(field => field.MediaID)
-                        ;
+                        firstPlayAggregation.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_FIRST_PLAY));
 
-                        firstPlayAggregation.Aggregations(firstPlayAggregations =>
+                        firstPlayAggregation.Aggregations(firstPlayAggs =>
                         {
-                            firstPlayAggregations = firstPlayAggregations.Sum(IndexingUtils.SUB_SUM_AGGREGATION_NAME, subSumAggregation =>
-                                subSumAggregation.Field(field => field.Count).Missing(1)
-                            );
+                            firstPlayAggs.Terms($"{firstPlayAggregationName}_terms", terms =>
+                            {
+                                terms.Field(field => field.MediaID);
+                                terms.Aggregations(termsAggs =>
+                                {
+                                    termsAggs.Sum(IndexingUtils.SUB_SUM_AGGREGATION_NAME, subSumAggregation =>
+                                        subSumAggregation.Field(field => field.Count).Missing(1));
+                                    return termsAggs;
+                                });
 
-                            firstPlayAggregations = firstPlayAggregations.Filter("first_play_filter_aggregation", filterAggregation =>
-                                filterAggregation.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_FIRST_PLAY)));
+                                return terms;
+                            });
 
-                            return firstPlayAggregations;
+                            return firstPlayAggs;
                         });
 
                         return firstPlayAggregation;
                     });
 
-                    rootAggs.Terms(likesAggregationName, likesAggregation =>
+                    rootAggs.Filter(likesAggregationName, likesAgg =>
                     {
-                        likesAggregation = likesAggregation
-                          .Field(field => field.MediaID)
-                        ;
+                        likesAgg.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_LIKE));
 
-                        likesAggregation.Aggregations(firstPlayAggregations =>
+                        likesAgg.Aggregations(likesAggs =>
                         {
+                            likesAggs.Terms($"{likesAggregationName}_terms", terms =>
+                            {
+                                terms.Field(field => field.MediaID);
 
-                            firstPlayAggregations = firstPlayAggregations.Filter("likes_filter_aggregation", filterAggregation =>
-                                filterAggregation.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_LIKE)));
+                                return terms;
+                            });
 
-                            return firstPlayAggregations;
+                            return likesAggs;
                         });
 
-                        return likesAggregation;
+                        return likesAgg;
+                    });
+
+                    rootAggs.Filter(ratingAggregationName, ratesAgg =>
+                    {
+                        ratesAgg.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_RATES));
+
+                        ratesAgg.Aggregations(ratesAggs =>
+                        {
+                            ratesAggs.Terms($"{ratingAggregationName}_terms", terms =>
+                            {
+                                terms.Field(field => field.MediaID);
+
+                                terms.Aggregations(termsAggs =>
+                                {
+                                    termsAggs.Stats(IndexingUtils.SUB_STATS_AGGREGATION_NAME, subStatsAggregation =>
+                                        subStatsAggregation.Field(field => field.RateValue));
+                                    return termsAggs;
+                                });
+
+                                return terms;
+                            });
+
+                            return ratesAggs;
+                        });
+
+                        return ratesAgg;
                     });
 
                     return rootAggs;
@@ -1749,9 +1774,9 @@ namespace Core.Catalog
             {
                 if (searchResponse.Aggregations.ContainsKey(likesAggregationName))
                 {
-                    var currentAgg = searchResponse.Aggregations[likesAggregationName] as Nest.BucketAggregate;
-
-                    foreach (var item in currentAgg.Items)
+                    var currentAgg = searchResponse.Aggregations[likesAggregationName] as SingleBucketAggregate;
+                    var likesAgg = currentAgg[$"{likesAggregationName}_terms"] as BucketAggregate;
+                    foreach (var item in likesAgg.Items)
                     {
                         var bucket = item as KeyedBucket<object>;
                         var mediaId = Convert.ToInt32(bucket.Key);
@@ -1759,6 +1784,49 @@ namespace Core.Catalog
                         if (assetIDsToStatsMapping.ContainsKey(mediaId))
                         {
                             assetIDsToStatsMapping[mediaId].m_nLikes = Convert.ToInt32(bucket.DocCount);
+                        }
+                    }
+                }
+
+                if (searchResponse.Aggregations.ContainsKey(firstPlayAggregationName))
+                {
+                    var currentAgg = searchResponse.Aggregations[firstPlayAggregationName] as SingleBucketAggregate;
+                    var firstPlayAgg = currentAgg[$"{firstPlayAggregationName}_terms"] as BucketAggregate;
+
+                    foreach (var item in firstPlayAgg.Items)
+                    {
+                        var bucket = item as KeyedBucket<object>;
+                        var mediaId = Convert.ToInt32(bucket.Key);
+
+                        if (assetIDsToStatsMapping.ContainsKey(mediaId))
+                        {
+                            if (bucket.ContainsKey(IndexingUtils.SUB_SUM_AGGREGATION_NAME))
+                            {
+                                var sumBucket = bucket[IndexingUtils.SUB_SUM_AGGREGATION_NAME] as ValueAggregate;
+                                assetIDsToStatsMapping[mediaId].m_nViews = Convert.ToInt32(sumBucket.Value);
+                            }
+                        }
+                    }
+                }
+
+                if (searchResponse.Aggregations.ContainsKey(ratingAggregationName))
+                {
+                    var currentAgg = searchResponse.Aggregations[ratingAggregationName] as SingleBucketAggregate;
+                    var ratesAgg = currentAgg[$"{ratingAggregationName}_terms"] as BucketAggregate;
+
+                    foreach (var item in ratesAgg.Items)
+                    {
+                        var bucket = item as KeyedBucket<object>;
+                        var mediaId = Convert.ToInt32(bucket.Key);
+
+                        if (assetIDsToStatsMapping.ContainsKey(mediaId))
+                        {
+                            if (bucket.ContainsKey(IndexingUtils.SUB_STATS_AGGREGATION_NAME))
+                            {
+                                var statsBucket = bucket[IndexingUtils.SUB_STATS_AGGREGATION_NAME] as StatsAggregate;
+                                assetIDsToStatsMapping[mediaId].m_dRate = Convert.ToDouble(statsBucket.Average);
+                                assetIDsToStatsMapping[mediaId].m_nVotes = Convert.ToInt32(statsBucket.Count);
+                            }
                         }
                     }
                 }
