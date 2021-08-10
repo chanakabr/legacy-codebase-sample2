@@ -1647,7 +1647,7 @@ namespace Core.Catalog
             ref Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
         {
             string index = IndexingUtils.GetStatisticsIndexName(_partnerId);
-            _elasticClient.Search<ApiLogic.IndexManager.NestData.SocialActionStatistics>(searchRequest => searchRequest
+            var searchResponse = _elasticClient.Search<ApiLogic.IndexManager.NestData.SocialActionStatistics>(searchRequest => searchRequest
                 .Index(index)
                 .Size(0)
                 .From(0)
@@ -1967,27 +1967,8 @@ namespace Core.Catalog
         public List<string> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs)
         {
             var index = IndexingUtils.GetEpgIndexAlias(_partnerId);
-            var searchResponse = _elasticClient.Search<Epg>(s => s
-                .Index(index)
-                .Size(_maxResults)
-                .Fields(sf => sf.Fields(fs => fs.DocumentId, fs => fs.EpgID))
-                .Source(false)
-                .Query(q => q
-                    .Bool(b => b.Filter(f => f
-                            .Bool(b1 =>
-                                b1.Must(
-                                    m => m.Terms(t => t.Field(f1 => f1.ChannelID).Terms(channelId)),
-                                    m => m.DateRange(dr => dr.Field(f1 => f1.StartDate).GreaterThanOrEquals(startDate)),
-                                    m => m.DateRange(dr => dr.Field(f1 => f1.EndDate).LessThanOrEquals(endDate))
-                                )
-                            )
-                        )
-                    )
-                )
-                .Sort(x =>
-                {
-                    return BuildSortDescriptorFromOrderObj(esOrderObjs);
-                })
+            var searchResponse = _elasticClient.Search<Epg>(s => 
+                GetChannelProgramsSearchDescriptor(channelId, startDate, endDate, esOrderObjs, index)
             );
 
             if (!searchResponse.IsValid)
@@ -2001,16 +1982,40 @@ namespace Core.Catalog
                 return new List<string>();
             }
 
-
             // Checking is new Epg ingest here as well to avoid calling GetEpgCBKey if we already called elastic and have all required coument Ids
             var isNewEpgIngest = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(_partnerId, GroupFeature.EPG_INGEST_V2);
             if (isNewEpgIngest)
             {
                 return searchResponse.Fields.Select(x => x.Value<string>("document_id")).Distinct().ToList();
             }
-            
+
             var resultEpgIds = searchResponse.Fields.Select(x => x.Value<long>("epg_id")).Distinct().ToList();
             return resultEpgIds.Select(epgId => GetEpgCbKey(epgId)).ToList();
+        }
+
+        private SearchDescriptor<Epg> GetChannelProgramsSearchDescriptor(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs, string index)
+        {
+            return new SearchDescriptor<Epg>()
+                            .Index(index)
+                            .Size(_maxResults)
+                            .Fields(sf => sf.Fields(fs => fs.DocumentId, fs => fs.EpgID))
+                            .Source(false)
+                            .Query(q => q
+                                .Bool(b => b.Filter(f => f
+                                        .Bool(b1 =>
+                                            b1.Must(
+                                                m => m.Terms(t => t.Field(f1 => f1.ChannelID).Terms(channelId)),
+                                                m => m.DateRange(dr => dr.Field(f1 => f1.StartDate).GreaterThanOrEquals(startDate)),
+                                                m => m.DateRange(dr => dr.Field(f1 => f1.EndDate).LessThanOrEquals(endDate))
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                            .Sort(x =>
+                            {
+                                return BuildSortDescriptorFromOrderObj(esOrderObjs);
+                            });
         }
 
         private static IPromise<IList<ISort>> BuildSortDescriptorFromOrderObj(List<ESOrderObj> esOrderObjs)
