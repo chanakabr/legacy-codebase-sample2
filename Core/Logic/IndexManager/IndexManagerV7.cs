@@ -41,7 +41,6 @@ using System.Net.Sockets;
 using ApiLogic.Api.Managers;
 using Core.GroupManagers;
 using Media = ApiLogic.IndexManager.NestData.Media;
-using SocialActionStatistics = ApiObjects.Statistics.SocialActionStatistics;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiObjects.Response;
 using System.Text;
@@ -1647,6 +1646,9 @@ namespace Core.Catalog
             ref Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
         {
             string index = IndexingUtils.GetStatisticsIndexName(_partnerId);
+            string action = IndexingUtils.STAT_ACTION_FIRST_PLAY;
+
+            var descriptor = new QueryContainerDescriptor<ApiLogic.IndexManager.NestData.SocialActionStatistics>();
             var searchResponse = _elasticClient.Search<ApiLogic.IndexManager.NestData.SocialActionStatistics>(searchRequest => searchRequest
                 .Index(index)
                 .Size(0)
@@ -1654,9 +1656,34 @@ namespace Core.Catalog
                 .Query(query => query
                     .Bool(boolQuery =>
                     {
+                        // TODO: THIS
+
                         List<QueryContainer> mustContainers = new List<QueryContainer>();
 
-                        // TODO: THIS
+                        mustContainers.Add(descriptor.Term(field => field.GroupID, _partnerId));
+                        mustContainers.Add(descriptor.Term(field => field.Action, action));
+
+                        if (!startDate.Equals(DateTime.MinValue) || !endDate.Equals(DateTime.MaxValue))
+                        {
+                            var dateRange = descriptor.DateRange(range =>
+                            {
+                                range = range.Field(field => field.Date);
+
+                                if (!startDate.Equals(DateTime.MinValue))
+                                {
+                                    range = range.GreaterThanOrEquals(startDate);
+                                }
+
+                                if (!endDate.Equals(DateTime.MaxValue))
+                                {
+                                    range = range.LessThanOrEquals(endDate);
+                                }
+
+                                return range;
+                            });
+
+                            mustContainers.Add(dateRange);
+                        }
 
                         boolQuery.Must(mustContainers.ToArray());
                         return boolQuery;
@@ -1689,7 +1716,7 @@ namespace Core.Catalog
             return result;
         }
 
-        public bool InsertSocialStatisticsData(SocialActionStatistics action)
+        public bool InsertSocialStatisticsData(ApiObjects.Statistics.SocialActionStatistics action)
         {
             var statisticsIndex = IndexingUtils.GetStatisticsIndexName(_partnerId);
 
@@ -1727,7 +1754,7 @@ namespace Core.Catalog
                     var queryBuilder = new ESStatisticsQueryBuilder(_partnerId, socialSearch);
                     var query = queryBuilder.BuildQuery();
 
-                    var deleteResponse = _elasticClient.DeleteByQuery<SocialActionStatistics>(request => request
+                    var deleteResponse = _elasticClient.DeleteByQuery<ApiLogic.IndexManager.NestData.SocialActionStatistics>(request => request
                         .Index(index)
                         .Query(q =>
                             {

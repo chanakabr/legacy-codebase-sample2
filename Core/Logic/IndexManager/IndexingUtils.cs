@@ -38,6 +38,13 @@ namespace Core.Catalog
         public static readonly string META_DOUBLE_SUFFIX = "_DOUBLE";
         public static readonly string META_BOOL_SUFFIX = "_BOOL";
         public static readonly string META_DATE_PREFIX = "date";
+
+        internal const string STAT_ACTION_MEDIA_HIT = "mediahit";
+        internal const string STAT_ACTION_FIRST_PLAY = "firstplay";
+        internal const string STAT_ACTION_LIKE = "like";
+        internal const string STAT_ACTION_RATES = "rates";
+        internal const string STAT_ACTION_COUNT_VALUE_FIELD = "count";
+
         public static long UnixTimeStampNow()
         {
             TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);

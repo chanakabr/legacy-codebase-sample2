@@ -662,7 +662,7 @@ namespace Core.Catalog.Request
                         GroupID = parentGroupID,
                         MediaID = mediaID,
                         MediaType = mediaTypeID.ToString(),
-                        Action = IndexManagerV2.STAT_ACTION_MEDIA_HIT,
+                        Action = IndexingUtils.STAT_ACTION_MEDIA_HIT,
                         Location = playTime
                     }
                     ))
@@ -691,7 +691,7 @@ namespace Core.Catalog.Request
                 else if (!indexManager.InsertSocialStatisticsData(
                     new MediaView()
                     {
-                        Action = IndexManagerV2.STAT_ACTION_FIRST_PLAY,
+                        Action = IndexingUtils.STAT_ACTION_FIRST_PLAY,
                         GroupID = parentGroupID,
                         MediaID = mediaID,
                         MediaType = mediaTypeID.ToString(),

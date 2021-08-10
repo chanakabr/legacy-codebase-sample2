@@ -60,11 +60,7 @@ namespace Core.Catalog
         protected const string ES_MEDIA_TYPE = "media";
         protected const string ES_EPG_TYPE = "epg";
         protected const string CHANNEL_ASSET_USER_RULE_ID = "asset_user_rule_id";
-        internal const string STAT_ACTION_MEDIA_HIT = "mediahit";
-        internal const string STAT_ACTION_FIRST_PLAY = "firstplay";
-        internal const string STAT_ACTION_LIKE = "like";
-        internal const string STAT_ACTION_RATES = "rates";
-        internal const string STAT_ACTION_COUNT_VALUE_FIELD = "count";
+
         internal const string SUB_SUM_AGGREGATION_NAME = "sub_sum";
         internal const string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
         internal const string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
@@ -2832,22 +2828,22 @@ namespace Core.Catalog
             {
                 case ApiObjects.SearchObjects.OrderBy.VIEWS:
                 {
-                    actionName = STAT_ACTION_FIRST_PLAY;
+                    actionName = IndexingUtils.STAT_ACTION_FIRST_PLAY;
                     break;
                 }
                 case ApiObjects.SearchObjects.OrderBy.RATING:
                 {
-                    actionName = STAT_ACTION_RATES;
+                    actionName = IndexingUtils.STAT_ACTION_RATES;
                     break;
                 }
                 case ApiObjects.SearchObjects.OrderBy.VOTES_COUNT:
                 {
-                    actionName = STAT_ACTION_RATES;
+                    actionName = IndexingUtils.STAT_ACTION_RATES;
                     break;
                 }
                 case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
                 {
-                    actionName = STAT_ACTION_LIKE;
+                    actionName = IndexingUtils.STAT_ACTION_LIKE;
                     break;
                 }
                 default:
@@ -2913,7 +2909,7 @@ namespace Core.Catalog
                 {
                     Name = SUB_SUM_AGGREGATION_NAME,
                     Type = eElasticAggregationType.sum,
-                    Field = STAT_ACTION_COUNT_VALUE_FIELD,
+                    Field = IndexingUtils.STAT_ACTION_COUNT_VALUE_FIELD,
                     Missing = 1
                 });
             }
@@ -4079,9 +4075,9 @@ namespace Core.Catalog
                 case StatsType.MEDIA:
                 {
                     List<string> aggregations = new List<string>(3);
-                    aggregations.Add(BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, STAT_ACTION_FIRST_PLAY, true)); // views count
-                    aggregations.Add(BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, STAT_ACTION_LIKE));
-                    aggregations.Add(BuildSlidingWindowStatisticsAggregationRequest(_partnerId, assetIDs, startDate, endDate, STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD));
+                    aggregations.Add(BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, IndexingUtils.STAT_ACTION_FIRST_PLAY, true)); // views count
+                    aggregations.Add(BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, IndexingUtils.STAT_ACTION_LIKE));
+                    aggregations.Add(BuildSlidingWindowStatisticsAggregationRequest(_partnerId, assetIDs, startDate, endDate, IndexingUtils.STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD));
 
                     string esResp = _elasticSearchApi.MultiSearch(index, ESUtils.ES_STATS_TYPE, aggregations, null);
 
@@ -4104,7 +4100,7 @@ namespace Core.Catalog
                 case StatsType.EPG:
                 {
                     // in epg we bring just likes
-                    string likesAggregations = BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, STAT_ACTION_LIKE);
+                    string likesAggregations = BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, IndexingUtils.STAT_ACTION_LIKE);
                     string searchResponse = _elasticSearchApi.Search(index, ESUtils.ES_STATS_TYPE, ref likesAggregations);
 
                     if (!string.IsNullOrEmpty(searchResponse))
@@ -4222,7 +4218,7 @@ namespace Core.Catalog
                 {
                     Name = SUB_SUM_AGGREGATION_NAME,
                     Type = eElasticAggregationType.sum,
-                    Field = STAT_ACTION_COUNT_VALUE_FIELD,
+                    Field = IndexingUtils.STAT_ACTION_COUNT_VALUE_FIELD,
                     Missing = 1
                 });
             }
@@ -4244,17 +4240,17 @@ namespace Core.Catalog
 
             switch (action)
             {
-                case STAT_ACTION_FIRST_PLAY:
+                case IndexingUtils.STAT_ACTION_FIRST_PLAY:
                     {
                         orderBy = OrderBy.VIEWS;
                         break;
                     }
-                case STAT_ACTION_LIKE:
+                case IndexingUtils.STAT_ACTION_LIKE:
                     {
                         orderBy = OrderBy.LIKE_COUNTER;
                         break;
                     }
-                case STAT_ACTION_RATES:
+                case IndexingUtils.STAT_ACTION_RATES:
                     {
                         orderBy = OrderBy.RATING;
                         break;
@@ -4416,17 +4412,17 @@ namespace Core.Catalog
 
             switch (action)
             {
-                case STAT_ACTION_FIRST_PLAY:
+                case IndexingUtils.STAT_ACTION_FIRST_PLAY:
                 {
                     orderBy = OrderBy.VIEWS;
                     break;
                 }
-                case STAT_ACTION_LIKE:
+                case IndexingUtils.STAT_ACTION_LIKE:
                 {
                     orderBy = OrderBy.LIKE_COUNTER;
                     break;
                 }
-                case STAT_ACTION_RATES:
+                case IndexingUtils.STAT_ACTION_RATES:
                 {
                     orderBy = OrderBy.RATING;
                     break;
@@ -4510,17 +4506,17 @@ namespace Core.Catalog
             {
                 case OrderBy.VIEWS:
 
-                    result = SlidingWindowCountAggregations(media, windowTime, now, STAT_ACTION_FIRST_PLAY);
+                    result = SlidingWindowCountAggregations(media, windowTime, now, IndexingUtils.STAT_ACTION_FIRST_PLAY);
                     break;
                 case OrderBy.RATING:
-                    result = SlidingWindowStatisticsAggregations(media, windowTime, now, STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD,
+                    result = SlidingWindowStatisticsAggregations(media, windowTime, now, IndexingUtils.STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD,
                         ElasticSearch.Searcher.AggregationsComparer.eCompareType.Average);
                     break;
                 case OrderBy.VOTES_COUNT:
-                    result = SlidingWindowCountAggregations(media, windowTime, now, STAT_ACTION_RATES);
+                    result = SlidingWindowCountAggregations(media, windowTime, now, IndexingUtils.STAT_ACTION_RATES);
                     break;
                 case OrderBy.LIKE_COUNTER:
-                    result = SlidingWindowCountAggregations(media, windowTime, now, STAT_ACTION_LIKE);
+                    result = SlidingWindowCountAggregations(media, windowTime, now, IndexingUtils.STAT_ACTION_LIKE);
                     break;
                 default:
                     result = media;

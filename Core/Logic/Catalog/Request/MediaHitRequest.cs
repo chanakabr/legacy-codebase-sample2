@@ -309,7 +309,7 @@ namespace Core.Catalog.Request
                 if (!indexManager.InsertSocialStatisticsData(
                     new ApiObjects.Statistics.MediaView()
                     {
-                        Action = IndexManagerV2.STAT_ACTION_MEDIA_HIT,
+                        Action = IndexingUtils.STAT_ACTION_MEDIA_HIT,
                         MediaType = mediaTypeID.ToString(),
                         GroupID = groupID,
                         MediaID = mediaID,
