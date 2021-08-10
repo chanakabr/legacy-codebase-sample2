@@ -791,7 +791,7 @@ namespace Core.ConditionalAccess
             if (t != null)
             {
                 BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK;
-                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupID, sUserGUID, RolePermissions.PLAYBACK_PPV);
+                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(groupID, sUserGUID, RolePermissions.PLAYBACK_PPV);
 
                 if (!permittedPpv)
                 {
@@ -2595,11 +2595,11 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static ApiObjects.Response.Status IngestRecording(int groupID, long[] epgs, ApiObjects.eAction action)
+        public static ApiObjects.Response.Status IngestRecording(int groupID, long[] epgs, ApiObjects.eAction action, EPGChannelProgrammeObject epg = null)
         {
             BaseConditionalAccess t = null;
             Utils.GetBaseConditionalAccessImpl(ref t, groupID);
-            ApiObjects.Response.Status status = t.IngestRecording(epgs.ToList(), action);
+            ApiObjects.Response.Status status = t.IngestRecording(epgs.ToList(), action, epg);
 
             return status;
         }
@@ -3044,8 +3044,8 @@ namespace Core.ConditionalAccess
                 // get permitted by userId
 
                 BlockEntitlementType blockEntitlement = BlockEntitlementType.NO_BLOCK;
-                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupID, userId, RolePermissions.PLAYBACK_PPV);
-                bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupID, userId, RolePermissions.PLAYBACK_SUBSCRIPTION);
+                bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(groupID, userId, RolePermissions.PLAYBACK_PPV);
+                bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(groupID, userId, RolePermissions.PLAYBACK_SUBSCRIPTION);
 
                 if (!permittedPpv && !permittedSubscription)
                 {

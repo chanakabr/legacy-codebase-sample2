@@ -46,8 +46,9 @@ namespace WebAPI.Models.Catalog
             }
 
             int domainId = (int)(contextData.DomainId ?? 0);
+
             var response = ClientsManager.CatalogClient().SearchAssetsExcludeWatched(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(), pager.PageSize, 
-                this.Ksql, this.OrderBy, this.getTypeIn(), this.getEpgChannelIdIn(), contextData.ManagementData, this.DynamicOrderBy);
+                this.Ksql, this.OrderBy, this.getTypeIn(), this.getEpgChannelIdIn(), contextData.ManagementData, this.DynamicOrderBy, this.TrendingDaysEqual);
 
             return response;
         }

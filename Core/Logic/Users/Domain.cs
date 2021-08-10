@@ -494,7 +494,7 @@ namespace Core.Users
             }
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended && !PartnerConfigurationManager.Instance.AllowSuspendedAction(nGroupID))
+            if (m_DomainStatus == DomainStatus.DomainSuspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(nGroupID, nUserID))
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
                                                           && !RolesPermissionsManager.Instance.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_DELETE.ToString())))
@@ -585,10 +585,9 @@ namespace Core.Users
             //BEO-4478
             if (!forceRemove &&
                 m_DomainStatus == DomainStatus.DomainSuspended &&
-                (roleId == 0 || (m_masterGUIDs != null &&
-                                 m_masterGUIDs.Count > 0 &&
-                                 !RolesPermissionsManager.Instance.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_DELETE.ToString()) &&
-                                 !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))))
+                (roleId == 0 || m_masterGUIDs != null && m_masterGUIDs.Count > 0 &&
+                    !RolesPermissionsManager.Instance.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_DELETE.ToString()) &&
+                    !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, m_masterGUIDs[0])))
             {
                 return DomainResponseStatus.DomainSuspended;
             }
@@ -799,7 +798,7 @@ namespace Core.Users
             DomainResponseStatus domainResponseStatus = DomainResponseStatus.UnKnown;
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended && !PartnerConfigurationManager.Instance.AllowSuspendedAction(nGroupID))
+            if (m_DomainStatus == DomainStatus.DomainSuspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(nGroupID, m_masterGUIDs[0]))
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
                                                           && !RolesPermissionsManager.Instance.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_UPDATESTATUS.ToString())))
@@ -1061,7 +1060,7 @@ namespace Core.Users
             Device device = null;
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
+            if (m_DomainStatus == DomainStatus.DomainSuspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(nGroupID, m_masterGUIDs[0]))
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
                                                           && !RolesPermissionsManager.Instance.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDDEVICE_ADDBYPIN.ToString())))
@@ -2201,7 +2200,7 @@ namespace Core.Users
             Dictionary<int, int> dbTypedUserIDs = DomainDal.GetUsersInDomain(nDomainID, nGroupID, 1, 1);
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended && !PartnerConfigurationManager.Instance.AllowSuspendedAction(m_nGroupID))
+            if (m_DomainStatus == DomainStatus.DomainSuspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, m_masterGUIDs[0]))
             {
                 if (roleId == 0 || (m_masterGUIDs != null && m_masterGUIDs.Count > 0
                                                           && !RolesPermissionsManager.Instance.IsPermittedPermissionItem(m_nGroupID, m_masterGUIDs[0].ToString(), PermissionItems.HOUSEHOLDUSER_ADD.ToString())))

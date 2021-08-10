@@ -13,6 +13,7 @@ using System.Linq;
 using WebAPI.ObjectsConvertor;
 using ApiLogic.Catalog;
 using WebAPI.Models.General;
+using ConfigurationManager;
 
 namespace WebAPI.Managers
 {
@@ -87,7 +88,7 @@ namespace WebAPI.Managers
             {
                 cbUploadToken.FileSize = new FileInfo(fileData.path).Length;
             }
-            var saveFileResponse = file.SaveFile(id, "KalturaUploadToken");            
+            var saveFileResponse = FileManager.Instance.SaveFile(id, file, "KalturaUploadToken");
                                   
             if (saveFileResponse == null)
             {

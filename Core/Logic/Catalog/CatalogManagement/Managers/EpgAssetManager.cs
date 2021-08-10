@@ -223,7 +223,9 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("Failed UpsertProgram index for epg ExternalId: {0}, groupId: {1} after AddEpgAsset", epgAssetToAdd.EpgIdentifier, groupId);
                 }
 
-                SendActionEvent(groupId, newEpgId, eAction.On);
+                EPGChannelProgrammeObject programToIngest = TvinciEpgBL.ConvertEpgCBtoEpgProgramm(epgsToIndex[0]);
+
+                SendActionEvent(groupId, newEpgId, eAction.On, programToIngest);
                 result = AssetManager.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
             }
             catch (Exception ex)
@@ -448,14 +450,14 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        internal static void SendActionEvent(int groupId, long epgId, eAction action)
+        internal static void SendActionEvent(int groupId, long epgId, eAction action, EPGChannelProgrammeObject epg = null)
         {
             log.DebugFormat("Calling IngestRecording for groupId: {0}, epgId: {1}, action: {2}", groupId, epgId, action);
             KlogMonitorHelper.ContextData contextData = new KlogMonitorHelper.ContextData();
             Task.Factory.StartNew(() =>
             {
                 contextData.Load();
-                Status IngestRecordingStatus = Core.ConditionalAccess.Module.IngestRecording(groupId, new long[1] { epgId }, action);
+                Status IngestRecordingStatus = Core.ConditionalAccess.Module.IngestRecording(groupId, new long[1] { epgId }, action, epg);
                 log.DebugFormat("IngestRecording result for groupId: {0}, epgId: {1}, action: {2} is: {3}",
                                 groupId, epgId, action, IngestRecordingStatus != null ? IngestRecordingStatus.Message : string.Empty);
             });

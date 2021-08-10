@@ -53,8 +53,9 @@ namespace WebAPI.Models.Catalog
         internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             int domainId = (int)(contextData.DomainId ?? 0);
+
             var response = ClientsManager.CatalogClient().GetScheduledRecordingAssets(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid, contextData.Language, this.ConvertChannelsIn(), 
-                pager.getPageIndex(), pager.getPageSize(), this.StartDateGreaterThanOrNull, this.EndDateLessThanOrNull, this.OrderBy, this.RecordingTypeEqual, this.DynamicOrderBy);
+                pager.getPageIndex(), pager.getPageSize(), this.StartDateGreaterThanOrNull, this.EndDateLessThanOrNull, this.OrderBy, this.RecordingTypeEqual, this.DynamicOrderBy, this.TrendingDaysEqual);
 
             return response;
         }

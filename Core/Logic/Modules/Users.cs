@@ -2,12 +2,12 @@
 using ApiObjects;
 using ApiObjects.Response;
 using KLogMonitor;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Web;
 using ApiObjects.SSOAdapter;
 using APILogic.Users;
@@ -18,12 +18,21 @@ using ApiLogic.Users;
 
 namespace Core.Users
 {
-    public class Module
+    public interface IUserModule
+    {
+        UserResponseObject GetUserData(int groupId, long userId, string userIp);
+        LongIdsResponse GetUserRoleIds(int groupId, long userId);
+    }
+
+    public class Module : IUserModule
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static int nMaxFailCount = 3;
         private static int nLockMinutes = 3;
         private const string USER_CLASS_NAME = "User";
+
+        private static readonly Lazy<IUserModule> _lazy = new Lazy<IUserModule>(() => new Module(), LazyThreadSafetyMode.PublicationOnly);
+        public static IUserModule Instance => _lazy.Value;
 
         private static void AddItemToContext(string key, string value)
         {
@@ -568,6 +577,11 @@ namespace Core.Users
                 log.Debug("blocked - " + nGroupID);
                 return null;
             }
+        }
+
+        UserResponseObject IUserModule.GetUserData(int groupId, long userId, string userIp)
+        {
+            return GetUserData(groupId, userId.ToString(), userIp);
         }
 
         public static UserResponseObject GetUserData(int nGroupID, string sSiteGUID, string sUserIp)
@@ -1362,7 +1376,7 @@ namespace Core.Users
                 return response;
             }
 
-            if (response.Object.m_user != null && !RolesPermissionsManager.IsPermittedPermission(groupID, response.Object.m_user.m_sSiteGUID, RolePermissions.LOGIN))
+            if (response.Object.m_user != null && !RolesPermissionsManager.Instance.IsPermittedPermission(groupID, response.Object.m_user.m_sSiteGUID, RolePermissions.LOGIN))
             {
                 response.SetStatus(RolesPermissionsManager.GetSuspentionStatus(groupID, response.Object.m_user.m_domianID));
                 return response;
@@ -1455,7 +1469,7 @@ namespace Core.Users
 
             if (response.Object != null)
             {
-                if (response.Object.m_user != null && !RolesPermissionsManager.IsPermittedPermission(groupID, response.Object.m_user.m_sSiteGUID, RolePermissions.LOGIN))
+                if (response.Object.m_user != null && !RolesPermissionsManager.Instance.IsPermittedPermission(groupID, response.Object.m_user.m_sSiteGUID, RolePermissions.LOGIN))
                 {
                     response.SetStatus(RolesPermissionsManager.GetSuspentionStatus(groupID, response.Object.m_user.m_domianID));
                     return response;
@@ -1678,6 +1692,11 @@ namespace Core.Users
                 response = t.FilterFavoriteMediaIds(nGroupID, userId, mediaIds, udid, mediaType, orderBy);
             }
             return response;
+        }
+
+        LongIdsResponse IUserModule.GetUserRoleIds(int groupId, long userId)
+        {
+            return GetUserRoleIds(groupId, userId.ToString());
         }
 
         public static LongIdsResponse GetUserRoleIds(int nGroupID, string userId)

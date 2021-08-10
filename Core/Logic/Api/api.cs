@@ -5979,7 +5979,7 @@ namespace Core.Api
                         }
                     case ResponseStatus.UserSuspended:
                         {
-                            if (PartnerConfigurationManager.Instance.AllowSuspendedAction(groupId))
+                            if (RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupId, long.Parse(siteGuid)))
                             {
                                 status.Code = (int)eResponseStatus.OK;
                                 status.Message = string.Empty;
@@ -8381,7 +8381,7 @@ namespace Core.Api
 
         public static RolesResponse GetRoles(int groupId, List<long> roleIds)
         {
-            var roles = RolesPermissionsManager.GetRolesByGroupId(groupId);
+            var roles = RolesPermissionsManager.Instance.GetRolesByGroupId(groupId);
             if (roles == null)
             {
                 log.Error($"Error while getting roles. group id = {groupId}");

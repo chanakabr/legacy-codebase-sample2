@@ -56,8 +56,8 @@ namespace Core.ConditionalAccess
                 if (assetType == eAssetTypes.MEDIA && validationStatus.Code == (int)eResponseStatus.UserSuspended)
                 {
                     // check permissions                     
-                    bool permittedPpv = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_PPV);
-                    bool permittedSubscription = APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_SUBSCRIPTION);
+                    bool permittedPpv = RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_PPV);
+                    bool permittedSubscription = RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_SUBSCRIPTION);
 
                     if (!permittedPpv && !permittedSubscription)
                     {
@@ -76,8 +76,8 @@ namespace Core.ConditionalAccess
                 if (assetType == eAssetTypes.NPVR || assetType == eAssetTypes.EPG)
                 {
                     // check permissions                     
-                    bool permittedEpg = RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_EPG);
-                    bool permittedRecording = RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_RECORDING);
+                    bool permittedEpg = RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_EPG);
+                    bool permittedRecording = RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_RECORDING);
 
                     if (validationStatus.Code != (int)eResponseStatus.OK)
                     {
@@ -255,7 +255,7 @@ namespace Core.ConditionalAccess
                                     if (priceReason == PriceReason.PPVPurchased || priceReason == PriceReason.SubscriptionPurchased)
                                     {
                                         RolePermissions rolePermission = priceReason == PriceReason.PPVPurchased ? RolePermissions.PLAYBACK_PPV : RolePermissions.PLAYBACK_SUBSCRIPTION;
-                                        if (!APILogic.Api.Managers.RolesPermissionsManager.IsPermittedPermission(groupId, userId, rolePermission))
+                                        if (!RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, rolePermission))
                                         {
                                             continue;
                                         }

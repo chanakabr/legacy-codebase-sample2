@@ -1,22 +1,15 @@
-﻿using System;
+﻿using ApiObjects.User;
+using AutoMapper;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Web;
-using APILogic.Api.Managers;
-using ApiObjects;
-using ApiObjects.User;
-using AutoMapper;
-using Core.Catalog;
-using Core.Catalog.CatalogManagement;
-using GroupsCacheManager;
 using KalturaRequestContext;
 using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.General;
-using KeyValuePair = ApiObjects.KeyValuePair;
-using Language = WebAPI.Managers.Models.Language;
 
 namespace WebAPI.Utils
 {
@@ -161,18 +154,18 @@ namespace WebAPI.Utils
                 return null;
             }
 
-            if (CatalogManager.Instance.DoesGroupUsesTemplates(groupId.Value))
+            if (Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId.Value))
             {
-                CatalogGroupCache groupCache;
+                Core.Catalog.CatalogGroupCache groupCache;
 
-                if (CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId.Value, out groupCache))
+                if (Core.Catalog.CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId.Value, out groupCache))
                 {
                     return Mapper.Map<List<Language>>(groupCache.LanguageMapById.Values.ToList());
                 }
             }
             else
             {
-                GroupManager groupManager = new GroupManager();
+                GroupsCacheManager.GroupManager groupManager = new GroupsCacheManager.GroupManager();
                 
                 return Mapper.Map<List<Language>>(groupManager.GetGroup(groupId.Value).GetLangauges());
             }
@@ -192,11 +185,11 @@ namespace WebAPI.Utils
             return format != null ? format.ToString() : null;
         }
 
-        internal static KalturaBaseResponseProfile GetResponseProfileFromRequest()
+        internal static WebAPI.Models.General.KalturaBaseResponseProfile GetResponseProfileFromRequest()
         {
             KalturaBaseResponseProfile responseProfile = (KalturaBaseResponseProfile)HttpContext.Current.Items[RequestContextConstants.REQUEST_RESPONSE_PROFILE];
                         
-            return responseProfile != null ? responseProfile as KalturaBaseResponseProfile : null;
+            return responseProfile != null ? responseProfile as WebAPI.Models.General.KalturaBaseResponseProfile : null;
         }
 
         public static string GetCurrentBaseUrl()
@@ -225,13 +218,13 @@ namespace WebAPI.Utils
         
         public static bool IsAllowedToViewInactiveAssets(int groupId, string userId, bool ignoreDoesGroupUsesTemplates = false)
         {
-            return RolesPermissionsManager.IsPermittedPermission(groupId, userId, RolePermissions.VIEW_INACTIVE_ASSETS)
+            return APILogic.Api.Managers.RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS)
                    && (DoesGroupUsesTemplates(groupId) || ignoreDoesGroupUsesTemplates);
         }
 
         public static bool DoesGroupUsesTemplates(int groupId)
         {
-            return CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
+            return Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
         }
 
         internal static bool GetAbortOnErrorFromRequest()
@@ -280,7 +273,7 @@ namespace WebAPI.Utils
             return res;
         }
 
-        internal static SerializableDictionary<string, KalturaStringValue> ConvertToSerializableDictionary(List<KeyValuePair> dictionary)
+        internal static SerializableDictionary<string, KalturaStringValue> ConvertToSerializableDictionary(List<ApiObjects.KeyValuePair> dictionary)
         {
             var result = new SerializableDictionary<string, KalturaStringValue>();
 
@@ -326,9 +319,9 @@ namespace WebAPI.Utils
 
         public static IEnumerable<string> GetOnDemandResponseProfileProperties()
         {
-            KalturaBaseResponseProfile responseProfile = GetResponseProfileFromRequest();
+            Models.General.KalturaBaseResponseProfile responseProfile = Utils.GetResponseProfileFromRequest();
 
-            if (responseProfile != null && responseProfile is KalturaOnDemandResponseProfile onDemandResponseProfile)
+            if (responseProfile != null && responseProfile is Models.General.KalturaOnDemandResponseProfile onDemandResponseProfile)
             {
                 SerializableDictionary<string, object> filteredResponse = new SerializableDictionary<string, object>();
 

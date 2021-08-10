@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using TVinciShared;
+using ApiObjects;
 
 namespace MCGroupRules
 {
@@ -94,28 +95,7 @@ namespace MCGroupRules
 
         public static int GetDaysFromMinPeriodId(int minPeriodId)
         {
-            if (minPeriodId < 1111111)
-            {
-                return minPeriodId / 1440;
-            }
-            else if (minPeriodId >= 1111111 && minPeriodId < 11111111)
-            {
-                int tmpInt = int.Parse(minPeriodId.ToString()[0].ToString());
-                TimeSpan ts = (DateTime.Today - DateTime.Today.AddMonths(-tmpInt));
-                return ts.Days;
-            }
-            else if (minPeriodId >= 11111111)
-            {
-                int tmpInt = int.Parse(minPeriodId.ToString()[0].ToString());
-                TimeSpan ts = (DateTime.Today - DateTime.Today.AddYears(-tmpInt));
-                return ts.Days;
-            }
-            else return int.MaxValue;
+            return Duration.GetDaysFromDuration(minPeriodId);
         }
-
-
-        
-
-        
     }
 }

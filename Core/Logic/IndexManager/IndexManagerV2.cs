@@ -2058,7 +2058,16 @@ namespace Core.Catalog
                                 }
                                 else
                                 {
-                                    orderedIds = SortAssetsByStats(assetIds, orderBy, order.m_eOrderDir);
+                                    if (unifiedSearchDefinitions.trendingAssetWindow.HasValue)
+                                    {
+                                        //BEO-9415
+                                        orderedIds = SortAssetsByStats(assetIds, orderBy, order.m_eOrderDir,
+                                            unifiedSearchDefinitions.trendingAssetWindow, DateTime.UtcNow);
+                                    }
+                                    else
+                                    {
+                                        orderedIds = SortAssetsByStats(assetIds, orderBy, order.m_eOrderDir);
+                                    }
                                 }
 
                                 if (!string.IsNullOrEmpty(distinctGroup.Key))
@@ -6625,7 +6634,7 @@ namespace Core.Catalog
                     {
                         // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
                         // in that case we need to use the specific date alias for each epg item to update
-                        if (isIngestV2)
+                        if (!isRecording && isIngestV2)
                         {
                             alias = IndexingUtils.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
                         }

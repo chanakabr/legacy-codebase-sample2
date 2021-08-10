@@ -459,6 +459,8 @@ namespace WebAPI.Reflection
                     {
                         case "DynamicOrderBy":
                             return "dynamicOrderBy";
+                        case "TrendingDaysEqual":
+                            return "trendingDaysEqual";
                     }
                     break;
                     
@@ -1367,6 +1369,8 @@ namespace WebAPI.Reflection
                             return "epgMultilingualFallbackSupport";
                         case "SingleMultilingualMode":
                             return "singleMultilingualMode";
+                        case "UploadExportDatalake":
+                            return "uploadExportDatalake";
                     }
                     break;
                     
@@ -2537,10 +2541,20 @@ namespace WebAPI.Reflection
                 case "KalturaDuration":
                     switch(property.Name)
                     {
+                        case "Code":
+                            return "code";
                         case "Unit":
                             return "unit";
                         case "Value":
                             return "value";
+                    }
+                    break;
+                    
+                case "KalturaDurationListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
                     }
                     break;
                     
@@ -9039,6 +9053,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "duration":
+                    switch(action)
+                    {
+                        case "list":
+                            RolesManager.ValidateActionPermitted("duration", "list", false);
+                            return DurationController.List();
+                            
+                    }
+                    break;
+                    
                 case "dynamiclist":
                     switch(action)
                     {
@@ -15007,6 +15031,15 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "list":
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "duration":
+                    switch(action)
+                    {
                         case "list":
                             return ret;
                             

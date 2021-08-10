@@ -1191,8 +1191,7 @@ namespace Core.Users
                         response = new ApiObjects.Response.Status((int)eResponseStatus.UserDoesNotExist, "User not valid");
                         break;
                     case UserActivationState.UserSuspended:
-                        if (canManageFavoritesWhileSuspended || 
-                            ApiLogic.Api.Managers.PartnerConfigurationManager.Instance.AllowSuspendedAction(groupID, true))
+                        if (canManageFavoritesWhileSuspended || RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupID, userId, true))
                         {
                             response = new ApiObjects.Response.Status((int)eResponseStatus.OK, "User valid");
                             isUserValid = true;

@@ -1269,13 +1269,16 @@ namespace CachingProvider.LayeredCache
                     {
                         layeredCacheConfig = layeredCacheTcmConfig.LayeredCacheSettings[configurationName];
                     }
+                    else if (InternalLayeredCacheSettings.CacheSettings != null && InternalLayeredCacheSettings.CacheSettings.ContainsKey(configurationName))
+                    {
+                        layeredCacheConfig = InternalLayeredCacheSettings.CacheSettings[configurationName];
+                    }
                     else if (layeredCacheTcmConfig.DefaultSettings != null && layeredCacheTcmConfig.DefaultSettings.Count > 0)
                     {
                         layeredCacheConfig = layeredCacheTcmConfig.DefaultSettings;
                     }
                 }
             }
-
             catch (Exception ex)
             {
                 log.Error(string.Format("Failed TryGetLayeredCacheConfig for configurationName: {0}", configurationName), ex);

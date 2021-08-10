@@ -10,21 +10,44 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using ApiLogic.Api.Managers;
+using Core.Users;
+using KalturaRequestContext;
+using TVinciShared;
+using UserModule = Core.Users.Module;
+using Status = ApiObjects.Response.Status;
 
 namespace APILogic.Api.Managers
 {
     public interface IRolesPermissionsManager
     {
+        bool IsPermittedPermission(int groupId, string userId, RolePermissions rolePermission);
         bool IsPermittedPermissionItem(int groupId, string userId, string permissionItem);
+        bool AllowActionInSuspendedDomain(int groupId, long userId, bool isDefaultInheritanceType);
     }
+    
     public class RolesPermissionsManager: IRolesPermissionsManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly Lazy<RolesPermissionsManager> lazy = new Lazy<RolesPermissionsManager>(() => new RolesPermissionsManager());
-        public static RolesPermissionsManager Instance { get { return lazy.Value; } }
+        private static readonly Lazy<RolesPermissionsManager> lazy = new Lazy<RolesPermissionsManager>(() => new RolesPermissionsManager(LayeredCache.Instance, RequestContextUtilsInstance.Get(), GeneralPartnerConfigManager.Instance, UserModule.Instance), LazyThreadSafetyMode.PublicationOnly);
+        public static RolesPermissionsManager Instance => lazy.Value;
 
         public const long ANONYMOUS_ROLE_ID = 0;
+
+        private readonly ILayeredCache _layeredCache;
+        private readonly IRequestContextUtils _requestContextUtils;
+        private readonly IGeneralPartnerConfigManager _generalPartnerConfigManager;
+        private readonly IUserModule _userModule;
+
+        public RolesPermissionsManager(ILayeredCache layeredCache, IRequestContextUtils requestContextUtils, IGeneralPartnerConfigManager generalPartnerConfigManager, IUserModule userModule)
+        {
+            _layeredCache = layeredCache;
+            _requestContextUtils = requestContextUtils;
+            _generalPartnerConfigManager = generalPartnerConfigManager;
+            _userModule = userModule;
+        }
 
         private static Dictionary<string, List<KeyValuePair<long, bool>>> BuildPermissionItemsDictionary(List<Role> roles)
         {
@@ -67,12 +90,12 @@ namespace APILogic.Api.Managers
             return dictionary;
         }
 
-        private static List<long> GetRoleIds(int groupId, string userId)
+        private List<long> GetRoleIds(int groupId, string userId)
         {
             // ??????? we set list to be only anonymous at first but it is never used. something here smells fishy!
             List<long> roleIds = new List<long>() { ANONYMOUS_ROLE_ID };
 
-            ApiObjects.Response.LongIdsResponse response = Core.Users.Module.GetUserRoleIds(groupId, userId);
+            LongIdsResponse response = _userModule.GetUserRoleIds(groupId, long.Parse(userId));
             if (response == null || response.Status == null || response.Status.Code != (int)eResponseStatus.OK)
             {
                 return new List<long>();
@@ -114,7 +137,7 @@ namespace APILogic.Api.Managers
             return new Tuple<List<Role>, bool>(roles, res);
         }
 
-        public static bool IsPermittedPermission(int groupId, string userId, ApiObjects.RolePermissions rolePermission)
+        public bool IsPermittedPermission(int groupId, string userId, RolePermissions rolePermission)
         {
             try
             {
@@ -133,7 +156,7 @@ namespace APILogic.Api.Managers
                         if (rolesPermission.ContainsKey(rolePermission.ToString().ToLower()))
                         {
                             var userRoles = rolesPermission[rolePermission.ToString().ToLower()].Where(x => userRoleIDs.Contains(x.Key));
-                            if (userRoles != null && userRoles.Any() && userRoles.Where(x => x.Value).Count() == 0)
+                            if (userRoles.Any() && !userRoles.Any(x => x.Value))
                             {
                                 return true;
                             }
@@ -178,7 +201,7 @@ namespace APILogic.Api.Managers
             return result;
         }
 
-        internal static Dictionary<string, List<KeyValuePair<long, bool>>> GetPermissionsRolesByGroup(int groupId)
+        private Dictionary<string, List<KeyValuePair<long, bool>>> GetPermissionsRolesByGroup(int groupId)
         {
             Dictionary<string, List<KeyValuePair<long, bool>>> result = null;
             try
@@ -197,7 +220,7 @@ namespace APILogic.Api.Managers
             return result;
         }
 
-        public static List<Role> GetRolesByGroupId(int groupId)
+        public List<Role> GetRolesByGroupId(int groupId)
         {
             List<Role> roles = null;
             try
@@ -205,8 +228,14 @@ namespace APILogic.Api.Managers
                 string key = LayeredCacheKeys.GetPermissionsRolesIdsKey(groupId);
                 string invalidationKey = LayeredCacheKeys.GetPermissionsRolesIdsInvalidationKey(groupId);
                 string permissionsManagerInvalidationKey = LayeredCacheKeys.PermissionsManagerInvalidationKey();
-                if (!LayeredCache.Instance.Get<List<Role>>(key, ref roles, GetRolesByGroupId, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
-                                                            LayeredCacheConfigNames.GET_ROLES_BY_GROUP_ID, new List<string>() { invalidationKey, permissionsManagerInvalidationKey }))
+                if (!_layeredCache.Get(
+                    key,
+                    ref roles,
+                    GetRolesByGroupId,
+                    new Dictionary<string, object> { { "groupId", groupId } },
+                    groupId,
+                    LayeredCacheConfigNames.GET_ROLES_BY_GROUP_ID,
+                    new List<string> { invalidationKey, permissionsManagerInvalidationKey }))
                 {
                     log.ErrorFormat("Failed getting GetRolesByGroupId from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
@@ -284,12 +313,12 @@ namespace APILogic.Api.Managers
             List<Permission> result = null;
             try
             {
-                List<Role> roles = GetRolesByGroupId(groupId);
+                List<Role> roles = Instance.GetRolesByGroupId(groupId);
 
                 if (roles != null && roles.Any())
                 {
                     // get list of all user permissions 
-                    List<long> userRoleIDs = GetRoleIds(groupId, userId.ToString());
+                    List<long> userRoleIDs = Instance.GetRoleIds(groupId, userId.ToString());
                     if (userRoleIDs != null && userRoleIDs.Count > 0 && roles.Any(x => userRoleIDs.Contains(x.Id)))
                     {
                         result = roles.Where(x => userRoleIDs.Contains(x.Id)).SelectMany(x => x.Permissions).GroupBy(x => x.Name).Select(x => x.First()).ToList();
@@ -430,7 +459,7 @@ namespace APILogic.Api.Managers
 
         public static bool IsAllowedToViewInactiveAssets(int groupId, string userId, bool ignoreDoesGroupUsesTemplates = false)
         {
-            return IsPermittedPermission(groupId, userId, ApiObjects.RolePermissions.VIEW_INACTIVE_ASSETS) &&
+            return Instance.IsPermittedPermission(groupId, userId, RolePermissions.VIEW_INACTIVE_ASSETS) &&
                 (DoesGroupUsesTemplates(groupId) || ignoreDoesGroupUsesTemplates);
         }
         private static bool DoesGroupUsesTemplates(int groupId)
@@ -604,7 +633,7 @@ namespace APILogic.Api.Managers
         private static List<PermissionItem> GetAllPermissionItems()
         {
             List<PermissionItem> items = new List<PermissionItem>();
-            var roles = GetRolesByGroupId(0);
+            var roles = Instance.GetRolesByGroupId(0);
 
             HashSet<long> ids = new HashSet<long>();
 
@@ -773,6 +802,39 @@ namespace APILogic.Api.Managers
             response.TotalItems = response.Objects.Count;
             response.SetStatus(eResponseStatus.OK);
             return response;
+        }
+
+        public bool AllowActionInSuspendedDomain(int groupId, long userId, bool isDefaultInheritanceType = false)
+        {
+            return AllowActionToPartner(groupId, isDefaultInheritanceType)
+                   || AllowActionToUser(groupId, userId);
+        }
+
+        private bool AllowActionToPartner(int groupId, bool isDefault)
+        {
+            var result = false;
+            
+            if (_requestContextUtils.IsPartnerRequest())
+            {
+                var inheritanceType = _generalPartnerConfigManager.GetGeneralPartnerConfig(groupId)?.SuspensionProfileInheritanceType;
+                result = inheritanceType == SuspensionProfileInheritanceType.Default && isDefault
+                         || inheritanceType == SuspensionProfileInheritanceType.Never;
+            }
+
+            return result;
+        }
+
+        private bool AllowActionToUser(int groupId, long userId)
+        {
+            var result = false;
+
+            var userData = _userModule.GetUserData(groupId, userId, string.Empty);
+            if (userData.m_RespStatus == ResponseStatus.OK && userData.m_user.m_domianID != 0)
+            {
+                result = IsPermittedPermission(groupId, userId.ToString(), RolePermissions.ALLOW_ACTION_IN_SUSPENDED_DOMAIN);
+            }
+
+            return result;
         }
     }
 }

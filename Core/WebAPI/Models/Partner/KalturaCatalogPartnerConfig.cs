@@ -46,6 +46,15 @@ namespace WebAPI.Models.Partner
         [SchemeProperty(IsNullable = true)]
         public bool? EpgMultilingualFallbackSupport { get; set; }
 
+        /// <summary>
+        /// Upload Export Datalake
+        /// </summary>
+        [DataMember(Name = "uploadExportDatalake")]
+        [JsonProperty("uploadExportDatalake")]
+        [XmlElement(ElementName = "uploadExportDatalake")]
+        [SchemeProperty(IsNullable = true)]
+        public bool? UploadExportDatalake { get; set; }
+
         internal override bool Update(int groupId)
         {
             Func<CatalogPartnerConfig, Status> partnerConfigFunc =
