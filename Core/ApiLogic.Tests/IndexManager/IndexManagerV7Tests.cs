@@ -445,9 +445,6 @@ namespace ApiLogic.Tests.IndexManager
 
             var deleteSocialAction = indexManager.DeleteSocialAction(socialSearch);
             Assert.IsTrue(deleteSocialAction);
-
-
-
         }
 
         [Test]

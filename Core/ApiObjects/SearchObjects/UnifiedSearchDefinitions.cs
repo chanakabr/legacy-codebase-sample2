@@ -453,6 +453,7 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         [DataMember]
         public bool hasOrNode;
+
         #endregion
 
         #region Ctor

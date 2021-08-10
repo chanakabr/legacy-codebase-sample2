@@ -520,6 +520,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         {
             return null;
         }
+
         private ESFunctionScore BuildFunctionScore(string filteredQuery)
         {
             var functions = new List<ESFunctionScoreFunction>();

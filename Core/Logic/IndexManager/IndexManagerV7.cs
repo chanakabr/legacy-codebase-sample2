@@ -1646,7 +1646,11 @@ namespace Core.Catalog
             ref Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
         {
             string index = IndexingUtils.GetStatisticsIndexName(_partnerId);
-            string action = IndexingUtils.STAT_ACTION_FIRST_PLAY;
+            //string action = IndexingUtils.STAT_ACTION_FIRST_PLAY;
+
+            string firstPlayAggregationName = "first_play_aggregation";
+            string likesAggregationName = "likes_aggregation";
+            string ratingAggregationName = "ratings_aggregation";
 
             var descriptor = new QueryContainerDescriptor<ApiLogic.IndexManager.NestData.SocialActionStatistics>();
             var searchResponse = _elasticClient.Search<ApiLogic.IndexManager.NestData.SocialActionStatistics>(searchRequest => searchRequest
@@ -1663,8 +1667,8 @@ namespace Core.Catalog
                         // group_id = 1234
                         mustContainers.Add(descriptor.Term(field => field.GroupID, _partnerId));
 
-                        // MAYBE WILL BE FILTERED IN AGGREGATION
-                        mustContainers.Add(descriptor.Term(field => field.Action, action));
+                        //// MAYBE WILL BE FILTERED IN AGGREGATION
+                        //mustContainers.Add(descriptor.Term(field => field.Action, action));
 
                         // action_date <= max and action_date >= min
                         if (!startDate.Equals(DateTime.MinValue) || !endDate.Equals(DateTime.MaxValue))
@@ -1696,14 +1700,69 @@ namespace Core.Catalog
                         return boolQuery;
                     })
                 )
-                .Aggregations(aggs =>
+                .Aggregations(rootAggs =>
                 {
-                    aggs.Terms(IndexingUtils.STAT_SLIDING_WINDOW_AGGREGATION_NAME, agg => agg
-                    );
-                    
-                    return aggs;
+                    rootAggs.Terms(firstPlayAggregationName, firstPlayAggregation =>
+                    {
+                        firstPlayAggregation = firstPlayAggregation
+                          .Field(field => field.MediaID)
+                        ;
+
+                        firstPlayAggregation.Aggregations(firstPlayAggregations =>
+                        {
+                            firstPlayAggregations = firstPlayAggregations.Sum(IndexingUtils.SUB_SUM_AGGREGATION_NAME, subSumAggregation =>
+                                subSumAggregation.Field(field => field.Count).Missing(1)
+                            );
+
+                            firstPlayAggregations = firstPlayAggregations.Filter("first_play_filter_aggregation", filterAggregation =>
+                                filterAggregation.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_FIRST_PLAY)));
+
+                            return firstPlayAggregations;
+                        });
+
+                        return firstPlayAggregation;
+                    });
+
+                    rootAggs.Terms(likesAggregationName, likesAggregation =>
+                    {
+                        likesAggregation = likesAggregation
+                          .Field(field => field.MediaID)
+                        ;
+
+                        likesAggregation.Aggregations(firstPlayAggregations =>
+                        {
+
+                            firstPlayAggregations = firstPlayAggregations.Filter("likes_filter_aggregation", filterAggregation =>
+                                filterAggregation.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_LIKE)));
+
+                            return firstPlayAggregations;
+                        });
+
+                        return likesAggregation;
+                    });
+
+                    return rootAggs;
                 })
             );
+
+            if (searchResponse.IsValid)
+            {
+                if (searchResponse.Aggregations.ContainsKey(likesAggregationName))
+                {
+                    var currentAgg = searchResponse.Aggregations[likesAggregationName] as Nest.BucketAggregate;
+
+                    foreach (var item in currentAgg.Items)
+                    {
+                        var bucket = item as KeyedBucket<object>;
+                        var mediaId = Convert.ToInt32(bucket.Key);
+
+                        if (assetIDsToStatsMapping.ContainsKey(mediaId))
+                        {
+                            assetIDsToStatsMapping[mediaId].m_nLikes = Convert.ToInt32(bucket.DocCount);
+                        }
+                    }
+                }
+            }
         }
 
         public List<int> OrderMediaBySlidingWindow(OrderBy orderBy, bool isDesc, int pageSize, int PageIndex, List<int> media,
