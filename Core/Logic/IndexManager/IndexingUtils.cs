@@ -45,6 +45,10 @@ namespace Core.Catalog
         internal const string STAT_ACTION_RATES = "rates";
         internal const string STAT_ACTION_COUNT_VALUE_FIELD = "count";
 
+        internal const string SUB_SUM_AGGREGATION_NAME = "sub_sum";
+        internal const string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
+        internal const string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
+
         public static long UnixTimeStampNow()
         {
             TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0);

@@ -1660,9 +1660,13 @@ namespace Core.Catalog
 
                         List<QueryContainer> mustContainers = new List<QueryContainer>();
 
+                        // group_id = 1234
                         mustContainers.Add(descriptor.Term(field => field.GroupID, _partnerId));
+
+                        // MAYBE WILL BE FILTERED IN AGGREGATION
                         mustContainers.Add(descriptor.Term(field => field.Action, action));
 
+                        // action_date <= max and action_date >= min
                         if (!startDate.Equals(DateTime.MinValue) || !endDate.Equals(DateTime.MaxValue))
                         {
                             var dateRange = descriptor.DateRange(range =>
@@ -1685,12 +1689,18 @@ namespace Core.Catalog
                             mustContainers.Add(dateRange);
                         }
 
+                        // media_id in (1, 2, 3)
+                        mustContainers.Add(descriptor.Terms(terms => terms.Field(field => field.MediaID).Terms<int>(assetIDs)));
+
                         boolQuery.Must(mustContainers.ToArray());
                         return boolQuery;
                     })
                 )
                 .Aggregations(aggs =>
                 {
+                    aggs.Terms(IndexingUtils.STAT_SLIDING_WINDOW_AGGREGATION_NAME, agg => agg
+                    );
+                    
                     return aggs;
                 })
             );

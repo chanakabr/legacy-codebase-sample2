@@ -61,10 +61,6 @@ namespace Core.Catalog
         protected const string ES_EPG_TYPE = "epg";
         protected const string CHANNEL_ASSET_USER_RULE_ID = "asset_user_rule_id";
 
-        internal const string SUB_SUM_AGGREGATION_NAME = "sub_sum";
-        internal const string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
-        internal const string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
-
         // Basic TCM configurations for indexing - number of shards/replicas, max results
         private static readonly int NUM_OF_SHARDS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
         private static readonly int NUM_OF_REPLICAS = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.NumberOfReplicas.Value;
@@ -2893,7 +2889,7 @@ namespace Core.Catalog
                 {
                     Name = "sub_stats",
                     Type = eElasticAggregationType.stats,
-                    Field = STAT_ACTION_RATE_VALUE_FIELD
+                    Field = IndexingUtils.STAT_ACTION_RATE_VALUE_FIELD
                 });
             }
             else
@@ -2907,7 +2903,7 @@ namespace Core.Catalog
 
                 aggregations.SubAggrgations.Add(new ESBaseAggsItem()
                 {
-                    Name = SUB_SUM_AGGREGATION_NAME,
+                    Name = IndexingUtils.SUB_SUM_AGGREGATION_NAME,
                     Type = eElasticAggregationType.sum,
                     Field = IndexingUtils.STAT_ACTION_COUNT_VALUE_FIELD,
                     Missing = 1
@@ -2974,7 +2970,7 @@ namespace Core.Catalog
                             if (countsAggregationsDictionary != null)
                             {
                                 // Parse string into dictionary
-                                var partialDictionary = ESAggregationsResult.DeserializeAggrgations<string>(aggregationsResults, SUB_SUM_AGGREGATION_NAME);
+                                var partialDictionary = ESAggregationsResult.DeserializeAggrgations<string>(aggregationsResults, IndexingUtils.SUB_SUM_AGGREGATION_NAME);
 
                                 // Run on partial dictionary and merge into main dictionary
                                 foreach (var mainPart in partialDictionary)
@@ -4077,13 +4073,13 @@ namespace Core.Catalog
                     List<string> aggregations = new List<string>(3);
                     aggregations.Add(BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, IndexingUtils.STAT_ACTION_FIRST_PLAY, true)); // views count
                     aggregations.Add(BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, IndexingUtils.STAT_ACTION_LIKE));
-                    aggregations.Add(BuildSlidingWindowStatisticsAggregationRequest(_partnerId, assetIDs, startDate, endDate, IndexingUtils.STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD));
+                    aggregations.Add(BuildSlidingWindowStatisticsAggregationRequest(_partnerId, assetIDs, startDate, endDate, IndexingUtils.STAT_ACTION_RATES, IndexingUtils.STAT_ACTION_RATE_VALUE_FIELD));
 
                     string esResp = _elasticSearchApi.MultiSearch(index, ESUtils.ES_STATS_TYPE, aggregations, null);
 
                     List<string> responses = ParseResponsesFromMultiAggregations(esResp);
                     string currResp = responses[0];
-                    Dictionary<string, Dictionary<int, int>> viewsRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp, SUB_SUM_AGGREGATION_NAME);
+                    Dictionary<string, Dictionary<int, int>> viewsRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp, IndexingUtils.SUB_SUM_AGGREGATION_NAME);
                     currResp = responses[1];
                     Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp);
                     currResp = responses[2];
@@ -4091,9 +4087,9 @@ namespace Core.Catalog
 
                     Dictionary<int, int> views, likes;
                     List<StatisticsAggregationResult> rates = null;
-                    viewsRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out views);
-                    likesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
-                    ratesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out rates);
+                    viewsRaw.TryGetValue(IndexingUtils.STAT_SLIDING_WINDOW_AGGREGATION_NAME, out views);
+                    likesRaw.TryGetValue(IndexingUtils.STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
+                    ratesRaw.TryGetValue(IndexingUtils.STAT_SLIDING_WINDOW_AGGREGATION_NAME, out rates);
                     InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, views, likes, rates);
                     break;
                 }
@@ -4107,7 +4103,7 @@ namespace Core.Catalog
                     {
                         Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(searchResponse);
                         Dictionary<int, int> likes = null;
-                        likesRaw.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
+                        likesRaw.TryGetValue(IndexingUtils.STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
 
                         if (likes != null && likes.Count > 0)
                         {
@@ -4207,7 +4203,7 @@ namespace Core.Catalog
             ESBaseAggsItem aggregation = new ESBaseAggsItem()
             {
                 Field = "media_id",
-                Name = STAT_SLIDING_WINDOW_AGGREGATION_NAME,
+                Name = IndexingUtils.STAT_SLIDING_WINDOW_AGGREGATION_NAME,
                 Type = eElasticAggregationType.terms,
                 ShardSize = 0
             };
@@ -4216,7 +4212,7 @@ namespace Core.Catalog
             {
                 aggregation.SubAggrgations.Add(new ESBaseAggsItem()
                 {
-                    Name = SUB_SUM_AGGREGATION_NAME,
+                    Name = IndexingUtils.SUB_SUM_AGGREGATION_NAME,
                     Type = eElasticAggregationType.sum,
                     Field = IndexingUtils.STAT_ACTION_COUNT_VALUE_FIELD,
                     Missing = 1
@@ -4283,13 +4279,13 @@ namespace Core.Catalog
             if (!string.IsNullOrEmpty(retval))
             {
                 //Get aggregations results
-                Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval, SUB_SUM_AGGREGATION_NAME);
+                Dictionary<string, Dictionary<string, int>> aggregationResults = ESAggregationsResult.DeserializeAggrgations<string>(retval, IndexingUtils.SUB_SUM_AGGREGATION_NAME);
 
                 if (aggregationResults != null && aggregationResults.Count > 0)
                 {
                     Dictionary<string, int> aggregationResult;
                     //retrieve channel_views aggregations results
-                    aggregationResults.TryGetValue(STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
+                    aggregationResults.TryGetValue(IndexingUtils.STAT_SLIDING_WINDOW_AGGREGATION_NAME, out aggregationResult);
 
                     if (aggregationResult != null && aggregationResult.Count > 0)
                     {
@@ -4384,7 +4380,7 @@ namespace Core.Catalog
 
             var aggregation = new ESBaseAggsItem()
             {
-                Name = STAT_SLIDING_WINDOW_AGGREGATION_NAME,
+                Name = IndexingUtils.STAT_SLIDING_WINDOW_AGGREGATION_NAME,
                 Field = "media_id",
                 Type = eElasticAggregationType.terms,
                 ShardSize = 0
@@ -4509,7 +4505,7 @@ namespace Core.Catalog
                     result = SlidingWindowCountAggregations(media, windowTime, now, IndexingUtils.STAT_ACTION_FIRST_PLAY);
                     break;
                 case OrderBy.RATING:
-                    result = SlidingWindowStatisticsAggregations(media, windowTime, now, IndexingUtils.STAT_ACTION_RATES, STAT_ACTION_RATE_VALUE_FIELD,
+                    result = SlidingWindowStatisticsAggregations(media, windowTime, now, IndexingUtils.STAT_ACTION_RATES, IndexingUtils.STAT_ACTION_RATE_VALUE_FIELD,
                         ElasticSearch.Searcher.AggregationsComparer.eCompareType.Average);
                     break;
                 case OrderBy.VOTES_COUNT:
@@ -4592,7 +4588,7 @@ namespace Core.Catalog
             {
                 Name = "sub_stats",
                 Type = eElasticAggregationType.stats,
-                Field = STAT_ACTION_RATE_VALUE_FIELD
+                Field = IndexingUtils.STAT_ACTION_RATE_VALUE_FIELD
             });
 
             filteredQuery.Aggregations.Add(aggregations);
