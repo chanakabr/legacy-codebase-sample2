@@ -76,8 +76,7 @@ namespace Core.Catalog.Request
                 };
 
                 int totalItems = 0;
-                int to = 0;
-                var initialSearchResult = indexManager.UnifiedSearch(definitions, ref totalItems, ref to);
+                var initialSearchResult = indexManager.UnifiedSearch(definitions, ref totalItems);
 
                 EpgProgramsResponse response = new EpgProgramsResponse();
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);

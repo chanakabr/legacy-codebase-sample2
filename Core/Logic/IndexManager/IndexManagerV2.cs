@@ -1810,9 +1810,9 @@ namespace Core.Catalog
         /// </summary>
         /// <param name="unifiedSearchDefinitions"></param>
         /// <returns></returns>
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int notUsed)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems)
         {
-            return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref notUsed, out _);
+            return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, out _);
         }
 
        
@@ -1821,7 +1821,7 @@ namespace Core.Catalog
         /// </summary>
         /// <param name="unifiedSearchDefinitions"></param>
         /// <returns></returns>
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems, ref int notUsed,
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems,
             out List<AggregationsResult> aggregationsResults)
         {
             aggregationsResults = null;

@@ -973,12 +973,12 @@ namespace Core.Catalog
             return epgItem;
         }
 
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearchDefinitions, ref int totalItems)
         {
-            throw new NotImplementedException();
+            return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, out _);
         }
 
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to, out List<AggregationsResult> aggregationsResult)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, out List<AggregationsResult> aggregationsResult)
         {
             throw new NotImplementedException();
         }

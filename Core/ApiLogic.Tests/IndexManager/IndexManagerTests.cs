@@ -224,8 +224,8 @@ namespace ApiLogic.Tests.IndexManager
             searchResult = policy.Execute(() =>
             {
                 return indexManager.UnifiedSearch(unifiedSearchDefinitions,
-                    ref totalItems,
-                    ref notInUse);
+                    ref totalItems
+                    );
             });
 
 
@@ -323,8 +323,8 @@ namespace ApiLogic.Tests.IndexManager
             searchResult = policyDeletion.Execute(() =>
             {
                 return indexManager.UnifiedSearch(unifiedSearchDefinitions,
-                    ref totalItems,
-                    ref notInUse);
+                    ref totalItems
+                    );
             });
 
             Assert.IsEmpty(searchResult);
@@ -455,7 +455,7 @@ namespace ApiLogic.Tests.IndexManager
 
             var notResultEpgList = deletePolicy.Execute(() =>
             {
-                return indexManager.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref notInUse);
+                return indexManager.UnifiedSearch(unifiedSearchDefinitions, ref totalItems);
             });
 
             Assert.AreEqual(0, totalItems);
@@ -501,7 +501,6 @@ namespace ApiLogic.Tests.IndexManager
             indexManager.PublishEpgIndex(indexName, false, true, true);
 
             var totalItems = 0;
-            var notInUse = 0;
             var searchResult = new List<UnifiedSearchResult>();
 
             var searchPolicy = Policy.HandleResult<List<UnifiedSearchResult>>(x => x == null || x.Count == 0).WaitAndRetry(
@@ -528,8 +527,8 @@ namespace ApiLogic.Tests.IndexManager
             searchResult = searchPolicy.Execute(() =>
             {
                 return indexManager.UnifiedSearch(unifiedSearchDefinitions,
-                    ref totalItems,
-                    ref notInUse);
+                    ref totalItems
+                    );
             });
 
             //assert
@@ -765,8 +764,8 @@ namespace ApiLogic.Tests.IndexManager
             var searchResult = policy.Execute(() =>
             {
                 return indexManager.UnifiedSearch(unifiedSearchDefinitions,
-                    ref totalItems,
-                    ref notInUse);
+                    ref totalItems
+                    );
             });
 
             //assert
@@ -875,8 +874,7 @@ namespace ApiLogic.Tests.IndexManager
             var searchResult = policy.Execute(() =>
             {
                 return indexManager.UnifiedSearch(unifiedSearchDefinitions,
-                    ref totalItems,
-                    ref notInUse);
+                    ref totalItems);
             });
 
             //assert

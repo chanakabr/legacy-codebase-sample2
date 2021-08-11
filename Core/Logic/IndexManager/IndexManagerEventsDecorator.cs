@@ -422,17 +422,16 @@ namespace ApiLogic.Catalog.IndexManager
             return _indexManager.GetCurrentProgramsByDate(channelId, fromDate, toDate);
         }
 
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems)
         {
-            return _indexManager.UnifiedSearch(unifiedSearch, ref totalItems, ref to);
+            return _indexManager.UnifiedSearch(unifiedSearch, ref totalItems);
         }
 
         public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch,
             ref int totalItems,
-            ref int to,
             out List<AggregationsResult> aggregationsResult)
         {
-            return _indexManager.UnifiedSearch(unifiedSearch, ref totalItems, ref to, out aggregationsResult);
+            return _indexManager.UnifiedSearch(unifiedSearch, ref totalItems, out aggregationsResult);
         }
 
         public AggregationsResult UnifiedSearchForGroupBy(UnifiedSearchDefinitions unifiedSearchDefinitions)

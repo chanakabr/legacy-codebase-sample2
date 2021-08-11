@@ -1416,10 +1416,7 @@ namespace Core.Catalog
             IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
 
             int totalItems = 0;
-            int to = 0;
-            List<AggregationsResult> aggregationsResults = null;
-
-            List<UnifiedSearchResult> searchResults = indexManager.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResults);
+            List<UnifiedSearchResult> searchResults = indexManager.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, out var aggregationsResults);
 
             if (searchResults != null)
             {
@@ -5400,11 +5397,10 @@ namespace Core.Catalog
                 searchDefinitions.specificOrder = recommendations.Select(item => long.Parse(item.id)).ToList();
 
                 int parentGroupId = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
-                IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
 
-                int to = 0;
                 // The provided response should be filtered according to the Filter defined in the applicable 3rd-party channel settings
-                List<UnifiedSearchResult> searchResults = indexManager.UnifiedSearch(searchDefinitions, ref totalItems, ref to);
+                List<UnifiedSearchResult> searchResults = indexManager.UnifiedSearch(searchDefinitions, ref totalItems);
 
                 if (searchResults != null)
                 {
@@ -5476,8 +5472,8 @@ namespace Core.Catalog
                 {
                     int parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
                     var indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
-                    int esTotalItems = 0, to = 0;
-                    var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
+                    int esTotalItems = 0;
+                    var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems);
 
                     if (searchResults != null && searchResults.Count > 0)
                     {
@@ -6034,10 +6030,8 @@ namespace Core.Catalog
             }
 
             // Perform initial search of channel
-            int notUsed = 0;
             int totalItems = 0;
-            List<AggregationsResult> aggregationsResult;
-            var searchResults = indexManager.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref notUsed, out aggregationsResult);
+            var searchResults = indexManager.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, out var aggregationsResult);
 
             if (searchResults == null) return new UnifiedSearchResponse { status = Status.ErrorMessage("Failed performing channel search") };
             if (totalItems == 0)
@@ -6467,10 +6461,8 @@ namespace Core.Catalog
                 return new ApiObjects.Response.Status((int)eResponseStatus.Error, "Failed getting instance of searcher");
             }
 
-            int to = 0;
-
             // Perform initial search of channel            
-            searchResults = indexManager.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref to, out aggregationsResults);
+            searchResults = indexManager.UnifiedSearch(unifiedSearchDefinitions, ref totalItems, out aggregationsResults);
 
             if (searchResults == null)
             {
@@ -8604,8 +8596,8 @@ namespace Core.Catalog
 
                             int parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
                             var indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
-                            int esTotalItems = 0, to = 0;
-                            var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
+                            int esTotalItems = 0;
+                            var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems);
 
                             long episodeStructId = 0;
 
@@ -8930,8 +8922,8 @@ namespace Core.Catalog
 
                 int parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
                 var indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
-                int esTotalItems = 0, to = 0;
-                var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
+                int esTotalItems = 0;
+                var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems);
 
                 if (searchResults != null && searchResults.Count > 0)
                 {
