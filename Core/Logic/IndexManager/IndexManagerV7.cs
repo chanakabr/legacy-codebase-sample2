@@ -978,9 +978,36 @@ namespace Core.Catalog
             return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, out _);
         }
 
-        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, out List<AggregationsResult> aggregationsResult)
+        public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions definitions, ref int totalItems, out List<AggregationsResult> aggregationsResults)
         {
-            throw new NotImplementedException();
+            aggregationsResults = null;
+            List<UnifiedSearchResult> searchResultsList = new List<UnifiedSearchResult>();
+            totalItems = 0;
+            
+            // build request
+            UnifiedSearchNestBuilder builder = new UnifiedSearchNestBuilder()
+            {
+                Definitions = definitions
+            };
+
+            var query = builder.GetQuery();
+            var size = builder.GetSize();
+            var from = builder.GetFrom();
+            var aggs = builder.GetAggs();
+            var indices = builder.GetIndices(); // new[] { "", "" };
+
+            // send request
+            var searchResponse = _elasticClient.Search<object>(searchRequest => searchRequest
+                .Index(indices)
+                .Size(size)
+                .From(from)
+                .Query(queryGetter => query)
+                .Aggregations(aggs)
+            );
+
+            // process response
+
+            return searchResultsList;
         }
 
         public AggregationsResult UnifiedSearchForGroupBy(UnifiedSearchDefinitions unifiedSearchDefinitions)
