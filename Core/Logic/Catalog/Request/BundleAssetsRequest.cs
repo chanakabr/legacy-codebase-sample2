@@ -119,7 +119,7 @@ namespace Core.Catalog.Request
                         {
                             try
                             {
-                                IIndexManager indexManager = IndexManagerFactory.GetInstance(parentGroupId);
+                                IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
 
                                 ApiObjects.SearchObjects.OrderObj oSearchOrder = new ApiObjects.SearchObjects.OrderObj();
                                 if (request.m_oOrderObj == null)

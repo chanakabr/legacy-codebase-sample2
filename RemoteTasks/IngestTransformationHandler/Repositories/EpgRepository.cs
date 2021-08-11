@@ -26,12 +26,12 @@ namespace IngestTransformationHandler.Repositories
 
         public EpgRepository()
         {
-            _indexManagerFactory = IndexManagerFactory.GetFactory();
+            _indexManagerFactory = IndexManagerFactory.Instance;
         }
 
         public IList<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(int groupId, int channelId, DateTime fromDate, DateTime toDate)
         {
-            return _indexManagerFactory.GetInstance(groupId).GetCurrentProgramsByDate(channelId, fromDate, toDate);
+            return _indexManagerFactory.GetIndexManager(groupId).GetCurrentProgramsByDate(channelId, fromDate, toDate);
         }
     }
 }

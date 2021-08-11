@@ -214,7 +214,7 @@ namespace Core.Catalog.CatalogManagement
                 var epgsToIndex = SaveEpgCbToCB(groupId, epgCbToAdd, 
                     defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, true);
 
-                bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertProgram(
+                bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertProgram(
                     epgsToIndex,
                     GetLinearChannelSettingsForEpgCB(groupId, epgCbToAdd)
                     );
@@ -223,9 +223,7 @@ namespace Core.Catalog.CatalogManagement
                     log.ErrorFormat("Failed UpsertProgram index for epg ExternalId: {0}, groupId: {1} after AddEpgAsset", epgAssetToAdd.EpgIdentifier, groupId);
                 }
 
-                EPGChannelProgrammeObject programToIngest = TvinciEpgBL.ConvertEpgCBtoEpgProgramm(epgsToIndex[0]);
-
-                SendActionEvent(groupId, newEpgId, eAction.On, programToIngest);
+                SendActionEvent(groupId, newEpgId, eAction.On);
                 result = AssetManager.GetAsset(groupId, newEpgId, eAssetTypes.EPG, true);
             }
             catch (Exception ex)
@@ -364,7 +362,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // delete index, if EPG moved to another day
                 var indexAddAction = false;
-                var indexManager = IndexManagerFactory.GetInstance(groupId);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
                 if (epgAssetToUpdate.StartDate?.Date != oldEpgAsset.StartDate?.Date && isIngestV2)
                 {
                     var deleteIndexResult = indexManager.DeleteProgram(new List<long> { epgAssetToUpdate.Id }, new List<string> { epgAssetToUpdate.EpgChannelId.ToString() });
@@ -441,7 +439,7 @@ namespace Core.Catalog.CatalogManagement
             SendActionEvent(groupId, epgId, eAction.Delete);
 
             // Delete Index
-            bool indexingResult = IndexManagerFactory.GetInstance(groupId).DeleteProgram(new List<long>() { epgId }, epgCbList.Select(x => x.ChannelID.ToString()));
+            bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).DeleteProgram(new List<long>() { epgId }, epgCbList.Select(x => x.ChannelID.ToString()));
             if (!indexingResult)
             {
                 log.ErrorFormat("Failed to delete epg index for assetId: {0}, groupId: {1} after DeleteEpgAsset", epgId, groupId);
@@ -522,7 +520,7 @@ namespace Core.Catalog.CatalogManagement
 
                     var epgCb = CreateEpgCbFromEpgAsset(epgAsset, groupId, epgAsset.CreateDate.Value, epgAsset.UpdateDate.Value);
                     // UpdateIndex
-                    bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertProgram(epgsToUpdate, GetLinearChannelSettingsForEpgCB(groupId, epgCb));
+                    bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertProgram(new List<EpgCB>() { epgCb }, GetLinearChannelSettingsForEpgCB(groupId, epgCb));
                     if (!indexingResult)
                     {
                         log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromProgram", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);

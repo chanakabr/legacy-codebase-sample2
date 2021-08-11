@@ -167,7 +167,7 @@ namespace Core.Catalog.Request
                                 {
                                     int nSubscriptionParentGroupID = catalogCache.GetParentGroup(m_nGroupID);
 
-                                    IIndexManager indexManager = IndexManagerFactory.GetInstance(nSubscriptionParentGroupID);
+                                    IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(nSubscriptionParentGroupID);
 
                                     ApiObjects.SearchObjects.OrderObj oSearchOrder = new ApiObjects.SearchObjects.OrderObj();
                                     if (request.m_oOrderObj == null)

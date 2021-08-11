@@ -37,7 +37,7 @@ namespace Core.Catalog.Request
 
                 CheckSignature(request);
 
-                IIndexManager indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
 
                 List<int> lChannels = indexManager.GetMediaChannels(request.m_nMediaID);
 

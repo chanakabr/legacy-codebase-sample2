@@ -1050,7 +1050,7 @@ namespace EpgBL
 
             try
             {
-                var indexManager = Core.Catalog.IndexManagerFactory.GetInstance(m_nGroupID);
+                var indexManager = Core.Catalog.IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
                 List<string> documentIds = indexManager.GetChannelPrograms(channelId, startDate, endDate, esOrderObjs);
                 result = GetEpgChannelProgrammeObjects(documentIds);
             }
@@ -1140,7 +1140,7 @@ namespace EpgBL
 
             if (isNewEpgIngestEnabled && !isAddAction)
             {
-                var indexManager = Core.Catalog.IndexManagerFactory.GetInstance(groupId);
+                var indexManager = Core.Catalog.IndexManagerFactory.Instance.GetIndexManager(groupId);
                  //using the new EPG ingest the document id has a suffix cintaining the bulk upload that inserted it
                  //so there is no way for us to now what is the document id.
                  //ES holds the current document in CB so we go there to take it

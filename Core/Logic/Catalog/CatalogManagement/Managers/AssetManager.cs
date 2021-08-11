@@ -528,7 +528,7 @@ namespace Core.Catalog.CatalogManagement
                     };
 
                     // Update Tag Index
-                    var indexManager = IndexManagerFactory.GetInstance(groupId);
+                    var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
                     Status updateTagResponse = indexManager.UpdateTag(tag);
                     if (updateTagResponse == null || updateTagResponse.Code != (int)eResponseStatus.OK)
                     {
@@ -1161,7 +1161,7 @@ namespace Core.Catalog.CatalogManagement
                     // UpdateIndex
                     if (!isFromIngest)
                     {
-                        bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertMedia((int)result.Object.Id);
+                        bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia((int)result.Object.Id);
                         if (!indexingResult)
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddMediaAsset", result.Object.Id, groupId);
@@ -1623,7 +1623,7 @@ namespace Core.Catalog.CatalogManagement
                             }
                         }
 
-                        bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertMedia((int)result.Object.Id);
+                        bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia((int)result.Object.Id);
                         if (!indexingResult)
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaAsset", result.Object.Id, groupId);
@@ -2288,7 +2288,7 @@ namespace Core.Catalog.CatalogManagement
                     result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                     // UpdateIndex
-                    bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertMedia(result.Object.Id);
+                    bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia(result.Object.Id);
                     if (!indexingResult)
                     {
                         log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after AddLinearMediaAsset", result.Object.Id, groupId);
@@ -2321,7 +2321,7 @@ namespace Core.Catalog.CatalogManagement
                     if (!isForMigration)
                     {
                         // UpdateIndex
-                        bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertMedia(result.Object.Id);
+                        bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia(result.Object.Id);
                         if (!indexingResult)
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateLinearMediaAsset", result.Object.Id, groupId);
@@ -2536,7 +2536,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // Delete Index
-                bool indexingResult = IndexManagerFactory.GetInstance(groupId).DeleteMedia((int)mediaId);
+                bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).DeleteMedia((int)mediaId);
                 if (!indexingResult)
                 {
                     log.ErrorFormat("Failed to delete media index for assetId: {0}, groupId: {1} after DeleteAsset", mediaId, groupId);
@@ -3927,7 +3927,7 @@ namespace Core.Catalog.CatalogManagement
                         // UpdateIndex
                         if (!isFromIngest)
                         {
-                            bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertMedia(id);
+                            bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia(id);
                             if (!indexingResult)
                             {
                                 log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromMediaAsset", id, eAssetTypes.MEDIA.ToString(), groupId);

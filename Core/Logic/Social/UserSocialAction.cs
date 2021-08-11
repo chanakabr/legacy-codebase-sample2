@@ -243,7 +243,7 @@ namespace Core.Social
 
             string sActionStatsJson = Newtonsoft.Json.JsonConvert.SerializeObject(oActionStats);
 
-            var indexManager = IndexManagerFactory.GetInstance(groupId);
+            var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
             result = indexManager.DeleteSocialAction(socialSearch);
 
             return result;
@@ -328,7 +328,7 @@ namespace Core.Social
 
             try
             {
-                var indexManager = IndexManagerFactory.GetInstance(groupId);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
                 result = indexManager.InsertSocialStatisticsData(
                     new SocialActionStatistics()
                     {

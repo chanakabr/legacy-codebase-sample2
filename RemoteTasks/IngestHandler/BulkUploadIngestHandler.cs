@@ -64,7 +64,7 @@ namespace IngestHandler
         {
             try
             {
-                _indexManager = IndexManagerFactory.GetInstance(serviceEvent.GroupId);
+                _indexManager = IndexManagerFactory.Instance.GetIndexManager(serviceEvent.GroupId);
                 _logger.Info($"Starting ingest write handler BulkUploadId: [{serviceEvent.BulkUploadId}], Date:[{serviceEvent.DateOfProgramsToIngest}], BulkUploadId:[{serviceEvent.BulkUploadId}], crud operations: [{serviceEvent.CrudOperations}]");
                 await HandleIngestCrudOperations(serviceEvent);
             }

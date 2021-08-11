@@ -209,7 +209,7 @@ namespace Core.Catalog
             try
             {
                 //Create Media Object
-                var mediaDictionary = _catalogManager.GetGroupMedia(_partnerId, assetId, _catalogGroupCache);
+                var mediaDictionary = _catalogManager.GetGroupMedia(_partnerId, assetId);
                 if (mediaDictionary != null && mediaDictionary.Count > 0)
                 {
                     var numOfBulkRequests = 0;
@@ -3095,7 +3095,7 @@ namespace Core.Catalog
                         .Setting("index.max_result_window", _maxResults)
                         .Setting("index.max_ngram_diff", 20)
                         // TODO: convert to tcm...
-                        .Setting("index.mapping.total_fields.limit", 10000)
+                        .Setting("index.mapping.total_fields.limit", 100000)
                         .Analysis(a => a
                             .Analyzers(an => analyzersDescriptor)
                             .TokenFilters(tf => filtersDesctiptor)

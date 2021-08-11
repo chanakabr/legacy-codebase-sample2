@@ -218,7 +218,7 @@ namespace Core.Catalog.Request
                 channelSearchObject.m_nPageIndex = 0;
             }
 
-            IIndexManager indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+            IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
             
             SearchResultsObj oSearchResults = indexManager.SearchMedias(channelSearchObject, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate);
             if (oSearchResults == null || oSearchResults.m_resultIDs == null || oSearchResults.m_resultIDs.Count == 0)
