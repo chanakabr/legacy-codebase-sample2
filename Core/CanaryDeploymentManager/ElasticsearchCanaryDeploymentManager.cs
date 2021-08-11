@@ -18,6 +18,8 @@ namespace CanaryDeploymentManager
         Status SetElasticsearchActiveVersion(int partnerId, ElasticsearchVersion activeVersion);
         Status DeleteCanaryDeploymentConfiguration(int groupId);
         bool IsMigrationEventsEnabled(int partnerId);
+        ElasticsearchVersion GetActiveElasticsearchActiveVersion(int partnerId);
+
     }
     
     public class ElasticsearchCanaryDeploymentManager: IElasticsearchCanaryDeploymentManager
