@@ -8477,12 +8477,7 @@ namespace Core.Catalog
 
         public static ApiObjects.Response.Status ClearStatistics(int groupId, DateTime until)
         {
-            ApiObjects.Response.Status status = null;
-
-            var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
-            status = indexManager.DeleteStatistics(until);
-
-            return status;
+            return new Status(eResponseStatus.Error, "Clear statistics is not supported!");
         }
 
         public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, int domainId, List<int> assetTypes,

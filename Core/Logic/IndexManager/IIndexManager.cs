@@ -77,9 +77,6 @@ namespace Core.Catalog
         ApiObjects.Response.Status DeleteTag(long tagId);
         ApiObjects.Response.Status DeleteTagsByTopic(long topicId);
 
-        // used only in ws catalog, maybe deprecated
-        ApiObjects.Response.Status DeleteStatistics(DateTime until);
-
         // external search (in use in phoenix, for example)
         List<UnifiedSearchResult> GetAssetsUpdateDates(List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex, bool shouldIgnoreRecordings = false);
 

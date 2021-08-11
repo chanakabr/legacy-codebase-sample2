@@ -1757,7 +1757,6 @@ namespace Core.Catalog
 
                             return ratesAgg;
                         });
-
                     }
 
                     // liks aggregation
@@ -1781,7 +1780,6 @@ namespace Core.Catalog
 
                         return likesAgg;
                     });
-
 
                     return rootAggs;
                 })
