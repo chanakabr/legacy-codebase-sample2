@@ -325,7 +325,7 @@ namespace ApiLogic.Tests.IndexManager
             newMedia.m_sName = "upsert_test";
             dictionary[language.ID] = newMedia;
             _mockCatalogManager
-                .Setup(x => x.GetGroupMedia(It.IsAny<int>(), randomMedia.m_nMediaID, It.IsAny<CatalogGroupCache>()))
+                .Setup(x => x.GetGroupMedia(It.IsAny<int>(), randomMedia.m_nMediaID))
                 .Returns(dictionary);
 
             //todo gil,check with sunny about query to see that media updated

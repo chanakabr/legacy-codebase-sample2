@@ -79,7 +79,7 @@ namespace Core.Catalog.Request
 
                 if (channelIds != null && channelIds.Count > 0 && allChannels != null && allChannels.Count > 0)
                 {
-                    IIndexManager indexManager = IndexManagerFactory.GetInstance(groupInCache.m_nParentGroupID);
+                    IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(groupInCache.m_nParentGroupID);
                     List<int> lChannelIDs = allChannels.Select(channel => channel.m_nChannelID).ToList();
                     bool bDoesMediaBelongToBundle = indexManager.DoesMediaBelongToChannels(lChannelIDs, request.m_nMediaID);
 

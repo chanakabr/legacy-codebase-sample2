@@ -95,6 +95,7 @@ namespace Core.Catalog
         protected const string VERSION = "2";
 
         private readonly IElasticSearchApi _elasticSearchApi;
+        private readonly IGroupManager _groupManager;
         private readonly ESSerializerV2 _serializer;
         private readonly ICatalogManager _catalogManager;
         private readonly IElasticSearchIndexDefinitions _esIndexDefinitions;
@@ -102,14 +103,8 @@ namespace Core.Catalog
         private readonly IChannelManager _channelManager;
         private readonly ICatalogCache _catalogCache;
         private readonly IWatchRuleManager _watchRuleManager;
-
-        private bool _doesGroupUsesTemplates;
-        private readonly IGroupManager _groupManager;
-        private Group _group;
-        private CatalogGroupCache _catalogGroupCache;
         private readonly int _partnerId;
-
-        private HashSet<string> _metasToPad;
+ 
 
         public IndexManagerV2(int partnerId,
             IElasticSearchApi elasticSearchClient,
@@ -123,6 +118,7 @@ namespace Core.Catalog
             IWatchRuleManager watchRuleManager)
         {
             _elasticSearchApi = elasticSearchClient;
+            _groupManager = groupManager;
             _serializer = eSSerializerV2;
             _catalogManager = catalogManager;
             _esIndexDefinitions = esIndexDefinitions;
@@ -130,36 +126,36 @@ namespace Core.Catalog
             _channelManager = channelManager;
             _catalogCache = catalogCache;
             _partnerId = partnerId;
-            _groupManager = groupManager;
             _watchRuleManager = watchRuleManager;
-
-            HandleOpcAccount(partnerId);
-            GetMetasAndTagsForMapping(out _, out _, out _metasToPad);
         }
+        
+        #region OPC helpers
 
-        private void HandleOpcAccount(int partnerId)
+        private Group GetGroupManager()
         {
-            if (partnerId <= 0)
-            {
-                return;
-            }
-
-            _doesGroupUsesTemplates = _catalogManager.DoesGroupUsesTemplates(partnerId);
-
-            if (_doesGroupUsesTemplates)
-            {
-                _catalogManager.TryGetCatalogGroupCacheFromCache(partnerId, out _catalogGroupCache);
-            }
-            else
-            {
-                _group = _groupManager.GetGroup(partnerId);
-            }
-
-            if (_catalogGroupCache == null && _group == null)
-            {
-                log.Error($"Could not load group configuration for {partnerId}");
-            }
+            return _groupManager.GetGroup(_partnerId);
         }
+
+        private CatalogGroupCache GetCatalogGroupCache()
+        {
+            CatalogGroupCache catalogGroupCache;
+            _catalogManager.TryGetCatalogGroupCacheFromCache(_partnerId, out catalogGroupCache);
+            return catalogGroupCache;
+        }
+
+        private bool VerifyGroupUsesTemplates()
+        {
+            return _catalogManager.DoesGroupUsesTemplates(_partnerId);
+        }
+
+        public HashSet<string> GetMetasToPad()
+        {
+            HashSet<string> metasToPad;
+            GetMetasAndTagsForMapping(out _, out _, out metasToPad);
+            return metasToPad;
+        }
+        
+        #endregion
 
         #region Methods from Static IndexManager
 
@@ -182,12 +178,13 @@ namespace Core.Catalog
 
             Dictionary<int, LanguageObj> languagesMap = null;
 
-            var metasToPad = _metasToPad;
-            if (_doesGroupUsesTemplates)
+            var metasToPad = new HashSet<string>();
+            if (VerifyGroupUsesTemplates())
             {
-                languagesMap = new Dictionary<int, LanguageObj>(_catalogGroupCache.LanguageMapById);
+                var catalogGroupCache = GetCatalogGroupCache();
+                languagesMap = new Dictionary<int, LanguageObj>(catalogGroupCache.LanguageMapById);
 
-                var metas = _catalogGroupCache.TopicsMapById.Values.Where(x => x.Type == ApiObjects.MetaType.Number).Select(y => y.SystemName).ToList();
+                var metas = catalogGroupCache.TopicsMapById.Values.Where(x => x.Type == ApiObjects.MetaType.Number).Select(y => y.SystemName).ToList();
                 if (metas?.Count > 0)
                 {
                     metasToPad = new HashSet<string>(metas);
@@ -195,14 +192,15 @@ namespace Core.Catalog
             }
             else
             {
-                List<LanguageObj> languages = _group.GetLangauges();
+                metasToPad = GetMetasToPad();
+                var languages = GetGroupManager().GetLangauges();
                 languagesMap = languages.ToDictionary(x => x.ID, x => x);
             }
 
             try
             {
                 //Create Media Object
-                var mediaDictionary = _catalogManager.GetGroupMedia(_partnerId, assetId, _catalogGroupCache);
+                var mediaDictionary = _catalogManager.GetGroupMedia(_partnerId, assetId);
                 if (mediaDictionary != null && mediaDictionary.Count > 0)
                 {
                     foreach (int languageId in mediaDictionary.Keys)
@@ -257,7 +255,6 @@ namespace Core.Catalog
             return result;
         }
 
-        //TESTABLE gil
         public bool DeleteMedia(long assetId)
         {
             bool result = false;
@@ -270,13 +267,13 @@ namespace Core.Catalog
             }
 
             List<LanguageObj> languages = null;
-            if (_doesGroupUsesTemplates)
+            if (VerifyGroupUsesTemplates())
             {
-                languages = _catalogGroupCache.LanguageMapById.Values.ToList();
+                languages = GetCatalogGroupCache().LanguageMapById.Values.ToList();
             }
             else
             {
-                languages = _group.GetLangauges();
+                languages = GetGroupManager().GetLangauges();
             }
 
             try
@@ -324,7 +321,6 @@ namespace Core.Catalog
             return result;
         }
 
-        //TESTABLE gil
         public bool UpsertChannel(int channelId, Channel channel = null, long userId = 0)
         {
             var result = false;
@@ -387,7 +383,6 @@ namespace Core.Catalog
             return result;
         }
         
-        //TESTABLE
         public bool DeleteChannel(int channelId)
         {
             bool result = false;            
@@ -443,7 +438,8 @@ namespace Core.Catalog
                     }
                     else
                     {
-                        if (_group == null || _group.channelIDs == null || _group.channelIDs.Count == 0)
+                        var groupManager = GetGroupManager();
+                        if (groupManager == null || groupManager.channelIDs == null || groupManager.channelIDs.Count == 0)
                         {
                             return result;
                         }
@@ -451,8 +447,7 @@ namespace Core.Catalog
                         result = true;
                         foreach (int channelId in channelIds)
                         {
-                            //todo gil tests how can we remove it???
-                            Channel channelToUpdate = ChannelRepository.GetChannel(channelId, _group);
+                            var channelToUpdate = ChannelRepository.GetChannel(channelId, groupManager);
 
                             if (channelToUpdate != null)
                             {
@@ -580,15 +575,25 @@ namespace Core.Catalog
                 var sizeOfBulk = SIZE_OF_BULK == 0 ? SIZE_OF_BULK_DEFAULT_VALUE : SIZE_OF_BULK > SIZE_OF_BULK_DEFAULT_VALUE ? SIZE_OF_BULK_DEFAULT_VALUE : SIZE_OF_BULK;
 
                 // dictionary contains all language ids and its  code (string)
-                List<LanguageObj> languages = _doesGroupUsesTemplates ? _catalogGroupCache.LanguageMapById.Values.ToList() : _group.GetLangauges();
-                List<string> languageCodes = new List<string>();
+                var groupUsesTemplates = VerifyGroupUsesTemplates();
+                CatalogGroupCache catalogGroupCache=null;
+                Group groupManager=null;
+                List<LanguageObj> languages;
 
-                if (languages != null)
+                if (groupUsesTemplates)
                 {
-                    languageCodes = languages.Select(p => p.Code.ToLower()).ToList<string>();
+                    catalogGroupCache = GetCatalogGroupCache();
+                    languages = catalogGroupCache.LanguageMapById.Values.ToList();
+                                         
                 }
                 else
                 {
+                    groupManager = GetGroupManager();
+                    languages=groupManager.GetLangauges();
+                }
+                              
+                if (languages == null)
+                {            
                     // return false; // perhaps?
                     log.Debug("Warning - " + string.Format("Group {0} has no languages defined.", _partnerId));
                 }
@@ -609,8 +614,10 @@ namespace Core.Catalog
                     #region Get Linear Channels Regions
 
                     Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
-                    if (_doesGroupUsesTemplates ? _catalogGroupCache.IsRegionalizationEnabled : _group.isRegionalizationEnabled)
-                    {
+
+                    if ((groupUsesTemplates && catalogGroupCache.IsRegionalizationEnabled) || 
+                        (groupManager!=null && groupManager.isRegionalizationEnabled))
+                    {                                            
                         linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(_partnerId);
                     }
 
@@ -701,7 +708,7 @@ namespace Core.Catalog
                                     else
                                     {
                                         temporaryResult &= true;
-                                        EpgAssetManager.InvalidateEpgs(_partnerId, bulkRequests.Select(x => (long)x.docID), _doesGroupUsesTemplates, epgChannelIds, false);
+                                        EpgAssetManager.InvalidateEpgs(_partnerId, bulkRequests.Select(x => (long)x.docID), groupUsesTemplates, epgChannelIds, false);
                                     }
 
                                     bulkRequests.Clear();
@@ -710,16 +717,17 @@ namespace Core.Catalog
                         }
                     }
 
-                        if (bulkRequests.Count > 0)
-                        {
-                            // send request to ES API
-                            invalidResults = _elasticSearchApi.CreateBulkRequest(bulkRequests);
+                    if (bulkRequests.Count > 0)
+                    {
+                        // send request to ES API
+                        invalidResults = _elasticSearchApi.CreateBulkRequest(bulkRequests);
 
                         if (invalidResults != null && invalidResults.Count > 0)
                         {
                             foreach (var invalidResult in invalidResults)
                             {
-                                log.Error("Error - " + string.Format("Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                log.Error("Error - " + string.Format(
+                                    "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
                                     _partnerId, EPG_INDEX_TYPE, invalidResult.Key, invalidResult.Value));
                             }
 
@@ -729,7 +737,8 @@ namespace Core.Catalog
                         else
                         {
                             temporaryResult &= true;
-                            EpgAssetManager.InvalidateEpgs(_partnerId, bulkRequests.Select(x => (long)x.docID), _doesGroupUsesTemplates, epgChannelIds, false);
+                            EpgAssetManager.InvalidateEpgs(_partnerId, bulkRequests.Select(x => (long) x.docID),
+                                groupUsesTemplates, epgChannelIds, false);
                         }
 
                         result = temporaryResult;
@@ -749,11 +758,14 @@ namespace Core.Catalog
         public bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds)
         {
             bool result = false;
-            
+
+            var groupUsesTemplates = VerifyGroupUsesTemplates();
             if (epgIds != null & epgIds.Count > 0)
             {
                 // dictionary contains all language ids and its  code (string)
-                List<LanguageObj> languages = _doesGroupUsesTemplates ? _catalogGroupCache.LanguageMapById.Values.ToList() : _group.GetLangauges();
+                var languages = groupUsesTemplates
+                    ? GetCatalogGroupCache().LanguageMapById.Values.ToList()
+                    : GetGroupManager().GetLangauges();
 
                 string alias = string.Format("{0}_epg", _partnerId);
 
@@ -781,7 +793,7 @@ namespace Core.Catalog
             if (result)
             {
                 // invalidate epg's for OPC and NON-OPC accounts
-                EpgAssetManager.InvalidateEpgs(_partnerId, epgIds, _doesGroupUsesTemplates, epgChannelIds, true);
+                EpgAssetManager.InvalidateEpgs(_partnerId, epgIds, groupUsesTemplates, epgChannelIds, true);
             }
 
             return result;
@@ -864,11 +876,8 @@ namespace Core.Catalog
 
             log.Info($"creating mappings. index [{dailyEpgIndexName}], languages [{languagesToCreate.Select(_ => _.Name)}]");
 
-            _groupManager.RemoveGroup(_partnerId); // remove from cache
-            _group = _groupManager.GetGroup(_partnerId);
-            var doesGroupUsesTemplates = _doesGroupUsesTemplates;
-
-            if (!this.GetMetasAndTagsForMapping(
+            _groupManager.RemoveGroup(_partnerId); // remove from cache           
+            if (!GetMetasAndTagsForMapping(
                 out var metas,
                 out var tags,
                 out var metasToPad,
@@ -1260,7 +1269,8 @@ namespace Core.Catalog
 
             int nTotalItems = 0;
 
-            if (_group == null)
+            var groupManager = GetGroupManager();
+            if (groupManager == null)
                 return lSortedMedias;
 
             if (oSearch != null && oSearch.Count > 0)
@@ -1316,7 +1326,7 @@ namespace Core.Catalog
                 string sSearchQuery = tempQuery.ToString();
 
 
-                string sRetVal = _elasticSearchApi.Search(_group.m_nParentGroupID.ToString(), ES_MEDIA_TYPE, ref sSearchQuery);
+                string sRetVal = _elasticSearchApi.Search(groupManager.m_nParentGroupID.ToString(), ES_MEDIA_TYPE, ref sSearchQuery);
 
                 lSearchResults = ESUtils.DecodeAssetSearchJsonObject(sRetVal, ref nTotalItems);
 
@@ -1328,7 +1338,9 @@ namespace Core.Catalog
                     lSortedMedias.n_TotalItems = nTotalItems;
 
 
-                    if ((oOrderObj.m_eOrderBy <= ApiObjects.SearchObjects.OrderBy.VIEWS && oOrderObj.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) || oOrderObj.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
+                    if ((oOrderObj.m_eOrderBy <= OrderBy.VIEWS &&
+                         oOrderObj.m_eOrderBy >= ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER) ||
+                        oOrderObj.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.VOTES_COUNT))
                     {
                         List<int> lIds = lSearchResults.Select(item => item.asset_id).ToList();
 
@@ -1383,15 +1395,15 @@ namespace Core.Catalog
             List<UnifiedSearchResult> finalSearchResults = new List<UnifiedSearchResult>();
             totalItems = 0;
 
-            if (_group == null && _catalogGroupCache == null)
+            var groupManager = GetGroupManager();
+            if (groupManager == null)
                 return finalSearchResults;
 
-            int parentGroupID = _partnerId;
+            var parentGroupId = _partnerId;
 
-            if (_group != null)
-            {
-                parentGroupID = _group.m_nParentGroupID;
-            }
+            
+            parentGroupId = groupManager.m_nParentGroupID;
+            
 
             if (searchObjects != null && searchObjects.Count > 0)
             {
@@ -1399,7 +1411,7 @@ namespace Core.Catalog
 
                 #region Build Search Query
 
-                BoolQuery boolQuery = BuildMultipleSearchQuery(searchObjects, parentGroupID);
+                BoolQuery boolQuery = BuildMultipleSearchQuery(searchObjects, parentGroupId);
 
                 string orderValue = FilteredQuery.GetESSortValue(order);
 
@@ -1426,7 +1438,7 @@ namespace Core.Catalog
 
                 #endregion
 
-                string searchResultString = _elasticSearchApi.Search(IndexingUtils.GetMediaIndexAlias(parentGroupID), ES_MEDIA_TYPE, ref searchQuery);
+                string searchResultString = _elasticSearchApi.Search(IndexingUtils.GetMediaIndexAlias(parentGroupId), ES_MEDIA_TYPE, ref searchQuery);
 
                 int temporaryTotalItems = 0;
                 searchResults = ESUtils.DecodeAssetSearchJsonObject(searchResultString, ref temporaryTotalItems);
@@ -3538,6 +3550,8 @@ namespace Core.Catalog
 
             IESTerm valueTerm = null;
 
+            CatalogGroupCache catalogGroupCache=null;
+            
             if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue) || !string.IsNullOrEmpty(definitions.ExactSearchValue))
             {
                 // if we have a specific language - we will search it only
@@ -3549,8 +3563,10 @@ namespace Core.Catalog
                 {
                     // if we don't have a specific language - we will search all languageas using OR between them
                     BoolQuery boolQuery = new BoolQuery();
+                    catalogGroupCache = catalogGroupCache ?? GetCatalogGroupCache();
 
-                    foreach (var language in _catalogGroupCache.LanguageMapByCode.Values)
+                    var languageObjs = catalogGroupCache.LanguageMapByCode.Values;
+                    foreach (var language in languageObjs)
                     {
                         var currentTerm = CreateTagValueTerm(language, definitions.AutocompleteSearchValue, definitions.ExactSearchValue);
 
@@ -3619,7 +3635,9 @@ namespace Core.Catalog
                 StringBuilder typeBuilder = new StringBuilder();
 
                 // combine all language codes together
-                foreach (var language in _catalogGroupCache.LanguageMapByCode.Values)
+                catalogGroupCache = catalogGroupCache ?? GetCatalogGroupCache();
+                var languages = catalogGroupCache.LanguageMapByCode.Values;
+                foreach (var language in languages)
                 {
                     string currentType = string.Empty;
 
@@ -3742,7 +3760,7 @@ namespace Core.Catalog
             string index = ESUtils.GetGroupMetadataIndex(_partnerId);
 
             // dictionary contains all language ids and its  code (string)
-            var languages = _catalogGroupCache.LanguageMapByCode.Values;
+            var languages = GetCatalogGroupCache().LanguageMapByCode.Values;
 
             ESTerm term = new ESTerm(true)
             {
@@ -3781,7 +3799,7 @@ namespace Core.Catalog
             string index = ESUtils.GetGroupMetadataIndex(_partnerId);
 
             // dictionary contains all language ids and its  code (string)
-            var languages = _catalogGroupCache.LanguageMapByCode.Values;
+            var languages = GetCatalogGroupCache().LanguageMapByCode.Values;
 
             ESTerm term = new ESTerm(true)
             {
@@ -3833,7 +3851,7 @@ namespace Core.Catalog
 
             if (defaultLanguageId == 0)
             {
-                defaultLanguageId = _catalogGroupCache.GetDefaultLanguage().ID;
+                defaultLanguageId = GetCatalogGroupCache().GetDefaultLanguage().ID;
             }
 
             tagsToInsert.Add(new TagValue()
@@ -3845,14 +3863,15 @@ namespace Core.Catalog
                 updateDate = tag.updateDate,
                 value = tag.value
             });
-
+            
+            var catalogGroupCache = GetCatalogGroupCache();
             foreach (var languageContainer in tag.TagsInOtherLanguages)
             {
                 int languageId = 0;
 
-                if (_catalogGroupCache.LanguageMapByCode.ContainsKey(languageContainer.m_sLanguageCode3))
+                if (catalogGroupCache.LanguageMapByCode.ContainsKey(languageContainer.m_sLanguageCode3))
                 {
-                    languageId = _catalogGroupCache.LanguageMapByCode[languageContainer.m_sLanguageCode3].ID;
+                    languageId = catalogGroupCache.LanguageMapByCode[languageContainer.m_sLanguageCode3].ID;
 
                     if (languageId > 0)
                     {
@@ -3877,7 +3896,7 @@ namespace Core.Catalog
                     continue;
                 }
 
-                var language = _catalogGroupCache.LanguageMapById[tagToInsert.languageId];
+                var language = catalogGroupCache.LanguageMapById[tagToInsert.languageId];
                 string suffix = null;
 
                 if (!language.IsDefault)
@@ -5385,7 +5404,7 @@ namespace Core.Catalog
                 MappingAnalyzers specificMappingAnalyzers = GetMappingAnalyzers(language, VERSION);
 
                 // Ask serializer to create the mapping definitions string
-                string mapping = _serializer.CreateMediaMapping(metas, tags, _metasToPad, specificMappingAnalyzers, defaultMappingAnalyzers);
+                string mapping = _serializer.CreateMediaMapping(metas, tags, GetMetasToPad(), specificMappingAnalyzers, defaultMappingAnalyzers);
                 bool mappingResult = _elasticSearchApi.InsertMapping(newIndexName, type, mapping.ToString());
 
                 // Most important is the mapping for the default language, we can live without the others...
@@ -5434,7 +5453,10 @@ namespace Core.Catalog
                         // For each language
                         foreach (int languageId in groupMedia.Value.Keys)
                         {
-                            ApiObjects.LanguageObj language = _doesGroupUsesTemplates ? _catalogGroupCache.LanguageMapById[languageId] : _group.GetLanguage(languageId);
+                            ApiObjects.LanguageObj language = VerifyGroupUsesTemplates()
+                                ? GetCatalogGroupCache().LanguageMapById[languageId]
+                                : GetGroupManager().GetLanguage(languageId);
+                            
                             string suffix = null;
 
                             if (!language.IsDefault)
@@ -5446,7 +5468,7 @@ namespace Core.Catalog
 
                             if (media != null)
                             {
-                                media.PadMetas(_metasToPad);
+                                media.PadMetas(GetMetasToPad());
 
                                 // Serialize media and create a bulk request for it
                                 string serializedMedia = _serializer.SerializeMediaObject(media, suffix);
@@ -5614,16 +5636,17 @@ namespace Core.Catalog
                 newIndexName = $"{_partnerId}";
             }
 
-            if (_doesGroupUsesTemplates || channelIds != null)
+            var groupUsesTemplates = VerifyGroupUsesTemplates();
+            if (groupUsesTemplates || channelIds != null)
             {
-                log.Info(string.Format("Start indexing channel percolators. total channels={0}, doesGroupUsesTemplates={1}", channelIds.Count, _doesGroupUsesTemplates));
+                log.Info(string.Format("Start indexing channel percolators. total channels={0}, doesGroupUsesTemplates={1}", channelIds.Count, groupUsesTemplates));
                 List<KeyValuePair<int, string>> channelRequests = new List<KeyValuePair<int, string>>();
 
                 try
                 {
                     List<int> subGroups = new List<int>();
 
-                    if (_doesGroupUsesTemplates)
+                    if (groupUsesTemplates)
                     {
                         groupChannels = ChannelManager.GetGroupChannels(_partnerId);
                         channelIds = new HashSet<int>(groupChannels.Select(x => x.m_nChannelID));
@@ -5653,7 +5676,7 @@ namespace Core.Catalog
                         }
 
                         // if group uses templates - index inactive channel as well
-                        if (!_doesGroupUsesTemplates && currentChannel.m_nIsActive != 1)
+                        if (!groupUsesTemplates && currentChannel.m_nIsActive != 1)
                         {
                             log.ErrorFormat("BuildChannelQueries - All channels list has null or in-active channel, continuing");
                             continue;
@@ -5666,7 +5689,7 @@ namespace Core.Catalog
                             log.DebugFormat("BuildChannelQueries - Current channel  = {0}", currentChannel.m_nChannelID);
 
                             if ((currentChannel.m_nChannelTypeID == (int)ChannelType.KSQL) ||
-                               (currentChannel.m_nChannelTypeID == (int)ChannelType.Manual && _doesGroupUsesTemplates && currentChannel.AssetUserRuleId > 0))
+                               (currentChannel.m_nChannelTypeID == (int)ChannelType.Manual && groupUsesTemplates && currentChannel.AssetUserRuleId > 0))
                             {
                                 try
                                 {
@@ -5751,12 +5774,12 @@ namespace Core.Catalog
                 var allChannels = this.GetAllChannels();
                 HashSet<int> groupChannelIds = new HashSet<int>();
 
-                if (!_doesGroupUsesTemplates)
+                if (!groupUsesTemplates)
                 {
-                    groupChannelIds = _group.channelIDs;
+                    groupChannelIds = GetGroupManager().channelIDs;
                 }
 
-                this.CleanupChannelsPercolators(allChannels, channelsToRemove, groupChannelIds);
+                CleanupChannelsPercolators(allChannels, channelsToRemove, groupChannelIds);
             }
 
             return true;
@@ -5942,9 +5965,9 @@ namespace Core.Catalog
             List<string> filters;
             List<string> tokenizers;
 
-            List<ApiObjects.LanguageObj> languages = new List<ApiObjects.LanguageObj>()
+            var languages = new List<ApiObjects.LanguageObj>()
                 {
-                    _catalogGroupCache.GetDefaultLanguage()
+                    GetCatalogGroupCache().GetDefaultLanguage()
                 };
 
             GetTagsAndChannelsAnalyzers(languages, out analyzers, out filters, out tokenizers);
@@ -6060,7 +6083,8 @@ namespace Core.Catalog
             List<string> filters;
             List<string> tokenizers;
 
-            GetTagsAndChannelsAnalyzers(_catalogGroupCache.LanguageMapById.Values.ToList(), out analyzers, out filters, out tokenizers);
+            var catalogGroupCache = GetCatalogGroupCache();
+            GetTagsAndChannelsAnalyzers(catalogGroupCache.LanguageMapById.Values.ToList(), out analyzers, out filters, out tokenizers);
 
             string newIndexName = IndexingUtils.GetNewMetadataIndexName(_partnerId);
 
@@ -6086,7 +6110,7 @@ namespace Core.Catalog
 
             #endregion
 
-            var languages = _catalogGroupCache.LanguageMapById.Values;
+            var languages = catalogGroupCache.LanguageMapById.Values;
 
             #region Mapping
             // Mapping for each language
@@ -6164,9 +6188,11 @@ namespace Core.Catalog
             List<ESBulkRequestObj<string>> bulkList = new List<ESBulkRequestObj<string>>();
 
             // For each tag value
+            var catalogGroupCache = GetCatalogGroupCache();
+
             foreach (var tagValue in allTagValues)
             {
-                if (!_catalogGroupCache.LanguageMapById.ContainsKey(tagValue.languageId))
+                if (!catalogGroupCache.LanguageMapById.ContainsKey(tagValue.languageId))
                 {
                     log.WarnFormat("Found tag value with non existing language ID. tagId = {0}, tagText = {1}, languageId = {2}",
                         tagValue.tagId, tagValue.value, tagValue.languageId);
@@ -6174,7 +6200,7 @@ namespace Core.Catalog
                     continue;
                 }
 
-                var language = _catalogGroupCache.LanguageMapById[tagValue.languageId];
+                var language = catalogGroupCache.LanguageMapById[tagValue.languageId];
                 string suffix = null;
 
                 if (!language.IsDefault)
@@ -6347,6 +6373,20 @@ namespace Core.Catalog
                 int sizeOfBulk = SIZE_OF_BULK == 0 ? SIZE_OF_BULK_DEFAULT_VALUE : SIZE_OF_BULK > SIZE_OF_BULK_DEFAULT_VALUE ? SIZE_OF_BULK_DEFAULT_VALUE : SIZE_OF_BULK;
 
                 // Run on all programs
+                CatalogGroupCache catalogGroupCache=null;
+                Group groupManager=null;
+                var groupUsesTemplates = VerifyGroupUsesTemplates();
+                if (groupUsesTemplates)
+                {
+                    catalogGroupCache = GetCatalogGroupCache();
+                }
+                else
+                {
+                    groupManager = GetGroupManager();
+                }
+                var metasToPad = GetMetasToPad();
+
+
                 foreach (ulong epgID in programs.Keys)
                 {
                     foreach (string languageCode in programs[epgID].Keys)
@@ -6357,13 +6397,15 @@ namespace Core.Catalog
 
                         if (!string.IsNullOrEmpty(languageCode))
                         {
-                            if (_doesGroupUsesTemplates)
+                            
+                            if (groupUsesTemplates)
                             {
-                                language = _catalogGroupCache.LanguageMapByCode.ContainsKey(languageCode) ? _catalogGroupCache.LanguageMapByCode[languageCode] : null;
+                               
+                                language = catalogGroupCache.LanguageMapByCode.ContainsKey(languageCode) ? catalogGroupCache.LanguageMapByCode[languageCode] : null;
                             }
                             else
                             {
-                                language = _group.GetLanguage(languageCode);
+                                language = groupManager.GetLanguage(languageCode);
                             }
 
                             // Validate language
@@ -6380,14 +6422,14 @@ namespace Core.Catalog
                         }
                         else
                         {
-                            language = _doesGroupUsesTemplates ? _catalogGroupCache.GetDefaultLanguage() : _group.GetGroupDefaultLanguage();
+                            language = groupUsesTemplates ? catalogGroupCache.GetDefaultLanguage() : groupManager.GetGroupDefaultLanguage();
                         }
 
                         EpgCB epg = programs[epgID][languageCode];
 
                         if (epg != null)
                         {
-                            epg.PadMetas(_metasToPad);
+                            epg.PadMetas(metasToPad);
 
                             // used only to currently support linear media id search on elastic search
                             if (linearChannelSettings.ContainsKey(epg.ChannelID.ToString()))
@@ -6401,7 +6443,7 @@ namespace Core.Catalog
                             }
 
                             // Serialize EPG object to string
-                            string serializedEpg = SerializeEPGObject(epg, isRecording, epgToRecordingMapping, suffix, _doesGroupUsesTemplates);
+                            string serializedEpg = SerializeEPGObject(epg, isRecording, epgToRecordingMapping, suffix, groupUsesTemplates);
                             string epgType = IndexingUtils.GetTanslationType(type, language);
                             ulong documentId = GetDocumentId(epg, isRecording, epgToRecordingMapping);
 
@@ -6591,11 +6633,24 @@ namespace Core.Catalog
             // Temporarily - assume success
             bool temporaryResult = true;
 
-            List<LanguageObj> languages = _doesGroupUsesTemplates ? _catalogGroupCache.LanguageMapById.Values.ToList() : _group.GetLangauges();
+            CatalogGroupCache catalogGroupCache = null;
+            Group groupManager = null;
+            List<LanguageObj> languages = null;
+            var groupUsesTemplates = VerifyGroupUsesTemplates();
+            if (groupUsesTemplates)
+            {
+                catalogGroupCache = GetCatalogGroupCache();
+                languages = catalogGroupCache.LanguageMapById.Values.ToList();
+            }
+            else
+            {
+                groupManager = GetGroupManager();
+                languages =  groupManager.GetLangauges();
+            }                                    
 
             Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
-
-            if (_doesGroupUsesTemplates ? _catalogGroupCache.IsRegionalizationEnabled : _group.isRegionalizationEnabled)
+            if ((groupUsesTemplates &&catalogGroupCache!=null&& catalogGroupCache.IsRegionalizationEnabled) || 
+             (groupManager!=null&& groupManager.isRegionalizationEnabled))
             {
                 linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(_partnerId);
             }
@@ -6621,6 +6676,7 @@ namespace Core.Catalog
             Dictionary<string, LinearChannelSettings> linearChannelSettings = _catalogCache.GetLinearChannelSettings(_partnerId, epgChannelIds);
 
             // Create dictionary by languages
+            var metasToPad = GetMetasToPad();
             foreach (LanguageObj language in languages)
             {
                 // Filter programs to current language
@@ -6639,7 +6695,7 @@ namespace Core.Catalog
                             alias = IndexingUtils.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
                         }
 
-                        epg.PadMetas(_metasToPad);
+                        epg.PadMetas(metasToPad);
 
                         string suffix = null;
 
@@ -6660,7 +6716,7 @@ namespace Core.Catalog
                         }
 
                         string serializedEpg = SerializeEPGObject(epg, isRecording, epgToRecordingMapping, suffix, 
-                            _doesGroupUsesTemplates);
+                            groupUsesTemplates);
 
                         var ttl = string.Empty;
                         var shouldSetTTL = !isRecording;
@@ -6754,6 +6810,8 @@ namespace Core.Catalog
                 log.Warn($"upsert attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
             });
 
+            var metasToPad = GetMetasToPad();
+
             policy.Execute(() =>
             {
                 var bulkRequests = new List<ESBulkRequestObj<string>>();
@@ -6762,12 +6820,12 @@ namespace Core.Catalog
                     var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
                     foreach (var program in programTranslationsToIndex)
                     {
-                        program.PadMetas(_metasToPad);
+                        program.PadMetas(metasToPad);
                         var suffix = program.Language == defaultLanguage.Code ? "" : program.Language;
                         var language = languages[program.Language];
 
                         // Serialize EPG object to string
-                        string serializedEpg = HanlderSerializedEpg(_doesGroupUsesTemplates, program, suffix);
+                        string serializedEpg = HanlderSerializedEpg(VerifyGroupUsesTemplates(), program, suffix);
                         var epgType = GetTanslationType(IndexManagerV2.EPG_INDEX_TYPE, language);
 
                         var totalMinutes = _ttlService.GetEpgTtlMinutes(program);
@@ -6856,7 +6914,8 @@ namespace Core.Catalog
         private bool GetMetasAndTagsForMapping(
             out Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
             out List<string> tags,
-            out HashSet<string> metasToPad, bool isEpg = false)
+            out HashSet<string> metasToPad, 
+            bool isEpg = false)
         {
             var serializer = _serializer;
 
@@ -6867,134 +6926,151 @@ namespace Core.Catalog
             // Padded with zero prefix metas to sort numbers by text without issues in elastic (Brilliant!)
             metasToPad = new HashSet<string>();
 
-            if (_doesGroupUsesTemplates && _catalogGroupCache != null)
+            if (VerifyGroupUsesTemplates() )
             {
-                try
+                var catalogGroupCache = GetCatalogGroupCache();
+                if (catalogGroupCache != null)
                 {
-                    HashSet<string> topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
-                    tags = _catalogGroupCache.TopicsMapBySystemNameAndByType.Where(x => x.Value.ContainsKey(ApiObjects.MetaType.Tag.ToString()) && !topicsToIgnore.Contains(x.Key)).Select(x => x.Key.ToLower()).ToList();
-
-                    foreach (KeyValuePair<string, Dictionary<string, Topic>> topics in _catalogGroupCache.TopicsMapBySystemNameAndByType)
+                    try
                     {
-                        //TODO anat ask Ira
-                        if (topics.Value.Keys.Any(x => x != ApiObjects.MetaType.Tag.ToString() && x != ApiObjects.MetaType.ReleatedEntity.ToString()))
+                        var topicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
+                        tags = catalogGroupCache.TopicsMapBySystemNameAndByType
+                            .Where(x => x.Value.ContainsKey(ApiObjects.MetaType.Tag.ToString()) &&
+                                        !topicsToIgnore.Contains(x.Key)).Select(x => x.Key.ToLower()).ToList();
+
+                        foreach (var topics in catalogGroupCache.TopicsMapBySystemNameAndByType)
                         {
-                            string nullValue = string.Empty;
-                            eESFieldType metaType;
-                            ApiObjects.MetaType topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
-                            serializer.GetMetaType(topicMetaType, out metaType, out nullValue);
+                            if (topics.Value.Keys.Any(x =>
+                                x != ApiObjects.MetaType.Tag.ToString() &&
+                                x != ApiObjects.MetaType.ReleatedEntity.ToString()))
+                            {
+                                var nullValue = string.Empty;
+                                eESFieldType metaType;
+                                var topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
+                                serializer.GetMetaType(topicMetaType, out metaType, out nullValue);
 
-                            if (topicMetaType == ApiObjects.MetaType.Number && !metasToPad.Contains(topics.Key.ToLower()))
-                            {
-                                metasToPad.Add(topics.Key.ToLower());
-                            }
+                                if (topicMetaType == ApiObjects.MetaType.Number &&
+                                    !metasToPad.Contains(topics.Key.ToLower()))
+                                {
+                                    metasToPad.Add(topics.Key.ToLower());
+                                }
 
-                            if (!metas.ContainsKey(topics.Key.ToLower()))
-                            {
-                                metas.Add(topics.Key.ToLower(), new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType, nullValue));
-                            }
-                            else
-                            {
-                                log.ErrorFormat("Duplicate topic found for group {0} name {1}", _partnerId, topics.Key.ToLower());
+                                if (!metas.ContainsKey(topics.Key.ToLower()))
+                                {
+                                    metas.Add(topics.Key.ToLower(),
+                                        new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType,
+                                            nullValue));
+                                }
+                                else
+                                {
+                                    log.ErrorFormat("Duplicate topic found for group {0} name {1}", _partnerId,
+                                        topics.Key.ToLower());
+                                }
                             }
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    log.Error(string.Format("Failed BuildIndex for _partnerId: {0} because CatalogGroupCache", _partnerId), ex);
-                    return false;
+                    catch (Exception ex)
+                    {
+                        log.Error(
+                            string.Format("Failed BuildIndex for _partnerId: {0} because CatalogGroupCache",
+                                _partnerId), ex);
+                        return false;
+                    }
                 }
             }
-            else if (_group != null)
+            else
             {
-                try
+                var groupManager = GetGroupManager();
+                if (groupManager != null)
                 {
-                    if (_group.m_oEpgGroupSettings != null && _group.m_oEpgGroupSettings.m_lTagsName != null)
+                    try
                     {
-                        foreach (var item in _group.m_oEpgGroupSettings.m_lTagsName)
+                        if (groupManager.m_oEpgGroupSettings != null && groupManager.m_oEpgGroupSettings.m_lTagsName != null)
                         {
-                            if (!tags.Contains(item.ToLower()))
+                            foreach (var item in groupManager.m_oEpgGroupSettings.m_lTagsName)
                             {
-                                tags.Add(item.ToLower());
+                                if (!tags.Contains(item.ToLower()))
+                                {
+                                    tags.Add(item.ToLower());
+                                }
                             }
                         }
-                    }
 
-                    if (_group.m_oGroupTags != null)
-                    {
-                        foreach (var item in _group.m_oGroupTags.Values)
+                        if (groupManager.m_oGroupTags != null)
                         {
-                            if (!tags.Contains(item.ToLower()))
+                            foreach (var item in groupManager.m_oGroupTags.Values)
                             {
-                                tags.Add(item.ToLower());
+                                if (!tags.Contains(item.ToLower()))
+                                {
+                                    tags.Add(item.ToLower());
+                                }
                             }
                         }
-                    }
 
-                    var realMetasType = new Dictionary<string, eESFieldType>();
-                    if (_group.m_oMetasValuesByGroupId != null)
-                    {
-                        foreach (Dictionary<string, string> metaMap in _group.m_oMetasValuesByGroupId.Values)
+                        var realMetasType = new Dictionary<string, eESFieldType>();
+                        if (groupManager.m_oMetasValuesByGroupId != null)
                         {
-                            foreach (KeyValuePair<string, string> meta in metaMap)
+                            foreach (Dictionary<string, string> metaMap in groupManager.m_oMetasValuesByGroupId.Values)
+                            {
+                                foreach (KeyValuePair<string, string> meta in metaMap)
+                                {
+                                    string nullValue = string.Empty;
+                                    eESFieldType metaType;
+                                    serializer.GetMetaType(meta.Key, out metaType, out nullValue);
+
+                                    var metaName = meta.Value.ToLower();
+                                    if (!metas.ContainsKey(metaName))
+                                    {
+                                        realMetasType.Add(metaName, metaType);
+                                        metas.Add(metaName, new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType, nullValue));
+                                    }
+                                    else
+                                    {
+                                        log.WarnFormat("Duplicate media meta found for group {0} name {1}", _partnerId, meta.Value);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (groupManager.m_oEpgGroupSettings != null && groupManager.m_oEpgGroupSettings.m_lMetasName != null)
+                        {
+                            foreach (string epgMeta in groupManager.m_oEpgGroupSettings.m_lMetasName)
                             {
                                 string nullValue = string.Empty;
                                 eESFieldType metaType;
-                                serializer.GetMetaType(meta.Key, out metaType, out nullValue);
+                                serializer.GetMetaType(epgMeta, out metaType, out nullValue);
 
-                                var metaName = meta.Value.ToLower();
-                                if (!metas.ContainsKey(metaName))
+                                var epgMetaName = epgMeta.ToLower();
+                                if (!metas.ContainsKey(epgMetaName))
                                 {
-                                    realMetasType.Add(metaName, metaType);
-                                    metas.Add(metaName, new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType, nullValue));
+                                    realMetasType.Add(epgMetaName, metaType);
+                                    metas.Add(epgMetaName, new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType, nullValue));
                                 }
                                 else
                                 {
-                                    log.WarnFormat("Duplicate media meta found for group {0} name {1}", _partnerId, meta.Value);
+                                    var mediaMetaType = realMetasType[epgMetaName];
+
+                                    // If the metas is numeric for media and it exists also for epg, we will have problems with sorting 
+                                    // (since epg metas are string and there will be a type mismatch)
+                                    // the solution is to add another field of a padded string to the indices and sort by it
+                                    if (mediaMetaType == eESFieldType.INTEGER ||
+                                        mediaMetaType == eESFieldType.DOUBLE ||
+                                        mediaMetaType == eESFieldType.LONG)
+                                    {
+                                        metasToPad.Add(epgMetaName);
+                                    }
+                                    else
+                                    {
+                                        log.WarnFormat("Duplicate epg meta found for group {0} name {1}", _partnerId, epgMeta);
+                                    }
                                 }
                             }
                         }
                     }
-
-                    if (_group.m_oEpgGroupSettings != null && _group.m_oEpgGroupSettings.m_lMetasName != null)
+                    catch (Exception ex)
                     {
-                        foreach (string epgMeta in _group.m_oEpgGroupSettings.m_lMetasName)
-                        {
-                            string nullValue = string.Empty;
-                            eESFieldType metaType;
-                            serializer.GetMetaType(epgMeta, out metaType, out nullValue);
-
-                            var epgMetaName = epgMeta.ToLower();
-                            if (!metas.ContainsKey(epgMetaName))
-                            {
-                                realMetasType.Add(epgMetaName, metaType);
-                                metas.Add(epgMetaName, new KeyValuePair<eESFieldType, string>(isEpg ? eESFieldType.STRING : metaType, nullValue));
-                            }
-                            else
-                            {
-                                var mediaMetaType = realMetasType[epgMetaName];
-
-                                // If the metas is numeric for media and it exists also for epg, we will have problems with sorting 
-                                // (since epg metas are string and there will be a type mismatch)
-                                // the solution is to add another field of a padded string to the indices and sort by it
-                                if (mediaMetaType == eESFieldType.INTEGER ||
-                                    mediaMetaType == eESFieldType.DOUBLE ||
-                                    mediaMetaType == eESFieldType.LONG)
-                                {
-                                    metasToPad.Add(epgMetaName);
-                                }
-                                else
-                                {
-                                    log.WarnFormat("Duplicate epg meta found for group {0} name {1}", _partnerId, epgMeta);
-                                }
-                            }
-                        }
+                        log.ErrorFormat("Failed get metas and tags for mapping for group {0} ex = {1}", _partnerId, ex);
                     }
-                }
-                catch (Exception ex)
-                {
-                    log.ErrorFormat("Failed get metas and tags for mapping for group {0} ex = {1}", _partnerId, ex);
                 }
             }
 
@@ -7419,10 +7495,10 @@ namespace Core.Catalog
                 string channelQueryForMedia = string.Empty;
                 string channelQueryForEpg = string.Empty;
 
-                bool doesGroupUsesTemplates = _doesGroupUsesTemplates;
+                bool groupUsesTemplates = VerifyGroupUsesTemplates();
 
                 if ((channel.m_nChannelTypeID == (int)ChannelType.KSQL) ||
-                    (channel.m_nChannelTypeID == (int)ChannelType.Manual && doesGroupUsesTemplates && channel.AssetUserRuleId > 0))
+                    (channel.m_nChannelTypeID == (int)ChannelType.Manual && groupUsesTemplates && channel.AssetUserRuleId > 0))
                 {
                     if (channel.m_nChannelTypeID == (int)ChannelType.Manual && channel.AssetUserRuleId > 0)
                     {
@@ -7587,6 +7663,8 @@ namespace Core.Catalog
                 m_sUserIP = string.Empty
             };
 
+            var groupManager = GetGroupManager();
+
             if (channel.AssetUserRuleId.HasValue && channel.AssetUserRuleId.Value > 0)
             {
                 var assetUserRule = AssetUserRuleManager.GetAssetUserRuleByRuleId(channel.m_nGroupID, channel.AssetUserRuleId.Value);
@@ -7607,7 +7685,7 @@ namespace Core.Catalog
 
                     BooleanPhrase.ParseSearchExpression(queryString, ref phrase);
 
-                    CatalogLogic.UpdateNodeTreeFields(dummyRequest, ref phrase, definitions, _group, _group.m_nParentGroupID);
+                    CatalogLogic.UpdateNodeTreeFields(dummyRequest, ref phrase, definitions, groupManager, groupManager.m_nParentGroupID);
 
                     definitions.assetUserRuleFilterPhrase = phrase;
                 }
@@ -7628,7 +7706,7 @@ namespace Core.Catalog
                 }
 
                 CatalogLogic.UpdateNodeTreeFields(dummyRequest,
-                    ref definitions.filterPhrase, definitions, _group, channel.m_nParentGroupID);
+                    ref definitions.filterPhrase, definitions, groupManager, channel.m_nParentGroupID);
             }
 
             return definitions;

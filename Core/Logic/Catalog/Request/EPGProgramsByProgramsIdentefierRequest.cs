@@ -45,7 +45,7 @@ namespace Core.Catalog.Request
                 CheckSignature(request);
 
                 int parentGroupId = Cache.CatalogCache.Instance().GetParentGroup(m_nGroupID);
-                var indexManager = IndexManagerFactory.GetInstance(parentGroupId);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
 
                 GroupManager groupManager = new GroupManager();
                 Group group = groupManager.GetGroup(request.m_nGroupID);

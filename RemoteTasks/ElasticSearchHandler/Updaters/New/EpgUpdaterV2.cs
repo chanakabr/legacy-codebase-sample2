@@ -44,7 +44,7 @@ namespace ElasticSearchHandler.Updaters
         public EpgUpdaterV2(int groupId)
         {
             this.groupId = groupId;
-            _indexManager = IndexManagerFactory.GetInstance(groupId);
+            _indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
 
             epgBL = EpgBL.Utils.GetInstance(this.groupId);
 

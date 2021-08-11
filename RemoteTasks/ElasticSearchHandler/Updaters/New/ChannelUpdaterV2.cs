@@ -25,7 +25,7 @@ namespace ElasticSearchHandler.Updaters
         public ChannelUpdaterV2(int nGroupID)
         {
             m_nGroupID = nGroupID;
-            _indexManager = IndexManagerFactory.GetInstance(nGroupID);
+            _indexManager = IndexManagerFactory.Instance.GetIndexManager(nGroupID);
         }
 
         public bool Start()

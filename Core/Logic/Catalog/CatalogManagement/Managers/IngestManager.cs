@@ -417,7 +417,7 @@ namespace Core.Catalog.CatalogManagement
 
         private static void IndexAndInvalidateTags(int groupId, List<TagToInvalidate> tagsToInvalidate, CatalogGroupCache catalogGroupCache)
         {
-            var indexManager = IndexManagerFactory.GetInstance(groupId);
+            var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
             var assetsToInvalidate = new Dictionary<int, bool>();
 
             foreach (var tag in tagsToInvalidate)
@@ -463,7 +463,7 @@ namespace Core.Catalog.CatalogManagement
         {
             foreach (var asset in assetsToInvalidate)
             {
-                if (!IndexManagerFactory.GetInstance(groupId).UpsertMedia(asset.Key))
+                if (!IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia(asset.Key))
                 {
                     log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after IndexAndInvalidateAssets", asset.Key, groupId);
                 }

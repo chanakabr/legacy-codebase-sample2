@@ -655,7 +655,7 @@ namespace Core.Catalog.Request
             {
                 int parentGroupID = Cache.CatalogCache.Instance().GetParentGroup(groupID);
 
-                var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
                 if (!indexManager.InsertSocialStatisticsData(
                     new MediaView()
                     {
@@ -682,7 +682,7 @@ namespace Core.Catalog.Request
             try
             {
                 int parentGroupID = Cache.CatalogCache.Instance().GetParentGroup(groupID);
-                var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
 
                 if (ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseFirstPlayRateManager.Value)
                 {

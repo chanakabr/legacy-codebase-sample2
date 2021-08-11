@@ -91,7 +91,7 @@ namespace Core.Catalog.Request
                     return mediaResponse;
                 }
 
-			    IIndexManager indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+			    IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
 
                 var allRecommendations = results.Select(result =>
 					new UnifiedSearchResult()

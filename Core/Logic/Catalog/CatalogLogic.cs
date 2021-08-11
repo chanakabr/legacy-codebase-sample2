@@ -1237,7 +1237,7 @@ namespace Core.Catalog
             try
             {
                 List<List<string>> jsonizedChannelsDefinitions = null;
-                IIndexManager indexManager = IndexManagerFactory.GetInstance(oMediaRequest.m_nGroupID);
+                IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(oMediaRequest.m_nGroupID);
                 ApiObjects.SearchObjects.MediaSearchObj search = null;
 
                 // Group have user types per media  +  siteGuid != empty
@@ -1412,7 +1412,7 @@ namespace Core.Catalog
         {
             UnifiedSearchResponse response = new UnifiedSearchResponse();
             int parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
-            IIndexManager indexManager = IndexManagerFactory.GetInstance(parentGroupId);
+            IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
 
             int totalItems = 0;
             int to = 0;
@@ -3316,7 +3316,7 @@ namespace Core.Catalog
         {
             CatalogCache catalogCache = CatalogCache.Instance();
             int nParentGroupID = catalogCache.GetParentGroup(epgSearchReq.m_nGroupID);
-            IIndexManager indexManager = IndexManagerFactory.GetInstance(nParentGroupID);
+            IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(nParentGroupID);
 
             if (indexManager == null)
             {
@@ -3646,7 +3646,7 @@ namespace Core.Catalog
             MediaSearchObj linearChannelMediaIDsRequest = BuildLinearChannelsMediaIDsRequest(groupID,
                 domainId, siteGuid,
                 dict, jsonizedChannelsDefinitions);
-            var indexManager = IndexManagerFactory.GetInstance(groupID);
+            var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupID);
             SearchResultsObj searcherAnswer = indexManager.SearchMedias(linearChannelMediaIDsRequest, 0, true);
 
             if (searcherAnswer.n_TotalItems > 0)
@@ -3661,7 +3661,7 @@ namespace Core.Catalog
         internal static List<string> EpgAutoComplete(EpgSearchObj request)
         {
 
-            IIndexManager indexManager = IndexManagerFactory.GetInstance(request.m_nGroupID);
+            IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(request.m_nGroupID);
 
             if (indexManager == null || request == null)
             {
@@ -3947,7 +3947,7 @@ namespace Core.Catalog
             Dictionary<int, AssetStatsResult> assetIdToAssetStatsMapping = null;
             InitializeAssetStatsResultsDataStructs(assetIDs, ref set, ref assetIdToAssetStatsMapping);
 
-            var indexManager = IndexManagerFactory.GetInstance(groupId);
+            var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
             switch (statsType)
             {
                 case StatsType.MEDIA:
@@ -4125,7 +4125,7 @@ namespace Core.Catalog
                     }
 
                     int groupId = Convert.ToInt32(funcParams["groupId"]);
-                    var indexManager = IndexManagerFactory.GetInstance(groupId);
+                    var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
                     StatsType statsType = (StatsType)funcParams["statsType"];
                     Dictionary<int, AssetStatsResult> mapping = (Dictionary<int, AssetStatsResult>)funcParams["mapping"];
 
@@ -4216,7 +4216,7 @@ namespace Core.Catalog
         internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest,
             ref List<List<string>> outJsonizedChannelsDefinitions, ref int operatorID)
         {
-            var indexManager = IndexManagerFactory.GetInstance(oMediaRequest.m_nGroupID);
+            var indexManager = IndexManagerFactory.Instance.GetIndexManager(oMediaRequest.m_nGroupID);
             bool res = false;
             long lSiteGuid = 0;
             if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
@@ -5399,7 +5399,7 @@ namespace Core.Catalog
                 searchDefinitions.specificOrder = recommendations.Select(item => long.Parse(item.id)).ToList();
 
                 int parentGroupId = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
-                IIndexManager indexManager = IndexManagerFactory.GetInstance(parentGroupId);
+                IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
 
                 int to = 0;
                 // The provided response should be filtered according to the Filter defined in the applicable 3rd-party channel settings
@@ -5474,7 +5474,7 @@ namespace Core.Catalog
                 if (elasticSearchPageSize > 0)
                 {
                     int parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
-                    var indexManager = IndexManagerFactory.GetInstance(parentGroupId);
+                    var indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
                     int esTotalItems = 0, to = 0;
                     var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
 
@@ -6002,7 +6002,7 @@ namespace Core.Catalog
         private static UnifiedSearchResponse ChannelUnifiedSearch(int groupId, UnifiedSearchDefinitions unifiedSearchDefinitions, GroupsCacheManager.Channel channel)
         {
             var parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
-            IIndexManager indexManager = IndexManagerFactory.GetInstance(parentGroupId);
+            IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
 
             if (indexManager == null) return new UnifiedSearchResponse { status = Status.ErrorMessage("Failed getting instance of searcher") };
 
@@ -6459,7 +6459,7 @@ namespace Core.Catalog
             int pageIndex = request.m_nPageIndex;
             int pageSize = request.m_nPageSize;
 
-            IIndexManager indexManager = IndexManagerFactory.GetInstance(parentGroupID);
+            IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupID);
 
             if (indexManager == null)
             {
@@ -8467,7 +8467,7 @@ namespace Core.Catalog
         {
             ApiObjects.Response.Status status = null;
 
-            var indexManager = IndexManagerFactory.GetInstance(groupId);
+            var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
             status = indexManager.DeleteStatistics(until);
 
             return status;
@@ -8596,7 +8596,7 @@ namespace Core.Catalog
                             List<int> activeEpg = new List<int>();
 
                             int parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
-                            var indexManager = IndexManagerFactory.GetInstance(parentGroupId);
+                            var indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
                             int esTotalItems = 0, to = 0;
                             var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
 
@@ -8922,7 +8922,7 @@ namespace Core.Catalog
                 ((ApiObjects.SearchObjects.BooleanLeaf)filterTree).shouldLowercase = true;
 
                 int parentGroupId = CatalogCache.Instance().GetParentGroup(groupId);
-                var indexManager = IndexManagerFactory.GetInstance(parentGroupId);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
                 int esTotalItems = 0, to = 0;
                 var searchResults = indexManager.UnifiedSearch(searchDefinitions, ref esTotalItems, ref to);
 

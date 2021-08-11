@@ -79,7 +79,7 @@ namespace Core.Catalog.Request
             if (initialResults.Count > 0)
             {
                 List<long> mediaIDs = initialResults.Select<SearchResult, long>(item => item.assetID).ToList();
-                var indexManager = IndexManagerFactory.GetInstance(nGroupID);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(nGroupID);
                 Dictionary<long, bool> resDict = indexManager.ValidateMediaIDsInChannels(mediaIDs, jsonizedChannelsDefinitions[0], jsonizedChannelsDefinitions[1]);
                 if (resDict != null && resDict.Count > 0)
                 {

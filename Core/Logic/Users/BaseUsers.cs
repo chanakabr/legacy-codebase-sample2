@@ -204,7 +204,7 @@ namespace Core.Users
 
                 if (saveRes)
                 {
-                    var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                    var indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
                     indexManager.InsertSocialStatisticsData(view); //saving to the ES onlt if save Succeeded  
                 }   
 
@@ -255,7 +255,7 @@ namespace Core.Users
                 {
                     response.Object = f;
                     response.SetStatus(eResponseStatus.OK);
-                    var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                    var indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
                     indexManager.InsertSocialStatisticsData(view); //saving to the ES only if save Succeeded  
                 }
             }

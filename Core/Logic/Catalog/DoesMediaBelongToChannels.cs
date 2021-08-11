@@ -55,7 +55,7 @@ namespace Core.Catalog
 
                 CheckSignature(request);
 
-                IIndexManager indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
 
                 bool bDoesMediaBelongToSubscription = indexManager.DoesMediaBelongToChannels(request.m_lChannelIDs, request.m_nMediaID);
                 if (bDoesMediaBelongToSubscription)
