@@ -1789,10 +1789,12 @@ namespace Core.Catalog
 
             if (searchResponse.IsValid)
             {
+                // fill likes
                 if (searchResponse.Aggregations.ContainsKey(likesAggregationName))
                 {
                     var currentAgg = searchResponse.Aggregations[likesAggregationName] as SingleBucketAggregate;
                     var likesAgg = currentAgg[likesTermsAggregationName] as BucketAggregate;
+
                     foreach (var item in likesAgg.Items)
                     {
                         var bucket = item as KeyedBucket<object>;
@@ -1805,6 +1807,7 @@ namespace Core.Catalog
                     }
                 }
 
+                // fill views (if there are any)
                 if (searchResponse.Aggregations.ContainsKey(firstPlayAggregationName))
                 {
                     var currentAgg = searchResponse.Aggregations[firstPlayAggregationName] as SingleBucketAggregate;
@@ -1826,6 +1829,7 @@ namespace Core.Catalog
                     }
                 }
 
+                // fill ratings
                 if (searchResponse.Aggregations.ContainsKey(ratingAggregationName))
                 {
                     var currentAgg = searchResponse.Aggregations[ratingAggregationName] as SingleBucketAggregate;
