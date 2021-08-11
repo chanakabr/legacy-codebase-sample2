@@ -155,7 +155,7 @@ namespace Core.Catalog
 
             List<int> result = new List<int>();
 
-            IIndexManager indexManager = IndexManagerFactory.GetInstance(parentGroupID);
+            IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupID);
 
             Group group = null;
             if (!doesGroupUsesTemplates)

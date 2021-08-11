@@ -214,7 +214,7 @@ namespace Core.Catalog.CatalogManagement
                 var epgsToIndex = SaveEpgCbToCB(groupId, epgCbToAdd, 
                     defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, true);
 
-                bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertProgram(
+                bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertProgram(
                     epgsToIndex,
                     GetLinearChannelSettingsForEpgCB(groupId, epgCbToAdd)
                     );
@@ -362,7 +362,7 @@ namespace Core.Catalog.CatalogManagement
 
                 // delete index, if EPG moved to another day
                 var indexAddAction = false;
-                var indexManager = IndexManagerFactory.GetInstance(groupId);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
                 if (epgAssetToUpdate.StartDate?.Date != oldEpgAsset.StartDate?.Date && isIngestV2)
                 {
                     var deleteIndexResult = indexManager.DeleteProgram(new List<long> { epgAssetToUpdate.Id }, new List<string> { epgAssetToUpdate.EpgChannelId.ToString() });
@@ -439,7 +439,7 @@ namespace Core.Catalog.CatalogManagement
             SendActionEvent(groupId, epgId, eAction.Delete);
 
             // Delete Index
-            bool indexingResult = IndexManagerFactory.GetInstance(groupId).DeleteProgram(new List<long>() { epgId }, epgCbList.Select(x => x.ChannelID.ToString()));
+            bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).DeleteProgram(new List<long>() { epgId }, epgCbList.Select(x => x.ChannelID.ToString()));
             if (!indexingResult)
             {
                 log.ErrorFormat("Failed to delete epg index for assetId: {0}, groupId: {1} after DeleteEpgAsset", epgId, groupId);
@@ -448,14 +448,14 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        internal static void SendActionEvent(int groupId, long epgId, eAction action)
+        internal static void SendActionEvent(int groupId, long epgId, eAction action, EPGChannelProgrammeObject epg = null)
         {
             log.DebugFormat("Calling IngestRecording for groupId: {0}, epgId: {1}, action: {2}", groupId, epgId, action);
             KlogMonitorHelper.ContextData contextData = new KlogMonitorHelper.ContextData();
             Task.Factory.StartNew(() =>
             {
                 contextData.Load();
-                Status IngestRecordingStatus = Core.ConditionalAccess.Module.IngestRecording(groupId, new long[1] { epgId }, action);
+                Status IngestRecordingStatus = Core.ConditionalAccess.Module.IngestRecording(groupId, new long[1] { epgId }, action, epg);
                 log.DebugFormat("IngestRecording result for groupId: {0}, epgId: {1}, action: {2} is: {3}",
                                 groupId, epgId, action, IngestRecordingStatus != null ? IngestRecordingStatus.Message : string.Empty);
             });
@@ -520,7 +520,7 @@ namespace Core.Catalog.CatalogManagement
 
                     var epgCb = CreateEpgCbFromEpgAsset(epgAsset, groupId, epgAsset.CreateDate.Value, epgAsset.UpdateDate.Value);
                     // UpdateIndex
-                    bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertProgram(epgsToUpdate, GetLinearChannelSettingsForEpgCB(groupId, epgCb));
+                    bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertProgram(new List<EpgCB>() { epgCb }, GetLinearChannelSettingsForEpgCB(groupId, epgCb));
                     if (!indexingResult)
                     {
                         log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromProgram", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);

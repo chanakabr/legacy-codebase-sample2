@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using KLogMonitor;
 using System.Reflection;
+using System.Threading;
 using ApiLogic.Catalog.IndexManager;
 using CachingProvider.LayeredCache;
 using CanaryDeploymentManager;
@@ -21,13 +23,37 @@ namespace Core.Catalog
 {
     public interface IIndexManagerFactory
     {
-        IIndexManager GetInstance(int partnerId);
+        IIndexManager GetIndexManager(int partnerId);
     }
     
     public class IndexManagerFactory : IIndexManagerFactory
     {
-        private IndexManagerFactory(){}
-        public static IIndexManager GetInstance(int partnerId)
+        
+        private static readonly Lazy<IndexManagerFactory> Lazy = new Lazy<IndexManagerFactory>(() => new IndexManagerFactory(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static IndexManagerFactory Instance { get { return Lazy.Value; } }
+
+        private ConcurrentDictionary<string, IIndexManager> _indexManagerInstance;
+        
+        private IndexManagerFactory()
+        {
+            _indexManagerInstance = new ConcurrentDictionary<string, IIndexManager>();
+        }
+        
+        public IIndexManager GetIndexManager(int partnerId)
+        {
+            var isMigrationEventsEnabled =
+                CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager()
+                    .IsMigrationEventsEnabled(partnerId);
+            var keyName = $"{partnerId}_{isMigrationEventsEnabled}";
+            
+            return _indexManagerInstance.GetOrAdd(keyName, s =>
+            {
+                return CreateIndexManager(partnerId, isMigrationEventsEnabled);
+            });
+        }
+
+        private IIndexManager CreateIndexManager(int partnerId, bool isMigrationEventsEnabled)
         {
             var partnerConfiguration = CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().GetPartnerConfiguration(partnerId);
             if( partnerConfiguration.Object.ElasticsearchActiveVersion== ElasticsearchVersion.ES_7_13)
@@ -52,33 +78,22 @@ namespace Core.Catalog
                 CatalogManager.Instance,
                 ElasticSearchIndexDefinitions.Instance,
                 LayeredCache.Instance,
-                ChannelManager.Instance, 
+                ChannelManager.Instance,
                 CatalogCache.Instance(),
                 WatchRuleManager.Instance,
                 ChannelQueryBuilder.Instance);
-            
-            if (CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().IsMigrationEventsEnabled(partnerId))
+
+            if (isMigrationEventsEnabled)
             {
                 var useRandomPartitioner = false;
-                var eventBusPublisher = KafkaPublisher.GetFromTcmConfiguration( useRandomPartitioner);
+                var eventBusPublisher = KafkaPublisher.GetFromTcmConfiguration(useRandomPartitioner);
                 return new IndexManagerEventsDecorator(indexManagerV2,
                     eventBusPublisher,
                     IndexManagerVersion.EsV2,
                     partnerId);
             }
-            
-            return indexManagerV2;
-        }        
 
-        public static IIndexManagerFactory GetFactory()
-        {
-            return new IndexManagerFactory();
-        }
-        
-        // implemented for dependency injection (like in Topicmanager)
-        IIndexManager IIndexManagerFactory.GetInstance(int partnerId)
-        {
-            return GetInstance(partnerId);
-        }
+            return indexManagerV2;
+        }             
     }
 }

@@ -77,7 +77,7 @@ namespace ElasticSearchHandler.IndexBuilders
         public AbstractIndexBuilder(int groupID)
         {
             this.groupId = groupID;
-            _IndexManager = IndexManagerFactory.GetInstance(groupID);
+            _IndexManager = IndexManagerFactory.Instance.GetIndexManager(groupID);
         }
 
         #endregion

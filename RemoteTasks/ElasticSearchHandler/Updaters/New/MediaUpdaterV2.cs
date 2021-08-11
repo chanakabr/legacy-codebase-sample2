@@ -37,7 +37,7 @@ namespace ElasticSearchHandler.Updaters
         public MediaUpdaterV2(int groupID)
         {
             this.groupID = groupID;
-            _indexManager = IndexManagerFactory.GetInstance(groupID);
+            _indexManager = IndexManagerFactory.Instance.GetIndexManager(groupID);
         }
 
         #endregion

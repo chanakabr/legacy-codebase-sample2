@@ -256,7 +256,7 @@ namespace Core.Catalog
             if (lMediaIDs == null || lMediaIDs.Count == 0)
                 return lMediaRes;
 
-            var indexManager = IndexManagerFactory.GetInstance(nParentGroupID);
+            var indexManager = IndexManagerFactory.Instance.GetIndexManager(nParentGroupID);
 
             var assetsUpdateDates = indexManager.GetAssetsUpdateDate(eObjectType.Media, lMediaIDs);
 
@@ -420,7 +420,7 @@ namespace Core.Catalog
         }
 
         public static void BuildMediaFromDataSet(ref Dictionary<int, Dictionary<int, Media>> mediaTranslations,
-            ref Dictionary<int, Media> medias, Group group, DataSet dataSet, int mediaId, CatalogGroupCache catalogGroupCache)
+            ref Dictionary<int, Media> medias, Group group, DataSet dataSet, int mediaId)
         {
             if (dataSet != null && dataSet.Tables.Count > 0)
             {
@@ -1236,7 +1236,7 @@ namespace Core.Catalog
 
                         if (groupId.HasValue && mediaId.HasValue)
                         {
-                        IIndexManager indexManager = IndexManagerFactory.GetInstance(groupId.Value);
+                        IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId.Value);
                                     result = indexManager.GetMediaChannels(mediaId.Value);
                                     res = true;
                         }

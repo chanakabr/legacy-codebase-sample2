@@ -119,7 +119,7 @@ namespace Core.Catalog.Request
                 CatalogDAL.Get_ChannelsByBundles(m_nGroupID, subs, cols, ref channelsToSubsMapping,
                     ref channelsToColsMapping);
 
-                IIndexManager indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
 
                 response = new BundlesContainingMediaResponse(m_oBundles);
 

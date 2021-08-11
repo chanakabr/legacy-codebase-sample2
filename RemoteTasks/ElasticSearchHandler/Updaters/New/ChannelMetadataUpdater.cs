@@ -39,7 +39,7 @@ namespace ElasticSearchHandler.Updaters
         public ChannelMetadataUpdater(int groupId)
         {
             this.groupId = groupId;
-            _indexManager = IndexManagerFactory.GetInstance(groupId);
+            _indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
         }
 
         #endregion

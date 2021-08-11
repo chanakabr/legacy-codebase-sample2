@@ -819,6 +819,9 @@ namespace WebAPI.Reflection
                 case "KalturaDuration":
                     return new KalturaDuration(parameters);
                     
+                case "KalturaDurationListResponse":
+                    return new KalturaDurationListResponse(parameters);
+                    
                 case "KalturaDynamicChannel":
                     return new KalturaDynamicChannel(parameters);
                     
@@ -8048,6 +8051,16 @@ namespace WebAPI.Models.General
             MinLength = -1,
             MinInteger = 1,
         };
+        private static RuntimeSchemePropertyAttribute CodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDuration")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaDuration(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -8075,6 +8088,34 @@ namespace WebAPI.Models.General
                         ValueSchemaProperty.Validate("value", parameters["value"]);
                     }
                     Value = (Int32) Convert.ChangeType(parameters["value"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("code") && parameters["code"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        CodeSchemaProperty.Validate("code", parameters["code"]);
+                    }
+                    Code = (Int64) Convert.ChangeType(parameters["code"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaDurationListResponse
+    {
+        public KalturaDurationListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaDuration>(typeof(KalturaDuration), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaDuration), parameters["objects"] as object[]);
+                    }
                 }
             }
         }

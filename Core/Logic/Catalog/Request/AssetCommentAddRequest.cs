@@ -126,7 +126,7 @@ namespace Core.Catalog.Request
 
                 response.AssetComment = comments;
 
-                var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
                 if (!indexManager.InsertSocialStatisticsData(new Comment()
                 { 
                     Date = comments.m_dCreateDate,

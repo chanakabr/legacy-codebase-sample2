@@ -143,7 +143,7 @@ namespace Core.Social.Requests
 
             try
             {
-                var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
                 result = indexManager.InsertSocialStatisticsData(new SocialActionStatistics()
                 {
                     Action = this.m_eAction.ToString(),
@@ -303,7 +303,7 @@ namespace Core.Social.Requests
                     if (doc != null) 
                     {
                         DateTime date = DateUtils.UtcUnixTimestampSecondsToDateTime(doc.CreateDate);
-                        var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                        var indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
                         indexManager.DeleteSocialAction(
                             new StatisticsActionSearchObj()
                             {

@@ -38,7 +38,7 @@ namespace ElasticSearchHandler.Updaters
         public EpgChannelUpdaterV2(int groupId)
         {
             this.groupId = groupId;
-            _indexManager = IndexManagerFactory.GetInstance(groupId);
+            _indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
         }
         
 

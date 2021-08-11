@@ -31,7 +31,7 @@ namespace SetupTaskHandler
 
             try
             {
-                var indexManager = IndexManagerFactory.GetInstance(0);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(0);
                 string newIndexName = indexManager.SetupIPToCountryIndex();
 
                 List<IPV6> ipv6List = new List<IPV6>();

@@ -14839,7 +14839,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public ApiObjects.Response.Status IngestRecording(List<long> epgIds, eAction action)
+        public ApiObjects.Response.Status IngestRecording(List<long> epgIds, eAction action, EPGChannelProgrammeObject program = null)
         {
             log.Debug($"IngestRecording called with epg ids: {string.Join(",", epgIds)} and action: {action}");
 
@@ -14891,7 +14891,19 @@ namespace Core.ConditionalAccess
             else if (action == eAction.On || action == eAction.Update)
             {
                 // Get EPG objects from Catalog, by their IDs
-                List<EPGChannelProgrammeObject> epgs = Utils.GetEpgsByIds(m_nGroupID, epgIds);
+                List<EPGChannelProgrammeObject> epgs = null;
+                
+                if (program != null)
+                {
+                    log.Debug($"IngestRecording program not null {epgIds[0]}");
+                    epgs = new List<EPGChannelProgrammeObject>() { program };
+                    Catalog.CatalogLogic.GetLinearChannelSettings(m_nGroupID, epgs);
+                }
+
+                if (epgs == null)
+                {
+                    epgs = Utils.GetEpgsByIds(m_nGroupID, epgIds);
+                }
 
                 // Simple validation
                 if (epgs == null || epgs.Count == 0)

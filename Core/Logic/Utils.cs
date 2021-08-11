@@ -443,7 +443,7 @@ namespace APILogic
                     if (!string.IsNullOrEmpty(ip))
                     {
                         // index manager for group 0 is used for ip2country
-                        var indexManager = IndexManagerFactory.GetInstance(0);
+                        var indexManager = IndexManagerFactory.Instance.GetIndexManager(0);
                         country = indexManager.GetCountryByIp(ip, out isCountryFilled);
                         if (country == null && isCountryFilled)
                         {
@@ -472,7 +472,7 @@ namespace APILogic
                     if (!string.IsNullOrEmpty(countryName))
                     {
                         // index manager for group 0 is used for ip2country
-                        var indexManager = IndexManagerFactory.GetInstance(0);
+                        var indexManager = IndexManagerFactory.Instance.GetIndexManager(0);
                         country = indexManager.GetCountryByCountryName(countryName);
 
                         res = country != null;
