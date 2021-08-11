@@ -820,12 +820,12 @@ namespace Core.Catalog
 
         private List<LanguageObj> GetLanguages()
         {
-            return _doesGroupUsesTemplates ? _catalogGroupCache.LanguageMapById.Values.ToList() : _group.GetLangauges();
+            return VerifyGroupUsesTemplates() ? GetCatalogGroupCache().LanguageMapById.Values.ToList() 0: GetGroupManager().GetLangauges();
         }
 
         private LanguageObj GetDefaultLanguage()
         {
-            return _doesGroupUsesTemplates ? _catalogGroupCache.GetDefaultLanguage() : _group.GetGroupDefaultLanguage();
+            return VerifyGroupUsesTemplates() ? GetCatalogGroupCache().GetDefaultLanguage() : GetGroupManager().GetGroupDefaultLanguage();
         }
 
         #endregion

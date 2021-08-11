@@ -209,7 +209,7 @@ namespace Core.Catalog
             try
             {
                 //Create Media Object
-                var mediaDictionary = _catalogManager.GetGroupMedia(_partnerId, assetId, _catalogGroupCache);
+                var mediaDictionary = _catalogManager.GetGroupMedia(_partnerId, assetId);
                 if (mediaDictionary != null && mediaDictionary.Count > 0)
                 {
                     var numOfBulkRequests = 0;

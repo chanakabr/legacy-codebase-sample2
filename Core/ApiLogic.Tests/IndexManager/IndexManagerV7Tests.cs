@@ -225,10 +225,10 @@ namespace ApiLogic.Tests.IndexManager
             var dictionary = new Dictionary<int, ApiObjects.SearchObjects.Media>() { };
             dictionary[language.ID] = randomMedia;
             _mockCatalogManager
-                .Setup(x => x.GetGroupMedia(It.IsAny<int>(), randomMedia.m_nMediaID, It.IsAny<CatalogGroupCache>()))
+                .Setup(x => x.GetGroupMedia(It.IsAny<int>(), randomMedia.m_nMediaID))
                 .Returns(dictionary);
             _mockCatalogManager
-                .Setup(x => x.GetGroupMedia(It.IsAny<int>(), randomMedia2.m_nMediaID, It.IsAny<CatalogGroupCache>()))
+                .Setup(x => x.GetGroupMedia(It.IsAny<int>(), randomMedia2.m_nMediaID))
                 .Returns(new Dictionary<int, ApiObjects.SearchObjects.Media>()
                 {
                     { language.ID, randomMedia2 }
