@@ -660,7 +660,7 @@ namespace Core.Catalog.CatalogManagement
                     if (!isFromIngest)
                     {
                         // UpdateIndex
-                        bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertMedia(assetFileToAdd.AssetId);
+                        bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia(assetFileToAdd.AssetId);
                         if (!indexingResult)
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after InsertMediaFile", assetFileToAdd.AssetId, groupId);
@@ -702,7 +702,7 @@ namespace Core.Catalog.CatalogManagement
                     result.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
                     // UpdateIndex
-                    bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertMedia(assetFileResponse.Object.AssetId);
+                    bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia(assetFileResponse.Object.AssetId);
                     if (!indexingResult)
                     {
                         log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after DeleteMediaFile", assetFileResponse.Object.AssetId, groupId);
@@ -823,7 +823,7 @@ namespace Core.Catalog.CatalogManagement
                     if (!isFromIngest)
                     {
                         // UpdateIndex
-                        bool indexingResult = IndexManagerFactory.GetInstance(groupId).UpsertMedia(assetFileToUpdate.AssetId);
+                        bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia(assetFileToUpdate.AssetId);
                         if (!indexingResult)
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaFile", assetFileToUpdate.AssetId, groupId);

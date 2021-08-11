@@ -43,7 +43,7 @@ namespace Core.Catalog.Request
 
                 int nTotalItems = 0;
 
-                IIndexManager indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
 
                 MediaSearchObj searchObj = new MediaSearchObj();
                 searchObj.m_nGroupId = request.m_nGroupID;

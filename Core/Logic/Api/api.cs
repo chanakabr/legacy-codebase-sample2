@@ -1635,7 +1635,7 @@ namespace Core.Api
             int mediaType = Tvinci.Core.DAL.CatalogDAL.Get_MediaTypeIdByMediaId(nMediaID);
             
             // Insert statistic record to ElasticSearch
-            var indexManager = IndexManagerFactory.GetInstance(nGroupID);
+            var indexManager = IndexManagerFactory.Instance.GetIndexManager(nGroupID);
             indexManager.InsertSocialStatisticsData(
                 new ApiObjects.Statistics.SocialActionStatistics()
                 { 

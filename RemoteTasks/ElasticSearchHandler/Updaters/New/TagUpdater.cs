@@ -51,7 +51,7 @@ namespace ElasticSearchHandler.Updaters
                 return result;
             }
 
-            var indexManager = IndexManagerFactory.GetInstance(groupId);
+            var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
             CatalogGroupCache catalogGroupCache = null;
 
             // Check if group supports Templates

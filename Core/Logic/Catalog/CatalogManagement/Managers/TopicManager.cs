@@ -20,7 +20,7 @@ namespace Core.Catalog.CatalogManagement
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<TopicManager> lazy = new Lazy<TopicManager>(() => 
         new TopicManager(CatalogManager.Instance, CatalogDAL.Instance, VirtualAssetPartnerConfigManager.Instance,
-            IndexManagerFactory.GetFactory(), GroupsCache.Instance(), ConditionalAccess.Utils.Instance, Core.Notification.NotificationCache.Instance())
+            IndexManagerFactory.Instance, GroupsCache.Instance(), ConditionalAccess.Utils.Instance, Core.Notification.NotificationCache.Instance())
         , LazyThreadSafetyMode.PublicationOnly);
         public static TopicManager Instance { get { return lazy.Value; } }
 
@@ -261,7 +261,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (topic.Type == MetaType.Tag)
                     {
-                        Status deleteTopicFromEsResult = _indexManagerFactory.GetInstance(groupId).DeleteTagsByTopic(id);
+                        Status deleteTopicFromEsResult = _indexManagerFactory.GetIndexManager(groupId).DeleteTagsByTopic(id);
                         if (deleteTopicFromEsResult == null || deleteTopicFromEsResult.Code != (int)eResponseStatus.OK)
                         {
                             log.ErrorFormat("Failed deleting topic from ElasticSearch, for groupId: {0} and topicId: {1}", groupId, id);

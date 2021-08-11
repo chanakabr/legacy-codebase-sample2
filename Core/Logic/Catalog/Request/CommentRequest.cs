@@ -90,7 +90,7 @@ namespace Core.Catalog.Request
             };
 
 
-            var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+            var indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
             bResult = indexManager.InsertSocialStatisticsData(new Comment()
             {
                 Date = DateTime.UtcNow,

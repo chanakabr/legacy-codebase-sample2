@@ -34,7 +34,7 @@ namespace Core.Catalog.CatalogManagement
         bool DoesGroupUsesTemplates(int groupId);
         void InvalidateCatalogGroupCache(int groupId, Status resultStatus, bool shouldCheckResultObject, object resultObject = null);
         bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds, long assetStructId, long userId, List<long> relatedEntitiesTopicIds, bool shouldDeleteRelatedEntities);
-        Dictionary<int, Media> GetGroupMedia(int groupId, long mediaId, CatalogGroupCache catalogGroupCache);
+        Dictionary<int, Media> GetGroupMedia(int groupId, long mediaId);
         void GetLinearChannelValues(List<EpgCB> lEpg, int groupID, Action<EpgCB> action);
     }
 
@@ -2139,7 +2139,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (!isFromIngest)
                 {
-                    var indexManager = IndexManagerFactory.GetInstance(groupId);
+                    var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
                     result.SetStatus(indexManager.UpdateTag(result.Object));
                 }
             }
@@ -2241,7 +2241,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                     }
 
-                    var indexManager = IndexManagerFactory.GetInstance(groupId);
+                    var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
                     result.SetStatus(indexManager.UpdateTag(result.Object));
                 }
             }
@@ -2274,7 +2274,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (CatalogDAL.DeleteTag(groupId, tagId, userId))
                 {
-                    var wrapper = IndexManagerFactory.GetInstance(groupId);
+                    var wrapper = IndexManagerFactory.Instance.GetIndexManager(groupId);
                     tagResponse.SetStatus(wrapper.DeleteTag(tagId));
                     if (!tagResponse.HasObject())
                     {
@@ -2380,7 +2380,7 @@ namespace Core.Catalog.CatalogManagement
             };
 
             int totalItemsCount = 0;
-            var indexManager = IndexManagerFactory.GetInstance(groupId);
+            var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
             List<ApiObjects.SearchObjects.TagValue> tagValues = indexManager.SearchTags(definitions, out totalItemsCount);
             HashSet<long> tagIds = new HashSet<long>();
 
@@ -2437,7 +2437,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                var indexManager = IndexManagerFactory.GetInstance(groupId);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
                 var tagDefinitions = new TagSearchDefinitions() 
                 {
                     GroupId = groupId, 
@@ -2969,7 +2969,7 @@ namespace Core.Catalog.CatalogManagement
 
         #endregion
 
-        public Dictionary<int, Media> GetGroupMedia(int groupId, long mediaId, CatalogGroupCache catalogGroupCache)
+        public Dictionary<int, Media> GetGroupMedia(int groupId, long mediaId)
         {
             var mediaTranslations = new Dictionary<int, Media>();
 
@@ -3008,7 +3008,7 @@ namespace Core.Catalog.CatalogManagement
                 DataSet dataSet = storedProcedure.ExecuteDataSet();
 
                 Dictionary<int, Dictionary<int, Media>> refDictionary = new Dictionary<int, Dictionary<int, Media>>();
-                Utils.BuildMediaFromDataSet(ref refDictionary, ref medias, group, dataSet, (int)mediaId, catalogGroupCache);
+                Utils.BuildMediaFromDataSet(ref refDictionary, ref medias, group, dataSet, (int)mediaId);
                 mediaTranslations = refDictionary.ContainsKey((int)mediaId) ? refDictionary[(int)mediaId] : null;
 
                 // get media update dates

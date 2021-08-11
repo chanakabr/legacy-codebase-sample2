@@ -304,7 +304,7 @@ namespace Core.Catalog.Request
             try
             {
                 int parentGroupID = CatalogCache.Instance().GetParentGroup(groupID);
-                var indexManager = IndexManagerFactory.GetInstance(m_nGroupID);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
 
                 if (!indexManager.InsertSocialStatisticsData(
                     new ApiObjects.Statistics.MediaView()

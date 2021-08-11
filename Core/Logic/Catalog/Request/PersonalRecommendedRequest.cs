@@ -98,7 +98,7 @@ namespace Core.Catalog.Request
             List<SearchResult> lMedias = null;
             try
             {
-                var indexManager = IndexManagerFactory.GetInstance(oBaseRequest.m_nGroupID);
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(oBaseRequest.m_nGroupID);
 
                 PersonalRecommendedRequest request = oBaseRequest as PersonalRecommendedRequest;
                 if (request == null)

@@ -35,7 +35,7 @@ namespace Core.GroupManagers
                                UsersDal.Instance,
                                BillingDAL.Instance,
                                ConditionalAccessDAL.Instance,
-                               IndexManagerFactory.GetInstance(0)),
+                               IndexManagerFactory.Instance.GetIndexManager(0)),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static PartnerManager Instance => LazyInstance.Value;
