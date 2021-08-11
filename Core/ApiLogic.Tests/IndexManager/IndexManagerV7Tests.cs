@@ -506,6 +506,9 @@ namespace ApiLogic.Tests.IndexManager
 
             var deleteSocialAction = indexManager.DeleteSocialAction(socialSearch);
             Assert.IsTrue(deleteSocialAction);
+
+            var epgStatsMapping = new Dictionary<int, AssetStatsResult>() { { 123456, new AssetStatsResult() } };
+            indexManager.GetAssetStats(new List<int>() { 123456 }, DateTime.MinValue, DateTime.MaxValue, StatsType.EPG, ref epgStatsMapping);
         }
 
         [Test]

@@ -4,7 +4,6 @@ using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.SearchObjects;
-using ApiObjects.Statistics;
 using Catalog.Response;
 using Core.Catalog.Response;
 using GroupsCacheManager;
@@ -28,9 +27,7 @@ using ApiLogic.IndexManager.NestData;
 using ElasticSearch.Searcher.Settings;
 using ApiObjects.CanaryDeployment.Elasticsearch;
 using ApiObjects.Nest;
-using ElasticSearch.NEST;
 using Elasticsearch.Net;
-using ElasticSearch.Searcher;
 using ElasticSearch.Utilities;
 using Newtonsoft.Json;
 using Polly;
@@ -1648,8 +1645,11 @@ namespace Core.Catalog
             string index = IndexingUtils.GetStatisticsIndexName(_partnerId);
 
             string firstPlayAggregationName = "first_play_aggregation";
+            string firstPlayTermsAggregationName = "first_play_aggregation_terms";
             string likesAggregationName = "likes_aggregation";
+            string likesTermsAggregationName = "likes_aggregation_terms";
             string ratingAggregationName = "ratings_aggregation";
+            string ratingTermsAggregationName = "ratings_aggregation_terms";
 
             var descriptor = new QueryContainerDescriptor<ApiLogic.IndexManager.NestData.SocialActionStatistics>();
             var searchResponse = _elasticClient.Search<ApiLogic.IndexManager.NestData.SocialActionStatistics>(searchRequest => searchRequest
@@ -1696,38 +1696,80 @@ namespace Core.Catalog
                 )
                 .Aggregations(rootAggs =>
                 {
-                    rootAggs.Filter(firstPlayAggregationName, firstPlayAggregation =>
+                    // first play and ratings are relevant only to medi
+                    if (type == StatsType.MEDIA)
                     {
-                        firstPlayAggregation.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_FIRST_PLAY));
-
-                        firstPlayAggregation.Aggregations(firstPlayAggs =>
+                        // first play aggregation
+                        rootAggs.Filter(firstPlayAggregationName, firstPlayAggregation =>
                         {
-                            firstPlayAggs.Terms($"{firstPlayAggregationName}_terms", terms =>
+                            // filter aggregation
+                            firstPlayAggregation.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_FIRST_PLAY));
+
+                            // sub aggregation - terms on media id
+                            firstPlayAggregation.Aggregations(firstPlayAggs =>
                             {
-                                terms.Field(field => field.MediaID);
-                                terms.Aggregations(termsAggs =>
+                                firstPlayAggs.Terms(firstPlayTermsAggregationName, terms =>
                                 {
-                                    termsAggs.Sum(IndexingUtils.SUB_SUM_AGGREGATION_NAME, subSumAggregation =>
-                                        subSumAggregation.Field(field => field.Count).Missing(1));
-                                    return termsAggs;
+                                    terms.Field(field => field.MediaID);
+                                    // sub aggregation of terms - sum aggregation
+                                    terms.Aggregations(termsAggs =>
+                                    {
+                                        termsAggs.Sum(IndexingUtils.SUB_SUM_AGGREGATION_NAME, subSumAggregation =>
+                                            subSumAggregation.Field(field => field.Count).Missing(1));
+                                        return termsAggs;
+                                    });
+
+                                    return terms;
                                 });
 
-                                return terms;
+                                return firstPlayAggs;
                             });
 
-                            return firstPlayAggs;
+                            return firstPlayAggregation;
                         });
 
-                        return firstPlayAggregation;
-                    });
+                        // rates aggregation
+                        rootAggs.Filter(ratingAggregationName, ratesAgg =>
+                        {
+                            // filter aggregation
+                            ratesAgg.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_RATES));
 
+                            // sub aggregation - terms on media id
+                            ratesAgg.Aggregations(ratesAggs =>
+                            {
+                                ratesAggs.Terms(ratingTermsAggregationName, terms =>
+                                {
+                                    terms.Field(field => field.MediaID);
+
+                                    // sub aggregation of terms = stats aggregation
+                                    terms.Aggregations(termsAggs =>
+                                    {
+                                        termsAggs.Stats(IndexingUtils.SUB_STATS_AGGREGATION_NAME, subStatsAggregation =>
+                                            subStatsAggregation.Field(field => field.RateValue));
+                                        return termsAggs;
+                                    });
+
+                                    return terms;
+                                });
+
+                                return ratesAggs;
+                            });
+
+                            return ratesAgg;
+                        });
+
+                    }
+
+                    // liks aggregation
                     rootAggs.Filter(likesAggregationName, likesAgg =>
                     {
+                        // filter aggregation
                         likesAgg.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_LIKE));
 
+                        // sub aggregation - just terms on media id
                         likesAgg.Aggregations(likesAggs =>
                         {
-                            likesAggs.Terms($"{likesAggregationName}_terms", terms =>
+                            likesAggs.Terms(likesTermsAggregationName, terms =>
                             {
                                 terms.Field(field => field.MediaID);
 
@@ -1740,31 +1782,6 @@ namespace Core.Catalog
                         return likesAgg;
                     });
 
-                    rootAggs.Filter(ratingAggregationName, ratesAgg =>
-                    {
-                        ratesAgg.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_RATES));
-
-                        ratesAgg.Aggregations(ratesAggs =>
-                        {
-                            ratesAggs.Terms($"{ratingAggregationName}_terms", terms =>
-                            {
-                                terms.Field(field => field.MediaID);
-
-                                terms.Aggregations(termsAggs =>
-                                {
-                                    termsAggs.Stats(IndexingUtils.SUB_STATS_AGGREGATION_NAME, subStatsAggregation =>
-                                        subStatsAggregation.Field(field => field.RateValue));
-                                    return termsAggs;
-                                });
-
-                                return terms;
-                            });
-
-                            return ratesAggs;
-                        });
-
-                        return ratesAgg;
-                    });
 
                     return rootAggs;
                 })
@@ -1772,10 +1789,12 @@ namespace Core.Catalog
 
             if (searchResponse.IsValid)
             {
+                // fill likes
                 if (searchResponse.Aggregations.ContainsKey(likesAggregationName))
                 {
                     var currentAgg = searchResponse.Aggregations[likesAggregationName] as SingleBucketAggregate;
-                    var likesAgg = currentAgg[$"{likesAggregationName}_terms"] as BucketAggregate;
+                    var likesAgg = currentAgg[likesTermsAggregationName] as BucketAggregate;
+
                     foreach (var item in likesAgg.Items)
                     {
                         var bucket = item as KeyedBucket<object>;
@@ -1788,10 +1807,11 @@ namespace Core.Catalog
                     }
                 }
 
+                // fill views (if there are any)
                 if (searchResponse.Aggregations.ContainsKey(firstPlayAggregationName))
                 {
                     var currentAgg = searchResponse.Aggregations[firstPlayAggregationName] as SingleBucketAggregate;
-                    var firstPlayAgg = currentAgg[$"{firstPlayAggregationName}_terms"] as BucketAggregate;
+                    var firstPlayAgg = currentAgg[firstPlayTermsAggregationName] as BucketAggregate;
 
                     foreach (var item in firstPlayAgg.Items)
                     {
@@ -1809,10 +1829,11 @@ namespace Core.Catalog
                     }
                 }
 
+                // fill ratings
                 if (searchResponse.Aggregations.ContainsKey(ratingAggregationName))
                 {
                     var currentAgg = searchResponse.Aggregations[ratingAggregationName] as SingleBucketAggregate;
-                    var ratesAgg = currentAgg[$"{ratingAggregationName}_terms"] as BucketAggregate;
+                    var ratesAgg = currentAgg[ratingTermsAggregationName] as BucketAggregate;
 
                     foreach (var item in ratesAgg.Items)
                     {
