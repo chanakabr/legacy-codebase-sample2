@@ -6698,7 +6698,7 @@ namespace Core.Catalog
             return result;
         }
 
-        public void UpsertProgramsToDraftIndex(
+        public void UpsertPrograms(
             IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName,
             DateTime dateOfProgramsToIngest,
             LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
@@ -6799,7 +6799,7 @@ namespace Core.Catalog
             }
         }
 
-        public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName,
+        public void DeletePrograms(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName,
             IDictionary<string, LanguageObj> languages)
         {
             if (!programsToDelete.Any())

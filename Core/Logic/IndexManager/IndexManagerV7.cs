@@ -305,11 +305,11 @@ namespace Core.Catalog
 
         public bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds)
         {
-            bool result = false;
+            bool isSuccess = false;
 
             if (epgIds == null || epgIds.Count == 0)
             {
-                return result;
+                return isSuccess;
             }
 
             string index = NamingHelper.GetEpgIndexAlias(_partnerId);
@@ -319,12 +319,12 @@ namespace Core.Catalog
                     .Terms(terms => terms.Field(epg => epg.EpgID).Terms<long>(epgIds))
                     ));
 
-            result = deleteResponse.IsValid;
+            isSuccess = deleteResponse.IsValid;
 
             try
             {
                 // support for old invalidation keys
-                if (result)
+                if (isSuccess)
                 {
                     // invalidate epg's for OPC and NON-OPC accounts
                     EpgAssetManager.InvalidateEpgs(_partnerId, epgIds, _groupUsesTemplates, epgChannelIds, true);
@@ -335,7 +335,7 @@ namespace Core.Catalog
                 log.Error($"Failed invalidating Epgs on partner {_partnerId}", ex);
             }
 
-            return result;
+            return isSuccess;
         }
 
         internal static RetryPolicy GetRetryPolicy<TException>(int retryCount = 3) where TException : Exception
@@ -365,11 +365,11 @@ namespace Core.Catalog
 
                 var bulkRequests = new List<NestEsBulkRequest<NestEpg>>();
 
-                var isRationalizationEnabled = _groupUsesTemplates
+                var isRegionalizationEnabled = _groupUsesTemplates
                     ? _catalogGroupCache.IsRegionalizationEnabled
                     : _group.isRegionalizationEnabled;
 
-                var linearChannelsRegionsMapping = isRationalizationEnabled
+                var linearChannelsRegionsMapping = isRegionalizationEnabled
                     ? RegionManager.GetLinearMediaRegions(_partnerId)
                     : new Dictionary<long, List<int>>();
 
@@ -495,9 +495,7 @@ namespace Core.Catalog
                     foreach (var channelId in channelIds)
                     {
                         var deleteResponse = _elasticClient.Delete<NestPercolatedQuery>(
-                            // id
                             GetChannelDocumentId(channelId), 
-                            // request
                             request => request.Index(index));
 
                         if (!deleteResponse.IsValid)
@@ -708,12 +706,12 @@ namespace Core.Catalog
 
         public bool DeleteMedia(long assetId)
         {
-            var result = false;
+            var isSuccess = false;
 
             if (assetId <= 0)
             {
                 log.WarnFormat("Received media request of invalid media id {0} when calling DeleteMedia", assetId);
-                return result;
+                return isSuccess;
             }
 
             string index = NamingHelper.GetMediaIndexAlias(_partnerId);
@@ -722,9 +720,9 @@ namespace Core.Catalog
                 .Query(query => query.Term(media => media.MediaId, assetId)
                     ));
 
-            result = deleteResponse.IsValid;
+            isSuccess = deleteResponse.IsValid;
 
-            if (!result)
+            if (!isSuccess)
             {
                 log.ErrorFormat("Delete media with id {0} failed", assetId);
             }
@@ -742,10 +740,10 @@ namespace Core.Catalog
                 }
             }
 
-            return result;
+            return isSuccess;
         }
 
-        public void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms,
+        public void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms,
             string draftIndexName,
             DateTime dateOfProgramsToIngest,
             LanguageObj defaultLanguage,
@@ -754,12 +752,8 @@ namespace Core.Catalog
             var bulkSize = GetBulkSize();
 
             var retryCount = 5;
-            var policy = RetryPolicy.Handle<Exception>()
-            .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
-            {
-                log.Warn($"upsert attempt [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
-            });
-
+            var policy = IndexManagerCommonHelpers.GetRetryPolicy<Exception>(retryCount);
+                
             policy.Execute(() =>
             {
                 var bulkRequests = new List<NestEsBulkRequest<NestEpg>>();
@@ -893,7 +887,7 @@ namespace Core.Catalog
         }
 
 
-        public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, 
+        public void DeletePrograms(IList<EpgProgramBulkUploadObject> programsToDelete, 
             string epgIndexName, 
             IDictionary<string, LanguageObj> languages)
         {
@@ -906,25 +900,21 @@ namespace Core.Catalog
 
             log.Debug($"Update elasticsearch index completed, deleting required documents. documents length:[{programsToDelete.Count}]");
             var retryCount = 5;
-            var policy = Policy.Handle<Exception>()
-                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
-                {
-                    log.Warn($"delete attempt [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
-                });
+            var policy = IndexManagerCommonHelpers.GetRetryPolicy<Exception>(retryCount);
 
             policy.Execute(() =>
             {
                 //get the the query new version
-                var response = _elasticClient.DeleteByQuery<object>(dbq => dbq
+                var response = _elasticClient.DeleteByQuery<NestEpg>(dbq => dbq
                     .Index(epgIndexName)
                     .Query(q => q
                     .Bool(b => b
                         .Should( //equivalent to OR
-                            should => should.Terms(t => t.Field("epg_id").Terms<ulong>(programIds)),
+                            should => should.Terms(t => t.Field(field => field.EpgID).Terms<ulong>(programIds)),
                             should => should.Bool(bs => bs
                                 .Must( //equivalent to AND
-                                    mu => mu.Terms(t => t.Field("epg_identifier").Terms<string>(externalIds)),
-                                    mu => mu.Terms(t => t.Field("epg_channel_id").Terms<int>(channelIds))
+                                    mu => mu.Terms(t => t.Field(field => field.EpgIdentifier).Terms<string>(externalIds)),
+                                    mu => mu.Terms(t => t.Field(field => field.ChannelID).Terms<int>(channelIds))
                                 )
                             )
                         )
@@ -1017,25 +1007,6 @@ namespace Core.Catalog
                 log.Error($"Got invalid asset type when trying to get assets update date. type = {assetType}");
                 return response;
             }
-
-            /*
-                {
-                    "size": 500,
-                    "from": 0,
-                    "fields": [
-                        "media_id",
-                        "update_date"
-                    ],
-                    "query": {
-                        "terms": {
-                            "media_id": [
-                                762870,
-                                762874
-                            ]
-                        }
-                    }
-                }
-                */
 
             int pageSize = 500;
             for (int from = 0; from < assetIds.Count; from += pageSize)

@@ -416,13 +416,13 @@ namespace ApiLogic.Tests.IndexManager
             crudOperations.ItemsToAdd.Add(epgItem);
 
 
-            indexManager.DeleteProgramsFromIndex(crudOperations.ItemsToDelete, setupEpgV2Index, languageObjs);
+            indexManager.DeletePrograms(crudOperations.ItemsToDelete, setupEpgV2Index, languageObjs);
 
             var programsToIndex = crudOperations.ItemsToAdd
                 .Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.AffectedItems)
                 .ToList();
 
-            indexManager.UpsertProgramsToDraftIndex(programsToIndex, setupEpgV2Index,
+            indexManager.UpsertPrograms(programsToIndex, setupEpgV2Index,
                 dateOfProgramsToIngest, language, languageObjs);
 
             List<string> epgCbDocumentIdsByEpgId = indexManager.GetEpgCBDocumentIdsByEpgId(new long[] { epgId }, languageObjs.Values);
@@ -430,7 +430,7 @@ namespace ApiLogic.Tests.IndexManager
 
             //check deletion
             crudOperations.ItemsToDelete.Add(epgItem);
-            indexManager.DeleteProgramsFromIndex(crudOperations.ItemsToDelete, setupEpgV2Index, languageObjs);
+            indexManager.DeletePrograms(crudOperations.ItemsToDelete, setupEpgV2Index, languageObjs);
 
             var deletePolicy = Policy.HandleResult<List<UnifiedSearchResult>>(x => x != null && x.Count > 0).WaitAndRetry(3,
                 retryAttempt => TimeSpan.FromSeconds(1));

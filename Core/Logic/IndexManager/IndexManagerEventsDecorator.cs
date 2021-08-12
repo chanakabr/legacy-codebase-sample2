@@ -117,7 +117,7 @@ namespace ApiLogic.Catalog.IndexManager
         }
         
         //CUD
-        public void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, DateTime dateOfProgramsToIngest,
+        public void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, DateTime dateOfProgramsToIngest,
             LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
         {
             Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG,
@@ -125,7 +125,7 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName, IDictionary<string, LanguageObj> languages)
+        public void DeletePrograms(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName, IDictionary<string, LanguageObj> languages)
         {
             Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, programsToDelete, epgIndexName,
                 languages);

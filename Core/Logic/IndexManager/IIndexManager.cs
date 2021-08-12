@@ -34,10 +34,10 @@ namespace Core.Catalog
 
         #region added from the epg ingest v2
 
-        void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName,
+        void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName,
             DateTime dateOfProgramsToIngest,
             LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages);
-        void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName,
+        void DeletePrograms(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName,
             IDictionary<string, LanguageObj> languages);
         // ................................................................................................
 

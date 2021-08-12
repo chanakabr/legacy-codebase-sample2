@@ -175,9 +175,9 @@ namespace ApiLogic.Tests.IndexManager
                 .ToList();
 
             //call upsert
-            indexManager.UpsertProgramsToDraftIndex(programsToIndex, index, dateOfProgramsToIngest, language, languageObjs);
+            indexManager.UpsertPrograms(programsToIndex, index, dateOfProgramsToIngest, language, languageObjs);
 
-            indexManager.DeleteProgramsFromIndex(programsToIndex, index, languageObjs);
+            indexManager.DeletePrograms(programsToIndex, index, languageObjs);
 
             var res = indexManager.ForceRefreshEpgV2Index(DateTime.Now);
             Assert.IsTrue(res);
