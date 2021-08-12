@@ -394,7 +394,7 @@ namespace ApiLogic.Tests.IndexManager
             var epgId = 1 + new Random().Next(1000);
 
             //act
-            var setupEpgV2Index = indexManager.SetupEpgV2Index(DateTime.Now, policy);
+            var setupEpgV2Index = indexManager.SetupEpgV2Index(DateTime.Now);
 
             //assert
             Assert.IsNotEmpty(setupEpgV2Index);

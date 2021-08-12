@@ -45,18 +45,22 @@ namespace Core.Catalog
             var isMigrationEventsEnabled =
                 CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager()
                     .IsMigrationEventsEnabled(partnerId);
-            var keyName = $"{partnerId}_{isMigrationEventsEnabled}";
-            
+            var activeElasticsearchActiveVersion = CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().
+                GetActiveElasticsearchActiveVersion(partnerId);
+            var keyName = $"{activeElasticsearchActiveVersion}{partnerId}{isMigrationEventsEnabled}";
+
             return _indexManagerInstance.GetOrAdd(keyName, s =>
             {
                 return CreateIndexManager(partnerId, isMigrationEventsEnabled);
             });
         }
-
+        
         private IIndexManager CreateIndexManager(int partnerId, bool isMigrationEventsEnabled)
         {
             var esCanary = CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager();
-            if( esCanary.GetActiveElasticsearchActiveVersion(partnerId) == ElasticsearchVersion.ES_7_13)
+            var activeElasticsearchActiveVersion = esCanary.GetActiveElasticsearchActiveVersion(partnerId);
+            
+            if (activeElasticsearchActiveVersion == ElasticsearchVersion.ES_7_13)
             {
                 var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
                 return new IndexManagerV7(partnerId, 

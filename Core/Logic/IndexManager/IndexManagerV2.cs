@@ -108,7 +108,21 @@ namespace Core.Catalog
         private readonly int _partnerId;
         private readonly IChannelQueryBuilder _channelQueryBuilder;
  
-
+        /// <summary>
+        /// Initialiezs an instance of Index Manager for work with ElasticSearch 2.3. 
+        /// Please do not use this ctor, rather use IndexManagerFactory.
+        /// </summary>
+        /// <param name="partnerId"></param>
+        /// <param name="elasticSearchClient"></param>
+        /// <param name="groupManager"></param>
+        /// <param name="eSSerializerV2"></param>
+        /// <param name="catalogManager"></param>
+        /// <param name="esIndexDefinitions"></param>
+        /// <param name="layeredCache"></param>
+        /// <param name="channelManager"></param>
+        /// <param name="catalogCache"></param>
+        /// <param name="watchRuleManager"></param>
+        /// <param name="channelQueryBuilder"></param>
         public IndexManagerV2(int partnerId,
             IElasticSearchApi elasticSearchClient,
             IGroupManager groupManager, 
@@ -931,7 +945,7 @@ namespace Core.Catalog
             });
         }
 
-        public bool FinalizeEpgV2Index(DateTime date)
+        public bool ForceRefreshEpgV2Index(DateTime date)
         {
             var dailyEpgIndexName = NamingHelper.GetDailyEpgIndexName(_partnerId, date);
             return _elasticSearchApi.ForceRefresh(dailyEpgIndexName);
@@ -4908,27 +4922,17 @@ namespace Core.Catalog
                 log.ErrorFormat("Error when getting aliases of {0}, ex={1}", alias, ex);
             }
 
-            Task<bool> taskSwitchIndex = Task<bool>.Factory.StartNew(() =>
-            {
-                return _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
-            });
+            bool switchIndexResult = _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
 
-            taskSwitchIndex.Wait();
-
-            if (!taskSwitchIndex.Result)
+            if (!switchIndexResult)
             {
                 log.ErrorFormat("Failed switching index for new index name = {0}, index alias = {1}", newIndexName, alias);
                 result = false;
             }
 
-            if (taskSwitchIndex.Result && oldIndices != null && oldIndices.Count > 0)
+            if (switchIndexResult && oldIndices != null && oldIndices.Count > 0)
             {
-                Task t = Task.Factory.StartNew(() =>
-                {
-                    _elasticSearchApi.DeleteIndices(oldIndices);
-                });
-
-                t.Wait();
+                _elasticSearchApi.DeleteIndices(oldIndices);
             }
 
             return result;
@@ -5499,7 +5503,6 @@ namespace Core.Catalog
 
         public void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            ContextData cd = new ContextData();
             string alias = NamingHelper.GetMediaIndexAlias(_partnerId);
             bool indexExists = _elasticSearchApi.IndexExists(alias);
 
@@ -5507,28 +5510,16 @@ namespace Core.Catalog
             {
                 List<string> oldIndices = _elasticSearchApi.GetAliases(alias);
 
-                Task<bool> taskSwitchIndex = Task<bool>.Factory.StartNew(() =>
-                {
-                    cd.Load();
-                    return _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
-                });
+                bool switchIndexResult = _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
 
-                taskSwitchIndex.Wait();
-
-                if (!taskSwitchIndex.Result)
+                if (!switchIndexResult)
                 {
                     log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, alias);
                 }
 
-                if (shouldDeleteOldIndices && taskSwitchIndex.Result && oldIndices.Count > 0)
+                if (shouldDeleteOldIndices && switchIndexResult && oldIndices.Count > 0)
                 {
-                    Task t = Task.Run(() =>
-                    {
-                        cd.Load();
-                        _elasticSearchApi.DeleteIndices(oldIndices);
-                    });
-
-                    t.Wait();
+                    _elasticSearchApi.DeleteIndices(oldIndices);
                 }
             }
         }
@@ -5995,34 +5986,21 @@ namespace Core.Catalog
         {
             string alias = NamingHelper.GetChannelMetadataIndexName(_partnerId);
             bool indexExists = _elasticSearchApi.IndexExists(alias);
-            ContextData cd = new ContextData();
 
             if (shouldSwitchAlias || !indexExists)
             {
                 List<string> oldIndices = _elasticSearchApi.GetAliases(alias);
 
-                Task<bool> taskSwitchIndex = Task<bool>.Factory.StartNew(() =>
-                {
-                    cd.Load();
-                    return _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
-                });
+                var switchIndexResult = _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
 
-                taskSwitchIndex.Wait();
-
-                if (!taskSwitchIndex.Result)
+                if (!switchIndexResult)
                 {
                     log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, alias);
                 }
 
-                if (shouldDeleteOldIndices && taskSwitchIndex.Result && oldIndices.Count > 0)
+                if (shouldDeleteOldIndices && switchIndexResult && oldIndices.Count > 0)
                 {
-                    var t = Task.Run(() =>
-                    {
-                        cd.Load();
-                        _elasticSearchApi.DeleteIndices(oldIndices);
-                    });
-
-                    t.Wait();
+                    _elasticSearchApi.DeleteIndices(oldIndices);
                 }
             }
         }
@@ -6223,7 +6201,6 @@ namespace Core.Catalog
 
         public bool PublishTagsIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            ContextData cd = new ContextData();
             bool result = true;
 
             #region Switch index alias + Delete old indices handling
@@ -6235,29 +6212,16 @@ namespace Core.Catalog
             {
                 List<string> oldIndices = _elasticSearchApi.GetAliases(alias);
 
-                Task<bool> taskSwitchIndex = Task<bool>.Factory.StartNew(() =>
-                {
-                    cd.Load();
-                    return _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
-                });
-
-                taskSwitchIndex.Wait();
-
-                if (!taskSwitchIndex.Result)
+                var switchIndexResult = _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
+                if (!switchIndexResult)
                 {
                     log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, alias);
                     result = false;
                 }
 
-                if (shouldDeleteOldIndices && taskSwitchIndex.Result && oldIndices.Count > 0)
+                if (shouldDeleteOldIndices && switchIndexResult && oldIndices.Count > 0)
                 {
-                    Task t = Task.Run(() =>
-                    {
-                        cd.Load();
-                        _elasticSearchApi.DeleteIndices(oldIndices);
-                    });
-
-                    t.Wait();
+                    _elasticSearchApi.DeleteIndices(oldIndices);
                 }
             }
 

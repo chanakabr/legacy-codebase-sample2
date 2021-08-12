@@ -18,7 +18,7 @@ namespace Core.Catalog
         bool UpsertMedia(long assetId);
         string SetupEpgV2Index(DateTime dateOfProgramsToIngest);
 
-        bool FinalizeEpgV2Index(DateTime date);
+        bool ForceRefreshEpgV2Index(DateTime date);
         bool FinalizeEpgV2Indices(List<DateTime> date);
         // ............................................................................
 

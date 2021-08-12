@@ -115,7 +115,7 @@ namespace IngestHandler
 
                 try
                 {
-                    dailyEpgIndexName = _indexManager.SetupEpgV2Index(serviceEvent.DateOfProgramsToIngest, _ingestRetryPolicy);
+                    dailyEpgIndexName = _indexManager.SetupEpgV2Index(serviceEvent.DateOfProgramsToIngest);
                 }
                 catch
                 {

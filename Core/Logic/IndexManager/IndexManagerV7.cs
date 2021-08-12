@@ -102,9 +102,23 @@ namespace Core.Catalog
         private HashSet<string> _metasToPad;
         private Group _group;
         private CatalogGroupCache _catalogGroupCache;
-        private Dictionary<string, LanguageObj> _groupCodePerLang;
-        private Dictionary<string, LanguageObj> _catalogGroupCacheCodePerLang;
+        private Dictionary<string, LanguageObj> _partnerLanguageCodes;
 
+        /// <summary>
+        /// Initialiezs an instance of Index Manager for work with ElasticSearch 7.14
+        /// Please do not use this ctor, rather use IndexManagerFactory.
+        /// </summary>
+        /// <param name="partnerId"></param>
+        /// <param name="elasticClient"></param>
+        /// <param name="applicationConfiguration"></param>
+        /// <param name="groupManager"></param>
+        /// <param name="catalogManager"></param>
+        /// <param name="esIndexDefinitions"></param>
+        /// <param name="channelManager"></param>
+        /// <param name="catalogCache"></param>
+        /// <param name="ttlService"></param>
+        /// <param name="watchRuleManager"></param>
+        /// <param name="channelQueryBuilder"></param>
         public IndexManagerV7(int partnerId,
             IElasticClient elasticClient,
             IApplicationConfiguration applicationConfiguration,
@@ -144,8 +158,7 @@ namespace Core.Catalog
 
         private void InitializePartnerData(int partnerId)
         {
-            _groupCodePerLang = new Dictionary<string, LanguageObj>();
-            _catalogGroupCacheCodePerLang = new Dictionary<string, LanguageObj>();
+            _partnerLanguageCodes = new Dictionary<string, LanguageObj>();
 
             if (partnerId <= 0)
             {
@@ -157,12 +170,12 @@ namespace Core.Catalog
             if (_groupUsesTemplates)
             {
                 _catalogManager.TryGetCatalogGroupCacheFromCache(partnerId, out _catalogGroupCache);
-                _catalogGroupCacheCodePerLang = _catalogGroupCache.LanguageMapByCode;
+                _partnerLanguageCodes = _catalogGroupCache.LanguageMapByCode;
             }
             else
             {
                 _group = _groupManager.GetGroup(partnerId);
-                _groupCodePerLang = _group.GetLangauges().ToDictionary(x => x.Code, x => x);
+                _partnerLanguageCodes = _group.GetLangauges().ToDictionary(x => x.Code, x => x);
             }
 
             if (_catalogGroupCache == null && _group == null)
@@ -209,16 +222,20 @@ namespace Core.Catalog
 
             try
             {
-                //Create Media Object
                 var mediaDictionary = _catalogManager.GetGroupMedia(_partnerId, assetId);
+
                 if (mediaDictionary != null && mediaDictionary.Count > 0)
                 {
                     var numOfBulkRequests = 0;
-                    var bulkRequests = new Dictionary<int, List<NestEsBulkRequest<NestMedia>>>() { { numOfBulkRequests, new List<NestEsBulkRequest<NestMedia>>() } };
+                    var bulkRequests = new Dictionary<int, List<NestEsBulkRequest<NestMedia>>>() 
+                    { 
+                        { numOfBulkRequests, new List<NestEsBulkRequest<NestMedia>>() }
+                    };
 
                     GetMediaNestEsBulkRequest(index, int.MaxValue, 0, bulkRequests, mediaDictionary);
 
                     result = true;
+
                     foreach (var item in bulkRequests.Values)
                     {
                         result &= ExecuteAndValidateBulkRequests(item);
@@ -250,7 +267,7 @@ namespace Core.Catalog
             return dailyEpgIndexName;
         }
 
-        public bool FinalizeEpgV2Index(DateTime date)
+        public bool ForceRefreshEpgV2Index(DateTime date)
         {
             var dailyEpgIndexName = NamingHelper.GetDailyEpgIndexName(_partnerId, date);
             var response = _elasticClient.Indices.Refresh(new RefreshRequest(dailyEpgIndexName));
@@ -2260,7 +2277,7 @@ namespace Core.Catalog
 
         private List<LanguageObj> GetLanguages()
         {
-            return _groupUsesTemplates ?_catalogGroupCacheCodePerLang.Values.ToList() : _groupCodePerLang.Values.ToList();
+            return _partnerLanguageCodes.Values.ToList();
         }
 
         private LanguageObj GetDefaultLanguage()
@@ -2270,9 +2287,7 @@ namespace Core.Catalog
         
         private LanguageObj GetLanguageByCode(string languageCode)
         {
-            return _groupUsesTemplates
-                ? _catalogGroupCacheCodePerLang[languageCode]
-                : _groupCodePerLang[languageCode];
+            return _partnerLanguageCodes[languageCode];
         }
         
         private int GetLanguageIdByCode(string languageCode)

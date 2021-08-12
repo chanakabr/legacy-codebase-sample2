@@ -135,7 +135,7 @@ namespace ApiLogic.Tests.IndexManager
                 It.Is<string>(a => a.ToLower().Contains("analyzer"))
             )).Returns(GetAnalyzerFromMockTcm());
 
-            var index = indexManager.SetupEpgV2Index(DateTime.Today, policy);
+            var index = indexManager.SetupEpgV2Index(DateTime.Today);
             Assert.IsNotEmpty(index);
 
             var refreshInterval = new Time(TimeSpan.FromSeconds(1));
@@ -179,10 +179,10 @@ namespace ApiLogic.Tests.IndexManager
 
             indexManager.DeleteProgramsFromIndex(programsToIndex, index, languageObjs);
 
-            var res = indexManager.FinalizeEpgV2Index(DateTime.Now);
+            var res = indexManager.ForceRefreshEpgV2Index(DateTime.Now);
             Assert.IsTrue(res);
 
-            res = indexManager.FinalizeEpgV2Indices(new List<DateTime>() { DateTime.Today, DateTime.Now.AddDays(-1) }, policy);
+            res = indexManager.FinalizeEpgV2Indices(new List<DateTime>() { DateTime.Today, DateTime.Now.AddDays(-1) });
             Assert.IsTrue(res);
         }
 

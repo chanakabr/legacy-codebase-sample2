@@ -325,7 +325,7 @@ namespace ApiLogic.Catalog.IndexManager
         
         
         //CUD
-        public bool FinalizeEpgV2Index(DateTime date)
+        public bool ForceRefreshEpgV2Index(DateTime date)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.EPG,date);
         }
