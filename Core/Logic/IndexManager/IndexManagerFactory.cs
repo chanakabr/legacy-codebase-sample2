@@ -51,16 +51,13 @@ namespace Core.Catalog
 
             return _indexManagerInstance.GetOrAdd(keyName, s =>
             {
-                return CreateIndexManager(partnerId, isMigrationEventsEnabled);
+                return CreateIndexManager(partnerId, isMigrationEventsEnabled, activeElasticsearchActiveVersion);
             });
         }
         
-        private IIndexManager CreateIndexManager(int partnerId, bool isMigrationEventsEnabled)
+        private IIndexManager CreateIndexManager(int partnerId, bool isMigrationEventsEnabled, ElasticsearchVersion version)
         {
-            var esCanary = CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager();
-            var activeElasticsearchActiveVersion = esCanary.GetActiveElasticsearchActiveVersion(partnerId);
-            
-            if (activeElasticsearchActiveVersion == ElasticsearchVersion.ES_7_13)
+            if (version == ElasticsearchVersion.ES_7_13)
             {
                 var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
                 return new IndexManagerV7(partnerId, 
