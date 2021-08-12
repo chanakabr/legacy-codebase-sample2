@@ -149,39 +149,33 @@ namespace ElasticSearch.Common
                     break;
             }
 
-            if (_configuration.ElasticSearchConfiguration.ShouldUseClassAnalyzerDefinitions.Value)
+
+            string tcmKey = Utils.GetLangCodeFilterKey(languageCode, versionString);
+            string filterString = GetFilterDefinition(tcmKey);
+
+            if (string.IsNullOrEmpty(filterString))
             {
-                // TODO: future implementation
+                return result;
             }
-            else
+
+            string jsonFilterString = $"{{{filterString}}}";
+            JObject jObject = JObject.Parse(jsonFilterString);
+
+            foreach (var jsonFilter in jObject)
             {
-                string tcmKey = Utils.GetLangCodeFilterKey(languageCode, versionString);
-                string filterString = GetFilterDefinition(tcmKey);
+                string type = jsonFilter.Value.Value<string>("type");
 
-                if (string.IsNullOrEmpty(filterString))
+                switch (type.ToLower())
                 {
-                    return result;
-                }
-
-                string jsonFilterString = $"{{{filterString}}}";
-                JObject jObject = JObject.Parse(jsonFilterString);
-
-                foreach (var jsonFilter in jObject)
-                {
-                    string type = jsonFilter.Value.Value<string>("type");
-
-                    switch (type.ToLower())
-                    {
-                        case "ngram":
-                        case "edgengram":
+                    case "ngram":
+                    case "edgengram":
                         {
                             var parsedFilter = jsonFilter.Value.ToObject<NgramFilter>();
                             result.Add(jsonFilter.Key, parsedFilter);
                             break;
                         }
-                        default:
-                            break;
-                    }
+                    default:
+                        break;
                 }
             }
 
@@ -202,39 +196,33 @@ namespace ElasticSearch.Common
                     break;
             }
 
-            if (_configuration.ElasticSearchConfiguration.ShouldUseClassAnalyzerDefinitions.Value)
+            string tcmKey = Utils.GetLangCodeFilterKey(languageCode, versionString);
+            string tokenizerString = GetTokenizerDefinition(tcmKey);
+
+            if (string.IsNullOrEmpty(tokenizerString))
             {
-                // TODO: future implementation
+                return result;
             }
-            else
+
+            string jsonTokenizerString = $"{{{tokenizerString}}}";
+            JObject jObject = JObject.Parse(jsonTokenizerString);
+
+            foreach (var jsonTokenizer in jObject)
             {
-                string tcmKey = Utils.GetLangCodeFilterKey(languageCode, versionString);
-                string tokenizerString = GetTokenizerDefinition(tcmKey);
+                string type = jsonTokenizer.Value.Value<string>("type");
 
-                if (string.IsNullOrEmpty(tokenizerString))
+                switch (type.ToLower())
                 {
-                    return result;
-                }
-
-                string jsonTokenizerString = $"{{{tokenizerString}}}";
-                JObject jObject = JObject.Parse(jsonTokenizerString);
-
-                foreach (var jsonTokenizer in jObject)
-                {
-                    string type = jsonTokenizer.Value.Value<string>("type");
-
-                    switch (type.ToLower())
-                    {
-                        case "kuromoji_tokenizer":
-                            {
-                                var parsedObject = jsonTokenizer.Value.ToObject<KuromojiTokenizer>();
-                                result.Add(jsonTokenizer.Key, parsedObject);
-                                break;
-                            }
-                        default:
+                    case "kuromoji_tokenizer":
+                        {
+                            var parsedObject = jsonTokenizer.Value.ToObject<KuromojiTokenizer>();
+                            result.Add(jsonTokenizer.Key, parsedObject);
                             break;
-                    }
+                        }
+                    default:
+                        break;
                 }
+
             }
 
             return result;

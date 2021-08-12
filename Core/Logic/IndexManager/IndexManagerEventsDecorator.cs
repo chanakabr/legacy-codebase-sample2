@@ -306,11 +306,10 @@ namespace ApiLogic.Catalog.IndexManager
         }
         
         //CUD
-        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest,
-            RetryPolicy retryPolicy)
+        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest)
         {
             return Execute<string>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.EPG, dateOfProgramsToIngest, retryPolicy);
+                IndexManagerMigrationEventKeys.EPG, dateOfProgramsToIngest);
         }
 
         //CUD
@@ -332,10 +331,10 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public bool FinalizeEpgV2Indices(List<DateTime> date, RetryPolicy retryPolicy)
+        public bool FinalizeEpgV2Indices(List<DateTime> date)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.EPG, date, retryPolicy);
+                IndexManagerMigrationEventKeys.EPG, date);
         }
 
         #endregion

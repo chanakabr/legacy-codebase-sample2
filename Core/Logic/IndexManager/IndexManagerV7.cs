@@ -181,7 +181,7 @@ namespace Core.Catalog
                 return result;
             }
 
-            string index = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            string index = NamingHelper.GetMediaIndexAlias(_partnerId);
             if (!_elasticClient.Indices.Exists(index).Exists)
             {
                 log.Error($"Index of type media for group {_partnerId} does not exist");
@@ -240,26 +240,26 @@ namespace Core.Catalog
             return result;
         }
 
-        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest, RetryPolicy retryPolicy)
+        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest)
         {
-            string dailyEpgIndexName = IndexingUtils.GetDailyEpgIndexName(_partnerId, dateOfProgramsToIngest);
-            EnsureEpgIndexExist(dailyEpgIndexName, retryPolicy);
+            string dailyEpgIndexName = NamingHelper.GetDailyEpgIndexName(_partnerId, dateOfProgramsToIngest);
+            EnsureEpgIndexExist(dailyEpgIndexName);
 
-            SetNoRefresh(dailyEpgIndexName, retryPolicy);
+            SetNoRefresh(dailyEpgIndexName);
 
             return dailyEpgIndexName;
         }
 
         public bool FinalizeEpgV2Index(DateTime date)
         {
-            var dailyEpgIndexName = IndexingUtils.GetDailyEpgIndexName(_partnerId, date);
+            var dailyEpgIndexName = NamingHelper.GetDailyEpgIndexName(_partnerId, date);
             var response = _elasticClient.Indices.Refresh(new RefreshRequest(dailyEpgIndexName));
             return response.IsValid;
         }
 
-        public bool FinalizeEpgV2Indices(List<DateTime> dates, RetryPolicy retryPolicy)
+        public bool FinalizeEpgV2Indices(List<DateTime> dates)
         {
-            var indices = dates.Select(x => IndexingUtils.GetDailyEpgIndexName(_partnerId, x));
+            var indices = dates.Select(x => NamingHelper.GetDailyEpgIndexName(_partnerId, x));
             var existingIndices = indices.Select(x => x).Where(x => _elasticClient.Indices.Exists(x).IsValid).ToList();
 
             foreach (var index in existingIndices)
@@ -269,7 +269,7 @@ namespace Core.Catalog
 
                 if (!response.IsValid)
                 {
-                    retryPolicy.Execute(() =>
+                    IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
                     {
                         var isSetRefreshSuccess = _elasticClient.Indices.UpdateSettings(Indices.Index(index),
                             x => x.IndexSettings(y => y.RefreshInterval(INDEX_REFRESH_INTERVAL))).IsValid;
@@ -295,7 +295,7 @@ namespace Core.Catalog
                 return result;
             }
 
-            string index = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            string index = NamingHelper.GetEpgIndexAlias(_partnerId);
             var deleteResponse = _elasticClient.DeleteByQuery<NestEpg>(request => request
                 .Index(index)
                 .Query(query => query
@@ -321,7 +321,7 @@ namespace Core.Catalog
             return result;
         }
 
-        private static RetryPolicy GetRetryPolicy<TException>(int retryCount = 3) where TException : Exception
+        internal static RetryPolicy GetRetryPolicy<TException>(int retryCount = 3) where TException : Exception
         {
             return Policy.Handle<TException>()
                 .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
@@ -359,7 +359,7 @@ namespace Core.Catalog
                 var createdAliases = new HashSet<string>();
                 _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
 
-                var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+                var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
                 var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
 
                 // Create dictionary by languages
@@ -450,12 +450,12 @@ namespace Core.Catalog
 
         private string EnsureEpgIndexExistsForEpg(EpgCB epgCb, HashSet<string> createdAliases)
         {
-            var alias = IndexingUtils.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
+            var alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
 
             // in case alias already created, no need to check in ES
             if (!createdAliases.Contains(alias))
             {
-                EnsureEpgIndexExist(alias, GetRetryPolicy<Exception>());
+                EnsureEpgIndexExist(alias);
                 createdAliases.Add(alias);
             }
 
@@ -469,7 +469,7 @@ namespace Core.Catalog
 
             try
             {
-                string mediaIndex = IndexingUtils.GetMediaIndexAlias(_partnerId);
+                string mediaIndex = NamingHelper.GetMediaIndexAlias(_partnerId);
 
                 var indices = _elasticClient.GetIndicesPointingToAlias(mediaIndex);
 
@@ -505,7 +505,7 @@ namespace Core.Catalog
         {
             bool result = true;
 
-            string mediaIndex = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            string mediaIndex = NamingHelper.GetMediaIndexAlias(_partnerId);
             var indices = _elasticClient.GetIndicesPointingToAlias(mediaIndex);
 
             List<Channel> channels = new List<Channel>();
@@ -699,7 +699,7 @@ namespace Core.Catalog
                 return result;
             }
 
-            string index = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            string index = NamingHelper.GetMediaIndexAlias(_partnerId);
             var deleteResponse = _elasticClient.DeleteByQuery<NestMedia>(request => request
                 .Index(index)
                 .Query(query => query.Term(media => media.MediaId, assetId)
@@ -980,15 +980,15 @@ namespace Core.Catalog
             switch (assetType)
             {
                 case eObjectType.Media:
-                    index = IndexingUtils.GetMediaIndexAlias(_partnerId);
+                    index = NamingHelper.GetMediaIndexAlias(_partnerId);
                     idField = "media_id";
                     break;
                 case eObjectType.EPG:
-                    index = IndexingUtils.GetEpgIndexAlias(_partnerId);
+                    index = NamingHelper.GetEpgIndexAlias(_partnerId);
                     idField = "epg_id";
                     break;
                 case eObjectType.Recording:
-                    index = IndexingUtils.GetRecordingIndexAlias(_partnerId);
+                    index = NamingHelper.GetRecordingIndexAlias(_partnerId);
                     idField = "recording_id";
                     break;
                 default:
@@ -1190,8 +1190,8 @@ namespace Core.Catalog
 
             List<string> indices = new List<string>();
 
-            var mediaAlias = IndexingUtils.GetMediaIndexAlias(_partnerId);
-            var epgAlias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var mediaAlias = NamingHelper.GetMediaIndexAlias(_partnerId);
+            var epgAlias = NamingHelper.GetEpgIndexAlias(_partnerId);
 
             if (shouldSearchMedia) 
             {
@@ -1373,7 +1373,7 @@ namespace Core.Catalog
 
         public string SetupIPToCountryIndex()
         {
-            string newIndexName = IndexingUtils.GetNewUtilsIndexString();
+            string newIndexName = NamingHelper.GetNewUtilsIndexString();
 
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                  c => c.Settings(settings => settings
@@ -1492,7 +1492,7 @@ namespace Core.Catalog
 
         public bool PublishIPToCountryIndex(string newIndexName)
         {
-            string alias = IndexingUtils.GetUtilsIndexName();
+            string alias = NamingHelper.GetUtilsIndexName();
 
             return this.SwitchIndexAlias(newIndexName, alias, true, true);
         }
@@ -1508,7 +1508,7 @@ namespace Core.Catalog
                     return result;
                 }
 
-                string index = IndexingUtils.GetUtilsIndexName();
+                string index = NamingHelper.GetUtilsIndexName();
 
                 var searchResult = _elasticClient.Search<NestCountry>(search => search
                     .Index(index)
@@ -1544,7 +1544,7 @@ namespace Core.Catalog
 
             if (IPAddress.TryParse(ip, out IPAddress address))
             {
-                if (IndexingUtils.CheckIpIsPrivate(address))
+                if (IndexManagerCommonHelpers.CheckIpIsPrivate(address))
                 {
                     searchSuccess = true;
                     return null;
@@ -1563,7 +1563,7 @@ namespace Core.Catalog
                 var ipValue = handler.ConvertIpToValidString(address);
                 log.DebugFormat("GetCountryByIp: ip={0} was converted to ipValue={1}.", ip, ipValue);
 
-                string index = IndexingUtils.GetUtilsIndexName();
+                string index = NamingHelper.GetUtilsIndexName();
 
                 // Perform search
                 var searchResult = _elasticClient.Search<NestCountry>(search => search
@@ -1599,7 +1599,7 @@ namespace Core.Catalog
 
         public string SetupMediaIndex()
         {
-            string newIndexName = IndexingUtils.GetNewMediaIndexStr(_partnerId);
+            string newIndexName = NamingHelper.GetNewMediaIndexStr(_partnerId);
 
             // Default size of max results should be 100,000
             int maxResults = _maxResults;
@@ -1757,7 +1757,7 @@ namespace Core.Catalog
 
         public void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            string alias = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            string alias = NamingHelper.GetMediaIndexAlias(_partnerId);
 
             SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }
@@ -1768,12 +1768,12 @@ namespace Core.Catalog
 
             if (string.IsNullOrEmpty(newIndexName))
             {
-                newIndexName = IndexingUtils.GetMediaIndexAlias(_partnerId);
+                newIndexName = NamingHelper.GetMediaIndexAlias(_partnerId);
             }
 
             try
             {
-                List<Channel> groupChannels = IndexingUtils.GetGroupChannels(_partnerId, _channelManager, _groupUsesTemplates, ref channelIds);
+                List<Channel> groupChannels = IndexManagerCommonHelpers.GetGroupChannels(_partnerId, _channelManager, _groupUsesTemplates, ref channelIds);
 
                 var mediaQueryParser = new ESMediaQueryBuilder() { QueryType = eQueryType.EXACT };
                 var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, _partnerId);
@@ -1857,7 +1857,7 @@ namespace Core.Catalog
 
         public void PublishChannelsMetadataIndex(string newIndexName, bool shouldSwitchAlias,bool shouldDeleteOldIndices)
         {
-            var alias = IndexingUtils.GetChannelMetadataIndexName(_partnerId);
+            var alias = NamingHelper.GetChannelMetadataIndexName(_partnerId);
             SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchAlias);
         }
 
@@ -1904,12 +1904,12 @@ namespace Core.Catalog
 
         public string SetupChannelMetadataIndex() 
         {
-            return SetupIndex<NestChannelMetadata>(IndexingUtils.GetNewChannelMetadataIndexName(_partnerId));
+            return SetupIndex<NestChannelMetadata>(NamingHelper.GetNewChannelMetadataIndexName(_partnerId));
         }
         
         public string SetupTagsIndex()
         {
-            return SetupIndex<NestTag>(IndexingUtils.GetNewMetadataIndexName(_partnerId));
+            return SetupIndex<NestTag>(NamingHelper.GetNewMetadataIndexName(_partnerId));
         }
 
         public void InsertTagsToIndex(string newIndexName, List<TagValue> allTagValues)
@@ -1966,18 +1966,18 @@ namespace Core.Catalog
 
         public bool PublishTagsIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            string alias = IndexingUtils.GetMetadataGroupAliasStr(_partnerId);
+            string alias = NamingHelper.GetMetadataGroupAliasStr(_partnerId);
 
             return SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }
 
         public string SetupEpgIndex(bool isRecording)
         {
-            var indexName = IndexingUtils.GetNewEpgIndexStr(_partnerId);
+            var indexName = NamingHelper.GetNewEpgIndexStr(_partnerId);
 
             if (isRecording)
             {
-                indexName = IndexingUtils.GetNewRecordingIndexStr(_partnerId);
+                indexName = NamingHelper.GetNewRecordingIndexStr(_partnerId);
             }
 
             CreateNewEpgIndex(indexName, isRecording);
@@ -2116,11 +2116,11 @@ namespace Core.Catalog
 
         public bool PublishEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            string alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            string alias = NamingHelper.GetEpgIndexAlias(_partnerId);
 
             if (isRecording)
             {
-                alias = IndexingUtils.GetRecordingIndexAlias(_partnerId);
+                alias = NamingHelper.GetRecordingIndexAlias(_partnerId);
             }
 
             return SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
@@ -2141,11 +2141,11 @@ namespace Core.Catalog
                 linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(_partnerId);
             }
 
-            var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
 
             if (isRecording)
             {
-                alias = IndexingUtils.GetRecordingIndexAlias(_partnerId);
+                alias = NamingHelper.GetRecordingIndexAlias(_partnerId);
             }
             
             if (!_elasticClient.Indices.Exists(alias).Exists)
@@ -2177,7 +2177,7 @@ namespace Core.Catalog
                         // in that case we need to use the specific date alias for each epg item to update
                         if (!isRecording && isIngestV2)
                         {
-                            alias = IndexingUtils.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
+                            alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
                         }
 
                         epgCb.PadMetas(_metasToPad);
@@ -2285,7 +2285,7 @@ namespace Core.Catalog
             return GetLanguages().FirstOrDefault(x => x.ID == id);
         }
 
-        private void EnsureEpgIndexExist(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        private void EnsureEpgIndexExist(string dailyEpgIndexName)
         {
             // TODO it's possible to create new index with mappings and alias in one request,
             // https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-create-index.html#mappings
@@ -2295,8 +2295,8 @@ namespace Core.Catalog
             // EPGs could be added to the index without mapping (e.g. from asset.add)
             try
             {
-                AddEmptyIndex(dailyEpgIndexName, retryPolicy);
-                AddAlias(dailyEpgIndexName, retryPolicy);
+                AddEmptyIndex(dailyEpgIndexName);
+                AddAlias(dailyEpgIndexName);
             }
             catch (Exception e)
             {
@@ -2305,10 +2305,10 @@ namespace Core.Catalog
             }
         }
 
-        private void SetNoRefresh(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        private void SetNoRefresh(string dailyEpgIndexName)
         {
             // shut down refresh of index while bulk uploading
-            retryPolicy.Execute(() =>
+            IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
                 var updateDisableIndexRefresh = new UpdateIndexSettingsRequest(dailyEpgIndexName);
                 updateDisableIndexRefresh.IndexSettings = new DynamicIndexSettings();
@@ -2324,9 +2324,9 @@ namespace Core.Catalog
             });
         }
 
-        private void AddEmptyIndex(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        private void AddEmptyIndex(string dailyEpgIndexName)
         {
-            retryPolicy.Execute(() =>
+            IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
                 var isIndexExist = _elasticClient.Indices.Exists(dailyEpgIndexName);
 
@@ -2929,7 +2929,7 @@ namespace Core.Catalog
                             string nullValue = string.Empty;
 
                             var topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
-                            IndexingUtils.GetMetaType(topicMetaType, out var metaType, out nullValue);
+                            IndexManagerCommonHelpers.GetMetaType(topicMetaType, out var metaType, out nullValue);
 
                             if (topicMetaType == ApiObjects.MetaType.Number && !metasToPad.Contains(topics.Key.ToLower()))
                             {
@@ -2988,7 +2988,7 @@ namespace Core.Catalog
                             {
                                 string nullValue = string.Empty;
                                 eESFieldType metaType;
-                                IndexingUtils.GetMetaType(meta.Key, out metaType, out nullValue);
+                                IndexManagerCommonHelpers.GetMetaType(meta.Key, out metaType, out nullValue);
 
                                 var metaName = meta.Value.ToLower();
                                 if (!metas.ContainsKey(metaName))
@@ -3010,7 +3010,7 @@ namespace Core.Catalog
                         {
                             string nullValue = string.Empty;
                             eESFieldType metaType;
-                            IndexingUtils.GetMetaType(epgMeta, out metaType, out nullValue);
+                            IndexManagerCommonHelpers.GetMetaType(epgMeta, out metaType, out nullValue);
 
                             var epgMetaName = epgMeta.ToLower();
                             if (!metas.ContainsKey(epgMetaName))
@@ -3048,12 +3048,12 @@ namespace Core.Catalog
             return result;
         }
 
-        private void AddAlias(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        private void AddAlias(string dailyEpgIndexName)
         {
             // create alias is idempotent request
-            var epgIndexAlias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var epgIndexAlias = NamingHelper.GetEpgIndexAlias(_partnerId);
             log.Info($"creating alias. index [{dailyEpgIndexName}], alias [{epgIndexAlias}]");
-            retryPolicy.Execute(() =>
+            IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
                 var putAliasResponse = _elasticClient.Indices.PutAlias(dailyEpgIndexName, epgIndexAlias);
                 bool isAliasAdded = putAliasResponse != null && putAliasResponse.IsValid;

@@ -47,6 +47,7 @@ using Tvinci.Core.DAL;
 using TVinciShared;
 using Status = ApiObjects.Response.Status;
 using ApiLogic.IndexManager.QueryBuilders;
+using ApiLogic.IndexManager.Helpers;
 
 namespace Core.Catalog
 {
@@ -7594,7 +7595,7 @@ namespace Core.Catalog
                 var defaultChannelOrder = channel.m_OrderObject;
                 if (request.searchGroupBy?.groupBy?.Count == 1 && 
                     defaultChannelOrder != null && 
-                    !IndexingUtils.GroupBySearchIsSupportedForOrder(defaultChannelOrder.m_eOrderBy))
+                    !IndexManagerCommonHelpers.GroupBySearchIsSupportedForOrder(defaultChannelOrder.m_eOrderBy))
                 {
                     defaultChannelOrder = new OrderObj
                     {

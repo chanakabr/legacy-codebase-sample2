@@ -1,18 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.ServiceModel;
 using System;
-using System.Linq;
-using System.Text;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Response;
 using ApiObjects;
 using ApiObjects.Catalog;
 using Catalog.Response;
 using ApiObjects.Statistics;
-using ElasticSearch.Common;
 using GroupsCacheManager;
-using System.Data;
-using Polly.Retry;
 using ApiObjects.BulkUpload;
 
 namespace Core.Catalog
@@ -22,10 +16,10 @@ namespace Core.Catalog
     {
         #region added from IndexManager
         bool UpsertMedia(long assetId);
-        string SetupEpgV2Index(DateTime dateOfProgramsToIngest, RetryPolicy retryPolicy);
+        string SetupEpgV2Index(DateTime dateOfProgramsToIngest);
 
         bool FinalizeEpgV2Index(DateTime date);
-        bool FinalizeEpgV2Indices(List<DateTime> date, RetryPolicy retryPolicy);
+        bool FinalizeEpgV2Indices(List<DateTime> date);
         // ............................................................................
 
         bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds);
