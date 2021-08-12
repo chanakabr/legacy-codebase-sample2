@@ -55,8 +55,8 @@ namespace Core.Catalog
 
         private IIndexManager CreateIndexManager(int partnerId, bool isMigrationEventsEnabled)
         {
-            var partnerConfiguration = CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().GetPartnerConfiguration(partnerId);
-            if( partnerConfiguration.Object.ElasticsearchActiveVersion== ElasticsearchVersion.ES_7_13)
+            var esCanary = CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager();
+            if( esCanary.GetActiveElasticsearchActiveVersion(partnerId) == ElasticsearchVersion.ES_7_13)
             {
                 var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
                 return new IndexManagerV7(partnerId, 
