@@ -4,7 +4,7 @@ using Nest;
 
 namespace ApiLogic.IndexManager.NestData
 {
-    public class Tag
+    public class NestTag
     {
         [PropertyName("tag_id")]
         public long tagId { get; set; }
@@ -24,7 +24,7 @@ namespace ApiLogic.IndexManager.NestData
         [PropertyName("update_date")]
         public long updateDate { get; set; }
 
-        public Tag(TagValue tagValue, string languageCode)
+        public NestTag(TagValue tagValue, string languageCode)
         {
             tagId = tagValue.tagId;
             topicId = tagValue.topicId;
@@ -37,7 +37,7 @@ namespace ApiLogic.IndexManager.NestData
             updateDate = tagValue.updateDate;
         }
 
-        public Tag(long tagId, int topicId, int languageId, string value, string languageCode, long createDate, long updateDate)
+        public NestTag(long tagId, int topicId, int languageId, string value, string languageCode, long createDate, long updateDate)
         {
             this.tagId = tagId;
             this.topicId = topicId;

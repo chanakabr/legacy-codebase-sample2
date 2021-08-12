@@ -11,7 +11,7 @@ using ESUtils = ElasticSearch.Common.Utils;
 
 namespace ApiLogic.IndexManager.NestData
 {
-    public class Media
+    public class NestMedia
     {
         [PropertyName("media_id")]
         public int MediaId  { get; set; }
@@ -118,7 +118,7 @@ namespace ApiLogic.IndexManager.NestData
         [PropertyName("rating")]
         public double Rating { get; set; }
 
-        public Media(ApiObjects.SearchObjects.Media media, string languageCode, int languageId)
+        public NestMedia(ApiObjects.SearchObjects.Media media, string languageCode, int languageId)
         {
             MediaId = media.m_nMediaID;
             MediaTypeId = media.m_nWPTypeID;

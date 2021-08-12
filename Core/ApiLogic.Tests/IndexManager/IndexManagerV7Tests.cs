@@ -470,7 +470,7 @@ namespace ApiLogic.Tests.IndexManager
 
             QueryContainerDescriptor<object> queryContainerDescriptor = new QueryContainerDescriptor<object>();
 
-            var percolatdQuery = new PercolatedQuery()
+            var percolatdQuery = new NestPercolatedQuery()
             {
                 Query = queryContainerDescriptor.Term(term => term.Field("is_active").Value(true))
             };

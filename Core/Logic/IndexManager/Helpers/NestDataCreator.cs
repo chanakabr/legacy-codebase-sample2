@@ -9,17 +9,17 @@ using ApiObjects.SearchObjects;
 using ApiObjects.Statistics;
 using GroupsCacheManager;
 using RestSharp.Serializers;
-using Media = ApiLogic.IndexManager.NestData.Media;
-using SocialActionStatistics = ApiObjects.Nest.SocialActionStatistics;
+using NestMedia = ApiLogic.IndexManager.NestData.NestMedia;
+using NestSocialActionStatistics = ApiObjects.Nest.NestSocialActionStatistics;
 
 namespace ApiLogic.IndexManager.Helpers
 {
     public static class NestDataCreator
     {
-        public static Epg GetEpg(EpgCB epgCb, int languageId, bool withRouting = true, bool isOpc = false,
+        public static NestEpg GetEpg(EpgCB epgCb, int languageId, bool withRouting = true, bool isOpc = false,
             long? expiryUnixTimeStamp=null, long? recordingId = null)
         {
-            return new Epg(epgCb,
+            return new NestEpg(epgCb,
                 languageId,
                 isOpc,
                 withRouting,
@@ -28,15 +28,15 @@ namespace ApiLogic.IndexManager.Helpers
                 expiryUnixTimeStamp);
         }
 
-        public static Media GetMedia(ApiObjects.SearchObjects.Media media, LanguageObj language)
+        public static NestMedia GetMedia(ApiObjects.SearchObjects.Media media, LanguageObj language)
         {
-            return new Media(media, language.Code,language.ID);
+            return new NestMedia(media, language.Code,language.ID);
         }
 
 
-        public static SocialActionStatistics GetSocialActionStatistics(ApiObjects.Statistics.SocialActionStatistics statistics)
+        public static NestSocialActionStatistics GetSocialActionStatistics(ApiObjects.Statistics.SocialActionStatistics statistics)
         {
-            return new SocialActionStatistics()
+            return new NestSocialActionStatistics()
             {
                 Action = statistics.Action,
                 Count = statistics.Count,
@@ -49,9 +49,9 @@ namespace ApiLogic.IndexManager.Helpers
             
         }
 
-        public static ChannelMetadata GetChannelMetadata(Channel channel)
+        public static NestChannelMetadata GetChannelMetadata(Channel channel)
         {
-            return new ChannelMetadata(channel);
+            return new NestChannelMetadata(channel);
         }
     }
 }

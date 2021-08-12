@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using ApiObjects;
 using ApiObjects.Epg;
 using Nest;
 using Newtonsoft.Json;
@@ -12,10 +13,10 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using RestSharp;
 using ESUtils = ElasticSearch.Common.Utils;
 
-namespace ApiObjects.Nest
+namespace ApiLogic.IndexManager.NestData
 {
     [ElasticsearchType(RelationName = "epg")]
-    public class Epg
+    public class NestEpg
     {
         #region DataMembers
 
@@ -107,7 +108,7 @@ namespace ApiObjects.Nest
 
         #region Ctor
         
-        public Epg(EpgCB epgCb, int languageId, bool isOpc = false, bool withRouting = true,
+        public NestEpg(EpgCB epgCb, int languageId, bool isOpc = false, bool withRouting = true,
             string esDateOnlyFormat = "", long? recordingId = null, long? expiryUnixTimeStamp=null)
         {
             Initialize(epgCb, isOpc, withRouting,esDateOnlyFormat,languageId,recordingId,expiryUnixTimeStamp);

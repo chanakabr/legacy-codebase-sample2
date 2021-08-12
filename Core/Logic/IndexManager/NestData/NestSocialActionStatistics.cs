@@ -3,7 +3,7 @@ using Nest;
 
 namespace ApiObjects.Nest
 {
-    public class SocialActionStatistics
+    public class NestSocialActionStatistics
     {
         [PropertyName("media_id")]
         public int MediaID { get; set; }
@@ -29,7 +29,7 @@ namespace ApiObjects.Nest
         [PropertyName("__expiration")]
         public ulong? Expiration { get; set; }
 
-        public SocialActionStatistics()
+        public NestSocialActionStatistics()
         {
             GroupID = 0;
             MediaType = string.Empty;

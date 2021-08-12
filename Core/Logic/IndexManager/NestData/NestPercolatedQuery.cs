@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ApiLogic.IndexManager.NestData
 {
-    public class PercolatedQuery
+    public class NestPercolatedQuery
     {
         [Percolator()]
         public QueryContainer Query { get; set; }

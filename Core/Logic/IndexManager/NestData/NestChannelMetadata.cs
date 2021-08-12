@@ -7,9 +7,9 @@ using Nest;
 
 namespace ApiLogic.IndexManager.NestData
 {
-    public class ChannelMetadata
+    public class NestChannelMetadata
     {
-        public ChannelMetadata(Channel channel)
+        public NestChannelMetadata(Channel channel)
         {
             Name = channel.m_sName;
             Description = channel.m_sDescription;
