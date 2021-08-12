@@ -74,5 +74,15 @@ namespace ApiLogic.IndexManager.Helpers
         {
             return string.Format("{0}_recording", nGroupID);
         }
+
+        public static string GetIpToCountryIndexAlias()
+        {
+            return "ip_to_country";
+        }
+
+        public static string GetNewIpToCountryIndexName()
+        {
+            return $"ip_to_country_{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}";
+        }
     }
 }

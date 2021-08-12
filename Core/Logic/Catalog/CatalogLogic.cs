@@ -8476,16 +8476,6 @@ namespace Core.Catalog
             }
         }
 
-        public static ApiObjects.Response.Status ClearStatistics(int groupId, DateTime until)
-        {
-            ApiObjects.Response.Status status = null;
-
-            var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
-            status = indexManager.DeleteStatistics(until);
-
-            return status;
-        }
-
         public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, int domainId, List<int> assetTypes,
             List<string> assetIds, List<int> excludedAssetTypes, eWatchStatus filterStatus, int numOfDays,
             ApiObjects.SearchObjects.OrderDir orderDir, int pageIndex, int pageSize, bool suppress, string filterQuery, out int totalItems)

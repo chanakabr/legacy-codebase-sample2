@@ -1158,12 +1158,6 @@ namespace Core.Catalog
             return status;
         }
 
-        //DO NOT IMPLEMENT THIS METHOD
-        public Status DeleteStatistics(DateTime until)
-        {
-            throw new NotImplementedException();
-        }
-
         public List<UnifiedSearchResult> GetAssetsUpdateDates(List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex,
             bool shouldIgnoreRecordings = false)
         {
@@ -1361,7 +1355,7 @@ namespace Core.Catalog
 
         public string SetupIPToCountryIndex()
         {
-            string newIndexName = NamingHelper.GetNewUtilsIndexString();
+            string newIndexName = NamingHelper.GetIpToCountryIndexAlias();
 
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                  c => c.Settings(settings => settings
@@ -1480,7 +1474,7 @@ namespace Core.Catalog
 
         public bool PublishIPToCountryIndex(string newIndexName)
         {
-            string alias = NamingHelper.GetUtilsIndexName();
+            string alias = NamingHelper.GetIpToCountryIndexAlias();
 
             return this.SwitchIndexAlias(newIndexName, alias, true, true);
         }
@@ -1623,9 +1617,8 @@ namespace Core.Catalog
                     .NumberOfShards(_numOfShards)
                     .NumberOfReplicas(_numOfReplicas)
                     .Setting("index.max_result_window", _maxResults)
-                    .Setting("index.max_ngram_diff", 20)
-                    // TODO: convert to tcm...
-                    .Setting("index.mapping.total_fields.limit", 10000)
+                    .Setting("index.max_ngram_diff", _applicationConfiguration.ElasticSearchHandlerConfiguration.MaxNgramDiff.Value)
+                    .Setting("index.mapping.total_fields.limit", _applicationConfiguration.ElasticSearchHandlerConfiguration.TotalFieldsLimit.Value)
                     .Analysis(a => a
                         .Analyzers(an => analyzersDescriptor)
                         .TokenFilters(tf => filtersDescriptor)
@@ -1866,7 +1859,7 @@ namespace Core.Catalog
                         .NumberOfShards(_numOfShards)
                         .NumberOfReplicas(_numOfReplicas)
                         .Setting("index.max_result_window", _maxResults)
-                        .Setting("index.max_ngram_diff", 20)
+                        .Setting("index.max_ngram_diff", _applicationConfiguration.ElasticSearchHandlerConfiguration.MaxNgramDiff.Value)
                         .Analysis(a => a
                             .Analyzers(an => analyzersDescriptor)
                             .TokenFilters(tf => filtersDescriptor)
@@ -2359,9 +2352,8 @@ namespace Core.Catalog
                         .NumberOfShards(shards)
                         .NumberOfReplicas(replicas)
                         .Setting("index.max_result_window", _maxResults)
-                        .Setting("index.max_ngram_diff", 20)
-                        // TODO: convert to tcm...
-                        .Setting("index.mapping.total_fields.limit", 100000)
+                        .Setting("index.max_ngram_diff", _applicationConfiguration.ElasticSearchHandlerConfiguration.MaxNgramDiff.Value)
+                        .Setting("index.mapping.total_fields.limit", _applicationConfiguration.ElasticSearchHandlerConfiguration.TotalFieldsLimit.Value)
                         .Analysis(a => a
                             .Analyzers(an => analyzersDescriptor)
                             .TokenFilters(tf => filtersDesctiptor)

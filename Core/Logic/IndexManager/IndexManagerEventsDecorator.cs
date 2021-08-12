@@ -163,12 +163,6 @@ namespace ApiLogic.Catalog.IndexManager
         }
         
         //CUD
-        public Status DeleteStatistics(DateTime until)
-        {
-            return Execute<Status>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.STATS, until);
-        }
-        
-        //CUD
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(),
