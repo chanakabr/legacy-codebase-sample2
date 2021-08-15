@@ -326,14 +326,6 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsTrue(deleteResult);
         }
 
-        [Test]
-        public void TestBasics()
-        {
-            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-            var indexManager = GetIndexV7Manager(partnerId);
-            var result = indexManager.SetupSocialStatisticsDataIndex();
-            Assert.IsTrue(result);
-        }
 
         [Test]
         public void TestSocialStatisticsData()

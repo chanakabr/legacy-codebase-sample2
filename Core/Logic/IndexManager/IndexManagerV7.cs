@@ -1355,7 +1355,7 @@ namespace Core.Catalog
 
         public string SetupIPToCountryIndex()
         {
-            string newIndexName = NamingHelper.GetIpToCountryIndexAlias();
+            string newIndexName = NamingHelper.GetNewIpToCountryIndexName();
 
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                  c => c.Settings(settings => settings
@@ -1490,7 +1490,7 @@ namespace Core.Catalog
                     return result;
                 }
 
-                string index = NamingHelper.GetUtilsIndexName();
+                string index = NamingHelper.GetIpToCountryIndexAlias();
 
                 var searchResult = _elasticClient.Search<NestCountry>(search => search
                     .Index(index)
@@ -1545,7 +1545,7 @@ namespace Core.Catalog
                 var ipValue = handler.ConvertIpToValidString(address);
                 log.DebugFormat("GetCountryByIp: ip={0} was converted to ipValue={1}.", ip, ipValue);
 
-                string index = NamingHelper.GetUtilsIndexName();
+                string index = NamingHelper.GetIpToCountryIndexAlias();
 
                 // Perform search
                 var searchResult = _elasticClient.Search<NestCountry>(search => search
