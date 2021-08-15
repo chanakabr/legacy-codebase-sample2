@@ -6,7 +6,7 @@ using System.Text;
 namespace ApiLogic.IndexManager.NestData
 {
     [ElasticsearchType(IdProperty = nameof(id))]
-    public class Country
+    public class NestCountry
     {
         [Text()]
         public string name { get; set; }

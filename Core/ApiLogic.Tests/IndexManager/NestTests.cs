@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using ApiLogic.IndexManager.Helpers;
 using ApiObjects;
-using ApiObjects.Nest;
 using ApiObjects.SearchObjects;
 using Core.Catalog;
 using ElasticSearch.Searcher;

@@ -10,6 +10,7 @@ using System.Reflection;
 using ConfigurationManager;
 using ElasticSearch.Searcher;
 using Nest;
+using ApiLogic.IndexManager.NestData;
 
 namespace ApiLogic.IndexManager.QueryBuilders
 {
@@ -47,7 +48,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 return null;
             }
 
-            var result = Query<ApiLogic.IndexManager.NestData.SocialActionStatistics>.Bool(b => b
+            var result = Query<NestSocialActionStatistics>.Bool(b => b
                 .Filter(
                     filter => filter.Term(field => field.MediaID, oSearchObject.MediaID),
                     filter => filter.Term(field => field.MediaType, oSearchObject.MediaType),

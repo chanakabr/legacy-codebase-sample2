@@ -21,7 +21,6 @@ using ApiLogic.Tests.IndexManager.helpers;
 using Utils = ElasticSearch.Common.Utils;
 using Polly;
 using ApiObjects.BulkUpload;
-using ApiObjects.Nest;
 using ChannelsSchema;
 using Elasticsearch.Net;
 using ElasticSearch.Utilities;
@@ -135,7 +134,7 @@ namespace ApiLogic.Tests.IndexManager
                 It.Is<string>(a => a.ToLower().Contains("analyzer"))
             )).Returns(GetAnalyzerFromMockTcm());
 
-            var index = indexManager.SetupEpgV2Index(DateTime.Today, policy);
+            var index = indexManager.SetupEpgV2Index(DateTime.Today);
             Assert.IsNotEmpty(index);
 
             var refreshInterval = new Time(TimeSpan.FromSeconds(1));
@@ -175,14 +174,14 @@ namespace ApiLogic.Tests.IndexManager
                 .ToList();
 
             //call upsert
-            indexManager.UpsertProgramsToDraftIndex(programsToIndex, index, dateOfProgramsToIngest, language, languageObjs);
+            indexManager.UpsertPrograms(programsToIndex, index, dateOfProgramsToIngest, language, languageObjs);
 
-            indexManager.DeleteProgramsFromIndex(programsToIndex, index, languageObjs);
+            indexManager.DeletePrograms(programsToIndex, index, languageObjs);
 
-            var res = indexManager.FinalizeEpgV2Index(DateTime.Now);
+            var res = indexManager.ForceRefreshEpgV2Index(DateTime.Now);
             Assert.IsTrue(res);
 
-            res = indexManager.FinalizeEpgV2Indices(new List<DateTime>() { DateTime.Today, DateTime.Now.AddDays(-1) }, policy);
+            res = indexManager.FinalizeEpgV2Indices(new List<DateTime>() { DateTime.Today, DateTime.Now.AddDays(-1) });
             Assert.IsTrue(res);
         }
 
@@ -262,7 +261,7 @@ namespace ApiLogic.Tests.IndexManager
 
             QueryContainerDescriptor<object> queryContainerDescriptor = new QueryContainerDescriptor<object>();
 
-            var percolateQuery = new ChannelPercolatedQuery()
+            var percolateQuery = new NestPercolatedQuery()
             {
                 Query = queryContainerDescriptor.Term(term => term.Field("is_active").Value(true)),
                 ChannelId = channel.m_nChannelID
@@ -652,7 +651,7 @@ namespace ApiLogic.Tests.IndexManager
 
             QueryContainerDescriptor<object> queryContainerDescriptor = new QueryContainerDescriptor<object>();
 
-            var percolatdQuery = new ChannelPercolatedQuery()
+            var percolatdQuery = new NestPercolatedQuery()
             {
                 Query = queryContainerDescriptor.Term(term => term.Field("is_active").Value(true)),
                 ChannelId = channel.m_nChannelID
@@ -770,7 +769,7 @@ namespace ApiLogic.Tests.IndexManager
 
             QueryContainerDescriptor<object> queryContainerDescriptor = new QueryContainerDescriptor<object>();
 
-            var percolateQuery = new ChannelPercolatedQuery()
+            var percolateQuery = new NestPercolatedQuery()
             {
                 Query = queryContainerDescriptor.Term(term => term.Field("is_active").Value(true)),
                 ChannelId = secondRandomChannel.m_nChannelID
@@ -827,7 +826,7 @@ namespace ApiLogic.Tests.IndexManager
 
 
             //act
-            var setupEpgV2Index = indexManager.SetupEpgV2Index(DateTime.Now, policy);
+            var setupEpgV2Index = indexManager.SetupEpgV2Index(DateTime.Now);
 
             var refreshInterval = new Time(TimeSpan.FromSeconds(1));
             var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
@@ -861,13 +860,13 @@ namespace ApiLogic.Tests.IndexManager
             crudOperations.ItemsToAdd.Add(epgItem);
 
 
-            indexManager.DeleteProgramsFromIndex(crudOperations.ItemsToDelete, setupEpgV2Index, languageObjs);
+            indexManager.DeletePrograms(crudOperations.ItemsToDelete, setupEpgV2Index, languageObjs);
 
             var programsToIndex = crudOperations.ItemsToAdd
                 .Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.AffectedItems)
                 .ToList();
 
-            indexManager.UpsertProgramsToDraftIndex(programsToIndex, setupEpgV2Index,
+            indexManager.UpsertPrograms(programsToIndex, setupEpgV2Index,
                 dateOfProgramsToIngest, language, languageObjs);
 
             var searchPolicy = Policy.HandleResult<List<string>>(x => x == null || x.Count == 0).WaitAndRetry(

@@ -115,7 +115,7 @@ namespace IngestHandler
 
                 try
                 {
-                    dailyEpgIndexName = _indexManager.SetupEpgV2Index(serviceEvent.DateOfProgramsToIngest, _ingestRetryPolicy);
+                    dailyEpgIndexName = _indexManager.SetupEpgV2Index(serviceEvent.DateOfProgramsToIngest);
                 }
                 catch
                 {
@@ -125,9 +125,9 @@ namespace IngestHandler
 
                 await BulkUploadMethods.UpdateCouchbase(serviceEvent.CrudOperations, serviceEvent.GroupId);
 
-                _indexManager.DeleteProgramsFromIndex(serviceEvent.CrudOperations.ItemsToDelete, dailyEpgIndexName, _languages);
+                _indexManager.DeletePrograms(serviceEvent.CrudOperations.ItemsToDelete, dailyEpgIndexName, _languages);
                 var programsToIndex = serviceEvent.CrudOperations.ItemsToAdd.Concat(serviceEvent.CrudOperations.ItemsToUpdate).Concat(serviceEvent.CrudOperations.AffectedItems).ToList();
-                _indexManager.UpsertProgramsToDraftIndex(programsToIndex, dailyEpgIndexName, 
+                _indexManager.UpsertPrograms(programsToIndex, dailyEpgIndexName, 
                     serviceEvent.DateOfProgramsToIngest, _defaultLanguage, _languages);
 
                 var finalizer = new IngestFinalizer(_bulkUpload, _relevantResultsDictionary, serviceEvent.DateOfProgramsToIngest, serviceEvent.RequestId,_indexManager);

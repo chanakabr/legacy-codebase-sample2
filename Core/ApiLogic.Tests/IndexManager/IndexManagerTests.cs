@@ -27,7 +27,6 @@ using KeyValuePair = System.Collections.Generic.KeyValuePair;
 using Utils = ElasticSearch.Common.Utils;
 using ApiLogic.Catalog;
 using ApiLogic.Tests.ConfigurationMocks;
-using ApiObjects.Nest;
 using ElasticSearch.NEST;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.QueryBuilders;
@@ -394,7 +393,7 @@ namespace ApiLogic.Tests.IndexManager
             var epgId = 1 + new Random().Next(1000);
 
             //act
-            var setupEpgV2Index = indexManager.SetupEpgV2Index(DateTime.Now, policy);
+            var setupEpgV2Index = indexManager.SetupEpgV2Index(DateTime.Now);
 
             //assert
             Assert.IsNotEmpty(setupEpgV2Index);
@@ -416,13 +415,13 @@ namespace ApiLogic.Tests.IndexManager
             crudOperations.ItemsToAdd.Add(epgItem);
 
 
-            indexManager.DeleteProgramsFromIndex(crudOperations.ItemsToDelete, setupEpgV2Index, languageObjs);
+            indexManager.DeletePrograms(crudOperations.ItemsToDelete, setupEpgV2Index, languageObjs);
 
             var programsToIndex = crudOperations.ItemsToAdd
                 .Concat(crudOperations.ItemsToUpdate).Concat(crudOperations.AffectedItems)
                 .ToList();
 
-            indexManager.UpsertProgramsToDraftIndex(programsToIndex, setupEpgV2Index,
+            indexManager.UpsertPrograms(programsToIndex, setupEpgV2Index,
                 dateOfProgramsToIngest, language, languageObjs);
 
             List<string> epgCbDocumentIdsByEpgId = indexManager.GetEpgCBDocumentIdsByEpgId(new long[] { epgId }, languageObjs.Values);
@@ -430,7 +429,7 @@ namespace ApiLogic.Tests.IndexManager
 
             //check deletion
             crudOperations.ItemsToDelete.Add(epgItem);
-            indexManager.DeleteProgramsFromIndex(crudOperations.ItemsToDelete, setupEpgV2Index, languageObjs);
+            indexManager.DeletePrograms(crudOperations.ItemsToDelete, setupEpgV2Index, languageObjs);
 
             var deletePolicy = Policy.HandleResult<List<UnifiedSearchResult>>(x => x != null && x.Count > 0).WaitAndRetry(3,
                 retryAttempt => TimeSpan.FromSeconds(1));

@@ -13,6 +13,7 @@ using System.Net;
 using System.Collections;
 using System.Net.Sockets;
 using Nest;
+using ApiLogic.IndexManager.NestData;
 
 namespace Core.Catalog
 {
@@ -53,7 +54,7 @@ namespace Core.Catalog
         protected abstract string FromField { get; }
         protected abstract string ToField { get; }
 
-        internal virtual QueryContainer BuildNestQueryForIp(QueryContainerDescriptor<ApiLogic.IndexManager.NestData.Country> q, string ipValue)
+        internal virtual QueryContainer BuildNestQueryForIp(QueryContainerDescriptor<NestCountry> q, string ipValue)
         {
             return q.TermRange(range => range.Field(this.ToField).GreaterThanOrEquals(ipValue)) &&
                     q.TermRange(range => range.Field(this.FromField).LessThanOrEquals(ipValue))

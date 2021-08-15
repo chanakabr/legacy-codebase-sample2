@@ -55,7 +55,7 @@ namespace IngestHandler
                 _logger.Debug($"Starting IngestFinalizer BulkUploadId:[{_bulkUpload.Id}]");
 
 
-                var isRefreshSuccess = _indexManager.FinalizeEpgV2Index(_dateOfProgramsToIngest);
+                var isRefreshSuccess = _indexManager.ForceRefreshEpgV2Index(_dateOfProgramsToIngest);
 
                 if (!isRefreshSuccess)
                 {
@@ -71,7 +71,7 @@ namespace IngestHandler
                 if (BulkUpload.IsProcessCompletedByStatus(newStatus))
                 {
                     _logger.Debug($"BulkUploadId: [{_bulkUpload.Id}] Date:[{_dateOfProgramsToIngest}], Final part of bulk is marked, status is: [{newStatus}], finlizing bulk object");
-                    bool finalizeResult = _indexManager.FinalizeEpgV2Indices(_bulkUploadJobData.DatesOfProgramsToIngest.ToList(), _ingestRetryPolicy);
+                    bool finalizeResult = _indexManager.FinalizeEpgV2Indices(_bulkUploadJobData.DatesOfProgramsToIngest.ToList());
 
                     if (!finalizeResult)
                     {

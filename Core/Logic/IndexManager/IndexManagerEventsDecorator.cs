@@ -117,7 +117,7 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, DateTime dateOfProgramsToIngest,
+        public void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, DateTime dateOfProgramsToIngest,
             LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
         {
             Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG,
@@ -125,7 +125,7 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName, IDictionary<string, LanguageObj> languages)
+        public void DeletePrograms(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName, IDictionary<string, LanguageObj> languages)
         {
             Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, programsToDelete, epgIndexName,
                 languages);
@@ -160,12 +160,6 @@ namespace ApiLogic.Catalog.IndexManager
         public Status DeleteTagsByTopic(long topicId)
         {
             return Execute<Status>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.TAG, topicId);
-        }
-
-        //CUD
-        public Status DeleteStatistics(DateTime until)
-        {
-            return Execute<Status>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.STATS, until);
         }
 
         //CUD
@@ -306,11 +300,10 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest,
-            RetryPolicy retryPolicy)
+        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest)
         {
             return Execute<string>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.EPG, dateOfProgramsToIngest, retryPolicy);
+                IndexManagerMigrationEventKeys.EPG, dateOfProgramsToIngest);
         }
 
         //CUD
@@ -326,16 +319,16 @@ namespace ApiLogic.Catalog.IndexManager
 
 
         //CUD
-        public bool FinalizeEpgV2Index(DateTime date)
+        public bool ForceRefreshEpgV2Index(DateTime date)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, date);
         }
 
         //CUD
-        public bool FinalizeEpgV2Indices(List<DateTime> date, RetryPolicy retryPolicy)
+        public bool FinalizeEpgV2Indices(List<DateTime> date)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.EPG, date, retryPolicy);
+                IndexManagerMigrationEventKeys.EPG, date);
         }
 
 

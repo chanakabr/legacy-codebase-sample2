@@ -153,10 +153,6 @@ namespace WS_Catalog
         bool RebuildEpgChannel(int groupId, int epgChannelID, DateTime fromDate, DateTime toDate, bool duplicates);
 
         [OperationContract]
-        //[WebInvoke(Method = "POST", UriTemplate = "ClearStatistics", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
-        ApiObjects.Response.Status ClearStatistics(int groupId, DateTime until);
-
-        [OperationContract]
         //[WebInvoke(Method = "POST", UriTemplate = "RebaseIndex", ResponseFormat = WebMessageFormat.Xml, RequestFormat = WebMessageFormat.Xml)]
         bool RebaseIndex(int groupId, eObjectType type, DateTime startDate);
 

@@ -47,6 +47,7 @@ using Tvinci.Core.DAL;
 using TVinciShared;
 using Status = ApiObjects.Response.Status;
 using ApiLogic.IndexManager.QueryBuilders;
+using ApiLogic.IndexManager.Helpers;
 
 namespace Core.Catalog
 {
@@ -7586,7 +7587,7 @@ namespace Core.Catalog
                 var defaultChannelOrder = channel.m_OrderObject;
                 if (request.searchGroupBy?.groupBy?.Count == 1 && 
                     defaultChannelOrder != null && 
-                    !IndexingUtils.GroupBySearchIsSupportedForOrder(defaultChannelOrder.m_eOrderBy))
+                    !IndexManagerCommonHelpers.GroupBySearchIsSupportedForOrder(defaultChannelOrder.m_eOrderBy))
                 {
                     defaultChannelOrder = new OrderObj
                     {
@@ -8465,11 +8466,6 @@ namespace Core.Catalog
             {
                 log.Error(ex.Message, ex);
             }
-        }
-
-        public static ApiObjects.Response.Status ClearStatistics(int groupId, DateTime until)
-        {
-            return new Status(eResponseStatus.Error, "Clear statistics is not supported!");
         }
 
         public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, int domainId, List<int> assetTypes,

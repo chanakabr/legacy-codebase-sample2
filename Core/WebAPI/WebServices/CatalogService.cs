@@ -165,15 +165,5 @@ namespace WebAPI.WebServices
         {
             return Core.Catalog.Module.RebaseIndex(groupId, type, startDate);
         }
-
-        #region Iservice Members
-
-
-        public ApiObjects.Response.Status ClearStatistics(int groupId, DateTime until)
-        {
-            return Core.Catalog.Module.ClearStatistics(groupId, until);
-        }
-
-        #endregion
     }
 }

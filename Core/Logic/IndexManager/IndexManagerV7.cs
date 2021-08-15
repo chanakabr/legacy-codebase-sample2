@@ -26,7 +26,6 @@ using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.NestData;
 using ElasticSearch.Searcher.Settings;
 using ApiObjects.CanaryDeployment.Elasticsearch;
-using ApiObjects.Nest;
 using Elasticsearch.Net;
 using ElasticSearch.Utilities;
 using Newtonsoft.Json;
@@ -37,7 +36,8 @@ using System.Net;
 using System.Net.Sockets;
 using ApiLogic.Api.Managers;
 using Core.GroupManagers;
-using Media = ApiLogic.IndexManager.NestData.Media;
+using NestMedia = ApiLogic.IndexManager.NestData.NestMedia;
+using SocialActionStatistics = ApiObjects.Statistics.SocialActionStatistics;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiObjects.Response;
 using System.Text;
@@ -56,6 +56,7 @@ namespace Core.Catalog
 
         private const int REFRESH_INTERVAL_FOR_EMPTY_INDEX_SECONDS = 10;
         private const string INDEX_REFRESH_INTERVAL = "10s";
+        private const int MAX_RESULTS_DEFAULT = 100000;
 
         protected const string LOWERCASE_ANALYZER = "lowercase_analyzer";
         protected const string DEFAULT_INDEX_ANALYZER = "index_analyzer";
@@ -99,9 +100,23 @@ namespace Core.Catalog
         private HashSet<string> _metasToPad;
         private Group _group;
         private CatalogGroupCache _catalogGroupCache;
-        private Dictionary<string, LanguageObj> _groupCodePerLang;
-        private Dictionary<string, LanguageObj> _catalogGroupCacheCodePerLang;
+        private Dictionary<string, LanguageObj> _partnerLanguageCodes;
 
+        /// <summary>
+        /// Initialiezs an instance of Index Manager for work with ElasticSearch 7.14
+        /// Please do not use this ctor, rather use IndexManagerFactory.
+        /// </summary>
+        /// <param name="partnerId"></param>
+        /// <param name="elasticClient"></param>
+        /// <param name="applicationConfiguration"></param>
+        /// <param name="groupManager"></param>
+        /// <param name="catalogManager"></param>
+        /// <param name="esIndexDefinitions"></param>
+        /// <param name="channelManager"></param>
+        /// <param name="catalogCache"></param>
+        /// <param name="ttlService"></param>
+        /// <param name="watchRuleManager"></param>
+        /// <param name="channelQueryBuilder"></param>
         public IndexManagerV7(int partnerId,
             IElasticClient elasticClient,
             IApplicationConfiguration applicationConfiguration,
@@ -140,8 +155,7 @@ namespace Core.Catalog
 
         private void InitializePartnerData(int partnerId)
         {
-            _groupCodePerLang = new Dictionary<string, LanguageObj>();
-            _catalogGroupCacheCodePerLang = new Dictionary<string, LanguageObj>();
+            _partnerLanguageCodes = new Dictionary<string, LanguageObj>();
 
             if (partnerId <= 0)
             {
@@ -153,12 +167,12 @@ namespace Core.Catalog
             if (_groupUsesTemplates)
             {
                 _catalogManager.TryGetCatalogGroupCacheFromCache(partnerId, out _catalogGroupCache);
-                _catalogGroupCacheCodePerLang = _catalogGroupCache.LanguageMapByCode;
+                _partnerLanguageCodes = _catalogGroupCache.LanguageMapByCode;
             }
             else
             {
                 _group = _groupManager.GetGroup(partnerId);
-                _groupCodePerLang = _group.GetLangauges().ToDictionary(x => x.Code, x => x);
+                _partnerLanguageCodes = _group.GetLangauges().ToDictionary(x => x.Code, x => x);
             }
 
             if (_catalogGroupCache == null && _group == null)
@@ -177,7 +191,7 @@ namespace Core.Catalog
                 return result;
             }
 
-            string index = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            string index = NamingHelper.GetMediaIndexAlias(_partnerId);
             if (!_elasticClient.Indices.Exists(index).Exists)
             {
                 log.Error($"Index of type media for group {_partnerId} does not exist");
@@ -205,16 +219,20 @@ namespace Core.Catalog
 
             try
             {
-                //Create Media Object
                 var mediaDictionary = _catalogManager.GetGroupMedia(_partnerId, assetId);
+
                 if (mediaDictionary != null && mediaDictionary.Count > 0)
                 {
                     var numOfBulkRequests = 0;
-                    var bulkRequests = new Dictionary<int, List<NestEsBulkRequest<Media>>>() { { numOfBulkRequests, new List<NestEsBulkRequest<Media>>() } };
+                    var bulkRequests = new Dictionary<int, List<NestEsBulkRequest<NestMedia>>>() 
+                    { 
+                        { numOfBulkRequests, new List<NestEsBulkRequest<NestMedia>>() }
+                    };
 
                     GetMediaNestEsBulkRequest(index, GetBulkSize(), 0, bulkRequests, mediaDictionary);
 
                     result = true;
+
                     foreach (var item in bulkRequests.Values)
                     {
                         result &= ExecuteAndValidateBulkRequests(item);
@@ -236,26 +254,26 @@ namespace Core.Catalog
             return result;
         }
 
-        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest, RetryPolicy retryPolicy)
+        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest)
         {
-            string dailyEpgIndexName = IndexingUtils.GetDailyEpgIndexName(_partnerId, dateOfProgramsToIngest);
-            EnsureEpgIndexExist(dailyEpgIndexName, retryPolicy);
+            string dailyEpgIndexName = NamingHelper.GetDailyEpgIndexName(_partnerId, dateOfProgramsToIngest);
+            EnsureEpgIndexExist(dailyEpgIndexName);
 
-            SetNoRefresh(dailyEpgIndexName, retryPolicy);
+            SetNoRefresh(dailyEpgIndexName);
 
             return dailyEpgIndexName;
         }
 
-        public bool FinalizeEpgV2Index(DateTime date)
+        public bool ForceRefreshEpgV2Index(DateTime date)
         {
-            var dailyEpgIndexName = IndexingUtils.GetDailyEpgIndexName(_partnerId, date);
+            var dailyEpgIndexName = NamingHelper.GetDailyEpgIndexName(_partnerId, date);
             var response = _elasticClient.Indices.Refresh(new RefreshRequest(dailyEpgIndexName));
             return response.IsValid;
         }
 
-        public bool FinalizeEpgV2Indices(List<DateTime> dates, RetryPolicy retryPolicy)
+        public bool FinalizeEpgV2Indices(List<DateTime> dates)
         {
-            var indices = dates.Select(x => IndexingUtils.GetDailyEpgIndexName(_partnerId, x));
+            var indices = dates.Select(x => NamingHelper.GetDailyEpgIndexName(_partnerId, x));
             var existingIndices = indices.Select(x => x).Where(x => _elasticClient.Indices.Exists(x).IsValid).ToList();
 
             foreach (var index in existingIndices)
@@ -265,7 +283,7 @@ namespace Core.Catalog
 
                 if (!response.IsValid)
                 {
-                    retryPolicy.Execute(() =>
+                    IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
                     {
                         var isSetRefreshSuccess = _elasticClient.Indices.UpdateSettings(Indices.Index(index),
                             x => x.IndexSettings(y => y.RefreshInterval(INDEX_REFRESH_INTERVAL))).IsValid;
@@ -284,26 +302,26 @@ namespace Core.Catalog
 
         public bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds)
         {
-            bool result = false;
+            bool isSuccess = false;
 
             if (epgIds == null || epgIds.Count == 0)
             {
-                return result;
+                return isSuccess;
             }
 
-            string index = IndexingUtils.GetEpgIndexAlias(_partnerId);
-            var deleteResponse = _elasticClient.DeleteByQuery<Epg>(request => request
+            string index = NamingHelper.GetEpgIndexAlias(_partnerId);
+            var deleteResponse = _elasticClient.DeleteByQuery<NestEpg>(request => request
                 .Index(index)
                 .Query(query => query
                     .Terms(terms => terms.Field(epg => epg.EpgID).Terms<long>(epgIds))
                     ));
 
-            result = deleteResponse.IsValid;
+            isSuccess = deleteResponse.IsValid;
 
             try
             {
                 // support for old invalidation keys
-                if (result)
+                if (isSuccess)
                 {
                     // invalidate epg's for OPC and NON-OPC accounts
                     EpgAssetManager.InvalidateEpgs(_partnerId, epgIds, _groupUsesTemplates, epgChannelIds, true);
@@ -314,17 +332,18 @@ namespace Core.Catalog
                 log.Error($"Failed invalidating Epgs on partner {_partnerId}", ex);
             }
 
-            return result;
+            return isSuccess;
         }
 
-        private static RetryPolicy GetRetryPolicy<TException>(int retryCount = 3) where TException : Exception
+        internal static RetryPolicy GetRetryPolicy<TException>(int retryCount = 3) where TException : Exception
         {
             return Policy.Handle<TException>()
                 .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
                 {
-                    log.Warn($"upsert attempt [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
+                    log.Warn($"ElasticSearch request attemp [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
                 });
         }
+
         public bool UpsertProgram(List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings)
         {
             if (!epgObjects.Any())
@@ -341,20 +360,20 @@ namespace Core.Catalog
                 var epgChannelIds = epgObjects.Select(item => item.ChannelID.ToString()).ToList();
                 linearChannelSettings = linearChannelSettings ?? new Dictionary<string, LinearChannelSettings>();
 
-                var bulkRequests = new List<NestEsBulkRequest<Epg>>();
+                var bulkRequests = new List<NestEsBulkRequest<NestEpg>>();
 
-                var isRationalizationEnabled = _groupUsesTemplates
+                var isRegionalizationEnabled = _groupUsesTemplates
                     ? _catalogGroupCache.IsRegionalizationEnabled
                     : _group.isRegionalizationEnabled;
 
-                var linearChannelsRegionsMapping = isRationalizationEnabled
+                var linearChannelsRegionsMapping = isRegionalizationEnabled
                     ? RegionManager.GetLinearMediaRegions(_partnerId)
                     : new Dictionary<long, List<int>>();
 
                 var createdAliases = new HashSet<string>();
                 _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
 
-                var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+                var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
                 var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
 
                 // Create dictionary by languages
@@ -375,7 +394,7 @@ namespace Core.Catalog
                         // in that case we need to use the specific date alias for each epg item to update
                         if (isIngestV2)
                         {
-                            alias = HandleEpgV2Alias(epgCb, createdAliases);
+                            alias = EnsureEpgIndexExistsForEpg(epgCb, createdAliases);
                         }
 
                         UpdateEpgLinearMediaId(linearChannelSettings, epgCb);
@@ -443,14 +462,14 @@ namespace Core.Catalog
             }
         }
 
-        private string HandleEpgV2Alias(EpgCB epgCb, HashSet<string> createdAliases)
+        private string EnsureEpgIndexExistsForEpg(EpgCB epgCb, HashSet<string> createdAliases)
         {
-            var alias = IndexingUtils.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
+            var alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
 
-            //in case alias already created ,no need to check in ES
+            // in case alias already created, no need to check in ES
             if (!createdAliases.Contains(alias))
             {
-                EnsureEpgIndexExist(alias, GetRetryPolicy<Exception>());
+                EnsureEpgIndexExist(alias);
                 createdAliases.Add(alias);
             }
 
@@ -464,18 +483,16 @@ namespace Core.Catalog
 
             try
             {
-                string alias = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
+                string mediaIndex = NamingHelper.GetMediaIndexAlias(_partnerId);
 
-                var indices = _elasticClient.GetIndicesPointingToAlias(alias);
+                var indices = _elasticClient.GetIndicesPointingToAlias(mediaIndex);
 
                 foreach (var index in indices)
                 {
                     foreach (var channelId in channelIds)
                     {
-                        var deleteResponse = _elasticClient.Delete<ChannelPercolatedQuery>(
-                            // id
+                        var deleteResponse = _elasticClient.Delete<NestPercolatedQuery>(
                             GetChannelDocumentId(channelId), 
-                            // request
                             request => request.Index(index));
 
                         if (!deleteResponse.IsValid)
@@ -500,8 +517,8 @@ namespace Core.Catalog
         {
             bool result = true;
 
-            string alias = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
-            var indices = _elasticClient.GetIndicesPointingToAlias(alias);
+            string mediaIndex = NamingHelper.GetMediaIndexAlias(_partnerId);
+            var indices = _elasticClient.GetIndicesPointingToAlias(mediaIndex);
 
             List<Channel> channels = new List<Channel>();
 
@@ -579,7 +596,7 @@ namespace Core.Catalog
             try
             {
                 string index = ESUtils.GetGroupChannelIndex(_partnerId);
-                var deleteResponse = _elasticClient.DeleteByQuery<ChannelMetadata>(request => request
+                var deleteResponse = _elasticClient.DeleteByQuery<NestChannelMetadata>(request => request
                     .Index(index)
                     .Query(query => query.Term(channel => channel.ChannelId, channelId)
                         ));
@@ -686,23 +703,23 @@ namespace Core.Catalog
 
         public bool DeleteMedia(long assetId)
         {
-            var result = false;
+            var isSuccess = false;
 
             if (assetId <= 0)
             {
                 log.WarnFormat("Received media request of invalid media id {0} when calling DeleteMedia", assetId);
-                return result;
+                return isSuccess;
             }
 
-            string index = IndexingUtils.GetMediaIndexAlias(_partnerId);
-            var deleteResponse = _elasticClient.DeleteByQuery<Media>(request => request
+            string index = NamingHelper.GetMediaIndexAlias(_partnerId);
+            var deleteResponse = _elasticClient.DeleteByQuery<NestMedia>(request => request
                 .Index(index)
                 .Query(query => query.Term(media => media.MediaId, assetId)
                     ));
 
-            result = deleteResponse.IsValid;
+            isSuccess = deleteResponse.IsValid;
 
-            if (!result)
+            if (!isSuccess)
             {
                 log.ErrorFormat("Delete media with id {0} failed", assetId);
             }
@@ -720,10 +737,10 @@ namespace Core.Catalog
                 }
             }
 
-            return result;
+            return isSuccess;
         }
 
-        public void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms,
+        public void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms,
             string draftIndexName,
             DateTime dateOfProgramsToIngest,
             LanguageObj defaultLanguage,
@@ -732,15 +749,11 @@ namespace Core.Catalog
             var bulkSize = GetBulkSize();
 
             var retryCount = 5;
-            var policy = RetryPolicy.Handle<Exception>()
-            .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
-            {
-                log.Warn($"upsert attempt [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
-            });
-
+            var policy = IndexManagerCommonHelpers.GetRetryPolicy<Exception>(retryCount);
+                
             policy.Execute(() =>
             {
-                var bulkRequests = new List<NestEsBulkRequest<Epg>>();
+                var bulkRequests = new List<NestEsBulkRequest<NestEpg>>();
                 try
                 {
                     var programTranslationsToIndex = calculatedPrograms.SelectMany(p => p.EpgCbObjects);
@@ -801,15 +814,15 @@ namespace Core.Catalog
             return bulkSize;
         }
 
-        private NestEsBulkRequest<Epg> GetEpgBulkRequest(string draftIndexName,
+        private NestEsBulkRequest<NestEpg> GetEpgBulkRequest(string draftIndexName,
             DateTime routingDate,
-            Epg buildEpg,
+            NestEpg buildEpg,
             string documentId="")
         {
             //override the doc id    
             var docId = string.IsNullOrEmpty(documentId) ? buildEpg.EpgIdentifier:documentId;
             
-            var bulkRequest = new NestEsBulkRequest<Epg>()
+            var bulkRequest = new NestEsBulkRequest<NestEpg>()
             {
                 DocID = $"{docId}_{buildEpg.Language}",
                 Document = buildEpg,
@@ -871,7 +884,7 @@ namespace Core.Catalog
         }
 
 
-        public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, 
+        public void DeletePrograms(IList<EpgProgramBulkUploadObject> programsToDelete, 
             string epgIndexName, 
             IDictionary<string, LanguageObj> languages)
         {
@@ -884,25 +897,21 @@ namespace Core.Catalog
 
             log.Debug($"Update elasticsearch index completed, deleting required documents. documents length:[{programsToDelete.Count}]");
             var retryCount = 5;
-            var policy = Policy.Handle<Exception>()
-                .WaitAndRetry(retryCount, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), (ex, time, attempt, ctx) =>
-                {
-                    log.Warn($"delete attempt [{attempt}/{retryCount}] Failed, waiting for:[{time.TotalSeconds}] seconds.", ex);
-                });
+            var policy = IndexManagerCommonHelpers.GetRetryPolicy<Exception>(retryCount);
 
             policy.Execute(() =>
             {
                 //get the the query new version
-                var response = _elasticClient.DeleteByQuery<object>(dbq => dbq
+                var response = _elasticClient.DeleteByQuery<NestEpg>(dbq => dbq
                     .Index(epgIndexName)
                     .Query(q => q
                     .Bool(b => b
                         .Should( //equivalent to OR
-                            should => should.Terms(t => t.Field("epg_id").Terms<ulong>(programIds)),
+                            should => should.Terms(t => t.Field(field => field.EpgID).Terms<ulong>(programIds)),
                             should => should.Bool(bs => bs
                                 .Must( //equivalent to AND
-                                    mu => mu.Terms(t => t.Field("epg_identifier").Terms<string>(externalIds)),
-                                    mu => mu.Terms(t => t.Field("epg_channel_id").Terms<int>(channelIds))
+                                    mu => mu.Terms(t => t.Field(field => field.EpgIdentifier).Terms<string>(externalIds)),
+                                    mu => mu.Terms(t => t.Field(field => field.ChannelID).Terms<int>(channelIds))
                                 )
                             )
                         )
@@ -932,7 +941,7 @@ namespace Core.Catalog
             log.Debug(
                 $"GetCurrentProgramsByDate > index alias:[{index}] found, searching current programs, minStartDate:[{fromDate}], maxEndDate:[{toDate}]");
             
-            var searchResponse = _elasticClient.Search<Epg>(s => s
+            var searchResponse = _elasticClient.Search<NestEpg>(s => s
                 .Index(index)
                 .Size(_maxResults)
                 .Query(q =>q
@@ -958,7 +967,7 @@ namespace Core.Catalog
             return result;
         }
 
-        private EpgProgramBulkUploadObject GetEpgProgramBulkUploadObject(Epg epg)
+        private EpgProgramBulkUploadObject GetEpgProgramBulkUploadObject(NestEpg epg)
         {
             var epgItem = new EpgProgramBulkUploadObject();
             epgItem.EpgExternalId = epg.EpgIdentifier;
@@ -1054,7 +1063,7 @@ namespace Core.Catalog
             {
                 try
                 {
-                    var searchResponse = _elasticClient.Search<ChannelPercolatedQuery>(
+                    var searchResponse = _elasticClient.Search<NestPercolatedQuery>(
                         x => x.Index(percolatorIndex)
                             .Query(q =>
                                 q.Percolate(p => p.Documents(response.Source)
@@ -1099,15 +1108,15 @@ namespace Core.Catalog
             switch (assetType)
             {
                 case eObjectType.Media:
-                    index = IndexingUtils.GetMediaIndexAlias(_partnerId);
+                    index = NamingHelper.GetMediaIndexAlias(_partnerId);
                     idField = "media_id";
                     break;
                 case eObjectType.EPG:
-                    index = IndexingUtils.GetEpgIndexAlias(_partnerId);
+                    index = NamingHelper.GetEpgIndexAlias(_partnerId);
                     idField = "epg_id";
                     break;
                 case eObjectType.Recording:
-                    index = IndexingUtils.GetRecordingIndexAlias(_partnerId);
+                    index = NamingHelper.GetRecordingIndexAlias(_partnerId);
                     idField = "recording_id";
                     break;
                 default:
@@ -1119,25 +1128,6 @@ namespace Core.Catalog
                 log.Error($"Got invalid asset type when trying to get assets update date. type = {assetType}");
                 return response;
             }
-
-            /*
-                {
-                    "size": 500,
-                    "from": 0,
-                    "fields": [
-                        "media_id",
-                        "update_date"
-                    ],
-                    "query": {
-                        "terms": {
-                            "media_id": [
-                                762870,
-                                762874
-                            ]
-                        }
-                    }
-                }
-                */
 
             int pageSize = 500;
             for (int from = 0; from < assetIds.Count; from += pageSize)
@@ -1178,7 +1168,7 @@ namespace Core.Catalog
             try
             {
                 string index = IndexingUtils.GetChannelMetadataIndexName(_partnerId);
-                var searchResponse = _elasticClient.Search<ChannelMetadata>(searchDescriptor => searchDescriptor
+                var searchResponse = _elasticClient.Search<NestChannelMetadata>(searchDescriptor => searchDescriptor
                     .Index(index)
                     .Size(definitions.PageSize)
                     .From(definitions.PageSize * definitions.PageIndex)
@@ -1226,7 +1216,7 @@ namespace Core.Catalog
                     .Query(query => query
                         .Bool(boolQuery =>
                         {
-                            QueryContainerDescriptor<ChannelMetadata> queryContainerDescriptor = new QueryContainerDescriptor<ChannelMetadata>();
+                            QueryContainerDescriptor<NestChannelMetadata> queryContainerDescriptor = new QueryContainerDescriptor<NestChannelMetadata>();
                             List<QueryContainer> mustQueryContainers = new List<QueryContainer>();
 
                             if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue))
@@ -1300,7 +1290,7 @@ namespace Core.Catalog
             try
             {
                 string index = IndexingUtils.GetMetadataIndexAlias(_partnerId);
-                var searchResponse = _elasticClient.Search<Tag>(searchDescriptor => searchDescriptor
+                var searchResponse = _elasticClient.Search<NestTag>(searchDescriptor => searchDescriptor
                     .Index(index)
                     .Size(definitions.PageSize)
                     .From(definitions.PageSize * definitions.PageIndex)
@@ -1310,7 +1300,7 @@ namespace Core.Catalog
                         .Bool(boolQuery =>
                         {
                             List<QueryContainer> mustQueryContainers = new List<QueryContainer>();
-                            var queryContainerDescriptor = new QueryContainerDescriptor<Tag>();
+                            var queryContainerDescriptor = new QueryContainerDescriptor<NestTag>();
 
                             if (definitions.TopicId != 0)
                             {
@@ -1430,7 +1420,7 @@ namespace Core.Catalog
                     field = $"value.{language.Code}";
                 }
 
-                queryContainers.Add(CreateValueMatchQueryContainer<Tag>(field, value));
+                queryContainers.Add(CreateValueMatchQueryContainer<NestTag>(field, value));
             }
 
             return queryContainers;
@@ -1455,7 +1445,7 @@ namespace Core.Catalog
                 return status;
             }
 
-            var bulkRequests = new List<NestEsBulkRequest<Tag>>();
+            var bulkRequests = new List<NestEsBulkRequest<NestTag>>();
             try
             {
                 if (!_catalogGroupCache.LanguageMapById.ContainsKey(tagValue.languageId))
@@ -1466,8 +1456,8 @@ namespace Core.Catalog
                 else
                 {
                     var languageCode = _catalogGroupCache.LanguageMapById[tagValue.languageId].Code;
-                    var tag = new Tag(tagValue, languageCode);
-                    var bulkRequest = new NestEsBulkRequest<Tag>()
+                    var tag = new NestTag(tagValue, languageCode);
+                    var bulkRequest = new NestEsBulkRequest<NestTag>()
                     {
                         DocID = $"{tag.tagId}_{languageCode}",
                         Document = tag,
@@ -1487,8 +1477,8 @@ namespace Core.Catalog
 
                         if (languageId > 0)
                         {
-                            var tag = new Tag(tagValue.tagId, tagValue.topicId, languageId, languageContainer.m_sValue, languageContainer.m_sLanguageCode3, tagValue.createDate, tagValue.updateDate);
-                            var bulkRequest = new NestEsBulkRequest<Tag>()
+                            var tag = new NestTag(tagValue.tagId, tagValue.topicId, languageId, languageContainer.m_sValue, languageContainer.m_sLanguageCode3, tagValue.createDate, tagValue.updateDate);
+                            var bulkRequest = new NestEsBulkRequest<NestTag>()
                             {
                                 DocID = $"{tag.tagId}_{languageContainer.m_sLanguageCode3}",
                                 Document = tag,
@@ -1517,7 +1507,7 @@ namespace Core.Catalog
             var status = new ApiObjects.Response.Status();
             string index = ESUtils.GetGroupMetadataIndex(_partnerId);
 
-            var deleteResponse = _elasticClient.DeleteByQuery<Tag>(request => request
+            var deleteResponse = _elasticClient.DeleteByQuery<NestTag>(request => request
                 .Index(index)
                 .Query(query => query.Term(tag => tag.tagId, tagId)
                     ));
@@ -1536,7 +1526,7 @@ namespace Core.Catalog
             var status = new ApiObjects.Response.Status();
             string index = ESUtils.GetGroupMetadataIndex(_partnerId);
 
-            var deleteResponse = _elasticClient.DeleteByQuery<Tag>(request => request
+            var deleteResponse = _elasticClient.DeleteByQuery<NestTag>(request => request
                 .Index(index)
                 .Query(query => query.Term(tag => tag.topicId, topicId)
                     ));
@@ -1548,12 +1538,6 @@ namespace Core.Catalog
             }
 
             return status;
-        }
-
-        //DO NOT IMPLEMENT THIS METHOD
-        public Status DeleteStatistics(DateTime until)
-        {
-            throw new NotImplementedException();
         }
 
         public List<UnifiedSearchResult> GetAssetsUpdateDates(List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex,
@@ -1570,8 +1554,8 @@ namespace Core.Catalog
 
             List<string> indices = new List<string>();
 
-            var mediaAlias = IndexingUtils.GetMediaIndexAlias(_partnerId);
-            var epgAlias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var mediaAlias = NamingHelper.GetMediaIndexAlias(_partnerId);
+            var epgAlias = NamingHelper.GetEpgIndexAlias(_partnerId);
 
             if (shouldSearchMedia)
             {
@@ -1678,8 +1662,8 @@ namespace Core.Catalog
             string ratingAggregationName = "ratings_aggregation";
             string ratingTermsAggregationName = "ratings_aggregation_terms";
 
-            var descriptor = new QueryContainerDescriptor<ApiLogic.IndexManager.NestData.SocialActionStatistics>();
-            var searchResponse = _elasticClient.Search<ApiLogic.IndexManager.NestData.SocialActionStatistics>(searchRequest => searchRequest
+            var descriptor = new QueryContainerDescriptor<ApiLogic.IndexManager.NestData.NestSocialActionStatistics>();
+            var searchResponse = _elasticClient.Search<ApiLogic.IndexManager.NestData.NestSocialActionStatistics>(searchRequest => searchRequest
                 .Index(index)
                 .Size(0)
                 .From(0)
@@ -1937,7 +1921,7 @@ namespace Core.Catalog
                     var queryBuilder = new ESStatisticsQueryBuilder(_partnerId, socialSearch);
                     var query = queryBuilder.BuildQuery();
 
-                    var deleteResponse = _elasticClient.DeleteByQuery<ApiLogic.IndexManager.NestData.SocialActionStatistics>(request => request
+                    var deleteResponse = _elasticClient.DeleteByQuery<NestSocialActionStatistics>(request => request
                         .Index(index)
                         .Query(q =>
                             {
@@ -1960,7 +1944,7 @@ namespace Core.Catalog
 
         public string SetupIPToCountryIndex()
         {
-            string newIndexName = IndexingUtils.GetNewUtilsIndexString();
+            string newIndexName = NamingHelper.GetIpToCountryIndexAlias();
 
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                  c => c.Settings(settings => settings
@@ -1974,7 +1958,7 @@ namespace Core.Catalog
                         .Filters("lowercase", "asciifolding")
                      ))))
                  .Map<object>(map => map
-                     .AutoMap<Tag>()
+                     .AutoMap<NestTag>()
                      .Properties(properties => properties
                         .Text(name => name.Name("name").Analyzer(LOWERCASE_ANALYZER))
                      )
@@ -1995,17 +1979,17 @@ namespace Core.Catalog
             bool result = false;
             int sizeOfBulk = 5000;
 
-            var bulkRequestsIpv4 = new List<NestEsBulkRequest<IPv4>>();
-            var bulkRequestsIpv6 = new List<NestEsBulkRequest<IPv6>>();
+            var bulkRequestsIpv4 = new List<NestEsBulkRequest<NestIPv4>>();
+            var bulkRequestsIpv6 = new List<NestEsBulkRequest<NestIPv6>>();
             try
             {
                 if (ipV4ToCountryMapping != null)
                 {
                     foreach (var ipv4 in ipV4ToCountryMapping)
                     {
-                        var nestObject = new IPv4(ipv4);
+                        var nestObject = new NestIPv4(ipv4);
 
-                        var bulkRequest = new NestEsBulkRequest<IPv4>()
+                        var bulkRequest = new NestEsBulkRequest<NestIPv4>()
                         {
                             DocID = nestObject.id,
                             Document = nestObject,
@@ -2032,9 +2016,9 @@ namespace Core.Catalog
                 {
                     foreach (var ipv6 in ipV6ToCountryMapping)
                     {
-                        var nestObject = new IPv6(ipv6);
+                        var nestObject = new NestIPv6(ipv6);
 
-                        var bulkRequest = new NestEsBulkRequest<IPv6>()
+                        var bulkRequest = new NestEsBulkRequest<NestIPv6>()
                         {
                             DocID = nestObject.id,
                             Document = nestObject,
@@ -2079,7 +2063,7 @@ namespace Core.Catalog
 
         public bool PublishIPToCountryIndex(string newIndexName)
         {
-            string alias = IndexingUtils.GetUtilsIndexName();
+            string alias = NamingHelper.GetIpToCountryIndexAlias();
 
             return this.SwitchIndexAlias(newIndexName, alias, true, true);
         }
@@ -2095,9 +2079,9 @@ namespace Core.Catalog
                     return result;
                 }
 
-                string index = IndexingUtils.GetUtilsIndexName();
+                string index = NamingHelper.GetUtilsIndexName();
 
-                var searchResult = _elasticClient.Search<ApiLogic.IndexManager.NestData.Country>(search => search
+                var searchResult = _elasticClient.Search<NestCountry>(search => search
                     .Index(index)
                     .Size(1)
                     .Fields(fields => fields
@@ -2131,7 +2115,7 @@ namespace Core.Catalog
 
             if (IPAddress.TryParse(ip, out IPAddress address))
             {
-                if (IndexingUtils.CheckIpIsPrivate(address))
+                if (IndexManagerCommonHelpers.CheckIpIsPrivate(address))
                 {
                     searchSuccess = true;
                     return null;
@@ -2150,10 +2134,10 @@ namespace Core.Catalog
                 var ipValue = handler.ConvertIpToValidString(address);
                 log.DebugFormat("GetCountryByIp: ip={0} was converted to ipValue={1}.", ip, ipValue);
 
-                string index = IndexingUtils.GetUtilsIndexName();
+                string index = NamingHelper.GetUtilsIndexName();
 
                 // Perform search
-                var searchResult = _elasticClient.Search<ApiLogic.IndexManager.NestData.Country>(search => search
+                var searchResult = _elasticClient.Search<NestCountry>(search => search
                     .Index(index)
                     .Size(1)
                     .Fields(fields => fields
@@ -2177,7 +2161,7 @@ namespace Core.Catalog
         public List<string> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs)
         {
             var index = IndexingUtils.GetEpgIndexAlias(_partnerId);
-            var searchResponse = _elasticClient.Search<Epg>(s => 
+            var searchResponse = _elasticClient.Search<NestEpg>(s => 
                 GetChannelProgramsSearchDescriptor(channelId, startDate, endDate, esOrderObjs, index)
             );
 
@@ -2203,9 +2187,9 @@ namespace Core.Catalog
             return resultEpgIds.Select(epgId => GetEpgCbKey(epgId)).ToList();
         }
 
-        private SearchDescriptor<Epg> GetChannelProgramsSearchDescriptor(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs, string index)
+        private SearchDescriptor<NestEpg> GetChannelProgramsSearchDescriptor(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs, string index)
         {
-            return new SearchDescriptor<Epg>()
+            return new SearchDescriptor<NestEpg>()
                             .Index(index)
                             .Size(_maxResults)
                             .Fields(sf => sf.Fields(fs => fs.DocumentId, fs => fs.EpgID))
@@ -2231,7 +2215,7 @@ namespace Core.Catalog
         private static IPromise<IList<ISort>> BuildSortDescriptorFromOrderObj(List<ESOrderObj> esOrderObjs)
         {
             // TODO: gil make generic
-            var descriptor = new SortDescriptor<Epg>();
+            var descriptor = new SortDescriptor<NestEpg>();
             foreach (var order in esOrderObjs)
             {
                 switch (order.m_eOrderDir)
@@ -2284,7 +2268,7 @@ namespace Core.Catalog
             languages = languages ?? Enumerable.Empty<LanguageObj>();
             var epgIdsList = epgIds.ToList();
             var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
-            var searchResult = _elasticClient.Search<Epg>(searchDescriptor => searchDescriptor
+            var searchResult = _elasticClient.Search<NestEpg>(searchDescriptor => searchDescriptor
                 .Index(alias)
                 .Source(false)
                 .Size(_maxResults)
@@ -2338,11 +2322,12 @@ namespace Core.Catalog
 
         private bool CreateMediaIndex(string newIndexName, bool shouldAddPercolators = false)
         {
-            int maxResults = 100000;
             // Default size of max results should be 100,000
-            if (_maxResults > 0)
+            int maxResults = _maxResults;
+
+            if (maxResults <= 0)
             {
-                maxResults = _maxResults;
+                maxResults = MAX_RESULTS_DEFAULT;
             }
 
             var languages = GetLanguages();
@@ -2371,9 +2356,8 @@ namespace Core.Catalog
                     .NumberOfShards(_numOfShards)
                     .NumberOfReplicas(_numOfReplicas)
                     .Setting("index.max_result_window", _maxResults)
-                    .Setting("index.max_ngram_diff", 20)
-                    // TODO: convert to tcm...
-                    .Setting("index.mapping.total_fields.limit", 10000)
+                    .Setting("index.max_ngram_diff", _applicationConfiguration.ElasticSearchHandlerConfiguration.MaxNgramDiff.Value)
+                    .Setting("index.mapping.total_fields.limit", _applicationConfiguration.ElasticSearchHandlerConfiguration.TotalFieldsLimit.Value)
                     .Analysis(a => a
                         .Analyzers(an => analyzersDescriptor)
                         .TokenFilters(tf => filtersDescriptor)
@@ -2383,7 +2367,7 @@ namespace Core.Catalog
                 {
                     if (shouldAddPercolators)
                     {
-                        map = map.AutoMap<ChannelPercolatedQuery>();
+                        map = map.AutoMap<NestPercolatedQuery>();
                     }
 
                     return map.Properties(props =>
@@ -2455,12 +2439,12 @@ namespace Core.Catalog
             }
         }
 
-        private Dictionary<int, List<NestEsBulkRequest<Media>>> GetMediaBulkRequests(Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMedias,
+        private Dictionary<int, List<NestEsBulkRequest<NestMedia>>> GetMediaBulkRequests(Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMedias,
             string newIndexName,
             int sizeOfBulk)
         {
             var numOfBulkRequests = 0;
-            var bulkRequests = new Dictionary<int, List<NestEsBulkRequest<Media>>>(){{numOfBulkRequests, new List<NestEsBulkRequest<Media>>()}};
+            var bulkRequests = new Dictionary<int, List<NestEsBulkRequest<NestMedia>>>(){{numOfBulkRequests, new List<NestEsBulkRequest<NestMedia>>()}};
             
             foreach (var groupMedia in groupMedias)
             {
@@ -2471,7 +2455,7 @@ namespace Core.Catalog
             return bulkRequests;
         }
 
-        private int GetMediaNestEsBulkRequest(string newIndexName, int sizeOfBulk, int numOfBulkRequests, Dictionary<int, List<NestEsBulkRequest<Media>>> bulkRequests, Dictionary<int, ApiObjects.SearchObjects.Media> groupMediaValue)
+        private int GetMediaNestEsBulkRequest(string newIndexName, int sizeOfBulk, int numOfBulkRequests, Dictionary<int, List<NestEsBulkRequest<NestMedia>>> bulkRequests, Dictionary<int, ApiObjects.SearchObjects.Media> groupMediaValue)
         {
             // For each language
             foreach (var languageId in groupMediaValue.Keys.Distinct())
@@ -2498,8 +2482,8 @@ namespace Core.Catalog
             return numOfBulkRequests;
         }
 
-        private NestEsBulkRequest<Media> GetMediaNestEsBulkRequest(string indexName, ApiObjects.SearchObjects.Media media,
-            LanguageObj language, Dictionary<int, List<NestEsBulkRequest<Media>>> bulkRequests, int sizeOfBulk, ref int numOfBulkRequests)
+        private NestEsBulkRequest<NestMedia> GetMediaNestEsBulkRequest(string indexName, ApiObjects.SearchObjects.Media media,
+            LanguageObj language, Dictionary<int, List<NestEsBulkRequest<NestMedia>>> bulkRequests, int sizeOfBulk, ref int numOfBulkRequests)
         {
             var nestMedia = NestDataCreator.GetMedia(media, language);
 
@@ -2507,10 +2491,10 @@ namespace Core.Catalog
             if (bulkRequests[numOfBulkRequests].Count >= sizeOfBulk)
             {
                 numOfBulkRequests++;
-                bulkRequests.Add(numOfBulkRequests, new List<NestEsBulkRequest<Media>>());
+                bulkRequests.Add(numOfBulkRequests, new List<NestEsBulkRequest<NestMedia>>());
             }
             var docId = $"{nestMedia.MediaId}_{language.Code}";
-            return new NestEsBulkRequest<Media>(docId, indexName, nestMedia);
+            return new NestEsBulkRequest<NestMedia>(docId, indexName, nestMedia);
         }
 
         private static int GetMaxDegreeOfParallelism()
@@ -2523,7 +2507,7 @@ namespace Core.Catalog
 
         public void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            string alias = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            string alias = NamingHelper.GetMediaIndexAlias(_partnerId);
 
             SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }
@@ -2534,23 +2518,24 @@ namespace Core.Catalog
 
             if (string.IsNullOrEmpty(newIndexName))
             {
-                newIndexName = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
+                newIndexName = NamingHelper.GetMediaIndexAlias(_partnerId);
             }
 
             try
             {
-                List<Channel> groupChannels = IndexingUtils.GetGroupChannels(_partnerId, _channelManager, _groupUsesTemplates, ref channelIds);
+                List<Channel> groupChannels = IndexManagerCommonHelpers.GetGroupChannels(_partnerId, _channelManager, _groupUsesTemplates, ref channelIds);
 
                 var mediaQueryParser = new ESMediaQueryBuilder() { QueryType = eQueryType.EXACT };
                 var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, _partnerId);
-                var bulkRequests = new List<NestEsBulkRequest<ChannelPercolatedQuery>>();
+
+                var bulkRequests = new List<NestEsBulkRequest<NestPercolatedQuery>>();
                 int sizeOfBulk = 50;
 
                 foreach (var channel in groupChannels)
                 {
                     var query = _channelQueryBuilder.GetChannelQuery(mediaQueryParser, unifiedQueryBuilder, channel);
 
-                    bulkRequests.Add(new NestEsBulkRequest<ChannelPercolatedQuery>()
+                    bulkRequests.Add(new NestEsBulkRequest<NestPercolatedQuery>()
                     {
                         DocID = GetChannelDocumentId(channel),
                         Document = query,
@@ -2584,14 +2569,14 @@ namespace Core.Catalog
 
         public void AddChannelsMetadataToIndex(string newIndexName, List<Channel> allChannels)
         {
-            var bulkList = new List<NestEsBulkRequest<ChannelMetadata>>();
+            var bulkList = new List<NestEsBulkRequest<NestChannelMetadata>>();
             var sizeOfBulk = GetBulkSize(50);
             var cd = new ContextData();
             var channelMetadatas = allChannels.Select(x=>NestDataCreator.GetChannelMetadata(x));
             foreach (var channelMetadata in channelMetadatas)
             {
                 var nestEsBulkRequest =
-                    new NestEsBulkRequest<ChannelMetadata>(channelMetadata.ChannelId, newIndexName, channelMetadata);
+                    new NestEsBulkRequest<NestChannelMetadata>(channelMetadata.ChannelId, newIndexName, channelMetadata);
                 bulkList.Add(nestEsBulkRequest);
                 // If we exceeded the size of a single bulk request
                 if (bulkList.Count >= sizeOfBulk)
@@ -2623,7 +2608,7 @@ namespace Core.Catalog
 
         public void PublishChannelsMetadataIndex(string newIndexName, bool shouldSwitchAlias,bool shouldDeleteOldIndices)
         {
-            var alias = IndexingUtils.GetChannelMetadataIndexName(_partnerId);
+            var alias = NamingHelper.GetChannelMetadataIndexName(_partnerId);
             SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchAlias);
         }
 
@@ -2644,7 +2629,7 @@ namespace Core.Catalog
                         .NumberOfShards(_numOfShards)
                         .NumberOfReplicas(_numOfReplicas)
                         .Setting("index.max_result_window", _maxResults)
-                        .Setting("index.max_ngram_diff", 20)
+                        .Setting("index.max_ngram_diff", _applicationConfiguration.ElasticSearchHandlerConfiguration.MaxNgramDiff.Value)
                         .Analysis(a => a
                             .Analyzers(an => analyzersDescriptor)
                             .TokenFilters(tf => filtersDescriptor)
@@ -2670,18 +2655,18 @@ namespace Core.Catalog
 
         public string SetupChannelMetadataIndex() 
         {
-            return SetupIndex<ChannelMetadata>(IndexingUtils.GetNewChannelMetadataIndexName(_partnerId), null, new List<string>() { "name" });
+            return SetupIndex<NestChannelMetadata>(NamingHelper.GetNewChannelMetadataIndexName(_partnerId), null, new List<string>() { "name" });
         }
-        
+
         public string SetupTagsIndex()
         {
-            return SetupIndex<Tag>(IndexingUtils.GetNewMetadataIndexName(_partnerId), new List<string>() { "value" }, null);
+            return SetupIndex<NestTag>(NamingHelper.GetNewMetadataIndexName(_partnerId), new List<string>() { "value" }, null);
         }
 
         public void InsertTagsToIndex(string newIndexName, List<TagValue> allTagValues)
         {
             var sizeOfBulk = GetBulkSize(50);
-            var bulkRequests = new List<NestEsBulkRequest<Tag>>();
+            var bulkRequests = new List<NestEsBulkRequest<NestTag>>();
             try
             {
                 foreach (var tagValue in allTagValues)
@@ -2696,8 +2681,8 @@ namespace Core.Catalog
                     var languageCode = _catalogGroupCache.LanguageMapById[tagValue.languageId].Code;
 
                     // Serialize EPG object to string
-                    var tag = new Tag(tagValue, languageCode);
-                    var bulkRequest = new NestEsBulkRequest<Tag>()
+                    var tag = new NestTag(tagValue, languageCode);
+                    var bulkRequest = new NestEsBulkRequest<NestTag>()
                     {
                         DocID = $"{tag.tagId}_{languageCode}",
                         Document = tag,
@@ -2732,18 +2717,18 @@ namespace Core.Catalog
 
         public bool PublishTagsIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            string alias = IndexingUtils.GetMetadataIndexAlias(_partnerId);
+            string alias = NamingHelper.GetMetadataGroupAliasStr(_partnerId);
 
             return SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }
 
         public string SetupEpgIndex(bool isRecording)
         {
-            var indexName = IndexingUtils.GetNewEpgIndexStr(_partnerId);
+            var indexName = NamingHelper.GetNewEpgIndexStr(_partnerId);
 
             if (isRecording)
             {
-                indexName = IndexingUtils.GetNewRecordingIndexStr(_partnerId);
+                indexName = NamingHelper.GetNewRecordingIndexStr(_partnerId);
             }
 
             CreateNewEpgIndex(indexName, isRecording);
@@ -2769,8 +2754,8 @@ namespace Core.Catalog
             {
                 int numOfBulkRequests = 0;
                 var bulkRequests = 
-                    new Dictionary<int, List<NestEsBulkRequest<Epg>>>() { { numOfBulkRequests, 
-                        new List<NestEsBulkRequest<Epg>>() } };
+                    new Dictionary<int, List<NestEsBulkRequest<NestEpg>>>() { { numOfBulkRequests, 
+                        new List<NestEsBulkRequest<NestEpg>>() } };
 
                 // GetLinear Channel Values 
                 var programsList = programs.SelectMany(x => x.Value.Values).ToList();
@@ -2844,7 +2829,7 @@ namespace Core.Catalog
                         if (bulkRequests[numOfBulkRequests].Count >= sizeOfBulk)
                         {
                             numOfBulkRequests++;
-                            bulkRequests.Add(numOfBulkRequests, new List<NestEsBulkRequest<Epg>>());
+                            bulkRequests.Add(numOfBulkRequests, new List<NestEsBulkRequest<NestEpg>>());
                         }
                         var bulkRequest = GetEpgBulkRequest(index, epgCb.StartDate, epg,documentId);
                          
@@ -2882,11 +2867,11 @@ namespace Core.Catalog
 
         public bool PublishEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            string alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            string alias = NamingHelper.GetEpgIndexAlias(_partnerId);
 
             if (isRecording)
             {
-                alias = IndexingUtils.GetRecordingIndexAlias(_partnerId);
+                alias = NamingHelper.GetRecordingIndexAlias(_partnerId);
             }
 
             return SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
@@ -2895,7 +2880,7 @@ namespace Core.Catalog
         public bool UpdateEpgs(List<EpgCB> epgObjects, bool isRecording, Dictionary<long, long> epgToRecordingMapping = null)
         {
             var result = false;
-            var bulkRequests = new List<NestEsBulkRequest<Epg>>();
+            var bulkRequests = new List<NestEsBulkRequest<NestEpg>>();
             
             var sizeOfBulk = GetBulkSize(500);
             var languages = GetLanguages();
@@ -2907,11 +2892,11 @@ namespace Core.Catalog
                 linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(_partnerId);
             }
 
-            var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
 
             if (isRecording)
             {
-                alias = IndexingUtils.GetRecordingIndexAlias(_partnerId);
+                alias = NamingHelper.GetRecordingIndexAlias(_partnerId);
             }
             
             if (!_elasticClient.Indices.Exists(alias).Exists)
@@ -2943,7 +2928,7 @@ namespace Core.Catalog
                         // in that case we need to use the specific date alias for each epg item to update
                         if (!isRecording && isIngestV2)
                         {
-                            alias = IndexingUtils.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
+                            alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epgCb.StartDate.Date);
                         }
 
                         epgCb.PadMetas(_metasToPad);
@@ -3026,7 +3011,7 @@ namespace Core.Catalog
 
         private List<LanguageObj> GetLanguages()
         {
-            return _groupUsesTemplates ?_catalogGroupCacheCodePerLang.Values.ToList() : _groupCodePerLang.Values.ToList();
+            return _partnerLanguageCodes.Values.ToList();
         }
 
         private LanguageObj GetDefaultLanguage()
@@ -3036,9 +3021,7 @@ namespace Core.Catalog
         
         private LanguageObj GetLanguageByCode(string languageCode)
         {
-            return _groupUsesTemplates
-                ? _catalogGroupCacheCodePerLang[languageCode]
-                : _groupCodePerLang[languageCode];
+            return _partnerLanguageCodes[languageCode];
         }
         
         private int GetLanguageIdByCode(string languageCode)
@@ -3051,7 +3034,7 @@ namespace Core.Catalog
             return GetLanguages().FirstOrDefault(x => x.ID == id);
         }
 
-        private void EnsureEpgIndexExist(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        private void EnsureEpgIndexExist(string dailyEpgIndexName)
         {
             // TODO it's possible to create new index with mappings and alias in one request,
             // https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-create-index.html#mappings
@@ -3061,8 +3044,8 @@ namespace Core.Catalog
             // EPGs could be added to the index without mapping (e.g. from asset.add)
             try
             {
-                AddEmptyIndex(dailyEpgIndexName, retryPolicy);
-                AddAlias(dailyEpgIndexName, retryPolicy);
+                AddEmptyIndex(dailyEpgIndexName);
+                AddAlias(dailyEpgIndexName);
             }
             catch (Exception e)
             {
@@ -3071,10 +3054,10 @@ namespace Core.Catalog
             }
         }
 
-        private void SetNoRefresh(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        private void SetNoRefresh(string dailyEpgIndexName)
         {
             // shut down refresh of index while bulk uploading
-            retryPolicy.Execute(() =>
+            IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
                 var updateDisableIndexRefresh = new UpdateIndexSettingsRequest(dailyEpgIndexName);
                 updateDisableIndexRefresh.IndexSettings = new DynamicIndexSettings();
@@ -3090,9 +3073,9 @@ namespace Core.Catalog
             });
         }
 
-        private void AddEmptyIndex(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        private void AddEmptyIndex(string dailyEpgIndexName)
         {
-            retryPolicy.Execute(() =>
+            IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
                 var isIndexExist = _elasticClient.Indices.Exists(dailyEpgIndexName);
 
@@ -3139,9 +3122,8 @@ namespace Core.Catalog
                         .NumberOfShards(shards)
                         .NumberOfReplicas(replicas)
                         .Setting("index.max_result_window", _maxResults)
-                        .Setting("index.max_ngram_diff", 20)
-                        // TODO: convert to tcm...
-                        .Setting("index.mapping.total_fields.limit", 100000)
+                        .Setting("index.max_ngram_diff", _applicationConfiguration.ElasticSearchHandlerConfiguration.MaxNgramDiff.Value)
+                        .Setting("index.mapping.total_fields.limit", _applicationConfiguration.ElasticSearchHandlerConfiguration.TotalFieldsLimit.Value)
                         .Analysis(a => a
                             .Analyzers(an => analyzersDescriptor)
                             .TokenFilters(tf => filtersDesctiptor)
@@ -3702,7 +3684,7 @@ namespace Core.Catalog
                             string nullValue = string.Empty;
 
                             var topicMetaType = CatalogManager.GetTopicMetaType(topics.Value);
-                            IndexingUtils.GetMetaType(topicMetaType, out var metaType, out nullValue);
+                            IndexManagerCommonHelpers.GetMetaType(topicMetaType, out var metaType, out nullValue);
 
                             if (topicMetaType == ApiObjects.MetaType.Number && !metasToPad.Contains(topics.Key.ToLower()))
                             {
@@ -3761,7 +3743,7 @@ namespace Core.Catalog
                             {
                                 string nullValue = string.Empty;
                                 eESFieldType metaType;
-                                IndexingUtils.GetMetaType(meta.Key, out metaType, out nullValue);
+                                IndexManagerCommonHelpers.GetMetaType(meta.Key, out metaType, out nullValue);
 
                                 var metaName = meta.Value.ToLower();
                                 if (!metas.ContainsKey(metaName))
@@ -3783,7 +3765,7 @@ namespace Core.Catalog
                         {
                             string nullValue = string.Empty;
                             eESFieldType metaType;
-                            IndexingUtils.GetMetaType(epgMeta, out metaType, out nullValue);
+                            IndexManagerCommonHelpers.GetMetaType(epgMeta, out metaType, out nullValue);
 
                             var epgMetaName = epgMeta.ToLower();
                             if (!metas.ContainsKey(epgMetaName))
@@ -3821,12 +3803,12 @@ namespace Core.Catalog
             return result;
         }
 
-        private void AddAlias(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        private void AddAlias(string dailyEpgIndexName)
         {
             // create alias is idempotent request
-            var epgIndexAlias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var epgIndexAlias = NamingHelper.GetEpgIndexAlias(_partnerId);
             log.Info($"creating alias. index [{dailyEpgIndexName}], alias [{epgIndexAlias}]");
-            retryPolicy.Execute(() =>
+            IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
                 var putAliasResponse = _elasticClient.Indices.PutAlias(dailyEpgIndexName, epgIndexAlias);
                 bool isAliasAdded = putAliasResponse != null && putAliasResponse.IsValid;
