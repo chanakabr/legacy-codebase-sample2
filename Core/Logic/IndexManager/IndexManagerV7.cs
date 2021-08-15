@@ -45,6 +45,7 @@ using Index = Nest.Index;
 using TVinciShared;
 using Channel = GroupsCacheManager.Channel;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
+using TvinciCache;
 
 namespace Core.Catalog
 {
@@ -89,6 +90,7 @@ namespace Core.Catalog
         private readonly ICatalogCache _catalogCache;
         private readonly IWatchRuleManager _watchRuleManager;
         private readonly IChannelQueryBuilder _channelQueryBuilder;
+        private readonly IGroupsFeatures _groupsFeatures;
 
         private readonly int _partnerId;
         private bool _groupUsesTemplates;
@@ -127,7 +129,8 @@ namespace Core.Catalog
             ICatalogCache catalogCache,
             ITtlService ttlService,
             IWatchRuleManager watchRuleManager,
-            IChannelQueryBuilder channelQueryBuilder
+            IChannelQueryBuilder channelQueryBuilder,
+            IGroupsFeatures groupsFeatures
         )
         {
             _elasticClient = elasticClient;
@@ -141,6 +144,7 @@ namespace Core.Catalog
             _ttlService = ttlService;
             _watchRuleManager = watchRuleManager;
             _channelQueryBuilder = channelQueryBuilder;
+            _groupsFeatures = groupsFeatures;
 
             //init all ES const
             _numOfShards = _applicationConfiguration.ElasticSearchHandlerConfiguration.NumberOfShards.Value;
@@ -483,9 +487,8 @@ namespace Core.Catalog
 
             try
             {
-                string mediaIndex = NamingHelper.GetMediaIndexAlias(_partnerId);
-
-                var indices = _elasticClient.GetIndicesPointingToAlias(mediaIndex);
+                string alias = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
+                var indices = _elasticClient.GetIndicesPointingToAlias(alias);
 
                 foreach (var index in indices)
                 {
@@ -495,7 +498,7 @@ namespace Core.Catalog
                             GetChannelDocumentId(channelId), 
                             request => request.Index(index));
 
-                        if (!deleteResponse.IsValid)
+                        if (!deleteResponse.IsValid && deleteResponse.Result != Result.NotFound)
                         {
                             log.Error($"Failed deleting channel percoaltor, id = {channelId}, index = {index}");
                             allValid = false;
@@ -1057,7 +1060,7 @@ namespace Core.Catalog
             var index = IndexingUtils.GetMediaIndexAlias(_partnerId);
             var percolatorIndex = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
             var mediaDocId = $"{mediaId}_{GetDefaultLanguage().Code}";
-            var response = _elasticClient.Get<Media>(mediaDocId, x => x.Index(index));
+            var response = _elasticClient.Get<NestMedia>(mediaDocId, x => x.Index(index));
             
             if (response.IsValid && response.Found)
             {
@@ -1944,7 +1947,7 @@ namespace Core.Catalog
 
         public string SetupIPToCountryIndex()
         {
-            string newIndexName = NamingHelper.GetIpToCountryIndexAlias();
+            string newIndexName = NamingHelper.GetNewIpToCountryIndexName();
 
             var createResponse = _elasticClient.Indices.Create(newIndexName,
                  c => c.Settings(settings => settings
@@ -2079,7 +2082,7 @@ namespace Core.Catalog
                     return result;
                 }
 
-                string index = NamingHelper.GetUtilsIndexName();
+                string index = NamingHelper.GetIpToCountryIndexAlias();
 
                 var searchResult = _elasticClient.Search<NestCountry>(search => search
                     .Index(index)
@@ -2134,7 +2137,7 @@ namespace Core.Catalog
                 var ipValue = handler.ConvertIpToValidString(address);
                 log.DebugFormat("GetCountryByIp: ip={0} was converted to ipValue={1}.", ip, ipValue);
 
-                string index = NamingHelper.GetUtilsIndexName();
+                string index = NamingHelper.GetIpToCountryIndexAlias();
 
                 // Perform search
                 var searchResult = _elasticClient.Search<NestCountry>(search => search
@@ -2177,7 +2180,7 @@ namespace Core.Catalog
             }
 
             // Checking is new Epg ingest here as well to avoid calling GetEpgCBKey if we already called elastic and have all required coument Ids
-            var isNewEpgIngest = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(_partnerId, GroupFeature.EPG_INGEST_V2);
+            var isNewEpgIngest = _groupsFeatures.GetGroupFeatureStatus(_partnerId, GroupFeature.EPG_INGEST_V2);
             if (isNewEpgIngest)
             {
                 return searchResponse.Fields.Select(x => x.Value<string>("document_id")).Distinct().ToList();
@@ -2238,7 +2241,7 @@ namespace Core.Catalog
         {
             var result = new List<string>();
             var isNewEpgIngestEnabled =
-                TvinciCache.GroupsFeatures.GetGroupFeatureStatus(_partnerId, GroupFeature.EPG_INGEST_V2);
+                _groupsFeatures.GetGroupFeatureStatus(_partnerId, GroupFeature.EPG_INGEST_V2);
 
             if (isNewEpgIngestEnabled && !isAddAction)
             {
@@ -2388,7 +2391,7 @@ namespace Core.Catalog
 
         public string SetupChannelPercolatorIndex()
         {
-            string percolatorsIndexName = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
+            string percolatorsIndexName = IndexingUtils.GetNewChannelPercolatorIndex(_partnerId);
             bool isIndexCreated = CreateMediaIndex(percolatorsIndexName, true);
 
             if (!isIndexCreated)

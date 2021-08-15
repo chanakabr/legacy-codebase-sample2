@@ -18,6 +18,7 @@ using ElasticSearch.NEST;
 using ElasticSearch.Utilities;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.QueryBuilders;
+using TvinciCache.Adapters;
 
 namespace Core.Catalog
 {
@@ -69,7 +70,8 @@ namespace Core.Catalog
                     ChannelManager.Instance,
                     CatalogCache.Instance(), new TtlService(),
                     WatchRuleManager.Instance,
-                    ChannelQueryBuilder.Instance);
+                    ChannelQueryBuilder.Instance,
+                    GroupsFeatureAdapter.Instance);
             }
                 
             var indexManagerV2 = new IndexManagerV2(partnerId,

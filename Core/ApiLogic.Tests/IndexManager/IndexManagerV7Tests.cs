@@ -32,6 +32,7 @@ using ApiLogic.IndexManager.NestData;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiObjects.Response;
 using Core.Catalog.Response;
+using TvinciCache;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -50,6 +51,8 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<IWatchRuleManager> _mockWatchRuleManager;
         private Mock<IChannelQueryBuilder> _mockChannelQueryBuilder;
         private Mock<IElasticSearchCommonUtils> _mockElasticSearchCommonUtils;
+        private Mock<IGroupsFeatures> _mockGroupsFeatures;
+
         private static int _nextPartnerId = 10000;
         private Random _random;
 
@@ -66,7 +69,8 @@ namespace ApiLogic.Tests.IndexManager
                     _mockCatalogCache.Object,
                     new TtlService(),
                     _mockWatchRuleManager.Object,
-                    _mockChannelQueryBuilder.Object
+                    _mockChannelQueryBuilder.Object,
+                    _mockGroupsFeatures.Object
                 );
         }
         
@@ -110,6 +114,7 @@ namespace ApiLogic.Tests.IndexManager
             _mockWatchRuleManager = _mockRepository.Create<IWatchRuleManager>();
             _mockChannelQueryBuilder = _mockRepository.Create<IChannelQueryBuilder>();
             _mockElasticSearchCommonUtils = _mockRepository.Create<IElasticSearchCommonUtils>();
+            _mockGroupsFeatures = _mockRepository.Create<IGroupsFeatures>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(_mockElasticSearchCommonUtils.Object, ApplicationConfiguration.Current);
         }
 
@@ -233,7 +238,6 @@ namespace ApiLogic.Tests.IndexManager
                     { language.ID, randomMedia2 }
                 });
 
-
             var upsertMedia = indexManager.UpsertMedia(randomMedia.m_nMediaID);
             Assert.True(upsertMedia);
             
@@ -247,10 +251,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsNotEmpty(updateDates);
             Assert.AreEqual(randomMedia.m_nMediaID, updateDates[0].assetID);
             Assert.AreEqual(randomMedia.m_sUpdateDate, updateDates[0].UpdateDate.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT));
-            
-            
-            
-            
+                        
             var channel = IndexManagerMockDataCreator.GetRandomChannel(partnerId);
             channel.filterQuery = "name!~'aa'";
             channel.m_nChannelTypeID = (int)ChannelType.KSQL;
@@ -280,9 +281,12 @@ namespace ApiLogic.Tests.IndexManager
                         It.IsAny<Channel>()))
                 .Returns(percolateQuery);
 
-
-            var addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, indexName);
+            string percolatorIndexName = indexManager.SetupChannelPercolatorIndex();
+            var addResult = indexManager.AddChannelsPercolatorsToIndex(new HashSet<int>() { channel.m_nChannelID }, percolatorIndexName);
             Assert.IsTrue(addResult);
+
+            indexManager.PublishChannelPercolatorIndex(percolatorIndexName, true, true);
+
             var searchPolicy = Policy.HandleResult<List<int>>(x => x == null || x.Count == 0).WaitAndRetry(
                 3,
                 retryAttempt => TimeSpan.FromSeconds(1));
@@ -296,8 +300,6 @@ namespace ApiLogic.Tests.IndexManager
             var mediaBelongToChannels =
                 indexManager.DoesMediaBelongToChannels(new List<int>() {channel.m_nChannelID}, randomMedia.m_nMediaID);
             Assert.IsTrue(mediaBelongToChannels);
-
-            indexManager.PublishMediaIndex(indexName, true, true);
 
             int totalItems = 0;
             var updateDates2 = indexManager.GetAssetsUpdateDates(new List<Core.Catalog.Response.UnifiedSearchResult>()
@@ -313,6 +315,7 @@ namespace ApiLogic.Tests.IndexManager
                     AssetType = eAssetTypes.MEDIA
                 }
             }, ref totalItems, 10, 0);
+
         }
 
         [Test]
@@ -379,19 +382,10 @@ namespace ApiLogic.Tests.IndexManager
                 DateTime.Now.AddDays(-2),
                 DateTime.Now.AddDays(3),
                 esOrderObjs);
-            Assert.Equals(epgId, channelPrograms.FirstOrDefault());
+            Assert.AreEqual($"{epgId}", channelPrograms.FirstOrDefault());
 
             bool deleteResult = indexManager.DeleteProgram(new List<long>() { Convert.ToInt64(epgId) }, null);
             Assert.IsTrue(deleteResult);
-        }
-
-        [Test]
-        public void TestBasics()
-        {
-            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
-            var indexManager = GetIndexV7Manager(partnerId);
-            var result = indexManager.SetupSocialStatisticsDataIndex();
-            Assert.IsTrue(result);
         }
 
         [Test]
@@ -537,6 +531,10 @@ namespace ApiLogic.Tests.IndexManager
             var updateResult = indexManager.UpdateTag(secondTag);
             Assert.AreEqual((int)ApiObjects.Response.eResponseStatus.OK, updateResult.Code);
 
+            var searchPolicy = Policy.HandleResult<List<TagValue>>(x => x == null || x.Count == 0).WaitAndRetry(
+                3,
+                retryAttempt => TimeSpan.FromSeconds(1));
+
             TagSearchDefinitions tagSearchDefinitions = new TagSearchDefinitions()
             {
                 ExactSearchValue = randomTag.value,
@@ -545,7 +543,7 @@ namespace ApiLogic.Tests.IndexManager
                 GroupId = partnerId,
             };
 
-            var searchResult = indexManager.SearchTags(tagSearchDefinitions, out int totalItems);
+            var searchResult = searchPolicy.Execute(() => indexManager.SearchTags(tagSearchDefinitions, out int totalItems));
 
             Assert.IsNotEmpty(searchResult);
             Assert.AreEqual(randomTag.value, searchResult[0].value);
@@ -560,11 +558,7 @@ namespace ApiLogic.Tests.IndexManager
                 GroupId = partnerId,
             };
 
-            var searchPolicy = Policy.HandleResult<List<TagValue>>(x => x == null || x.Count == 0).WaitAndRetry(
-                3,
-                retryAttempt => TimeSpan.FromSeconds(1));
-
-            searchResult = searchPolicy.Execute(() => indexManager.SearchTags(tagSearchDefinitions, out totalItems));
+            searchResult = searchPolicy.Execute(() => indexManager.SearchTags(tagSearchDefinitions, out int totalItems));
 
             Assert.IsNotEmpty(searchResult);
             Assert.AreEqual(randomTag.value, searchResult[0].value);
@@ -920,14 +914,15 @@ namespace ApiLogic.Tests.IndexManager
                 .Returns(new Dictionary<string, ApiObjects.Catalog.LinearChannelSettings>());
             indexManager.AddEPGsToIndex(indexName, false, epgs, new Dictionary<long, List<int>>(), null);
             indexManager.PublishEpgIndex(indexName, false, true, true);
-            
-            var epgProgramBulkUploadObjects = indexManager.GetCurrentProgramsByDate(randomChannel.m_nChannelID, DateTime.Now.AddDays(-2),
-                DateTime.Now.AddDays(1));
+
+            var searchPolicy = Policy.HandleResult<IList<EpgProgramBulkUploadObject>>(x => x == null || x.Count == 0).WaitAndRetry(
+                3,
+                retryAttempt => TimeSpan.FromSeconds(1));
+
+            var epgProgramBulkUploadObjects = searchPolicy.Execute(() => indexManager.GetCurrentProgramsByDate(randomChannel.m_nChannelID, DateTime.Now.AddDays(-2),
+               DateTime.Now.AddDays(1)));
             Assert.IsNotEmpty(epgProgramBulkUploadObjects);
             Assert.AreEqual(epgId, epgProgramBulkUploadObjects[0].EpgId);
         }
-        
-        
-        
     }
 }
