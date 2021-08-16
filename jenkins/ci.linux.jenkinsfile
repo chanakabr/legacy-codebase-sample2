@@ -1,5 +1,4 @@
-@Library('ott-lib-jenkins')_
-
+library identifier: 'ott-lib-jenkins@master', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
 pipeline {
     agent {
         label 'Linux'
@@ -16,8 +15,7 @@ pipeline {
         component = "${env.JOB_NAME}"
         ECR_REPOSITORY="${ECR_URL}/${REPOSITORY_NAME}"
         STAGE = "build"
-        PIPECLI_VERSION="1.0.7"
-        PIPECLI="docker run 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION} python pipecli.py"
+        PIPECLI = cd.get_pipecli()
     }
     // parameters {
     //     booleanParam(name: 'TRIGGER_RC', defaultValue: true, description: 'Should trigger Release Candidate?')
@@ -163,7 +161,6 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
 
 def report(){
     sh ("\$(aws ecr get-login --no-include-email --region ${AWS_REGION})")
-    sh ("docker pull 870777418594.dkr.ecr.us-west-2.amazonaws.com/pipecli:${PIPECLI_VERSION}")
     //configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
     def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
     def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim();
