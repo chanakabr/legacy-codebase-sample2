@@ -8,7 +8,6 @@ using WebAPI.Models.General;
 using WebAPI.App_Start;
 using System.Collections;
 using System.IO;
-using Validator.Managers.Scheme;
 
 namespace Reflector
 {
@@ -42,7 +41,7 @@ namespace Reflector
             file.WriteLine("using WebAPI.Managers.Scheme;");
             file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Reflection;");
-            file.WriteLine("using TVinciShared;");
+            file.WriteLine("using KalturaRequestContext;");
             file.WriteLine("using WebAPI.Exceptions;");
         }
 

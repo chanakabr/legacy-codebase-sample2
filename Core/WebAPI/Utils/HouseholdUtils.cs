@@ -1,8 +1,9 @@
-﻿using KLogMonitor;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web;
+using KalturaRequestContext;
+using KLogMonitor;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -113,7 +114,7 @@ namespace WebAPI.Utils
                 }
                 catch (ClientException ex)
                 {
-                    if (!ks.OriginalUserId.IsNullOrEmpty() || !RequestContextUtils.Instance.IsPartnerRequest())
+                    if (!ks.OriginalUserId.IsNullOrEmpty() || !RequestContextUtilsInstance.Get().IsPartnerRequest())
                     {
                         log.Error($"GetHouseholdIDByKS: got ClientException for GetDomainByUser. userId = {ks.UserId} ex ={ex}");
                     }

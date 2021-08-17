@@ -2,14 +2,14 @@
 using System.Diagnostics;
 using System.Reflection;
 using System.Web;
-using TVinciShared;
+using KalturaRequestContext;
 
 namespace WebAPI.Managers.Scheme
 {
     abstract public class OldStandardAttribute : Attribute
     {
         public const string Version = "3.6.287.21521";
-        public static Version OldVersion = new Version(OldStandardAttribute.Version);
+        public static Version OldVersion = new Version(Version);
         private static Version CurrentVersion = null;
 
         internal static Version GetCurrentVersion()
@@ -35,12 +35,12 @@ namespace WebAPI.Managers.Scheme
         {
             if (HttpContext.Current == null)
             {
-                return OldStandardAttribute.GetCurrentVersion();
+                return GetCurrentVersion();
             }
 
-            if (HttpContext.Current.Items != null || HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION] != null)
+            if (HttpContext.Current.Items != null || HttpContext.Current.Items[RequestContextConstants.REQUEST_VERSION] != null)
             {
-                return (Version)HttpContext.Current.Items[RequestContextUtils.REQUEST_VERSION];
+                return (Version)HttpContext.Current.Items[RequestContextConstants.REQUEST_VERSION];
             }
 
             return null;

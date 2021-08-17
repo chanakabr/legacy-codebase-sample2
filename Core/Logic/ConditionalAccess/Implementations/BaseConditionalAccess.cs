@@ -47,6 +47,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Xml;
+using KalturaRequestContext;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using ExternalRecording = ApiObjects.TimeShiftedTv.ExternalRecording;
@@ -10375,22 +10376,22 @@ namespace Core.ConditionalAccess
                         {
                             bool dalResult = false;
 
-                            if (!HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_KS))
+                            if (!HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_KS))
                             {
                                 if (!string.IsNullOrEmpty(userId))
                                 {
-                                    if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_USER_ID))
-                                        HttpContext.Current.Items[RequestContextUtils.REQUEST_USER_ID] = userId;
+                                    if (HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_USER_ID))
+                                        HttpContext.Current.Items[RequestContextConstants.REQUEST_USER_ID] = userId;
                                     else
-                                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_USER_ID, userId);
+                                        HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_USER_ID, userId);
                                 }
 
                                 if (!string.IsNullOrEmpty(udid))
                                 {
-                                    if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_UDID))
-                                        HttpContext.Current.Items[RequestContextUtils.REQUEST_UDID] = udid;
+                                    if (HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_UDID))
+                                        HttpContext.Current.Items[RequestContextConstants.REQUEST_UDID] = udid;
                                     else
-                                        HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_UDID, udid);
+                                        HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_UDID, udid);
                                 }
                             }
 

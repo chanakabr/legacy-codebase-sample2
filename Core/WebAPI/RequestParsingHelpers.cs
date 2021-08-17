@@ -1,9 +1,10 @@
-﻿using KLogMonitor;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Web;
+using KalturaRequestContext;
+using KLogMonitor;
+using Newtonsoft.Json.Linq;
 using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -97,14 +98,14 @@ namespace WebAPI
 
                         KalturaOTTObject res = Deserializer.deserialize(methodArg.Type, param);
 
-                        string service = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE]);
-                        string action = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION]);
-                        string language = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_LANGUAGE]);
-                        string userId = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_USER_ID]);
+                        string service = Convert.ToString(HttpContext.Current.Items[RequestContextConstants.REQUEST_SERVICE]);
+                        string action = Convert.ToString(HttpContext.Current.Items[RequestContextConstants.REQUEST_ACTION]);
+                        string language = Convert.ToString(HttpContext.Current.Items[RequestContextConstants.REQUEST_LANGUAGE]);
+                        string userId = Convert.ToString(HttpContext.Current.Items[RequestContextConstants.REQUEST_USER_ID]);
                         string deviceId = KSUtils.ExtractKSPayload().UDID;
-                        int groupId = Convert.ToInt32(HttpContext.Current.Items[RequestContextUtils.REQUEST_GROUP_ID]);
+                        int groupId = Convert.ToInt32(HttpContext.Current.Items[RequestContextConstants.REQUEST_GROUP_ID]);
 
-                        object ksObject = HttpContext.Current.Items[RequestContextUtils.REQUEST_KS];
+                        object ksObject = HttpContext.Current.Items[RequestContextConstants.REQUEST_KS];
                         KS ks = null;
 
                         if (ksObject != null)
@@ -135,7 +136,7 @@ namespace WebAPI
                         if (methodArg.IsDateTime)
                         {
                             long unixTimeStamp = (long)reqParams[name];
-                            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                             value = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
                         }
                         else
@@ -178,14 +179,14 @@ namespace WebAPI
                             if (methodArg.IsDateTime)
                             {
                                 long unixTimeStamp = (long)value;
-                                DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                                DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                                 value = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
                             }
                         }
                         else if (methodArg.IsDateTime)
                         {
                             long unixTimeStamp = (long)reqParams[name];
-                            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                             value = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
                         }
                         else
@@ -222,7 +223,7 @@ namespace WebAPI
             Dictionary<string, object> currentRequestParams;
 
             // multi request abort on error
-            HttpContext.Current.Items.Remove(RequestContextUtils.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR);
+            HttpContext.Current.Items.Remove(RequestContextConstants.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR);
             if (requestParams.ContainsKey("abortOnError") && requestParams["abortOnError"] != null)
             {
                 bool abortOnError;
@@ -235,7 +236,7 @@ namespace WebAPI
                     abortOnError = (bool)Convert.ChangeType(requestParams["abortOnError"], typeof(bool));
                 }
 
-                HttpContext.Current.Items.Add(RequestContextUtils.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR, abortOnError);
+                HttpContext.Current.Items.Add(RequestContextConstants.MULTI_REQUEST_GLOBAL_ABORT_ON_ERROR, abortOnError);
             }
 
             int requestIndex = 0;

@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using TVinciShared;
+using KalturaRequestContext;
 using WebAPI.Managers.Scheme;
 
 namespace WebAPI.Tests
@@ -67,7 +67,7 @@ namespace WebAPI.Tests
             fixture.Customizations.Add(new TypeRelay(typeof(IServiceProvider), typeof(ServiceProviderMock)));
             fixture.Customizations.Add(new TypeRelay(typeof(ISession), typeof(SessionMock)));
             var httpContext = fixture.Create<DefaultHttpContext>();
-            httpContext.Items[RequestContextUtils.REQUEST_VERSION] = version;
+            httpContext.Items[RequestContextConstants.REQUEST_VERSION] = version;
             var httpContextAccessor = new Mock<IHttpContextAccessor>();
             httpContextAccessor.SetupGet(x => x.HttpContext).Returns(httpContext);
             System.Web.HttpContext.Configure(httpContextAccessor.Object);

@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
-using WebAPI.Exceptions;
-using WebAPI.Models.General;
+using ApiObjects.Base;
+using ConfigurationManager;
+using KalturaRequestContext;
 using KLogMonitor;
 using TVinciShared;
-using ApiObjects.Base;
+using WebAPI.ClientManagers;
+using WebAPI.Exceptions;
+using WebAPI.Models.General;
 using WebAPI.Utils;
-using System.Text.RegularExpressions;
-using ConfigurationManager;
 
 namespace WebAPI.Managers.Models
 {
@@ -145,7 +147,7 @@ namespace WebAPI.Managers.Models
 
         public KS(string secret, string groupID, string userID, int expiration, KalturaSessionType userType, KSData data, Dictionary<string, string> privilegesList, KSVersion ksType)
         {
-            byte[] randomBytes = Utils.EncryptionUtils.CreateRandomByteArray(BLOCK_SIZE);
+            byte[] randomBytes = EncryptionUtils.CreateRandomByteArray(BLOCK_SIZE);
             int relativeExpiration = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow) + expiration;
             //prepare data - url encode + replace '_'
             string encodedData = string.Empty;
@@ -165,12 +167,12 @@ namespace WebAPI.Managers.Models
             Array.Copy(randomBytes, 0, randWithFields, 0, randomBytes.Length);
             Array.Copy(ksBytes, 0, randWithFields, randomBytes.Length, ksBytes.Length);
 
-            byte[] signature = Utils.EncryptionUtils.HashSHA1(randWithFields);
+            byte[] signature = EncryptionUtils.HashSHA1(randWithFields);
             byte[] input = new byte[signature.Length + randWithFields.Length];
             Array.Copy(signature, 0, input, 0, signature.Length);
             Array.Copy(randWithFields, 0, input, signature.Length, randWithFields.Length);
 
-            byte[] encryptedFields = Utils.EncryptionUtils.AesEncrypt(secret, input, BLOCK_SIZE);
+            byte[] encryptedFields = EncryptionUtils.AesEncrypt(secret, input, BLOCK_SIZE);
             string prefix = string.Format("v2|{0}|", groupID);
 
             byte[] output = new byte[encryptedFields.Length + prefix.Length];
@@ -356,34 +358,34 @@ namespace WebAPI.Managers.Models
         internal void SaveOnRequest()
         {
             HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
-            HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_GROUP_ID, groupId);
-            HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_KS, this);
+            HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_GROUP_ID, groupId);
+            HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_KS, this);
         }
 
         public static void ClearOnRequest()
         {
-            HttpContext.Current.Items.Remove(RequestContextUtils.REQUEST_GROUP_ID);
-            HttpContext.Current.Items.Remove(RequestContextUtils.REQUEST_KS);
+            HttpContext.Current.Items.Remove(RequestContextConstants.REQUEST_GROUP_ID);
+            HttpContext.Current.Items.Remove(RequestContextConstants.REQUEST_KS);
         }
 
         internal static void SaveOnRequest(KS ks)
         {
-            if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_KS))
-                HttpContext.Current.Items[RequestContextUtils.REQUEST_KS] = ks;
+            if (HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_KS))
+                HttpContext.Current.Items[RequestContextConstants.REQUEST_KS] = ks;
             else
-                HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_KS, ks);
+                HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_KS, ks);
 
-            if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_GROUP_ID))
-                HttpContext.Current.Items[RequestContextUtils.REQUEST_GROUP_ID] = ks.groupId;
+            if (HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_GROUP_ID))
+                HttpContext.Current.Items[RequestContextConstants.REQUEST_GROUP_ID] = ks.groupId;
             else
-                HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_GROUP_ID, ks.groupId);
+                HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_GROUP_ID, ks.groupId);
             
             if (!string.IsNullOrEmpty(ks.OriginalUserId) && ks.OriginalUserId != ks.userId && long.TryParse(ks.OriginalUserId, out long originalUserId))
             {
-                if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID))
-                    HttpContext.Current.Items[RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID] = originalUserId;
+                if (HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_KS_ORIGINAL_USER_ID))
+                    HttpContext.Current.Items[RequestContextConstants.REQUEST_KS_ORIGINAL_USER_ID] = originalUserId;
                 else
-                    HttpContext.Current.Items.Add(RequestContextUtils.REQUEST_KS_ORIGINAL_USER_ID, originalUserId);
+                    HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_KS_ORIGINAL_USER_ID, originalUserId);
             }
         }
 
@@ -392,8 +394,8 @@ namespace WebAPI.Managers.Models
             if (HttpContext.Current == null) return null;
 
             var items = HttpContext.Current.Items;
-            return items.ContainsKey(RequestContextUtils.REQUEST_KS)
-                ? (KS)items[RequestContextUtils.REQUEST_KS]
+            return items.ContainsKey(RequestContextConstants.REQUEST_KS)
+                ? (KS)items[RequestContextConstants.REQUEST_KS]
                 : null;
         }
 
@@ -425,8 +427,8 @@ namespace WebAPI.Managers.Models
 
             try
             {
-                encryptedData = System.Convert.FromBase64String(sb.ToString());
-                encryptedDataStr = System.Text.Encoding.ASCII.GetString(encryptedData);
+                encryptedData = Convert.FromBase64String(sb.ToString());
+                encryptedDataStr = Encoding.ASCII.GetString(encryptedData);
                 ksParts = encryptedDataStr.Split('|');
             }
             catch (Exception)
@@ -439,12 +441,12 @@ namespace WebAPI.Managers.Models
                 throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
             }
 
-            Group group = WebAPI.ClientManagers.GroupsManager.Instance.GetGroup(groupId);
+            Group group = GroupsManager.Instance.GetGroup(groupId);
             string adminSecret = group.UserSecret;
 
             // build KS
             string fallbackSecret = group.UserSecretFallbackExpiryEpoch > DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow) ? group.UserSecretFallback : null;
-            return KS.CreateKSFromEncoded(encryptedData, groupId, adminSecret, ks, KS.KSVersion.V2, fallbackSecret);
+            return CreateKSFromEncoded(encryptedData, groupId, adminSecret, ks, KSVersion.V2, fallbackSecret);
         }
 
         public static ContextData GetContextData(bool skipDomain = false)
