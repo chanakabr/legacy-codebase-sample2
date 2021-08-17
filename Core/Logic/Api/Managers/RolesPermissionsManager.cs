@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Threading;
 using ApiLogic.Api.Managers;
 using Core.Users;
+using KalturaRequestContext;
 using TVinciShared;
 using UserModule = Core.Users.Module;
 using Status = ApiObjects.Response.Status;
@@ -30,7 +31,7 @@ namespace APILogic.Api.Managers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private static readonly Lazy<RolesPermissionsManager> lazy = new Lazy<RolesPermissionsManager>(() => new RolesPermissionsManager(LayeredCache.Instance, RequestContextUtils.Instance, GeneralPartnerConfigManager.Instance, UserModule.Instance), LazyThreadSafetyMode.PublicationOnly);
+        private static readonly Lazy<RolesPermissionsManager> lazy = new Lazy<RolesPermissionsManager>(() => new RolesPermissionsManager(LayeredCache.Instance, RequestContextUtilsInstance.Get(), GeneralPartnerConfigManager.Instance, UserModule.Instance), LazyThreadSafetyMode.PublicationOnly);
         public static RolesPermissionsManager Instance => lazy.Value;
 
         public const long ANONYMOUS_ROLE_ID = 0;

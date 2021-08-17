@@ -63,10 +63,11 @@ namespace Reflector
             file.WriteLine("using System.Linq;");
             file.WriteLine("using System.Web;");
             file.WriteLine("using System.Collections.Generic;");
+            file.WriteLine("using KalturaRequestContext;");
+            file.WriteLine("using TVinciShared;");
             file.WriteLine("using WebAPI.Managers.Scheme;");
             file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Managers;");
-            file.WriteLine("using TVinciShared;");
             file.WriteLine("using WebAPI.Utils;");
 
         }
@@ -196,7 +197,7 @@ namespace Reflector
 
             if (properties.Any(doesPropertyRequiresReadPermission))
             {
-                file.WriteLine("            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] : null;");
+                file.WriteLine("            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;");
             }
 
             file.Write(Environment.NewLine);

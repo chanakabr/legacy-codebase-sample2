@@ -1,8 +1,9 @@
-﻿using ApiLogic.Users.Services;
+﻿using System;
+using ApiLogic.Users.Services;
 using ApiObjects.Base;
 using ApiObjects.Response;
-using System;
 using ApiObjects.User;
+using KalturaRequestContext;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -13,7 +14,6 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
-
 
 namespace WebAPI.Controllers
 {
@@ -531,7 +531,7 @@ namespace WebAPI.Controllers
             KalturaDynamicData response = null;
             try
             {
-                if (!RequestContextUtils.Instance.IsPartnerRequest())
+                if (!RequestContextUtilsInstance.Get().IsPartnerRequest())
                 {
                     var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
                     if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)
@@ -574,7 +574,7 @@ namespace WebAPI.Controllers
             var response = false;
             try
             {
-                if (!RequestContextUtils.Instance.IsPartnerRequest())
+                if (!RequestContextUtilsInstance.Get().IsPartnerRequest())
                 {
                     var deviceRegistrationStatus = ClientsManager.DomainsClient().GetDeviceRegistrationStatus(groupId, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid);
                     if (deviceRegistrationStatus != KalturaDeviceRegistrationStatus.registered)

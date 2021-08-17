@@ -28,6 +28,7 @@ using Core.Catalog.Response;
 using Core.Pricing;
 using DAL;
 using EpgBL;
+using KalturaRequestContext;
 using KLogMonitor;
 using Newtonsoft.Json.Linq;
 using QueueWrapper;
@@ -11891,7 +11892,7 @@ namespace Core.Api
                 assetSearchDefinition.Filter = string.Empty;
             }
 
-            long originalUserId = RequestContextUtils.GetOriginalUserId();
+            long originalUserId = RequestContextUtilsInstance.Get().GetOriginalUserId();
             if (originalUserId > 0)
             {
                 assetSearchDefinition.UserId = originalUserId;
@@ -12002,7 +12003,7 @@ namespace Core.Api
         public static Status HandleBlockingSegment<T>(int groupId, string userId, string udid, string ip, int domainId,
             ObjectVirtualAssetInfoType virtualAssetInfoType, string objectId) where T : SegmentActionObjectVirtualAssetBlockAction
         {
-            long originalUserId = RequestContextUtils.GetOriginalUserId();
+            long originalUserId = RequestContextUtilsInstance.Get().GetOriginalUserId();
             if (originalUserId > 0)
             {
                 userId = originalUserId.ToString();

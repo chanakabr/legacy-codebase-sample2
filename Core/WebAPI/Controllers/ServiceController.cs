@@ -1,16 +1,15 @@
-﻿using KLogMonitor;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using KalturaRequestContext;
+using KLogMonitor;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Reflection;
-using TVinciShared;
-
 #if NETCOREAPP3_1
 using Microsoft.AspNetCore.Mvc;
 #endif
@@ -84,15 +83,15 @@ namespace WebAPI.Controllers
 
             try
             {
-                List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestContextUtils.REQUEST_METHOD_PARAMETERS];
+                List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestContextConstants.REQUEST_METHOD_PARAMETERS];
 
                 // add action to log
                 HttpContext.Current.Items[Constants.ACTION] = string.Format("{0}.{1}",
                     string.IsNullOrEmpty(service_name) ? "null" : service_name,
                     string.IsNullOrEmpty(action_name) ? "null" : action_name);
 
-                HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE] = service_name;
-                HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION] = action_name;
+                HttpContext.Current.Items[RequestContextConstants.REQUEST_SERVICE] = service_name;
+                HttpContext.Current.Items[RequestContextConstants.REQUEST_ACTION] = action_name;
 
                 response = DataModel.execAction(service_name, action_name, methodParams);
             }
@@ -147,33 +146,33 @@ namespace WebAPI.Controllers
         [Route(""), HttpPost]
         public async Task<object> _NoRoute()
         {
-            string service = (string)HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE];
-            string action = (string)HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION];
+            string service = (string)HttpContext.Current.Items[RequestContextConstants.REQUEST_SERVICE];
+            string action = (string)HttpContext.Current.Items[RequestContextConstants.REQUEST_ACTION];
             return await Action(service, action);
         }
 
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("service/{service_name}/action/{action_name}/{*pathData}"), HttpPost, HttpGet, HttpOptions]
-        [FailureHttpCode(System.Net.HttpStatusCode.NotFound)]
+        [FailureHttpCode(HttpStatusCode.NotFound)]
         public async Task<object> ActionWithParams(string service_name, string action_name, string pathData)
         {
             object response = null;
 
             try
             {
-                HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE] = service_name;
-                HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION] = action_name;
-                List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestContextUtils.REQUEST_METHOD_PARAMETERS];
+                HttpContext.Current.Items[RequestContextConstants.REQUEST_SERVICE] = service_name;
+                HttpContext.Current.Items[RequestContextConstants.REQUEST_ACTION] = action_name;
+                List<object> methodParams = (List<object>)HttpContext.Current.Items[RequestContextConstants.REQUEST_METHOD_PARAMETERS];
                 response = DataModel.execAction(service_name, action_name, methodParams);
             }
             catch (ApiException ex)
             {
-                ApiException apiEx = new ApiException(ex, System.Net.HttpStatusCode.NotFound);
+                ApiException apiEx = new ApiException(ex, HttpStatusCode.NotFound);
                 throw apiEx;
             }
             catch (TargetParameterCountException ex)
             {
-                ApiException apiEx = new ApiException(new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS), System.Net.HttpStatusCode.NotFound);
+                ApiException apiEx = new ApiException(new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS), HttpStatusCode.NotFound);
                 throw apiEx;
             }
             catch (Exception ex)
