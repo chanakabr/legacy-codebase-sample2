@@ -4,6 +4,17 @@ namespace ApiLogic.IndexManager.Helpers
 {
     public static class NamingHelper
     {
+        internal const string SUB_SUM_AGGREGATION_NAME = "sub_sum";
+        internal const string SUB_STATS_AGGREGATION_NAME = "sub_stats";
+        internal const string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
+        internal const string STAT_SLIDING_WINDOW_AGGREGATION_NAME = "sliding_window";
+
+        internal const string STAT_ACTION_MEDIA_HIT = "mediahit";
+        internal const string STAT_ACTION_FIRST_PLAY = "firstplay";
+        internal const string STAT_ACTION_LIKE = "like";
+        internal const string STAT_ACTION_RATES = "rates";
+        internal const string STAT_ACTION_COUNT_VALUE_FIELD = "count";
+
         public static string GetEpgIndexAlias(int groupId)
         {
             return $"{groupId}_epg";
@@ -20,12 +31,12 @@ namespace ApiLogic.IndexManager.Helpers
             return nGroupID.ToString();
         }
 
-        public static string GetNewEpgIndexStr(int nGroupID)
+        public static string GetNewEpgIndexName(int nGroupID)
         {
             return string.Format("{0}_epg_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
         }
 
-        public static string GetNewRecordingIndexStr(int nGroupID)
+        public static string GetNewRecordingIndexName(int nGroupID)
         {
             return string.Format("{0}_recording_{1}", nGroupID, DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
         }
@@ -45,12 +56,12 @@ namespace ApiLogic.IndexManager.Helpers
             return "utils";
         }
         
-        public static string GetNewIPv6IndexString()
+        public static string GetNewIPv6IndexName()
         {
             return string.Format("ipv6_{0}", DateTime.UtcNow.ToString("yyyyMMddHHmmss"));
         }
 
-        internal static string GetMetadataGroupAliasStr(int groupId)
+        internal static string GetMetadataIndexAlias(int groupId)
         {
             return string.Format("{0}_metadata", groupId);
         }
@@ -83,6 +94,21 @@ namespace ApiLogic.IndexManager.Helpers
         public static string GetNewIpToCountryIndexName()
         {
             return $"ip_to_country_{DateTime.UtcNow.ToString("yyyyMMddHHmmss")}";
+        }
+
+        public static string GetNewChannelPercolatorIndex(int partnerId)
+        {
+            return $"{partnerId}_channel_percolator_{DateTime.UtcNow.ToString(ElasticSearch.Common.Utils.ES_DATE_FORMAT)}";
+        }
+
+        public static string GetChannelPercolatorIndexAlias(int partnerId)
+        {
+            return $"{partnerId}_channel_percolator";
+        }
+
+        public static string GetStatisticsIndexName(int groupId)
+        {
+            return string.Concat(groupId, "_statistics");
         }
     }
 }

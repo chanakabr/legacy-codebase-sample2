@@ -487,7 +487,7 @@ namespace Core.Catalog
 
             try
             {
-                string alias = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
+                string alias = NamingHelper.GetChannelPercolatorIndexAlias(_partnerId);
                 var indices = _elasticClient.GetIndicesPointingToAlias(alias);
 
                 foreach (var index in indices)
@@ -931,7 +931,7 @@ namespace Core.Catalog
         {
             log.Debug($"GetCurrentProgramsByDate > fromDate:[{fromDate}], toDate:[{toDate}]");
             var result = new List<EpgProgramBulkUploadObject>();
-            var index = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var index = NamingHelper.GetEpgIndexAlias(_partnerId);
 
             // if index does not exist - then we have a fresh start, we have 0 programs currently
             if (!_elasticClient.Indices.Exists(index).Exists)
@@ -1057,8 +1057,8 @@ namespace Core.Catalog
         public List<int> GetMediaChannels(int mediaId)
         {
             var result = new List<int>();
-            var index = IndexingUtils.GetMediaIndexAlias(_partnerId);
-            var percolatorIndex = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
+            var index = NamingHelper.GetMediaIndexAlias(_partnerId);
+            var percolatorIndex = NamingHelper.GetChannelPercolatorIndexAlias(_partnerId);
             var mediaDocId = $"{mediaId}_{GetDefaultLanguage().Code}";
             var response = _elasticClient.Get<NestMedia>(mediaDocId, x => x.Index(index));
             
@@ -1170,7 +1170,7 @@ namespace Core.Catalog
 
             try
             {
-                string index = IndexingUtils.GetChannelMetadataIndexName(_partnerId);
+                string index = NamingHelper.GetChannelMetadataIndexName(_partnerId);
                 var searchResponse = _elasticClient.Search<NestChannelMetadata>(searchDescriptor => searchDescriptor
                     .Index(index)
                     .Size(definitions.PageSize)
@@ -1292,7 +1292,7 @@ namespace Core.Catalog
 
             try
             {
-                string index = IndexingUtils.GetMetadataIndexAlias(_partnerId);
+                string index = NamingHelper.GetMetadataIndexAlias(_partnerId);
                 var searchResponse = _elasticClient.Search<NestTag>(searchDescriptor => searchDescriptor
                     .Index(index)
                     .Size(definitions.PageSize)
@@ -1656,7 +1656,7 @@ namespace Core.Catalog
         public void GetAssetStats(List<int> assetIDs, DateTime startDate, DateTime endDate, StatsType type,
             ref Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
         {
-            string index = IndexingUtils.GetStatisticsIndexName(_partnerId);
+            string index = NamingHelper.GetStatisticsIndexName(_partnerId);
 
             string firstPlayAggregationName = "first_play_aggregation";
             string firstPlayTermsAggregationName = "first_play_aggregation_terms";
@@ -1717,7 +1717,7 @@ namespace Core.Catalog
                         rootAggs.Filter(firstPlayAggregationName, firstPlayAggregation =>
                         {
                             // filter aggregation
-                            firstPlayAggregation.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_FIRST_PLAY));
+                            firstPlayAggregation.Filter(filter => filter.Term(field => field.Action, NamingHelper.STAT_ACTION_FIRST_PLAY));
 
                             // sub aggregation - terms on media id
                             firstPlayAggregation.Aggregations(firstPlayAggs =>
@@ -1728,7 +1728,7 @@ namespace Core.Catalog
                                     // sub aggregation of terms - sum aggregation
                                     terms.Aggregations(termsAggs =>
                                     {
-                                        termsAggs.Sum(IndexingUtils.SUB_SUM_AGGREGATION_NAME, subSumAggregation =>
+                                        termsAggs.Sum(NamingHelper.SUB_SUM_AGGREGATION_NAME, subSumAggregation =>
                                             subSumAggregation.Field(field => field.Count).Missing(1));
                                         return termsAggs;
                                     });
@@ -1746,7 +1746,7 @@ namespace Core.Catalog
                         rootAggs.Filter(ratingAggregationName, ratesAgg =>
                         {
                             // filter aggregation
-                            ratesAgg.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_RATES));
+                            ratesAgg.Filter(filter => filter.Term(field => field.Action, NamingHelper.STAT_ACTION_RATES));
 
                             // sub aggregation - terms on media id
                             ratesAgg.Aggregations(ratesAggs =>
@@ -1758,7 +1758,7 @@ namespace Core.Catalog
                                     // sub aggregation of terms = stats aggregation
                                     terms.Aggregations(termsAggs =>
                                     {
-                                        termsAggs.Stats(IndexingUtils.SUB_STATS_AGGREGATION_NAME, subStatsAggregation =>
+                                        termsAggs.Stats(NamingHelper.SUB_STATS_AGGREGATION_NAME, subStatsAggregation =>
                                             subStatsAggregation.Field(field => field.RateValue));
                                         return termsAggs;
                                     });
@@ -1777,7 +1777,7 @@ namespace Core.Catalog
                     rootAggs.Filter(likesAggregationName, likesAgg =>
                     {
                         // filter aggregation
-                        likesAgg.Filter(filter => filter.Term(field => field.Action, IndexingUtils.STAT_ACTION_LIKE));
+                        likesAgg.Filter(filter => filter.Term(field => field.Action, NamingHelper.STAT_ACTION_LIKE));
 
                         // sub aggregation - just terms on media id
                         likesAgg.Aggregations(likesAggs =>
@@ -1832,9 +1832,9 @@ namespace Core.Catalog
 
                         if (assetIDsToStatsMapping.ContainsKey(mediaId))
                         {
-                            if (bucket.ContainsKey(IndexingUtils.SUB_SUM_AGGREGATION_NAME))
+                            if (bucket.ContainsKey(NamingHelper.SUB_SUM_AGGREGATION_NAME))
                             {
-                                var sumBucket = bucket[IndexingUtils.SUB_SUM_AGGREGATION_NAME] as ValueAggregate;
+                                var sumBucket = bucket[NamingHelper.SUB_SUM_AGGREGATION_NAME] as ValueAggregate;
                                 assetIDsToStatsMapping[mediaId].m_nViews = Convert.ToInt32(sumBucket.Value);
                             }
                         }
@@ -1854,9 +1854,9 @@ namespace Core.Catalog
 
                         if (assetIDsToStatsMapping.ContainsKey(mediaId))
                         {
-                            if (bucket.ContainsKey(IndexingUtils.SUB_STATS_AGGREGATION_NAME))
+                            if (bucket.ContainsKey(NamingHelper.SUB_STATS_AGGREGATION_NAME))
                             {
-                                var statsBucket = bucket[IndexingUtils.SUB_STATS_AGGREGATION_NAME] as StatsAggregate;
+                                var statsBucket = bucket[NamingHelper.SUB_STATS_AGGREGATION_NAME] as StatsAggregate;
                                 assetIDsToStatsMapping[mediaId].m_dRate = Convert.ToDouble(statsBucket.Average);
                                 assetIDsToStatsMapping[mediaId].m_nVotes = Convert.ToInt32(statsBucket.Count);
                             }
@@ -1874,7 +1874,7 @@ namespace Core.Catalog
 
         public bool SetupSocialStatisticsDataIndex()
         {
-            var statisticsIndex = IndexingUtils.GetStatisticsIndexName(_partnerId);
+            var statisticsIndex = NamingHelper.GetStatisticsIndexName(_partnerId);
             var createIndexResponse = _elasticClient.Indices.Create(statisticsIndex,
                 c => c.Settings(settings => settings
                     .NumberOfShards(_numOfShards)
@@ -1888,7 +1888,7 @@ namespace Core.Catalog
 
         public bool InsertSocialStatisticsData(ApiObjects.Statistics.SocialActionStatistics action)
         {
-            var statisticsIndex = IndexingUtils.GetStatisticsIndexName(_partnerId);
+            var statisticsIndex = NamingHelper.GetStatisticsIndexName(_partnerId);
 
             try
             {
@@ -1915,7 +1915,7 @@ namespace Core.Catalog
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)
         {
             bool result = false;
-            var index = IndexingUtils.GetStatisticsIndexName(_partnerId);
+            var index = NamingHelper.GetStatisticsIndexName(_partnerId);
 
             try
             {
@@ -2163,7 +2163,7 @@ namespace Core.Catalog
 
         public List<string> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs)
         {
-            var index = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var index = NamingHelper.GetEpgIndexAlias(_partnerId);
             var searchResponse = _elasticClient.Search<NestEpg>(s => 
                 GetChannelProgramsSearchDescriptor(channelId, startDate, endDate, esOrderObjs, index)
             );
@@ -2270,7 +2270,7 @@ namespace Core.Catalog
         {
             languages = languages ?? Enumerable.Empty<LanguageObj>();
             var epgIdsList = epgIds.ToList();
-            var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
             var searchResult = _elasticClient.Search<NestEpg>(searchDescriptor => searchDescriptor
                 .Index(alias)
                 .Source(false)
@@ -2311,7 +2311,7 @@ namespace Core.Catalog
 
         public string SetupMediaIndex()
         {
-            string newIndexName = IndexingUtils.GetNewMediaIndex(_partnerId);
+            string newIndexName = NamingHelper.GetNewMediaIndexName(_partnerId);
             bool isIndexCreated = CreateMediaIndex(newIndexName);
             
             if (!isIndexCreated)
@@ -2391,7 +2391,7 @@ namespace Core.Catalog
 
         public string SetupChannelPercolatorIndex()
         {
-            string percolatorsIndexName = IndexingUtils.GetNewChannelPercolatorIndex(_partnerId);
+            string percolatorsIndexName = NamingHelper.GetNewChannelPercolatorIndex(_partnerId);
             bool isIndexCreated = CreateMediaIndex(percolatorsIndexName, true);
 
             if (!isIndexCreated)
@@ -2405,7 +2405,7 @@ namespace Core.Catalog
 
         public void PublishChannelPercolatorIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            string alias = IndexingUtils.GetChannelPercolatorIndexAlias(_partnerId);
+            string alias = NamingHelper.GetChannelPercolatorIndexAlias(_partnerId);
             this.SwitchIndexAlias(newIndexName, alias, shouldSwitchIndexAlias, shouldDeleteOldIndices);
         }
 
@@ -2720,18 +2720,18 @@ namespace Core.Catalog
 
         public bool PublishTagsIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            string alias = NamingHelper.GetMetadataGroupAliasStr(_partnerId);
+            string alias = NamingHelper.GetMetadataIndexAlias(_partnerId);
 
             return SwitchIndexAlias(newIndexName, alias, shouldDeleteOldIndices, shouldSwitchIndexAlias);
         }
 
         public string SetupEpgIndex(bool isRecording)
         {
-            var indexName = NamingHelper.GetNewEpgIndexStr(_partnerId);
+            var indexName = NamingHelper.GetNewEpgIndexName(_partnerId);
 
             if (isRecording)
             {
-                indexName = NamingHelper.GetNewRecordingIndexStr(_partnerId);
+                indexName = NamingHelper.GetNewRecordingIndexName(_partnerId);
             }
 
             CreateNewEpgIndex(indexName, isRecording);

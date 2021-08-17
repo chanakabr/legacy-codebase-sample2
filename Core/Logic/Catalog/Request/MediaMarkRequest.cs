@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.IndexManager.Helpers;
+using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.MediaMarks;
 using ApiObjects.Response;
@@ -662,7 +663,7 @@ namespace Core.Catalog.Request
                         GroupID = parentGroupID,
                         MediaID = mediaID,
                         MediaType = mediaTypeID.ToString(),
-                        Action = IndexingUtils.STAT_ACTION_MEDIA_HIT,
+                        Action = NamingHelper.STAT_ACTION_MEDIA_HIT,
                         Location = playTime
                     }
                     ))
@@ -691,7 +692,7 @@ namespace Core.Catalog.Request
                 else if (!indexManager.InsertSocialStatisticsData(
                     new MediaView()
                     {
-                        Action = IndexingUtils.STAT_ACTION_FIRST_PLAY,
+                        Action = NamingHelper.STAT_ACTION_FIRST_PLAY,
                         GroupID = parentGroupID,
                         MediaID = mediaID,
                         MediaType = mediaTypeID.ToString(),

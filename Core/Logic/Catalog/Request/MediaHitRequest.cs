@@ -12,6 +12,7 @@ using ApiObjects.Catalog;
 using ApiObjects.MediaMarks;
 using ConfigurationManager;
 using ApiObjects.Response;
+using ApiLogic.IndexManager.Helpers;
 
 namespace Core.Catalog.Request
 {
@@ -309,7 +310,7 @@ namespace Core.Catalog.Request
                 if (!indexManager.InsertSocialStatisticsData(
                     new ApiObjects.Statistics.MediaView()
                     {
-                        Action = IndexingUtils.STAT_ACTION_MEDIA_HIT,
+                        Action = NamingHelper.STAT_ACTION_MEDIA_HIT,
                         MediaType = mediaTypeID.ToString(),
                         GroupID = groupID,
                         MediaID = mediaID,
