@@ -66,8 +66,7 @@ namespace EventBus.Kafka
             };
 
             // create topic for health check if it doesn't exist
-            using (var adminClient =
-                new AdminClientBuilder(new AdminClientConfig {BootstrapServers = tcmConfig.BootstrapServers.Value}).Build())
+            using (var adminClient = new AdminClientBuilder(new AdminClientConfig {BootstrapServers = tcmConfig.BootstrapServers.Value}).Build())
             {
                 try
                 {
@@ -88,6 +87,7 @@ namespace EventBus.Kafka
             }
 
             var producerFactory = new KafkaProducerFactory<string, string>(producerConfig);
+
             var puvlisher = new KafkaPublisher(producerFactory);
             return puvlisher;
         }
@@ -167,12 +167,15 @@ namespace EventBus.Kafka
         {
             if (ack.Error.IsError)
             {
-                _Logger.Debug($"KafkaPublisher > Delivery Report key:[{ack.Key}], val:[{ack.Value}], err:[{ack.Error}]");
+                _Logger.Error($"KafkaPublisher > Delivery Report key:[{ack.Key}], val:[{ack.Value}], err:[{ack.Error}]");
                 _IsHealthy = false;
             }
             else
             {
-                _IsHealthy = true;
+                using (var kmon = new KMonitor(Events.eEvent.EVENT_KAFKA, "0", $"kafka.publish.success.{ack.Offset}", KLogger.GetRequestId()) { Database = ack.Value, Table = ack.Key, })
+                {
+                    _IsHealthy = true;
+                }
             }
         }
 
