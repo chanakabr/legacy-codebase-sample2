@@ -1,29 +1,35 @@
-﻿using ApiLogic.Catalog;
 using ApiLogic.IndexManager.QueryBuilders;
-using ApiObjects;
-using ApiObjects.BulkUpload;
-using ApiObjects.Catalog;
-using ApiObjects.Response;
-using ApiObjects.SearchObjects;
-using AutoMapper;
-using Core.Catalog;
-using Core.Catalog.CatalogManagement;
-using Core.Catalog.Request;
-using Core.Catalog.Response;
-using KLogMonitor;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Web;
+using ApiLogic.Catalog;
+using APILogic.CRUD;
+using ApiObjects;
+using ApiObjects.BulkUpload;
+using ApiObjects.Catalog;
+using ApiObjects.Response;
+using ApiObjects.SearchObjects;
+using AutoMapper;
+using Catalog.Response;
+using Core.Catalog;
+using Core.Catalog.CatalogManagement;
+using Core.Catalog.Request;
+using Core.Catalog.Response;
+using ElasticSearch.Searcher;
+using GroupsCacheManager;
+using KalturaRequestContext;
+using KLogMonitor;
 using TVinciShared;
 using WebAPI.App_Start;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
 using WebAPI.Models.Api;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
@@ -33,6 +39,13 @@ using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor;
 using WebAPI.ObjectsConvertor.Mapping;
 using WebAPI.Utils;
+using Channel = GroupsCacheManager.Channel;
+using CountryResponse = Core.Catalog.Response.CountryResponse;
+using Group = WebAPI.Managers.Models.Group;
+using Language = ApiObjects.Language;
+using MetaType = ApiObjects.MetaType;
+using OrderDir = ApiObjects.SearchObjects.OrderDir;
+using Ratio = Core.Catalog.Ratio;
 
 namespace WebAPI.Clients
 {
@@ -66,11 +79,11 @@ namespace WebAPI.Clients
             {
                 if (metaId > 0)
                 {
-                    return Core.Catalog.CatalogManagement.CatalogManager.Instance.GetAssetStructsByTopicId(groupId, metaId, isProtected);
+                    return CatalogManager.Instance.GetAssetStructsByTopicId(groupId, metaId, isProtected);
                 }
                 else
                 {
-                    return Core.Catalog.CatalogManagement.CatalogManager.Instance.GetAssetStructsByIds(groupId, ids, isProtected);
+                    return CatalogManager.Instance.GetAssetStructsByIds(groupId, ids, isProtected);
                 }
             };
 
@@ -119,7 +132,7 @@ namespace WebAPI.Clients
         public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
         {
             Func<AssetStruct, GenericResponse<AssetStruct>> addAssetStructFunc = (AssetStruct assetStructToAdd) =>
-                Core.Catalog.CatalogManagement.CatalogManager.Instance.AddAssetStruct(groupId, assetStructToAdd, userId);
+                CatalogManager.Instance.AddAssetStruct(groupId, assetStructToAdd, userId);
 
             KalturaAssetStruct result =
                 ClientUtils.GetResponseFromWS<KalturaAssetStruct, AssetStruct>(assetStrcut, addAssetStructFunc);
@@ -131,7 +144,7 @@ namespace WebAPI.Clients
         {
             bool shouldUpdateMetaIds = assetStrcut.MetaIds != null;
             Func<AssetStruct, GenericResponse<AssetStruct>> updateAssetStructFunc = (AssetStruct assetStructToUpdate) =>
-                Core.Catalog.CatalogManagement.CatalogManager.Instance.UpdateAssetStruct(groupId, id, assetStructToUpdate, shouldUpdateMetaIds, userId);
+                CatalogManager.Instance.UpdateAssetStruct(groupId, id, assetStructToUpdate, shouldUpdateMetaIds, userId);
 
             KalturaAssetStruct result =
                 ClientUtils.GetResponseFromWS<KalturaAssetStruct, AssetStruct>(assetStrcut, updateAssetStructFunc);
@@ -141,14 +154,14 @@ namespace WebAPI.Clients
 
         public bool DeleteAssetStruct(int groupId, long id, long userId)
         {
-            Func<Status> deleteAssetStructFunc = () => Core.Catalog.CatalogManagement.CatalogManager.Instance.DeleteAssetStruct(groupId, id, userId);
+            Func<Status> deleteAssetStructFunc = () => CatalogManager.Instance.DeleteAssetStruct(groupId, id, userId);
             return ClientUtils.GetResponseStatusFromWS(deleteAssetStructFunc);
         }
 
         public KalturaAssetStruct GetAssetStruct(int groupId, long id)
         {
             Func<GenericResponse<AssetStruct>> getAssetStructFunc = () =>
-               Core.Catalog.CatalogManagement.CatalogManager.Instance.GetAssetStruct(groupId, id);
+               CatalogManager.Instance.GetAssetStruct(groupId, id);
 
             KalturaAssetStruct response =
                 ClientUtils.GetResponseFromWS<KalturaAssetStruct, AssetStruct>(getAssetStructFunc);
@@ -164,7 +177,7 @@ namespace WebAPI.Clients
             Func<GenericListResponse<Topic>> getTopicListFunc = delegate ()
             {
                 GenericListResponse<Topic> topicList = null;
-                ApiObjects.MetaType metaType = ApiObjects.MetaType.All;
+                MetaType metaType = MetaType.All;
                 if (type.HasValue)
                 {
                     metaType = CatalogMappings.ConvertToMetaType(type, multipleValue);
@@ -270,7 +283,7 @@ namespace WebAPI.Clients
             Func<Status> deleteAssetFunc = delegate ()
             {
                 eAssetTypes assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
-                return Core.Catalog.CatalogManagement.AssetManager.DeleteAsset(groupId, id, assetType, userId);
+                return AssetManager.DeleteAsset(groupId, id, assetType, userId);
             };
 
             return ClientUtils.GetResponseStatusFromWS(deleteAssetFunc);
@@ -289,7 +302,7 @@ namespace WebAPI.Clients
                     bool opcAccount = Utils.Utils.DoesGroupUsesTemplates(groupId);
                     if (!isAllowedToViewInactiveAssets)
                     {
-                        Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
+                        Version requestVersion = OldStandardAttribute.getCurrentRequestVersion();
                         isAllowedToViewInactiveAssets = requestVersion.CompareTo(opcMergeVersion) < 0;
                     }
 
@@ -310,7 +323,7 @@ namespace WebAPI.Clients
                         var useFinal = false;
                         if (!opcAccount)
                         {
-                            var groupManager = new GroupsCacheManager.GroupManager();
+                            var groupManager = new GroupManager();
                             var group = groupManager.GetGroup(groupId);
 
                             useFinal = !group.isGeoAvailabilityWindowingEnabled;
@@ -369,7 +382,7 @@ namespace WebAPI.Clients
         public KalturaAsset UpdateAsset(int groupId, long id, KalturaAsset asset, long userId)
         {
             Func<Asset, GenericResponse<Asset>> updateAssetFunc = (Asset assetToUpdate) =>
-                Core.Catalog.CatalogManagement.AssetManager.UpdateAsset(groupId, id, assetToUpdate, userId);
+                AssetManager.UpdateAsset(groupId, id, assetToUpdate, userId);
 
             KalturaAsset result =
                 ClientUtils.GetResponseFromWS<KalturaAsset, Asset>(asset, updateAssetFunc);
@@ -385,7 +398,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.AssetManager.GetAsset(groupId, epgId, eAssetTypes.EPG, isAllowedToViewInactiveAssets);
+                    response = AssetManager.GetAsset(groupId, epgId, eAssetTypes.EPG, isAllowedToViewInactiveAssets);
                 }
             }
             catch (Exception ex)
@@ -407,7 +420,7 @@ namespace WebAPI.Clients
             KalturaProgramAsset result = null;
             if (response.Object != null)
             {
-                result = AutoMapper.Mapper.Map<KalturaProgramAsset>(response.Object);
+                result = Mapper.Map<KalturaProgramAsset>(response.Object);
                 result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId));
             }
 
@@ -420,7 +433,7 @@ namespace WebAPI.Clients
             Func<Status> removeTopicsFromAssetFunc = delegate ()
             {
                 eAssetTypes assetType = CatalogMappings.ConvertToAssetTypes(assetReferenceType);
-                return Core.Catalog.CatalogManagement.AssetManager.RemoveTopicsFromAsset(groupId, id, assetType, topicIds, userId);
+                return AssetManager.RemoveTopicsFromAsset(groupId, id, assetType, topicIds, userId);
             };
 
             return ClientUtils.GetResponseStatusFromWS(removeTopicsFromAssetFunc);
@@ -431,7 +444,7 @@ namespace WebAPI.Clients
             KalturaAssetListResponse result = new KalturaAssetListResponse();
             if (assetsBaseDataList != null && assetsBaseDataList.Count > 0)
             {
-                Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
+                Version requestVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool shouldReturnOldMediaObj = requestVersion.CompareTo(opcMergeVersion) < 0;
                 GenericListResponse<Asset> assetListResponse = AssetManager.GetOrderedAssets(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
                 if (assetListResponse != null && assetListResponse.Status != null && assetListResponse.Status.Code == (int)eResponseStatus.OK)
@@ -480,7 +493,7 @@ namespace WebAPI.Clients
 
                     List<BaseObject> assetsBaseDataList = new List<BaseObject>();
 
-                    foreach (Catalog.Response.AggregationResult aggregationResult in searchResponse.aggregationResults[0].results)
+                    foreach (AggregationResult aggregationResult in searchResponse.aggregationResults[0].results)
                     {
                         if (aggregationResult.topHits != null && aggregationResult.topHits.Count > 0)
                         {
@@ -544,7 +557,7 @@ namespace WebAPI.Clients
         public KalturaAssetStructMeta UpdateAssetStructMeta(long assetStructId, long MetaId, KalturaAssetStructMeta assetStructMeta, int groupId, long userId)
         {
             Func<AssetStructMeta, GenericResponse<AssetStructMeta>> updateAssetStructMetaFunc = (AssetStructMeta assetStructMetaToUpdate) =>
-                Core.Catalog.CatalogManagement.CatalogManager.Instance.UpdateAssetStructMeta
+                CatalogManager.Instance.UpdateAssetStructMeta
                         (assetStructId, MetaId, assetStructMetaToUpdate, groupId, userId);
 
             KalturaAssetStructMeta result =
@@ -558,7 +571,7 @@ namespace WebAPI.Clients
             KalturaAssetStructMetaListResponse result = new KalturaAssetStructMetaListResponse() { TotalCount = 0 };
 
             Func<GenericListResponse<AssetStructMeta>> getAssetStructMetaListFunc = () =>
-               Core.Catalog.CatalogManagement.CatalogManager.Instance.GetAssetStructMetaList(groupId, assetStructId, metaId);
+               CatalogManager.Instance.GetAssetStructMetaList(groupId, assetStructId, metaId);
 
             KalturaGenericListResponse<KalturaAssetStructMeta> response =
                 ClientUtils.GetResponseListFromWS<KalturaAssetStructMeta, AssetStructMeta>(getAssetStructMetaListFunc);
@@ -578,19 +591,19 @@ namespace WebAPI.Clients
             string hmacSecret = signatureKey;
             // The HMAC secret as configured in the skin
             // Values are always transferred using UTF-8 encoding
-            System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
+            UTF8Encoding encoding = new UTF8Encoding();
 
             // Calculate the HMAC
             // signingString is the SignString from the request
             HMACSHA1 myhmacsha1 = new HMACSHA1(encoding.GetBytes(hmacSecret));
-            retVal = System.Convert.ToBase64String(myhmacsha1.ComputeHash(encoding.GetBytes(signString)));
+            retVal = Convert.ToBase64String(myhmacsha1.ComputeHash(encoding.GetBytes(signString)));
             myhmacsha1.Clear();
             return retVal;
         }
 
         private DateTime getServerTime()
         {
-            return (DateTime)HttpContext.Current.Items[RequestContextUtils.REQUEST_TIME];
+            return (DateTime)HttpContext.Current.Items[RequestContextConstants.REQUEST_TIME];
         }
 
         [Obsolete]
@@ -606,7 +619,7 @@ namespace WebAPI.Clients
             if (orderBy == null)
             {
                 order.m_eOrderBy = OrderBy.RELATED;
-                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                order.m_eOrderDir = OrderDir.DESC;
             }
             else
             {
@@ -1044,7 +1057,7 @@ namespace WebAPI.Clients
             if (orderBy == null)
             {
                 order.m_eOrderBy = OrderBy.RELATED;
-                order.m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC;
+                order.m_eOrderDir = OrderDir.DESC;
             }
             else
             {
@@ -1145,7 +1158,7 @@ namespace WebAPI.Clients
                 AssetTypes = assetTypes,
                 FilterStatus = CatalogMappings.ConvertKalturaWatchStatus(watchStatus),
                 NumOfDays = days,
-                OrderDir = ApiObjects.SearchObjects.OrderDir.DESC,
+                OrderDir = OrderDir.DESC,
                 AssetIds = assetIds,
                 Suppress = suppress,
                 FilterQuery = ksql
@@ -1213,7 +1226,7 @@ namespace WebAPI.Clients
                 AssetIds = assetIds,
                 FilterStatus = CatalogMappings.ConvertKalturaWatchStatus(watchStatus),
                 NumOfDays = days,
-                OrderDir = ApiObjects.SearchObjects.OrderDir.DESC
+                OrderDir = OrderDir.DESC
             };
 
             // fire history watched request
@@ -1565,7 +1578,7 @@ namespace WebAPI.Clients
 
         public KalturaAssetInfoListResponse GetChannelMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
             int channelId, KalturaOrder? orderBy, List<KalturaCatalogWith> with, List<KeyValue> filterTags,
-            WebAPI.Models.Catalog.KalturaAssetInfoFilter.KalturaCutWith cutWith)
+            KalturaAssetInfoFilter.KalturaCutWith cutWith)
         {
             KalturaAssetInfoListResponse result = new KalturaAssetInfoListResponse();
 
@@ -1614,8 +1627,8 @@ namespace WebAPI.Clients
                 channelId, pageIndex, pageSize, groupId, siteGuid, language, orderBy);
 
             // fire request
-            Core.Catalog.Response.ChannelResponse channelResponse = new Core.Catalog.Response.ChannelResponse();
-            if (!CatalogUtils.GetBaseResponse<Core.Catalog.Response.ChannelResponse>(request, out channelResponse, true, key.ToString()))
+            ChannelResponse channelResponse = new ChannelResponse();
+            if (!CatalogUtils.GetBaseResponse<ChannelResponse>(request, out channelResponse, true, key.ToString()))
             {
                 // general error
                 throw new ClientException(StatusCode.Error);
@@ -1967,7 +1980,7 @@ namespace WebAPI.Clients
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
                 pids = epgIds,
-                eLang = ApiObjects.Language.English,
+                eLang = Language.English,
                 duration = 0
             };
 
@@ -2018,7 +2031,7 @@ namespace WebAPI.Clients
                 m_sSiteGuid = siteGuid,
                 domainId = domainId,
                 pids = epgIds,
-                eLang = ApiObjects.Language.English,
+                eLang = Language.English,
                 duration = 0
             };
 
@@ -2114,9 +2127,9 @@ namespace WebAPI.Clients
         }
 
 
-        public WebAPI.Models.Catalog.KalturaChannel GetChannelInfo(int groupId, string siteGuid, int domainId, string udid, string language, int channelId)
+        public KalturaChannel GetChannelInfo(int groupId, string siteGuid, int domainId, string udid, string language, int channelId)
         {
-            WebAPI.Models.Catalog.KalturaChannel result = null;
+            KalturaChannel result = null;
             ChannelObjRequest request = new ChannelObjRequest()
             {
                 m_sSignature = Signature,
@@ -2136,14 +2149,14 @@ namespace WebAPI.Clients
             ChannelObjResponse response = null;
             if (CatalogUtils.GetBaseResponse(request, out response))
             {
-                Version requestVersion = Managers.Scheme.OldStandardAttribute.getCurrentRequestVersion();
+                Version requestVersion = OldStandardAttribute.getCurrentRequestVersion();
                 if (requestVersion.CompareTo(opcMergeVersion) > 0)
                 {
-                    result = response.ChannelObj != null ? Mapper.Map<WebAPI.Models.Catalog.KalturaDynamicChannel>(response.ChannelObj) : null;
+                    result = response.ChannelObj != null ? Mapper.Map<KalturaDynamicChannel>(response.ChannelObj) : null;
                 }
                 else
                 {
-                    result = response.ChannelObj != null ? Mapper.Map<WebAPI.Models.Catalog.KalturaChannel>(response.ChannelObj) : null;
+                    result = response.ChannelObj != null ? Mapper.Map<KalturaChannel>(response.ChannelObj) : null;
                 }
             }
             else
@@ -2560,7 +2573,7 @@ namespace WebAPI.Clients
                 Ip = ip
             };
 
-            Core.Catalog.Response.CountryResponse response = null;
+            CountryResponse response = null;
             if (CatalogUtils.GetBaseResponse(request, out response) && response != null && response.Status != null)
             {
                 if (response.Status.Code == (int)StatusCode.OK)
@@ -3294,7 +3307,7 @@ namespace WebAPI.Clients
             try
             {
                 Meta apiMeta = null;
-                apiMeta = AutoMapper.Mapper.Map<Meta>(meta);
+                apiMeta = Mapper.Map<Meta>(meta);
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
@@ -3319,7 +3332,7 @@ namespace WebAPI.Clients
 
             if (response.MetaList != null && response.MetaList.Count > 0)
             {
-                result = AutoMapper.Mapper.Map<KalturaMeta>(response.MetaList[0]);
+                result = Mapper.Map<KalturaMeta>(response.MetaList[0]);
             }
 
             return result;
@@ -3329,14 +3342,14 @@ namespace WebAPI.Clients
         {
             KalturaTagListResponse result = new KalturaTagListResponse();
 
-            Func<GenericListResponse<ApiObjects.SearchObjects.TagValue>> searchTagsFunc = delegate ()
+            Func<GenericListResponse<TagValue>> searchTagsFunc = delegate ()
             {
                 int searchLanguageId = Utils.Utils.GetLanguageId(groupId, searchLanguage);
-                return Core.Catalog.CatalogManagement.CatalogManager.SearchTags(groupId, isExcatValue, value, topicId, searchLanguageId, pageIndex, pageSize);
+                return CatalogManager.SearchTags(groupId, isExcatValue, value, topicId, searchLanguageId, pageIndex, pageSize);
             };
 
             KalturaGenericListResponse<KalturaTag> response =
-                ClientUtils.GetResponseListFromWS<KalturaTag, ApiObjects.SearchObjects.TagValue>(searchTagsFunc);
+                ClientUtils.GetResponseListFromWS<KalturaTag, TagValue>(searchTagsFunc);
 
             result.Tags = response.Objects;
             result.TotalCount = response.TotalCount;
@@ -3348,13 +3361,13 @@ namespace WebAPI.Clients
         {
             KalturaTagListResponse result = new KalturaTagListResponse();
 
-            Func<GenericListResponse<ApiObjects.SearchObjects.TagValue>> searchTagsFunc = delegate ()
+            Func<GenericListResponse<TagValue>> searchTagsFunc = delegate ()
             {
-                return Core.Catalog.CatalogManagement.CatalogManager.Instance.GetTags(groupId, idIn, pageIndex, pageSize);
+                return CatalogManager.Instance.GetTags(groupId, idIn, pageIndex, pageSize);
             };
 
             KalturaGenericListResponse<KalturaTag> response =
-                ClientUtils.GetResponseListFromWS<KalturaTag, ApiObjects.SearchObjects.TagValue>(searchTagsFunc);
+                ClientUtils.GetResponseListFromWS<KalturaTag, TagValue>(searchTagsFunc);
 
             result.Tags = response.Objects;
             result.TotalCount = response.TotalCount;
@@ -3365,7 +3378,7 @@ namespace WebAPI.Clients
         internal KalturaTag AddTag(int groupId, KalturaTag tag, long userId)
         {
             Func<TagValue, GenericResponse<TagValue>> addTagFunc = (TagValue requestTag) =>
-                Core.Catalog.CatalogManagement.CatalogManager.Instance.AddTag(groupId, requestTag, userId);
+                CatalogManager.Instance.AddTag(groupId, requestTag, userId);
 
             KalturaTag result =
                 ClientUtils.GetResponseFromWS<KalturaTag, TagValue>(tag, addTagFunc);
@@ -3377,7 +3390,7 @@ namespace WebAPI.Clients
         {
             tag.Id = id;
             Func<TagValue, GenericResponse<TagValue>> updateTagFunc = (TagValue tagToUpdate) =>
-                Core.Catalog.CatalogManagement.CatalogManager.UpdateTag(groupId, tagToUpdate, userId);
+                CatalogManager.UpdateTag(groupId, tagToUpdate, userId);
 
             KalturaTag result =
                 ClientUtils.GetResponseFromWS<KalturaTag, TagValue>(tag, updateTagFunc);
@@ -3387,7 +3400,7 @@ namespace WebAPI.Clients
 
         internal bool DeleteTag(int groupId, long id, long userId)
         {
-            Func<Status> deleteTagFunc = () => Core.Catalog.CatalogManagement.CatalogManager.DeleteTag(groupId, id, userId);
+            Func<Status> deleteTagFunc = () => CatalogManager.DeleteTag(groupId, id, userId);
             return ClientUtils.GetResponseStatusFromWS(deleteTagFunc);
         }
 
@@ -3439,11 +3452,11 @@ namespace WebAPI.Clients
         {
             KalturaRatioListResponse result = new KalturaRatioListResponse();
 
-            Func<GenericListResponse<Core.Catalog.Ratio>> getRatiosFunc = () =>
+            Func<GenericListResponse<Ratio>> getRatiosFunc = () =>
                Core.Catalog.CatalogManagement.ImageManager.GetRatios(groupId);
 
             KalturaGenericListResponse<KalturaRatio> response =
-                ClientUtils.GetResponseListFromWS<KalturaRatio, Core.Catalog.Ratio>(getRatiosFunc);
+                ClientUtils.GetResponseListFromWS<KalturaRatio, Ratio>(getRatiosFunc);
 
             result.Ratios = response.Objects;
             result.TotalCount = response.TotalCount;
@@ -3535,7 +3548,7 @@ namespace WebAPI.Clients
 
             try
             {
-                var requestRatio = AutoMapper.Mapper.Map<Core.Catalog.Ratio>(ratio);
+                var requestRatio = Mapper.Map<Ratio>(ratio);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.ImageManager.AddRatio(groupId, userId, requestRatio);
@@ -3559,7 +3572,7 @@ namespace WebAPI.Clients
 
             if (response.Ratio != null)
             {
-                responseRatio = AutoMapper.Mapper.Map<KalturaRatio>(response.Ratio);
+                responseRatio = Mapper.Map<KalturaRatio>(response.Ratio);
             }
 
             return responseRatio;
@@ -3572,7 +3585,7 @@ namespace WebAPI.Clients
 
             try
             {
-                var requestRatio = AutoMapper.Mapper.Map<Core.Catalog.Ratio>(ratio);
+                var requestRatio = Mapper.Map<Ratio>(ratio);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     response = Core.Catalog.CatalogManagement.ImageManager.UpdateRatio(groupId, userId, requestRatio, ratioId);
@@ -3596,7 +3609,7 @@ namespace WebAPI.Clients
 
             if (response.Ratio != null)
             {
-                responseRatio = AutoMapper.Mapper.Map<KalturaRatio>(response.Ratio);
+                responseRatio = Mapper.Map<KalturaRatio>(response.Ratio);
             }
 
             return responseRatio;
@@ -3607,7 +3620,7 @@ namespace WebAPI.Clients
             KalturaMediaFileTypeListResponse result = new KalturaMediaFileTypeListResponse() { TotalCount = 0 };
 
             Func<GenericListResponse<MediaFileType>> getMediaFileTypesFunc = () =>
-               Core.Catalog.CatalogManagement.FileManager.GetMediaFileTypes(groupId);
+               FileManager.GetMediaFileTypes(groupId);
 
             KalturaGenericListResponse<KalturaMediaFileType> response =
                 ClientUtils.GetResponseListFromWS<KalturaMediaFileType, MediaFileType>(getMediaFileTypesFunc);
@@ -3621,7 +3634,7 @@ namespace WebAPI.Clients
         public KalturaMediaFileType AddMediaFileType(int groupId, KalturaMediaFileType mediaFileType, long userId)
         {
             Func<MediaFileType, GenericResponse<MediaFileType>> addMediaFileTypeFunc = (MediaFileType mediaFileTypeToAdd) =>
-               Core.Catalog.CatalogManagement.FileManager.AddMediaFileType(groupId, mediaFileTypeToAdd, userId);
+               FileManager.AddMediaFileType(groupId, mediaFileTypeToAdd, userId);
 
             KalturaMediaFileType result =
                 ClientUtils.GetResponseFromWS<KalturaMediaFileType, MediaFileType>(mediaFileType, addMediaFileTypeFunc);
@@ -3632,7 +3645,7 @@ namespace WebAPI.Clients
         public KalturaMediaFileType UpdateMediaFileType(int groupId, long id, KalturaMediaFileType mediaFileType, long userId)
         {
             Func<MediaFileType, GenericResponse<MediaFileType>> updateMediaFileTypeFunc = (MediaFileType mediaFileTypeToUpdate) =>
-                Core.Catalog.CatalogManagement.FileManager.UpdateMediaFileType(groupId, id, mediaFileTypeToUpdate, userId);
+                FileManager.UpdateMediaFileType(groupId, id, mediaFileTypeToUpdate, userId);
 
             KalturaMediaFileType result =
                 ClientUtils.GetResponseFromWS<KalturaMediaFileType, MediaFileType>(mediaFileType, updateMediaFileTypeFunc);
@@ -3642,7 +3655,7 @@ namespace WebAPI.Clients
 
         public bool DeleteMediaFileType(int groupId, long id, long userId)
         {
-            Func<Status> deleteMediaFileTypeFunc = () => Core.Catalog.CatalogManagement.FileManager.DeleteMediaFileType(groupId, id, userId);
+            Func<Status> deleteMediaFileTypeFunc = () => FileManager.DeleteMediaFileType(groupId, id, userId);
             return ClientUtils.GetResponseStatusFromWS(deleteMediaFileTypeFunc);
         }
 
@@ -3659,7 +3672,7 @@ namespace WebAPI.Clients
 
         internal bool DeleteMediaFile(int groupId, long userId, long id)
         {
-            Func<Status> deleteMediaFileFunc = () => Core.Catalog.CatalogManagement.FileManager.DeleteMediaFile(groupId, userId, id);
+            Func<Status> deleteMediaFileFunc = () => FileManager.DeleteMediaFile(groupId, userId, id);
             return ClientUtils.GetResponseStatusFromWS(deleteMediaFileFunc);
         }
 
@@ -3668,7 +3681,7 @@ namespace WebAPI.Clients
             assetFile.Id = (int)id;
 
             Func<AssetFile, GenericResponse<AssetFile>> updateMediaFileFunc = (AssetFile assetFileToUpdate) =>
-                Core.Catalog.CatalogManagement.FileManager.UpdateMediaFile(groupId, assetFileToUpdate, userId);
+                FileManager.UpdateMediaFile(groupId, assetFileToUpdate, userId);
 
             KalturaMediaFile result =
                 ClientUtils.GetResponseFromWS<KalturaMediaFile, AssetFile>(assetFile, updateMediaFileFunc);
@@ -3696,54 +3709,54 @@ namespace WebAPI.Clients
                                                             KalturaChannelsOrderBy channelOrderBy, bool isAllowedToViewInactiveAssets, long userId)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
-            GenericListResponse<GroupsCacheManager.Channel> response = null;
+            GenericListResponse<Channel> response = null;
 
-            List<GroupsCacheManager.Channel> channels = null;
+            List<Channel> channels = null;
             ChannelOrderBy orderBy = ChannelOrderBy.Id;
-            var orderDirection = ApiObjects.SearchObjects.OrderDir.NONE;
+            var orderDirection = OrderDir.NONE;
 
             switch (channelOrderBy)
             {
                 case KalturaChannelsOrderBy.NONE:
                     {
                         orderBy = ChannelOrderBy.Id;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                        orderDirection = OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.NAME_ASC:
                     {
                         orderBy = ChannelOrderBy.Name;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
+                        orderDirection = OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.NAME_DESC:
                     {
                         orderBy = ChannelOrderBy.Name;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                        orderDirection = OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.CREATE_DATE_ASC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
+                        orderDirection = OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.CREATE_DATE_DESC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                        orderDirection = OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.UPDATE_DATE_ASC:
                     {
                         orderBy = ChannelOrderBy.UpdateDate;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
+                        orderDirection = OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.UPDATE_DATE_DESC:
                     {
                         orderBy = ChannelOrderBy.UpdateDate;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                        orderDirection = OrderDir.DESC;
                         break;
                     }
                 default:
@@ -3754,7 +3767,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.Instance.SearchChannels(groupId, isExcatValue, value, specificChannelIds,
+                    response = ChannelManager.Instance.SearchChannels(groupId, isExcatValue, value, specificChannelIds,
                         pageIndex, pageSize, orderBy, orderDirection, isAllowedToViewInactiveAssets, userId);
                 }
             }
@@ -3791,13 +3804,13 @@ namespace WebAPI.Clients
 
         internal KalturaChannel GetChannel(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId)
         {
-            GenericResponse<GroupsCacheManager.Channel> response = null;
+            GenericResponse<Channel> response = null;
             KalturaChannel result = null;
             try
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.Instance.GetChannel(groupId, channelId, isAllowedToViewInactiveAssets, true, userId);
+                    response = ChannelManager.Instance.GetChannel(groupId, channelId, isAllowedToViewInactiveAssets, true, userId);
                 }
             }
             catch (Exception ex)
@@ -3840,7 +3853,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
-                    response = APILogic.CRUD.KSQLChannelsManager.Insert(groupId, request);
+                    response = KSQLChannelsManager.Insert(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -3866,14 +3879,14 @@ namespace WebAPI.Clients
         internal KalturaChannel InsertChannel(int groupId, KalturaChannel channel, long userId)
         {
             KalturaChannel result = null;
-            GenericResponse<GroupsCacheManager.Channel> response = null;
+            GenericResponse<Channel> response = null;
 
             try
             {
-                GroupsCacheManager.Channel channelToAdd = AutoMapper.Mapper.Map<GroupsCacheManager.Channel>(channel);
+                Channel channelToAdd = Mapper.Map<Channel>(channel);
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.AddChannel(groupId, channelToAdd, userId);
+                    response = ChannelManager.AddChannel(groupId, channelToAdd, userId);
                 }
             }
             catch (Exception ex)
@@ -3909,12 +3922,12 @@ namespace WebAPI.Clients
         internal KalturaChannel UpdateChannel(int groupId, int id, KalturaChannel channel, long userId)
         {
             KalturaChannel result = null;
-            GenericResponse<GroupsCacheManager.Channel> response = null;
+            GenericResponse<Channel> response = null;
 
             try
             {
                 Type manualChannelType = typeof(KalturaManualChannel);
-                GroupsCacheManager.Channel channelToUpdate = AutoMapper.Mapper.Map<GroupsCacheManager.Channel>(channel);
+                Channel channelToUpdate = Mapper.Map<Channel>(channel);
                 if (manualChannelType.IsAssignableFrom(channel.GetType()) && ((KalturaManualChannel)channel).MediaIds == null)
                 {
                     channelToUpdate.m_lManualMedias = null;
@@ -3922,7 +3935,7 @@ namespace WebAPI.Clients
 
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.Instance.UpdateChannel(groupId, id, channelToUpdate, userId);
+                    response = ChannelManager.Instance.UpdateChannel(groupId, id, channelToUpdate, userId);
                 }
             }
             catch (Exception ex)
@@ -4004,7 +4017,7 @@ namespace WebAPI.Clients
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
                     KSQLChannel request = Mapper.Map<KSQLChannel>(channel);
-                    response = APILogic.CRUD.KSQLChannelsManager.Insert(groupId, request);
+                    response = KSQLChannelsManager.Insert(groupId, request);
                 }
             }
             catch (Exception ex)
@@ -4023,7 +4036,7 @@ namespace WebAPI.Clients
                 throw new ClientException(response.Status);
             }
 
-            profile = Mapper.Map<Models.API.KalturaChannelProfile>(response.Channel);
+            profile = Mapper.Map<KalturaChannelProfile>(response.Channel);
             return profile;
         }
 
@@ -4065,7 +4078,7 @@ namespace WebAPI.Clients
 
         internal bool DeleteChannel(int groupId, int channelId, long userId)
         {
-            Func<Status> deleteChannelFunc = () => Core.Catalog.CatalogManagement.ChannelManager.Instance.DeleteChannel(groupId, channelId, userId);
+            Func<Status> deleteChannelFunc = () => ChannelManager.Instance.DeleteChannel(groupId, channelId, userId);
             return ClientUtils.GetResponseStatusFromWS(deleteChannelFunc); ;
         }
 
@@ -4073,54 +4086,54 @@ namespace WebAPI.Clients
             KalturaChannelsOrderBy channelOrderBy, bool isAllowedToViewInactiveAssets, long userId)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
-            GenericListResponse<GroupsCacheManager.Channel> response = null;
+            GenericListResponse<Channel> response = null;
 
-            List<GroupsCacheManager.Channel> channels = null;
+            List<Channel> channels = null;
             ChannelOrderBy orderBy = ChannelOrderBy.Id;
-            var orderDirection = ApiObjects.SearchObjects.OrderDir.NONE;
+            var orderDirection = OrderDir.NONE;
 
             switch (channelOrderBy)
             {
                 case KalturaChannelsOrderBy.NONE:
                     {
                         orderBy = ChannelOrderBy.Id;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                        orderDirection = OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.NAME_ASC:
                     {
                         orderBy = ChannelOrderBy.Name;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
+                        orderDirection = OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.NAME_DESC:
                     {
                         orderBy = ChannelOrderBy.Name;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                        orderDirection = OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.CREATE_DATE_ASC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
+                        orderDirection = OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.CREATE_DATE_DESC:
                     {
                         orderBy = ChannelOrderBy.CreateDate;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                        orderDirection = OrderDir.DESC;
                         break;
                     }
                 case KalturaChannelsOrderBy.UPDATE_DATE_ASC:
                     {
                         orderBy = ChannelOrderBy.UpdateDate;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
+                        orderDirection = OrderDir.ASC;
                         break;
                     }
                 case KalturaChannelsOrderBy.UPDATE_DATE_DESC:
                     {
                         orderBy = ChannelOrderBy.UpdateDate;
-                        orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                        orderDirection = OrderDir.DESC;
                         break;
                     }
                 default:
@@ -4131,7 +4144,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Catalog.CatalogManagement.ChannelManager.Instance.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize,
+                    response = ChannelManager.Instance.GetChannelsContainingMedia(groupId, mediaId, pageIndex, pageSize,
                         orderBy, orderDirection, isAllowedToViewInactiveAssets, userId);
                 }
             }
@@ -4157,8 +4170,8 @@ namespace WebAPI.Clients
             {
                 result.Channels = new List<KalturaChannel>();
                 // convert channels
-                List<KalturaDynamicChannel> dynamicChannels = Mapper.Map<List<KalturaDynamicChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL).ToList());
-                List<KalturaManualChannel> manualChannels = Mapper.Map<List<KalturaManualChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual).ToList());
+                List<KalturaDynamicChannel> dynamicChannels = Mapper.Map<List<KalturaDynamicChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)ChannelType.KSQL).ToList());
+                List<KalturaManualChannel> manualChannels = Mapper.Map<List<KalturaManualChannel>>(response.Objects.Where(x => x.m_nChannelTypeID == (int)ChannelType.Manual).ToList());
                 if (dynamicChannels != null)
                 {
                     result.Channels.AddRange(dynamicChannels);
@@ -4182,7 +4195,7 @@ namespace WebAPI.Clients
             KalturaAssetListResponse response = new KalturaAssetListResponse();
 
             KalturaPersonalListListResponse personalListRespnse =
-                ClientsManager.ApiClient().GetPersonalListItems(groupId, int.Parse(userID), 0, 0, Models.Api.KalturaPersonalListOrderBy.CREATE_DATE_ASC, partnerListTypes);
+                ClientsManager.ApiClient().GetPersonalListItems(groupId, int.Parse(userID), 0, 0, KalturaPersonalListOrderBy.CREATE_DATE_ASC, partnerListTypes);
             if (personalListRespnse.PersonalListList != null && personalListRespnse.PersonalListList.Count > 0)
             {
                 StringBuilder ksqlBuilder = new StringBuilder();
@@ -4251,7 +4264,7 @@ namespace WebAPI.Clients
 
         internal KalturaBulkUploadListResponse GetBulkUploadList(int groupId, string bulkObjectType, List<KalturaBulkUploadJobStatus> statuses, DateTime createDate, long? userId, KalturaBulkUploadOrderBy orderBy, KalturaFilterPager pager)
         {
-            var statusesIn = AutoMapper.Mapper.Map<List<BulkUploadJobStatus>>(statuses);
+            var statusesIn = Mapper.Map<List<BulkUploadJobStatus>>(statuses);
 
             Func<GenericListResponse<BulkUpload>> getBulkUploadsFunc = () =>
               BulkUploadManager.GetBulkUploads(groupId, bulkObjectType, createDate, statusesIn, userId);
@@ -4301,7 +4314,7 @@ namespace WebAPI.Clients
             Dictionary<string, object> excelValues = null;
             try
             {
-                var excelableObject = AutoMapper.Mapper.Map<IExcelObject>(kalturaExcelableObject);
+                var excelableObject = Mapper.Map<IExcelObject>(kalturaExcelableObject);
                 excelValues = excelableObject.GetExcelValues(groupId);
 
             }
@@ -4319,7 +4332,7 @@ namespace WebAPI.Clients
             ExcelStructure excelStructure = null;
             try
             {
-                var excelStructureManager = AutoMapper.Mapper.Map<IExcelStructureManager>(kalturaExcelStructureManager);
+                var excelStructureManager = Mapper.Map<IExcelStructureManager>(kalturaExcelStructureManager);
                 excelStructure = excelStructureManager.GetExcelStructure(groupId);
             }
             catch (Exception ex)
@@ -4370,7 +4383,7 @@ namespace WebAPI.Clients
         internal KalturaChannelListResponse SearchChannels(int groupId, List<int> channelsIds, bool isAllowedToViewInactiveAssets, long userId)
         {
             KalturaChannelListResponse result = new KalturaChannelListResponse();
-            GenericListResponse<GroupsCacheManager.Channel> response = null;
+            GenericListResponse<Channel> response = null;
 
             try
             {
@@ -4410,17 +4423,17 @@ namespace WebAPI.Clients
             return result;
         }
 
-        private void ConvertChannelsByType(List<GroupsCacheManager.Channel> objects, ref KalturaChannelListResponse result)
+        private void ConvertChannelsByType(List<Channel> objects, ref KalturaChannelListResponse result)
         {
             result.Channels = new List<KalturaChannel>();
             // convert channels
-            foreach (GroupsCacheManager.Channel channel in objects)
+            foreach (Channel channel in objects)
             {
-                if (channel.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.KSQL)
+                if (channel.m_nChannelTypeID == (int)ChannelType.KSQL)
                 {
                     result.Channels.Add(Mapper.Map<KalturaDynamicChannel>(channel));
                 }
-                else if (channel.m_nChannelTypeID == (int)GroupsCacheManager.ChannelType.Manual)
+                else if (channel.m_nChannelTypeID == (int)ChannelType.Manual)
                 {
                     result.Channels.Add(Mapper.Map<KalturaManualChannel>(channel));
                 }

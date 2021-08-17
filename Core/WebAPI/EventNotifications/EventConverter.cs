@@ -1,6 +1,7 @@
 ﻿using ApiObjects;
 using System;
 using System.Web;
+using KalturaRequestContext;
 using TVinciShared;
 using WebAPI.Models.General;
 
@@ -63,9 +64,9 @@ namespace WebAPI.EventNotifications
             else
             {
                 //try get from context
-                userIp = RequestContextUtils.GetUserIp();
-                userId = RequestContextUtils.GetUserId();
-                udid = RequestContextUtils.GetUdid();
+                userIp = RequestContextUtilsInstance.Get().GetUserIp();
+                userId = RequestContextUtilsInstance.Get().GetUserId();
+                udid = RequestContextUtilsInstance.Get().GetUdid();
             }
 
             KalturaNotification eventWrapper = new KalturaNotification()
@@ -76,7 +77,7 @@ namespace WebAPI.EventNotifications
                 systemName = systemName,
                 partnerId = objectEvent.PartnerId,
                 UserIp = userIp,
-                SequenceId = RequestContextUtils.GetRequestId(),
+                SequenceId = RequestContextUtilsInstance.Get().GetRequestId(),
                 UserId = userId,
                 Context = GetContext(),
                 Udid = udid,
@@ -91,14 +92,14 @@ namespace WebAPI.EventNotifications
             if (HttpContext.Current?.Items != null)
             {
                 var context = new KalturaEventContextAction();
-                if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_SERVICE))
+                if (HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_SERVICE))
                 {
-                    context.Service = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVICE]);
+                    context.Service = Convert.ToString(HttpContext.Current.Items[RequestContextConstants.REQUEST_SERVICE]);
                 }
 
-                if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.REQUEST_ACTION))
+                if (HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_ACTION))
                 {
-                    context.Action = Convert.ToString(HttpContext.Current.Items[RequestContextUtils.REQUEST_ACTION]);
+                    context.Action = Convert.ToString(HttpContext.Current.Items[RequestContextConstants.REQUEST_ACTION]);
                 }
 
                 if (!string.IsNullOrEmpty(context.Action) && !string.IsNullOrEmpty(context.Service))

@@ -1,19 +1,21 @@
-﻿using ApiObjects.BulkUpload;
-using ApiObjects.Response;
-using KLogMonitor;
-using Newtonsoft.Json;
-using OfficeOpenXml;
-using OfficeOpenXml.Style;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web;
+using ApiObjects.BulkUpload;
+using ApiObjects.Response;
+using KalturaRequestContext;
+using KLogMonitor;
+using Newtonsoft.Json;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -21,6 +23,7 @@ using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.General;
+using ExcelColumn = ApiObjects.BulkUpload.ExcelColumn;
 
 namespace WebAPI.App_Start
 {
@@ -61,9 +64,9 @@ namespace WebAPI.App_Start
                 throw new RequestParserException(RequestParserException.PARTNER_INVALID);
             }
 
-            if (HttpContext.Current.Items[RequestContextUtils.REQUEST_METHOD_PARAMETERS] is IEnumerable)
+            if (HttpContext.Current.Items[RequestContextConstants.REQUEST_METHOD_PARAMETERS] is IEnumerable)
             {
-                List<object> requestMethodParameters = new List<object>(HttpContext.Current.Items[RequestContextUtils.REQUEST_METHOD_PARAMETERS] as IEnumerable<object>);
+                List<object> requestMethodParameters = new List<object>(HttpContext.Current.Items[RequestContextConstants.REQUEST_METHOD_PARAMETERS] as IEnumerable<object>);
                 var kalturaPersistedFilter = requestMethodParameters.FirstOrDefault(x => x is IKalturaPersistedFilter);
                 if (kalturaPersistedFilter != null)
                 {
@@ -143,7 +146,7 @@ namespace WebAPI.App_Start
             }
         }
 
-        private static DataTable GetDataTableByObjects(int groupId, List<IKalturaExcelableObject> objects, Dictionary<string, ApiObjects.BulkUpload.ExcelColumn> columns)
+        private static DataTable GetDataTableByObjects(int groupId, List<IKalturaExcelableObject> objects, Dictionary<string, ExcelColumn> columns)
         {
             DataTable dataTable = new DataTable();
             if (columns != null && columns.Count > 0)
@@ -200,7 +203,7 @@ namespace WebAPI.App_Start
             return dataTable;
         }
 
-        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, System.Net.Http.HttpContent content, System.Net.TransportContext transportContext)
+        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, TransportContext transportContext)
         {
             if (value != null && value is StatusWrapper)
             {

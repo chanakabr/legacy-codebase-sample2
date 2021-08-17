@@ -1,22 +1,18 @@
-﻿using KLogMonitor;
-using Microsoft.AspNetCore.Builder;
+﻿using System;
+using System.Net;
+using System.Reflection;
+using System.Threading.Tasks;
+using Core.Middleware;
+using KalturaRequestContext;
+using KLogMonitor;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Phoenix.Context;
 using Phoenix.Rest.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Threading.Tasks;
 using WebAPI;
 using WebAPI.App_Start;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
-using Core.Middleware;
-using WebAPI.Models.API;
-using TVinciShared;
 
 namespace Phoenix.Rest.Middleware
 {
@@ -73,7 +69,7 @@ namespace Phoenix.Rest.Middleware
             // get proper response formatter but make sure errors should be only xml or json ...
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
 
-            ctx.Format ??= context.Items[RequestContextUtils.REQUEST_FORMAT]?.ToString();
+            ctx.Format ??= context.Items[RequestContextConstants.REQUEST_FORMAT]?.ToString();
             var format = ctx.Format != "1" || ctx.Format != "2" ? "1" : ctx.Format;
             var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), format);
 

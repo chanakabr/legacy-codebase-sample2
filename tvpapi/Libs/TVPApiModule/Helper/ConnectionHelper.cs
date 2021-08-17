@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Web;
-using System.Collections;
-using System.Configuration;
-using System.Reflection;
-using KLogMonitor;
 using ConfigurationManager;
-using TVPApiModule.Manager;
+using KalturaRequestContext;
+using KLogMonitor;
+using Tvinci.Data.TVMDataLoader;
+using Tvinci.Data.TVMDataLoader.Protocols;
 using TVinciShared;
+using TVPApi.ODBCWrapper;
+using TVPApiModule.Manager;
 
 /// <summary>
 /// Summary description for ConnectionHelper
@@ -30,10 +31,10 @@ namespace TVPApi
         {
             if (!string.IsNullOrEmpty(sIP))
             {
-                if (HttpContext.Current.Items.ContainsKey(RequestContextUtils.USER_IP))
-                    HttpContext.Current.Items[RequestContextUtils.USER_IP] = sIP;
+                if (HttpContext.Current.Items.ContainsKey(RequestContextConstants.USER_IP))
+                    HttpContext.Current.Items[RequestContextConstants.USER_IP] = sIP;
                 else
-                    HttpContext.Current.Items.Add(RequestContextUtils.USER_IP, sIP);
+                    HttpContext.Current.Items.Add(RequestContextConstants.USER_IP, sIP);
             }
 
             if (_groupsModulesIPs.ContainsKey(sUN + ":" + sPass))
@@ -112,12 +113,12 @@ namespace TVPApi
         {
             Dictionary<string, int> retVal = null;
 
-            TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
+            DataSetSelectQuery selectQuery = new DataSetSelectQuery(GetTvinciConnectionString());
 
             selectQuery += "select * from groups_modules_ips where is_active=1 and status=1 and ";
-            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("USERNAME", "=", sUN);
+            selectQuery += Parameter.NEW_PARAM("USERNAME", "=", sUN);
             selectQuery += "and";
-            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("PASSWORD", "=", sPass);
+            selectQuery += Parameter.NEW_PARAM("PASSWORD", "=", sPass);
 
             DataTable dt = selectQuery.Execute("query", true);
             if (dt != null)
@@ -144,8 +145,8 @@ namespace TVPApi
         //Init delegates
         public static void InitServiceConfigs()
         {
-            Tvinci.Data.TVMDataLoader.Protocols.Protocol.GetRequestLanguageMethod = GetFlashVarsLangVal;
-            Tvinci.Data.TVMDataLoader.TVMProvider.GetTVMUrlMethod = delegate(bool b) { return System.Configuration.ConfigurationManager.AppSettings["TVM_API_URL"]; };
+            Protocol.GetRequestLanguageMethod = GetFlashVarsLangVal;
+            TVMProvider.GetTVMUrlMethod = delegate(bool b) { return System.Configuration.ConfigurationManager.AppSettings["TVM_API_URL"]; };
         }
 
         public static string GetFlashVarsLangVal()
@@ -202,7 +203,7 @@ namespace TVPApi
         {
             Dictionary<string, string> retval = null;
 
-            TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
+            DataSetSelectQuery selectQuery = new DataSetSelectQuery(GetTvinciConnectionString());
 
             selectQuery += "select * from lu_platform";
 
@@ -233,14 +234,14 @@ namespace TVPApi
             sApiUser = string.Empty;
             sApiPass = string.Empty;
 
-            TVPApi.ODBCWrapper.DataSetSelectQuery selectQuery = new TVPApi.ODBCWrapper.DataSetSelectQuery(GetTvinciConnectionString());
+            DataSetSelectQuery selectQuery = new DataSetSelectQuery(GetTvinciConnectionString());
 
             selectQuery += "select API_USERNAME, API_PASSWORD from crm_users where is_active=1 and status=1 and ";
-            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("CRM_USERNAME", "=", sCRMUser);
+            selectQuery += Parameter.NEW_PARAM("CRM_USERNAME", "=", sCRMUser);
             selectQuery += "and";
-            selectQuery += TVPApi.ODBCWrapper.Parameter.NEW_PARAM("CRM_PASSWORD", "=", sCRMPass);
+            selectQuery += Parameter.NEW_PARAM("CRM_PASSWORD", "=", sCRMPass);
 
-            System.Data.DataTable dt = selectQuery.Execute("query", true);
+            DataTable dt = selectQuery.Execute("query", true);
             if (dt != null)
             {
                 Int32 nCount = dt.DefaultView.Count;

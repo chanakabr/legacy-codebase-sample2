@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using WebAPI.Managers.Scheme;
 using WebAPI.Filters;
 using WebAPI.Reflection;
-using TVinciShared;
+using KalturaRequestContext;
 using WebAPI.Exceptions;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;

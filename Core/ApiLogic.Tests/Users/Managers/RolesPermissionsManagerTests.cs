@@ -7,6 +7,7 @@ using ApiObjects.Roles;
 using CachingProvider.LayeredCache;
 using Core.Users;
 using FluentAssertions;
+using KalturaRequestContext;
 using Moq;
 using NUnit.Framework;
 using TVinciShared;

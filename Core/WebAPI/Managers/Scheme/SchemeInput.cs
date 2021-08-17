@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Web;
-using TVinciShared;
+using KalturaRequestContext;
 using WebAPI.Exceptions;
 
 namespace WebAPI.Managers.Scheme
@@ -36,8 +36,8 @@ namespace WebAPI.Managers.Scheme
         internal void Validate(string name, object value)
         {
             RequestType requiresPermission = RequestType.READ;
-            if (HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE] != null)
-                requiresPermission = (RequestType)HttpContext.Current.Items[RequestContextUtils.REQUEST_TYPE];
+            if (HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] != null)
+                requiresPermission = (RequestType)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE];
 
             if (DynamicType != null)
             {

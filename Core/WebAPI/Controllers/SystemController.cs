@@ -1,17 +1,19 @@
-﻿using ApiObjects.Response;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Web;
+using ApiObjects.Response;
+using KalturaRequestContext;
+using KLogMonitor;
+using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.Users;
-using WebAPI.Utils;
-using KLogMonitor;
-using TVinciShared;
 using WebAPI.Models.General;
+using WebAPI.Models.Users;
+using WebAPI.ObjectsConvertor.Mapping;
+using WebAPI.Utils;
 
 namespace WebAPI.Controllers
 {
@@ -75,7 +77,7 @@ namespace WebAPI.Controllers
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         public static long GetTime()
         {
-            DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestContextUtils.REQUEST_TIME];
+            DateTime serverTime = (DateTime)HttpContext.Current.Items[RequestContextConstants.REQUEST_TIME];
             return DateUtils.DateTimeToUtcUnixTimestampSeconds(serverTime);
         }
 
@@ -115,7 +117,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var loggerLevel = WebAPI.ObjectsConvertor.Mapping.GeneralMappings.ConvertLogLevel(level);
+                var loggerLevel = GeneralMappings.ConvertLogLevel(level);
                 KLogger.SetLogLevel(loggerLevel);
                 return true;
             }

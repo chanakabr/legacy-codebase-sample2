@@ -51,10 +51,13 @@
     <ProjectReference Include="..\DalCB\DalCB.csproj" />
     <ProjectReference Include="..\DAL\DAL.csproj" />
     <ProjectReference Include="..\ElasticSearch\ElasticSearch.csproj" />
+    <ProjectReference Include="..\EpgBL\EpgBL.csproj" />
+    <ProjectReference Include="..\FeatureFlag\FeatureFlag.csproj" />
     <ProjectReference Include="..\FTPUploadQueue\UploadQueue.csproj" />
     <ProjectReference Include="..\GoogleAPI\GoogleAPI.csproj" />
     <ProjectReference Include="..\GroupsCacheManager\GroupsCacheManager.csproj" />
     <ProjectReference Include="..\ImageManager\ImageManager.csproj" />
+    <ProjectReference Include="..\KalturaRequestContext\KalturaRequestContext.csproj" />
     <ProjectReference Include="..\KlogMonitorHelper\KlogMonitorHelper.csproj" />
     <ProjectReference Include="..\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\M1BL\M1BL.csproj" />

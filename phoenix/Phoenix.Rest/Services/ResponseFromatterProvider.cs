@@ -1,10 +1,8 @@
-﻿using Phoenix.Context;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web;
-using TVinciShared;
+using KalturaRequestContext;
 using WebAPI;
 using WebAPI.App_Start;
 using WebAPI.Models.API;
@@ -44,7 +42,7 @@ namespace Phoenix.Rest.Services
             // in legacy phoenix, there is a not very lovely bypass that determines the use of this formatter, using a special item in http context.
             // we are obliged to imitate this behavior here as well, although we really don't want to.
             // we should think of a proper solution to this case
-            if (HttpContext.Current.Items[RequestContextUtils.REQUEST_SERVE_CONTENT_TYPE] != null)
+            if (HttpContext.Current.Items[RequestContextConstants.REQUEST_SERVE_CONTENT_TYPE] != null)
             {
                 return new CustomResponseFormatter();
             }
