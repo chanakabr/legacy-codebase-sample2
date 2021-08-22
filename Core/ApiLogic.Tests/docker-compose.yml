@@ -25,6 +25,8 @@ services:
       - -c
       - "bin/elasticsearch-plugin install analysis-icu; 
          /usr/local/bin/docker-entrypoint.sh elasticsearch"
+    volumes:
+      - data02:/usr/share/elasticsearch/data
     networks:
       - testbed
 
