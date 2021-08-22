@@ -6,7 +6,7 @@ services:
     volumes:
       - data02:/usr/share/elasticsearch/data
     ports:
-      - 9201:9200
+      - 9200
     command:
       - sh
       - -c
@@ -29,6 +29,8 @@ services:
       - data02:/usr/share/elasticsearch/data
     networks:
       - testbed
+    ports:
+      - 9200
 
 volumes:
   data01:
