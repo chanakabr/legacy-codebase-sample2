@@ -496,7 +496,7 @@ namespace ApiLogic.Tests.IndexManager
         }
         
         
-        [Test]
+        //[Test]
         public void TestChannelMeteDataCrud()
         {
             /*var randomPartnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
