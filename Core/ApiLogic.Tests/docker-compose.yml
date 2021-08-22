@@ -4,7 +4,7 @@ services:
   elastic02:
     image: elasticsearch:2.3.3
     volumes:
-      - data02:/usr/share/elasticsearch/data
+      - data01:/usr/share/elasticsearch/data
     ports:
       - 9200
     command:
