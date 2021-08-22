@@ -374,14 +374,18 @@ namespace ApiLogic.Tests.IndexManager
             indexManager.AddEPGsToIndex(indexName, false, epgs, new Dictionary<long, List<int>>(), null);
             bool publishResult = indexManager.PublishEpgIndex(indexName, false, true, true);
             Assert.IsTrue(publishResult);
-            
+
+            var searchPolicy = Policy.HandleResult<List<string>>(x => x == null || x.Count == 0).WaitAndRetry(
+                3,
+                retryAttempt => TimeSpan.FromSeconds(1));
+
             var esOrderObjs = new List<ESOrderObj>();
             esOrderObjs.Add(new ESOrderObj() { m_eOrderDir = OrderDir.ASC, m_sOrderValue = "start_date" });
             esOrderObjs.Add(new ESOrderObj() { m_eOrderDir = OrderDir.DESC, m_sOrderValue = "end_date" });
-            var channelPrograms = indexManager.GetChannelPrograms(randomChannel.m_nChannelID,
-                DateTime.Now.AddDays(-2),
-                DateTime.Now.AddDays(3),
-                esOrderObjs);
+            var channelPrograms = searchPolicy.Execute(() => indexManager.GetChannelPrograms(randomChannel.m_nChannelID,
+               DateTime.Now.AddDays(-2),
+               DateTime.Now.AddDays(3),
+               esOrderObjs));
             Assert.AreEqual($"{epgId}", channelPrograms.FirstOrDefault());
 
             bool deleteResult = indexManager.DeleteProgram(new List<long>() { Convert.ToInt64(epgId) }, null);
@@ -706,9 +710,9 @@ namespace ApiLogic.Tests.IndexManager
             var deleteResult = indexManager.DeleteChannelPercolator(new List<int>() { channel.m_nChannelID });
             Assert.IsTrue(deleteResult);
         }
-        
-        
-        //[Test]
+
+
+        [Test]
         public void TestChannelMeteDataCrud()
         {
             var randomPartnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
