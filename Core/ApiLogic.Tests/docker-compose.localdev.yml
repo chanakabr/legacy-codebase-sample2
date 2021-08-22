@@ -31,8 +31,6 @@ services:
       - data02:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
-#    networks:
-#      - elasticnet
 volumes:
   data01:
     driver: local
