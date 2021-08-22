@@ -1135,7 +1135,7 @@ namespace Core.Catalog
             int pageSize = 500;
             for (int from = 0; from < assetIds.Count; from += pageSize)
             {
-                var searchResult = _elasticClient.Search<object>(searchDescriptor => searchDescriptor
+                var searchResult = _elasticClient.Search<NestMedia>(searchDescriptor => searchDescriptor
                 .Index(index)
                 .Size(pageSize)
                 .From(from)
@@ -1149,7 +1149,7 @@ namespace Core.Catalog
                             )
                         )
                     )
-                );
+                ); ;
 
                 foreach (var item in searchResult.Fields)
                 {
