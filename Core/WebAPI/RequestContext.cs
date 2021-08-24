@@ -172,6 +172,8 @@ namespace WebAPI
         private static void SetImpersonateUserContext(IDictionary<string, object> requestParams, bool globalScope)
         {
             HttpContext.Current.Items.Remove(RequestContextConstants.REQUEST_USER_ID);
+            HttpContext.Current.Items.Remove(RequestContextConstants.REQUEST_IMPERSONATE);
+
             if ((requestParams.ContainsKey("user_id") && requestParams["user_id"] != null) || (requestParams.ContainsKey("userId") && requestParams["userId"] != null))
             {
                 object userIdObject = requestParams.ContainsKey("userId") ? requestParams["userId"] : requestParams["user_id"];
@@ -184,6 +186,8 @@ namespace WebAPI
                 {
                     userId = (string)Convert.ChangeType(userIdObject, typeof(string));
                 }
+
+                HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_IMPERSONATE, true); 
 
                 HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_USER_ID, userId);
                 if (globalScope && HttpContext.Current.Items[RequestContextConstants.REQUEST_GLOBAL_USER_ID] == null)

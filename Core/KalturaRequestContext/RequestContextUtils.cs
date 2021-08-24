@@ -75,5 +75,12 @@ namespace KalturaRequestContext
 
             return res;
         }
+
+        public bool IsImpersonateRequest()
+        {
+            GetRequestContextValue(RequestContextConstants.REQUEST_IMPERSONATE, out bool isImpersonateRequest);
+
+            return isImpersonateRequest;
+        }
     }
 }
