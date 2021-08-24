@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Web;
+using ApiObjects.User;
 using ConfigurationManager;
 using KalturaRequestContext;
 using KLogMonitor;
@@ -193,13 +194,21 @@ namespace WebAPI
                 HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_USER_ID, HttpContext.Current.Items[RequestContextConstants.REQUEST_GLOBAL_USER_ID]);
             }
             else
-            { // TODO not tested
+            {
                 var userId = KS.GetFromRequest()?.UserId;
-                if (userId.IsNullOrEmpty()) return;
+                if (userId.IsAnonymous())
+                {
+                    return;
+                }
+
                 if (HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_USER_ID))
+                {
                     HttpContext.Current.Items[RequestContextConstants.REQUEST_USER_ID] = userId;
+                }
                 else
+                {
                     HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_USER_ID, userId);
+                }
             }
         }
 
