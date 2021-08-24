@@ -35,7 +35,7 @@ namespace Core.GroupManagers
                                UsersDal.Instance,
                                BillingDAL.Instance,
                                ConditionalAccessDAL.Instance,
-                               IndexManagerFactory.Instance.GetIndexManager(0)),
+                               IndexManagerFactory.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static PartnerManager Instance => LazyInstance.Value;
@@ -52,7 +52,7 @@ namespace Core.GroupManagers
         private readonly IUserPartnerRepository _userPartnerRepository;
         private readonly IBillingPartnerRepository _billingPartnerRepository;
         private readonly ICAPartnerRepository _caPartnerRepository;
-        private readonly IIndexManager _indexManager;
+        private readonly IIndexManagerFactory _indexManagerFactory;
 
         public PartnerManager(IPartnerDal partnerDal,
                               IRabbitConnection rabbitConnection,
@@ -64,7 +64,7 @@ namespace Core.GroupManagers
                               IUserPartnerRepository userPartnerRepository,
                               IBillingPartnerRepository billingPartnerRepository,
                               ICAPartnerRepository caPartnerRepository,
-                              IIndexManager indexManager)
+                              IIndexManagerFactory indexManagerFactory)
         {
             _partnerDal = partnerDal;
             _rabbitConnection = rabbitConnection;
@@ -76,7 +76,7 @@ namespace Core.GroupManagers
             _userPartnerRepository = userPartnerRepository;
             _billingPartnerRepository = billingPartnerRepository;
             _caPartnerRepository = caPartnerRepository;
-            _indexManager = indexManager;
+            _indexManagerFactory = indexManagerFactory;
         }
 
         public GenericResponse<Partner> AddPartner(Partner partner, PartnerSetup partnerSetup, long updaterId)
@@ -266,14 +266,15 @@ namespace Core.GroupManagers
                 return Status.Error;
             }
 
+            var indexManager = _indexManagerFactory.GetIndexManager(groupId);
             var languages = catalogGroupCache.LanguageMapById.Values.ToList();
 
             Task<Status>[] taskArray = {
-                Task<Status>.Factory.StartNew(() => CreateMediaIndex(groupId, catalogGroupCache, languages)),
-                Task<Status>.Factory.StartNew(() => CreateEpgIndex(groupId, catalogGroupCache, languages)),
-                Task<Status>.Factory.StartNew(() => CreateRecordingIndex(groupId, catalogGroupCache, languages)),
-                Task<Status>.Factory.StartNew(() => CreateTagsIndex(groupId)),
-                Task<Status>.Factory.StartNew(() => CreateChannelsIndex(groupId)),
+                Task<Status>.Factory.StartNew(() => CreateMediaIndex(indexManager, catalogGroupCache, languages)),
+                Task<Status>.Factory.StartNew(() => CreateEpgIndex(indexManager, catalogGroupCache, languages)),
+                Task<Status>.Factory.StartNew(() => CreateRecordingIndex(indexManager, catalogGroupCache, languages)),
+                Task<Status>.Factory.StartNew(() => CreateTagsIndex(indexManager)),
+                Task<Status>.Factory.StartNew(() => CreateChannelsIndex(indexManager)),
             };
 
             Task.WaitAll(taskArray);
@@ -281,126 +282,126 @@ namespace Core.GroupManagers
             return errorTasks.Count == 0 ? Status.Ok : Status.ErrorMessage(string.Join("; ", errorTasks.Select(_ => _.Result.Message)));
         }
 
-        private Status CreateMediaIndex(int groupId, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages)
+        private Status CreateMediaIndex(IIndexManager indexManager, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages)
         {
             try
             {
-                var mediaIndex = _indexManager.SetupMediaIndex(languages, catalogGroupCache.DefaultLanguage);
+                var mediaIndex = indexManager.SetupMediaIndex(languages, catalogGroupCache.DefaultLanguage);
 
                 if (string.IsNullOrEmpty(mediaIndex))
                 {
-                    return new Status(eResponseStatus.Error, $"error creating media index for partner {groupId}");
+                    return new Status(eResponseStatus.Error, "error creating media index");
                 }
-                _indexManager.PublishMediaIndex(mediaIndex, true, true);
+                indexManager.PublishMediaIndex(mediaIndex, true, true);
                 return Status.Ok;
             }
             catch (Exception ex)
             {
-                Log.Error($"error creating media index for partner {groupId}", ex);
-                return new Status(eResponseStatus.Error, $"error creating media index for partner {groupId}");
+                Log.Error("error creating media index", ex);
+                return new Status(eResponseStatus.Error, "error creating media index");
             }
         }
 
-        private Status CreateEpgIndex(int groupId, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages)
+        private Status CreateEpgIndex(IIndexManager indexManager, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages)
         {
             try
             {
-                var epgIndex = _indexManager.SetupEpgIndex(languages, catalogGroupCache.DefaultLanguage, isRecording: false);
+                var epgIndex = indexManager.SetupEpgIndex(languages, catalogGroupCache.DefaultLanguage, isRecording: false);
                 if (string.IsNullOrEmpty(epgIndex))
                 {
-                    Log.Warn($"create epg index returned with an empty index name for partner {groupId}");
-                    return new Status(eResponseStatus.Error, $"error creating epg index for partner {groupId}");
+                    Log.Warn("create epg index returned with an empty index name");
+                    return new Status(eResponseStatus.Error, "error creating epg index");
                 }
 
-                bool publishResult = _indexManager.FinishUpEpgIndex(epgIndex, isRecording: false, true, true);
+                bool publishResult = indexManager.FinishUpEpgIndex(epgIndex, isRecording: false, true, true);
                 if (!publishResult)
                 {
-                    Log.Warn($"create epg index - failed publishing epg index for partner {groupId}");
-                    return new Status(eResponseStatus.Error, $"error creating epg index for partner {groupId}");
+                    Log.Warn("create epg index - failed publishing epg index");
+                    return new Status(eResponseStatus.Error, "error creating epg index");
                 }
 
                 return Status.Ok;
             }
             catch (Exception ex)
             {
-                Log.Error($"error creating epg index for partner {groupId}", ex);
-                return new Status(eResponseStatus.Error, $"error creating epg index for partner {groupId}");
+                Log.Error("error creating epg index", ex);
+                return new Status(eResponseStatus.Error, "error creating epg index");
             }
         }
 
-        private Status CreateRecordingIndex(int groupId, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages)
+        private Status CreateRecordingIndex(IIndexManager indexManager, CatalogGroupCache catalogGroupCache, List<LanguageObj> languages)
         {
             try
             {
-                var indexName = _indexManager.SetupEpgIndex(languages, catalogGroupCache.DefaultLanguage, isRecording: true);
+                var indexName = indexManager.SetupEpgIndex(languages, catalogGroupCache.DefaultLanguage, isRecording: true);
                 if (string.IsNullOrEmpty(indexName))
                 {
-                    Log.Warn($"create recording index returned with an empty index name for partner {groupId}");
-                    return new Status(eResponseStatus.Error, $"error creating recording index for partner {groupId}");
+                    Log.Warn("create recording index returned with an empty index name");
+                    return new Status(eResponseStatus.Error, "error creating recording index");
                 }
 
-                bool publishResult = _indexManager.FinishUpEpgIndex(indexName, isRecording: true, true, true);
+                bool publishResult = indexManager.FinishUpEpgIndex(indexName, isRecording: true, true, true);
                 if (!publishResult)
                 {
-                    Log.Warn($"create recording index - failed publishing recording index for partner {groupId}");
-                    return new Status(eResponseStatus.Error, $"error creating recording index for partner {groupId}");
+                    Log.Warn("create recording index - failed publishing recording index");
+                    return new Status(eResponseStatus.Error, "error creating recording index");
                 }
 
                 return Status.Ok;
             }
             catch (Exception ex)
             {
-                Log.Error($"error creating recording index for partner {groupId}", ex);
-                return new Status(eResponseStatus.Error, $"error creating recording index for partner {groupId}");
+                Log.Error("error creating recording index", ex);
+                return new Status(eResponseStatus.Error, "error creating recording index");
             }
         }
 
-        private Status CreateTagsIndex(int groupId)
+        private Status CreateTagsIndex(IIndexManager indexManager)
         {
             try
             {
-                var indexName = _indexManager.SetupTagsIndex();
+                var indexName = indexManager.SetupTagsIndex();
                 if (string.IsNullOrEmpty(indexName))
                 {
-                    Log.Warn($"create tags index returned with an empty index name for partner {groupId}");
-                    return new Status(eResponseStatus.Error, $"error creating tags index for partner {groupId}");
+                    Log.Warn("create tags index returned with an empty index name");
+                    return new Status(eResponseStatus.Error, "error creating tags index");
                 }
 
-                bool publishResult = _indexManager.PublishTagsIndex(indexName, true, true);
+                bool publishResult = indexManager.PublishTagsIndex(indexName, true, true);
                 if (!publishResult)
                 {
-                    Log.Warn($"create tags index - failed publishing tags index for partner {groupId}");
-                    return new Status(eResponseStatus.Error, $"error creating tags index for partner {groupId}");
+                    Log.Warn("create tags index - failed publishing tags index");
+                    return new Status(eResponseStatus.Error, "error creating tags index");
                 }
 
                 return Status.Ok;
             }
             catch (Exception ex)
             {
-                Log.Error($"error creating tags index for partner {groupId}", ex);
-                return new Status(eResponseStatus.Error, $"error creating tags index for partner {groupId}");
+                Log.Error("error creating tags index", ex);
+                return new Status(eResponseStatus.Error, "error creating tags index");
             }
         }
 
-        private Status CreateChannelsIndex(int groupId)
+        private Status CreateChannelsIndex(IIndexManager indexManager)
         {
             try
             {
-                var indexName = _indexManager.SetupChannelMetadataIndex();
+                var indexName = indexManager.SetupChannelMetadataIndex();
                 if (string.IsNullOrEmpty(indexName))
                 {
-                    Log.Warn($"create channel index returned with an empty index name for partner {groupId}");
-                    return new Status(eResponseStatus.Error, $"error creating channel index for partner {groupId}");
+                    Log.Warn("create channel index returned with an empty index name");
+                    return new Status(eResponseStatus.Error, "error creating channel index");
                 }
 
-                _indexManager.PublishChannelsMetadataIndex(indexName, true, true);
+                indexManager.PublishChannelsMetadataIndex(indexName, true, true);
 
                 return Status.Ok;
             }
             catch (Exception ex)
             {
-                Log.Error($"error creating channel index for partner {groupId}", ex);
-                return new Status(eResponseStatus.Error, $"error creating channel index for partner {groupId}");
+                Log.Error("error creating channel index", ex);
+                return new Status(eResponseStatus.Error, "error creating channel index");
             }
         }
     }

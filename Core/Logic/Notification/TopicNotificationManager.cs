@@ -76,7 +76,7 @@ namespace Core.Notification
                     }
 
                     subscriptionId = ((SubscriptionSubscribeReference)topicNotification.SubscribeReference).SubscriptionId;
-                    Subscription subscription = Pricing.Module.GetSubscriptionData(topicNotification.GroupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                    Subscription subscription = Pricing.Module.Instance.GetSubscriptionData(topicNotification.GroupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
                     if (subscription == null)
                     {
                         log.DebugFormat("failed to create TopicNotification groupID = {0}, TopicNotification Name = {1}. SubscriptionDoesNotExist: {2}", topicNotification.GroupId, topicName, subscriptionId);
@@ -680,7 +680,7 @@ namespace Core.Notification
         {
             Status response = null;
 
-            var subscription = Pricing.Module.GetSubscriptionData(groupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
+            var subscription = Pricing.Module.Instance.GetSubscriptionData(groupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
             if (subscription == null)
             {
                 log.ErrorFormat("failed to HandleSubsciptionUpdate groupId = {0}, subsciptionId= {1}. SubscriptionDoesNotExist", groupId, subscriptionId);

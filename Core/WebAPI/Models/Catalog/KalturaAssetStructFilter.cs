@@ -6,6 +6,7 @@ using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.Models.Partner;
 
 namespace WebAPI.Models.Catalog
 {
@@ -52,6 +53,14 @@ namespace WebAPI.Models.Catalog
         [JsonProperty("isProtectedEqual")]
         [XmlElement(ElementName = "isProtectedEqual", IsNullable = true)]        
         public bool? IsProtectedEqual { get; set; }
+
+        /// <summary>
+        /// Filter Asset Structs by object virtual asset info type value
+        /// </summary>
+        [DataMember(Name = "objectVirtualAssetInfoTypeEqual")]
+        [JsonProperty("objectVirtualAssetInfoTypeEqual")]
+        [XmlElement(ElementName = "objectVirtualAssetInfoTypeEqual", IsNullable = true)]
+        public KalturaObjectVirtualAssetInfoType? ObjectVirtualAssetInfoTypeEqual { get; set; }
 
         public override KalturaAssetStructOrderBy GetDefaultOrderByValue()
         {

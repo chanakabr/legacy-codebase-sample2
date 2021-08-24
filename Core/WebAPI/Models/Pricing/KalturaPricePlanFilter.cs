@@ -22,33 +22,13 @@ namespace WebAPI.Models.Pricing
                 
         internal List<long> GetIdIn()
         {
-            List<long> list = null;
-            if (!string.IsNullOrEmpty(IdIn))
-            {
-                list = new List<long>();
-                string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                long longValue;
-                foreach (string stringValue in stringValues)
-                {
-                    if (long.TryParse(stringValue, out longValue))
-                    {
-                        list.Add(longValue);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaPricePlanFilter.idIn");
-                    }
-                }
-            }
-
-            return list;
+            return this.GetItemsIn<List<long>, long>(IdIn, "KalturaPricePlanFilter.IdIn");
         }
         public override KalturaPricePlanOrderBy GetDefaultOrderByValue()
         {
             return KalturaPricePlanOrderBy.CREATE_DATE_DESC;
         }
     }
-
 
     public enum KalturaPricePlanOrderBy
     {

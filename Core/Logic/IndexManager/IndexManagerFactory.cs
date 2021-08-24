@@ -13,6 +13,7 @@ using EventBus.Kafka;
 using ElasticSearch.Common;
 using Core.Catalog.CatalogManagement;
 using ApiLogic.Catalog;
+using ApiLogic.IndexManager.Mappings;
 
 namespace Core.Catalog
 {
@@ -59,7 +60,8 @@ namespace Core.Catalog
                 LayeredCache.Instance,
                 ChannelManager.Instance,
                 CatalogCache.Instance(),
-                WatchRuleManager.Instance);
+                WatchRuleManager.Instance,
+                MappingTypeResolver.Instance);
 
             if (isMigrationEventsEnabled)
             {

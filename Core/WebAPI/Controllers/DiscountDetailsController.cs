@@ -57,12 +57,13 @@ namespace WebAPI.Controllers
         /// <param name="discountDetails">Discount details Object</param>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.InvalidCurrency)]
+        [Throws(eResponseStatus.CountryNotFound)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         static public KalturaDiscountDetails Add(KalturaDiscountDetails discountDetails)
         {
             KalturaDiscountDetails result = null;
-
             discountDetails.ValidateForAdd();
-
             var contextData = KS.GetContextData();
 
             try
@@ -89,6 +90,7 @@ namespace WebAPI.Controllers
         [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.DiscountCodeNotExist)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         static public bool Delete(long id)
         {
             bool result = false;
@@ -98,8 +100,43 @@ namespace WebAPI.Controllers
             try
             {
                 Func<Status> delete = () => DiscountDetailsManager.Instance.Delete(contextData, id);
-
                 result = ClientUtils.GetResponseStatusFromWS(delete);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Update discount details
+        /// </summary>
+        /// <remarks>
+        /// </remarks>
+        /// <param name="id">DiscountDetails id</param>
+        /// <param name="discountDetails">Discount details Object</param>
+        [Action("update")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.DiscountCodeNotExist)]
+        [Throws(eResponseStatus.InvalidCurrency)]
+        [Throws(eResponseStatus.CountryNotFound)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
+        static public KalturaDiscountDetails Update(long id, KalturaDiscountDetails discountDetails)
+        {
+            KalturaDiscountDetails result = null;
+
+            discountDetails.ValidateForUpdate();
+
+            var contextData = KS.GetContextData();
+
+            try
+            {
+                Func<DiscountDetails, GenericResponse<DiscountDetails>> insertDiscountDetailsFunc = (DiscountDetails discountDetailsToInsert) =>
+                      DiscountDetailsManager.Instance.Update(contextData, id, discountDetailsToInsert);
+
+                result = ClientUtils.GetResponseFromWS<KalturaDiscountDetails, DiscountDetails>(discountDetails, insertDiscountDetailsFunc);
             }
             catch (ClientException ex)
             {

@@ -20,7 +20,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("isRenewable")]
         [XmlElement(ElementName = "isRenewable")]
         [OldStandardProperty("is_renewable")]
-        [SchemeProperty(InsertOnly = true)]
+        [SchemeProperty(WriteOnly = true, IsNullable = true)]
 
         public bool? IsRenewable { get; set; }
 
@@ -31,7 +31,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("renewalsNumber")]
         [XmlElement(ElementName = "renewalsNumber")]
         [OldStandardProperty("renewals_number")]
-        [SchemeProperty(InsertOnly = true, MinInteger = 0)]
+        [SchemeProperty(WriteOnly = true, MinInteger = 0, IsNullable = true)]
         public int? RenewalsNumber { get; set; }
 
         /// <summary>
@@ -52,7 +52,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("discountId")]
         [XmlElement(ElementName = "discountId")]
         [OldStandardProperty("discount_id")]
-        [SchemeProperty(InsertOnly = true, MinLong = 0)]
+        [SchemeProperty(WriteOnly = true, MinLong = 1, IsNullable = true)]
         public long? DiscountId { get; set; }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "priceDetailsId")]
         [JsonProperty("priceDetailsId")]
         [XmlElement(ElementName = "priceDetailsId")]
-        [SchemeProperty(MinInteger = 1)]
+        [SchemeProperty(MinLong = 1, IsNullable = true)]
         public long? PriceDetailsId { get; set; }
 
         internal void ValidateForAdd()
@@ -70,8 +70,8 @@ namespace WebAPI.Models.Pricing
 
             if (!PriceDetailsId.HasValue)
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "priceDetailsId");
-
-
+            if (!RenewalsNumber.HasValue)
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "renewalsNumber");
         }
     }
 

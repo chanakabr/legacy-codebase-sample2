@@ -203,7 +203,7 @@ namespace APILogic.ConditionalAccess
 
         public bool IsMediaIncludedInSubscription(int groupId, long mediaId, HashSet<long> subscriptionIds)
         {
-            var subscriptionsChannels = Core.Pricing.Module.GetSubscriptions(groupId, subscriptionIds, string.Empty, string.Empty, string.Empty, null);
+            var subscriptionsChannels = Core.Pricing.Module.Instance.GetSubscriptions(groupId, subscriptionIds, string.Empty, string.Empty, string.Empty, null);
             if (subscriptionsChannels == null || subscriptionsChannels.Subscriptions == null) { return false; }
 
             HashSet<int> channelsIds = new HashSet<int>();

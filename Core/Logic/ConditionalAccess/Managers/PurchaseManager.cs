@@ -314,9 +314,10 @@ namespace Core.ConditionalAccess
 
             // purchase new subscription
 
-            if (couponData != null && couponData.m_CouponStatus == CouponsStatus.Valid && couponData.m_oCouponGroup != null && couponData.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard &&
-                ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode == couponData.m_oCouponGroup.m_sGroupCode) ||
-                 (subscription.CouponsGroups != null && subscription.CouponsGroups.Count() > 0 && subscription.CouponsGroups.Where(x => x.m_sGroupCode == couponData.m_oCouponGroup.m_sGroupCode).Count() > 0)))
+            if (couponData != null && couponData.m_CouponStatus == CouponsStatus.Valid && couponData.m_oCouponGroup != null 
+                && couponData.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard && 
+                ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode == couponData.m_oCouponGroup.m_sGroupCode) 
+                || (subscription.GetValidSubscriptionCouponGroup(couponData.m_oCouponGroup.m_sGroupCode)?.Count > 0)))
             {
                 isGiftCard = true;
                 priceResponse = new Price()
@@ -1211,8 +1212,7 @@ namespace Core.ConditionalAccess
                 if (coupon != null && coupon.m_CouponStatus == CouponsStatus.Valid && coupon.m_oCouponGroup != null &&
                     coupon.m_oCouponGroup.couponGroupType == CouponGroupType.GiftCard &&
                     ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode) ||
-                     (subscription.CouponsGroups != null && subscription.CouponsGroups.Count > 0 &&
-                     subscription.CouponsGroups.Count(x => x.m_sGroupCode == coupon.m_oCouponGroup.m_sGroupCode) > 0)))
+                     (subscription.GetValidSubscriptionCouponGroup(coupon.m_oCouponGroup.m_sGroupCode)?.Count > 0)))
                 {
                     isGiftCard = true;
                     finalPrice = new Price()

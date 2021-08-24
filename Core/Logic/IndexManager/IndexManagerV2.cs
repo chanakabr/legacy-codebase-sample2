@@ -41,6 +41,7 @@ using ApiObjects.BulkUpload;
 using Polly;
 using ESUtils = ElasticSearch.Common.Utils;
 using ApiLogic.Catalog;
+using ApiLogic.IndexManager.Mappings;
 
 namespace Core.Catalog
 {
@@ -103,6 +104,7 @@ namespace Core.Catalog
         private readonly IChannelManager _channelManager;
         private readonly ICatalogCache _catalogCache;
         private readonly IWatchRuleManager _watchRuleManager;
+        private readonly IMappingTypeResolver _mappingTypeResolver;
         private readonly int _partnerId;
  
 
@@ -115,7 +117,8 @@ namespace Core.Catalog
             ILayeredCache layeredCache,
             IChannelManager channelManager,
             ICatalogCache catalogCache,
-            IWatchRuleManager watchRuleManager)
+            IWatchRuleManager watchRuleManager,
+            IMappingTypeResolver mappingTypeResolver)
         {
             _elasticSearchApi = elasticSearchClient;
             _groupManager = groupManager;
@@ -127,6 +130,7 @@ namespace Core.Catalog
             _catalogCache = catalogCache;
             _partnerId = partnerId;
             _watchRuleManager = watchRuleManager;
+            _mappingTypeResolver = mappingTypeResolver;
         }
         
         #region OPC helpers
@@ -1008,8 +1012,8 @@ namespace Core.Catalog
                     var hitFields = hit["fields"];
                     var epgItem = new EpgProgramBulkUploadObject();
                     epgItem.EpgExternalId = ESUtils.ExtractValueFromToken<string>(hitFields, "epg_identifier");
-                    epgItem.StartDate = ESUtils.ExtractDateFromToken(hit["fields"], "start_date");
-                    epgItem.EndDate = ESUtils.ExtractDateFromToken(hit["fields"], "end_date");
+                    epgItem.StartDate = ESUtils.ExtractDateFromToken(hitFields, "start_date");
+                    epgItem.EndDate = ESUtils.ExtractDateFromToken(hitFields, "end_date");
                     epgItem.EpgId = ESUtils.ExtractValueFromToken<ulong>(hitFields, "epg_id");
                     epgItem.IsAutoFill = ESUtils.ExtractValueFromToken<bool>(hitFields, "is_auto_fill");
                     epgItem.ChannelId = channelId;
@@ -1017,6 +1021,72 @@ namespace Core.Catalog
                     epgItem.ParentGroupId = ESUtils.ExtractValueFromToken<int>(hitFields, "group_id"); ;
                     epgItem.GroupId = _partnerId;
 
+                    result.Add(epgItem);
+                }
+            }
+
+            return result;
+        }
+
+        public IList<EpgProgramInfo> GetCurrentProgramInfosByDate(int channelId, DateTime fromDate, DateTime toDate)
+        {
+            log.Debug($"GetCurrentProgramsByDate > fromDate:[{fromDate}], toDate:[{toDate}]");
+            var result = new List<EpgProgramInfo>();
+            var index = IndexingUtils.GetEpgIndexAlias(_partnerId);
+
+            // if index does not exist - then we have a fresh start, we have 0 programs currently
+            if (!_elasticSearchApi.IndexExists(index))
+            {
+                log.Debug($"GetCurrentProgramsByDate > index alias:[{index}] does not exits, assuming no current programs");
+                return result;
+            }
+
+            log.Debug($"GetCurrentProgramsByDate > index alias:[{index}] found, searching current programs, minStartDate:[{fromDate}], maxEndDate:[{toDate}]");
+            var query = new FilteredQuery();
+
+            // Program end date > minimum start date
+            // program start date < maximum end date
+            var minimumRange = new ESRange(false, "end_date", eRangeComp.GTE, fromDate.ToString(ESUtils.ES_DATE_FORMAT));
+            var maximumRange = new ESRange(false, "start_date", eRangeComp.LTE, toDate.ToString(ESUtils.ES_DATE_FORMAT));
+            var channelFilter = ESTerms.GetSimpleNumericTerm("epg_channel_id", new[] { channelId });
+            
+            var filterCompositeType = new FilterCompositeType(CutWith.AND);
+            filterCompositeType.AddChild(minimumRange);
+            filterCompositeType.AddChild(maximumRange);
+            filterCompositeType.AddChild(channelFilter);
+            
+            query.Filter = new QueryFilter()
+            {
+                FilterSettings = filterCompositeType
+            };
+
+            query.ReturnFields.Clear();
+            query.AddReturnField("_index");
+            query.AddReturnField("epg_identifier");
+            query.AddReturnField("document_id");
+            query.AddReturnField("is_auto_fill");
+
+            // get the epg document ids from elasticsearch
+            var searchQuery = query.ToString();
+            var searchResult = _elasticSearchApi.Search(index, string.Empty, ref searchQuery);
+
+            // get the programs - epg ids from elasticsearch, information from EPG DAL
+            if (!string.IsNullOrEmpty(searchResult))
+            {
+                var json = JObject.Parse(searchResult);
+
+                var hits = (json["hits"]["hits"] as JArray);
+
+                foreach (var hit in hits)
+                {
+                    var epgItem = new EpgProgramInfo();
+                    var hitFields = hit["fields"];
+                    epgItem.Type = hit["_type"].ToString();
+                    epgItem.EpgExternalId = ESUtils.ExtractValueFromToken<string>(hitFields, "epg_identifier");
+                    epgItem.DocumentId = ESUtils.ExtractValueFromToken<string>(hitFields, "document_id");
+                    epgItem.IsAutofill = ESUtils.ExtractValueFromToken<bool>(hitFields, "is_auto_fill");
+                    epgItem.GroupId = _partnerId;
+                    
                     result.Add(epgItem);
                 }
             }
@@ -7450,10 +7520,7 @@ namespace Core.Catalog
 
         private string GetIndexType(bool isRecording, ApiObjects.LanguageObj language = null)
         {
-            string indexTypePrefix = isRecording ? RECORDING_INDEX_TYPE : EPG_INDEX_TYPE;
-
-            if (language == null || language.IsDefault) { return indexTypePrefix; }
-            else { return $"{indexTypePrefix}_{language.Code}"; }
+            return _mappingTypeResolver.GetMappingType(isRecording, language);
         }
 
         /// <summary>

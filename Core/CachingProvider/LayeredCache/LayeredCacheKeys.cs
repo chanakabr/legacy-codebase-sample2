@@ -10,6 +10,7 @@ namespace CachingProvider.LayeredCache
         public const string GET_CURRENCIES_KEY = "currencies";
         public const string PERMISSION_MANAGER_INVALIDATION_KEY = "invalidationKey_permissionsManager";
         public const string GET_RATIOS_KEY = "Ratios";
+        public const string GET_PREMIUM_SERVICES_KEY = "PremiumServices";
 
         #endregion
 
@@ -25,6 +26,10 @@ namespace CachingProvider.LayeredCache
             return string.Format("mediaUserType_mediaId_{0}_userTypeId_{1}", mediaID, userTypeID);
         }
 
+        public static string GetGroupPricePlansKey(int groupId)
+        {
+            return $"PricePlan_{groupId}";
+        }
         public static string GetFileAndMediaBasicDetailsKey(int fileID, int groupId)
         {
             return string.Format("validateFile_fileId_{0}_groupId_{1}", fileID, groupId);
@@ -815,6 +820,21 @@ namespace CachingProvider.LayeredCache
             return $"domain_subcription_purchase_v1_{domainId}_{subscriptionId}";
         }
 
+        public static string GetSubscriptionKey(int groupId, long subId)
+        {
+            return string.Format("Subscription_groupId_{0}_Id_{1}", groupId, subId);
+        }
+
+        public static string GetGroupSubscriptionItemsKey(int groupId)
+        {
+            return string.Format("group_subscription_itms_groupId_{0}", groupId);
+        }       
+
+        public static string GetGroupPreviewModulesKey(int groupId)
+        {
+            return $"group_previewModules_{groupId}";
+        }
+
         public static string GetLabelsKey(long groupId)
         {
             return $"Labels_{groupId}";
@@ -1139,6 +1159,10 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupDiscountsInvalidationKey(int groupId)
         {
             return string.Format("invalidationKeyDiscounts_groupId_{0}", groupId);
+        }
+        public static string GetGroupPricePlanInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKeyPricePlan_groupId_{0}", groupId);
         }
         public static string GetCollectionsIdsInvalidationKey(int groupId)
         {
@@ -1512,9 +1536,34 @@ namespace CachingProvider.LayeredCache
             return string.Format($"{partnerId}_InvalidateElasticsearchCanaryDeploymentConfiguration");
         }
 
+        public static string GetSubscriptionInvalidationKey(int groupId, long subId)
+        {
+            return string.Format("invalidationKey_Subscription_groupId_{0}_Id_{1}", groupId, subId);
+        }      
+
+        public static string GetGroupSubscriptionItemsInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_group_subscription_itms_groupId_{0}", groupId);
+        }
+
         public static string GetLabelsInvalidationKey(long groupId)
         {
             return $"invalidationKey_Labels_{groupId}";
+        }
+
+        public static string GetGroupPreviewModulesInvalidationKey(int groupId)
+        {
+            return $"invalidationKeyGroupPreviewModules_groupId_{groupId}";
+        }
+
+        public static string GetGroupServicesKey(int groupId)
+        {
+            return string.Format("premium_services_groupId_{0}", groupId);
+        }
+
+        public static string GetGroupPremiumServicesInvalidationKey(int groupId)
+        {
+            return string.Format("invalidationKey_GroupPremiumServices_groupId_{0}", groupId);
         }
 
         #endregion

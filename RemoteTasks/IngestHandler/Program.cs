@@ -2,6 +2,9 @@
 using ApiObjects;
 using Core.Metrics;
 using EventBus.RabbitMQ;
+using IngestHandler.Common.Infrastructure;
+using IngestHandler.Domain.IngestProtection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TvinciCache;
 using WebAPI.Filters;
@@ -17,6 +20,11 @@ namespace EPGTransformationHandler
             var builder = new HostBuilder()
                 .ConfigureMappings()
                 .ConfigureEventNotificationsConfig()
+                .ConfigureServices(services =>
+                {
+                    services.AddSingleton<IIngestProtectProcessor, IngestProtectProcessor>();
+                    services.AddSingleton<ICatalogManagerAdapter, CatalogManagerAdapter>();
+                })
                 .ConfigureEventBustConsumer(c =>
                 {
                     c.DedicatedPartnerIdsResolver = () => GroupsFeatures.GetGroupsThatImplementFeature(GroupFeature.EPG_INGEST_V2);

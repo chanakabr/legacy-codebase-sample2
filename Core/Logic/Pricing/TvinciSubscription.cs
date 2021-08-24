@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Configuration;
-using System.Data;
-using DAL;
-using ApiObjects;
-using KLogMonitor;
-using System.Reflection;
+﻿using ApiObjects;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
+using Core.Catalog.CatalogManagement;
+using DAL;
+using KLogMonitor;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace Core.Pricing
 {
@@ -619,6 +619,10 @@ namespace Core.Pricing
             int gracePeriodMinutes = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow["GRACE_PERIOD_MINUTES"]);
             string adsParam = ODBCWrapper.Utils.GetSafeStr(subscriptionRow["ADS_PARAM"]);
             
+            bool isActive = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow["IS_ACTIVE"]) == 1;
+            DateTime createData = ODBCWrapper.Utils.GetDateSafeVal(subscriptionRow, "CREATE_DATE");
+            DateTime updateData = ODBCWrapper.Utils.GetDateSafeVal(subscriptionRow, "UPDATE_DATE");
+
             SubscriptionType type = SubscriptionType.NotApplicable;
             int subscriptionType = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow, "Type");
             if (Enum.IsDefined(typeof(SubscriptionType), subscriptionType))
@@ -688,6 +692,14 @@ namespace Core.Pricing
                                            subscriptionChannels, dStart, dEnd, nFileTypes, bIsRecurring, nNumOfPeriods, subscriptionName, sSubPriceCode, sSubscriptionUsageModuleCode, sName,
                                            sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, priority, sProductCode, sExtDiscount, userTypes, services, lPreviewModuleID, nSubscriptionGeoCommerceID, nDlmID,
                                            gracePeriodMinutes, adsPolicy, adsParam, couponsGroup, subscriptionSetIdsToPriority, externalProductCodes, type, blockCancellation, preSaleDate);
+
+                retSubscription.IsActive = isActive;
+                retSubscription.CreateDate = createData;
+                retSubscription.UpdateDate = updateData;
+                if (CatalogManager.Instance.DoesGroupUsesTemplates(m_nGroupID))
+                {
+                    retSubscription.m_fictivicMediaID = ODBCWrapper.Utils.GetIntSafeVal(subscriptionRow, "VIRTUAL_ASSET_ID");
+                }
             }
 
             return retSubscription;
@@ -772,6 +784,7 @@ namespace Core.Pricing
                     if (lSubCodes.Count > 0)
                     {
                         DataSet ds = PricingDAL.Get_SubscriptionsData(m_nGroupID, lSubCodes);
+
                         if (IsSubsDataSetValid(ds))
                         {
                             Dictionary<long, List<int>> subsFileTypesMapping = ExtractSubscriptionsFileTypes(ds);

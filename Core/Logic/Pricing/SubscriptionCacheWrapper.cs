@@ -36,7 +36,7 @@ namespace Core.Pricing
 
         private List<string> GetSubscriptionsCacheKey(List<string> subscriptionCodes, bool isGetAlsoUnactive, bool isProductCode)
         {
-            List<string> cachedKeys = null;            
+            List<string> cachedKeys = null;
             if (subscriptionCodes != null && subscriptionCodes.Count > 0)
             {
                 cachedKeys = new List<string>();
@@ -71,7 +71,7 @@ namespace Core.Pricing
             return cachedKeyMappings;
         }
 
-        public override Subscription GetSubscriptionData(string sSubscriptionCode, string sCountryCd, string sLANGUAGE_CODE, 
+        public override Subscription GetSubscriptionData(string sSubscriptionCode, string sCountryCd, string sLANGUAGE_CODE,
             string sDEVICE_NAME, bool bGetAlsoUnActive)
         {
             Subscription res = null;
@@ -95,7 +95,7 @@ namespace Core.Pricing
             return res;
         }
 
-        public override Subscription GetSubscriptionDataByProductCode(string sProductCode, string sCountryCd, string sLANGUAGE_CODE, 
+        public override Subscription GetSubscriptionDataByProductCode(string sProductCode, string sCountryCd, string sLANGUAGE_CODE,
             string sDEVICE_NAME, bool bGetAlsoUnActive)
         {
             string cacheKey = GetSubDataCacheKey(sProductCode, bGetAlsoUnActive, true);
@@ -124,7 +124,7 @@ namespace Core.Pricing
 
             if (productCodes != null && productCodes.Count > 0)
             {
-                Dictionary<string, Subscription> subscriptionsMapping = new Dictionary<string,Subscription>();
+                Dictionary<string, Subscription> subscriptionsMapping = new Dictionary<string, Subscription>();
                 List<string> unfoundSubscriptions = DAL.PricingDAL.Instance.Get_SubscriptionsFromProductCodes(productCodes.Distinct().ToList(), originalBaseSubscription.GroupID).Keys.ToList();
                 if (unfoundSubscriptions != null && unfoundSubscriptions.Count > 0)
                 {
@@ -240,7 +240,7 @@ namespace Core.Pricing
                         }
                     }
                 }
-                
+
                 var ret = set.Select((item) => item.GetSubscription);
                 if (orderBy == SubscriptionOrderBy.StartDateAsc)
                 {
@@ -250,11 +250,46 @@ namespace Core.Pricing
                 {
                     ret = ret.OrderByDescending(item => item.m_dStartDate);
                 }
+                else if (orderBy == SubscriptionOrderBy.CreateDateAsc)
+                {
+                    ret = ret.OrderBy(item => item.CreateDate);
+                }
+                else if (orderBy == SubscriptionOrderBy.CreateDateDesc)
+                {
+                    ret = ret.OrderByDescending(item => item.CreateDate);
+                }
+                else if (orderBy == SubscriptionOrderBy.UpdateDateAsc)
+                {
+                    ret = ret.OrderBy(item => item.UpdateDate);
+                }
+                else if (orderBy == SubscriptionOrderBy.UpdateDateDesc)
+                {
+                    ret = ret.OrderByDescending(item => item.UpdateDate);
+                }
+                else if (orderBy == SubscriptionOrderBy.NameAsc)
+                {
+                    ret = ret.OrderBy(item => item.m_sName?.Length > 0 ? item.m_sName[0].m_sValue : item.m_sObjectVirtualName);
+                }
+                else if (orderBy == SubscriptionOrderBy.NameDesc)
+                {
+                    ret = ret.OrderByDescending(item => item.m_sName?.Length > 0 ? item.m_sName[0].m_sValue : item.m_sObjectVirtualName);
+                }
 
                 return ret.ToArray<Subscription>();
             }
 
             return null;
+        }
+
+        public void ClearSubscription(string subscriptionCode)
+        {
+            var key = GetSubDataCacheKey(subscriptionCode, true, false);
+
+            PricingCache.Remove(key);
+
+            key = GetSubDataCacheKey(subscriptionCode, false, false);
+
+            PricingCache.Remove(key);
         }
 
         #endregion

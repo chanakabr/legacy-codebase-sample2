@@ -50,6 +50,8 @@ namespace Core.Catalog
 
         IList<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(int channelId, DateTime fromDate, DateTime toDate);
 
+        IList<EpgProgramInfo> GetCurrentProgramInfosByDate(int channelId, DateTime fromDate, DateTime toDate);
+
         #endregion
         
         // Unified Search

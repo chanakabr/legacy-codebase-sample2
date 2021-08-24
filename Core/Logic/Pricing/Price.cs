@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace Core.Pricing
 {
-    // TODO refactor: move out DB interaction from BOL object
+    // TODO delete IPrice in task https://kaltura.atlassian.net/browse/BEO-10405 and use IGeneralPartnerConfigManager.GetCurrencyList instead!!
     public interface IPrice
     {
         Price InitializeByCD3(string sCurrencyCode3, double dP);
@@ -37,6 +37,7 @@ namespace Core.Pricing
 
         }
 
+        // TODO - need to delete all InitializeBy methods and use IGeneralPartnerConfigManager.GetCurrencyList instead!!
         public Price InitializeByCD3(string sCurrencyCode3, double dP)
         {
             m_oCurrency.InitializeByCode3(sCurrencyCode3);
@@ -72,6 +73,4 @@ namespace Core.Pricing
         public ApiObjects.Billing.SubscriptionCycle SubscriptionCycle { get; set; }
         public ApiObjects.ConditionalAccess.RecurringCampaignDetails CampaignDetails { get; set; }
     }
-
-    
 }

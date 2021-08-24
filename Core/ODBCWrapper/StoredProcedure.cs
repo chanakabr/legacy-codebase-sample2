@@ -322,7 +322,7 @@ namespace ODBCWrapper
 
             if (sConn == "")
             {
-                log.ErrorFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
+                log.CriticalFormat("Empty connection string. could not run query. m_sProcedureName: {0}", procedureNameWithDbVersionPrefix != null ? procedureNameWithDbVersionPrefix.ToString() : string.Empty);
                 return null;
             }
 
@@ -340,9 +340,9 @@ namespace ODBCWrapper
                     {
                         using (SqlDataReader reader = command.ExecuteReader())
                         {
+                            result = new DataTable();
                             if (reader.HasRows)
                             {
-                                result = new DataTable();
                                 result.Load(reader);
                             }
                         }
@@ -353,7 +353,7 @@ namespace ODBCWrapper
                 catch (Exception ex)
                 {
                     string sMes = "While running : '" + procedureNameWithDbVersionPrefix + "'\r\n Exception occurred: " + ex.Message;
-                    log.Error(sMes, ex);
+                    log.Critical(sMes, ex);
                     if (HttpContext.Current != null && HttpContext.Current.Items != null)
                     {
                         HttpContext.Current.Items[Utils.DATABASE_ERROR_DURING_SESSION] = true;

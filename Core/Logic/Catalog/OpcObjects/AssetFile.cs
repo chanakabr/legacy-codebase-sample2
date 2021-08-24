@@ -162,7 +162,7 @@ namespace Core.Catalog
 
             if (string.IsNullOrEmpty(this.type) && this.TypeId.HasValue)
             {
-                var mediaFileTypesListResponse = FileManager.GetMediaFileTypes(groupId);
+                var mediaFileTypesListResponse = FileManager.Instance.GetMediaFileTypes(groupId);
                 if (mediaFileTypesListResponse.HasObjects())
                 {
                     var mediaFileType = mediaFileTypesListResponse.Objects.FirstOrDefault(x => x.Id == this.TypeId.Value);
@@ -357,7 +357,7 @@ namespace Core.Catalog
             
             if (!string.IsNullOrEmpty(this.type) && !this.TypeId.HasValue)
             {
-                var mediaFileTypesListResponse = FileManager.GetMediaFileTypes(groupId);
+                var mediaFileTypesListResponse = FileManager.Instance.GetMediaFileTypes(groupId);
                 if (mediaFileTypesListResponse.HasObjects())
                 {
                     var mediaFileType = mediaFileTypesListResponse.Objects.FirstOrDefault(x => x.Name.Equals(this.type));

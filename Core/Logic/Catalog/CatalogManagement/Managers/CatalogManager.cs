@@ -1361,6 +1361,27 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
+        public GenericListResponse<AssetStruct> GetAssetStructByVirtualEntityType(int groupId, ObjectVirtualAssetInfoType virtualEntityType)
+        {
+            GenericListResponse<AssetStruct> response = new GenericListResponse<AssetStruct>();
+            
+            try
+            {
+                var objectVirtualAssetInfo = VirtualAssetPartnerConfigManager.Instance.GetObjectVirtualAssetInfo(groupId, virtualEntityType);
+
+                if (objectVirtualAssetInfo != null)
+                {
+                    response = GetAssetStructsByIds(groupId, new List<long>() { objectVirtualAssetInfo.AssetStructId }, null);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error(string.Format("Failed GetAssetStructByVirtualEntity with groupId: {0} and ObjectVirtualAssetInfoType: {1}", groupId, virtualEntityType), ex);
+            }
+
+            return response;
+        }
+
         public GenericResponse<AssetStruct> AddAssetStruct(int groupId, AssetStruct assetStructToadd, long userId, bool isProgramStruct = false)
         {
             GenericResponse<AssetStruct> result = new GenericResponse<AssetStruct>();

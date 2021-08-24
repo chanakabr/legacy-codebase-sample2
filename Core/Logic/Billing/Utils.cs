@@ -2429,7 +2429,7 @@ namespace Core.Billing
             Subscription res = null;
             try
             {
-                res = Pricing.Module.GetSubscriptionData(nGroupID, subID, string.Empty, string.Empty, string.Empty, false);
+                res = Pricing.Module.Instance.GetSubscriptionData(nGroupID, subID, string.Empty, string.Empty, string.Empty, false);
             }
             catch (Exception ex)
             {

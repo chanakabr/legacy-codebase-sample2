@@ -91,7 +91,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    sub = Core.Pricing.Module.GetSubscriptionData(m_groupID, subCode, string.Empty, string.Empty, string.Empty, getAlsoInactive);
+                    sub = Core.Pricing.Module.Instance.GetSubscriptionData(m_groupID, subCode, string.Empty, string.Empty, string.Empty, getAlsoInactive);
                 }
             }
             catch (Exception ex)
@@ -112,7 +112,7 @@ namespace TVPApiModule.Services
                 {
                     if (p_arrSubscriptionCodes != null && p_arrSubscriptionCodes.Length> 0)
                     {
-                        var res = Core.Pricing.Module.GetSubscriptions(m_groupID, new HashSet<long>(p_arrSubscriptionCodes.Select(s => long.Parse(s)).ToList()), string.Empty,
+                        var res = Core.Pricing.Module.Instance.GetSubscriptions(m_groupID, new HashSet<long>(p_arrSubscriptionCodes.Select(s => long.Parse(s)).ToList()), string.Empty,
                             string.Empty, string.Empty, null);
                         if (res != null)
                             arrSubs = res.Subscriptions;

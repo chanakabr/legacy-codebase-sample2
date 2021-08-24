@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ApiObjects;
-using System.Data;
-using DAL;
+﻿using ApiObjects;
 using ApiObjects.Pricing;
+using Core.Catalog.CatalogManagement;
+using DAL;
 using KLogMonitor;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
+using System.Text;
 using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace Core.Pricing
@@ -40,19 +42,24 @@ namespace Core.Pricing
         public UserType[] m_UserTypes;
         public PreviewModule m_oPreviewModule;
         public int m_nDomainLimitationModule;
+        
+        [JsonProperty(PropertyName = "m_lServices",
+                   TypeNameHandling = TypeNameHandling.Auto,
+                   ItemTypeNameHandling = TypeNameHandling.Auto,
+                   ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
         public ServiceObject[] m_lServices;
+        
         public int m_GracePeriodMinutes;
         public bool BlockCancellation;
-        public DateTime? PreSaleDate;        
+        public DateTime? PreSaleDate;
 
         public List<KeyValuePair> SubscriptionSetIdsToPriority; // N/A or AddOn  ==> contains set ids that this subscription belongs to <set_id, priority>
                                                                 // Base ==> as above with only one set_id
-                       
+
         public List<SubscriptionCouponGroup> CouponsGroups;
         public List<KeyValuePair<VerificationPaymentGateway, string>> ExternalProductCodes;
 
         public SubscriptionType Type;
-        public bool IsActive;
 
         #endregion
 
@@ -77,58 +84,62 @@ namespace Core.Pricing
         /// <param name="subCode"></param>
         private void GetFictivicMediaID(int groupID, int subCode)
         {
-            int fictivicGroupID = 0;
-            int fictivicMediaID = 0;
-            string paramName = string.Empty;
-            ODBCWrapper.DataSetSelectQuery selectQuery = null;
-            ODBCWrapper.DataSetSelectQuery mediaSelectQuery = null;
-            try
+            if (!CatalogManager.Instance.DoesGroupUsesTemplates(groupID))
             {
-                selectQuery = new ODBCWrapper.DataSetSelectQuery();
-                selectQuery.SetConnectionKey("pricing_connection");
-                selectQuery += "select FICTIVIC_MEDIA_META_NAME, FICTIVIC_GROUP_ID from groups_parameters with (nolock) ";
-                selectQuery += " where ";
-                selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
-                if (selectQuery.Execute("query", true) != null)
-                {
-                    int count = selectQuery.Table("query").DefaultView.Count;
-                    if (count > 0)
-                    {
-                        paramName = selectQuery.Table("query").DefaultView[0].Row["FICTIVIC_MEDIA_META_NAME"].ToString();
-                        fictivicGroupID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["FICTIVIC_GROUP_ID"].ToString());
-                    }
-                }
 
-                if (fictivicGroupID > 0 && !string.IsNullOrEmpty(paramName))
+                int fictivicGroupID = 0;
+                int fictivicMediaID = 0;
+                string paramName = string.Empty;
+                ODBCWrapper.DataSetSelectQuery selectQuery = null;
+                ODBCWrapper.DataSetSelectQuery mediaSelectQuery = null;
+                try
                 {
-                    mediaSelectQuery = new ODBCWrapper.DataSetSelectQuery();
-                    mediaSelectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
-                    mediaSelectQuery += "select id from media with (nolock) ";
-                    mediaSelectQuery += " where ";
-                    mediaSelectQuery += ODBCWrapper.Parameter.NEW_PARAM(paramName, "=", subCode);
-                    mediaSelectQuery += " and ";
-                    mediaSelectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", fictivicGroupID);
-                    if (mediaSelectQuery.Execute("query", true) != null)
+                    selectQuery = new ODBCWrapper.DataSetSelectQuery();
+                    selectQuery.SetConnectionKey("pricing_connection");
+                    selectQuery += "select FICTIVIC_MEDIA_META_NAME, FICTIVIC_GROUP_ID from groups_parameters with (nolock) ";
+                    selectQuery += " where ";
+                    selectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", groupID);
+                    if (selectQuery.Execute("query", true) != null)
                     {
-                        int count = mediaSelectQuery.Table("query").DefaultView.Count;
+                        int count = selectQuery.Table("query").DefaultView.Count;
                         if (count > 0)
                         {
-                            fictivicMediaID = int.Parse(mediaSelectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                            paramName = selectQuery.Table("query").DefaultView[0].Row["FICTIVIC_MEDIA_META_NAME"].ToString();
+                            fictivicGroupID = int.Parse(selectQuery.Table("query").DefaultView[0].Row["FICTIVIC_GROUP_ID"].ToString());
                         }
                     }
 
+                    if (fictivicGroupID > 0 && !string.IsNullOrEmpty(paramName))
+                    {
+                        mediaSelectQuery = new ODBCWrapper.DataSetSelectQuery();
+                        mediaSelectQuery.SetConnectionKey("MAIN_CONNECTION_STRING");
+                        mediaSelectQuery += "select id from media with (nolock) ";
+                        mediaSelectQuery += " where ";
+                        mediaSelectQuery += ODBCWrapper.Parameter.NEW_PARAM(paramName, "=", subCode);
+                        mediaSelectQuery += " and ";
+                        mediaSelectQuery += ODBCWrapper.Parameter.NEW_PARAM("group_id", "=", fictivicGroupID);
+                        if (mediaSelectQuery.Execute("query", true) != null)
+                        {
+                            int count = mediaSelectQuery.Table("query").DefaultView.Count;
+                            if (count > 0)
+                            {
+                                fictivicMediaID = int.Parse(mediaSelectQuery.Table("query").DefaultView[0].Row["id"].ToString());
+                            }
+                        }
+
+                    }
+                    m_fictivicMediaID = fictivicMediaID;
                 }
-                m_fictivicMediaID = fictivicMediaID;
-            }
-            finally
-            {
-                if (selectQuery != null)
+                finally
                 {
-                    selectQuery.Finish();
-                }
-                if (mediaSelectQuery != null)
-                {
-                    mediaSelectQuery.Finish();
+                    if (selectQuery != null)
+                    {
+                        selectQuery.Finish();
+                    }
+                    if (mediaSelectQuery != null)
+                    {
+                        mediaSelectQuery.Finish();
+                    }
                 }
             }
         }
@@ -136,7 +147,7 @@ namespace Core.Pricing
         public void Initialize(PriceCode oPriceCode, UsageModule oUsageModule,
             DiscountModule oDiscountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
             string sSubscriptionCode, BundleCodeContainer[] sCodes, DateTime dStart, DateTime dEnd,
-            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName, 
+            Int32[] sFileTypes, bool bIsRecurring, Int32 nNumOfRecPeriods, LanguageContainer[] sName, PriceCode subPriceCode, UsageModule oSubUsageModule, string sObjectVirtualName,
             int nGeoCommerceID = 0, int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
             Initialize(0, oPriceCode, oUsageModule, oDiscountModule, oCouponsGroup, sDescriptions, sSubscriptionCode, sCodes, dStart, dEnd,
@@ -260,7 +271,9 @@ namespace Core.Pricing
                 BaseUsageModule um = null;
                 Utils.GetBaseImpl(ref um, nGroupID);
                 if (um != null)
-                    m_oSubscriptionUsageModule = um.GetUsageModuleData(sSubUsageModule);
+                {
+                    m_oSubscriptionUsageModule = (new UsageModuleCacheWrapper(um)).GetUsageModuleData(sUsageModuleCode);
+                }
                 else
                     m_oSubscriptionUsageModule = null;
             }
@@ -291,7 +304,9 @@ namespace Core.Pricing
                 BasePricing p = null;
                 Utils.GetBaseImpl(ref p, nGroupID);
                 if (p != null)
-                    m_oSubscriptionPriceCode = p.GetPriceCodeData(subPriceCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                {
+                    m_oSubscriptionPriceCode = (new PricingCacheWrapper(p)).GetPriceCodeData(subPriceCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
+                }
                 else
                     m_oSubscriptionPriceCode = null;
             }
@@ -304,7 +319,10 @@ namespace Core.Pricing
                 BaseDiscount d = null;
                 Utils.GetBaseImpl(ref d, nGroupID);
                 if (d != null)
+                {
+                    //TODO CACHE
                     m_oExtDisountModule = d.GetDiscountCodeData(sExtDiscount);
+                }
                 else
                     m_oExtDisountModule = null;
             }
@@ -434,6 +452,20 @@ namespace Core.Pricing
             }
 
             return result;
+        }
+
+        public List<SubscriptionCouponGroup> GetValidSubscriptionCouponGroup(string couponGroupCode = null)
+        {
+            List<SubscriptionCouponGroup> res = new List<SubscriptionCouponGroup>();
+
+            if (this.CouponsGroups?.Count > 0)
+            {
+                res = this.CouponsGroups.Where(x => (couponGroupCode == null || x.m_sGroupCode.Equals(couponGroupCode))
+                                            && (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)
+                                            && (!x.startDate.HasValue || x.startDate.Value < DateTime.UtcNow)).ToList();
+            }
+
+            return res;
         }
 
     }

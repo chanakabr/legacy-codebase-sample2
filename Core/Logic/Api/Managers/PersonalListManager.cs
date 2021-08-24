@@ -40,7 +40,7 @@ namespace APILogic.Api.Managers
                     if (userPersonalList.Items.Count(x => x.PartnerListType == personalListItem.PartnerListType && x.Ksql.Equals(personalListItem.Ksql)) > 0)
                     {
                         //allready exist
-                        log.ErrorFormat("personal list: User already following, userId:{0}", userId);
+                        log.InfoFormat("personal list: User already following, userId:{0}", userId);
                         response.SetStatus(eResponseStatus.UserAlreadyFollowing, "User already following");
                         return response;
                     }

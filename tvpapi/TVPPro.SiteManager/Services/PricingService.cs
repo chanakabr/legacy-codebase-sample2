@@ -200,11 +200,11 @@ namespace TVPPro.SiteManager.Services
             {
                 if (SessionHelper.LocaleInfo != null)
                 {
-                    res = Core.Pricing.Module.GetSubscriptionData(groupId, SubscriptionCode, SessionHelper.LocaleInfo.LocaleCountry, SessionHelper.LocaleInfo.LocaleLanguage, SessionHelper.LocaleInfo.LocaleDevice, false);
+                    res = Core.Pricing.Module.Instance.GetSubscriptionData(groupId, SubscriptionCode, SessionHelper.LocaleInfo.LocaleCountry, SessionHelper.LocaleInfo.LocaleLanguage, SessionHelper.LocaleInfo.LocaleDevice, false);
                 }
                 else
                 {
-                    res = Core.Pricing.Module.GetSubscriptionData(groupId, SubscriptionCode, string.Empty, string.Empty, string.Empty, false);
+                    res = Core.Pricing.Module.Instance.GetSubscriptionData(groupId, SubscriptionCode, string.Empty, string.Empty, string.Empty, false);
                 }
 
                 logger.InfoFormat("Protocol: GetSubscriptionDetailsByCode, Parameters : userID : {0}", UsersService.Instance.GetUserID());

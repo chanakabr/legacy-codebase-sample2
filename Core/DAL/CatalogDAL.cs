@@ -60,9 +60,15 @@ namespace Tvinci.Core.DAL
         CategoryVersion GetCategoryVersionById(int groupId, long id);
         bool DeleteCategoryVersion(int groupId, long userId, CategoryVersion categoryVersion);
         bool UpdateDefaultCategoryVersion(int groupId, long userId, long updateDate, long newDefaultVersionId, long currentDefaultVersionId);
+    }  
+
+
+    public interface IChannelRepository
+    {
+        bool IsChannelExists(int groupId, long id);
     }
 
-    public class CatalogDAL : BaseDal, ICategoryRepository, ITopicRepository
+    public class CatalogDAL : BaseDal, ICategoryRepository, ITopicRepository, IChannelRepository
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
@@ -4611,7 +4617,7 @@ namespace Tvinci.Core.DAL
         {
             //BEO-9629
             dynamicData = dynamicData?.Where(d => !string.IsNullOrEmpty(d.Value))
-                .ToDictionary(x=>x.Key, y => y.Value);
+                .ToDictionary(x => x.Key, y => y.Value);
 
             var key = GetTopicKey(topicId);
             return Tuple.Create(UtilsDal.SaveObjectInCB(eCouchbaseBucket.OTT_APPS, key, dynamicData, true), dynamicData);
@@ -4700,7 +4706,7 @@ namespace Tvinci.Core.DAL
             return UtilsDal.GetObjectFromCB<DevicePlayData>(eCouchbaseBucket.DOMAIN_CONCURRENCY, key);
         }
 
-        
+
         #region New Catalog Management
 
         public static bool DoesGroupUsesTemplates(int groupId)
@@ -4770,7 +4776,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@PluralName", pluralName);
             sp.AddParameter("@ParentId", parentId);
             sp.AddParameter("@IsProgramStruct", isProgramStruct ? 1 : 0);
-            sp.AddParameter("@DynamicData", (dynamicData != null && dynamicData.Count != 0) ? JsonConvert.SerializeObject(dynamicData): null);
+            sp.AddParameter("@DynamicData", (dynamicData != null && dynamicData.Count != 0) ? JsonConvert.SerializeObject(dynamicData) : null);
             sp.AddParameter("@IsLinear", isLinear ? 1 : 0);
 
             return sp.ExecuteDataSet();
@@ -6878,6 +6884,15 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
+        public bool IsChannelExists(int groupId, long id)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Is_ChannelExist");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
         private static DataTable CreateLabelValuesDataTable(IEnumerable<string> labelValues)
         {
             var dataTable = new DataTable("labelValues");
@@ -6898,6 +6913,6 @@ namespace Tvinci.Core.DAL
             }
 
             return dataTable;
-        }
+        }      
     }
 }

@@ -17,11 +17,14 @@ namespace WebAPI.Controllers
     public class PreviewModuleController : IKalturaController
     {
         /// <summary>
-        /// Internal API !!! Returns all PreviewModule 
+        /// Returns all PreviewModule 
         /// </summary>
+         /// <remarks>
+        /// </remarks>
+        /// <param name="filter">Filter</param>
         [Action("list")]
         [ApiAuthorize]
-        static public KalturaPreviewModuleListResponse List()
+        static public KalturaPreviewModuleListResponse List(KalturaPreviewModuleFilter filter = null)
         {
             KalturaPreviewModuleListResponse result = new KalturaPreviewModuleListResponse();
             int groupId = KS.GetFromRequest().GroupId;
@@ -29,7 +32,7 @@ namespace WebAPI.Controllers
             try
             {
                 Func<GenericListResponse<PreviewModule>> getListFunc = () =>
-                     PreviewModuleManager.Instance.GetPreviewModules(groupId);
+                     PreviewModuleManager.Instance.GetPreviewModules(groupId, filter != null ? filter.GetIdIn() : null);
 
                 KalturaGenericListResponse<KalturaPreviewModule> response =
                     ClientUtils.GetResponseListFromWS<KalturaPreviewModule, PreviewModule>(getListFunc);
@@ -46,13 +49,14 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Internal API !!! Insert new PreviewModule for partner
+        /// Insert new PreviewModule for partner
         /// </summary>
         /// <remarks>
         /// </remarks>
         /// <param name="previewModule">Preview module object</param>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         static public KalturaPreviewModule Add(KalturaPreviewModule previewModule)
         {
             KalturaPreviewModule result = null;
@@ -76,6 +80,7 @@ namespace WebAPI.Controllers
         [Action("delete")]
         [ApiAuthorize]
         [Throws(eResponseStatus.PreviewModuleNotExist)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         static public bool Delete(long id)
         {
             bool result = false;
@@ -89,6 +94,37 @@ namespace WebAPI.Controllers
                 result = ClientUtils.GetResponseStatusFromWS(delete);
             }
 
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Update PreviewModule
+        /// </summary>
+        /// <param name="id">PreviewModule id</param>
+        /// <param name="previewModule">PreviewModule</param>
+        [Action("update")]
+        [ApiAuthorize]
+        [SchemeArgument("id", MinLong = 1)]
+        [Throws(eResponseStatus.PreviewModuleNotExist)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
+        static public KalturaPreviewModule Update(long id, KalturaPreviewModule previewModule)
+        {
+            KalturaPreviewModule result = null;
+
+            var contextData = KS.GetContextData();
+
+            try
+            {
+                Func<PreviewModule, GenericResponse<PreviewModule>> updatePreviewModuleFunc = (PreviewModule previewModuleToUpdate) =>
+                        PreviewModuleManager.Instance.Update(contextData, id, previewModuleToUpdate);
+
+                result = ClientUtils.GetResponseFromWS<KalturaPreviewModule, PreviewModule>(previewModule, updatePreviewModuleFunc);
+            }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);

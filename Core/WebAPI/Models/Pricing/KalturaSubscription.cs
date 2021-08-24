@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Pricing;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
@@ -15,7 +17,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Subscription details
     /// </summary>
-    public partial class KalturaSubscription : KalturaOTTObject
+    public partial class KalturaSubscription : KalturaOTTObjectSupportNullable
     {
         /// <summary>
         /// Subscription identifier
@@ -63,7 +65,7 @@ namespace WebAPI.Models.Pricing
         [OldStandardProperty("end_date")]
         [SchemeProperty(IsNullable = true)]
         public long? EndDate { get; set; }
-         
+
         /// <summary>
         /// A list of file types identifiers that are supported in this subscription
         /// </summary>
@@ -350,7 +352,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "couponsGroups")]
         [JsonProperty("couponsGroups")]
         [XmlArray(ElementName = "couponsGroups", IsNullable = true)]
-        [XmlArrayItem("item")]        
+        [XmlArrayItem("item")]
         [SchemeProperty(IsNullable = true, ReadOnly = true)]
         public List<KalturaCouponsGroup> CouponGroups { get; set; }
 
@@ -388,7 +390,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "externalId")]
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId")]
-        public string ExternalId{ get; set; }
+        public string ExternalId { get; set; }
 
         /// <summary>
         /// Is cancellation blocked for the subscription
@@ -431,6 +433,24 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "isActive")]
         public bool? IsActive { get; set; }
 
+        /// <summary>
+        /// Specifies when was the Subscription created. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty(PropertyName = "createDate")]
+        [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Specifies when was the Subscription last updated. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty(PropertyName = "updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
+
         public void ValidateForAdd()
         {
             if (!string.IsNullOrEmpty(ChannelsIds))
@@ -442,7 +462,6 @@ namespace WebAPI.Models.Pricing
             {
                 CouponGroups.ForEach(x => x.Validate());
             }
-
 
             if (this.Name == null || this.Name.Values == null || this.Name.Values.Count == 0)
             {
@@ -469,7 +488,30 @@ namespace WebAPI.Models.Pricing
             {
                 _ = GetItemsIn<List<long>, long>(FileTypesIds, "fileTypesIds", true);
             }
+
+            if (ProductCodes?.Count > 1)
+            {
+                List<string> res = new List<string>();
+
+                foreach (var item in ProductCodes)
+                {
+                    if (res.Contains(item.InappProvider))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "KalturaProductCode.InappProvider");
+                    }
+
+                    if (!Enum.TryParse(item.InappProvider, out VerificationPaymentGateway tmp))
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "KalturaProductCode.InappProvider", item.InappProvider);
+                    }
+
+                    res.Add(item.InappProvider);
+                }
+            }
         }
 
+        internal void ValidateForUpdate()
+        {
+        }
     }
 }

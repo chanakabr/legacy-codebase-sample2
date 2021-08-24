@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ApiLogic.IndexManager.Mappings;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Response;
 using IngestHandler.Common;
+using IngestHandler.Common.Infrastructure;
 using IngestTransformationHandler.Repositories;
 using KLogMonitor;
 using TVinciShared;
@@ -14,21 +16,33 @@ namespace IngestTransformationHandler.Managers
 {
     public interface IEpgCRUDOperationsManager
     {
-        CRUDOperations<EpgProgramBulkUploadObject> CalculateCRUDOperations(BulkUpload bulkUpload, eIngestProfileOverlapPolicy overlapPolicy, eIngestProfileAutofillPolicy autofillPolicy);
+        CRUDOperations<EpgProgramBulkUploadObject> CalculateCRUDOperations(
+            BulkUpload bulkUpload,
+            eIngestProfileOverlapPolicy overlapPolicy,
+            eIngestProfileAutofillPolicy autofillPolicy,
+            LanguagesInfo languagesInfo);
     }
 
     public class EpgCRUDOperationsManager : IEpgCRUDOperationsManager
     {
         private readonly IEpgRepository _epgRepository;
+        private readonly IMappingTypeResolver _mappingTypeResolver;
+        private readonly ICatalogManagerAdapter _catalogManagerAdapter;
 
-        public EpgCRUDOperationsManager(IEpgRepository epgRepository)
+        public EpgCRUDOperationsManager(IEpgRepository epgRepository, IMappingTypeResolver mappingTypeResolver, ICatalogManagerAdapter catalogManagerAdapter)
         {
             _epgRepository = epgRepository;
+            _mappingTypeResolver = mappingTypeResolver;
+            _catalogManagerAdapter = catalogManagerAdapter;
         }
 
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public CRUDOperations<EpgProgramBulkUploadObject> CalculateCRUDOperations(BulkUpload bulkUpload, eIngestProfileOverlapPolicy overlapPolicy, eIngestProfileAutofillPolicy autofillPolicy)
+        public CRUDOperations<EpgProgramBulkUploadObject> CalculateCRUDOperations(
+            BulkUpload bulkUpload,
+            eIngestProfileOverlapPolicy overlapPolicy,
+            eIngestProfileAutofillPolicy autofillPolicy,
+            LanguagesInfo languagesInfo)
         {
             var resultsDictionary = bulkUpload.ConstructResultsDictionary();
             var crudOps = new CRUDOperations<EpgProgramBulkUploadObject>();
@@ -46,7 +60,7 @@ namespace IngestTransformationHandler.Managers
                     return null;
                 }
 
-                var channelCRUDOperations = CalculateCRUDOperationsForChannel(bulkUpload, channelId, overlapPolicy, autofillPolicy, programsOfChannelToIngest);
+                var channelCRUDOperations = CalculateCRUDOperationsForChannel(bulkUpload, channelId, overlapPolicy, autofillPolicy, programsOfChannelToIngest, languagesInfo);
 
                 crudOps.AddRange(channelCRUDOperations);
             }
@@ -59,12 +73,15 @@ namespace IngestTransformationHandler.Managers
             return crudOps;
         }
 
-        
-        
-        
-        private CRUDOperations<EpgProgramBulkUploadObject> CalculateCRUDOperationsForChannel(BulkUpload bulkUpload, int channelId, eIngestProfileOverlapPolicy overlapPolicy, eIngestProfileAutofillPolicy autofillPolicy, List<EpgProgramBulkUploadObject> programsToIngest)
+        private CRUDOperations<EpgProgramBulkUploadObject> CalculateCRUDOperationsForChannel(
+            BulkUpload bulkUpload,
+            int channelId,
+            eIngestProfileOverlapPolicy overlapPolicy,
+            eIngestProfileAutofillPolicy autofillPolicy,
+            List<EpgProgramBulkUploadObject> programsToIngest,
+            LanguagesInfo languagesInfo)
         {
-            var channelCRUDOperations = GetBasicCRUDOperations(bulkUpload.GroupId, channelId, programsToIngest);
+            var channelCRUDOperations = GetBasicCRUDOperations(bulkUpload.GroupId, channelId, programsToIngest, languagesInfo);
             
             var isOverlapValid = OverlapManager.GetOverlapManagerByPolicy(overlapPolicy, bulkUpload, channelCRUDOperations).HandleOverlaps();
             if (!isOverlapValid) { _logger.Error($"overlaps are not valid for channel:[{channelId}] bulkUploadId: [{bulkUpload.Id}]"); }
@@ -90,15 +107,21 @@ namespace IngestTransformationHandler.Managers
         /// 5. We also will add "remainingItems" with the +-1 day of existing programs because they will be used for Overlap\ Gap policy that cross days
         /// </summary>
         /// <returns>hopefully the basic CRUD operations to be done over the current EPG, without overlap\gap policy consideration</returns>
-        private CRUDOperations<EpgProgramBulkUploadObject> GetBasicCRUDOperations(int groupId, int channelId, List<EpgProgramBulkUploadObject> programsToIngest)
+        private CRUDOperations<EpgProgramBulkUploadObject> GetBasicCRUDOperations(
+            int groupId,
+            int channelId,
+            List<EpgProgramBulkUploadObject> programsToIngest,
+            LanguagesInfo languagesInfo)
         {
             var crudOps = new CRUDOperations<EpgProgramBulkUploadObject>();
+            var shouldUseIngestProtection = ShouldUseIngestProtection(groupId);
             
             // NOTE! this method will no handle updates that happen more than +- 1 days from the ingest range
             // if an update was sent to a program that exists that far it will just calculate it as a program to add 
             var currentEpgStartRange = programsToIngest.Min(p => p.StartDate.Date).AddDays(-1).StartOfDay();
             var currentEpgEndRange = programsToIngest.Max(p => p.EndDate.Date).AddDays(1).EndOfDay();
             var currentEpgData = _epgRepository.GetCurrentProgramsByDate(groupId, channelId, currentEpgStartRange, currentEpgEndRange);
+            var currentEpgDataInfo = RetrieveCurrentEpgDataInfo(groupId, channelId, currentEpgStartRange, currentEpgEndRange, shouldUseIngestProtection);
 
             var ingestStart = programsToIngest.Min(p => p.StartDate);
             var ingestEnd = programsToIngest.Max(p => p.EndDate);
@@ -140,7 +163,95 @@ namespace IngestTransformationHandler.Managers
             crudOps.RemainingItems = currentEpgProgramsDict.Values.Except(crudOps.ItemsToDelete).ToList();
             _logger.Debug($"CalculateCRUDOperations > channel:[{channelId}], ingestStart:[{ingestStart}], ingestEnd:[{ingestEnd}] crud operations:[{crudOps}]");
 
+            if (shouldUseIngestProtection)
+            {
+                // Connect Epgs with their representation in Couchbase.
+                ConnectEpgProgramsWithCouchbaseDocuments(crudOps, currentEpgDataInfo, languagesInfo);   
+            }
+
             return crudOps;
+        }
+
+        private EpgProgramInfo[] RetrieveCurrentEpgDataInfo(int groupId, int channelId, DateTime currentEpgStartRange, DateTime currentEpgEndRange, bool shouldUseIngestProtection)
+        {
+            if (!shouldUseIngestProtection)
+            {
+                return new EpgProgramInfo[] { };
+            }
+
+            return _epgRepository.GetCurrentProgramInfosByDate(groupId, channelId, currentEpgStartRange, currentEpgEndRange)
+                .Where(x => !x.IsAutofill)
+                .ToArray();
+        }
+
+        private bool ShouldUseIngestProtection(int groupId)
+        {
+            var doesGroupUsesTemplates = _catalogManagerAdapter.DoesGroupUsesTemplates(groupId);
+            if (!doesGroupUsesTemplates)
+            {
+                return false;
+            }
+            
+            var catalogGroupCache = _catalogManagerAdapter.GetCatalogGroupCache(groupId);
+            if (!catalogGroupCache.AssetStructsMapById.TryGetValue(catalogGroupCache.GetProgramAssetStructId(), out var programStruct))
+            {
+                return false;
+            }
+            
+            return programStruct.AssetStructMetas.Values.Any(x => x.ProtectFromIngest.HasValue && x.ProtectFromIngest.Value);
+        }
+
+        private void ConnectEpgProgramsWithCouchbaseDocuments(
+            CRUDOperations<EpgProgramBulkUploadObject> channelCrudOperations,
+            IEnumerable<EpgProgramInfo> currentEpgDataInfo,
+            LanguagesInfo languagesInfo)
+        {
+            var externalIdDocumentMap = GetEpgExternalIdDocumentMap(currentEpgDataInfo, languagesInfo);
+            if (externalIdDocumentMap.IsEmpty())
+            {
+                return;
+            }
+            
+            foreach (var epgProgramBulkUploadObject in channelCrudOperations.ItemsToUpdate)
+            {
+                if (externalIdDocumentMap.TryGetValue(epgProgramBulkUploadObject.EpgExternalId, out var documentIdsMap))
+                {
+                    epgProgramBulkUploadObject.CbDocumentIdsMap = documentIdsMap;
+                }
+            }
+        }
+
+        private Dictionary<string, Dictionary<string, string>> GetEpgExternalIdDocumentMap(IEnumerable<EpgProgramInfo> currentEpgDataInfo, LanguagesInfo languagesInfo)
+        {
+            var result = new Dictionary<string, Dictionary<string, string>>();
+            foreach (var externalGroup in currentEpgDataInfo.GroupBy(x => x.EpgExternalId))
+            {
+                result[externalGroup.Key] = new Dictionary<string, string>();
+                foreach (var epg in externalGroup)
+                {
+                    var languageCode = GetLanguageCode(languagesInfo, epg);
+                    if (languageCode == null)
+                    {
+                        _logger.Warn($"The language code hasn't been recognized for EPG ({externalGroup.Key})");
+                        continue;
+                    }
+
+                    result[externalGroup.Key].TryAdd(languageCode, epg.DocumentId);
+                }
+            }
+
+            return result;
+        }
+
+        private string GetLanguageCode(LanguagesInfo languagesInfo, EpgProgramInfo epg)
+        {
+            var langCodeType = _mappingTypeResolver.ExtractLanguageCodeFromMappingType(epg.Type, out var isDefaultLanguage);
+            if (isDefaultLanguage)
+            {
+                return languagesInfo.DefaultLanguage.Code;
+            }
+            
+            return !string.IsNullOrEmpty(langCodeType) ? languagesInfo.Languages[langCodeType].Code : null;
         }
 
         private bool ValidateSourceInputOverlaps(List<Tuple<EpgProgramBulkUploadObject, EpgProgramBulkUploadObject>> overlapsInIngestSource, Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> resultsDictionary)

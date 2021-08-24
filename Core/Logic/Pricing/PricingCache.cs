@@ -1,7 +1,10 @@
-﻿using CachingProvider.LayeredCache;
+﻿using ApiObjects.Pricing.Dto;
+using CachingProvider.LayeredCache;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -11,7 +14,10 @@ namespace Core.Pricing
     public interface IPricingCache
     {
         bool TryGetGroupPricePlans(string key, out List<UsageModule> pricePlans);
-        HashSet<long> GetSubscriptionsIds(int groupId);
+        List<SubscriptionItemDTO> GetGroupSubscriptionsItems(int groupId, bool getAlsoInActive);
+        List<Subscription> GetSubscriptions(int groupId, List<long> subscriptionIds);
+        bool InvalidateSubscription(int groupId, int subId = 0);
+        bool InvalidateSubscriptions(int groupId, List<int> subIds = null);
     }
 
     public class PricingCache : IPricingCache
@@ -21,7 +27,7 @@ namespace Core.Pricing
         private static readonly Lazy<PricingCache> lazy = new Lazy<PricingCache>(() => new PricingCache(), LazyThreadSafetyMode.PublicationOnly);
 
         public static PricingCache Instance => lazy.Value;
-        
+
         private const string PRICING_CACHE_WRAPPER_LOG_FILE = "PricingCacheWrapper";
 
         private PricingCache() { }
@@ -321,6 +327,11 @@ namespace Core.Pricing
             return TvinciCache.WSCache.Instance.Get<T>(key);
         }
 
+        public static void Remove(string key)
+        {
+            TvinciCache.WSCache.Instance.Remove(key);
+        }
+
         private static Dictionary<string, object> GetValues(List<string> keys)
         {
             Dictionary<string, object> values = null;
@@ -385,31 +396,33 @@ namespace Core.Pricing
             return response;
         }
 
-        public HashSet<long> GetSubscriptionsIds(int groupId)
+        public List<SubscriptionItemDTO> GetGroupSubscriptionsItems(int groupId, bool getAlsoInActive)
         {
-            var response = new HashSet<long>();
+            var response = new List<SubscriptionItemDTO>();
             try
             {
-                var key = GetSubscriptionsCacheKey(groupId);
+                var key = LayeredCacheKeys.GetGroupSubscriptionItemsKey(groupId);
+                var ikKey = LayeredCacheKeys.GetGroupSubscriptionItemsInvalidationKey(groupId);
+
                 if (!LayeredCache.Instance.Get(key, ref response,
-                    GetGroupSubscriptionsIds, new Dictionary<string, object>() { { "groupId", groupId } },
-                groupId, LayeredCacheConfigNames.GET_GROUP_SUBSCRIPTION, null))
+                    GetGroupSubscriptionsItems, new Dictionary<string, object>() { { "groupId", groupId } },
+                    groupId, LayeredCacheConfigNames.GET_GROUP_SUBSCRIPTION_ITEMS, new List<string>() { ikKey }))
                 {
-                    log.ErrorFormat($"GetGroupSubscriptionsIds - Failed get data from cache. groupId: {groupId}");
+                    log.ErrorFormat($"GetGroupSubscriptionsItems - Failed get data from cache. groupId: {groupId}");
                     return response;
+                }
+
+                if (!getAlsoInActive && response?.Count > 0)
+                {
+                    response = response.Where(x => x.IsActive).ToList();
                 }
             }
             catch (Exception ex)
             {
-                log.ErrorFormat("Failed GetGroupSubscriptionsIds for groupId: {0}, ex: {1}", groupId, ex);
+                log.ErrorFormat("Failed GetGroupSubscriptions for groupId: {0}, ex: {1}", groupId, ex);
             }
 
             return response;
-        }
-
-        public static string GetSubscriptionsCacheKey(int groupId)
-        {
-            return $"SubscriptionsIds_V1_{groupId}";
         }
 
         public static string GetCollectionsIdsCacheKey(int groupId)
@@ -436,23 +449,109 @@ namespace Core.Pricing
             return Tuple.Create(res, res?.Count > 0);
         }
 
-        public static Tuple<HashSet<long>, bool> GetGroupSubscriptionsIds(Dictionary<string, object> funcParams)
+        public static Tuple<List<SubscriptionItemDTO>, bool> GetGroupSubscriptionsItems(Dictionary<string, object> funcParams)
         {
-            int? groupId = 0;
-            if (funcParams != null && funcParams.Count == 1)
+            List<SubscriptionItemDTO> res = new List<SubscriptionItemDTO>();
+
+            if (funcParams != null && funcParams.ContainsKey("groupId"))
             {
-                if (funcParams.ContainsKey("groupId"))
+                int? groupId = funcParams["groupId"] as int?;
+                res = DAL.PricingDAL.GetGroupSubscriptionsItems(groupId.Value);
+            }
+
+            return Tuple.Create(res, true);
+        }
+
+        public List<Subscription> GetSubscriptions(int groupId, List<long> subscriptionIds)
+        {
+            List<Subscription> subscriptions = new List<Subscription>();
+
+            if (subscriptionIds == null || subscriptionIds.Count == 0)
+            {
+                return subscriptions;
+            }
+
+            Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
+            Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
+
+            foreach (long id in subscriptionIds)
+            {
+                string key = LayeredCacheKeys.GetSubscriptionKey(groupId, id);
+                keysToOriginalValueMap.Add(key, id.ToString());
+                invalidationKeysMap.Add(key, new List<string>() { LayeredCacheKeys.GetSubscriptionInvalidationKey(groupId, id) });
+            }
+
+            Dictionary<string, Subscription> subscriptionsMap = null;
+
+            if (!LayeredCache.Instance.GetValues(keysToOriginalValueMap,
+                                                ref subscriptionsMap,
+                                                GetSubscriptions,
+                                                new Dictionary<string, object>() {
+                                                        { "groupId", groupId },
+                                                        { "subscriptionIds", keysToOriginalValueMap.Values.ToList() }
+                                                   },
+                                                groupId,
+                                                LayeredCacheConfigNames.GET_SUBSCRIPTIONS,
+                                                invalidationKeysMap))
+            {
+                log.Warn($"Failed getting Subscriptions from LayeredCache, groupId: {groupId}, subIds: {string.Join(",", subscriptionIds)}");
+                return subscriptions;
+            }
+
+            return subscriptionsMap == null ? new List<Subscription>() : subscriptionsMap.Values.ToList();
+        }
+        public static Tuple<Dictionary<string, Subscription>, bool> GetSubscriptions(Dictionary<string, object> funcParams)
+        {
+            Dictionary<string, Subscription> subscriptions = new Dictionary<string, Subscription>();
+            List<string> subscriptionIds = null;
+            int? groupId = funcParams["groupId"] as int?;
+            if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+            {
+                subscriptionIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]);
+            }
+            else if (funcParams["subscriptionIds"] != null)
+            {
+                subscriptionIds = (List<string>)funcParams["subscriptionIds"];
+            }
+
+            if (subscriptionIds?.Count > 0)
+            {
+                BaseSubscription t = null;
+                Utils.GetBaseImpl(ref t, groupId.Value);
+                if (t != null)
                 {
-                    groupId = funcParams["groupId"] as int?;
-                    if (groupId == null)
+                    var subs = t.GetSubscriptionsData(subscriptionIds.ToArray(), string.Empty, string.Empty, string.Empty, ApiObjects.Pricing.SubscriptionOrderBy.StartDateAsc);
+                    if (subs != null && subs.Length > 0)
                     {
-                        return Tuple.Create(new HashSet<long>(), false);
+                        subscriptions = subs.ToDictionary(x => LayeredCacheKeys.GetSubscriptionKey(groupId.Value, long.Parse(x.m_sObjectCode)), y => y);
                     }
                 }
             }
 
-            HashSet<long> res = DAL.PricingDAL.GetSubscriptions(groupId.Value);
-            return Tuple.Create(res, res?.Count > 0);
+            return Tuple.Create(subscriptions, true);
+        }
+
+        public bool InvalidateSubscription(int groupId, int subId = 0)
+        {
+            List<string> keys = new List<string>() { LayeredCacheKeys.GetGroupSubscriptionItemsInvalidationKey(groupId) };
+            if (subId > 0)
+            {
+                keys.Add(LayeredCacheKeys.GetSubscriptionInvalidationKey(groupId, subId));
+            }
+
+            return LayeredCache.Instance.InvalidateKeys(keys);
+        }
+
+        public bool InvalidateSubscriptions(int groupId, List<int> subIds = null)
+        {
+            List<string> keys = new List<string>() { LayeredCacheKeys.GetGroupSubscriptionItemsInvalidationKey(groupId) };
+            
+            if (subIds?.Count > 0)
+            {
+                keys.AddRange(subIds.Select(x => LayeredCacheKeys.GetSubscriptionInvalidationKey(groupId, x)));  
+            }
+
+            return LayeredCache.Instance.InvalidateKeys(keys);
         }
     }
 }

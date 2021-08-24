@@ -28,7 +28,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
-        [SchemeProperty(InsertOnly = true)]
+        [SchemeProperty(WriteOnly = true, MinLength = 1)]
         public string Name { get; set; }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("maxViewsNumber")]
         [XmlElement(ElementName = "maxViewsNumber", IsNullable = true)]
         [OldStandardProperty("max_views_number")]
-        [SchemeProperty(InsertOnly = true, MinInteger = 0)]
+        [SchemeProperty(WriteOnly = true, MinInteger = 0)]
         public int? MaxViewsNumber { get; set; }
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("viewLifeCycle")]
         [XmlElement(ElementName = "viewLifeCycle", IsNullable = true)]
         [OldStandardProperty("view_life_cycle")]
-        [SchemeProperty(InsertOnly = true, MinInteger = 0)]
+        [SchemeProperty(WriteOnly = true, MinInteger = 1)]
         public int? ViewLifeCycle { get; set; }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("fullLifeCycle")]
         [XmlElement(ElementName = "fullLifeCycle", IsNullable = true)]
         [OldStandardProperty("full_life_cycle")]
-        [SchemeProperty(InsertOnly = true, MinInteger = 0)]
+        [SchemeProperty(WriteOnly = true, MinInteger = 1)]
         public int? FullLifeCycle { get; set; }
 
         /// <summary>
@@ -78,7 +78,6 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("waiverPeriod")]
         [XmlElement(ElementName = "waiverPeriod", IsNullable = true)]
         [OldStandardProperty("waiver_period")]
-        [SchemeProperty(ReadOnly = true)]
         public int? WaiverPeriod { get; set; }
 
         /// <summary>
@@ -88,7 +87,6 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("isWaiverEnabled")]
         [XmlElement(ElementName = "isWaiverEnabled", IsNullable = true)]
         [OldStandardProperty("is_waiver_enabled")]
-        [SchemeProperty(ReadOnly = true)]
         public bool? IsWaiverEnabled { get; set; }
 
         /// <summary>
@@ -98,7 +96,6 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("isOfflinePlayback")]
         [XmlElement(ElementName = "isOfflinePlayback", IsNullable = true)]
         [OldStandardProperty("is_offline_playback")]
-        [SchemeProperty(ReadOnly = true)]
         public bool? IsOfflinePlayback { get; set; }
 
         internal void ValidateForAdd()

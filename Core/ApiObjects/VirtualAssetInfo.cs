@@ -23,6 +23,8 @@ namespace ApiObjects
 
         public long? DuplicateAssetId { get; set; }
 
+        public bool? IsActive { get; set; }
+
         public override string ToString()
         {
             return $"VirtualAssetInfo: Id: {Id}, Type: {Type}, UserId: {UserId}";

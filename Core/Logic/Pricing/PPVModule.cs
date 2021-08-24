@@ -25,6 +25,9 @@ namespace Core.Pricing
         public string alias;
         public ApiObjects.AdsPolicy? AdsPolicy { get; set; }
         public string AdsParam { get; set; }
+        public bool? IsActive;
+        public DateTime? CreateDate;
+        public DateTime? UpdateDate;
         #endregion
 
         public override string ToString()

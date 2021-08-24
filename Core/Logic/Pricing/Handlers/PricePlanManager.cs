@@ -12,113 +12,137 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Core.GroupManagers;
+using Core.GroupManagers.Adapters;
 
 namespace ApiLogic.Pricing.Handlers
 {
-    public class PricePlanManager
+    public interface IPricePlanManager
+    {
+        GenericListResponse<PricePlan> GetPricePlans(int groupId, List<long> pricePlanIds);
+    }
+
+    public class PricePlanManager : IPricePlanManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private static readonly Lazy<PricePlanManager> lazy = new Lazy<PricePlanManager>(() =>
                                     new PricePlanManager(PricingDAL.Instance,
-                                        PricingDAL.Instance,
-                                        PricingCache.Instance,
                                         LayeredCache.Instance,
                                         PriceDetailsManager.Instance,
-                                        Core.Pricing.Utils.Instance,
-                                        PricingDAL.Instance
+                                        DiscountDetailsManager.Instance,
+                                        GroupSettingsManagerAdapter.Instance
                                     ),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static PricePlanManager Instance => lazy.Value;
 
         private readonly IPricePlanRepository _repository;
-        private readonly IPriceDetailsRepository _priceDetailsRepository;
-        private readonly IPricingCache _pricingCache;
         private readonly ILayeredCache _layeredCache;
         private readonly IPriceDetailsManager _priceDetailsManager;
-        private readonly IPricingUtils _pricingUtils;
-        private readonly IModuleManagerRepository _moduleManagerRepository;
+        private readonly IDiscountDetailsManager _discountDetailsManager;
+        private readonly IGroupSettingsManager _groupSettingsManager;
 
         public PricePlanManager(IPricePlanRepository pricePlanRepository,
-                                IPriceDetailsRepository priceDetailsRepository,
-                                IPricingCache pricingCache,
                                 ILayeredCache layeredCache,
                                 IPriceDetailsManager priceDetailsManager,
-                                IPricingUtils pricingUtils,
-                                IModuleManagerRepository moduleManagerRepository)
+                                IDiscountDetailsManager discountDetailsManager,
+                                IGroupSettingsManager groupSettingsManager)
         {
             _repository = pricePlanRepository;
-            _priceDetailsRepository = priceDetailsRepository;
-            _pricingCache = pricingCache;
             _layeredCache = layeredCache;
             _priceDetailsManager = priceDetailsManager;
-            _pricingUtils = pricingUtils;
-            _moduleManagerRepository = moduleManagerRepository;
+            _discountDetailsManager = discountDetailsManager;
+            _groupSettingsManager = groupSettingsManager;
         }
 
-        public GenericListResponse<UsageModule> GetPricePlans(int groupId, List<long> pricePlanIds)
+        public GenericListResponse<PricePlan> GetPricePlans(int groupId, List<long> pricePlanIds = null)
         {
-            var response = new GenericListResponse<UsageModule>();
+            var response = new GenericListResponse<PricePlan>();
+            string key = LayeredCacheKeys.GetGroupPricePlansKey(groupId);
+            var funcParams = new Dictionary<string, object>() { { "groupId", groupId } };
+            List<PricePlan> PricePlans = null;
 
-            string cacheKey = GetGroupPricePlansKey(groupId);
-            List<UsageModule> usageModuleList = null;
-            if (!_pricingCache.TryGetGroupPricePlans(cacheKey, out usageModuleList) || usageModuleList == null)
+            if(!_layeredCache.Get(key, ref PricePlans, GetPricePlans, funcParams, groupId,
+                LayeredCacheConfigNames.GET_GROUP_PRICE_PLAN_LAYERED_CACHE_CONFIG_NAME, new List<string>(){LayeredCacheKeys.GetGroupPricePlanInvalidationKey(groupId) }))
             {
-                List<UsageModuleDTO> usageModuleDTOList = _repository.GetPricePlansDTO(groupId);
-                response.Objects = ConvertUsageModule(usageModuleDTOList);
-
-                if (response.Objects != null)
-                {
-                    PricingCache.TryAddGroupPricePlans(cacheKey, response.Objects);
-                }
+                log.Error($"faild to GetPricePlans from layeredCache for groupId:{groupId}.");
+                return response;
             }
-            else
+            if (PricePlans != null)
             {
-                response.Objects = usageModuleList;
+                response.Objects = PricePlans;
             }
-
             if (pricePlanIds?.Count > 0 && response.Objects?.Count > 0)
             {
-                response.Objects = response.Objects.Where(pp => pricePlanIds.Contains(pp.m_nObjectID)).ToList();
+                response.Objects = response.Objects.Where(pp => pricePlanIds.Contains(pp.Id.Value)).ToList();
             }
 
-            response.Status.Set(eResponseStatus.OK);
-
             response.TotalItems = response.Objects != null ? response.Objects.Count : 0;
+            response.Status.Set(eResponseStatus.OK);
 
             return response;
         }
 
-        public GenericResponse<UsageModule> Update(int groupId, int id, UsageModule pricePlanToUpdate)
+
+        private GenericResponse<PricePlan> GetPricePlane(int groupId, long id)
         {
-            GenericResponse<UsageModule> response = new GenericResponse<UsageModule>();
+            GenericResponse<PricePlan> response = new GenericResponse<PricePlan>();
+            var pricePlanList = GetPricePlans(groupId, new List<long>() { id });
 
-            var usageModulesDTOs = _repository.GetPricePlansDTO(groupId, new List<long>() { id });
-
-            if (usageModulesDTOs == null || usageModulesDTOs.Count == 0)
+            if (!pricePlanList.HasObjects())
             {
                 response.SetStatus(eResponseStatus.PricePlanDoesNotExist, $"Price plan {id} does not exist");
                 return response;
             }
 
-            if (!_priceDetailsRepository.IsPriceCodeExistsById(groupId, pricePlanToUpdate.m_pricing_id))
+            response.Object = pricePlanList.Objects[0];
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+        }
+
+        public GenericResponse<PricePlan> Update(ContextData contextData, int id, PricePlan pricePlanToUpdate)
+        {
+            GenericResponse<PricePlan> response = new GenericResponse<PricePlan>();
+            if (!_groupSettingsManager.IsOpc(contextData.GroupId))
             {
-                response.SetStatus(eResponseStatus.PriceDetailsDoesNotExist, "Price details does not exist");
+                response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
                 return response;
             }
+            var PricePlanResponse = GetPricePlane(contextData.GroupId, id);
 
-            var usageModules = ConvertUsageModule(usageModulesDTOs);
-
-            if (usageModules?.Count > 0)
+            if (!PricePlanResponse.HasObject())
             {
-                // update only price code ID
-                if (usageModules[0].m_pricing_id == pricePlanToUpdate.m_pricing_id || _repository.UpdatePricePlanAndSubscriptionsPriceCode(groupId, id, pricePlanToUpdate.m_pricing_id))
+                return PricePlanResponse;
+            }
+
+            var oldPricePlan = PricePlanResponse.Object;
+            Status validate =  Validate(contextData.GroupId, pricePlanToUpdate);
+
+            if (!validate.IsOkStatusCode())
+            {
+                PricePlanResponse.SetStatus(validate);
+                return PricePlanResponse;
+            }
+
+            Boolean shouldUpdate = pricePlanToUpdate.IsNeedToUpdate(oldPricePlan);
+            pricePlanToUpdate.Id = id;
+
+            if (shouldUpdate)
+            {
+                int updatedRow = _repository.UpdatePricePlan(contextData.GroupId, pricePlanToUpdate, id, contextData.UserId.Value);
+
+                if (updatedRow > 0)
                 {
-                    usageModules[0].m_pricing_id = pricePlanToUpdate.m_pricing_id;
-                    response.Object = usageModules[0];
+                    SetPricePlanInvalidation(contextData.GroupId);
+                    response.Object = pricePlanToUpdate;
                     response.SetStatus(eResponseStatus.OK);
                 }
+            }
+            else
+            {
+                response.Object = pricePlanToUpdate;
+                response.SetStatus(eResponseStatus.OK);
             }
 
             return response;
@@ -127,138 +151,107 @@ namespace ApiLogic.Pricing.Handlers
         public Status Delete(ContextData contextData, long id)
         {
             Status result = new Status();
-
-            if (!_moduleManagerRepository.IsUsageModuleExistsById(contextData.GroupId, id))
+            if (!_groupSettingsManager.IsOpc(contextData.GroupId))
             {
-                result.Set(eResponseStatus.PricePlanDoesNotExist, $"Price plan {id} does not exist");
+                result.Set(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
+                return result;
+            }
+            
+            var PricePlanResponse = GetPricePlane(contextData.GroupId, id);
+            if (!PricePlanResponse.HasObject())
+            { 
+                result.Set(PricePlanResponse.Status);
                 return result;
             }
 
             if (!_repository.DeletePricePlan(contextData.GroupId, id, contextData.UserId.Value))
             {
-                log.Error($"Error while DeletePricePlan. contextData: {contextData.ToString()}.");
+                log.Error($"Error while DeletePricePlan. pricePlan id:{id}, contextData: {contextData}.");
                 result.Set(eResponseStatus.Error);
                 return result;
             }
 
-            string invalidationKey = LayeredCacheKeys.GetPricingSettingsInvalidationKey(contextData.GroupId);
-            if (!_layeredCache.SetInvalidationKey(invalidationKey))
-            {
-                log.ErrorFormat("Failed to set pricing settings invalidation key after usage module add/update, key = {0}", invalidationKey);
-            }
-
+            SetPricePlanInvalidation(contextData.GroupId);
             result.Set(eResponseStatus.OK);
+
             return result;
         }
 
-        public GenericResponse<UsageModule> Add(ContextData contextData, UsageModule pricePlanToInsert)
+        public GenericResponse<PricePlan> Add(ContextData contextData, PricePlan pricePlanToInsert)
         {
-            var response = new GenericResponse<UsageModule>();
-
-            try
+            var response = new GenericResponse<PricePlan>();
+            if (!_groupSettingsManager.IsOpc(contextData.GroupId))
             {
-                if (string.IsNullOrEmpty(pricePlanToInsert.m_sVirtualName))
-                {
-                    response.SetStatus(eResponseStatus.NameRequired, "Name required");
-                    return response;
-                }
-
-                if (pricePlanToInsert.m_num_of_rec_periods < 0)
-                {
-                    response.SetStatus(eResponseStatus.InvalidArgumentValue, "renewalsNumber invalid value");
-
-                }
-
-                if (pricePlanToInsert.m_pricing_id == 0)
-                {
-                    response.SetStatus(eResponseStatus.InvalidPriceCode, $"Invalid priceDetails {pricePlanToInsert.m_pricing_id}");
-                    return response;
-                }
-                else if (!_priceDetailsManager.IsPriceCodeExist(contextData.GroupId, pricePlanToInsert.m_pricing_id))
-                {
-                    response.SetStatus(eResponseStatus.PriceCodeDoesNotExist, $"Price details {pricePlanToInsert.m_pricing_id} does not exist");
-                    return response;
-                }
-
-                if (pricePlanToInsert.m_tsMaxUsageModuleLifeCycle == 0 || string.IsNullOrEmpty(_pricingUtils.GetMinPeriodDescription(pricePlanToInsert.m_tsMaxUsageModuleLifeCycle)))
-                {
-                    response.SetStatus(eResponseStatus.InvalidArgumentValue, "fullLifeCycle invalid value");
-                    return response;
-                }
-
-                if (pricePlanToInsert.m_tsViewLifeCycle == 0 || string.IsNullOrEmpty(_pricingUtils.GetMinPeriodDescription(pricePlanToInsert.m_tsViewLifeCycle)))
-                {
-                    response.SetStatus(eResponseStatus.InvalidArgumentValue, "viewLifeCycle invalid value");
-                    return response;
-                }
-
-
-                IngestPricePlan ingestPricePlan = new IngestPricePlan()
-                {
-                    Code = pricePlanToInsert.m_sVirtualName,
-                    IsActive = true,
-                    MaxViews = pricePlanToInsert.m_nMaxNumberOfViews,
-                    IsRenewable = pricePlanToInsert.m_is_renew == 1 ? true : false,
-                    RecurringPeriods = pricePlanToInsert.m_num_of_rec_periods
-                };
-
-                int id = _repository.InsertPricePlan(contextData.GroupId, ingestPricePlan, pricePlanToInsert.m_pricing_id, pricePlanToInsert.m_tsMaxUsageModuleLifeCycle, pricePlanToInsert.m_tsViewLifeCycle, pricePlanToInsert.m_internal_discount_id);
-                if (id == 0)
-                {
-                    log.Error($"Error while InsertPricePlan. contextData: {contextData.ToString()}.");
-                    return response;
-                }
-
-                //SetPriceCodeValidation(contextData.GroupId, id);
-
-                pricePlanToInsert.m_nObjectID = id;
-                response.Object = pricePlanToInsert;
-                response.Status.Set(eResponseStatus.OK);
+                response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, eResponseStatus.AccountIsNotOpcSupported.ToString());
+                return response;
             }
-            catch (Exception ex)
+            Status validate = Validate(contextData.GroupId, pricePlanToInsert);
+            if (!validate.IsOkStatusCode())
             {
-                log.Error($"An Exception was occurred in PricePlan. contextData:{contextData.ToString()}, name:{pricePlanToInsert.m_sVirtualName}.", ex);
+                response.SetStatus(validate);
+                return response;
             }
+            long id = _repository.InsertPricePlan(contextData.GroupId, pricePlanToInsert, contextData.UserId.Value);
+            if (id == 0)
+            {
+                log.Error($"Error while InsertPricePlan. contextData: {contextData}, pricePlan name:{pricePlanToInsert.Name}..");
+                return response;
+            }
+
+            SetPricePlanInvalidation(contextData.GroupId);
+            pricePlanToInsert.Id = id;
+            response.Object = pricePlanToInsert;
+            response.Status.Set(eResponseStatus.OK);
 
             return response;
         }
 
-        private string GetGroupPricePlansKey(int groupId)
+        public void SetPricePlanInvalidation(int groupId)
         {
-            return $"GroupPricePlan_{groupId}";
+            // invalidation keys
+            string invalidationKey = LayeredCacheKeys.GetGroupPricePlanInvalidationKey(groupId);
+
+            if (!_layeredCache.SetInvalidationKey(invalidationKey))
+            {
+                log.Error($"Failed to set invalidation key for PricePlan codes. key = {invalidationKey}");
+            }
         }
 
-        private List<UsageModule> ConvertUsageModule(List<UsageModuleDTO> usageModuleDTOList)
+        private Status Validate(int groupId, PricePlan pricePlan)
         {
-            List<UsageModule> usageModules = null;
-
-            if (usageModuleDTOList?.Count > 0)
+            if (pricePlan.PriceDetailsId.HasValue)
             {
-                usageModules = new List<UsageModule>();
-                UsageModule usageModule;
-                foreach (var usageModuleDTO in usageModuleDTOList)
+                var currPriceDetails = _priceDetailsManager.GetPriceDetailsById(groupId, pricePlan.PriceDetailsId.Value);
+                if (!currPriceDetails.HasObject())
                 {
-                    usageModule = new UsageModule()
-                    {
-                        m_bIsOfflinePlayBack = usageModuleDTO.IsOfflinePlayBack,
-                        m_bWaiver = usageModuleDTO.Waiver,
-                        m_coupon_id = usageModuleDTO.CouponId,
-                        m_ext_discount_id = usageModuleDTO.ExtDiscountId,
-                        m_is_renew = usageModuleDTO.IsRenew,
-                        m_nMaxNumberOfViews = usageModuleDTO.MaxNumberOfViews,
-                        m_nObjectID = usageModuleDTO.Id,
-                        m_num_of_rec_periods = usageModuleDTO.NumOfRecPeriods,
-                        m_nWaiverPeriod = usageModuleDTO.WaiverPeriod,
-                        m_pricing_id = usageModuleDTO.PricingId,
-                        m_sVirtualName = usageModuleDTO.VirtualName,
-                        m_tsMaxUsageModuleLifeCycle = usageModuleDTO.TsMaxUsageModuleLifeCycle,
-                        m_tsViewLifeCycle = usageModuleDTO.TsViewLifeCycle
-                    };
-                    usageModules.Add(usageModule);
+                    return currPriceDetails.Status;
                 }
             }
 
-            return usageModules;
+            if (pricePlan.DiscountId.HasValue)
+            {
+                var disocuntDetailes = _discountDetailsManager.GetDiscountDetailsById(groupId, pricePlan.DiscountId.Value);
+                if (!disocuntDetailes.HasObject())
+                {
+                    return disocuntDetailes.Status;
+                }
+            }
+
+            return Status.Ok;
         }
+
+        private Tuple<List<PricePlan>, bool> GetPricePlans(Dictionary<string, object> funcParams)
+        {
+            List<PricePlan> pricePlan = null;
+            if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
+            {
+                int? groupId = funcParams["groupId"] as int?;
+                pricePlan = _repository.GetPricePlans(groupId.Value);
+            }
+            bool res = pricePlan != null;
+
+            return new Tuple<List<PricePlan>, bool>(pricePlan, res);
+        }
+
     }
 }

@@ -16,7 +16,6 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "quotaInMinutes")]
         [JsonProperty("quotaInMinutes")]
         [XmlElement(ElementName = "quotaInMinutes")]
-        [SchemeProperty(ReadOnly = true)]
         public long? QuotaInMinutes { get; set; }
     }
 }

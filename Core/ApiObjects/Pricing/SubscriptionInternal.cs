@@ -1,10 +1,11 @@
-﻿using ApiObjects.Pricing.Dto;
+﻿using ApiObjects.Base;
+using ApiObjects.Pricing.Dto;
 using System;
 using System.Collections.Generic;
 
 namespace ApiObjects.Pricing
 {
-    public class SubscriptionInternal
+    public class SubscriptionInternal : BaseSupportsNullable
     {
         public long Id { get; set; }
 

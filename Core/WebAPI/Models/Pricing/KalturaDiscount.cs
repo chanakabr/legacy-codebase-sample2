@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Exceptions;
@@ -22,6 +23,18 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("percentage")]
         [XmlElement(ElementName = "percentage", IsNullable = true)]
         public int Percentage { get; set; }
+
+        public void Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Currency))
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "currency");
+
+            if (Amount > 0 && Percentage > 0)
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "amount", "Percentage");
+
+            if (Amount == 0 && Percentage == 0)
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "amount, Percentage");
+        }
     }
 
     /// <summary>
@@ -44,6 +57,8 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
+        [SchemeProperty(MinLength = 1)]
+
         public string name { get; set; }
 
         /// <summary>
@@ -61,6 +76,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "startDate")]
         [JsonProperty(PropertyName = "startDate")]
         [XmlElement(ElementName = "startDate")]
+        [SchemeProperty(MinInteger = 1)]
         public long StartDate { get; set; }
 
         /// <summary>
@@ -69,6 +85,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "endDate")]
         [JsonProperty(PropertyName = "endDate")]
         [XmlElement(ElementName = "endDate")]
+        [SchemeProperty(MinInteger = 1)]
         public long EndtDate { get; set; }
 
         /// <summary>
@@ -77,7 +94,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "whenAlgoTimes")]
         [JsonProperty(PropertyName = "whenAlgoTimes")]
         [XmlElement(ElementName = "whenAlgoTimes")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.READ, MinInteger = 1)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ, MinInteger = 0)]
         public int WhenAlgoTimes { get; set; }
 
         /// <summary>
@@ -86,7 +103,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "whenAlgoType")]
         [JsonProperty(PropertyName = "whenAlgoType")]
         [XmlElement(ElementName = "whenAlgoType")]
-        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ, MinInteger = 1)]
         public int WhenAlgoType { get; set; }
 
         public void ValidateForAdd()
@@ -94,9 +111,11 @@ namespace WebAPI.Models.Pricing
             if (string.IsNullOrWhiteSpace(name))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
 
+            // If nothing send
             if (StartDate.Equals(0))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "startDate");
 
+            // If nothing send
             if (EndtDate.Equals(0))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "EndtDate");
 
@@ -106,16 +125,24 @@ namespace WebAPI.Models.Pricing
             if (!Enum.IsDefined(typeof(WhenAlgoType), WhenAlgoType))
                 throw new BadRequestException(BadRequestException.ARGUMENT_ENUM_VALUE_NOT_SUPPORTED, "WhenAlgoType", WhenAlgoType);
 
+            ValidateMultiCurrencyDiscount();
+        }
+
+        public void ValidateForUpdate()
+        {
+            if( MultiCurrencyDiscount != null)
+            {
+                if (MultiCurrencyDiscount.Count == 0)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "multiCurrencyDiscount");
+
+                ValidateMultiCurrencyDiscount();
+            }
+        }
+        public void ValidateMultiCurrencyDiscount()
+        {
             foreach (KalturaDiscount discount in MultiCurrencyDiscount)
             {
-                if (string.IsNullOrWhiteSpace(discount.Currency))
-                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "currency"); 
-
-                if (discount.Amount > 0 && discount.Percentage > 0)
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "amount", "Percentage");
-
-                if (discount.Amount == 0 && discount.Percentage == 0)
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "amount, Percentage");
+                discount.Validate();
             }
         }
     }

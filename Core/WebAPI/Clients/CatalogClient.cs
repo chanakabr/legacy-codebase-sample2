@@ -33,6 +33,7 @@ using WebAPI.Models.Api;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
+using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor;
@@ -70,7 +71,8 @@ namespace WebAPI.Clients
 
         #region New Catalog Management
 
-        public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool? isProtected, long metaId = 0)
+        public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool? isProtected, 
+            long metaId = 0, KalturaObjectVirtualAssetInfoType? objectVirtualAssetInfoType = null)
         {
             KalturaAssetStructListResponse result = new KalturaAssetStructListResponse() { TotalCount = 0 };
 
@@ -79,6 +81,12 @@ namespace WebAPI.Clients
                 if (metaId > 0)
                 {
                     return CatalogManager.Instance.GetAssetStructsByTopicId(groupId, metaId, isProtected);
+                }
+                else if (objectVirtualAssetInfoType.HasValue)
+                {
+                    var virtualEntityType = Mapper.Map<ObjectVirtualAssetInfoType>(objectVirtualAssetInfoType);
+
+                    return Core.Catalog.CatalogManagement.CatalogManager.Instance.GetAssetStructByVirtualEntityType(groupId, virtualEntityType);
                 }
                 else
                 {
@@ -288,7 +296,7 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(deleteAssetFunc);
         }
 
-        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid, 
+        public KalturaAsset GetAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, string siteGuid, int domainId, string udid,
             string language, bool isAllowedToViewInactiveAssets, bool ignoreEndDate = false)
         {
             KalturaAsset result = null;
@@ -794,8 +802,8 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetListResponse SearchAssets(SearchAssetsFilter searchAssetsFilter, 
-            KalturaAssetOrderBy orderBy, KalturaDynamicOrderBy assetOrder = null, KalturaBaseResponseProfile responseProfile = null, 
+        public KalturaAssetListResponse SearchAssets(SearchAssetsFilter searchAssetsFilter,
+            KalturaAssetOrderBy orderBy, KalturaDynamicOrderBy assetOrder = null, KalturaBaseResponseProfile responseProfile = null,
             KalturaGroupByOrder? groupByOrder = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
@@ -3211,7 +3219,7 @@ namespace WebAPI.Clients
 
                 //BEO-9994, pagination if from aggs and has pagination
                 if (pageSize.HasValue && scheduledRecordingResponse.aggregationResults != null
-                    && scheduledRecordingResponse.aggregationResults.Count > 0 && assetsBaseDataList != null && assetsBaseDataList.Count != 0)
+                    && scheduledRecordingResponse.aggregationResults.Any() && assetsBaseDataList != null && assetsBaseDataList.Count != 0)
                 {
                     assetsBaseDataList = assetsBaseDataList.Skip(pageSize.Value * pageIndex)?.Take(pageSize.Value).ToList();
                 }
@@ -3222,6 +3230,19 @@ namespace WebAPI.Clients
                 if (result.Objects.Count < request.m_nPageSize && request.m_nPageIndex == 1)
                 {
                     result.TotalCount = result.Objects.Count; //BEO-8507
+                }
+                else if (scheduledRecordingResponse.aggregationResults != null && scheduledRecordingResponse.aggregationResults.Any())
+                {
+                    //BEO-9982
+                    var bucketList = scheduledRecordingResponse.aggregationResults.Where(x => x.totalItems > 0).ToList();
+                    if (bucketList != null && bucketList.Any())
+                    {
+                        result.TotalCount = bucketList.Sum(x => x.totalItems);
+                    }
+                    else
+                    {
+                        result.TotalCount = 0;
+                    }
                 }
                 else
                 {
@@ -3619,7 +3640,7 @@ namespace WebAPI.Clients
             KalturaMediaFileTypeListResponse result = new KalturaMediaFileTypeListResponse() { TotalCount = 0 };
 
             Func<GenericListResponse<MediaFileType>> getMediaFileTypesFunc = () =>
-               FileManager.GetMediaFileTypes(groupId);
+               Core.Catalog.CatalogManagement.FileManager.Instance.GetMediaFileTypes(groupId);
 
             KalturaGenericListResponse<KalturaMediaFileType> response =
                 ClientUtils.GetResponseListFromWS<KalturaMediaFileType, MediaFileType>(getMediaFileTypesFunc);
@@ -4229,10 +4250,10 @@ namespace WebAPI.Clients
                     GroupBy = groupBy,
                     IsAllowedToViewInactiveAssets = false,
                     IgnoreEndDate = false,
-                    GroupByType =  GroupingOption.Omit,
+                    GroupByType = GroupingOption.Omit,
                     IsPersonalListSearch = true,
                     UseFinal = false,
-                    TrendingDays  = trendingDays
+                    TrendingDays = trendingDays
                 };
 
                 response = ClientsManager.CatalogClient().SearchAssets(searchAssetsFilter, orderBy, dynamicOrderBy, responseProfile);

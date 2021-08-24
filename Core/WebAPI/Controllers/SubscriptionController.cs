@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Clients;
 using WebAPI.Exceptions;
@@ -17,10 +16,11 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
-using WebAPI.Utils;
+using WebAPI.Utils; 
 
 namespace WebAPI.Controllers
 {
+	
     [Service("subscription")]
     public class SubscriptionController : IKalturaController
     {
@@ -45,15 +45,15 @@ namespace WebAPI.Controllers
             {
                 pager = new KalturaFilterPager();
             }
-
+			
+	
             if (filter == null)
             {
                 filter = new KalturaSubscriptionFilter();
-                isFilterValid = true;
             }
             else
             {
-                isFilterValid = filter.Validate();
+                filter.Validate();
             }
 
             int groupId = KS.GetFromRequest().GroupId;
@@ -109,10 +109,17 @@ namespace WebAPI.Controllers
 
                     result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                 }
-                else if (isFilterValid)
+                else 
                 {
+                    bool inactiveAssets = false;
+                    if (filter.AlsoInactive.HasValue)
+                    {
+                        inactiveAssets = isAllowedToViewInactiveAssets && filter.AlsoInactive.Value;
+                    }
+                       
                     getListFunc = () =>
-                      SubscriptionManager.Instance.GetSubscriptionsData(groupId, udid, language, coreFilter.OrderBy, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual);
+                      SubscriptionManager.Instance.GetSubscriptionsData(groupId, udid, language, coreFilter.OrderBy, pager.getPageIndex(), pager.PageSize, filter.CouponGroupIdEqual, 
+                                                                        inactiveAssets, filter.PreviewModuleIdEqual, filter.PricePlanIdEqual, filter.ChannelIdEqual);
 
                     result = ClientUtils.GetResponseListFromWS<KalturaSubscription, Subscription>(getListFunc);
                 }
@@ -227,6 +234,14 @@ namespace WebAPI.Controllers
         /// <param name="subscription">subscription object</param>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.ChannelDoesNotExist)]
+        [Throws(eResponseStatus.CouponGroupNotExist)]        
+        [Throws(eResponseStatus.ExternalIdAlreadyExists)]
+        [Throws(eResponseStatus.InvalidFileTypes)]
+        [Throws(eResponseStatus.DlmNotExist)]
+        [Throws(eResponseStatus.InvalidDiscountCode)]
+        [Throws(eResponseStatus.PricePlanDoesNotExist)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         static public KalturaSubscription Add(KalturaSubscription subscription)
         {
             KalturaSubscription result = null;
@@ -246,7 +261,7 @@ namespace WebAPI.Controllers
                                SubscriptionManager.Instance.GetSubscription(contextData.GroupId, long.Parse(result.Id));
 
                     result = ClientUtils.GetResponseFromWS<KalturaSubscription, Subscription>(getFunc);
-                }               
+                }
             }
             catch (ClientException ex)
             {
@@ -264,6 +279,7 @@ namespace WebAPI.Controllers
         /// <param name="id">Subscription id</param>
         [Action("delete")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         //[Throws(eResponseStatus.SubscriptionNotExist)]
         static public bool Delete(long id)
         {
@@ -278,6 +294,58 @@ namespace WebAPI.Controllers
                 result = ClientUtils.GetResponseStatusFromWS(delete);
             }
 
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Update Subscription
+        /// </summary>
+        /// <param name="id">Subscription id</param>
+        /// <param name="subscription">Subscription</param>
+        [Action("update")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.SubscriptionDoesNotExist)]
+        [Throws(eResponseStatus.NameRequired)]
+        [Throws(eResponseStatus.ChannelDoesNotExist)]
+        [Throws(eResponseStatus.CouponGroupNotExist)]        
+        [Throws(eResponseStatus.ExternalIdAlreadyExists)]
+        [Throws(eResponseStatus.InvalidFileTypes)]
+        [Throws(eResponseStatus.DlmNotExist)]
+        [Throws(eResponseStatus.InvalidDiscountCode)]
+        [Throws(eResponseStatus.PricePlanDoesNotExist)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
+        [SchemeArgument("id", MinLong = 1)]
+        static public KalturaSubscription Update(long id, KalturaSubscription subscription)
+        {
+            KalturaSubscription result = null;
+
+            var contextData = KS.GetContextData();
+            subscription.ValidateForUpdate();
+
+            try
+            {
+                subscription.Id = id.ToString();
+
+                Func<SubscriptionInternal, GenericResponse<SubscriptionInternal>> updateSubscriptionFunc = (SubscriptionInternal subscriptionToInsert) =>
+                  SubscriptionManager.Instance.Update(contextData, subscriptionToInsert);
+
+                result = ClientUtils.GetResponseFromWS<KalturaSubscription, SubscriptionInternal>(subscription, updateSubscriptionFunc);
+
+                if (result != null)
+                {
+
+                    Func<GenericResponse<Subscription>> getFunc = () =>
+                               SubscriptionManager.Instance.GetSubscription(contextData.GroupId, long.Parse(result.Id));
+
+                    result = ClientUtils.GetResponseFromWS<KalturaSubscription, Subscription>(getFunc);
+                }
+
+            }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);

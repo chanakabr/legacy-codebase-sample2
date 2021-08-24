@@ -236,7 +236,8 @@ namespace Core.Catalog.CatalogManagement
                         Name = objectToUpdate.Name,
                         UserId = contextData.UserId.Value,
                         withExtendedTypes = true,
-                        DuplicateAssetId = currentCategory.VirtualAssetId
+                        DuplicateAssetId = currentCategory.VirtualAssetId,
+                        IsActive = currentCategory.IsActive
                     };
                 }
 
@@ -778,7 +779,8 @@ namespace Core.Catalog.CatalogManagement
                 TimeSlot = parent.TimeSlot,
                 Type = parent.Type,
                 VersionId = parent.VersionId,
-                ReferenceId = parent.ReferenceId
+                ReferenceId = parent.ReferenceId,
+                NamesInOtherLanguages = parent.NamesInOtherLanguages
             };
 
             if (AddCategoryItem(groupId, userId, newICategory, parent.VirtualAssetId))
@@ -1168,7 +1170,8 @@ namespace Core.Catalog.CatalogManagement
                     Id = id,
                     Name = objectToAdd.Name,
                     UserId = userId,
-                    DuplicateAssetId = duplicateVirtualAssetId
+                    DuplicateAssetId = duplicateVirtualAssetId,
+                    IsActive = objectToAdd.IsActive
                 };
 
                 var virtualAssetInfoResponse = _virtualAssetManager.AddVirtualAsset(groupId, virtualAssetInfo, objectToAdd.Type);

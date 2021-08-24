@@ -19,17 +19,17 @@ using System.Web.Http.Description;
 
 namespace WebAPI.Controllers
 {
-    #if NET48
+#if NET48
     [RoutePrefix("api_v3")]
-    #endif
+#endif
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ServiceController : ApiController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        
+
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route(""), HttpGet, HttpOptions]
-        public async Task<object> __Action([FromUri]string service, [FromUri]string action)
+        public async Task<object> __Action([FromUri] string service, [FromUri] string action)
         {
             return await Action(service, action);
         }
@@ -78,7 +78,7 @@ namespace WebAPI.Controllers
         [ApiExplorerSettings(IgnoreApi = true)]
         [Route("service/{service_name}/action/{action_name}"), HttpPost]
         public async Task<object> Action(string service_name, string action_name)
-         {
+        {
             object response = null;
 
             try
@@ -102,6 +102,11 @@ namespace WebAPI.Controllers
             catch (TargetParameterCountException ex)
             {
                 throw new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS);
+            }
+            catch (ClientException ex)
+            {
+                var apiException = new ApiException(ex);
+                throw apiException;
             }
             catch (Exception ex)
             {
@@ -174,6 +179,11 @@ namespace WebAPI.Controllers
             {
                 ApiException apiEx = new ApiException(new BadRequestException(BadRequestException.INVALID_ACTION_PARAMETERS), HttpStatusCode.NotFound);
                 throw apiEx;
+            }
+            catch (ClientException ex)
+            {
+                var apiException = new ApiException(ex, HttpStatusCode.NotFound);
+                throw apiException;
             }
             catch (Exception ex)
             {

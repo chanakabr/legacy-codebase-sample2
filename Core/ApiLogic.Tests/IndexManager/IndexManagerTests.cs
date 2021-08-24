@@ -26,6 +26,7 @@ using EpgGroupSettings = GroupsCacheManager.EpgGroupSettings;
 using KeyValuePair = System.Collections.Generic.KeyValuePair;
 using Utils = ElasticSearch.Common.Utils;
 using ApiLogic.Catalog;
+using ApiLogic.IndexManager.Mappings;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -42,6 +43,7 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<ILayeredCache> _mockLayeredCache;
         private Mock<ICatalogCache> _mockCatalogCache;
         private Mock<IWatchRuleManager> _mockWatchRuleManager;
+        private Mock<IMappingTypeResolver> _mockMappingTypeResolver;
 
         private static int _nextPartnerId = 10000;
         private Random _random;
@@ -58,7 +60,8 @@ namespace ApiLogic.Tests.IndexManager
                 _mockLayeredCache.Object,
                 _mockChannelManager.Object,
                 _mockCatalogCache.Object,
-                _mockWatchRuleManager.Object
+                _mockWatchRuleManager.Object,
+                _mockMappingTypeResolver.Object
                 );
         }
 
@@ -168,6 +171,7 @@ namespace ApiLogic.Tests.IndexManager
             _mockCatalogCache = _mockRepository.Create<ICatalogCache>();
             _mockLayeredCache = _mockRepository.Create<ILayeredCache>();
             _mockWatchRuleManager = _mockRepository.Create<IWatchRuleManager>();
+            _mockMappingTypeResolver = _mockRepository.Create<IMappingTypeResolver>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance);
 
         }
@@ -477,6 +481,7 @@ namespace ApiLogic.Tests.IndexManager
             var language = GetRandomLanguage();
             var languageObjs = new List<ApiObjects.LanguageObj>() { language }.ToDictionary(x => x.Code);
             SetupOpcPartnerMocks(randomPartnerId, new[] { language });
+            _mockMappingTypeResolver.Setup(x => x.GetMappingType(false, language)).Returns("epg_en");
             var indexManager = GetIndexV2Manager(randomPartnerId);
             var policy = Policy.Handle<Exception>().WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1));
             var epgId = 1 + _random.Next(1000);
@@ -556,6 +561,7 @@ namespace ApiLogic.Tests.IndexManager
             var language = GetRandomLanguage();
             var languageObjs = new List<ApiObjects.LanguageObj>() { language }.ToDictionary(x => x.Code);
             SetupOpcPartnerMocks(partnerId, new[] { language });
+            _mockMappingTypeResolver.Setup(x => x.GetMappingType(false, language)).Returns("epg_en");
             var indexManager = GetIndexV2Manager(partnerId);
             var policy = Policy.Handle<Exception>().WaitAndRetry(3, retryAttempt => TimeSpan.FromSeconds(1));
             ulong epgId = (ulong)(1 + _random.Next(10000));
@@ -637,6 +643,7 @@ namespace ApiLogic.Tests.IndexManager
             var randomChannel = GetRandomChannel(randomPartnerId);
             var language = GetRandomLanguage();
             SetupOpcPartnerMocks(randomPartnerId, new[] { language });
+            _mockMappingTypeResolver.Setup(x => x.GetMappingType(false, language)).Returns("epg_en");
             var indexManager = GetIndexV2Manager(randomPartnerId);
 
             var channelIndexName = indexManager.SetupChannelMetadataIndex();

@@ -1068,33 +1068,6 @@ namespace Core.Pricing
             return discountsMap != null ? discountsMap.Values.ToList() : null;
         }
 
-        internal static List<PreviewModule> BuildPreviewModulesFromDataTable(DataTable previewModules)
-        {
-            Dictionary<long, PreviewModule> previewModulesMap = new Dictionary<long, PreviewModule>();
-
-            if (previewModules != null && previewModules.Rows != null && previewModules.Rows.Count > 0)
-            {
-                foreach (DataRow dr in previewModules.Rows)
-                {
-                    long id = ODBCWrapper.Utils.GetLongSafeVal(dr, "id");
-
-                    if (!previewModulesMap.ContainsKey(id))
-                    {
-                        PreviewModule pd = new PreviewModule()
-                        {
-                            m_nID = id,
-                            m_sName = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
-                            m_tsFullLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(dr, "FULL_LIFE_CYCLE_ID"),
-                            m_tsNonRenewPeriod = ODBCWrapper.Utils.GetIntSafeVal(dr, "NON_RENEWING_PERIOD_ID")
-                        };
-                        previewModulesMap.Add(id, pd);
-                    }
-                }
-            }
-
-            return previewModulesMap != null ? previewModulesMap.Values.ToList() : null;
-        }
-
         public static bool IsCouponValid(CouponDataResponse couponData)
         {
             bool result = false;

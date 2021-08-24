@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -9,8 +10,8 @@ namespace ElasticSearch.Common
         string GetAnalyzerDefinition(string sAnalyzerName);
         string GetFilterDefinition(string sFilterName);
         string GetTokenizerDefinition(string tokenizerName);
-        bool AnalyzerExists(string sAnalyzerName);
-        bool FilterExists(string sFilterName);
+        bool AnalyzerExists(string analyzerName);
+        bool FilterExists(string filterName);
         bool TokenizerExists(string tokenizerName);
     }
 
@@ -22,58 +23,47 @@ namespace ElasticSearch.Common
 
         private readonly IElasticSearchCommonUtils _utils;
 
-        private static Dictionary<string, string> dESAnalyzers = new Dictionary<string, string>();
-        private static Dictionary<string, string> dESFilters = new Dictionary<string, string>();
-        private static Dictionary<string, string> tokenizers = new Dictionary<string, string>();
+        private static ConcurrentDictionary<string, string> dESAnalyzers = new ConcurrentDictionary<string, string>();
+        private static ConcurrentDictionary<string, string> dESFilters = new ConcurrentDictionary<string, string>();
+        private static ConcurrentDictionary<string, string> tokenizers = new ConcurrentDictionary<string, string>();
 
         public ElasticSearchIndexDefinitions(IElasticSearchCommonUtils utils)
         {
             _utils = utils;
         }
 
-        public string GetAnalyzerDefinition(string sAnalyzerName)
+        public string GetAnalyzerDefinition(string analyzerName)
         {
-            string analyzer;
-
-            if (!dESAnalyzers.TryGetValue(sAnalyzerName, out analyzer))
+            if (!dESAnalyzers.TryGetValue(analyzerName, out string analyzer))
             {
-
-                analyzer = _utils.GetTcmValue(sAnalyzerName);
+                analyzer = _utils.GetTcmValue(analyzerName);
                 if (!string.IsNullOrEmpty(analyzer))
-                    dESAnalyzers[sAnalyzerName] = analyzer;
+                    dESAnalyzers.TryAdd(analyzerName, analyzer);
             }
-
             return analyzer;
         }
 
-        public string GetFilterDefinition(string sFilterName)
+        public string GetFilterDefinition(string filterName)
         {
-            string filter;
-
-            if (!dESFilters.TryGetValue(sFilterName, out filter))
+            if (!dESFilters.TryGetValue(filterName, out string filter))
             {
-                filter = _utils.GetTcmValue(sFilterName);
+                filter = _utils.GetTcmValue(filterName);
                 if (!string.IsNullOrEmpty(filter))
-                    dESFilters[sFilterName] = filter;
+                    dESFilters.TryAdd(filterName, filter);
             }
-
             return filter;
         }
 
         public string GetTokenizerDefinition(string tokenizerName)
         {
-            string tokenizer;
-
-            if (!tokenizers.TryGetValue(tokenizerName, out tokenizer))
+            if (!tokenizers.TryGetValue(tokenizerName, out string tokenizer))
             {
                 tokenizer = _utils.GetTcmValue(tokenizerName);
-
                 if (!string.IsNullOrEmpty(tokenizer))
                 {
-                    tokenizers[tokenizerName] = tokenizer;
+                    tokenizers.TryAdd(tokenizerName, tokenizer);
                 }
             }
-
             return tokenizer;
         }
 

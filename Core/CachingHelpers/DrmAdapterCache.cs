@@ -67,11 +67,16 @@ namespace CachingHelpers
         {
             int adapterId = 0;
             
-            string key = LayeredCacheKeys.GetGroupDrmAdapterIdKey(groupId);
-            bool cacheResult = LayeredCache.Instance.Get<int>(key, ref adapterId, Utils.GetGroupAdapterId, new Dictionary<string, object>() { { "groupId", groupId } },
-                groupId, LayeredCacheConfigNames.GROUP_DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetGroupDrmAdapterIdInvalidationKey(groupId) });
+            var key = LayeredCacheKeys.GetGroupDrmAdapterIdKey(groupId);
+            var cacheResult = LayeredCache.Instance.Get(key, 
+                                                        ref adapterId, 
+                                                        Utils.GetGroupAdapterId, 
+                                                        new Dictionary<string, object>() { { "groupId", groupId } },
+                                                        groupId, 
+                                                        LayeredCacheConfigNames.GROUP_DRM_ADAPTER_LAYERED_CACHE_CONFIG_NAME, 
+                                                        new List<string>() { LayeredCacheKeys.GetGroupDrmAdapterIdInvalidationKey(groupId) });
 
-            if (cacheResult)
+            if (!cacheResult)
             {
                 log.ErrorFormat("Failed GetGroupDrmAdapterId, groupId: {0}", groupId);
             }

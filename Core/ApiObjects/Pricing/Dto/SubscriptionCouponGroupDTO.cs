@@ -2,7 +2,6 @@
 
 namespace ApiObjects.Pricing.Dto
 {
-    // TODO move to DAL/DTO
     public class SubscriptionCouponGroupDTO
     {
         public DateTime? StartDate;
@@ -15,5 +14,15 @@ namespace ApiObjects.Pricing.Dto
             EndDate = endDate;
             GroupCode = groupCode;
         }
+    }
+
+    [Serializable]
+    public class SubscriptionItemDTO
+    {
+        public long Id { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime UpdateDate { get; set; }
+        public string Name { get; set; }
+        public bool IsActive { get; set; }
     }
 }

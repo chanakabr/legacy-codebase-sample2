@@ -53,7 +53,7 @@ namespace ApiLogic.Api.Managers
                     {
                         foreach (var subRegion in subRegions.Objects)
                         {
-                            var status = DeleteRegion(groupId, subRegion.id, userId);
+                            DeleteRegion(groupId, subRegion.id, userId);
                         }
                     }
                 }
@@ -597,84 +597,6 @@ namespace ApiLogic.Api.Managers
                 .ToList();
 
             return diffIds;
-        }
-
-        private static Status ValidateLinearChannels(int groupId, Region region, Region parentRegion)
-        {
-            Status result = new Status();
-
-            HashSet<string> linearChannels = new HashSet<string>();
-            int number = 0;
-
-            foreach (var item in region.linearChannels)
-            {
-                if (!int.TryParse(item.key, out number))
-                {
-                    result.Set(eResponseStatus.InputFormatIsInvalid, $"The channel id {item.key} is invalid");
-                    return result;
-                }
-
-                if (!int.TryParse(item.value, out number))
-                {
-                    result.Set(eResponseStatus.InputFormatIsInvalid, $"The channel number  {item.value}  is invalid");
-                    return result;
-                }
-
-                if (linearChannels.Contains(item.key))
-                {
-                    result.Set(eResponseStatus.DuplicateRegionChannel, $"Channel ID, { item.key}: the channel or its LCN already appears in this bouquet or one of its subbouquets.");
-                    return result;
-                }
-
-                linearChannels.Add(item.key);
-            }
-
-            if (parentRegion != null)
-            {
-                bool duplicate = parentRegion.linearChannels.Any(x => linearChannels.Contains(x.key));
-
-                if (duplicate)
-                {
-                    List<string> channelKeys = parentRegion.linearChannels.Where(x => linearChannels.Contains(x.key)).Select(z => z.key).ToList();
-                    result.Set(eResponseStatus.ParentAlreadyContainsChannel, $"For the following channel(s), the channel or its LCN already appears in the parent bouquet: { string.Join(",", channelKeys)}");
-                    return result;
-                }
-            }
-            else if (region.id > 0)
-            {
-                //get region children
-                RegionFilter filterParent = new RegionFilter() { ParentId = region.id, ExclusiveLcn = true };
-                var subRegions = GetRegions(groupId, filterParent);
-                if (subRegions != null && subRegions.HasObjects())
-                {
-                    //search for duplicates
-                    foreach (var subRegion in subRegions.Objects)
-                    {
-                        if (subRegion.linearChannels?.Count > 0)
-                        {
-                            bool duplicate = subRegion.linearChannels.Any(x => linearChannels.Contains(x.key));
-
-                            if (duplicate)
-                            {
-                                List<string> channelKeys = subRegion.linearChannels.Where(x => linearChannels.Contains(x.key)).Select(z => z.key).ToList();
-                                result.Set(eResponseStatus.DuplicateRegionChannel, $"For the following channel(s), the channel or its LCN already appears in this bouquet or one of its subbouquets: {channelKeys}");
-                                return result;
-                            }
-                        }
-                    }
-                }
-            }
-
-            List<KeyValuePair<eAssetTypes, long>> assets = linearChannels.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x))).ToList();
-            var allAssets = AssetManager.GetAssets(groupId, assets, true);
-            if (allAssets == null || allAssets.Count != linearChannels.Count)
-            {
-                log.Error($"One or more of the assets in linear channel list does not exist. groupId:{groupId}, id:{region.id}");
-                result.Set(eResponseStatus.Error, "One or more of the assets in linear channel list does not exist");
-                return result;
-            }
-
-            return result;
         }
 
         internal static GenericListResponse<Region> GetDefaultRegion(int groupId)

@@ -213,7 +213,8 @@ namespace ApiLogic.Api.Managers.Handlers
 
         public string GetUrl(string subDir, string fileName)
         {
-            return string.Format("{0}/{1}", Path, GetRelativeFilePath(subDir, fileName));
+            var withSlash = Path.EndsWith("/") ? "" : "/";
+            return $"{Path}{withSlash}{GetRelativeFilePath(subDir, fileName)}";
         }
 
         protected string GetRelativeFilePath(string subDir, string fileName)
