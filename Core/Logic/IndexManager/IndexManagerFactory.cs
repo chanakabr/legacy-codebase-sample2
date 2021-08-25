@@ -13,6 +13,11 @@ using EventBus.Kafka;
 using ElasticSearch.Common;
 using Core.Catalog.CatalogManagement;
 using ApiLogic.Catalog;
+using ApiObjects.CanaryDeployment.Elasticsearch;
+using ElasticSearch.NEST;
+using ElasticSearch.Utilities;
+using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.Mappings;
 
 namespace Core.Catalog
@@ -41,16 +46,33 @@ namespace Core.Catalog
             var isMigrationEventsEnabled =
                 CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager()
                     .IsMigrationEventsEnabled(partnerId);
-            var keyName = $"{partnerId}_{isMigrationEventsEnabled}";
-            
+            var activeElasticsearchActiveVersion = CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().
+                GetActiveElasticsearchActiveVersion(partnerId);
+            var keyName = $"{activeElasticsearchActiveVersion}{partnerId}{isMigrationEventsEnabled}";
+
             return _indexManagerInstance.GetOrAdd(keyName, s =>
             {
-                return CreateIndexManager(partnerId, isMigrationEventsEnabled);
+                return CreateIndexManager(partnerId, isMigrationEventsEnabled, activeElasticsearchActiveVersion);
             });
         }
-
-        private IIndexManager CreateIndexManager(int partnerId, bool isMigrationEventsEnabled)
+        
+        private IIndexManager CreateIndexManager(int partnerId, bool isMigrationEventsEnabled, ElasticsearchVersion version)
         {
+            if (version == ElasticsearchVersion.ES_7_13)
+            {
+                var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
+                return new IndexManagerV7(partnerId, 
+                    elasticClient, 
+                    ApplicationConfiguration.Current,
+                    new GroupsCacheManager.GroupManager(),
+                    CatalogManager.Instance,
+                    ElasticSearchIndexDefinitions.Instance,
+                    ChannelManager.Instance,
+                    CatalogCache.Instance(), new TtlService(),
+                    WatchRuleManager.Instance,
+                    ChannelQueryBuilder.Instance);
+            }
+                
             var indexManagerV2 = new IndexManagerV2(partnerId,
                 new ElasticSearchApi(ApplicationConfiguration.Current),
                 new GroupsCacheManager.GroupManager(),
@@ -61,6 +83,7 @@ namespace Core.Catalog
                 ChannelManager.Instance,
                 CatalogCache.Instance(),
                 WatchRuleManager.Instance,
+                ChannelQueryBuilder.Instance,
                 MappingTypeResolver.Instance);
 
             if (isMigrationEventsEnabled)

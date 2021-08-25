@@ -38,7 +38,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected override string CreateNewIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage)
         {
-            return _IndexManager.SetupEpgIndex(languages, defaultLanguage, true);
+            return _IndexManager.SetupEpgIndex(isRecording: true);
         }
 
         protected override void PopulateIndex(string newIndexName, GroupsCacheManager.Group group)
@@ -106,7 +106,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected override bool FinishUpEpgIndex(string newIndexName)
         {
-            return _IndexManager.FinishUpEpgIndex(newIndexName, isRecording: true, this.SwitchIndexAlias, this.DeleteOldIndices);
+            return _IndexManager.PublishEpgIndex(newIndexName, isRecording: true, this.SwitchIndexAlias, this.DeleteOldIndices);
         }
 
         #endregion

@@ -300,16 +300,6 @@ namespace Core.Catalog
 
         #region Iservice Members
 
-
-        public static ApiObjects.Response.Status ClearStatistics(int groupId, DateTime until)
-        {
-            ApiObjects.Response.Status status = null;
-
-            status = CatalogLogic.ClearStatistics(groupId, until);
-
-            return status;
-        }
-
         #endregion
 
         public static MetaResponse UpdateGroupMeta(int groupId, Meta apiMeta)

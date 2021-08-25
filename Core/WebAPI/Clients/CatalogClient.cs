@@ -1,3 +1,4 @@
+using ApiLogic.IndexManager.QueryBuilders;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -99,7 +99,7 @@ namespace IngestTransformationHandler.Managers
         /// If you got this far please carefully consider your steps, every code line has a meaning here.
         /// I will try to explain to thee the treturous paths of BASIC CRUD calculation now:
         /// This method handles Basic CRUD Calculation without considering policy for overlaps or for gaps
-        /// ============================================================================================================================
+        /// _______________________________________________________________________________________________
         /// 1. It will programsToIngest as a "chunk" of schedule to ve overwritten
         /// 2. Then it will set all existing data to be deleted in the date range of the "chunk"
         /// 3. Then it will loop over all programsToIngest and identify Updates vs Adds

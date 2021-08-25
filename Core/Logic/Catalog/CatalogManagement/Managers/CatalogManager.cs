@@ -36,6 +36,7 @@ namespace Core.Catalog.CatalogManagement
         bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds, long assetStructId, long userId, List<long> relatedEntitiesTopicIds, bool shouldDeleteRelatedEntities);
         Dictionary<int, Media> GetGroupMedia(int groupId, long mediaId);
         void GetLinearChannelValues(List<EpgCB> lEpg, int groupID, Action<EpgCB> action);
+        HashSet<string> GetUnifiedSearchKey(int groupId, string originalKey, out bool isTagOrMeta, out Type type);
     }
 
     public class CatalogManager : ICatalogManager

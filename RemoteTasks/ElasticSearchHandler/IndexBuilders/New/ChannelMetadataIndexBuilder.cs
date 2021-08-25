@@ -64,7 +64,7 @@ namespace ElasticSearchHandler.IndexBuilders
                 List<Channel> allChannels = null;
                 if (doesGroupUsesTemplates)
                 {
-                    allChannels = ChannelManager.GetGroupChannels(groupId);
+                    allChannels = ChannelManager.Instance.GetGroupChannels(groupId);
                 }
                 else
                 {

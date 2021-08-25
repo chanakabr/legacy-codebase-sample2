@@ -110,7 +110,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected virtual bool FinishUpEpgIndex(string newIndexName)
         {
-            return _IndexManager.FinishUpEpgIndex(newIndexName, isRecording: false, this.SwitchIndexAlias, this.DeleteOldIndices);
+            return _IndexManager.PublishEpgIndex(newIndexName, isRecording: false, this.SwitchIndexAlias, this.DeleteOldIndices);
         }
 
         private void GetGroupAndLanguages(out CatalogGroupCache catalogGroupCache, out Group group, out List<LanguageObj> languages, out GroupManager groupManager, out bool doesGroupUsesTemplates, out LanguageObj defaultLanguage)
@@ -164,7 +164,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
         protected virtual string CreateNewIndex(int groupId, CatalogGroupCache catalogGroupCache, Group group, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage)
         {
-            return _IndexManager.SetupEpgIndex(languages, defaultLanguage, false);
+            return _IndexManager.SetupEpgIndex(false);
         }
 
         protected void PopulateEpgIndex(string index, DateTime date, Group group)

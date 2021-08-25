@@ -286,7 +286,7 @@ namespace Core.GroupManagers
         {
             try
             {
-                var mediaIndex = indexManager.SetupMediaIndex(languages, catalogGroupCache.DefaultLanguage);
+                var mediaIndex = indexManager.SetupMediaIndex();
 
                 if (string.IsNullOrEmpty(mediaIndex))
                 {
@@ -306,14 +306,16 @@ namespace Core.GroupManagers
         {
             try
             {
-                var epgIndex = indexManager.SetupEpgIndex(languages, catalogGroupCache.DefaultLanguage, isRecording: false);
+                var epgIndex = indexManager.SetupEpgIndex(isRecording: false);
+
                 if (string.IsNullOrEmpty(epgIndex))
                 {
                     Log.Warn("create epg index returned with an empty index name");
                     return new Status(eResponseStatus.Error, "error creating epg index");
                 }
 
-                bool publishResult = indexManager.FinishUpEpgIndex(epgIndex, isRecording: false, true, true);
+                bool publishResult = indexManager.PublishEpgIndex(epgIndex, isRecording: false, true, true);
+
                 if (!publishResult)
                 {
                     Log.Warn("create epg index - failed publishing epg index");
@@ -333,14 +335,16 @@ namespace Core.GroupManagers
         {
             try
             {
-                var indexName = indexManager.SetupEpgIndex(languages, catalogGroupCache.DefaultLanguage, isRecording: true);
+                var indexName = indexManager.SetupEpgIndex(isRecording: true);
+
                 if (string.IsNullOrEmpty(indexName))
                 {
                     Log.Warn("create recording index returned with an empty index name");
                     return new Status(eResponseStatus.Error, "error creating recording index");
                 }
 
-                bool publishResult = indexManager.FinishUpEpgIndex(indexName, isRecording: true, true, true);
+                bool publishResult = indexManager.PublishEpgIndex(indexName, isRecording: true, true, true);
+
                 if (!publishResult)
                 {
                     Log.Warn("create recording index - failed publishing recording index");

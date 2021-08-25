@@ -1,4 +1,6 @@
 ﻿using ApiLogic.Catalog;
+using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.QueryBuilders;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
 using ConfigurationManager;
@@ -36,6 +38,8 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<ILayeredCache> _mockLayeredCache;
         private Mock<ICatalogCache> _mockCatalogCache;
         private Mock<IWatchRuleManager> _mockWatchRuleManager;
+        private Mock<IChannelQueryBuilder> _mockChannelQueryBuilder;
+        private Mock<IApplicationConfiguration> _mockApplicationConfiguration;
         private Mock<IMappingTypeResolver> _mockMappingTypeResolver;
 
         [SetUp]
@@ -50,8 +54,10 @@ namespace ApiLogic.Tests.IndexManager
             _mockCatalogCache = _mockRepository.Create<ICatalogCache>();
             _mockLayeredCache = _mockRepository.Create<ILayeredCache>();
             _mockWatchRuleManager = _mockRepository.Create<IWatchRuleManager>();
+            _mockApplicationConfiguration = _mockRepository.Create<IApplicationConfiguration>();
+            _mockChannelQueryBuilder = _mockRepository.Create<IChannelQueryBuilder>();
+            _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance, _mockApplicationConfiguration.Object);
             _mockMappingTypeResolver = _mockRepository.Create<IMappingTypeResolver>();
-            _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance);
         }
 
 
@@ -82,6 +88,7 @@ namespace ApiLogic.Tests.IndexManager
                 _mockChannelManager.Object,
                 _mockCatalogCache.Object,
                 _mockWatchRuleManager.Object,
+                _mockChannelQueryBuilder.Object,
                 _mockMappingTypeResolver.Object
             );
 

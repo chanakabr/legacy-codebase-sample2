@@ -24,6 +24,7 @@ namespace Core.Catalog.CatalogManagement
     {
         GenericResponse<Channel> GetChannelById(int groupId, int channelId, bool isAllowedToViewInactiveAssets, long userId);
         GenericListResponse<Channel> GetChannelsListResponseByChannelIds(int groupId, List<int> channelIds, bool isAllowedToViewInactiveAssets, int? totalItems);
+        List<Channel> GetGroupChannels(int groupId);
     }
 
     public class ChannelManager : IChannelManager
@@ -713,7 +714,7 @@ namespace Core.Catalog.CatalogManagement
 
         #region Public Methods
 
-        public static List<Channel> GetGroupChannels(int groupId)
+        public List<Channel> GetGroupChannels(int groupId)
         {
             List<Channel> groupChannels = null;
             try

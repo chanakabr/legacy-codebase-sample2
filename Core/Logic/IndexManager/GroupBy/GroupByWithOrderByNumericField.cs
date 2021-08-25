@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using ApiLogic.IndexManager.QueryBuilders;
 using ApiObjects.SearchObjects;
 using ElasticSearch.Searcher;
 

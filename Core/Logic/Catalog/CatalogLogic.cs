@@ -47,6 +47,8 @@ using ApiLogic.Catalog.Tree;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using Status = ApiObjects.Response.Status;
+using ApiLogic.IndexManager.QueryBuilders;
+using ApiLogic.IndexManager.Helpers;
 
 namespace Core.Catalog
 {
@@ -137,7 +139,7 @@ namespace Core.Catalog
             MEDIA_ID,
             EPG_ID,
             LINEAR_MEDIA_ID,
-            ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID,
+            ESUnifiedQueryBuilder.RECORDING_ID,
             STATUS,
             ESUnifiedQueryBuilder.ENABLE_CDVR,
             ESUnifiedQueryBuilder.ENABLE_CATCHUP,
@@ -6825,7 +6827,11 @@ namespace Core.Catalog
             return status;
         }
 
-
+        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree,
+            UnifiedSearchDefinitions definitions, Group group, int groupId)
+        {
+            UpdateNodeTreeFields(request, ref filterTree, definitions, group, groupId, CatalogManager.Instance);
+        }
 
         /// <summary>
         /// Update filter tree fields for specific fields/values.
@@ -6834,7 +6840,8 @@ namespace Core.Catalog
         /// <param name="filterTree"></param>
         /// <param name="definitions"></param>
         /// <param name="group"></param>
-        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions, Group group, int groupId)
+        public static void UpdateNodeTreeFields(BaseRequest request, ref BooleanPhraseNode filterTree, 
+            UnifiedSearchDefinitions definitions, Group group, int groupId, ICatalogManager catalogManager)
         {
             if (filterTree != null)
             {
@@ -6851,7 +6858,7 @@ namespace Core.Catalog
                     // If it is a leaf, just replace the field name
                     if (node.type == BooleanNodeType.Leaf)
                     {
-                        TreatLeaf(request, ref filterTree, definitions, group, node, parentMapping, groupId);
+                        TreatLeaf(request, ref filterTree, definitions, group, node, parentMapping, groupId, catalogManager);
                     }
                     else if (node.type == BooleanNodeType.Parent)
                     {
@@ -6872,6 +6879,12 @@ namespace Core.Catalog
             }
         }
 
+        public static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
+            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, int groupId)
+        {
+            TreatLeaf(request, ref filterTree, definitions, group, node, parentMapping, groupId, CatalogManager.Instance);
+        }
+
         /// <summary>
         /// Update filter tree node fields for specific fields/values.
         /// </summary>
@@ -6881,7 +6894,7 @@ namespace Core.Catalog
         /// <param name="group"></param>
         /// <param name="node"></param>
         public static void TreatLeaf(BaseRequest request, ref BooleanPhraseNode filterTree, UnifiedSearchDefinitions definitions,
-            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, int groupId)
+            Group group, BooleanPhraseNode node, Dictionary<BooleanPhraseNode, BooleanPhrase> parentMapping, int groupId, ICatalogManager catalogManager)
         {
             bool shouldUseCache = ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
 
@@ -6901,9 +6914,9 @@ namespace Core.Catalog
             // Add prefix (meta/tag) e.g. metas.{key}
             Type metaType;
             HashSet<string> searchKeys = new HashSet<string>();
-            if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
+            if (catalogManager.DoesGroupUsesTemplates(groupId))
             {
-                searchKeys = CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, leaf.field, out isTagOrMeta, out metaType);
+                searchKeys = catalogManager.GetUnifiedSearchKey(groupId, leaf.field, out isTagOrMeta, out metaType);
             }
             else
             {
@@ -7318,7 +7331,7 @@ namespace Core.Catalog
                             }
                         }
 
-                        if (searchKeyLowered == ElasticSearch.Searcher.ESUnifiedQueryBuilder.RECORDING_ID)
+                        if (searchKeyLowered == ESUnifiedQueryBuilder.RECORDING_ID)
                         {
                             definitions.shouldSearchRecordings = true;
                             // I mock a "in" operator so that the query builder will know it is a not-exact search
@@ -7596,7 +7609,7 @@ namespace Core.Catalog
                 var defaultChannelOrder = channel.m_OrderObject;
                 if (request.searchGroupBy?.groupBy?.Count == 1 && 
                     defaultChannelOrder != null && 
-                    !IndexingUtils.GroupBySearchIsSupportedForOrder(defaultChannelOrder.m_eOrderBy))
+                    !IndexManagerCommonHelpers.GroupBySearchIsSupportedForOrder(defaultChannelOrder.m_eOrderBy))
                 {
                     defaultChannelOrder = new OrderObj
                     {
@@ -8468,16 +8481,6 @@ namespace Core.Catalog
             {
                 log.Error(ex.Message, ex);
             }
-        }
-
-        public static ApiObjects.Response.Status ClearStatistics(int groupId, DateTime until)
-        {
-            ApiObjects.Response.Status status = null;
-
-            var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
-            status = indexManager.DeleteStatistics(until);
-
-            return status;
         }
 
         public static List<WatchHistory> GetUserWatchHistory(int groupId, string siteGuid, int domainId, List<int> assetTypes,

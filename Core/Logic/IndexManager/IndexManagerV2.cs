@@ -41,6 +41,8 @@ using ApiObjects.BulkUpload;
 using Polly;
 using ESUtils = ElasticSearch.Common.Utils;
 using ApiLogic.Catalog;
+using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.Mappings;
 
 namespace Core.Catalog
@@ -106,8 +108,23 @@ namespace Core.Catalog
         private readonly IWatchRuleManager _watchRuleManager;
         private readonly IMappingTypeResolver _mappingTypeResolver;
         private readonly int _partnerId;
+        private readonly IChannelQueryBuilder _channelQueryBuilder;
  
-
+        /// <summary>
+        /// Initialiezs an instance of Index Manager for work with ElasticSearch 2.3. 
+        /// Please do not use this ctor, rather use IndexManagerFactory.
+        /// </summary>
+        /// <param name="partnerId"></param>
+        /// <param name="elasticSearchClient"></param>
+        /// <param name="groupManager"></param>
+        /// <param name="eSSerializerV2"></param>
+        /// <param name="catalogManager"></param>
+        /// <param name="esIndexDefinitions"></param>
+        /// <param name="layeredCache"></param>
+        /// <param name="channelManager"></param>
+        /// <param name="catalogCache"></param>
+        /// <param name="watchRuleManager"></param>
+        /// <param name="channelQueryBuilder"></param>
         public IndexManagerV2(int partnerId,
             IElasticSearchApi elasticSearchClient,
             IGroupManager groupManager, 
@@ -118,6 +135,7 @@ namespace Core.Catalog
             IChannelManager channelManager,
             ICatalogCache catalogCache,
             IWatchRuleManager watchRuleManager,
+            IChannelQueryBuilder channelQueryBuilder,
             IMappingTypeResolver mappingTypeResolver)
         {
             _elasticSearchApi = elasticSearchClient;
@@ -130,6 +148,7 @@ namespace Core.Catalog
             _catalogCache = catalogCache;
             _partnerId = partnerId;
             _watchRuleManager = watchRuleManager;
+            _channelQueryBuilder = channelQueryBuilder;
             _mappingTypeResolver = mappingTypeResolver;
         }
         
@@ -163,7 +182,6 @@ namespace Core.Catalog
 
         #region Methods from Static IndexManager
 
-        //TESTABLE gil
         public bool UpsertMedia(long assetId)
         {
             bool result = false;
@@ -200,6 +218,7 @@ namespace Core.Catalog
                 var languages = GetGroupManager().GetLangauges();
                 languagesMap = languages.ToDictionary(x => x.ID, x => x);
             }
+            
 
             try
             {
@@ -224,7 +243,7 @@ namespace Core.Catalog
                                 media.PadMetas(metasToPad);
 
                                 string serializedMedia = _serializer.SerializeMediaObject(media, suffix);
-                                string type = GetTanslationType(MEDIA, language);
+                                string type = GetTranslationType(MEDIA, language);
                                 if (!string.IsNullOrEmpty(serializedMedia))
                                 {
                                     result = _elasticSearchApi.InsertRecord(_partnerId.ToString(), type, media.m_nMediaID.ToString(), serializedMedia);
@@ -262,7 +281,7 @@ namespace Core.Catalog
         public bool DeleteMedia(long assetId)
         {
             bool result = false;
-            string index = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            string index = NamingHelper.GetMediaIndexAlias(_partnerId);
                         
             if (assetId <= 0)
             {
@@ -288,7 +307,7 @@ namespace Core.Catalog
 
                     foreach (LanguageObj lang in languages)
                     {
-                        string type = GetTanslationType(MEDIA, lang);
+                        string type = GetTranslationType(MEDIA, lang);
                         ESDeleteResult deleteResult = _elasticSearchApi.DeleteDoc(index, type, assetId.ToString());
 
                         if (!deleteResult.Found)
@@ -423,14 +442,12 @@ namespace Core.Catalog
             return result;
         }
 
-        // Non testable as of now
-        //todo tests ask lior if he wants to rewrite ChannelRepository, asset user rule manager - all is static
         public bool UpdateChannelPercolator(List<int> channelIds, Channel channel = null)
         {
             bool result = false;
                             
-            List<string> mediaAliases = _elasticSearchApi.GetAliases(IndexingUtils.GetMediaIndexAlias(_partnerId));
-            List<string> epgAliases = _elasticSearchApi.GetAliases(IndexingUtils.GetEpgIndexAlias(_partnerId));
+            List<string> mediaAliases = _elasticSearchApi.GetAliases(NamingHelper.GetMediaIndexAlias(_partnerId));
+            List<string> epgAliases = _elasticSearchApi.GetAliases(NamingHelper.GetEpgIndexAlias(_partnerId));
 
             try
             {
@@ -438,7 +455,7 @@ namespace Core.Catalog
                 {
                     if (channel != null)
                     {
-                        result = UpdateChannelPercolator( channel, mediaAliases, epgAliases);
+                        result = UpdateChannelPercolator(channel, mediaAliases, epgAliases);
                     }
                     else
                     {
@@ -481,12 +498,11 @@ namespace Core.Catalog
             return result;
         }
 
-        // Tests: depends on updates
         public bool DeleteChannelPercolator(List<int> channelIds)
         {
             bool result = false;
-            string mediaIndex = IndexingUtils.GetMediaIndexAlias(_partnerId);
-            string epgIndex = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            string mediaIndex = NamingHelper.GetMediaIndexAlias(_partnerId);
+            string epgIndex = NamingHelper.GetEpgIndexAlias(_partnerId);
             ESDeleteResult deleteResult;
 
             try
@@ -640,7 +656,7 @@ namespace Core.Catalog
                         List<EpgCB> currentLanguageEpgs = epgObjects.Where(epg =>
                             epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
 
-                        var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+                        var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
                         var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
                         if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
                         {
@@ -651,12 +667,12 @@ namespace Core.Catalog
                                 // in that case we need to use the specific date alias for each epg item to update
                                 if (isIngestV2)
                                 {
-                                    alias = IndexingUtils.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
+                                    alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
                                     //in case alias already created ,no need to check in ES
                                     if (!createdAliases.Contains(alias))
                                     {
-                                        var aliases = new string[] { IndexingUtils.GetEpgIndexAlias(_partnerId) };
-                                        CreateIndex(alias, languages, aliases);
+                                        var aliases = new string[] { NamingHelper.GetEpgIndexAlias(_partnerId) };
+                                        CreateIndex(alias, aliases);
                                         createdAliases.Add(alias);
                                     }
                                 }
@@ -686,7 +702,7 @@ namespace Core.Catalog
                                 {
                                     docID = epg.EpgID,
                                     index = alias,
-                                    type = GetTanslationType(EPG_INDEX_TYPE, language),
+                                    type = GetTranslationType(EPG_INDEX_TYPE, language),
                                     Operation = eOperation.index,
                                     document = serializedEpg,
                                     routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
@@ -758,7 +774,6 @@ namespace Core.Catalog
             return result;
         }
 
-        // test: depends of upsert program
         public bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds)
         {
             bool result = false;
@@ -786,7 +801,7 @@ namespace Core.Catalog
                 
                 foreach (var lang in languages)
                 {
-                    string type = GetTanslationType(EPG_INDEX_TYPE, lang);
+                    string type = GetTranslationType(EPG_INDEX_TYPE, lang);
                     _elasticSearchApi.DeleteDocsByQuery(alias, type, ref queryString);
                 }
 
@@ -803,18 +818,17 @@ namespace Core.Catalog
             return result;
         }
 
-        // Testable
-        private void CreateNewEpgIndex(IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage,
-            string newIndexName, bool isRecording = false, bool shouldBuildWithReplicas = true, bool shouldUseNumOfConfiguredShards = true,
+        private void CreateNewEpgIndex(string newIndexName, bool isRecording = false, bool shouldBuildWithReplicas = true, bool shouldUseNumOfConfiguredShards = true,
             string refreshInterval = null)
         {
-            CreateEmptyEpgIndex(newIndexName, languages, shouldBuildWithReplicas, shouldUseNumOfConfiguredShards, refreshInterval);
-            AddMappingsToEpgIndex(newIndexName, languages, defaultLanguage, isRecording);
+            CreateEmptyEpgIndex(newIndexName, shouldBuildWithReplicas, shouldUseNumOfConfiguredShards, refreshInterval);
+            AddMappingsToEpgIndex(newIndexName, isRecording);
         }
 
-        private void CreateEmptyEpgIndex(string newIndexName, IEnumerable<LanguageObj> languages, bool shouldBuildWithReplicas = true,
+        private void CreateEmptyEpgIndex(string newIndexName,  bool shouldBuildWithReplicas = true,
             bool shouldUseNumOfConfiguredShards = true, string refreshInterval = null)
         {
+            List<LanguageObj> languages = GetLanguages();
             GetEpgAnalyzers(languages, out var analyzers, out var filters, out var tokenizers);
             int replicas = shouldBuildWithReplicas ? NUM_OF_REPLICAS : 0;
             int shards = shouldUseNumOfConfiguredShards ? NUM_OF_SHARDS : 1;
@@ -822,20 +836,30 @@ namespace Core.Catalog
             if (!isIndexCreated) { throw new Exception(string.Format("Failed creating index for index:{0}", newIndexName)); }
         }
 
+        private List<LanguageObj> GetLanguages()
+        {
+            return VerifyGroupUsesTemplates() ? GetCatalogGroupCache().LanguageMapById.Values.ToList(): GetGroupManager().GetLangauges();
+        }
+
+        private LanguageObj GetDefaultLanguage()
+        {
+            return VerifyGroupUsesTemplates() ? GetCatalogGroupCache().GetDefaultLanguage() : GetGroupManager().GetGroupDefaultLanguage();
+        }
+
         #endregion
 
         #region methods required by epg v2
 
-        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages, LanguageObj defaultLanguage, RetryPolicy retryPolicy)
+        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest)
         {
-            string dailyEpgIndexName = IndexingUtils.GetDailyEpgIndexName(_partnerId, dateOfProgramsToIngest);
-            EnsureEpgIndexExist(dailyEpgIndexName, languages, defaultLanguage, retryPolicy);
-            SetNoRefresh(dailyEpgIndexName, retryPolicy);
+            string dailyEpgIndexName = NamingHelper.GetDailyEpgIndexName(_partnerId, dateOfProgramsToIngest);
+            EnsureEpgIndexExist(dailyEpgIndexName);
+            SetNoRefresh(dailyEpgIndexName);
 
             return dailyEpgIndexName;
         }
 
-        private void EnsureEpgIndexExist(string dailyEpgIndexName, IDictionary<string, LanguageObj> languages, LanguageObj defaultLanguage, RetryPolicy retryPolicy)
+        private void EnsureEpgIndexExist(string dailyEpgIndexName)
         {
             // TODO it's possible to create new index with mappings and alias in one request,
             // https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-create-index.html#mappings
@@ -845,9 +869,9 @@ namespace Core.Catalog
             // EPGs could be added to the index without mapping (e.g. from asset.add)
             try
             {
-                AddEmptyIndex(dailyEpgIndexName, languages, retryPolicy);
-                AddEpgMappings(dailyEpgIndexName, languages, defaultLanguage, retryPolicy);
-                AddAlias(dailyEpgIndexName, retryPolicy);
+                AddEmptyIndex(dailyEpgIndexName);
+                AddEpgMappings(dailyEpgIndexName);
+                AddAlias(dailyEpgIndexName);
             }
             catch (Exception e)
             {
@@ -856,22 +880,23 @@ namespace Core.Catalog
             }
         }
 
-        private void AddEmptyIndex(string dailyEpgIndexName, IDictionary<string, LanguageObj> languages, RetryPolicy retryPolicy)
+        private void AddEmptyIndex(string dailyEpgIndexName)
         {
-            retryPolicy.Execute(() =>
+            IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
                 var isIndexExist = _elasticSearchApi.IndexExists(dailyEpgIndexName);
                 if (isIndexExist) return;
                 log.Info($"creating new index [{dailyEpgIndexName}]");
-                this.CreateEmptyEpgIndex(dailyEpgIndexName, languages.Values, true,
+                this.CreateEmptyEpgIndex(dailyEpgIndexName, true,
                     true, REFRESH_INTERVAL_FOR_EMPTY_INDEX);
             });
         }
 
-        private void AddEpgMappings(string dailyEpgIndexName, IDictionary<string, LanguageObj> languages, LanguageObj defaultLanguage, RetryPolicy retryPolicy)
+        private void AddEpgMappings(string dailyEpgIndexName)
         {
+            var languages = GetLanguages();
             var existingMappings = _elasticSearchApi.GetMappingsNames(dailyEpgIndexName).ToHashSet();
-            var languagesToCreate = languages.Values.Where(language =>
+            var languagesToCreate = languages.Where(language =>
             {
                 var mappingName = GetIndexType(false, language);
                 return !existingMappings.Contains(mappingName);
@@ -890,29 +915,30 @@ namespace Core.Catalog
                 throw new Exception($"failed to get metas and tags");
             }
 
+            var defaultLanguage = GetDefaultLanguage();
             foreach (var language in languagesToCreate)
             {
-                retryPolicy.Execute(() =>
+                IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
                     this.AddLanguageMapping(dailyEpgIndexName, language, defaultLanguage, metas, tags, metasToPad));
             }
         }
 
-        private void AddAlias(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        private void AddAlias(string dailyEpgIndexName)
         {
             // create alias is idempotent request
-            var epgIndexAlias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var epgIndexAlias = NamingHelper.GetEpgIndexAlias(_partnerId);
             log.Info($"creating alias. index [{dailyEpgIndexName}], alias [{epgIndexAlias}]");
-            retryPolicy.Execute(() =>
+            IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
                 var isAliasAdded = _elasticSearchApi.AddAlias(dailyEpgIndexName, epgIndexAlias);
                 if (!isAliasAdded) throw new Exception($"index set alias failed [{dailyEpgIndexName}], alias [{epgIndexAlias}]");
             });
         }
 
-        private void SetNoRefresh(string dailyEpgIndexName, RetryPolicy retryPolicy)
+        private void SetNoRefresh(string dailyEpgIndexName)
         {
             // shut down refresh of index while bulk uploading
-            retryPolicy.Execute(() =>
+            IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
             {
                 var isSetRefreshSuccess = _elasticSearchApi.UpdateIndexRefreshInterval(dailyEpgIndexName, "-1");
                 if (!isSetRefreshSuccess)
@@ -923,21 +949,21 @@ namespace Core.Catalog
             });
         }
 
-        public bool FinalizeEpgV2Index(DateTime date)
+        public bool ForceRefreshEpgV2Index(DateTime date)
         {
-            var dailyEpgIndexName = IndexingUtils.GetDailyEpgIndexName(_partnerId, date);
+            var dailyEpgIndexName = NamingHelper.GetDailyEpgIndexName(_partnerId, date);
             return _elasticSearchApi.ForceRefresh(dailyEpgIndexName);
         }
 
-        public bool FinalizeEpgV2Indices(List<DateTime> dates, RetryPolicy retryPolicy)
+        public bool FinalizeEpgV2Indices(List<DateTime> dates)
         {
-            var indexes = dates.Select(x => IndexingUtils.GetDailyEpgIndexName(_partnerId, x));
+            var indexes = dates.Select(x => NamingHelper.GetDailyEpgIndexName(_partnerId, x));
 
             foreach (var indexName in indexes)
             {
                 if (!_elasticSearchApi.IndexExists(indexName)) { continue; }
 
-                retryPolicy.Execute(() =>
+                IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
                 {
                     var isSetRefreshSuccess = _elasticSearchApi.UpdateIndexRefreshInterval(indexName, INDEX_REFRESH_INTERVAL);
                     if (!isSetRefreshSuccess)
@@ -951,12 +977,11 @@ namespace Core.Catalog
             return true;
         }
 
-        // Testable, depends on epg v2 creation and insertion of data
         public IList<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(int channelId, DateTime fromDate, DateTime toDate)
         {
             log.Debug($"GetCurrentProgramsByDate > fromDate:[{fromDate}], toDate:[{toDate}]");
             var result = new List<EpgProgramBulkUploadObject>();
-            var index = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var index = NamingHelper.GetEpgIndexAlias(_partnerId);
 
             // if index does not exist - then we have a fresh start, we have 0 programs currently
             if (!_elasticSearchApi.IndexExists(index))
@@ -1032,7 +1057,7 @@ namespace Core.Catalog
         {
             log.Debug($"GetCurrentProgramsByDate > fromDate:[{fromDate}], toDate:[{toDate}]");
             var result = new List<EpgProgramInfo>();
-            var index = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var index = NamingHelper.GetEpgIndexAlias(_partnerId);
 
             // if index does not exist - then we have a fresh start, we have 0 programs currently
             if (!_elasticSearchApi.IndexExists(index))
@@ -1096,8 +1121,6 @@ namespace Core.Catalog
 
         #endregion
 
-        // Testable
-        // TODO: verify that build search query is independent
         public SearchResultsObj SearchMedias(MediaSearchObj oSearch, int nLangID, bool bUseStartDate)
         {
             SearchResultsObj oRes = new SearchResultsObj();
@@ -1140,7 +1163,7 @@ namespace Core.Catalog
                 int nStatus = 0;
 
                 string sType = Utils.GetESTypeByLanguage(ES_MEDIA_TYPE, oSearch.m_oLangauge);
-                string sUrl = string.Format("{0}/{1}/{2}/_search", _elasticSearchApi.baseUrl, IndexingUtils.GetMediaIndexAlias(_partnerId), sType);
+                string sUrl = string.Format("{0}/{1}/{2}/_search", _elasticSearchApi.baseUrl, NamingHelper.GetMediaIndexAlias(_partnerId), sType);
 
                 string retObj = _elasticSearchApi.SendPostHttpReq(sUrl, ref nStatus, string.Empty, string.Empty, sQuery, true);
 
@@ -1222,8 +1245,6 @@ namespace Core.Catalog
             return oRes;
         }
 
-        // Testable
-        // not mainstream
         public List<string> GetAutoCompleteList(MediaSearchObj oSearch, int nLangID, ref int nTotalItems)
         {
             List<string> lRes = new List<string>();
@@ -1260,8 +1281,6 @@ namespace Core.Catalog
             return lRes;
         }
 
-        // Testable
-        // not mainstream - low priorirty
         public List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch)
         {
             List<string> resultFinalList = null;
@@ -1299,8 +1318,6 @@ namespace Core.Catalog
             return resultFinalList;
         }
 
-        // Testable
-        // low priority
         public List<List<string>> GetChannelsDefinitions(List<List<long>> listsOfChannelIDs)
         {
             long groupID = _partnerId;
@@ -1445,7 +1462,6 @@ namespace Core.Catalog
             return lSortedMedias;
         }
 
-        // Testable
         /// <summary>
         /// Takes several search objects, joins them together and searches the assets in ES indexes.
         /// </summary>
@@ -1508,7 +1524,7 @@ namespace Core.Catalog
 
                 #endregion
 
-                string searchResultString = _elasticSearchApi.Search(IndexingUtils.GetMediaIndexAlias(parentGroupId), ES_MEDIA_TYPE, ref searchQuery);
+                string searchResultString = _elasticSearchApi.Search(NamingHelper.GetMediaIndexAlias(parentGroupId), ES_MEDIA_TYPE, ref searchQuery);
 
                 int temporaryTotalItems = 0;
                 searchResults = ESUtils.DecodeAssetSearchJsonObject(searchResultString, ref temporaryTotalItems);
@@ -1563,7 +1579,6 @@ namespace Core.Catalog
             return finalSearchResults;
         }
 
-        // Tests: NON TESTABLE until we fix update percolators
         public bool DoesMediaBelongToChannels(List<int> lChannelIDs, int nMediaID)
         {
             bool bResult = false;
@@ -1588,13 +1603,12 @@ namespace Core.Catalog
             return bResult;
         }
 
-        // Tests: NON TESTABLE until we fix update percolators
-        public List<int> GetMediaChannels(int nMediaID)
+        public List<int> GetMediaChannels(int mediaId)
         {
             List<int> lResult = new List<int>();
-            string sIndex = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            string sIndex = NamingHelper.GetMediaIndexAlias(_partnerId);
 
-            string sMediaDoc = _elasticSearchApi.GetDoc(sIndex, ES_MEDIA_TYPE, nMediaID.ToString());
+            string sMediaDoc = _elasticSearchApi.GetDoc(sIndex, ES_MEDIA_TYPE, mediaId.ToString());
 
             if (!string.IsNullOrEmpty(sMediaDoc))
             {
@@ -1632,9 +1646,6 @@ namespace Core.Catalog
             return lResult;
         }
 
-        // Testable
-        // Depends on insert media
-        // Sunny?
         public List<SearchResult> GetAssetsUpdateDate(eObjectType assetType, List<int> assetIds)
         {
             List<SearchResult> response = new List<SearchResult>();
@@ -1743,8 +1754,6 @@ namespace Core.Catalog
             return response;
         }
 
-        // Non testable
-        // low priorirty - old, non mainstream
         public virtual SearchResultsObj SearchEpgs(EpgSearchObj epgSearch)
         {
             SearchResultsObj epgResponse = null;
@@ -1819,8 +1828,6 @@ namespace Core.Catalog
             return epgResponse;
         }
 
-        // Tests: depends on percolators
-        // low priority - old, weird func uses it
         public Dictionary<long, bool> ValidateMediaIDsInChannels(List<long> distinctMediaIDs,
             List<string> jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
             List<string> jsonizedChannelsDefinitionsMediasMustNotAppearInAll)
@@ -1900,9 +1907,7 @@ namespace Core.Catalog
             return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, ref notUsed, out _);
         }
 
-        // Testable
-        // major
-        // todo: organize
+       
         /// <summary>
         /// Performs a search on several types of assets in a single call
         /// </summary>
@@ -2225,7 +2230,6 @@ namespace Core.Catalog
             return (searchResultsList);
         }
 
-        // Testable
         public AggregationsResult UnifiedSearchForGroupBy(UnifiedSearchDefinitions search)
         {
             var singleGroupByWithDistinct = search.groupBy?.Count == 1 && search.groupBy.Single().Key == search.distinctGroup.Key;
@@ -2235,8 +2239,8 @@ namespace Core.Catalog
                 throw new NotSupportedException($"Method should be used for single group by");
             }
 
-            var groupBySearch = 
-                IndexingUtils.GetStrategy(search.order.m_eOrderBy) ?? 
+            var groupBySearch =
+                IndexManagerCommonHelpers.GetStrategy(search.order.m_eOrderBy) ?? 
                 throw new NotSupportedException($"Not supported group by with {search.order.m_eOrderBy} order");
 
             // save original page and size, will be mutated later :(
@@ -2683,7 +2687,7 @@ namespace Core.Catalog
                 #region Get Aggregations Results
 
                 string searchRequestBody = filteredQuery.ToString();
-                string index = IndexingUtils.GetMediaIndexAlias(_partnerId);
+                string index = NamingHelper.GetMediaIndexAlias(_partnerId);
 
                 string searchResults = _elasticSearchApi.Search(index, "media", ref searchRequestBody);
 
@@ -3306,7 +3310,6 @@ namespace Core.Catalog
 
         #endregion
 
-        // Testable
         public List<UnifiedSearchResult> GetAssetsUpdateDates(List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex, bool shouldIgnoreRecordings = false)
         {
             List<UnifiedSearchResult> validAssets = new List<UnifiedSearchResult>();
@@ -3438,7 +3441,6 @@ namespace Core.Catalog
             return validAssets;
         }
 
-        // Testable
         public List<int> GetEntitledEpgLinearChannels(UnifiedSearchDefinitions definitions)
         {
             List<int> result = new List<int>();
@@ -3496,107 +3498,8 @@ namespace Core.Catalog
             return result;
         }
 
-        // Testable
-        // low priority
-        public ApiObjects.Response.Status DeleteStatistics(DateTime until)
-        {
-            ApiObjects.Response.Status status = null;
-
-            try
-            {                
-
-                string index = ESUtils.GetGroupStatisticsIndex(_partnerId);
-                string type = ESUtils.ES_STATS_TYPE;
-
-                #region Build Query
-
-                string date = until.ToString(ESUtils.ES_DATE_FORMAT);
-
-                ESRange dateRange = new ESRange(false)
-                {
-                    Key = "action_date"
-                };
-
-                dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LT, date));
-
-                ESTerm typeTerm = new ESTerm(false)
-                {
-                    Key = "action",
-                    Value = "mediahit"
-                };
-
-                BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
-                filter.AddChild(dateRange);
-                filter.AddChild(typeTerm);
-
-                QueryFilter queryFilter = new QueryFilter()
-                {
-                    FilterSettings = filter
-                };
-
-                BoolQuery boolQuery = new BoolQuery();
-                boolQuery.AddChild(typeTerm, CutWith.AND);
-                boolQuery.AddChild(dateRange, CutWith.AND);
-
-                FilteredQuery filteredQuery = new FilteredQuery(true)
-                {
-                    PageIndex = 0,
-                    PageSize = 0,
-                    Query = boolQuery
-                };
-
-                filteredQuery.ReturnFields.Clear();
-                filteredQuery.ReturnFields.Add("\"_id\"");
-
-                #endregion
-
-                string query = filteredQuery.ToString();
-
-                string searchResults = _elasticSearchApi.Search(index, type, ref query);
-
-                List<string> documents = ESUtils.GetDocumentIds(searchResults);
-
-                List<ESBulkRequestObj<string>> lBulkObj = new List<ESBulkRequestObj<string>>();
-                int sizeOfBulk = 500;
-
-                foreach (var document in documents)
-                {
-                    lBulkObj.Add(new ESBulkRequestObj<string>()
-                    {
-                        docID = document,
-                        index = index,
-                        type = type,
-                        Operation = eOperation.delete
-                    });
-
-                    if (lBulkObj.Count >= sizeOfBulk)
-                    {
-                        Task<List<KeyValuePair<string, string>>> t = Task<List<KeyValuePair<string, string>>>.Run(() => _elasticSearchApi.CreateBulkRequest(lBulkObj));
-                        t.Wait();
-
-                        lBulkObj = new List<ESBulkRequestObj<string>>();
-                    }
-                }
-
-                if (lBulkObj.Count > 0)
-                {
-                    Task<List<KeyValuePair<string, string>>> t = Task<List<KeyValuePair<string, string>>>.Run(() => _elasticSearchApi.CreateBulkRequest(lBulkObj));
-                    t.Wait();
-                }
-
-                status = new ApiObjects.Response.Status((int) ApiObjects.Response.eResponseStatus.OK);
-            }
-            catch (Exception ex)
-            {
-                status = new ApiObjects.Response.Status((int) ApiObjects.Response.eResponseStatus.Error, ex.Message);
-            }
-
-            return status;
-        }
-
         #region Tags
 
-        // Testable
         public List<TagValue> SearchTags(TagSearchDefinitions definitions, out int totalItems)
         {
             List<TagValue> result = new List<TagValue>();
@@ -3823,7 +3726,6 @@ namespace Core.Catalog
             return term;
         }
 
-        // Testable
         public ApiObjects.Response.Status DeleteTag(long tagId)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
@@ -3862,7 +3764,6 @@ namespace Core.Catalog
             return status;
         }
 
-        // Testable
         public ApiObjects.Response.Status DeleteTagsByTopic(long topicId)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
@@ -3901,7 +3802,6 @@ namespace Core.Catalog
             return status;
         }
 
-        // Testable
         public ApiObjects.Response.Status UpdateTag(TagValue tag)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status();
@@ -4001,7 +3901,6 @@ namespace Core.Catalog
 
         #region Channels
 
-        // Testable
         public List<int> SearchChannels(ChannelSearchDefinitions definitions, ref int totalItems)
         {
             List<int> result = new List<int>();
@@ -4180,8 +4079,6 @@ namespace Core.Catalog
 
         #region Asset Stats and company
 
-        // Testable
-        // priority
         public void GetAssetStats(List<int> assetIDs, DateTime startDate,
             DateTime endDate, StatsType type, ref Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
         {
@@ -4769,8 +4666,6 @@ namespace Core.Catalog
             return _elasticSearchApi.BuildIndex(statisticsIndex, NUM_OF_SHARDS, NUM_OF_REPLICAS, analyzers, filters);
         }
         
-        // Testable
-        // priority
         public bool InsertSocialStatisticsData(SocialActionStatistics action)
         {
             bool result = false;
@@ -4799,7 +4694,6 @@ namespace Core.Catalog
             return result;
         }
 
-        // Testable
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)
         {
             string index = ESUtils.GetGroupStatisticsIndex(_partnerId);
@@ -4809,7 +4703,7 @@ namespace Core.Catalog
                 if (_elasticSearchApi.IndexExists(index))
                 {
                     var queryBuilder = new ESStatisticsQueryBuilder(_partnerId, socialSearch);
-                    var queryString = queryBuilder.BuildQuery();
+                    var queryString = queryBuilder.BuildQueryString();
                     return _elasticSearchApi.DeleteDocsByQuery(index, ESUtils.ES_STATS_TYPE, ref queryString);
                 }
             }
@@ -4857,10 +4751,9 @@ namespace Core.Catalog
 
         #region Ip to Country
 
-        // Testable
         public string SetupIPToCountryIndex()
         {
-            string newIndexName = IndexingUtils.GetNewUtilsIndexString();
+            string newIndexName = NamingHelper.GetNewUtilsIndexString();
             string ipToCountryType = "iptocountry";
             string ipV6ToCountryType = "ipv6tocountry";
             int numOfShards = NUM_OF_SHARDS;
@@ -4915,7 +4808,6 @@ namespace Core.Catalog
             return newIndexName;
         }
 
-        // Testable
         public bool InsertDataToIPToCountryIndex(string newIndexName,
             List<IPV4> ipV4ToCountryMapping, List<IPV6> ipV6ToCountryMapping)
         {
@@ -4986,7 +4878,6 @@ namespace Core.Catalog
             return true;
         }
 
-        // Testable
         public bool PublishIPToCountryIndex(string newIndexName)
         {
             bool result = true;
@@ -5005,27 +4896,17 @@ namespace Core.Catalog
                 log.ErrorFormat("Error when getting aliases of {0}, ex={1}", alias, ex);
             }
 
-            Task<bool> taskSwitchIndex = Task<bool>.Factory.StartNew(() =>
-            {
-                return _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
-            });
+            bool switchIndexResult = _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
 
-            taskSwitchIndex.Wait();
-
-            if (!taskSwitchIndex.Result)
+            if (!switchIndexResult)
             {
                 log.ErrorFormat("Failed switching index for new index name = {0}, index alias = {1}", newIndexName, alias);
                 result = false;
             }
 
-            if (taskSwitchIndex.Result && oldIndices != null && oldIndices.Count > 0)
+            if (switchIndexResult && oldIndices != null && oldIndices.Count > 0)
             {
-                Task t = Task.Factory.StartNew(() =>
-                {
-                    _elasticSearchApi.DeleteIndices(oldIndices);
-                });
-
-                t.Wait();
+                _elasticSearchApi.DeleteIndices(oldIndices);
             }
 
             return result;
@@ -5056,7 +4937,6 @@ namespace Core.Catalog
             return Newtonsoft.Json.JsonConvert.SerializeObject(ipv6);
         }
 
-        // Testable
         public Country GetCountryByCountryName(string countryName)
         {
             Country country = null;
@@ -5112,7 +4992,6 @@ namespace Core.Catalog
             return country;
         }
 
-        // Testable
         public Country GetCountryByIp(string ip, out bool searchSuccess)
         {
             searchSuccess = false;
@@ -5120,7 +4999,7 @@ namespace Core.Catalog
 
             if (IPAddress.TryParse(ip, out IPAddress address))
             {
-                if (CheckIpIsPrivate(address))
+                if (IndexManagerCommonHelpers.CheckIpIsPrivate(address))
                 {
                     searchSuccess = true;
                     return null;
@@ -5160,27 +5039,6 @@ namespace Core.Catalog
             return null;
         }
 
-        private static bool CheckIpIsPrivate(IPAddress address)
-        {
-            if (address.AddressFamily == AddressFamily.InterNetwork)
-            {
-                //https://stackoverflow.com/questions/8113546/how-to-determine-whether-an-ip-address-in-private
-                byte[] bytes = address.GetAddressBytes();
-                switch (bytes[0])
-                {
-                    case 10:
-                        return true;
-                    case 172:
-                        return bytes[1] < 32 && bytes[1] >= 16;
-                    case 192:
-                        return bytes[1] == 168;
-                    default:
-                        return false;
-                }
-            }
-
-            return false;
-        }
 
         private static Country ParseSearchResultToCountry(string searchResult)
         {
@@ -5416,9 +5274,9 @@ namespace Core.Catalog
 
         #region Rebuilding
 
-        public string SetupMediaIndex(List<ApiObjects.LanguageObj> languages, ApiObjects.LanguageObj defaultLanguage)
+        public string SetupMediaIndex()
         {
-            string newIndexName = IndexingUtils.GetNewMediaIndexStr(_partnerId);
+            string newIndexName = NamingHelper.GetNewMediaIndexStr(_partnerId);
 
             #region Build new index and specify number of nodes/shards
 
@@ -5432,6 +5290,8 @@ namespace Core.Catalog
                 maxResults = MAX_RESULTS;
             }
 
+            var languages = GetLanguages();
+            var defaultLanguage = GetDefaultLanguage();
             List<string> analyzers;
             List<string> filters;
             List<string> tokenizers;
@@ -5512,8 +5372,7 @@ namespace Core.Catalog
                 {
                     int numOfBulkRequests = 0;
 
-                    Dictionary<int, List<ESBulkRequestObj<int>>> bulkRequests = 
-                        new Dictionary<int, List<ESBulkRequestObj<int>>>() { { numOfBulkRequests, new List<ESBulkRequestObj<int>>() } };
+                    var bulkRequests =  new Dictionary<int, List<ESBulkRequestObj<int>>>() { { numOfBulkRequests, new List<ESBulkRequestObj<int>>() } };
 
                     // For each media
                     foreach (var groupMedia in groupMedias)
@@ -5542,7 +5401,7 @@ namespace Core.Catalog
 
                                 // Serialize media and create a bulk request for it
                                 string serializedMedia = _serializer.SerializeMediaObject(media, suffix);
-                                string documentType = IndexingUtils.GetTanslationType(MEDIA, language);
+                                string documentType = GetTranslationType(MEDIA, language);
 
                                 // If we exceeded the size of a single bulk reuquest then create another list
                                 if (bulkRequests[numOfBulkRequests].Count >= sizeOfBulk)
@@ -5551,22 +5410,23 @@ namespace Core.Catalog
                                     bulkRequests.Add(numOfBulkRequests, new List<ESBulkRequestObj<int>>());
                                 }
 
-                                ESBulkRequestObj<int> bulkRequest = new ESBulkRequestObj<int>(media.m_nMediaID, newIndexName, documentType, serializedMedia);
+                                var bulkRequest = new ESBulkRequestObj<int>(media.m_nMediaID, newIndexName, documentType, serializedMedia);
                                 bulkRequests[numOfBulkRequests].Add(bulkRequest);
                             }
                         }
                     }
 
-                    int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
+                    var maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
                     if (maxDegreeOfParallelism == 0)
                     {
                         maxDegreeOfParallelism = 5;
                     }
-
-                    ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                    ContextData contextData = new ContextData();
-                    System.Net.ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
-                    System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<int>>> failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<int>>>();
+                    
+                    var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
+                    var contextData = new ContextData();
+                    ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
+                    
+                    var failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<int>>>();
                     // Send request to elastic search in a different thread
                     Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
                     {
@@ -5617,36 +5477,23 @@ namespace Core.Catalog
 
         public void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            ContextData cd = new ContextData();
-            string alias = IndexingUtils.GetMediaIndexAlias(_partnerId);
+            string alias = NamingHelper.GetMediaIndexAlias(_partnerId);
             bool indexExists = _elasticSearchApi.IndexExists(alias);
 
             if (shouldSwitchIndexAlias || !indexExists)
             {
                 List<string> oldIndices = _elasticSearchApi.GetAliases(alias);
 
-                Task<bool> taskSwitchIndex = Task<bool>.Factory.StartNew(() =>
-                {
-                    cd.Load();
-                    return _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
-                });
+                bool switchIndexResult = _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
 
-                taskSwitchIndex.Wait();
-
-                if (!taskSwitchIndex.Result)
+                if (!switchIndexResult)
                 {
                     log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, alias);
                 }
 
-                if (shouldDeleteOldIndices && taskSwitchIndex.Result && oldIndices.Count > 0)
+                if (shouldDeleteOldIndices && switchIndexResult && oldIndices.Count > 0)
                 {
-                    Task t = Task.Run(() =>
-                    {
-                        cd.Load();
-                        _elasticSearchApi.DeleteIndices(oldIndices);
-                    });
-
-                    t.Wait();
+                    _elasticSearchApi.DeleteIndices(oldIndices);
                 }
             }
         }
@@ -5703,7 +5550,7 @@ namespace Core.Catalog
 
             if (string.IsNullOrEmpty(newIndexName))
             {
-                newIndexName = $"{_partnerId}";
+                newIndexName = NamingHelper.GetMediaIndexAlias(_partnerId);
             }
 
             var groupUsesTemplates = VerifyGroupUsesTemplates();
@@ -5718,7 +5565,7 @@ namespace Core.Catalog
 
                     if (groupUsesTemplates)
                     {
-                        groupChannels = ChannelManager.GetGroupChannels(_partnerId);
+                        groupChannels = IndexManagerCommonHelpers.GetGroupChannels(_partnerId,_channelManager,groupUsesTemplates,ref channelIds);
                         channelIds = new HashSet<int>(groupChannels.Select(x => x.m_nChannelID));
                     }
                     // means that channelIds != null
@@ -5891,7 +5738,7 @@ namespace Core.Catalog
                             {
                                 foreach (var item in invalidResults)
                                 {
-                                    log.ErrorFormat("Error - Could not add channel to ES index. GroupID={0};ID={1};error={2};",
+                                    log.ErrorFormat("Error - Could not delete channel from ES index. GroupID={0};ID={1};error={2};",
                                         _partnerId, item.Key, item.Value);
                                 }
                             }
@@ -6042,7 +5889,7 @@ namespace Core.Catalog
 
             GetTagsAndChannelsAnalyzers(languages, out analyzers, out filters, out tokenizers);
 
-            string newIndexName = IndexingUtils.GetNewChannelMetadataIndexName(_partnerId);
+            string newIndexName = NamingHelper.GetNewChannelMetadataIndexName(_partnerId);
             bool actionResult = _elasticSearchApi.BuildIndex(newIndexName, numOfShards, numOfReplicas,
                 analyzers, filters, tokenizers, maxResults);
             if (!actionResult)
@@ -6111,36 +5958,23 @@ namespace Core.Catalog
 
         public void PublishChannelsMetadataIndex(string newIndexName, bool shouldSwitchAlias, bool shouldDeleteOldIndices)
         {
-            string alias = IndexingUtils.GetChannelMetadataIndexName(_partnerId);
+            string alias = NamingHelper.GetChannelMetadataIndexName(_partnerId);
             bool indexExists = _elasticSearchApi.IndexExists(alias);
-            ContextData cd = new ContextData();
 
             if (shouldSwitchAlias || !indexExists)
             {
                 List<string> oldIndices = _elasticSearchApi.GetAliases(alias);
 
-                Task<bool> taskSwitchIndex = Task<bool>.Factory.StartNew(() =>
-                {
-                    cd.Load();
-                    return _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
-                });
+                var switchIndexResult = _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
 
-                taskSwitchIndex.Wait();
-
-                if (!taskSwitchIndex.Result)
+                if (!switchIndexResult)
                 {
                     log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, alias);
                 }
 
-                if (shouldDeleteOldIndices && taskSwitchIndex.Result && oldIndices.Count > 0)
+                if (shouldDeleteOldIndices && switchIndexResult && oldIndices.Count > 0)
                 {
-                    Task t = Task.Run(() =>
-                    {
-                        cd.Load();
-                        _elasticSearchApi.DeleteIndices(oldIndices);
-                    });
-
-                    t.Wait();
+                    _elasticSearchApi.DeleteIndices(oldIndices);
                 }
             }
         }
@@ -6156,7 +5990,7 @@ namespace Core.Catalog
             var catalogGroupCache = GetCatalogGroupCache();
             GetTagsAndChannelsAnalyzers(catalogGroupCache.LanguageMapById.Values.ToList(), out analyzers, out filters, out tokenizers);
 
-            string newIndexName = IndexingUtils.GetNewMetadataIndexName(_partnerId);
+            string newIndexName = NamingHelper.GetNewMetadataIndexName(_partnerId);
 
             // Basic TCM configurations for indexing - number of shards/replicas, size of bulks 
             int numOfShards = NUM_OF_SHARDS;
@@ -6244,7 +6078,7 @@ namespace Core.Catalog
             #endregion
         }
 
-        public void AddTagsToIndex(string newIndexName, List<ApiObjects.SearchObjects.TagValue> allTagValues)
+        public void InsertTagsToIndex(string newIndexName, List<ApiObjects.SearchObjects.TagValue> allTagValues)
         {
             ContextData cd = new ContextData();
             int sizeOfBulk = TVinciShared.WS_Utils.GetTcmIntValue("ES_BULK_SIZE");
@@ -6278,7 +6112,7 @@ namespace Core.Catalog
                     suffix = language.Code;
                 }
 
-                string documentType = IndexingUtils.GetTanslationType(TAG_INDEX_TYPE, language);
+                string documentType = GetTranslationType(TAG_INDEX_TYPE, language);
 
                 // Serialize tag and create a bulk request for it
                 string serializedTag = _serializer.SerializeTagValueObject(tagValue, language);
@@ -6341,41 +6175,27 @@ namespace Core.Catalog
 
         public bool PublishTagsIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            ContextData cd = new ContextData();
             bool result = true;
 
             #region Switch index alias + Delete old indices handling
 
-            string alias = IndexingUtils.GetMetadataGroupAliasStr(_partnerId);
+            string alias = NamingHelper.GetMetadataGroupAliasStr(_partnerId);
             bool indexExists = _elasticSearchApi.IndexExists(alias);
 
             if (shouldSwitchIndexAlias || !indexExists)
             {
                 List<string> oldIndices = _elasticSearchApi.GetAliases(alias);
 
-                Task<bool> taskSwitchIndex = Task<bool>.Factory.StartNew(() =>
-                {
-                    cd.Load();
-                    return _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
-                });
-
-                taskSwitchIndex.Wait();
-
-                if (!taskSwitchIndex.Result)
+                var switchIndexResult = _elasticSearchApi.SwitchIndex(newIndexName, alias, oldIndices);
+                if (!switchIndexResult)
                 {
                     log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, alias);
                     result = false;
                 }
 
-                if (shouldDeleteOldIndices && taskSwitchIndex.Result && oldIndices.Count > 0)
+                if (shouldDeleteOldIndices && switchIndexResult && oldIndices.Count > 0)
                 {
-                    Task t = Task.Run(() =>
-                    {
-                        cd.Load();
-                        _elasticSearchApi.DeleteIndices(oldIndices);
-                    });
-
-                    t.Wait();
+                    _elasticSearchApi.DeleteIndices(oldIndices);
                 }
             }
 
@@ -6384,16 +6204,16 @@ namespace Core.Catalog
             return result;
         }
 
-        public string SetupEpgIndex(IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, bool isRecording)
+        public string SetupEpgIndex(bool isRecording)
         {
-            var indexName = IndexingUtils.GetNewEpgIndexStr(_partnerId);
+            var indexName = NamingHelper.GetNewEpgIndexStr(_partnerId);
 
             if (isRecording)
             {
-                indexName = IndexingUtils.GetNewRecordingIndexStr(_partnerId);
+                indexName = NamingHelper.GetNewRecordingIndexStr(_partnerId);
             }
 
-            CreateNewEpgIndex(languages, defaultLanguage, indexName, isRecording);
+            CreateNewEpgIndex(indexName, isRecording);
             return indexName;
         }
 
@@ -6514,7 +6334,7 @@ namespace Core.Catalog
 
                             // Serialize EPG object to string
                             string serializedEpg = SerializeEPGObject(epg, isRecording, epgToRecordingMapping, suffix, groupUsesTemplates);
-                            string epgType = IndexingUtils.GetTanslationType(type, language);
+                            string epgType = GetTranslationType(type, language);
                             ulong documentId = GetDocumentId(epg, isRecording, epgToRecordingMapping);
 
 
@@ -6598,13 +6418,13 @@ namespace Core.Catalog
         }
 
 
-        public bool FinishUpEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        public bool PublishEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            string alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            string alias = NamingHelper.GetEpgIndexAlias(_partnerId);
 
             if (isRecording)
             {
-                alias = IndexingUtils.GetRecordingGroupAliasStr(_partnerId);
+                alias = NamingHelper.GetRecordingIndexAlias(_partnerId);
             }
 
             bool indexExists = _elasticSearchApi.IndexExists(alias);
@@ -6636,26 +6456,14 @@ namespace Core.Catalog
             {
                 return epgId;
             }
-            else
-            {
-                return (ulong)(epgToRecordingMapping[(int)epgId]); 
-            }
+            return (ulong)(epgToRecordingMapping[(int)epgId]);
         }
 
         protected virtual ulong GetDocumentId(EpgCB epg, bool isRecording, Dictionary<long, long> epgToRecordingMapping)
         {
-            if (!isRecording)
-            {
-                return epg.EpgID;
-            }
-            else
-            {
-                ulong result = GetDocumentId(epg, false, epgToRecordingMapping);
-
-                result = (ulong)(epgToRecordingMapping[(long)epg.EpgID]);
-
-                return result;
-            }
+            if (isRecording)
+                return (ulong)epgToRecordingMapping[(long)epg.EpgID];
+            return epg.EpgID;
         }
 
         protected virtual string SerializeEPGObject(EpgCB epg, bool isRecording, Dictionary<long, long> epgToRecordingMapping, string suffix = null, bool doesGroupUsesTemplates = false)
@@ -6725,11 +6533,11 @@ namespace Core.Catalog
                 linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(_partnerId);
             }
 
-            var alias = IndexingUtils.GetEpgIndexAlias(_partnerId);
+            var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
 
             if (isRecording)
             {
-                alias = IndexingUtils.GetRecordingGroupAliasStr(_partnerId);
+                alias = NamingHelper.GetRecordingIndexAlias(_partnerId);
             }
 
             if (!_elasticSearchApi.IndexExists(alias))
@@ -6762,7 +6570,7 @@ namespace Core.Catalog
                         // in that case we need to use the specific date alias for each epg item to update
                         if (!isRecording && isIngestV2)
                         {
-                            alias = IndexingUtils.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
+                            alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
                         }
 
                         epg.PadMetas(metasToPad);
@@ -6801,7 +6609,7 @@ namespace Core.Catalog
                         {
                             docID = GetDocumentId(epg, isRecording, epgToRecordingMapping),
                             index = alias,
-                            type = IndexingUtils.GetTanslationType(type, language),
+                            type = GetTranslationType(type, language),
                             Operation = eOperation.index,
                             document = serializedEpg,
                             routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
@@ -6864,7 +6672,7 @@ namespace Core.Catalog
             return result;
         }
 
-        public void UpsertProgramsToDraftIndex(
+        public void UpsertPrograms(
             IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName,
             DateTime dateOfProgramsToIngest,
             LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
@@ -6895,8 +6703,8 @@ namespace Core.Catalog
                         var language = languages[program.Language];
 
                         // Serialize EPG object to string
-                        string serializedEpg = HanlderSerializedEpg(VerifyGroupUsesTemplates(), program, suffix);
-                        var epgType = GetTanslationType(IndexManagerV2.EPG_INDEX_TYPE, language);
+                        string serializedEpg = TryGetSerializedEpg(VerifyGroupUsesTemplates(), program, suffix);
+                        var epgType = GetTranslationType(IndexManagerV2.EPG_INDEX_TYPE, language);
 
                         var totalMinutes = _ttlService.GetEpgTtlMinutes(program);
                         // TODO: what should we do if someone trys to ingest something to the past ... :\
@@ -6939,11 +6747,37 @@ namespace Core.Catalog
             });
 
         }
+        
+        private string TryGetSerializedEpg(bool isOpc, EpgCB program, string suffix)
+        {
+            try
+            {
+                return _serializer.SerializeEpgObject(program, suffix, isOpc);
+            }
+            catch (Exception e)
+            {
+                string msg = "";
+                if (program != null && program.Crid != null)
+                {
+                    msg += $" program_crid: {program.Crid} ";
+                    msg += $" program_epg_id: {program.EpgID} ";
+                }
 
-        public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName,
+                if (e.InnerException != null && e.InnerException.Message != null)
+                {
+                    msg += $" InnerException: {e.InnerException.Message} ";
+                }
+
+                log.Debug($"Error while calling SerializeEpgObject {msg} {e.Message}", e);
+                throw;
+            }
+        }
+
+        public void DeletePrograms(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName,
             IDictionary<string, LanguageObj> languages)
         {
-            if (programsToDelete.Count() == 0) { return; }
+            if (!programsToDelete.Any())
+                return;
 
             var programIds = programsToDelete.Select(program => program.EpgId);
             var channelIds = programsToDelete.Select(x => x.ChannelId).Distinct().ToList();
@@ -6952,9 +6786,8 @@ namespace Core.Catalog
             // We will retry deletion until the sum of all deleted programs is equal to the total docs deleted, this is becasue
             // there is an issue in elastic 2.3 where we cannot be sure it will find the item to delete
             // right after re-index.
-            var totalDocumentsToDelete = programsToDelete.Count * languages.Count;
             var totalDocumentsDeleted = 0;
-            log.Debug($"Update elasticsearch index completed, delteting required docuements. documents.leng:[{programsToDelete.Count}]");
+            log.Debug($"Update elasticsearch index completed, deleting required documents. documents.length:[{programsToDelete.Count}]");
             if (programIds.Any())
             {
                 var retryCount = 5;
@@ -6969,10 +6802,6 @@ namespace Core.Catalog
                     var deleteQuery = GetElasticsearchQueryForEpgIDs(programIds, externalIds ?? new List<string>(), channelIds);
                     _elasticSearchApi.DeleteDocsByQuery(epgIndexName, string.Empty, ref deleteQuery, out var deletedDocsCount);
                     totalDocumentsDeleted += deletedDocsCount;
-                    if (totalDocumentsDeleted < programIds.Count())
-                    {
-                        // throw new Exception($"requested to delete {programIds.Count()} programs but actually deleted so far {totalDocumentsDeleted} program ids are: {string.Join(",", programIds)}");
-                    }
                 });
             }
         }
@@ -7147,10 +6976,10 @@ namespace Core.Catalog
             return result;
         }
 
-        private string GetElasticsearchQueryForEpgIDs(IEnumerable<ulong> programIds, IEnumerable<string> externalIds, List<int> channelIds)
+        public string GetElasticsearchQueryForEpgIDs(IEnumerable<ulong> programIds, IEnumerable<string> externalIds, List<int> channelIds)
         {
             // Build query for getting programs
-            var query = new FilteredQuery(true);
+            var query = new FilteredQuery();
             var filter = new QueryFilter();
 
             // basic initialization
@@ -7181,31 +7010,7 @@ namespace Core.Catalog
             return searchQuery;
         }
 
-        private string HanlderSerializedEpg(bool isOpc, EpgCB program, string suffix)
-        {
-            try
-            {
-                return _serializer.SerializeEpgObject(program, suffix, isOpc);
-            }
-            catch (Exception e)
-            {
-                string msg = "";
-                if (program != null && program.Crid != null)
-                {
-                    msg += $" program_crid: {program.Crid} ";
-                    msg += $" program_epg_id: {program.EpgID} ";
-                }
-
-                if (e.InnerException != null && e.InnerException.Message != null)
-                {
-                    msg += $" InnerException: {e.InnerException.Message} ";
-                }
-
-                log.Debug($"Error while calling SerializeEpgObject {msg} {e.Message}", e);
-                throw;
-            }
-
-        }
+        
 
         private void ExecuteAndValidateBulkRequests(List<ESBulkRequestObj<string>> bulkRequests)
         {
@@ -7526,11 +7331,11 @@ namespace Core.Catalog
         /// <summary>
         /// will create a new index in case not exists
         /// </summary>
-        private void CreateIndex(string index, List<LanguageObj> languages, string[] aliases)
+        private void CreateIndex(string index, string[] aliases)
         {
             if (!_elasticSearchApi.IndexExists(index))
             {
-                CreateNewEpgIndex(languages, languages.First(x => x.IsDefault), index);
+                CreateNewEpgIndex(index);
                 foreach (var indexAlias in aliases)
                 {
                     _elasticSearchApi.AddAlias(index, indexAlias);
@@ -7538,17 +7343,6 @@ namespace Core.Catalog
             }
         }
 
-        private string GetTanslationType(string type, LanguageObj language)
-        {
-            if (language.IsDefault)
-            {
-                return type;
-            }
-            else
-            {
-                return string.Concat(type, "_", language.Code);
-            }
-        }
 
         private bool UpdateChannelPercolator(Channel channel, List<string> mediaAliases, List<string> epgAliases)
         {
@@ -7582,7 +7376,7 @@ namespace Core.Catalog
                         channel.filterQuery = builder.ToString();
                     }
 
-                    UnifiedSearchDefinitions definitions = BuildSearchDefinitions(channel, true);
+                    UnifiedSearchDefinitions definitions = _channelQueryBuilder.BuildSearchDefinitions(channel, true);
 
                     isMedia = definitions.shouldSearchMedia;
                     isEpg = definitions.shouldSearchEpg;
@@ -7613,7 +7407,7 @@ namespace Core.Catalog
                     };
 
                     mediaQueryParser.m_nGroupID = channel.m_nGroupID;
-                    MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(channel);
+                    MediaSearchObj mediaSearchObject = _channelQueryBuilder.BuildBaseChannelSearchObject(channel);
 
                     mediaQueryParser.oSearchObject = mediaSearchObject;
                     channelQueryForMedia = mediaQueryParser.BuildSearchQueryString(true);
@@ -7643,9 +7437,10 @@ namespace Core.Catalog
             return result;
         }
 
-        private void AddMappingsToEpgIndex(string indexName, IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage,
-            bool isRecording)
+        private void AddMappingsToEpgIndex(string indexName, bool isRecording)
         {
+            var languages = GetLanguages();
+            var defaultLanguage = GetDefaultLanguage();
             var defaultMappingAnalyzers = GetMappingAnalyzers(defaultLanguage, ES_VERSION);
 
             if (!GetMetasAndTagsForMapping(out Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
@@ -8050,6 +7845,17 @@ namespace Core.Catalog
             return orderBy == OrderBy.META || orderBy == OrderBy.NAME;
         }
 
+        private static string GetTranslationType(string sType, LanguageObj oLanguage)
+        {
+            if (oLanguage.IsDefault)
+            {
+                return sType;
+            }
+            else
+            {
+                return string.Concat(sType, "_", oLanguage.Code);
+            }
+        }
         #endregion
     }
 }

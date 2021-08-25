@@ -92,6 +92,7 @@ namespace ElasticSearch.Common
         {
             return Replace(values, m_dicDocumentReservedCharacters, toLower);
         }
+        
 
         /// <summary>
         /// Replaces special characters when querying

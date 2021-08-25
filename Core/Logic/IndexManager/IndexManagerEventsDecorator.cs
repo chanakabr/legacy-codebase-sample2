@@ -117,7 +117,7 @@ namespace ApiLogic.Catalog.IndexManager
         }
         
         //CUD
-        public void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, DateTime dateOfProgramsToIngest,
+        public void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName, DateTime dateOfProgramsToIngest,
             LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
         {
             Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG,
@@ -125,7 +125,7 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName, IDictionary<string, LanguageObj> languages)
+        public void DeletePrograms(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName, IDictionary<string, LanguageObj> languages)
         {
             Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, programsToDelete, epgIndexName,
                 languages);
@@ -163,12 +163,6 @@ namespace ApiLogic.Catalog.IndexManager
         }
         
         //CUD
-        public Status DeleteStatistics(DateTime until)
-        {
-            return Execute<Status>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.STATS, until);
-        }
-        
-        //CUD
         public bool DeleteSocialAction(StatisticsActionSearchObj socialSearch)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(),
@@ -197,11 +191,10 @@ namespace ApiLogic.Catalog.IndexManager
         }
         
         //CUD
-        public string SetupMediaIndex(List<LanguageObj> languages, LanguageObj defaultLanguage)
+        public string SetupMediaIndex()
         {
             return Execute<string>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.MEDIA, languages,
-                defaultLanguage);
+                IndexManagerMigrationEventKeys.MEDIA);
         }
         
         //CUD
@@ -240,7 +233,7 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public void AddTagsToIndex(string newIndexName, List<TagValue> allTagValues)
+        public void InsertTagsToIndex(string newIndexName, List<TagValue> allTagValues)
         {
             Execute(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.TAG,
                 newIndexName, allTagValues);
@@ -269,11 +262,10 @@ namespace ApiLogic.Catalog.IndexManager
         }
         
         //CUD
-        public string SetupEpgIndex(  IEnumerable<LanguageObj> languages,LanguageObj defaultLanguage, bool isRecording )
+        public string SetupEpgIndex(bool isRecording)
         {
             var eventKey = isRecording ? IndexManagerMigrationEventKeys.RECORDING : IndexManagerMigrationEventKeys.EPG;
-            return Execute<string>(MethodBase.GetCurrentMethod(), eventKey, languages,
-                defaultLanguage, isRecording);
+            return Execute<string>(MethodBase.GetCurrentMethod(), eventKey, isRecording);
         }
 
         //CUD
@@ -291,7 +283,7 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public bool FinishUpEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
+        public bool PublishEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
             var eventKey = isRecording ? IndexManagerMigrationEventKeys.RECORDING : IndexManagerMigrationEventKeys.EPG;
             return Execute<bool>(MethodBase.GetCurrentMethod(), eventKey,
@@ -308,12 +300,10 @@ namespace ApiLogic.Catalog.IndexManager
         }
         
         //CUD
-        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages,
-            LanguageObj defaultLanguage,
-            RetryPolicy retryPolicy)
+        public string SetupEpgV2Index(DateTime dateOfProgramsToIngest)
         {
             return Execute<string>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.EPG, dateOfProgramsToIngest, languages, defaultLanguage, retryPolicy);
+                IndexManagerMigrationEventKeys.EPG, dateOfProgramsToIngest);
         }
 
         //CUD
@@ -329,16 +319,16 @@ namespace ApiLogic.Catalog.IndexManager
         
         
         //CUD
-        public bool FinalizeEpgV2Index(DateTime date)
+        public bool ForceRefreshEpgV2Index(DateTime date)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(),IndexManagerMigrationEventKeys.EPG,date);
         }
 
         //CUD
-        public bool FinalizeEpgV2Indices(List<DateTime> date, RetryPolicy retryPolicy)
+        public bool FinalizeEpgV2Indices(List<DateTime> date)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(),
-                IndexManagerMigrationEventKeys.EPG, date, retryPolicy);
+                IndexManagerMigrationEventKeys.EPG, date);
         }
 
         #endregion
@@ -453,9 +443,9 @@ namespace ApiLogic.Catalog.IndexManager
             return _indexManager.DoesMediaBelongToChannels( lChannelIDs, nMediaID);
         }
 
-        public List<int> GetMediaChannels(  int nMediaID)
+        public List<int> GetMediaChannels(  int mediaId)
         {
-            return _indexManager.GetMediaChannels( nMediaID);
+            return _indexManager.GetMediaChannels( mediaId);
         }
 
         public List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch)

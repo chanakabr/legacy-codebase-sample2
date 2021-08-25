@@ -7,6 +7,7 @@ namespace ElasticSearch.Common
 {
     public enum eOperation { index = 0, create = 1, update = 2, delete = 3 };
 
+
     public class ESBulkRequestObj<T>
     {
         public eOperation Operation { get; set; }

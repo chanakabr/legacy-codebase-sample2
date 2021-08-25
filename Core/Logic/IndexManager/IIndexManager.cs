@@ -1,18 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.ServiceModel;
 using System;
-using System.Linq;
-using System.Text;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Response;
 using ApiObjects;
 using ApiObjects.Catalog;
 using Catalog.Response;
 using ApiObjects.Statistics;
-using ElasticSearch.Common;
 using GroupsCacheManager;
-using System.Data;
-using Polly.Retry;
 using ApiObjects.BulkUpload;
 
 namespace Core.Catalog
@@ -22,11 +16,10 @@ namespace Core.Catalog
     {
         #region added from IndexManager
         bool UpsertMedia(long assetId);
-        string SetupEpgV2Index(DateTime dateOfProgramsToIngest, IDictionary<string, LanguageObj> languages,
-            LanguageObj _defaultLanguage, RetryPolicy retryPolicy);
+        string SetupEpgV2Index(DateTime dateOfProgramsToIngest);
 
-        bool FinalizeEpgV2Index(DateTime date);
-        bool FinalizeEpgV2Indices(List<DateTime> date, RetryPolicy retryPolicy);
+        bool ForceRefreshEpgV2Index(DateTime date);
+        bool FinalizeEpgV2Indices(List<DateTime> date);
         // ............................................................................
 
         bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds);
@@ -41,10 +34,10 @@ namespace Core.Catalog
 
         #region added from the epg ingest v2
 
-        void UpsertProgramsToDraftIndex(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName,
+        void UpsertPrograms(IList<EpgProgramBulkUploadObject> calculatedPrograms, string draftIndexName,
             DateTime dateOfProgramsToIngest,
             LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages);
-        void DeleteProgramsFromIndex(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName,
+        void DeletePrograms(IList<EpgProgramBulkUploadObject> programsToDelete, string epgIndexName,
             IDictionary<string, LanguageObj> languages);
         // ................................................................................................
 
@@ -62,7 +55,7 @@ namespace Core.Catalog
         List<UnifiedSearchResult> SearchSubscriptionAssets(List<BaseSearchObject> searchObjects, int languageId, bool useStartDate, string mediaTypes, ApiObjects.SearchObjects.OrderObj order, int pageIndex, int pageSize, ref int totalItems);
         List<int> GetEntitledEpgLinearChannels(UnifiedSearchDefinitions definitions);
         bool DoesMediaBelongToChannels(List<int> lChannelIDs, int nMediaID);
-        List<int> GetMediaChannels(int nMediaID);
+        List<int> GetMediaChannels(int mediaId);
 
         List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch);
 
@@ -79,9 +72,6 @@ namespace Core.Catalog
         ApiObjects.Response.Status UpdateTag(TagValue tag);
         ApiObjects.Response.Status DeleteTag(long tagId);
         ApiObjects.Response.Status DeleteTagsByTopic(long topicId);
-
-        // used only in ws catalog, maybe deprecated
-        ApiObjects.Response.Status DeleteStatistics(DateTime until);
 
         // external search (in use in phoenix, for example)
         List<UnifiedSearchResult> GetAssetsUpdateDates(List<UnifiedSearchResult> assets, ref int totalItems, int pageSize, int pageIndex, bool shouldIgnoreRecordings = false);
@@ -115,7 +105,7 @@ namespace Core.Catalog
             IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes);
 
         // rebuilders
-        string SetupMediaIndex(List<ApiObjects.LanguageObj> languages, ApiObjects.LanguageObj defaultLanguage);
+        string SetupMediaIndex();
         void InsertMedias(Dictionary<int, Dictionary<int, Media>> groupMedias, string newIndexName);
         void PublishMediaIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
 
@@ -126,16 +116,16 @@ namespace Core.Catalog
         void PublishChannelsMetadataIndex(string newIndexName, bool shouldSwitchAlias, bool shouldDeleteOldIndices);
 
         string SetupTagsIndex();
-        void AddTagsToIndex(string newIndexName, List<ApiObjects.SearchObjects.TagValue> allTagValues);
+        void InsertTagsToIndex(string newIndexName, List<ApiObjects.SearchObjects.TagValue> allTagValues);
         bool PublishTagsIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
 
-        string SetupEpgIndex(IEnumerable<LanguageObj> languages, LanguageObj defaultLanguage, bool isRecording);
+        string SetupEpgIndex(bool isRecording);
 
         void AddEPGsToIndex(string index, bool isRecording,
             Dictionary<ulong, Dictionary<string, EpgCB>> programs,
             Dictionary<long, List<int>> linearChannelsRegionsMapping,
             Dictionary<long, long> epgToRecordingMapping);
-        bool FinishUpEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
+        bool PublishEpgIndex(string newIndexName, bool isRecording, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices);
 
         // updaters 
         bool UpdateEpgs(List<EpgCB> epgObjects, 
