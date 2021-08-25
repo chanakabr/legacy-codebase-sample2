@@ -317,6 +317,8 @@ namespace ApiObjects.Response
         StartDateShouldBeLessThanEndDate = 4111,
         LabelAlreadyInUse = 4112,
         LabelDoesNotExist = 4113,
+        PremiumServiceDoesNotExist = 4114,
+
 
         #endregion
 

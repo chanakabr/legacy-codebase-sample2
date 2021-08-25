@@ -58,7 +58,7 @@ namespace Core.Catalog.CatalogManagement
             }
 
             // get data for group
-            var mediaFileTypes = FileManager.GetMediaFileTypes(groupId);
+            var mediaFileTypes = FileManager.Instance.GetMediaFileTypes(groupId);
             var groupDefaultRatio = ImageUtils.GetGroupDefaultRatioName(groupId);
             var groupRatioNamesToImageTypes = ImageManager.GetImageTypesMapBySystemName(groupId);
             var tagsTranslations = new Dictionary<string, TagsTranslations>();

@@ -48,7 +48,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptions(groupId, subIds, string.Empty, languageCode, udid, assetSearchDefinition, wsOrderBy, pageIndex, pageSize.Value, false, couponGroupIdEqual);
+                    response = Core.Pricing.Module.Instance.GetSubscriptions(groupId, subIds, string.Empty, languageCode, udid, assetSearchDefinition, wsOrderBy, pageIndex, pageSize.Value, false, couponGroupIdEqual);
                 }
             }
             catch (Exception ex)
@@ -72,7 +72,7 @@ namespace WebAPI.Clients
             return subscriptions;
         }
 
-        internal List<KalturaSubscription> GetSubscriptionsData(int groupId, string udid, string language, KalturaSubscriptionOrderBy orderBy, int pageIndex, int? pageSize, int? couponGroupIdEqual = null)
+        internal List<KalturaSubscription> GetSubscriptionsData(int groupId, string udid, string language, KalturaSubscriptionOrderBy orderBy, int pageIndex, int? pageSize, int? couponGroupIdEqual = null, bool getAlsoInActive = false)
         {
             SubscriptionsResponse response = null;
             List<KalturaSubscription> subscriptions = new List<KalturaSubscription>();
@@ -84,7 +84,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptions(groupId, language, udid, wsOrderBy, pageIndex, pageSize.Value, false, couponGroupIdEqual);
+                    response = Core.Pricing.Module.Instance.GetSubscriptions(groupId, language, udid, wsOrderBy, pageIndex, pageSize.Value, false, getAlsoInActive, couponGroupIdEqual);
                 }
             }
             catch (Exception ex)
@@ -711,7 +711,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetSubscriptionsByProductCodes(groupId, productCodes, wsOrderBy);
+                    response = Core.Pricing.Module.Instance.GetSubscriptionsByProductCodes(groupId, productCodes, wsOrderBy);
                 }
             }
             catch (Exception ex)
@@ -823,7 +823,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Pricing.Module.GetCouponsGroup(groupId, id);
+                    response = Core.Pricing.Module.Instance.GetCouponsGroup(groupId, id);
                 }
             }
             catch (Exception ex)

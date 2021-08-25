@@ -13,7 +13,13 @@ namespace WebAPI.Models.Pricing
     public enum KalturaSubscriptionOrderBy
     {
         START_DATE_ASC,
-        START_DATE_DESC
+        START_DATE_DESC,
+        CREATE_DATE_ASC,
+        CREATE_DATE_DESC,
+        UPDATE_DATE_ASC,
+        UPDATE_DATE_DESC,
+        NAME_ASC,
+        NAME_DESC
     }
 
     public partial class KalturaSubscriptionFilter : KalturaFilter<KalturaSubscriptionOrderBy>
@@ -52,6 +58,30 @@ namespace WebAPI.Models.Pricing
         public int? CouponGroupIdEqual { get; set; }
 
         /// <summary>
+        /// previewModuleIdEqual
+        /// </summary>
+        [DataMember(Name = "previewModuleIdEqual")]
+        [JsonProperty("previewModuleIdEqual")]
+        [XmlElement(ElementName = "previewModuleIdEqual", IsNullable = true)]
+        public long? PreviewModuleIdEqual { get; set; }
+
+        /// <summary>
+        /// pricePlanIdEqual
+        /// </summary>
+        [DataMember(Name = "pricePlanIdEqual")]
+        [JsonProperty("pricePlanIdEqual")]
+        [XmlElement(ElementName = "pricePlanIdEqual", IsNullable = true)]
+        public long? PricePlanIdEqual { get; set; }
+
+        /// <summary>
+        /// channelIdEqual 
+        /// </summary>
+        [DataMember(Name = "channelIdEqual")]
+        [JsonProperty("channelIdEqual")]
+        [XmlElement(ElementName = "channelIdEqual", IsNullable = true)]
+        public long? ChannelIdEqual { get; set; }
+
+        /// <summary>
         /// KSQL expression
         /// </summary>
         [DataMember(Name = "kSql")]
@@ -60,44 +90,57 @@ namespace WebAPI.Models.Pricing
         [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
         public string Ksql { get; set; }
 
+        /// <summary>
+        /// Root only
+        /// </summary>
+        [DataMember(Name = "alsoInactive")]
+        [JsonProperty("alsoInactive")]
+        [XmlElement(ElementName = "alsoInactive")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
+        public bool? AlsoInactive { get; set; }
+
         public override KalturaSubscriptionOrderBy GetDefaultOrderByValue()
         {
-            return KalturaSubscriptionOrderBy.START_DATE_ASC;
+            return KalturaSubscriptionOrderBy.NAME_ASC;
         }
 
-        internal bool Validate()
+        internal void Validate()
         {
             if (string.IsNullOrEmpty(Ksql))
             {
-                if (MediaFileIdEqual.HasValue && (!string.IsNullOrEmpty(SubscriptionIdIn) || !string.IsNullOrEmpty(ExternalIdIn)))
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.subscriptionIdIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
-                }
+                if (MediaFileIdEqual.HasValue && (!string.IsNullOrEmpty(SubscriptionIdIn) || !string.IsNullOrEmpty(ExternalIdIn) || AlsoInactive.HasValue || 
+                                                  PreviewModuleIdEqual.HasValue || PricePlanIdEqual.HasValue || ChannelIdEqual.HasValue))
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.mediaFileIdEqual", "KalturaSubscriptionFilter");
 
-                if (!string.IsNullOrEmpty(SubscriptionIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(ExternalIdIn)))
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.subscriptionIdIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
-                }
+                if (!string.IsNullOrEmpty(SubscriptionIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(ExternalIdIn) || 
+                                                                AlsoInactive.HasValue || PreviewModuleIdEqual.HasValue || PricePlanIdEqual.HasValue || ChannelIdEqual.HasValue))
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.subscriptionIdIn", "KalturaSubscriptionFilter");
 
-                if (!string.IsNullOrEmpty(ExternalIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(SubscriptionIdIn)))
-                {
-                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.productCodeIn", "KalturaSubscriptionFilter.mediaFileIdEqual");
-                }
+                if (!string.IsNullOrEmpty(ExternalIdIn) && (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(SubscriptionIdIn) || AlsoInactive.HasValue ||
+                                                            PreviewModuleIdEqual.HasValue || PricePlanIdEqual.HasValue || ChannelIdEqual.HasValue))
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.productCodeIn", "KalturaSubscriptionFilter");
 
-                if (string.IsNullOrEmpty(ExternalIdIn) && (!MediaFileIdEqual.HasValue || MediaFileIdEqual.Value == 0) && string.IsNullOrEmpty(SubscriptionIdIn) && CouponGroupIdEqual == null)
-                {
-                    return false;
-                }
+                if (CouponGroupIdEqual.HasValue && (PreviewModuleIdEqual.HasValue || PricePlanIdEqual.HasValue || ChannelIdEqual.HasValue))
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.couponGroupIdEqual", "KalturaSubscriptionFilter");
+                if (PreviewModuleIdEqual.HasValue && (PricePlanIdEqual.HasValue || ChannelIdEqual.HasValue))
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.PreviewModuleIdEqual", "KalturaSubscriptionFilter");
+                if(PricePlanIdEqual.HasValue && ChannelIdEqual.HasValue)
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.PricePlanIdEqual", "KalturaSubscriptionFilter.ChannelIdEqual");
             }
             else
             {
-                if (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(SubscriptionIdIn) || !string.IsNullOrEmpty(ExternalIdIn))
+                if (MediaFileIdEqual.HasValue || !string.IsNullOrEmpty(SubscriptionIdIn) || !string.IsNullOrEmpty(ExternalIdIn) ||  AlsoInactive.HasValue ||
+                    PreviewModuleIdEqual.HasValue || PricePlanIdEqual.HasValue || ChannelIdEqual.HasValue)
                 {
                     throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaSubscriptionFilter.Ksql", "KalturaSubscriptionFilter");
                 }
             }
 
-            return true;
+            if (!string.IsNullOrEmpty(SubscriptionIdIn))
+            {
+                GetItemsIn<List<long>, long>(this.SubscriptionIdIn, "subscriptionIdIn", true);
+            }
         }
 
         internal List<long> getSubscriptionIdIn()

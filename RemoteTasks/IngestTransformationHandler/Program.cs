@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
+using ApiLogic.IndexManager.Mappings;
 using ApiObjects;
 using Core.Metrics;
 using EventBus.RabbitMQ;
-using IngestTransformationHandler;
+using IngestHandler.Common.Infrastructure;
 using IngestTransformationHandler.Managers;
 using IngestTransformationHandler.Repositories;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +26,8 @@ namespace EPGTransformationHandler
                 {
                     s.AddScoped<IEpgRepository, EpgRepository>();
                     s.AddScoped<IEpgCRUDOperationsManager, EpgCRUDOperationsManager>();
+                    s.AddScoped<IMappingTypeResolver, MappingTypeResolver>();
+                    s.AddSingleton<ICatalogManagerAdapter, CatalogManagerAdapter>();
                 })
                 .ConfigureEventBustConsumer(c =>
                 {

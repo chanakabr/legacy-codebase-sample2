@@ -86,7 +86,7 @@ namespace Core.Pricing
             List<UsageModule> temp = null;
             if (!PricingCache.Instance.TryGetGroupPricePlans(cacheKey, out temp) || temp == null)
             {
-                DataTable usageModules = PricingDAL.Instance.GetPricePlans(m_nGroupID);
+                DataTable usageModules = PricingDAL.Instance.GetPricePlansDT(m_nGroupID);
 
                 if (usageModules != null && usageModules.Rows != null && usageModules.Rows.Count > 0)
                 {

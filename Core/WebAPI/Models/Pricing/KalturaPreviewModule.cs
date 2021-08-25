@@ -28,6 +28,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
+        [SchemeProperty(MinLength = 1)]
         public string Name { get; set; }
 
         /// <summary>
@@ -37,7 +38,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("lifeCycle")]
         [XmlElement(ElementName = "lifeCycle")]
         [OldStandardProperty("life_cycle")]
-        [SchemeProperty(IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MinInteger = 1)]
         public int? LifeCycle { get; set; }
 
         /// <summary>
@@ -47,13 +48,17 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("nonRenewablePeriod")]
         [XmlElement(ElementName = "nonRenewablePeriod")]
         [OldStandardProperty("non_renewable_period")]
-        [SchemeProperty(IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MinInteger = 1)]
         public int? NonRenewablePeriod { get; set; }
 
         public void ValidateForAdd()
         {
             if (string.IsNullOrWhiteSpace(Name))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
+            if (!NonRenewablePeriod.HasValue)
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "nonRenewablePeriod");
+            if (!LifeCycle.HasValue)
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "lifeCycle");
         }
     }
 

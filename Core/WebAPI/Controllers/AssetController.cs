@@ -20,7 +20,7 @@ using WebAPI.Utils;
 namespace WebAPI.Controllers
 {
     [Service("asset")]
-    public class AssetController : IKalturaController
+    public class AssetController : IKalturaController 
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 

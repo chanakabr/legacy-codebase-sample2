@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace ApiObjects.Pricing
 {
@@ -46,7 +46,7 @@ namespace ApiObjects.Pricing
         Unknown = 0,
         Purchase = 1,
         SocialInvite = 3
-        
+
     }
 
     [Serializable]
@@ -86,7 +86,13 @@ namespace ApiObjects.Pricing
     public enum SubscriptionOrderBy
     {
         StartDateAsc = 0,
-        StartDateDesc = 1
+        StartDateDesc = 1,
+        CreateDateAsc = 2,
+        CreateDateDesc = 3,
+        UpdateDateAsc = 4,
+        UpdateDateDesc = 5,
+        NameAsc = 6,
+        NameDesc = 7
     }
 
     [Serializable]
@@ -107,7 +113,7 @@ namespace ApiObjects.Pricing
     [Serializable]
     public enum SubscriptionType
     {
-        NotApplicable  = 0,
+        NotApplicable = 0,
         Base = 1,
         AddOn = 2
     }

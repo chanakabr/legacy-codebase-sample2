@@ -3,6 +3,7 @@ using ApiObjects.Base;
 using ApiObjects.Pricing;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
+using Core.Api;
 using Core.Pricing;
 using DAL;
 using KLogMonitor;
@@ -11,12 +12,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Core.GroupManagers;
+using Core.GroupManagers.Adapters;
 
 namespace ApiLogic.Pricing.Handlers
 {
     public interface IPriceDetailsManager
     {
-        bool IsPriceCodeExist(int groupId, long priceCodeId);
+        GenericResponse<PriceDetails> GetPriceDetailsById(int groupId, long priceDetailsId);
     }
 
     public class PriceDetailsManager : IPriceDetailsManager
@@ -26,34 +29,36 @@ namespace ApiLogic.Pricing.Handlers
         private static readonly Lazy<PriceDetailsManager> lazy = new Lazy<PriceDetailsManager>(() =>
             new PriceDetailsManager(PricingDAL.Instance,
                                     GeneralPartnerConfigManager.Instance,
-                                    Price.Instance,
-                                    LayeredCache.Instance),
+                                    LayeredCache.Instance,
+                                    api.Instance,
+                                    GroupSettingsManagerAdapter.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static PriceDetailsManager Instance => lazy.Value;
 
         private readonly IPriceDetailsRepository _repository;
         private readonly IGeneralPartnerConfigManager _generalPartnerConfigManager;
-        private readonly IPrice _price;
         private readonly ILayeredCache _layeredCache;
-
+        private readonly ICountryManager _countryManager;
+        private readonly IGroupSettingsManager _groupSettingsManager;
         public PriceDetailsManager(IPriceDetailsRepository priceDetailsRepository,
                                     IGeneralPartnerConfigManager generalPartnerConfigManager,
-                                    IPrice price,
-                                    ILayeredCache layeredCache)
+                                    ILayeredCache layeredCache,
+                                    ICountryManager countryManager,
+                                    IGroupSettingsManager groupSettingsManager)
         {
             _repository = priceDetailsRepository;
             _generalPartnerConfigManager = generalPartnerConfigManager;
-            _price = price;
             _layeredCache = layeredCache;
+            _countryManager = countryManager;
+            _groupSettingsManager = groupSettingsManager;
         }
 
-        public GenericListResponse<PriceDetails> GetPriceCodesDataByCurrency(int groupId, List<long> priceCodeIds, string currencyCode)
+        public GenericListResponse<PriceDetails> GetPriceDetailsList(int groupId, List<long> ids, string currencyCode = null)
         {
             var response = new GenericListResponse<PriceDetails>();
 
             // get prices with specific currency 
-
             if (!string.IsNullOrEmpty(currencyCode) && !currencyCode.Trim().Equals("*"))
             {
                 if (!_generalPartnerConfigManager.IsValidCurrencyCode(groupId, currencyCode))
@@ -65,32 +70,39 @@ namespace ApiLogic.Pricing.Handlers
 
             if (string.IsNullOrEmpty(currencyCode) && !_generalPartnerConfigManager.GetGroupDefaultCurrency(groupId, ref currencyCode))
             {
+                response.SetStatus(eResponseStatus.Error, "could not get group default currencyCode");
                 return response;
             }
 
-            string key = LayeredCacheKeys.GetGroupPriceCodesKey(groupId);
-
-            var funcParams = new Dictionary<string, object>() { { "groupId", groupId } };
-            List<PriceDetails> priceCodes = null;
-            _layeredCache.Get(key, ref priceCodes, GetGroupPriceCodes, funcParams, groupId,
-                LayeredCacheConfigNames.GET_GROUP_PRICE_CODES_LAYERED_CACHE_CONFIG_NAME,
-                new List<string>() {LayeredCacheKeys.GetGroupPriceCodesInvalidationKey(groupId)});
-
-            if (priceCodes != null)
+            List<PriceDetails> allPriceDetails = null;
+            if (!_layeredCache.Get(LayeredCacheKeys.GetGroupPriceCodesKey(groupId), 
+                                   ref allPriceDetails, 
+                                   GetGroupPriceCodes,
+                                   new Dictionary<string, object>() { { "groupId", groupId } }, 
+                                   groupId,
+                                   LayeredCacheConfigNames.GET_GROUP_PRICE_CODES_LAYERED_CACHE_CONFIG_NAME,
+                                   new List<string>() { LayeredCacheKeys.GetGroupPriceCodesInvalidationKey(groupId) }))
             {
-                response.Objects = new List<PriceDetails>();
+                log.Error($"faild to GetPriceDetailsList.GetGroupPriceCodes from layeredCache for groupId:{groupId}.");
+                return response;
+            }
 
-                foreach (var pc in priceCodes)
+            var searchByIds = ids != null && ids.Count > 0;
+            response.Objects = searchByIds ? new List<PriceDetails>(ids.Count) : new List<PriceDetails>(allPriceDetails.Count);
+            if (allPriceDetails != null)
+            {
+                foreach (var pc in allPriceDetails)
                 {
-                    // filter by IDs
-                    if (priceCodeIds != null && priceCodeIds.Count > 0 && !priceCodeIds.Contains(pc.Id))
+                    if (searchByIds && !ids.Contains(pc.Id))
                         continue;
 
                     // filter by currency 
                     if (!currencyCode.Trim().Equals("*"))
                     {
-                        var n = new PriceDetails(pc);
-                        n.Prices = pc.Prices != null ? pc.Prices.Where(p => p.m_oCurrency.m_sCurrencyCD3 == currencyCode).ToList() : null;
+                        var n = new PriceDetails(pc)
+                        {
+                            Prices = pc.Prices?.Where(p => p.m_oCurrency.m_sCurrencyCD3.ToLower() == currencyCode.ToLower()).ToList()
+                        };
                         response.Objects.Add(n);
                     }
                     else
@@ -103,64 +115,35 @@ namespace ApiLogic.Pricing.Handlers
             }
 
             response.Status.Set(eResponseStatus.OK);
-
-            response.TotalItems = response.Objects?.Count ?? 0;
             return response;
         }
-
 
         public GenericResponse<PriceDetails> Add(ContextData contextData, PriceDetails priceDetailsToInsert)
         {
             var response = new GenericResponse<PriceDetails>();
-
+            if (!_groupSettingsManager.IsOpc(contextData.GroupId))
+            {
+                response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, "Account Is Not OPC Supported");
+                return response;
+            }
+            
             try
             {
-                if (string.IsNullOrEmpty(priceDetailsToInsert.Name))
+                var currencyMap = _generalPartnerConfigManager.GetCurrencyMapByCode3(contextData.GroupId);
+                var countryMap = _countryManager.GetCountryMapById(contextData.GroupId);
+
+                var validateStatus = ValidatePrices(priceDetailsToInsert.Prices, currencyMap, countryMap);
+                if (!validateStatus.IsOkStatusCode())
                 {
-                    response.SetStatus(eResponseStatus.NameRequired, "Name required");
+                    response.SetStatus(validateStatus);
                     return response;
                 }
 
-                if (priceDetailsToInsert.Prices == null || priceDetailsToInsert.Prices.Count == 0)
-                {
-                    response.SetStatus(eResponseStatus.PriceIsMissing, "Price required");
-                    return response;
-                }
-
-                // validate Price
-                foreach (var item in priceDetailsToInsert.Prices)
-                {
-                    if (item.m_dPrice < 1)
-                    {
-                        response.SetStatus(eResponseStatus.AmountIsMissing, "Amount required");
-                        return response;
-                    }
-
-                    if (item.m_oCurrency == null || string.IsNullOrEmpty(item.m_oCurrency.m_sCurrencyCD3))
-                    {
-                        response.SetStatus(eResponseStatus.CurrencyIsMissing, "Currency Required");
-                        return response;
-                    }
-
-                    if (!_generalPartnerConfigManager.IsValidCurrencyCode(contextData.GroupId, item.m_oCurrency.m_sCurrencyCD3))
-                    {
-                        response.SetStatus(eResponseStatus.InvalidCurrency, "Invalid currency");
-                        return response;
-                    }
-
-                    item.m_oCurrency.m_nCurrencyID = _price.InitializeByCD3(item.m_oCurrency.m_sCurrencyCD3, item.m_dPrice).m_oCurrency.m_nCurrencyID;
-                }
-
-                List<PriceDTO> pricesDTO = null;
-                if (priceDetailsToInsert.Prices.Count > 1)
-                {
-                    pricesDTO = ConvertPriceDetails(priceDetailsToInsert.Prices.Skip(1).ToList());
-                }
-
-                long id = _repository.InsertPriceDetails(contextData.GroupId, priceDetailsToInsert.Name, priceDetailsToInsert.Prices[0].m_dPrice, priceDetailsToInsert.Prices[0].m_oCurrency.m_nCurrencyID, pricesDTO, contextData.UserId.Value);
+                var priceDetailsDTO = ConvertToPriceDetailsDTO(priceDetailsToInsert, currencyMap, countryMap);
+                long id = _repository.InsertPriceDetails(contextData.GroupId, priceDetailsDTO, contextData.UserId.Value);
                 if (id == 0)
                 {
-                    log.Error($"Error while InsertPriceDetails. contextData: {contextData.ToString()}.");
+                    log.Error($"Error while InsertPriceDetails. contextData: {contextData}.");
                     return response;
                 }
 
@@ -172,46 +155,33 @@ namespace ApiLogic.Pricing.Handlers
             }
             catch (Exception ex)
             {
-                log.Error($"An Exception was occurred in PriceDetails. contextData:{contextData.ToString()}, name:{priceDetailsToInsert.Name}.", ex);
+                log.Error($"An Exception was occurred in PriceDetails.add. contextData:{contextData}, name:{priceDetailsToInsert.Name}.", ex);
             }
 
             return response;
         }
 
-        private static List<PriceDTO> ConvertPriceDetails(IEnumerable<Price> prices)
-        {
-            return prices?.Select(p => new PriceDTO
-            {
-                Price = p.m_dPrice,
-                CountryId = p.countryId,
-                Currency = new CurrencyDTO
-                {
-                    CurrencyId = p.m_oCurrency.m_nCurrencyID
-                }
-            }).ToList();
-        }
-
         public Status Delete(ContextData contextData, long id)
         {
-            Status result = new Status();
-
-            if (!_repository.IsPriceCodeExistsById(contextData.GroupId, id))
+            if (!_groupSettingsManager.IsOpc(contextData.GroupId))
             {
-                result.Set(eResponseStatus.PriceDetailsDoesNotExist, $"Price details {id} does not exist");
-                return result;
+                return new Status(eResponseStatus.AccountIsNotOpcSupported, "Account Is Not OPC Supported");
             }
-
+            
+            var currPriceDetails = GetPriceDetailsById(contextData.GroupId, id);
+            if (!currPriceDetails.HasObject())
+            {
+                return currPriceDetails.Status;
+            }
+            
             if (!_repository.DeletePriceDetails(contextData.GroupId, id, contextData.UserId.Value))
             {
-                log.Error($"Error while DeletePriceCode. contextData: {contextData.ToString()}.");
-                result.Set(eResponseStatus.Error);
-                return result;
+                log.Error($"Error while DeletePriceDetails. contextData: {contextData}.");
+                return Status.Error;
             }
 
             SetPriceCodeValidation(contextData.GroupId, id);
-
-            result.Set(eResponseStatus.OK);
-            return result;
+            return Status.Ok;
         }
 
         private Tuple<List<PriceDetails>, bool> GetGroupPriceCodes(Dictionary<string, object> funcParams)
@@ -223,47 +193,40 @@ namespace ApiLogic.Pricing.Handlers
                 if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
                 {
                     int? groupId = funcParams["groupId"] as int?;
-                    List<PriceDetailsDTO> priceDetailsDTOList = _repository.GetPriceCodesDTO(groupId.Value);
+                    var allCurrencies = _generalPartnerConfigManager.GetCurrencyList(groupId.Value);
+                    if (allCurrencies == null)
+                    {
+                        log.Error($"could not GetGroupPriceCodes because group {groupId} does not have any Currencies");
+                        return new Tuple<List<PriceDetails>, bool>(priceDetailsList, false);
+                    }
+                    var currencyMap = allCurrencies.ToDictionary(x => x.m_nCurrencyID);
 
+                    List<PriceDetailsDTO> priceDetailsDTOList = _repository.GetPriceDetails(groupId.Value);
                     if (priceDetailsDTOList != null)
                     {
-                        priceDetailsList = new List<PriceDetails>();
-                        PriceDetails priceDetails = null;
-
+                        priceDetailsList = new List<PriceDetails>(priceDetailsDTOList.Count);
                         foreach (var priceDetailsDTO in priceDetailsDTOList)
                         {
-                            priceDetails = new PriceDetails()
+                            var priceDetails = new PriceDetails()
                             {
+                                Id = priceDetailsDTO.Id,
                                 Name = priceDetailsDTO.Name,
-                                Id = priceDetailsDTO.Id
-                            };
-
-                            if (priceDetailsDTO.Prices?.Count > 0)
-                            {
-                                priceDetails.Prices = new List<Price>();
-                                Price price = null;
-                                foreach (var priceDTO in priceDetailsDTO.Prices)
+                                Prices = priceDetailsDTO.Prices?.Select(p => new Price
                                 {
-                                    price = new Price()
-                                    {
-                                        m_dPrice = priceDTO.Price,
-                                        countryId = priceDTO.CountryId
-                                    };
-
-                                    price.m_oCurrency.InitializeById(priceDTO.Currency.CurrencyId);
-                                    priceDetails.Prices.Add(price);
-                                }
-                            }
+                                    m_dPrice = p.Price,
+                                    countryId = (int)p.CountryId,
+                                    m_oCurrency = new Currency(currencyMap[(int)p.CurrencyId]),
+                                }).ToList()
+                            };
 
                             priceDetailsList.Add(priceDetails);
                         }
                     }
                 }
             }
-
             catch (Exception ex)
             {
-                log.Error(string.Format("GetGroupPriceCodes failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.Error($"An Exception was occurred in GetGroupPriceCodes. parameters:{string.Join("; ", funcParams.Keys)}", ex);
             }
 
             bool res = priceDetailsList != null;
@@ -293,24 +256,126 @@ namespace ApiLogic.Pricing.Handlers
             }
         }
 
-        public bool IsPriceCodeExist(int groupId, long priceCodeId)
+        public GenericResponse<PriceDetails> GetPriceDetailsById(int groupId, long priceDetailsId)
         {
-            string key = LayeredCacheKeys.GetGroupPriceCodesKey(groupId);
-
-            var funcParams = new Dictionary<string, object>() { { "groupId", groupId } };
-            List<PriceDetails> priceCodes = null;
-            _layeredCache.Get(key, ref priceCodes, GetGroupPriceCodes, funcParams, groupId,
-                LayeredCacheConfigNames.GET_GROUP_PRICE_CODES_LAYERED_CACHE_CONFIG_NAME,
-                new List<string>() {LayeredCacheKeys.GetGroupPriceCodesInvalidationKey(groupId)});
-
-            PriceDetails priceDetails = null;
-
-            if (priceCodes?.Count > 0)
+            GenericResponse<PriceDetails> response = new GenericResponse<PriceDetails>();
+            var priceDetailsList = GetPriceDetailsList(groupId, new List<long>() { priceDetailsId }, "*");
+            if (!priceDetailsList.HasObjects())
             {
-                priceDetails = priceCodes.FirstOrDefault(pc => pc.Id == priceCodeId);
+                response.SetStatus(eResponseStatus.PriceDetailsDoesNotExist, $"PriceDetails {priceDetailsId} does not exist");
+            }
+            else
+            {
+                response.Object = priceDetailsList.Objects[0];
+                response.SetStatus(eResponseStatus.OK);
             }
 
-            return priceDetails != null && priceDetails.Id != 0;
+            return response;
+        }
+
+        public GenericResponse<PriceDetails> Update(ContextData contextData, PriceDetails priceDetailsToUpdate)
+        {
+            var response = new GenericResponse<PriceDetails>();
+            if (!_groupSettingsManager.IsOpc(contextData.GroupId))
+            {
+                response.SetStatus(eResponseStatus.AccountIsNotOpcSupported, "Account Is Not OPC Supported");
+                return response;
+            }
+            
+            var currPriceDetails = GetPriceDetailsById(contextData.GroupId, priceDetailsToUpdate.Id);
+            if (!currPriceDetails.HasObject())
+            {
+                response.SetStatus(currPriceDetails.Status);
+                return response;
+            }
+
+            try
+            {
+                var currencyMap = _generalPartnerConfigManager.GetCurrencyMapByCode3(contextData.GroupId);
+                var countryMap = _countryManager.GetCountryMapById(contextData.GroupId);
+
+                bool updatePriceCodes = false;
+                if (!string.IsNullOrWhiteSpace(priceDetailsToUpdate.Name))
+                {
+                    updatePriceCodes = true;
+                }
+                else
+                {
+                    priceDetailsToUpdate.Name = currPriceDetails.Object.Name;
+                }
+
+                bool updatePriceCodesLocales = false;
+                if (priceDetailsToUpdate.Prices?.Count > 0)
+                {
+                    updatePriceCodes = true;
+                    updatePriceCodesLocales = true;
+                    var validateStatus = ValidatePrices(priceDetailsToUpdate.Prices, currencyMap, countryMap);
+                    if (!validateStatus.IsOkStatusCode())
+                    {
+                        response.SetStatus(validateStatus);
+                        return response;
+                    }
+                }
+                else
+                {
+                    priceDetailsToUpdate.Prices = currPriceDetails.Object.Prices;
+                }
+
+                if (updatePriceCodes || updatePriceCodesLocales)
+                {
+                    var priceDetailsDTO = ConvertToPriceDetailsDTO(priceDetailsToUpdate, currencyMap, countryMap);
+                    var success = _repository.UpdatePriceDetails(contextData.GroupId, priceDetailsToUpdate.Id, updatePriceCodes, priceDetailsDTO, 
+                        updatePriceCodesLocales, contextData.UserId.Value);
+                    if (!success)
+                    {
+                        log.Error($"Error while UpdatePriceDetails id {priceDetailsToUpdate.Id}. contextData: {contextData}.");
+                        return response;
+                    }
+
+                    SetPriceCodeValidation(contextData.GroupId, priceDetailsToUpdate.Id);
+                }
+                
+                response.Object = priceDetailsToUpdate;
+                response.Status.Set(eResponseStatus.OK);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"An Exception was occurred in PriceDetails.Update. id:{priceDetailsToUpdate.Id}, contextData:{contextData}.", ex);
+            }
+
+            return response;
+        }
+
+        private Status ValidatePrices(List<Price> prices, Dictionary<string, Currency> currencyMap, Dictionary<int, ApiObjects.Country> countryMap)
+        {
+            foreach (var item in prices)
+            {
+                if (item.countryId != 0 && !countryMap.ContainsKey(item.countryId))
+                {
+                    return new Status(eResponseStatus.CountryNotFound, $"Country {item.countryId} not found");
+                }
+
+                if (!currencyMap.ContainsKey(item.m_oCurrency.m_sCurrencyCD3.ToLower()))
+                {
+                    return new Status(eResponseStatus.InvalidCurrency, $"Invalid currency {item.m_oCurrency.m_sCurrencyCD3}");
+                }
+            }
+            return Status.Ok;
+        }
+
+        private PriceDetailsDTO ConvertToPriceDetailsDTO(PriceDetails priceDetails, Dictionary<string, Currency> currencyMap,
+            Dictionary<int, ApiObjects.Country> countryMap)
+        {
+            return new PriceDetailsDTO()
+            {
+                Name = priceDetails.Name,
+                Prices = priceDetails.Prices?.Select(p => new PriceCodeLocaleDTO
+                {
+                    Price = p.m_dPrice,
+                    CountryCode = countryMap.ContainsKey(p.countryId) ? countryMap[p.countryId].Code : "--",
+                    CurrencyId = currencyMap[p.m_oCurrency.m_sCurrencyCD3.ToLower()].m_nCurrencyID
+                }).ToList()
+            };
         }
     }
 }

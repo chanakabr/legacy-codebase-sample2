@@ -402,7 +402,12 @@ namespace ApiLogic.Catalog.IndexManager
         {
             return _indexManager.GetCurrentProgramsByDate(channelId, fromDate, toDate);
         }
-        
+
+        public IList<EpgProgramInfo> GetCurrentProgramInfosByDate(int channelId, DateTime fromDate, DateTime toDate)
+        {
+            return _indexManager.GetCurrentProgramInfosByDate(channelId, fromDate, toDate);
+        }
+
         public List<UnifiedSearchResult> UnifiedSearch(UnifiedSearchDefinitions unifiedSearch, ref int totalItems, ref int to)
         {
             return  _indexManager.UnifiedSearch(unifiedSearch, ref totalItems, ref to);

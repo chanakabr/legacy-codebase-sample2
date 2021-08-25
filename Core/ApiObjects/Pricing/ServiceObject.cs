@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,7 @@ using System.Text;
 namespace ApiObjects.Pricing
 {
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class ServiceObject
     {
         public long ID;
@@ -23,6 +25,7 @@ namespace ApiObjects.Pricing
     }
 
     [Serializable]
+    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class NpvrServiceObject : ServiceObject
     {
         public long Quota;

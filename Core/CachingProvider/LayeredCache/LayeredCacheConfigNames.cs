@@ -73,6 +73,7 @@
         public const string GET_ASSET_USER_RULE = "GetAssetUserRulesCB";
         public const string GET_USER_TO_ASSET_USER_RULE_IDS = "GetUserToAssetUserRuleIdsDB";
         public const string GET_GROUP_DISCOUNTS_LAYERED_CACHE_CONFIG_NAME = "GetGroupDiscounts";
+        public const string GET_GROUP_PRICE_PLAN_LAYERED_CACHE_CONFIG_NAME = "GetPricePlan";
         public const string GET_DEVICE_CONCURRENCY_PRIORITY_FROM_CB = "GetDeviceConcurrencyPriorityCB";
         public const string GET_ALL_LINEAR_MEDIA = "GetAllLinearMedia";
         public const string GET_ADJACENT_PROGRAMS = "GetAdjacentPrograms";
@@ -134,7 +135,12 @@
         public const string GET_KS_VALIDATION = "Get_KsValidation";
         public const string GET_OPC_PARTNER_CONFIG = "GetOpcPartnerConfig";
         public const string GET_DOMAIN_SUBSCRIPTION_PURCHASE = "GetDomainSubscriptionPurchase";
+        public const string GET_GROUP_PREVIEW_MODULES = "GetGroupPreviewModules";
         public const string GET_LABELS_CACHE_CONFIG_NAME = "GetLabels";
+        public const string GET_GROUP_SERVICES_LAYERED_CACHE_CONFIG_NAME = "GetGroupPremiumServices";
+        public const string GET_SERVICES_LAYERED_CACHE_CONFIG_NAME = "GetAllPremiumServices";
+        public const string GET_SUBSCRIPTIONS = "GetSubscriptions";
+        public const string GET_GROUP_SUBSCRIPTION_ITEMS = "GetGroupSubscriptionItems";
 
         // DON'T you ever change the value of this static var even when its not aligned, changing will require sync integration and change tcm config
         public const string GET_MICROSERVICES_CANARY_CONFIGURATION = "GetCanaryConfiguration";

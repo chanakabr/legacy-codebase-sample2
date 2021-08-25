@@ -32,16 +32,55 @@ namespace Core.Pricing
             this.WhenAlgoTimes = ddToCopy.WhenAlgoTimes;
         }
 
-        public static List<DiscountDTO> ConvertToDtos(List<Discount> MultiCurrencyDiscounts)
+        public bool IsUpdateNedded(DiscountDetails oldPDiscountDetail)
         {
-            List<DiscountDTO> Discounts = new List<DiscountDTO>();
+            bool shouldUpdate = false;
 
-            MultiCurrencyDiscounts.ForEach(discount =>
+            if (StartDate > DateTimeOffset.FromUnixTimeSeconds(0) && !StartDate.Equals(oldPDiscountDetail.StartDate))
             {
-                Discounts.Add(new DiscountDTO(discount.m_dPrice, discount.Percentage, discount.m_oCurrency.m_nCurrencyID, discount.countryId));
-            });
+                 shouldUpdate = true;
+            }
+            else
+            {
+                StartDate = oldPDiscountDetail.StartDate;
+            }
 
-            return Discounts;
+            if (EndDate > DateTimeOffset.FromUnixTimeSeconds(0) && !EndDate.Equals(oldPDiscountDetail.EndDate))
+            {
+                shouldUpdate = true;
+            }
+            else
+            {
+                EndDate = oldPDiscountDetail.EndDate;
+            }
+
+            if (!string.IsNullOrEmpty(Name) && !Name.Equals(oldPDiscountDetail.Name))
+            {
+                shouldUpdate = true;
+            }
+            else
+            {
+                Name = oldPDiscountDetail.Name;
+            }
+
+            if (WhenAlgoTimes != 0 && WhenAlgoTimes != oldPDiscountDetail.WhenAlgoTimes)
+            {
+                shouldUpdate = true;
+            }
+            else
+            {
+                WhenAlgoTimes = oldPDiscountDetail.WhenAlgoTimes;
+            }
+
+            if (WhenAlgoType != 0 && WhenAlgoType != oldPDiscountDetail.WhenAlgoType)
+            {
+                shouldUpdate = true;
+            }
+            else
+            {
+                WhenAlgoType = oldPDiscountDetail.WhenAlgoType;
+            }
+            return shouldUpdate;
         }
     }
 

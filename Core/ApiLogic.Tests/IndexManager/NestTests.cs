@@ -1,7 +1,6 @@
 ﻿using System;
 using ApiLogic.IndexManager.Helpers;
 using ApiObjects;
-using ApiObjects.Nest;
 using Nest;
 using Newtonsoft.Json;
 using NUnit.Framework;

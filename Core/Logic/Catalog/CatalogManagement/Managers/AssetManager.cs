@@ -157,7 +157,7 @@ namespace Core.Catalog.CatalogManagement
                     virtualAsset = new MediaAsset()
                     {
                         AssetType = eAssetTypes.MEDIA,
-                        IsActive = true,
+                        IsActive = virtualAssetInfo.IsActive,
                         CoGuid = Guid.NewGuid().ToString(),
                         Name = virtualAssetInfo.Name,
                         Description = virtualAssetInfo.Description,
@@ -249,7 +249,7 @@ namespace Core.Catalog.CatalogManagement
         private static void DuplicateAsset(int groupId, long originalAssetId, out MediaAsset newAsset)
         {
             newAsset = null;
-            var originalAsset = GetMediaAssetsFromCache(groupId, new List<long> { originalAssetId }, true);
+            var originalAsset = GetMediaAssetsFromCache(groupId, new List<long> { originalAssetId }, true, true);
             if (originalAsset == null || originalAsset.Count == 0)
             {
                 log.Warn($"Original asset: {originalAssetId} wasn't found for group Id: {groupId}");
@@ -993,6 +993,7 @@ namespace Core.Catalog.CatalogManagement
                     List<long> ids;
                     int? groupId = funcParams["groupId"] as int?;
                     bool? isAllowedToViewInactiveAssets = funcParams["isAllowedToViewInactiveAssets"] as bool?;
+                    var isAllowedToViewDeletedAssets = (bool)funcParams["isAllowedToViewDeletedAssets"];
                     if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
                     {
                         ids = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]).Select(x => long.Parse(x)).ToList();
@@ -1035,7 +1036,7 @@ namespace Core.Catalog.CatalogManagement
                     {
                         result = mediaAssets.ToDictionary(x => LayeredCacheKeys.GetAssetKey(eAssetTypes.MEDIA.ToString(), x.Id), x => x);
 
-                        if (missingAssetIds?.Count > 0)
+                        if (missingAssetIds?.Count > 0 && isAllowedToViewDeletedAssets)
                         {
                             foreach (var missingAssetId in missingAssetIds)
                             {
@@ -1056,7 +1057,7 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<string, MediaAsset>, bool>(result, res);
         }
 
-        private static List<MediaAsset> GetMediaAssetsFromCache(int groupId, List<long> ids, bool isAllowedToViewInactiveAssets)
+        private static List<MediaAsset> GetMediaAssetsFromCache(int groupId, List<long> ids, bool isAllowedToViewInactiveAssets, bool isAllowedToViewDeletedAssets)
         {
             List<MediaAsset> mediaAssets = null;
             try
@@ -1071,9 +1072,15 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<string, string> keyToOriginalValueMap = LayeredCacheKeys.GetAssetsKeyMap(assetType.ToString(), ids);
                 Dictionary<string, List<string>> invalidationKeysMap = LayeredCacheKeys.GetAssetsInvalidationKeysMap(groupId, assetType.ToString(), ids);
 
-                if (!LayeredCache.Instance.GetValues<MediaAsset>(keyToOriginalValueMap, ref mediaAssetMap, GetMediaAssets, new Dictionary<string, object>()
-                                                              { { "groupId", groupId }, { "ids", ids }, { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets } },
-                                                              groupId, LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME, invalidationKeysMap, true))
+                if (!LayeredCache.Instance.GetValues(
+                    keyToOriginalValueMap,
+                    ref mediaAssetMap,
+                    GetMediaAssets,
+                    new Dictionary<string, object> { { "groupId", groupId }, { "ids", ids }, { "isAllowedToViewInactiveAssets", isAllowedToViewInactiveAssets }, { "isAllowedToViewDeletedAssets", isAllowedToViewDeletedAssets } },
+                    groupId,
+                    LayeredCacheConfigNames.GET_ASSETS_LIST_CACHE_CONFIG_NAME,
+                    invalidationKeysMap,
+                    true))
                 {
                     log.ErrorFormat("Failed getting GetMediaAssetsFromCache from LayeredCache, groupId: {0}, ids: {1}", groupId, ids != null ? string.Join(",", ids) : string.Empty);
                 }
@@ -1434,8 +1441,7 @@ namespace Core.Catalog.CatalogManagement
             throw new NotImplementedException();
         }
 
-        private static List<Asset> GetAssetsFromCache(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets,
-            Dictionary<string, string> epgIdToDocumentId = null)
+        private static List<Asset> GetAssetsFromCache(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets, bool isAllowedToViewDeletedAssets, Dictionary<string, string> epgIdToDocumentId = null)
         {
             List<Asset> result = null;
             try
@@ -1448,7 +1454,7 @@ namespace Core.Catalog.CatalogManagement
                     List<long> npvrIds = assets.Where(x => x.Key == eAssetTypes.NPVR).Select(x => x.Value).Distinct().ToList();
                     if (mediaIds != null && mediaIds.Count > 0)
                     {
-                        List<MediaAsset> mediaAssets = GetMediaAssetsFromCache(groupId, mediaIds, isAllowedToViewInactiveAssets);
+                        List<MediaAsset> mediaAssets = GetMediaAssetsFromCache(groupId, mediaIds, isAllowedToViewInactiveAssets, isAllowedToViewDeletedAssets);
                         if (mediaAssets == null || mediaAssets.Count != mediaIds.Count)
                         {
                             List<long> missingMediaIds = mediaAssets == null ? mediaIds : mediaIds.Except(mediaAssets.Select(x => x.Id)).ToList();
@@ -3270,15 +3276,14 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public static List<Asset> GetAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets,
-            Dictionary<string, string> epgIdToDocumentId = null)
+        public static List<Asset> GetAssets(int groupId, List<KeyValuePair<eAssetTypes, long>> assets, bool isAllowedToViewInactiveAssets, bool isAllowedToViewDeletedAssets = true, Dictionary<string, string> epgIdToDocumentId = null)
         {
             List<Asset> result = null;
             try
             {
                 if (assets != null && assets.Count > 0)
                 {
-                    result = GetAssetsFromCache(groupId, assets, isAllowedToViewInactiveAssets, epgIdToDocumentId);
+                    result = GetAssetsFromCache(groupId, assets, isAllowedToViewInactiveAssets, isAllowedToViewDeletedAssets, epgIdToDocumentId);
                     if (result == null || result.Count != assets.Count)
                     {
                         log.ErrorFormat("Failed getting assets from GetAssetsFromCache, for groupId: {0}, assets: {1}", groupId,
@@ -3353,7 +3358,7 @@ namespace Core.Catalog.CatalogManagement
 
                     int totalAmountOfDistinctAssets = assetsToRetrieve.Count;
 
-                    List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets, epgIdToDocumentId);
+                    List<Asset> unOrderedAssets = GetAssets(groupId, assetsToRetrieve, isAllowedToViewInactiveAssets, true, epgIdToDocumentId);
 
                     if (!isAllowedToViewInactiveAssets && (unOrderedAssets == null || unOrderedAssets.Count == 0))
                     {

@@ -458,7 +458,7 @@ namespace Core.ConditionalAccess
                 }
             }
 
-            var res = Pricing.Module.GetSubscriptions(nGroupID, subIds, string.Empty, string.Empty, string.Empty, null);
+            var res = Pricing.Module.Instance.GetSubscriptions(nGroupID, subIds, string.Empty, string.Empty, string.Empty, null);
             if (res != null)
                 return res.Subscriptions;
             return null;
@@ -623,7 +623,7 @@ namespace Core.ConditionalAccess
                 case eBundleType.SUBSCRIPTION:
                     {
                         Subscription theSub = null;
-                        theSub = Core.Pricing.Module.GetSubscriptionData(groupID, productCode, String.Empty, String.Empty, String.Empty, false);
+                        theSub = Core.Pricing.Module.Instance.GetSubscriptionData(groupID, productCode, String.Empty, String.Empty, String.Empty, false);
                         u = theSub.m_oSubscriptionUsageModule;
                         theBundle = theSub;
                         bIsSub = true;
@@ -1237,6 +1237,11 @@ namespace Core.ConditionalAccess
 
                 dtDiscountEnd = discModule.m_dEndDate;
             }
+            else if (!string.IsNullOrEmpty(subCode))
+            {
+                //BEO-10342 - 100% discount for subs
+                p.m_dPrice = 0;
+            }
 
             if (sCouponCode.Length > 0)
             {
@@ -1337,7 +1342,7 @@ namespace Core.ConditionalAccess
 
             try
             {
-                subscription = Pricing.Module.GetSubscriptionData(groupId, subCode, countryCode, languageCode, udid, false, userId);
+                subscription = Pricing.Module.Instance.GetSubscriptionData(groupId, subCode, countryCode, languageCode, udid, false, userId);
                 if (subscription == null)
                 {
                     return fullPrice;
@@ -1476,7 +1481,7 @@ namespace Core.ConditionalAccess
                     }
 
                     fullPrice.FinalPrice = GetLowestPrice(groupId, fullPrice.FinalPrice, domainId, discountPrice, eTransactionType.Subscription, currencyCode, long.Parse(subCode),
-                                                countryCode, ref couponCode, subscription.m_oCouponsGroup, subscription.CouponsGroups, null);
+                                                countryCode, ref couponCode, subscription.m_oCouponsGroup, subscription.GetValidSubscriptionCouponGroup(), null);
 
                     fullPrice.CouponCode = couponCode;
 
@@ -3531,7 +3536,7 @@ namespace Core.ConditionalAccess
 
                         HeaderObj = new JWTHeaderObject(JWTHeaderObject.JWTHash.HS256, "1", "JWT");
 
-                        Subscription sp = Pricing.Module.GetSubscriptionData(nGroupID, sSubscriptionCode, sCountryCd, sLanguageCode, sDeviceName, false);
+                        Subscription sp = Pricing.Module.Instance.GetSubscriptionData(nGroupID, sSubscriptionCode, sCountryCd, sLanguageCode, sDeviceName, false);
 
                         DateTime nextdate = GetEndDateTime(DateTime.UtcNow, sp.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle);
                         string fequencey = "";
@@ -4510,7 +4515,7 @@ namespace Core.ConditionalAccess
                         subIds.Add(long.Parse(item));
                     }
 
-                    SubscriptionsResponse subscriptionsResponse = Core.Pricing.Module.GetSubscriptions(groupId, subIds, String.Empty, String.Empty,
+                    SubscriptionsResponse subscriptionsResponse = Core.Pricing.Module.Instance.GetSubscriptions(groupId, subIds, String.Empty, String.Empty,
                         String.Empty, null);
 
                     if (subscriptionsResponse != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK && subscriptionsResponse.Subscriptions.Count() > 0)
@@ -6965,13 +6970,32 @@ namespace Core.ConditionalAccess
                         string recordingLifetime = string.Empty;
                         var tstvSettings = Utils.GetTimeShiftedTvPartnerSettings(groupID);
 
+                        DateTime? minDate = null;
+                        if (tstvSettings.IsRecordingScheduleWindowEnabled.Value)
+                        {
+                            if (tstvSettings.RecordingScheduleWindow.Value <= 0)
+                            {
+                                return recordings;
+                            }
+
+                            minDate = DateTime.UtcNow.AddMinutes(-tstvSettings.RecordingScheduleWindow.Value);
+                        }
+
                         if (tstvSettings.RecordingLifetimePeriod.HasValue)
                         {
-                            DateTime dateTime = DateTime.UtcNow.AddDays(-1 * tstvSettings.RecordingLifetimePeriod.Value);
-                            long minDate = TVinciShared.DateUtils.DateTimeToUtcUnixTimestampSeconds(dateTime);
-                            recordingLifetime = $"end_date > '{minDate}'";
+                            DateTime dateTime = DateTime.UtcNow.AddDays(-tstvSettings.RecordingLifetimePeriod.Value);
+                            if (!minDate.HasValue || dateTime > minDate.Value)
+                            {
+                                minDate = dateTime;
+                            }
                         }
-                        
+
+                        if (minDate.HasValue)
+                        {
+                            var minDateUnix = DateUtils.DateTimeToUtcUnixTimestampSeconds(minDate.Value);
+                            recordingLifetime = $"end_date > '{minDateUnix}'";
+                        }
+
                         //BEO - BEO-10020: order by, limit top 200 (TCM value)
                         if (limitPageSize)
                         {
@@ -9209,7 +9233,7 @@ namespace Core.ConditionalAccess
 
             try
             {
-                subscription = Core.Pricing.Module.GetSubscriptionData(groupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false, userId);
+                subscription = Core.Pricing.Module.Instance.GetSubscriptionData(groupId, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false, userId);
             }
             catch (Exception ex)
             {
@@ -9859,10 +9883,9 @@ namespace Core.ConditionalAccess
                 {
                     currCouponGroup = ObjectCopier.Clone(subscription.m_oCouponsGroup);
                 }
-                else if (subscription.CouponsGroups != null)
+                else
                 {
-                    currCouponGroup = ObjectCopier.Clone<CouponsGroup>(subscription.CouponsGroups.FirstOrDefault
-                        (x => x.m_sGroupCode.Equals(couponGroupId.ToString()) && (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)));
+                    currCouponGroup = ObjectCopier.Clone<CouponsGroup>(subscription.GetValidSubscriptionCouponGroup(couponGroupId.ToString()).FirstOrDefault());
                 }
 
                 lowestPrice = CalculateCouponDiscount(ref lowestPrice, currCouponGroup, ref couponCode, groupId, domainId);

@@ -384,7 +384,7 @@ namespace Core.Api.Managers
         private static IEnumerable<int> GetAllCountriesBut(int groupId, List<int> countryIds)
         {
             List<int> response = new List<int>();
-            List<Country> countries = Core.Api.api.GetCountryListByIds(null, groupId);
+            List<Country> countries = Core.Api.api.GetCountryListByIds(groupId);
             if (countries != null)
             {
                 response.AddRange(countries.Select(c => c.Id).Where(c => !countryIds.Contains(c)));
@@ -406,16 +406,14 @@ namespace Core.Api.Managers
 
         private static double GetTimeZoneOffsetForCountry(int groupId, int countryId)
         {
-            List<Country> countries = Core.Api.api.GetCountryListByIds(new List<int>() { countryId }, groupId);
-
-            if (countries == null || countries.Count == 0)
+            var countries = Core.Api.api.Instance.GetCountryMapById(groupId);
+            if (countries == null || countries.Count == 0 || !countries.ContainsKey(countryId))
             {
                 log.ErrorFormat("Failed to get countryId = {0}, groupId = {1}", countryId, groupId);
                 return 0;
             }
 
-            Country country = countries[0];
-
+            Country country = countries[countryId];
             if (string.IsNullOrEmpty(country.TimeZoneId))
             {
                 return 0;
@@ -638,6 +636,7 @@ namespace Core.Api.Managers
                 }
 
                 assetRuleToAdd.GroupId = groupId;
+                
                 DataTable dt = ApiDAL.AddAssetRule(groupId, assetRuleToAdd.Name, assetRuleToAdd.Description, (int)AssetRuleType.AssetRule);
                 if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
@@ -709,7 +708,7 @@ namespace Core.Api.Managers
             var fileTypeIds = assetLifeCycleBuisnessModule.Select(s => s.Transitions.FileTypeIds).SelectMany(s => s).Select(s => (long)s).Distinct();
             if (fileTypeIds.Any())
             {
-                var mediaFileTypesResponse = FileManager.GetMediaFileTypes(groupId);
+                var mediaFileTypesResponse = FileManager.Instance.GetMediaFileTypes(groupId);
                 if (mediaFileTypesResponse.HasObjects())
                 {
                     var count = mediaFileTypesResponse.Objects.Count(x => fileTypeIds.Contains(x.Id));

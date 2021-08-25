@@ -2,9 +2,6 @@
 using ApiObjects.Response;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Web;
 
 namespace Core.Pricing
 {
@@ -56,12 +53,7 @@ namespace Core.Pricing
             throw new NotImplementedException();
         }
 
-
         public virtual ApiObjects.Response.Status UpdatetUsageModule(int groupID, UsageModule usageModule)
-        {
-            throw new NotImplementedException();
-        }
-        public virtual ApiObjects.Response.Status InsertPreviewModule(int groupID, PreviewModule previewModule)
         {
             throw new NotImplementedException();
         }
@@ -112,16 +104,6 @@ namespace Core.Pricing
         }
 
         public virtual UsageModulesResponse GetPricePlans(List<long> pricePlanIds)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual UsageModulesResponse UpdatePricePlan(UsageModule usageModule)
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual PriceDetailsResponse GetPriceCodesDataByCurrency(List<long> priceCodeIds, string currencyCode)
         {
             throw new NotImplementedException();
         }

@@ -580,7 +580,7 @@ namespace WebAPI.Clients
             {
                 using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
                 {
-                    response = Core.Domains.Module.GetDLM(groupId, dlmId);
+                    response = Core.Domains.Module.Instance.GetDLM(groupId, dlmId);
                 }
             }
             catch (Exception ex)

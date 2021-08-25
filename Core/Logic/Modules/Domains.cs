@@ -1,4 +1,7 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Users;
+using ApiObjects;
+using ApiObjects.Base;
+using ApiObjects.MediaMarks;
 using ApiObjects.Response;
 using Core.Users;
 using KLogMonitor;
@@ -6,16 +9,21 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Web;
-using ApiLogic.Users;
-using ApiObjects.MediaMarks;
-using ApiObjects.Base;
 using Status = ApiObjects.Response.Status;
 
 namespace Core.Domains
 {
-    public class Module
+    public interface IDomainModule
+    {
+        DLMResponse GetDLM(int groupId, int dlmId);
+    }
+    public class Module : IDomainModule
     {
         private readonly IBaseDomainFactory _baseDomainFactory;
+        
+        private static readonly Lazy<Module> lazy = new Lazy<Module>(() => new Module(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static Module Instance { get { return lazy.Value; } }
 
         public Module()
             : this(new BaseDomainFactory())
@@ -758,7 +766,7 @@ namespace Core.Domains
             return response;
         }
 
-        public static DLMResponse GetDLM(int nGroupID, int nDlmID)
+        public DLMResponse GetDLM(int nGroupID, int nDlmID)
         {
             DLMResponse oDLMObj = new DLMResponse();
             if (nDlmID < 1)

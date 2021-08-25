@@ -31,7 +31,7 @@ namespace ApiLogic.Pricing.Handlers
         { 
             GenericListResponse<UsageModule> response = new GenericListResponse<UsageModule>();
 
-            DataTable usageModules = _repository.GetPricePlans(groupId);
+            DataTable usageModules = _repository.GetPricePlansDT(groupId);
 
             if (usageModules != null && usageModules.Rows != null && usageModules.Rows.Count > 0)
             {

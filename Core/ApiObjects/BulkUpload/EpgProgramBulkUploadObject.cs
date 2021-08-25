@@ -21,6 +21,7 @@ namespace ApiObjects.BulkUpload
         public DateTime EndDate { get; set; }
         public DateTime UpdateDate { get; set; }
         public bool IsAutoFill { get; set; }
+        public IDictionary<string, string> CbDocumentIdsMap { get; set; }
 
         ulong IAffectedObject.ObjectId
         {

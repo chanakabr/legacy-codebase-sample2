@@ -1,4 +1,6 @@
 ﻿using ApiLogic.Pricing.Handlers;
+using ApiObjects.Base;
+using ApiObjects.Pricing;
 using ApiObjects.Response;
 using Core.Pricing;
 using KLogMonitor;
@@ -33,11 +35,11 @@ namespace WebAPI.Controllers
 
             try
             {
-                Func<GenericListResponse<UsageModule>> getListFunc = () =>
+                Func<GenericListResponse<PricePlan>> getListFunc = () =>
                    PricePlanManager.Instance.GetPricePlans(groupId, filter?.GetIdIn());
 
                 KalturaGenericListResponse<KalturaPricePlan> response =
-                    ClientUtils.GetResponseListFromWS<KalturaPricePlan, UsageModule>(getListFunc);
+                    ClientUtils.GetResponseListFromWS<KalturaPricePlan, PricePlan>(getListFunc);
 
                 result.PricePlans = response.Objects;
                 result.TotalCount = response.TotalCount;
@@ -60,11 +62,12 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.PricePlanDoesNotExist)]
         [Throws(eResponseStatus.PriceDetailsDoesNotExist)]
+        [Throws(eResponseStatus.DiscountCodeNotExist)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         static public KalturaPricePlan Update(long id, KalturaPricePlan pricePlan)
         {
             KalturaPricePlan result = null;
-
-            int groupId = KS.GetFromRequest().GroupId;
+            ContextData contextData = KS.GetContextData();
 
             if (id == 0)
             {
@@ -73,10 +76,10 @@ namespace WebAPI.Controllers
 
             try
             {
-                Func<UsageModule, GenericResponse<UsageModule>> insertPriceDetailsFunc = (UsageModule pricePlanToUpdate) =>
-                        PricePlanManager.Instance.Update(groupId, (int)id, pricePlanToUpdate);
+                Func<PricePlan, GenericResponse<PricePlan>> insertPriceDetailsFunc = (PricePlan pricePlanToUpdate) =>
+                        PricePlanManager.Instance.Update(contextData, (int)id, pricePlanToUpdate);
 
-                result = ClientUtils.GetResponseFromWS<KalturaPricePlan, UsageModule>(pricePlan, insertPriceDetailsFunc);
+                result = ClientUtils.GetResponseFromWS<KalturaPricePlan, PricePlan>(pricePlan, insertPriceDetailsFunc);
             }
             catch (ClientException ex)
             {
@@ -87,7 +90,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Internal API !!! Delete PricePlan
+        /// Delete PricePlan
         /// </summary>
         /// <remarks>
         /// </remarks>
@@ -96,10 +99,10 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [SchemeArgument("id", MinLong = 1)]
         [Throws(eResponseStatus.PricePlanDoesNotExist)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         static public bool Delete(long id)
         {
             bool result = false;
-
             var contextData = KS.GetContextData();
 
             try
@@ -116,31 +119,31 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Internal API !!!  Insert new PriceDetails for partner
+        /// Insert new PricePlan
         /// </summary>
         /// <remarks>
         /// </remarks>
         /// <param name="pricePlan">Price plan Object</param>
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.DiscountCodeNotExist)]
         [Throws(eResponseStatus.NameRequired)]
         [Throws(eResponseStatus.InvalidArgumentValue)]
         [Throws(eResponseStatus.InvalidPriceCode)]
         [Throws(eResponseStatus.PriceCodeDoesNotExist)]
+        [Throws(eResponseStatus.AccountIsNotOpcSupported)]
         static public KalturaPricePlan Add(KalturaPricePlan pricePlan)
         {
             KalturaPricePlan result = null;
-
             pricePlan.ValidateForAdd();
-
             var contextData = KS.GetContextData();
 
             try
             {
-                Func<UsageModule, GenericResponse<UsageModule>> insertPriceDetailsFunc = (UsageModule pricePlanToInsert) =>
+                Func<PricePlan, GenericResponse<PricePlan>> insertPriceDetailsFunc = (PricePlan pricePlanToInsert) =>
                         PricePlanManager.Instance.Add(contextData, pricePlanToInsert);
 
-                result = ClientUtils.GetResponseFromWS<KalturaPricePlan, UsageModule>(pricePlan, insertPriceDetailsFunc);
+                result = ClientUtils.GetResponseFromWS<KalturaPricePlan, PricePlan>(pricePlan, insertPriceDetailsFunc);
             }
             catch (ClientException ex)
             {

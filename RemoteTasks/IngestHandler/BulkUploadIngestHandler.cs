@@ -24,6 +24,8 @@ using System.Reflection;
 using System.Threading.Tasks;
 using ApiLogic.Catalog.CatalogManagement.Helpers;
 using Core.Catalog;
+using IngestHandler.Common.Infrastructure;
+using IngestHandler.Domain.IngestProtection;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
@@ -31,6 +33,8 @@ namespace IngestHandler
 {
     public class BulkUploadIngestHandler : IServiceEventHandler<BulkUploadIngestEvent>
     {
+        private readonly IIngestProtectProcessor _ingestProtectProcessor;
+        private readonly ICatalogManagerAdapter _catalogManagerAdapter;
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         
         private readonly CouchbaseManager.CouchbaseManager _couchbaseManager;
@@ -42,6 +46,9 @@ namespace IngestHandler
         private BulkUploadResultsDictionary _relevantResultsDictionary;
         private IDictionary<string, LanguageObj> _languages;
         private LanguageObj _defaultLanguage;
+        private CatalogGroupCache _catalogGroupCache;
+        private bool _doesGroupUsesTemplates;
+        private Lazy<string[]> _protectedMetasAndTagsLazy;
 
         private readonly RetryPolicy _ingestRetryPolicy;
         // private EpgElasticUpdater _elasticSearchUpdater;
@@ -50,11 +57,11 @@ namespace IngestHandler
         private Lazy<IReadOnlyDictionary<long, List<int>>> _linearChannelToRegionsMap;
         private string _logPrefix;
         private readonly IEpgAssetMultilingualMutator _epgAssetMultilingualMutator;
-        
 
-        public BulkUploadIngestHandler()
+        public BulkUploadIngestHandler(IIngestProtectProcessor ingestProtectProcessor, ICatalogManagerAdapter catalogManagerAdapter)
         {
-            
+            _ingestProtectProcessor = ingestProtectProcessor;
+            _catalogManagerAdapter = catalogManagerAdapter;
             _couchbaseManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.EPG);
             _ingestRetryPolicy = GetRetryPolicy<Exception>();
             _epgAssetMultilingualMutator = EpgAssetMultilingualMutator.Instance;
@@ -192,6 +199,14 @@ namespace IngestHandler
                 throw new Exception(message);
             }
 
+            _doesGroupUsesTemplates = _catalogManagerAdapter.DoesGroupUsesTemplates(_bulkUpload.GroupId);
+            if (_doesGroupUsesTemplates)
+            {
+                _catalogGroupCache = _catalogManagerAdapter.GetCatalogGroupCache(_bulkUpload.GroupId);
+            }
+
+            _protectedMetasAndTagsLazy = new Lazy<string[]>(RetrieveProtectedMetasAndTagsNames);
+
             _linearChannelToRegionsMap = new Lazy<IReadOnlyDictionary<long, List<int>>>(
                 () => RegionManager.GetLinearMediaToRegionsMapWhenEnabled(_eventData.GroupId));
         }
@@ -256,6 +271,11 @@ namespace IngestHandler
                         prog.EpgCbObjects.Add(epgItem);
                     }
                 }
+            }
+
+            if (_doesGroupUsesTemplates)
+            {
+                _ingestProtectProcessor.ProcessIngestProtect(crudOperations, _protectedMetasAndTagsLazy);   
             }
 
             // add existing documentIds to affectedItems
@@ -460,6 +480,30 @@ namespace IngestHandler
             return _linearChannelToRegionsMap.Value.TryGetValue(linearMediaId, out var regions)
                 ? regions
                 : null;
+        }
+        
+        private string[] RetrieveProtectedMetasAndTagsNames()
+        {
+            // backward compatibility for non-OPC accounts.
+            if (!_doesGroupUsesTemplates)
+            {
+                return new string[] { };
+            }
+
+            if (!_catalogGroupCache.AssetStructsMapById.TryGetValue(_catalogGroupCache.GetProgramAssetStructId(), out var programStruct))
+            {
+                return new string[] { };
+            }
+
+            var protectedMetasAndTagsById = programStruct.AssetStructMetas.Values.Where(x => x.ProtectFromIngest.HasValue && x.ProtectFromIngest.Value)
+                .Select(x => x.MetaId)
+                .ToArray();
+            if (protectedMetasAndTagsById.Length == 0)
+            {
+                return new string[] { };
+            }
+            
+            return _catalogGroupCache.TopicsMapById.Where(x => protectedMetasAndTagsById.Contains(x.Key)).Select(y => y.Value.SystemName).ToArray();
         }
     }
 }

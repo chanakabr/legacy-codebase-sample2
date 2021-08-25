@@ -176,7 +176,7 @@ namespace CouchbaseManager
                 if (!(parsedToken is JObject parsedObject))
                 {
                     status = eResultStatus.ERROR;
-                    Log.Error($"Failed to deserialize object, key = {key}");
+                    Log.Warn($"Failed to deserialize object, key = {key}");
                     return default;
                 }
 

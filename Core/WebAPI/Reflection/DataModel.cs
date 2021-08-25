@@ -761,6 +761,8 @@ namespace WebAPI.Reflection
                             return "isProtectedEqual";
                         case "MetaIdEqual":
                             return "metaIdEqual";
+                        case "ObjectVirtualAssetInfoTypeEqual":
+                            return "objectVirtualAssetInfoTypeEqual";
                     }
                     break;
                     
@@ -5056,6 +5058,26 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPartnerPremiumService":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "IsApplied":
+                            return "isApplied";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
+                case "KalturaPartnerPremiumServices":
+                    switch(property.Name)
+                    {
+                        case "PremiumServices":
+                            return "objects";
+                    }
+                    break;
+                    
                 case "KalturaPartnerSetup":
                     switch(property.Name)
                     {
@@ -5724,6 +5746,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaPreviewModuleFilter":
+                    switch(property.Name)
+                    {
+                        case "IdIn":
+                            return "idIn";
+                    }
+                    break;
+                    
                 case "KalturaPreviewModuleListResponse":
                     switch(property.Name)
                     {
@@ -5755,6 +5785,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "MultiCurrencyPrice":
                             return "multiCurrencyPrice";
+                        case "Name":
+                            return "name";
                         case "Price":
                             return "price";
                     }
@@ -7095,6 +7127,8 @@ namespace WebAPI.Reflection
                             return "couponsGroups";
                         case "CouponsGroup":
                             return "couponsGroup";
+                        case "CreateDate":
+                            return "createDate";
                         case "DependencyType":
                             return "dependencyType";
                         case "Description":
@@ -7163,6 +7197,8 @@ namespace WebAPI.Reflection
                             return "startDate";
                         case "SubscriptionCouponGroup":
                             return "subscriptionCouponGroup";
+                        case "UpdateDate":
+                            return "updateDate";
                         case "UserTypes":
                             return "userTypes";
                         case "ViewLifeCycle":
@@ -7237,6 +7273,10 @@ namespace WebAPI.Reflection
                 case "KalturaSubscriptionFilter":
                     switch(property.Name)
                     {
+                        case "AlsoInactive":
+                            return "alsoInactive";
+                        case "ChannelIdEqual":
+                            return "channelIdEqual";
                         case "CouponGroupIdEqual":
                             return "couponGroupIdEqual";
                         case "ExternalIdIn":
@@ -7245,6 +7285,10 @@ namespace WebAPI.Reflection
                             return "kSql";
                         case "MediaFileIdEqual":
                             return "mediaFileIdEqual";
+                        case "PreviewModuleIdEqual":
+                            return "previewModuleIdEqual";
+                        case "PricePlanIdEqual":
+                            return "pricePlanIdEqual";
                         case "SubscriptionIdIn":
                             return "subscriptionIdIn";
                     }
@@ -9032,6 +9076,10 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("discountDetails", "list", false);
                             return DiscountDetailsController.List((KalturaDiscountDetailsFilter) methodParams[0]);
                             
+                        case "update":
+                            RolesManager.ValidateActionPermitted("discountDetails", "update", false);
+                            return DiscountDetailsController.Update((long) methodParams[0], (KalturaDiscountDetails) methodParams[1]);
+                            
                     }
                     break;
                     
@@ -10614,6 +10662,20 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "partnerpremiumservices":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("partnerPremiumServices", "get", false);
+                            return PartnerPremiumServicesController.Get();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("partnerPremiumServices", "update", false);
+                            return PartnerPremiumServicesController.Update((KalturaPartnerPremiumServices) methodParams[0]);
+                            
+                    }
+                    break;
+                    
                 case "passwordpolicy":
                     switch(action)
                     {
@@ -11013,7 +11075,11 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("previewModule", "list", false);
-                            return PreviewModuleController.List();
+                            return PreviewModuleController.List((KalturaPreviewModuleFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("previewModule", "update", false);
+                            return PreviewModuleController.Update((long) methodParams[0], (KalturaPreviewModule) methodParams[1]);
                             
                     }
                     break;
@@ -11042,6 +11108,10 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("priceDetails", "list", false);
                             return PriceDetailsController.List((KalturaPriceDetailsFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("priceDetails", "update", false);
+                            return PriceDetailsController.Update((long) methodParams[0], (KalturaPriceDetails) methodParams[1]);
                             
                     }
                     break;
@@ -11652,6 +11722,10 @@ namespace WebAPI.Reflection
                         case "listoldstandard":
                             RolesManager.ValidateActionPermitted("subscription", "listOldStandard", false);
                             return SubscriptionController.ListOldStandard((KalturaSubscriptionsFilter) methodParams[0]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("subscription", "update", false);
+                            return SubscriptionController.Update((long) methodParams[0], (KalturaSubscription) methodParams[1]);
                             
                         case "validatecoupon":
                             RolesManager.ValidateActionPermitted("subscription", "validateCoupon", false);
@@ -15007,6 +15081,18 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaDiscountDetailsFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("discountDetails", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaDiscountDetails),
                             });
                             return ret;
                             
@@ -18370,6 +18456,23 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "partnerpremiumservices":
+                    switch(action)
+                    {
+                        case "get":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("partnerPremiumServices", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPartnerPremiumServices),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
                 case "passwordpolicy":
                     switch(action)
                     {
@@ -19197,6 +19300,31 @@ namespace WebAPI.Reflection
                             return ret;
                             
                         case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPreviewModuleFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "previewModule", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("previewModule", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPreviewModule),
+                            });
                             return ret;
                             
                     }
@@ -19253,6 +19381,24 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaPriceDetailsFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "priceDetails", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("priceDetails", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaPriceDetails),
                             });
                             return ret;
                             
@@ -20462,6 +20608,24 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaSubscriptionsFilter),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "subscription", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                },
+                            });
+                            ret.Add("subscription", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSubscription),
                             });
                             return ret;
                             

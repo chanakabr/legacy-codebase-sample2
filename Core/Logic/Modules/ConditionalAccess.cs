@@ -2450,7 +2450,13 @@ namespace Core.ConditionalAccess
             Utils.GetBaseConditionalAccessImpl(ref t, groupId);
             if (t != null)
             {
-                var response = t.CancelOrDeleteRecordings(domainId, recordingIds, TstvRecordingStatus.Deleted, userId, true);
+                var validateStatus = t.PreValidateRecordingsBeforeDelete(ref domainId, userId, recordingIds.ToList());
+                if (!validateStatus.IsOkStatusCode())
+                {
+                    return new GenericListResponse<ActionResult>(validateStatus, null);
+                }
+
+                var response = t.CancelOrDeleteRecordings(domainId, recordingIds, TstvRecordingStatus.Deleted, userId, false);
                 var actionResultList = response.Objects?.Select(x => new ActionResult(x.Id, x.Status)).ToList();
 
                 return new GenericListResponse<ActionResult>(response.Status, actionResultList);

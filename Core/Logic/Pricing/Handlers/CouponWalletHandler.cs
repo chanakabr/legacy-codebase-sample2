@@ -281,7 +281,7 @@ namespace Core.Pricing.Handlers
         private static void FilterBySubscription(ContextData contextData, CouponWalletFilter filter, HashSet<string> couponGroupIds)
         {
             // Get Subscription couponGroupIds
-            Subscription subscription = Module.GetSubscriptionData(contextData.GroupId, filter.BusinessModuleId.ToString(), string.Empty, string.Empty, string.Empty, false);
+            Subscription subscription = Module.Instance.GetSubscriptionData(contextData.GroupId, filter.BusinessModuleId.ToString(), string.Empty, string.Empty, string.Empty, false);
             if (subscription?.m_oCouponsGroup != null)
             {
                 couponGroupIds.Add(subscription.m_oCouponsGroup.m_sGroupCode);
@@ -289,8 +289,7 @@ namespace Core.Pricing.Handlers
 
             if (subscription?.CouponsGroups?.Count > 0)
             {
-                foreach (var item in subscription.CouponsGroups.Where(x => (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)
-                                                                         && (!x.startDate.HasValue || x.startDate.Value < DateTime.UtcNow)))
+                foreach (var item in subscription.GetValidSubscriptionCouponGroup())
                 {
                     if (!couponGroupIds.Contains(item.m_sGroupCode))
                     {

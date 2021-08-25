@@ -1425,7 +1425,7 @@ namespace Core.Catalog.CatalogManagement
             catch (Exception ex)
             {
                 res = false;
-                log.Error(string.Format("GetAllEpgPictures faild params : {0}", string.Join(";", funcParams.Keys)), ex);
+                log.Warn(string.Format("GetAllEpgPictures faild params : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
             return new Tuple<Dictionary<string, List<EpgPicture>>, bool>(epgPictures, res);

@@ -43,6 +43,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using ApiLogic.Catalog.Tree;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using Status = ApiObjects.Response.Status;
@@ -57,29 +58,34 @@ namespace Core.Catalog
         private static readonly KLogger statisticsLog = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "MediaEohLogger");
         private static readonly KLogger newWatcherMediaActionLog = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "NewWatcherMediaActionLogger");
 
-        private static readonly string TAGS = "tags";
-        private static readonly string METAS = "metas";
-        private static readonly string NAME = "name";
-        private static readonly string DESCRIPION = "description";
-        private static readonly string EXTERNAL_ID = "external_id";
-        private static readonly string ENTRY_ID = "entry_id";
-        private static readonly string STATUS = "status";
-        private static readonly string IS_ACTIVE = "is_active";
-        private static readonly string EXTERNALID = "externalid";
-        private static readonly string ENTRYID = "entryid";
-        private static readonly string CREATIONDATE = "createdate";
-        private static readonly string CREATE_DATE = "create_date";
-        private static readonly string PLAYBACKSTARTDATETIME = "playbackstartdatetime";
-        private static readonly string START_DATE = "start_date";
-        private static readonly string PLAYBACKENDDATETIME = "playbackenddatetime";
-        private static readonly string FINAL_DATE = "final_date";
-        private static readonly string CATALOGSTARTDATETIME = "catalogstartdatetime";
-        private static readonly string CATALOG_START_DATE = "catalog_start_date";
-        private static readonly string CATALOGENDDATETIME = "catalogenddatetime";
-        private static readonly string END_DATE = "end_date";
-        private static readonly string LASTMODIFIED = "lastmodified";
-        private static readonly string UPDATE_DATE = "update_date";
-        private static readonly string INHERITANCE_POLICY = "inheritance_policy";
+        public static readonly string TAGS = "tags";
+        public static readonly string METAS = "metas";
+        public static readonly string NAME = "name";
+        public static readonly string DESCRIPION = "description";
+        public static readonly string EXTERNAL_ID = "external_id";
+        public static readonly string ENTRY_ID = "entry_id";
+        public static readonly string STATUS = "status";
+        public static readonly string IS_ACTIVE = "is_active";
+        public static readonly string EXTERNALID = "externalid";
+        public static readonly string ENTRYID = "entryid";
+        public static readonly string CREATIONDATE = "createdate";
+        public static readonly string CREATE_DATE = "create_date";
+        public static readonly string PLAYBACKSTARTDATETIME = "playbackstartdatetime";
+        public static readonly string START_DATE = "start_date";
+        public static readonly string PLAYBACKENDDATETIME = "playbackenddatetime";
+        public static readonly string FINAL_DATE = "final_date";
+        public static readonly string CATALOGSTARTDATETIME = "catalogstartdatetime";
+        public static readonly string CATALOG_START_DATE = "catalog_start_date";
+        public static readonly string CATALOGENDDATETIME = "catalogenddatetime";
+        public static readonly string END_DATE = "end_date";
+        public static readonly string LASTMODIFIED = "lastmodified";
+        public static readonly string UPDATE_DATE = "update_date";
+        public static readonly string INHERITANCE_POLICY = "inheritance_policy";
+        public static readonly string LINEAR_MEDIA_ID = "linear_media_id";
+        public static readonly string MEDIA_ID = "media_id";
+        public static readonly string EPG_ID = "epg_id";
+        public static readonly string EPG_CHANNEL_ID = "epg_channel_id";
+        public static readonly string ASSET_TYPE = "asset_type";
 
         private static readonly string LINEAR_MEDIA_TYPES_KEY = "LinearMediaTypes";
         private static readonly string PERMITTED_WATCH_RULES_KEY = "PermittedWatchRules";
@@ -116,7 +122,7 @@ namespace Core.Catalog
         {
             NAME,
             DESCRIPION,
-            "epg_channel_id",
+            EPG_CHANNEL_ID,
             "crid",
             EXTERNALID,
             ENTRYID,
@@ -129,12 +135,12 @@ namespace Core.Catalog
             "views",
             "rating",
             "votes",
-            "epg_channel_id",
-            "media_id",
-            "epg_id",
-            STATUS,
-            "linear_media_id",
+            EPG_CHANNEL_ID,
+            MEDIA_ID,
+            EPG_ID,
+            LINEAR_MEDIA_ID,
             ESUnifiedQueryBuilder.RECORDING_ID,
+            STATUS,
             ESUnifiedQueryBuilder.ENABLE_CDVR,
             ESUnifiedQueryBuilder.ENABLE_CATCHUP,
         };
@@ -163,7 +169,7 @@ namespace Core.Catalog
             "name",
             "crid",
             "suppressed",
-            "linear_media_id"
+            LINEAR_MEDIA_ID
         };
 
         private static readonly HashSet<string> predefinedAssetTypes = new HashSet<string>()
@@ -1469,7 +1475,13 @@ namespace Core.Catalog
         /// <returns></returns>
         internal static UnifiedSearchDefinitions BuildUnifiedSearchObject(UnifiedSearchRequest request)
         {
-            UnifiedSearchDefinitionsBuilder definitionsCache = new UnifiedSearchDefinitionsBuilder();
+            CatalogGroupCache catalogGroupCache = null;
+            var _ = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID) &&
+                CatalogManagement.CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(request.m_nGroupID, out catalogGroupCache);
+            
+            var resultProcessor = new FilterTreeResultProcessor();
+            var filterTreeValidator = new FilterTreeValidator(resultProcessor, catalogGroupCache?.GetProgramAssetStructId());
+            UnifiedSearchDefinitionsBuilder definitionsCache = new UnifiedSearchDefinitionsBuilder(filterTreeValidator);
 
             UnifiedSearchDefinitions definitions = definitionsCache.GetDefinitions(request);
 
@@ -7340,7 +7352,7 @@ namespace Core.Catalog
                             }
                         }
 
-                        if (leaf.field == "media_id") 
+                        if (leaf.field == MEDIA_ID) 
                         {
                             definitions.hasMediaIdTerm = true;
                         }
@@ -7502,6 +7514,8 @@ namespace Core.Catalog
         public static UnifiedSearchDefinitions BuildInternalChannelSearchObject(GroupsCacheManager.Channel channel, InternalChannelRequest request, Group group, int groupId,
                                                                                 CatalogGroupCache catalogGroupCache = null, bool isSearchEntitlementInternal = true)
         {
+            var resultProcessor = new FilterTreeResultProcessor();
+            var filterTreeValidator = new FilterTreeValidator(resultProcessor, catalogGroupCache?.GetProgramAssetStructId());
             UnifiedSearchDefinitions definitions = new UnifiedSearchDefinitions();
             bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
 
@@ -7645,12 +7659,13 @@ namespace Core.Catalog
                 bool hasZeroMediaType = definitions.mediaTypes != null ? definitions.mediaTypes.Remove(0) : false;
                 bool hasMinusTwentySixMediaType = definitions.mediaTypes.Remove(GroupsCacheManager.Channel.EPG_ASSET_TYPE);
 
+                var indexesModel = filterTreeValidator.ValidateTree(initialTree);
                 // Special case - if no type was specified or "All" is contained, search all types
                 if ((!doesGroupUsesTemplates && hasZeroMediaType && definitions.mediaTypes.Count == 0) ||
                     (!hasZeroMediaType && (definitions.mediaTypes == null || definitions.mediaTypes.Count == 0)))
                 {
-                    definitions.shouldSearchEpg = true;
-                    definitions.shouldSearchMedia = true;
+                    definitions.shouldSearchEpg = indexesModel?.ShouldSearchEpg ?? true;
+                    definitions.shouldSearchMedia = indexesModel?.ShouldSearchMedia ?? true;
                     definitions.shouldUseSearchEndDate = shouldUseSearchEndDate;
                 }
                 else
@@ -7669,6 +7684,9 @@ namespace Core.Catalog
                             definitions.shouldSearchEpg = true;
                             definitions.shouldUseSearchEndDate = shouldUseSearchEndDate;
                         }
+                        
+                        definitions.shouldSearchEpg = indexesModel?.ShouldSearchEpg ?? definitions.shouldSearchEpg;
+                        definitions.shouldSearchMedia = indexesModel?.ShouldSearchMedia ?? definitions.shouldSearchMedia;
                     }
                     else
                     {
@@ -7679,17 +7697,6 @@ namespace Core.Catalog
                             definitions.shouldUseSearchEndDate = shouldUseSearchEndDate;
                         }
                     }
-                }
-
-                // If there are items left in media types after removing 0, we are searching for media
-                if (definitions.mediaTypes.Count > 0)
-                {
-                    definitions.shouldSearchMedia = true;
-                }
-                
-                if (definitions.hasMediaIdTerm && !definitions.hasOrNode)
-                {
-                    definitions.shouldSearchEpg = false;
                 }
 
                 HashSet<int> mediaTypes = null;
@@ -7787,7 +7794,7 @@ namespace Core.Catalog
             {
                 // if there are no tags:
                 // filter everything out
-                initialTree = new BooleanLeaf("media_id", 0);
+                initialTree = new BooleanLeaf(MEDIA_ID, 0);
             }
 
             #region Final Filter Tree

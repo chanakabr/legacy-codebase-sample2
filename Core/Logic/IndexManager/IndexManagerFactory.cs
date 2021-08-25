@@ -18,6 +18,7 @@ using ElasticSearch.NEST;
 using ElasticSearch.Utilities;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.QueryBuilders;
+using ApiLogic.IndexManager.Mappings;
 
 namespace Core.Catalog
 {
@@ -82,7 +83,8 @@ namespace Core.Catalog
                 ChannelManager.Instance,
                 CatalogCache.Instance(),
                 WatchRuleManager.Instance,
-                ChannelQueryBuilder.Instance);
+                ChannelQueryBuilder.Instance,
+                MappingTypeResolver.Instance);
 
             if (isMigrationEventsEnabled)
             {

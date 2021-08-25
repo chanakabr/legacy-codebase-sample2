@@ -35,6 +35,8 @@ namespace KLogMonitor
         private readonly ILog _Logger;
         private static ILoggerRepository _LogRepository;
         private static string configurationFileName;
+        private static string MAJOR_ISSUE;
+        private const string defaultMajorPrefix = "MAJOR_ISSUE";
 
         private const string MASK = "*****";
 
@@ -131,6 +133,8 @@ namespace KLogMonitor
             }
 
             configurationFileName = logConfigFile;
+            MAJOR_ISSUE = Environment.GetEnvironmentVariable("MAJOR_ISSUE");
+            MAJOR_ISSUE = string.IsNullOrEmpty(MAJOR_ISSUE) ? defaultMajorPrefix : MAJOR_ISSUE;
         }
 
         public static void Configure(string logConfigFile, KLogEnums.AppType appType)
@@ -309,7 +313,7 @@ namespace KLogMonitor
 
         #region Logging Methods
 
-        public void Debug(string sMessage, Exception ex = null, [CallerMemberName]string callerMemberName = null)
+        public void Debug(string sMessage, Exception ex = null, [CallerMemberName] string callerMemberName = null)
         {
             HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.DEBUG, null, ex, callerMemberName);
         }
@@ -319,7 +323,7 @@ namespace KLogMonitor
             HandleEvent(format, KLogger.LogEvent.LogLevel.DEBUG, args, null);
         }
 
-        public void Info(string sMessage, Exception ex = null, [CallerMemberName]string callerMemberName = null)
+        public void Info(string sMessage, Exception ex = null, [CallerMemberName] string callerMemberName = null)
         {
             HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.INFO, null, ex, callerMemberName);
         }
@@ -329,7 +333,7 @@ namespace KLogMonitor
             HandleEvent(format, KLogger.LogEvent.LogLevel.INFO, args, null);
         }
 
-        public void Warn(string sMessage, Exception ex = null, [CallerMemberName]string callerMemberName = null)
+        public void Warn(string sMessage, Exception ex = null, [CallerMemberName] string callerMemberName = null)
         {
             HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.WARNING, null, ex, callerMemberName);
         }
@@ -339,7 +343,7 @@ namespace KLogMonitor
             HandleEvent(format, KLogger.LogEvent.LogLevel.WARNING, args, null);
         }
 
-        public void Error(string sMessage, Exception ex = null, [CallerMemberName]string callerMemberName = null)
+        public void Error(string sMessage, Exception ex = null, [CallerMemberName] string callerMemberName = null)
         {
             HandleEvent(sMessage != null ? sMessage : string.Empty, KLogger.LogEvent.LogLevel.ERROR, null, ex, callerMemberName);
         }
@@ -347,6 +351,18 @@ namespace KLogMonitor
         public void ErrorFormat(string format, params object[] args)
         {
             HandleEvent(format, KLogger.LogEvent.LogLevel.ERROR, args, null);
+        }
+
+        public void Critical(string sMessage, Exception ex = null, [CallerMemberName] string callerMemberName = null)
+        {
+            sMessage = $"{MAJOR_ISSUE}-{sMessage ?? ""}";
+            HandleEvent(sMessage != null ? sMessage : string.Empty, LogEvent.LogLevel.ERROR, null, ex, callerMemberName);
+        }
+
+        public void CriticalFormat(string format, params object[] args)
+        {
+            format = $"{MAJOR_ISSUE}-{format}";
+            HandleEvent(format, LogEvent.LogLevel.ERROR, args, null);
         }
 
         public string MaskPersonalInformation(string bodyAsText)
@@ -450,7 +466,7 @@ namespace KLogMonitor
                 LogContextData[Constants.HOST_IP] = HttpContext.Current?.Items[Constants.HOST_IP];
             }
 
-            if ( HttpContext.Current?.Items[Constants.REQUEST_ID_KEY] != null)
+            if (HttpContext.Current?.Items[Constants.REQUEST_ID_KEY] != null)
             {
                 LogContextData[Constants.REQUEST_ID_KEY] = HttpContext.Current?.Items[Constants.REQUEST_ID_KEY];
             }

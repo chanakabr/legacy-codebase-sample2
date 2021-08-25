@@ -24,6 +24,7 @@ namespace ApiObjects
         public ObjectVirtualAssetFilterStatus ResultStatus;
         public Status Status;
         public int TotalItems;
+        public bool Filterd;
 
     }
 }
