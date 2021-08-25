@@ -995,7 +995,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Users.Utils.GetDomainGroupID(sWSUsername, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.GetDLM(nDlmID, nGroupID);
+                return Core.Domains.Module.Instance.GetDLM(nDlmID, nGroupID);
             }
             else
             {

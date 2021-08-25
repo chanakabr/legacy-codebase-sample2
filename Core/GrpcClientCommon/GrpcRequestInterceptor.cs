@@ -75,7 +75,6 @@ namespace GrpcClientCommon
         where TRequest : class
         where TResponse : class
     {
-        private const string REQUEST_ID_HEADER_KEY = "x-kaltura-session-id";
         private readonly KMonitor _monitor;
 
         public RequestTracer(ClientInterceptorContext<TRequest, TResponse> context)
@@ -88,7 +87,7 @@ namespace GrpcClientCommon
                 Table = context.Method.Name,
                 Database = context.Host
             };
-            context.Options.Headers.Add(REQUEST_ID_HEADER_KEY, requestId);
+            context.Options.Headers.Add(Constants.SESSION_ID_KEY, requestId);
         }
 
         public void Dispose()

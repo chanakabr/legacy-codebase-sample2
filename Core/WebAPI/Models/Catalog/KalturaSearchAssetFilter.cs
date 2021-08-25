@@ -89,7 +89,7 @@ namespace WebAPI.Models.Catalog
             var searchAssetFilter = new ApiLogic.Catalog.SearchAssetsFilter
             {
                 GroupId = contextData.GroupId,
-                UserId = userId,
+                SiteGuid = userId,
                 DomainId = domainId,
                 Udid = contextData.Udid,
                 Language = contextData.Language,

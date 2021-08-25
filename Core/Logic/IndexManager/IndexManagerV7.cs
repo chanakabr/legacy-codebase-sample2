@@ -3003,6 +3003,11 @@ namespace Core.Catalog
             throw new NotImplementedException();
         }
 
+        public IList<EpgProgramInfo> GetCurrentProgramInfosByDate(int channelId, DateTime fromDate, DateTime toDate)
+        {
+            throw new NotImplementedException();
+        }
+
         public Dictionary<long, bool> ValidateMediaIDsInChannels(List<long> distinctMediaIDs,
             List<string> jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
             List<string> jsonizedChannelsDefinitionsMediasMustNotAppearInAll)
@@ -4146,6 +4151,7 @@ namespace Core.Catalog
         {
             return $"{channelId}";
         }
+
 
         #endregion
     }

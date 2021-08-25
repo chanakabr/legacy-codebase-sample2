@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using System.Linq;
 
 namespace WebAPI.Models.Pricing
 {
@@ -28,7 +29,8 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name")]
-        public string name { get; set; }
+        [SchemeProperty(MinLength = 1)]
+        public string Name { get; set; }
 
         /// <summary>
         /// The price 
@@ -45,7 +47,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "multiCurrencyPrice")]
         [JsonProperty("multiCurrencyPrice")]
         [XmlElement(ElementName = "multiCurrencyPrice", IsNullable = true)]
-        [SchemeProperty(RequiresPermission=(int)RequestType.WRITE)]
+        [SchemeProperty(RequiresPermission=(int)RequestType.WRITE, IsNullable = true)]
         public List<KalturaPrice> MultiCurrencyPrice { get; set; }
 
         /// <summary>
@@ -59,11 +61,40 @@ namespace WebAPI.Models.Pricing
 
         public void ValidateForAdd()
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(Name))
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
 
-            if (MultiCurrencyPrice == null)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "multiCurrencyPrice");       
+            if (MultiCurrencyPrice == null || MultiCurrencyPrice.Count == 0)
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "multiCurrencyPrice");
+
+            ValidateDuplicateMultiCurrencyPrice();
+        }
+
+        public void ValidateForUpdate()
+        {
+            if (this.MultiCurrencyPrice != null)
+            {
+                if (this.MultiCurrencyPrice.Count == 0)
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "multiCurrencyPrice");
+                }
+
+                ValidateDuplicateMultiCurrencyPrice();
+            }
+        }
+
+        private void ValidateDuplicateMultiCurrencyPrice()
+        {
+            var totalDistincts = MultiCurrencyPrice.Distinct(new PriceEqualityComparer()).Count();
+            if (totalDistincts != this.MultiCurrencyPrice.Count)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "multiCurrencyPrice");
+            }
+
+            foreach (var price in this.MultiCurrencyPrice)
+            {
+                price.Validate();
+            }
         }
     }
 

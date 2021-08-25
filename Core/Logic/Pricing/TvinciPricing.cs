@@ -1,4 +1,5 @@
 ﻿using ApiLogic.Api.Managers;
+using ApiLogic.Pricing.Handlers;
 using ApiObjects;
 using ApiObjects.IngestBusinessModules;
 using ApiObjects.Response;
@@ -1045,6 +1046,7 @@ namespace Core.Pricing
                     }
                     else
                     {
+                        PricePlanManager.Instance.SetPricePlanInvalidation(m_nGroupID);
                         status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
@@ -1095,6 +1097,7 @@ namespace Core.Pricing
                     }
                     else
                     {
+                        PricePlanManager.Instance.SetPricePlanInvalidation(m_nGroupID);
                         status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     }
                 }
@@ -1129,6 +1132,7 @@ namespace Core.Pricing
                 }
                 else
                 {
+                    PricePlanManager.Instance.SetPricePlanInvalidation(m_nGroupID);
                     status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 }
 
@@ -1739,7 +1743,7 @@ namespace Core.Pricing
                 Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
             };
 
-            DataTable usageModules = PricingDAL.Instance.GetPricePlans(m_nGroupID, pricePlanIds);
+            DataTable usageModules = PricingDAL.Instance.GetPricePlansDT(m_nGroupID, pricePlanIds);
 
             if (usageModules != null && usageModules.Rows != null && usageModules.Rows.Count > 0)
             {
@@ -1758,7 +1762,7 @@ namespace Core.Pricing
                 if (funcParams != null && funcParams.Count == 1 && funcParams.ContainsKey("groupId"))
                 {
                     int? groupId = funcParams["groupId"] as int?;
-                    DataTable discountsDt = PricingDAL.GetGroupDiscounts(m_nGroupID);
+                    DataTable discountsDt = PricingDAL.Instance.GetGroupDiscounts(m_nGroupID);
                     if (discountsDt != null)
                     {
                         discountDetails = Utils.BuildDiscountsFromDataTable(discountsDt);

@@ -10,5 +10,7 @@ namespace Core.Pricing
         public Subscription[] Subscriptions { get; set; }
 
         public ApiObjects.Response.Status Status { get; set; }
+
+        public int TotalItems { get; set; }
     }
 }

@@ -20,8 +20,9 @@ namespace ApiLogic.Api.Managers
     {
         bool IsValidCurrencyCode(int groupId, string currencyCode3);
         bool GetGroupDefaultCurrency(int groupId, ref string currencyCode);
-
         GeneralPartnerConfig GetGeneralPartnerConfig(int groupId);
+        List<Currency> GetCurrencyList(int groupId);
+        Dictionary<string, Currency> GetCurrencyMapByCode3(int groupId);
     }
 
     public class GeneralPartnerConfigManager : IGeneralPartnerConfigManager
@@ -49,22 +50,7 @@ namespace ApiLogic.Api.Managers
                 return res;
             }
 
-            try
-            {
-                DataTable dt = null;
-                if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
-                                                        LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    res = (from row in dt.AsEnumerable()
-                           where ((string)row["CODE3"]).ToUpper() == currencyCode3.ToUpper()
-                           select row).Count() > 0;
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed IsValidCurrencyCode, groupId: {0}, currencyCode: {1}", groupId, currencyCode3), ex);
-            }
-
+            res = GetCurrencyMapByCode3(groupId).ContainsKey(currencyCode3.ToLower());
             return res;
         }
 
@@ -97,7 +83,7 @@ namespace ApiLogic.Api.Managers
 
         }
 
-        internal List<Currency> GetCurrencyList(int groupId)
+        public List<Currency> GetCurrencyList(int groupId)
         {
             List<Currency> currencies = null;
             try
@@ -286,7 +272,6 @@ namespace ApiLogic.Api.Managers
 
             return response;
         }
-
 
         private Tuple<int, bool> GetGroupDefaultCurrency(Dictionary<string, object> funcParams)
         {
@@ -582,6 +567,26 @@ namespace ApiLogic.Api.Managers
             }
 
             return response;
+        }
+        
+        public Dictionary<string, Currency> GetCurrencyMapByCode3(int groupId)
+        {
+            Dictionary<string, Currency> currencyMap = new Dictionary<string, Currency>();
+            var allCurrencies = this.GetCurrencyList(groupId);
+            if (allCurrencies == null)
+            {
+                log.Warn($"could not get Currency list for groupId:{groupId}");
+                return currencyMap;
+            }
+            foreach (var currency in allCurrencies)
+            {
+                var lowerCode3 = currency.m_sCurrencyCD3.ToLower();
+                if (!currencyMap.ContainsKey(lowerCode3))
+                {
+                    currencyMap.Add(lowerCode3, currency);
+                }
+            }
+            return currencyMap;
         }
     }
 }

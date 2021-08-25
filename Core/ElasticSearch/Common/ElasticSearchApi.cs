@@ -1540,7 +1540,7 @@ namespace ElasticSearch.Common
                     if (errorStream != null) errorStream.Close();
                 }
 
-                log.Error($"ElasticSearch API post request error: guid = {requestGuid}, url = {url}, parameters = " +
+                log.Critical($"ElasticSearch API post request error: guid = {requestGuid}, url = {url}, parameters = " +
                     $"{parameters}, body length = {parameters.Length}, response = {result}\nex = {ex}");
             }
             catch (Exception ex)

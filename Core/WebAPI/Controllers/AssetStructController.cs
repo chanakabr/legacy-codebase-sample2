@@ -40,6 +40,10 @@ namespace WebAPI.Controllers
                 {                    
                     response = ClientsManager.CatalogClient().GetAssetStructs(groupId, new List<long>(), filter.OrderBy, filter.IsProtectedEqual, filter.MetaIdEqual.Value);
                 }
+                else if (filter.ObjectVirtualAssetInfoTypeEqual.HasValue)
+                {
+                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, new List<long>(), filter.OrderBy, null, 0, filter.ObjectVirtualAssetInfoTypeEqual.Value);
+                }
                 else
                 {           
                     response = ClientsManager.CatalogClient().GetAssetStructs(groupId, filter.GetIdIn(), filter.OrderBy, filter.IsProtectedEqual);

@@ -155,5 +155,10 @@ namespace TvinciCache
         {            
             return cache.GetKeys();            
         }
+
+        public void Remove(string key)
+        {
+            cache.Remove(key);
+        }
     }
 }

@@ -11,6 +11,7 @@ using TVinciShared;
 using ApiObjects.Response;
 using KLogMonitor;
 using System.Reflection;
+using ApiLogic.Catalog.Tree;
 using ApiObjects;
 using ConfigurationManager;
 using Core.Api.Managers;
@@ -19,6 +20,8 @@ namespace Core.Catalog
 {
     public class UnifiedSearchDefinitionsBuilder
     {
+        private readonly IFilterTreeValidator _filterTreeValidator;
+
         private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
         {
             "media_type_id",
@@ -33,8 +36,9 @@ namespace Core.Catalog
 
         #region Ctor
 
-        public UnifiedSearchDefinitionsBuilder()
+        public UnifiedSearchDefinitionsBuilder(IFilterTreeValidator filterTreeValidator)
         {
+            _filterTreeValidator = filterTreeValidator;
             shouldUseCache = ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseSearchCache.Value;
         }
 
@@ -177,10 +181,17 @@ namespace Core.Catalog
                 {
                     definitions.shouldSearchMedia = true;
                 }
-
+                
                 if (definitions.hasMediaIdTerm && !definitions.hasOrNode)
                 {
                     definitions.shouldSearchEpg = false;
+                }
+
+                var result = _filterTreeValidator.ValidateTree(request.filterTree);
+                if (result != null)
+                {
+                    definitions.shouldSearchEpg = result.ShouldSearchEpg;
+                    definitions.shouldSearchMedia = result.ShouldSearchMedia;   
                 }
 
                 HashSet<int> mediaTypes = null;
@@ -458,6 +469,11 @@ namespace Core.Catalog
 
                 #endregion
             }
+            catch(KalturaException ex)
+            {
+                log.WarnFormat("Failed building unified search definitions. ex = {0}, st = {1}", ex, ex.StackTrace);
+                throw ex;
+            }
             catch (Exception ex)
             {
                 log.ErrorFormat("failed building unified search definitions. ex = {0}, st = {1}", ex, ex.StackTrace);
@@ -709,7 +725,7 @@ namespace Core.Catalog
                 entitlementSearchDefinitions.fileTypes = new List<int>();
                 if (doesGroupUsesTemplates)
                 {
-                    GenericListResponse<MediaFileType> mediaFileTypesResponse = CatalogManagement.FileManager.GetMediaFileTypes(parentGroupID);
+                    GenericListResponse<MediaFileType> mediaFileTypesResponse = CatalogManagement.FileManager.Instance.GetMediaFileTypes(parentGroupID);
                     if (mediaFileTypesResponse != null && mediaFileTypesResponse.Status != null && mediaFileTypesResponse.Status.Code == (int)eResponseStatus.OK
                         && mediaFileTypesResponse.Objects != null && mediaFileTypesResponse.Objects.Count > 0)
                     {

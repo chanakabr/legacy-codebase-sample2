@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.IndexManager.Mappings;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Response;
-using IngestTransformationHandler;
+using Core.Catalog;
+using IngestHandler.Common.Infrastructure;
 using IngestTransformationHandler.Managers;
 using IngestTransformationHandler.Repositories;
 using KLogMonitor;
@@ -15,11 +17,28 @@ namespace IngestV2.Tests
 {
     public class Tests
     {
+        private MockRepository _mockRepository;
+        private Mock<ICatalogManagerAdapter> _catalogManagerAdapterMock;
+        private Mock<IMappingTypeResolver> _mappingTypeResolverMock;
+
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             KLogger.InitLogger("log4net.config",KLogEnums.AppType.WindowsService, "/var/log");
             Console.SetOut(TestContext.Progress);
+        }
+
+        [SetUp]
+        public void SetUp()
+        {
+            _mockRepository = new MockRepository(MockBehavior.Strict);
+            _catalogManagerAdapterMock = _mockRepository.Create<ICatalogManagerAdapter>();
+            _mappingTypeResolverMock = _mockRepository.Create<IMappingTypeResolver>();
+        }
+
+        public void TearDown()
+        {
+            _mockRepository.VerifyAll();
         }
         
         [Test]
@@ -27,11 +46,13 @@ namespace IngestV2.Tests
         {
             var existingEpg = new List<EpgProgramBulkUploadObject>();
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
+            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
+            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
 
-            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
             var bulkUpload = ProgramGenerator.Generate(3).BuildBulkUploadObj();
             var programsToIngest = bulkUpload.Results.Cast<BulkUploadProgramAssetResult>().ToList();
-            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.KeepHoles);
+            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.KeepHoles, null);
 
 
             var externalIdsToAddResult = crudOperations.ItemsToAdd.Select(p => p.EpgExternalId);
@@ -51,12 +72,14 @@ namespace IngestV2.Tests
             var existingEpgStart = new DateTime(2000,1,1,0,0,0);
             var existingEpg = ProgramGenerator.Generate(3).FromDate(existingEpgStart).WithEpgIds().StartFromId(100).BuildExistingPrograms();
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
+            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
+            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
 
-            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
             var bulkUpload = ProgramGenerator.Generate(3).FromDate(existingEpgStart).BuildBulkUploadObj();
             
             var programsToIngest = bulkUpload.Results.Cast<BulkUploadProgramAssetResult>().ToList();
-            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.KeepHoles);
+            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.KeepHoles, null);
 
 
             var externalIdsToIngest = programsToIngest.Select(p => p.ProgramExternalId);
@@ -78,14 +101,16 @@ namespace IngestV2.Tests
             var existingEpgStart = new DateTime(2000,1,1,0,0,0);
             var existingEpg = ProgramGenerator.Generate(4).FromDate(existingEpgStart).WithEpgIds().StartFromId(100).BuildExistingPrograms();
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
+            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
+            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
 
-            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
             
             // programs to ingest are smaller by 1 and shifted one prog to the future
             // so we expect the existing first program to be in remaining items
             var bulkUpload = ProgramGenerator.Generate(3).FromDate(existingEpgStart.AddHours(1)).BuildBulkUploadObj();
             var programsToIngest = bulkUpload.Results.Cast<BulkUploadProgramAssetResult>().ToList();
-            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.KeepHoles);
+            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.KeepHoles, null);
 
 
             var itemsToIngest = programsToIngest.Select(p => p.ProgramExternalId);
@@ -112,14 +137,16 @@ namespace IngestV2.Tests
             var existingEpgStart = new DateTime(2000,1,1,0,0,0);
             var existingEpg = ProgramGenerator.Generate(3).BuildExistingPrograms();
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
+            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
+            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
 
-            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
             
             var bulkUpload = ProgramGenerator.Generate(3).StartFromId(10).FromDate(existingEpgStart).BuildBulkUploadObj();
             var programsToIngestOverlap = ProgramGenerator.Generate(3).StartFromId(20).FromDate(existingEpgStart.AddMinutes(-30)).BuildProgramsToIngest();
             bulkUpload.Results.AddRange(programsToIngestOverlap);
             var programsToIngest = bulkUpload.Results.Cast<BulkUploadProgramAssetResult>().ToList();
-            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.KeepHoles);
+            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.KeepHoles, null);
 
             Assert.IsNull(crudOperations);
             CollectionAssert.IsNotEmpty(programsToIngest.Where(r=>r.Errors != null).SelectMany(r=>r.Errors), "expected overlap errors");
@@ -131,11 +158,14 @@ namespace IngestV2.Tests
             var existingEpgStart = new DateTime(2000,1,1,0,0,0);
             var existingEpg = ProgramGenerator.Generate(3).FromDate(existingEpgStart).BuildExistingPrograms();
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
-            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
+            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
+            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
+            
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
             
             var bulkUpload = ProgramGenerator.Generate(3).StartFromId(10).FromDate(existingEpgStart.AddMinutes(30)).BuildBulkUploadObj();
             var programsToIngest = bulkUpload.Results.Cast<BulkUploadProgramAssetResult>().ToList();
-            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.KeepHoles);
+            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.KeepHoles, null);
 
             Assert.IsNull(crudOperations);
             Assert.That(programsToIngest.First().Errors.First().Code, Is.EqualTo((int)eResponseStatus.Error));
@@ -156,7 +186,10 @@ namespace IngestV2.Tests
                 .FromDate(existingEpgStart)
                 .BuildExistingPrograms();
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
-            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
+            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
+            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
+            
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
             
             var bulkUpload = ProgramGenerator
                 .Generate(1)
@@ -166,7 +199,7 @@ namespace IngestV2.Tests
                 .WithDuration(TimeSpan.FromMinutes(durationInMinutes))
                 .BuildBulkUploadObj();
 
-            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.CutTarget, eIngestProfileAutofillPolicy.KeepHoles);
+            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.CutTarget, eIngestProfileAutofillPolicy.KeepHoles, null);
 
             Assert.That(crudOperations, Is.Not.Null);
             Assert.That(crudOperations.ItemsToAdd.Select(_ => _.EpgId), Is.EquivalentTo(new[] { 10 }));
@@ -179,7 +212,10 @@ namespace IngestV2.Tests
             var existingEpgStart = new DateTime(2000,1,1,0,0,0);
             var existingEpg = new List<EpgProgramBulkUploadObject>();
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
-            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
+            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
+            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
+            
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
             
             var bulkUpload = ProgramGenerator
                 .Generate(1)
@@ -195,7 +231,7 @@ namespace IngestV2.Tests
             
             bulkUpload.Results.AddRange(additionalPrograms);
             var programsToIngest = bulkUpload.Results.Cast<BulkUploadProgramAssetResult>().ToList();
-            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.Reject);
+            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.Reject, null);
 
             Assert.That(crudOperations, Is.Null);
             Assert.That(programsToIngest.First().Errors.First().Code, Is.EqualTo((int)eResponseStatus.EPGSProgramDatesError));
@@ -208,7 +244,10 @@ namespace IngestV2.Tests
             var existingEpgStart = new DateTime(2000,1,1,0,0,0);
             var existingEpg = new List<EpgProgramBulkUploadObject>();
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
-            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
+            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
+            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
+            
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
             
             var bulkUpload = ProgramGenerator
                 .Generate(1)
@@ -224,7 +263,7 @@ namespace IngestV2.Tests
             
             bulkUpload.Results.AddRange(additionalPrograms);
             var programsToIngest = bulkUpload.Results.Cast<BulkUploadProgramAssetResult>().ToList();
-            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.Autofill);
+            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.Autofill, null);
 
             Assert.That(crudOperations.ItemsToAdd.Where(i=>i.IsAutoFill).ToList(), Has.Count.EqualTo(1));
             Assert.That(programsToIngest.First().Warnings.First().Code, Is.EqualTo((int)eResponseStatus.EPGSProgramDatesError));
@@ -240,7 +279,10 @@ namespace IngestV2.Tests
                 .FromDate(existingEpgStart)
                 .BuildExistingPrograms();
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
-            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
+            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
+            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
+            
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
             
             var bulkUpload = ProgramGenerator
                 .Generate(1)
@@ -248,7 +290,7 @@ namespace IngestV2.Tests
                 .FromDate(existingEpgStart.AddHours(2).AddMinutes(30))
                 .BuildBulkUploadObj();
             var programsToIngest = bulkUpload.Results.Cast<BulkUploadProgramAssetResult>().ToList();
-            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.CutTarget, eIngestProfileAutofillPolicy.Autofill);
+            var crudOperations = crudManager.CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.CutTarget, eIngestProfileAutofillPolicy.Autofill, null);
 
             Assert.That(crudOperations.ItemsToDelete,Has.Count.EqualTo(1));
             Assert.That(crudOperations.ItemsToAdd.Where(i=>i.IsAutoFill).ToList(), Has.Count.EqualTo(2));
@@ -264,7 +306,10 @@ namespace IngestV2.Tests
                 .FromDate(existingEpgStart)
                 .BuildExistingPrograms();
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
-            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
+            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
+            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
+            
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
             
             var bulkUpload = ProgramGenerator
                 .Generate(1)
@@ -274,7 +319,7 @@ namespace IngestV2.Tests
             var programsToIngest = bulkUpload.Results.Cast<BulkUploadProgramAssetResult>().ToList();
             
             var crudOps = crudManager
-                .CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.Autofill);
+                .CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.Reject, eIngestProfileAutofillPolicy.Autofill, null);
 
             CollectionAssert.IsEmpty(crudOps.ItemsToDelete);
             CollectionAssert.IsEmpty(crudOps.AffectedItems);
@@ -293,7 +338,10 @@ namespace IngestV2.Tests
                 .WithEpgIds()
                 .BuildExistingPrograms();
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
-            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
+            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
+            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
+            
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
 
             var bulkUpload = ProgramGenerator
                 .Generate(1)
@@ -303,7 +351,7 @@ namespace IngestV2.Tests
             var programsToIngest = bulkUpload.Results.Cast<BulkUploadProgramAssetResult>().ToList();
 
             var crudOps = crudManager
-                .CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.CutTarget, eIngestProfileAutofillPolicy.Autofill);
+                .CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.CutTarget, eIngestProfileAutofillPolicy.Autofill, null);
 
             // last program should be completle removed
             // the one before last is the affected item that should be deleted as well and the added back as an affected item with same epgId
@@ -324,7 +372,10 @@ namespace IngestV2.Tests
                 .WithEpgIds()
                 .BuildExistingPrograms();
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
-            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
+            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
+            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
+            
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
 
             var bulkUpload = ProgramGenerator
                 .Generate(1)
@@ -334,7 +385,7 @@ namespace IngestV2.Tests
             var programsToIngest = bulkUpload.Results.Cast<BulkUploadProgramAssetResult>().ToList();
 
             var crudOps = crudManager
-                .CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.CutTarget, eIngestProfileAutofillPolicy.Autofill);
+                .CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.CutTarget, eIngestProfileAutofillPolicy.Autofill, null);
 
 
             Assert.That(crudOps.ItemsToDelete, Has.Count.EqualTo(1));
@@ -354,7 +405,10 @@ namespace IngestV2.Tests
                 .BuildExistingPrograms();
 
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
-            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object);
+            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
+            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
+            
+            var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
 
             var bulkUpload = ProgramGenerator
                 .Generate(1)
@@ -364,7 +418,7 @@ namespace IngestV2.Tests
                 .BuildBulkUploadObj();
             
             var crudOps = crudManager
-                .CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.CutTarget, eIngestProfileAutofillPolicy.Autofill);
+                .CalculateCRUDOperations(bulkUpload, eIngestProfileOverlapPolicy.CutTarget, eIngestProfileAutofillPolicy.Autofill, null);
 
 
             var shallowCopyEpg = crudOps.ItemsToDelete[0];

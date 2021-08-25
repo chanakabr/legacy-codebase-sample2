@@ -14,7 +14,8 @@ namespace Phoenix.WebServices
     {
         private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public const string SESSION_HEADER_KEY = KLogMonitor.Constants.REQUEST_ID_KEY;
+        public const string NEW_SESSION_HEADER_KEY = Constants.SESSION_ID_KEY;
+        public const string SESSION_HEADER_KEY = Constants.REQUEST_ID_KEY;
         private readonly RequestDelegate _Next;
 
         public WebServicesSessionId(RequestDelegate next)
@@ -27,22 +28,27 @@ namespace Phoenix.WebServices
             using (var km = new KMonitor(Events.eEvent.EVENT_CLIENT_API_START))
             {
                 string sessionId;
-                if (context.Request.Headers.TryGetValue(SESSION_HEADER_KEY, out var sessionHeader))
+                if (context.Request.Headers.TryGetValue(NEW_SESSION_HEADER_KEY, out var sessionHeader))
                 {
-                    sessionId =  sessionHeader;
+                    sessionId = sessionHeader;
+                }
+                else if (context.Request.Headers.TryGetValue(SESSION_HEADER_KEY, out var legacySessionHeader))
+                {
+                    sessionId = legacySessionHeader;
                 }
                 else
                 {
                     sessionId = context.TraceIdentifier;
                 }
-                context.Items[SESSION_HEADER_KEY] = sessionId.ToString();
-                KLogger.SetRequestId(sessionId.ToString());
+
+                context.Items[SESSION_HEADER_KEY] = sessionId;
+                KLogger.SetRequestId(sessionId);
 
                 var phoenixCtx = new PhoenixRequestContext();
                 context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] = phoenixCtx;
                 phoenixCtx.SessionId = sessionId;
                 phoenixCtx.RequestDate = DateTime.UtcNow;
-                context.Response.Headers["X-Kaltura-Session"] = sessionId.ToString();
+                context.Response.Headers["X-Kaltura-Session"] = sessionId;
                 phoenixCtx.ApiMonitorLog = km;
                 await _Next(context);
             }

@@ -1270,7 +1270,7 @@ namespace Core.ConditionalAccess
             {
                 long subscriptionSetModifyDetailsId = 0, purchaseId = 0;
                 // check if cancellation is allowed
-                Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(groupId, scheduledSubscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                Subscription subscriptionToCancel = Pricing.Module.Instance.GetSubscriptionData(groupId, scheduledSubscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);
                 if (subscriptionToCancel != null && subscriptionToCancel.BlockCancellation)
                 {
                     res = new ApiObjects.Response.Status((int)eResponseStatus.SubscriptionCancellationIsBlocked, "Cancellation is blocked for this subscription");
@@ -1371,20 +1371,8 @@ namespace Core.ConditionalAccess
 
                 bool validCoupon = false;
                 // look if this coupon group id exsits in coupon list 
-                if (
-                        (
-                            subscription.m_oCouponsGroup != null
-                            &&
-                            subscription.m_oCouponsGroup.m_sGroupCode.Equals(couponData.m_oCouponGroup.m_sGroupCode)
-                        )
-                        ||
-                        (
-                            subscription.CouponsGroups != null
-                            &&
-                            subscription.CouponsGroups.Count(x => x.m_sGroupCode.Equals(couponData.m_oCouponGroup.m_sGroupCode)
-                                                             && (!x.endDate.HasValue || x.endDate.Value >= DateTime.UtcNow)) > 0
-                        )
-                   )
+                if ((subscription.m_oCouponsGroup != null && subscription.m_oCouponsGroup.m_sGroupCode.Equals(couponData.m_oCouponGroup.m_sGroupCode))
+                    || subscription.GetValidSubscriptionCouponGroup(couponData.m_oCouponGroup.m_sGroupCode)?.Count > 0)
                 {
                     validCoupon = true;
                 }
@@ -1442,7 +1430,7 @@ namespace Core.ConditionalAccess
             if (couponGroupId > 0)
             {
                 // look if this coupon group id is a gift card in the subscription list 
-                CouponsGroupResponse cg = Pricing.Module.GetCouponsGroup(groupId, couponGroupId);
+                CouponsGroupResponse cg = Pricing.Module.Instance.GetCouponsGroup(groupId, couponGroupId);
                 if (cg.Status.IsOkStatusCode())
                 {
                     isCouponGiftCard = cg.CouponsGroup.couponGroupType == CouponGroupType.GiftCard;
@@ -1908,7 +1896,7 @@ namespace Core.ConditionalAccess
             try
             {
                 // get subscription data for entitlement.PriceDetails
-                var subscription = Pricing.Module.GetSubscriptionData(groupId, entitlement.entitlementId, string.Empty, string.Empty, string.Empty, false);
+                var subscription = Pricing.Module.Instance.GetSubscriptionData(groupId, entitlement.entitlementId, string.Empty, string.Empty, string.Empty, false);
 
                 if (subscription != null)
                 {

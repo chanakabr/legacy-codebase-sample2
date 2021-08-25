@@ -325,7 +325,7 @@ namespace WebAPI.Managers
             // allowed group users (additional user_id) handling:
             // get user_id additional parameter
             string userId = null;
-            if (HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_USER_ID))
+            if (RequestContextUtilsInstance.Get().IsImpersonateRequest() && HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_USER_ID))
             {
                 var extraUserId = HttpContext.Current.Items[RequestContextConstants.REQUEST_USER_ID];
                 userId = extraUserId != null ? extraUserId.ToString() : null;

@@ -313,11 +313,11 @@ namespace TCMClient
             }
             catch (JsonException e)
             {
-                _Logger.Error($"Error while parsing JSON data from TCM server:", e);
+                _Logger.Critical($"Error while parsing JSON data from TCM server:", e);
             }
             catch (Exception e)
             {
-                _Logger.Error($"Error while trying to get TCM data:", e);
+                _Logger.Critical($"Error while trying to get TCM data:", e);
             }
 
             return settings;

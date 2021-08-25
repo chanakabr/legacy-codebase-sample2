@@ -7,7 +7,6 @@ namespace ApiLogic.Catalog
     public class SearchAssetsFilter
     {
         public int GroupId { get; set; }
-        public string UserId { get; set; }
         public int DomainId { get; set; }
         public string SiteGuid { get; set; }
         public string Udid { get; set; }

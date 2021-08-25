@@ -1,6 +1,5 @@
 ﻿namespace ApiObjects.Pricing
 {
-    // TODO move to DAL/DTO
     public class UsageModuleDTO
     {
         public int Id { get; set; }

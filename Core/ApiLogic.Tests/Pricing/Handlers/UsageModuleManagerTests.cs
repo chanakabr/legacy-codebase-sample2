@@ -77,7 +77,7 @@ namespace ApiLogic.Tests.Pricing.Handlers
 
             var repositoryMock = new Mock<IModuleManagerRepository>();
 
-            repositoryMock.Setup(x => x.GetPricePlans(It.IsAny<int>(), null)).Returns(usageModules);
+            repositoryMock.Setup(x => x.GetPricePlansDT(It.IsAny<int>(), null)).Returns(usageModules);
 
             UsageModuleManager manager = new UsageModuleManager(repositoryMock.Object);
 

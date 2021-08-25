@@ -820,7 +820,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    var result = Core.Domains.Module.GetDLM(m_groupID, dlmID);
+                    var result = Core.Domains.Module.Instance.GetDLM(m_groupID, dlmID);
                     response = new DomainLimitationModuleResponse();
                     response.DLM = new Objects.Responses.LimitationsManager(result.dlm);
                     response.Status = new TVPApiModule.Objects.Responses.Status(result.resp.Code, result.resp.Message);

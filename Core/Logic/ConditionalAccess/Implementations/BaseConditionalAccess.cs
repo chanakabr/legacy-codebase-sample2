@@ -1667,7 +1667,7 @@ namespace Core.ConditionalAccess
                 Utils.ValidateUser(m_nGroupID, sSiteGUID, ref domainId);
                 string sWSUserName = string.Empty;
                 string sWSPass = string.Empty;
-                theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false, sSiteGUID);
+                theSub = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, sSubscriptionCode, string.Empty, string.Empty, string.Empty, false, sSiteGUID);
 
                 if (theSub != null && theSub.m_oUsageModule != null && theSub.m_oSubscriptionPriceCode != null && theSub.m_bIsRecurring)
                 {
@@ -1762,7 +1762,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // check if cancellation is allowed
-                    Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionCode, string.Empty, string.Empty, string.Empty, false, userId);
+                    Subscription subscriptionToCancel = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, subscriptionCode, string.Empty, string.Empty, string.Empty, false, userId);
 
                     if (subscriptionToCancel == null)
                     {
@@ -2202,7 +2202,7 @@ namespace Core.ConditionalAccess
                     {
                         Subscription theSub = null;
 
-                        theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
+                        theSub = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, sSubscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
 
                         if (theSub != null && theSub.m_nNumberOfRecPeriods != 0 && theSub.m_nNumberOfRecPeriods <= nPaymentNumber)
                         {
@@ -2417,7 +2417,7 @@ namespace Core.ConditionalAccess
                     {
                         Subscription theSub = null;
 
-                        theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
+                        theSub = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, sSubscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
 
                         if (theSub != null && theSub.m_nNumberOfRecPeriods != 0 && theSub.m_nNumberOfRecPeriods <= nPaymentNumber)
                         {
@@ -2736,7 +2736,7 @@ namespace Core.ConditionalAccess
                         throw new Exception("End date extracted from subscriptions purchases is corrupted");
                     }
 
-                    var theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
+                    var theSub = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, subscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
 
                     var renewDetails = new RenewDetails()
                     {
@@ -3129,7 +3129,7 @@ namespace Core.ConditionalAccess
                     }
                     else
                     {
-                        Subscription theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
+                        Subscription theSub = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, sSubscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
 
                         if (theSub != null && theSub.m_nNumberOfRecPeriods != 0 && theSub.m_nNumberOfRecPeriods < nPaymentNumber)
                         {
@@ -3476,7 +3476,7 @@ namespace Core.ConditionalAccess
 
                 Subscription theSub = null;
 
-                theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
+                theSub = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, sSubscriptionCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
                 if (theSub != null && theSub.m_nNumberOfRecPeriods != 0 && theSub.m_nNumberOfRecPeriods <= nPaymentNumber)
                 {
                     #region Update subscription purchase to is recurring status = 0
@@ -3548,7 +3548,7 @@ namespace Core.ConditionalAccess
                     if (couponGroupId == 0) { return; }
 
                     // look if this coupon group id is a gift card in the subscription list 
-                    CouponsGroupResponse cg = Pricing.Module.GetCouponsGroup(m_nGroupID, couponGroupId);
+                    CouponsGroupResponse cg = Pricing.Module.Instance.GetCouponsGroup(m_nGroupID, couponGroupId);
                     if (cg.Status.Code != (int)eResponseStatus.OK) { return; }
 
                     Price priceBeforeCouponDiscount = new Price
@@ -5104,7 +5104,7 @@ namespace Core.ConditionalAccess
                 Subscription theSub = null;
 
                 Utils.GetWSCredentials(m_nGroupID, eWSModules.PRICING, ref sWSUserName, ref sWSPass);
-                theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscription, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
+                theSub = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, sSubscription, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
 
                 if (theSub != null)
                 {
@@ -7762,7 +7762,7 @@ namespace Core.ConditionalAccess
 
 
                     Subscription theSub = null;
-                    theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, sSubscriptionCode, string.Empty, string.Empty, string.Empty, true);
+                    theSub = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, sSubscriptionCode, string.Empty, string.Empty, string.Empty, true);
 
                     string sMainLang = string.Empty;
                     string sMainLangCode = string.Empty;
@@ -9200,7 +9200,7 @@ namespace Core.ConditionalAccess
 
                         Subscription theSub = null;
 
-                        theSub = Pricing.Module.GetSubscriptionData(m_nGroupID, nItemID.ToString(), "", "", "", true);
+                        theSub = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, nItemID.ToString(), "", "", "", true);
                         string sMainLang = "";
                         string sMainLangCode = "";
                         GetMainLang(ref sMainLang, ref sMainLangCode, m_nGroupID);
@@ -10289,7 +10289,7 @@ namespace Core.ConditionalAccess
                     // Check if cancellation allowed for subscription
                     if (transactionType == eTransactionType.Subscription)
                     {
-                        Subscription subscriptionToCancel = Pricing.Module.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false, domain.m_masterGUIDs[0].ToString());
+                        Subscription subscriptionToCancel = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, assetID.ToString(), string.Empty, string.Empty, string.Empty, false, domain.m_masterGUIDs[0].ToString());
 
                         if (subscriptionToCancel == null)
                         {
@@ -10622,7 +10622,7 @@ namespace Core.ConditionalAccess
             try
             {
                 // get subscription id ==> check if base 
-                Subscription subscription = Pricing.Module.GetSubscriptionData(m_nGroupID, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);// check if have in Utils 
+                Subscription subscription = Pricing.Module.Instance.GetSubscriptionData(m_nGroupID, subscriptionId.ToString(), string.Empty, string.Empty, string.Empty, false);// check if have in Utils 
 
                 if (subscription != null && subscription.Type == SubscriptionType.Base)
                 {
@@ -14049,12 +14049,13 @@ namespace Core.ConditionalAccess
             }
         }
 
-        public GenericListResponse<Recording> CancelOrDeleteRecordings(long domainId, long[] domainRecordingIds, TstvRecordingStatus tstvRecordingStatus, long userId, bool validateUserAndDomain)
+        public GenericListResponse<Recording> CancelOrDeleteRecordings(long domainId, long[] domainRecordingIds, TstvRecordingStatus tstvRecordingStatus,
+            long userId, bool validateUserAndDomain, bool skipPostAction = false)
         {
             var response = new GenericListResponse<Recording>();
             try
             {
-                response = TryCancelOrDeleteRecordings(domainId, domainRecordingIds, tstvRecordingStatus, userId, validateUserAndDomain);
+                response = TryCancelOrDeleteRecordings(domainId, domainRecordingIds, tstvRecordingStatus, userId, validateUserAndDomain, skipPostAction);
             }
             catch (Exception ex)
             {
@@ -14070,16 +14071,21 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        public GenericListResponse<Recording> TryCancelOrDeleteRecordings(long domainId, long[] domainRecordingIds, TstvRecordingStatus tstvRecordingStatus, long userId, bool validateUserAndDomain)
+        public GenericListResponse<Recording> TryCancelOrDeleteRecordings(long domainId, long[] domainRecordingIds, TstvRecordingStatus tstvRecordingStatus,
+            long userId, bool validateUserAndDomain, bool skipPostAction = false)
         {
+            if (validateUserAndDomain)
+            {
+                var status = Utils.ValidateUserAndDomain(m_nGroupID, userId.ToString(), ref domainId, out _);
+                if (!status.IsOkStatusCode())
+                {
+                    log.Debug($"User or Domain not valid. {nameof(m_nGroupID)}:{m_nGroupID}, {nameof(userId)}:{userId}, {nameof(domainId)}:{domainId}.");
+                    return new GenericListResponse<Recording>(status, null);
+                }
+            }
+
             var timeShiftedSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
             var isPrivateCopyEnabled = timeShiftedSettings.IsPrivateCopyEnabled.HasValue && timeShiftedSettings.IsPrivateCopyEnabled.Value;
-
-            var validateStatus = PreValidateRecordingsBeforeDelete(ref domainId, userId, validateUserAndDomain, isPrivateCopyEnabled, domainRecordingIds);
-            if (!validateStatus.IsOkStatusCode())
-            {
-                return new GenericListResponse<Recording>(validateStatus, null);
-            }
 
             var recordings = GetRecordingsToDelete(domainId, domainRecordingIds, tstvRecordingStatus);
 
@@ -14097,7 +14103,7 @@ namespace Core.ConditionalAccess
                 var deleteResult = DeleteDbRecordings(validRecordingIds, tstvRecordingStatus);
                 if (deleteResult)
                 {
-                    PostDeleteDbRecordingsAction(domainId, recordings, tstvRecordingStatus);
+                    PostDeleteDbRecordingsAction(domainId, recordings, tstvRecordingStatus, skipPostAction);
                 }
                 else
                 {
@@ -14108,10 +14114,14 @@ namespace Core.ConditionalAccess
             return new GenericListResponse<Recording>(ApiObjects.Response.Status.Ok, recordings.Select(x => new Recording(x)).ToList());
         }
 
-        private ApiObjects.Response.Status PreValidateRecordingsBeforeDelete(ref long domainId, long userId, bool validateUserAndDomain, bool isPrivateCopyEnabled, IReadOnlyCollection<long> domainRecordingIds)
+        public ApiObjects.Response.Status PreValidateRecordingsBeforeDelete(ref long domainId, long userId, IReadOnlyCollection<long> domainRecordingIds)
         {
             const int maxSharedCopy = 100;
             const int maxPrivateCopy = 40;
+
+            var timeShiftedSettings = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID);
+            var isPrivateCopyEnabled = timeShiftedSettings.IsPrivateCopyEnabled.HasValue && timeShiftedSettings.IsPrivateCopyEnabled.Value;
+
             if (!isPrivateCopyEnabled && domainRecordingIds.Count > maxSharedCopy)
             {
                 var message = $"Too many recording ids ({domainRecordingIds.Count}) were received. Max count of shared copies is {maxSharedCopy}.";
@@ -14128,18 +14138,13 @@ namespace Core.ConditionalAccess
                 return new ApiObjects.Response.Status(eResponseStatus.RecordingIdsExceededLimit, message);
             }
 
-            if (validateUserAndDomain)
+            var status = Utils.ValidateUserAndDomain(m_nGroupID, userId.ToString(), ref domainId, out _);
+            if (!status.IsOkStatusCode())
             {
-                var status = Utils.ValidateUserAndDomain(m_nGroupID, userId.ToString(), ref domainId, out _);
-                if (!status.IsOkStatusCode())
-                {
-                    log.Debug($"User or Domain not valid. {nameof(m_nGroupID)}:{m_nGroupID}, {nameof(userId)}:{userId}, {nameof(domainId)}:{domainId}.");
-
-                    return status;
-                }
+                log.Debug($"User or Domain not valid. {nameof(m_nGroupID)}:{m_nGroupID}, {nameof(userId)}:{userId}, {nameof(domainId)}:{domainId}.");
             }
 
-            return ApiObjects.Response.Status.Ok;
+            return status;
         }
 
         private IReadOnlyCollection<DomainRecording> GetRecordingsToDelete(long domainId, IEnumerable<long> domainRecordingIds, TstvRecordingStatus tstvRecordingStatus)
@@ -14209,13 +14214,13 @@ namespace Core.ConditionalAccess
             return deleteResult;
         }
 
-        private void PostDeleteDbRecordingsAction(long domainId, IEnumerable<DomainRecording> recordings, TstvRecordingStatus tstvRecordingStatus)
+        private void PostDeleteDbRecordingsAction(long domainId, IEnumerable<DomainRecording> recordings, TstvRecordingStatus tstvRecordingStatus, bool skipPostAction)
         {
-            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
-
             var hasExternalRecordings = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(m_nGroupID, GroupFeature.EXTERNAL_RECORDINGS);
             if (hasExternalRecordings)
             {
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
+
                 foreach (var recording in recordings.Where(x => x.Status.IsOkStatusCode()))
                 {
                     recording.Status = hasExternalRecordings
@@ -14224,8 +14229,10 @@ namespace Core.ConditionalAccess
                     recording.RecordingStatus = tstvRecordingStatus;
                 }
             }
-            else
+            else if (!skipPostAction)
             {
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
+
                 foreach (var recording in recordings.Where(x => x.Status.IsOkStatusCode()))
                 {
                     recording.RecordingStatus = tstvRecordingStatus;
@@ -16485,7 +16492,7 @@ namespace Core.ConditionalAccess
                         }
                         else
                         {
-                            log.DebugFormat("BEO-9610: Can't record {0}", userRecording != null ? userRecording.ToString() : "null");
+                            log.DebugFormat("BEO-9610: Can't record epgId: {0}, domainId = {1} type: {2} status: {3}", epgId, domainId, seriesRecording.Type, userRecording != null ? userRecording.ToString() : "null");
                         }
                     }
                 }
@@ -16767,33 +16774,28 @@ namespace Core.ConditionalAccess
 
                         List<TstvRecordingStatus> validRecordingStatuses = new List<TstvRecordingStatus>() { TstvRecordingStatus.Recording, TstvRecordingStatus.Scheduled, TstvRecordingStatus.Recorded };
 
-                        // set max amount of concurrent tasks
-                        int maxDegreeOfParallelism = ApplicationConfiguration.Current.RecordingsMaxDegreeOfParallelism.Value;
-                        if (maxDegreeOfParallelism == 0)
+                        var idsToDelete = new List<long>();
+                        foreach (var _epg in epgMatch)
                         {
-                            maxDegreeOfParallelism = 5;
+                            var _item = domainRecordings.FirstOrDefault(x => x.Value.EpgId == (long)_epg.EpgID);
+                            if (!_item.Equals(default(KeyValuePair<long, Recording>)))
+                                idsToDelete.Add(_item.Key);
                         }
-                        ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
-                        ContextData contextData = new ContextData();
-                        Parallel.ForEach(epgMatch, options, (currentEpg) =>
-                        {
-                            contextData.Load();
-                            KeyValuePair<long, Recording> pair = domainRecordings.FirstOrDefault(x => x.Value.EpgId == (long)currentEpg.EpgID);
-                            //call cancelOrDelete if the recordings status is valid (Cancel possible only for recording/scheduled)
-                            if (pair.Value != null && pair.Value.Status.Code == (int)eResponseStatus.OK && validRecordingStatuses.Contains(pair.Value.RecordingStatus))
-                            {
-                                CancelOrDeleteRecord(userId, domainId, pair.Key, seriesStatus.Value, false);
-                            }
-                        });
+
+                        CancelOrDeleteRecordings(domainId, idsToDelete.ToArray(),
+                            seriesStatus.Value, long.Parse(userId), false, true);
                     }
                 }
             }
+
+            var updated = false;
 
             // mark the row in status = 2
             if (seasonNumber > 0) // need to insert new "record" series+ season to domain series recordings
             {
                 if (RecordingsDAL.InsertOrUpdateDomainSeriesExclude(m_nGroupID, domainId, userId, domainSeriesRecordingId, seasonNumber))
                 {
+                    updated = true;
                     seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                     log.DebugFormat("Series recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());
                 }
@@ -16805,6 +16807,7 @@ namespace Core.ConditionalAccess
             }
             else if (RecordingsDAL.CancelSeriesRecording(domainSeriesRecordingId))
             {
+                updated = true;
                 seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 log.DebugFormat("Series recording {0} has been updated to status {1}", seriesRecording.Id, tstvRecordingStatus.ToString());
             }
@@ -16812,6 +16815,21 @@ namespace Core.ConditionalAccess
             {
                 seriesRecording.Status = new ApiObjects.Response.Status((int)eResponseStatus.Error, "fail to perform cancel or delete");
                 log.ErrorFormat("fail to perform cancel or delete domainSeriesRecordingId = {1}, tstvRecordingStatus = {2}", domainSeriesRecordingId, tstvRecordingStatus.ToString());
+            }
+
+            if (updated)
+            {
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(m_nGroupID, domainId));
+
+                var contextData = new ContextData();
+                Task.Run(() =>
+                {
+                    contextData.Load();
+                    if (!CompleteDomainSeriesRecordings(domainId, true))
+                    {
+                        log.Error($"Failed {nameof(CompleteDomainSeriesRecordings)} in {nameof(CancelOrDeleteSeries)}: {nameof(domainId)}:{domainId}");
+                    }
+                });
             }
         }
 

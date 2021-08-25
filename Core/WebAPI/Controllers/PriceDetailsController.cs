@@ -32,7 +32,7 @@ namespace WebAPI.Controllers
             try
             {
                 Func<GenericListResponse<PriceDetails>> getListFunc = () =>
-                   PriceDetailsManager.Instance.GetPriceCodesDataByCurrency(groupId, filter != null ? filter.GetIdIn() : null, currency);
+                   PriceDetailsManager.Instance.GetPriceDetailsList(groupId, filter?.GetIdIn(), currency);
 
                 KalturaGenericListResponse<KalturaPriceDetails> response =
                     ClientUtils.GetResponseListFromWS<KalturaPriceDetails, PriceDetails>(getListFunc);
@@ -49,7 +49,6 @@ namespace WebAPI.Controllers
             return result;
         }
 
-
         /// <summary>
         /// Internal API !!! Insert new PriceDetails for partner
         /// </summary>
@@ -58,11 +57,8 @@ namespace WebAPI.Controllers
         /// <param name="priceDetails">PriceDetails Object</param>
         [Action("add")]
         [ApiAuthorize]
-        [Throws(eResponseStatus.CurrencyIsMissing)]
         [Throws(eResponseStatus.InvalidCurrency)]
-        [Throws(eResponseStatus.NameRequired)]
-        [Throws(eResponseStatus.PriceIsMissing)]
-        [Throws(eResponseStatus.AmountIsMissing)]
+        [Throws(eResponseStatus.CountryNotFound)]
         static public KalturaPriceDetails Add(KalturaPriceDetails priceDetails)
         {
             KalturaPriceDetails result = null;
@@ -75,7 +71,6 @@ namespace WebAPI.Controllers
             {
                 Func<PriceDetails, GenericResponse<PriceDetails>> insertPriceDetailsFunc = (PriceDetails priceDetailsToInsert) =>
                         PriceDetailsManager.Instance.Add(contextData, priceDetailsToInsert);
-
                 result = ClientUtils.GetResponseFromWS<KalturaPriceDetails, PriceDetails>(priceDetails, insertPriceDetailsFunc);
             }
             catch (ClientException ex)
@@ -106,6 +101,40 @@ namespace WebAPI.Controllers
             {
                 Func<Status> delete = () => PriceDetailsManager.Instance.Delete(contextData, id);
                 return ClientUtils.GetResponseStatusFromWS(delete);
+            }
+            catch (ClientException ex)
+            {
+                ErrorUtils.HandleClientException(ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// update existing PriceDetails
+        /// </summary>
+        /// <param name="id">id of priceDetails</param>
+        /// <param name="priceDetails">priceDetails to update</param>
+        /// <returns></returns>
+        [Action("update")]
+        [ApiAuthorize]
+        [Throws(eResponseStatus.InvalidCurrency)]
+        [Throws(eResponseStatus.CountryNotFound)]
+        [Throws(eResponseStatus.PriceDetailsDoesNotExist)]
+        [SchemeArgument("id", MinLong = 1)]
+        static public KalturaPriceDetails Update(long id, KalturaPriceDetails priceDetails)
+        {
+            KalturaPriceDetails result = null;
+            var contextData = KS.GetContextData();
+            priceDetails.ValidateForUpdate();
+
+            try
+            {
+                priceDetails.Id = (int)id;
+                Func<PriceDetails, GenericResponse<PriceDetails>> updateFunc = (PriceDetails priceDetailsToUpdate) =>
+                        PriceDetailsManager.Instance.Update(contextData, priceDetailsToUpdate);
+
+                result = ClientUtils.GetResponseFromWS<KalturaPriceDetails, PriceDetails>(priceDetails, updateFunc);
             }
             catch (ClientException ex)
             {

@@ -368,7 +368,7 @@ namespace Core.ConditionalAccess
                 try
                 {
                     // get the subscriptions modules
-                    var subscriptionsResponse = Core.Pricing.Module.GetSubscriptionsByProductCodes(groupId, subscriptionEntitlementsToInsert.Select(se => se.ProductCode).ToList());
+                    var subscriptionsResponse = Core.Pricing.Module.Instance.GetSubscriptionsByProductCodes(groupId, subscriptionEntitlementsToInsert.Select(se => se.ProductCode).ToList());
 
                     if (subscriptionsResponse != null && subscriptionsResponse.Status != null && subscriptionsResponse.Status.Code == (int)eResponseStatus.OK)
                     {

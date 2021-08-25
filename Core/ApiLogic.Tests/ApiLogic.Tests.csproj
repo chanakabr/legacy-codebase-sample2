@@ -22,7 +22,7 @@
     <PackageReference Include="JUnitTestLogger" Version="1.1.0" />
   </ItemGroup>
 
-  <ItemGroup>    
+  <ItemGroup>
     <ProjectReference Include="..\Logic\ApiLogic.csproj" />
   </ItemGroup>
 

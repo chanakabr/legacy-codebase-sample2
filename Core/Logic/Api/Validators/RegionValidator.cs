@@ -134,7 +134,7 @@ namespace ApiLogic.Api.Validators
 
             var filter = new RegionFilter { RegionIds = regionUniqueIds };
             var regionsResult = RegionManager.GetRegions(groupId, filter);
-            if (regionsResult.HasObjects())
+            if (regionsResult.IsOkStatusCode())
             {
                 foreach (var regionChannelNumber in regionChannelNumbers)
                 {
@@ -144,6 +144,10 @@ namespace ApiLogic.Api.Validators
                         listOfErrors.AddRange(consistencyErrors);
                     }
                 }
+            }
+            else
+            {
+                listOfErrors.Add($"Regions with id {string.Join(",", regionUniqueIds)} were not found.");
             }
 
             var status = listOfErrors.Any()
@@ -242,7 +246,7 @@ namespace ApiLogic.Api.Validators
             }
 
             var linearChannels = new HashSet<string>();
-            var lcns = new HashSet<string>();
+            var linearChannelNumbers = new HashSet<string>();
             foreach (var item in regionToValidate.linearChannels)
             {
                 if (!int.TryParse(item.key, out _))
@@ -255,18 +259,14 @@ namespace ApiLogic.Api.Validators
                     validationStatus = new Status(eResponseStatus.InputFormatIsInvalid, $"The channel number {item.value} is invalid");
                 }
 
-                if (linearChannels.Contains(item.key))
-                {
-                    validationStatus = new Status(eResponseStatus.DuplicateRegionChannel, $"Channel ID, {item.key}: the channel or its LCN already appears in this bouquet or one of its subbouquets.");
-                }
-
-                if (lcns.Contains(item.value))
+                if (linearChannels.Contains(item.key)
+                    || linearChannelNumbers.Contains(item.value))
                 {
                     validationStatus = new Status(eResponseStatus.DuplicateRegionChannel, $"Channel ID, {item.key}: the channel or its LCN already appears in this bouquet or one of its subbouquets.");
                 }
 
                 linearChannels.Add(item.key);
-                lcns.Add(item.value);
+                linearChannelNumbers.Add(item.value);
             }
 
             return validationStatus.IsOkStatusCode();
@@ -358,7 +358,7 @@ namespace ApiLogic.Api.Validators
                 var parentRegion = region.parentId > 0
                     ? RegionManager.GetRegion(groupId, region.parentId)
                     : null;
-                var channelNumberValidationResults = ValidateChannelNumbersAcrossRegions(groupId, linearChannelNumber, regionChannelNumber, parentRegion);
+                var channelNumberValidationResults = ValidateChannelNumbersAcrossRegions(groupId, linearChannelNumber, regionChannelNumber, Clone(region), parentRegion);
                 if (channelNumberValidationResults.Any())
                 {
                     listOfErrors.AddRange(channelNumberValidationResults);
@@ -368,12 +368,15 @@ namespace ApiLogic.Api.Validators
             return listOfErrors;
         }
 
-        private List<string> ValidateChannelNumbersAcrossRegions(int groupId, long linearChannelNumber, RegionChannelNumber regionChannelNumber, Region parentRegion)
+        private List<string> ValidateChannelNumbersAcrossRegions(int groupId, long linearChannelNumber, RegionChannelNumber regionChannelNumber, Region regionToUpdate, Region parentRegion)
         {
             var validationResults = new List<string>();
 
-            var regionToUpdate = new Region { id = regionChannelNumber.RegionId };
             regionToUpdate.linearChannels.Add(new ApiObjects.KeyValuePair(linearChannelNumber.ToString(), regionChannelNumber.ChannelNumber.ToString()));
+            if (regionToUpdate.linearChannels.Any(x => x.key != linearChannelNumber.ToString() && x.value == regionChannelNumber.ChannelNumber.ToString()))
+            {
+                validationResults.Add($"For the following channel, its LCN {regionChannelNumber.ChannelNumber} already appears in the region with id {regionToUpdate.id}.");
+            }
 
             if (HaveDuplicatedChannelsInParent(regionToUpdate, parentRegion, out var duplicatedParentChannelsMessage))
             {
@@ -393,7 +396,7 @@ namespace ApiLogic.Api.Validators
             try
             {
                 var assets = linearChannelIds.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, x)).ToList();
-                var allAssets = AssetManager.GetAssets(groupId, assets, true);
+                var allAssets = AssetManager.GetAssets(groupId, assets, true, false);
 
                 return allAssets?.Count == linearChannelIds.Count;
             }
@@ -403,6 +406,24 @@ namespace ApiLogic.Api.Validators
             }
 
             return false;
+        }
+
+        private Region Clone(Region region)
+        {
+            return region == null
+                ? null
+                : new Region
+                {
+                    id = region.id,
+                    name = region.name,
+                    externalId = region.name,
+                    isDefault = region.isDefault,
+                    linearChannels = region.linearChannels.Select(x => new ApiObjects.KeyValuePair(x.key, x.value)).ToList(),
+                    groupId = region.groupId,
+                    parentId = region.parentId,
+                    createDate = region.createDate,
+                    childrenCount = region.childrenCount
+                };
         }
     }
 }

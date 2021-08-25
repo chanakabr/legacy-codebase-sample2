@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Catalog.CatalogManagement.Repositories;
+using ApiObjects;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using KLogMonitor;
@@ -7,17 +8,25 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using ApiLogic.Catalog.CatalogManagement.Repositories;
+using System.Threading;
 using Tvinci.Core.DAL;
 using TvinciImporter;
 using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public class FileManager
+    public interface IFileManager
+    {
+        GenericListResponse<MediaFileType> GetMediaFileTypes(int groupId);
+    }
+
+    public class FileManager : IFileManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly ILabelRepository _labelRepository = new LabelRepository();
+
+        private static readonly Lazy<FileManager> lazy = new Lazy<FileManager>(() => new FileManager(), LazyThreadSafetyMode.PublicationOnly);
+        public static FileManager Instance { get { return lazy.Value; } }
 
         #region Private Methods
 
@@ -311,7 +320,7 @@ namespace Core.Catalog.CatalogManagement
         private static MediaFileType GetMediaFileType(int groupId, int id)
         {
             MediaFileType result = null;
-            GenericListResponse<MediaFileType> mediaFileTypesResponse = GetMediaFileTypes(groupId);
+            GenericListResponse<MediaFileType> mediaFileTypesResponse = Instance.GetMediaFileTypes(groupId);
             if (mediaFileTypesResponse != null &&
                 mediaFileTypesResponse.Status != null &&
                 mediaFileTypesResponse.Status.Code == (int)eResponseStatus.OK &&
@@ -457,7 +466,7 @@ namespace Core.Catalog.CatalogManagement
 
         #region Public Methods
 
-        public static GenericListResponse<MediaFileType> GetMediaFileTypes(int groupId)
+        public GenericListResponse<MediaFileType> GetMediaFileTypes(int groupId)
         {
             GenericListResponse<MediaFileType> response = new GenericListResponse<MediaFileType>();
             try

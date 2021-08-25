@@ -39,6 +39,40 @@ namespace Core.Pricing
             this.m_tsNonRenewPeriod = nNonRenewingPeriod;
             this.alias = alias;
         }
+
+        public bool IsNeedToUpdate(PreviewModule oldPv)
+        {
+            bool needToUpdate = false;
+
+            if (!string.IsNullOrEmpty(m_sName) && !m_sName.Equals(oldPv.m_sName))
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                m_sName = oldPv.m_sName;
+            }
+
+            if (m_tsFullLifeCycle > 0 && m_tsFullLifeCycle != oldPv.m_tsFullLifeCycle)
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                m_tsFullLifeCycle = oldPv.m_tsFullLifeCycle;
+            }
+
+            if (m_tsNonRenewPeriod > 0 && m_tsNonRenewPeriod != oldPv.m_tsNonRenewPeriod)
+            {
+                needToUpdate = true;
+            }
+            else
+            {
+                m_tsNonRenewPeriod = oldPv.m_tsNonRenewPeriod;
+            }
+
+            return needToUpdate;
+        }
     }
 
 }

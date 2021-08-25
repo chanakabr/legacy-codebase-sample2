@@ -358,7 +358,7 @@ namespace Core.Catalog
                 // FILES
                 if (systemNameToExcelAttribute.ContainsKey(MediaAsset.FILES))
                 {
-                    var mediaFileTypesListResponse = FileManager.GetMediaFileTypes(groupId);
+                    var mediaFileTypesListResponse = FileManager.Instance.GetMediaFileTypes(groupId);
                     if (mediaFileTypesListResponse.HasObjects())
                     {
                         var fileSystemNameToExcelAttribute = ExcelManager.GetSystemNameToProperyData(typeof(AssetFile));

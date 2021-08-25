@@ -228,9 +228,9 @@ namespace Core.Pricing
                 int nFileTypeID = 0;
                 nFileTypeID = Api.Module.GetMediaFileTypeID(m_nGroupID, nMediaFileID);
 
-
                 //get from DB subscription List
                 DataSet ds = PricingDAL.Get_SubscriptionsList(m_nGroupID, nFileTypeID);
+
                 if (ds == null || ds.Tables == null || ds.Tables.Count == 0) //no data return 
                     return null;
 
@@ -304,7 +304,7 @@ namespace Core.Pricing
             }
 
             response.Ids = lSubs.OrderBy(x => x.Value).Select(y => y.Key).ToList();
-            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString()); 
+            response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
             return response;
         }
 

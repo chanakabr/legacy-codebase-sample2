@@ -567,7 +567,7 @@ namespace Core.ConditionalAccess
                 }
 
                 Subscription s = null;
-                s = Core.Pricing.Module.GetSubscriptionData(groupId, newSubscriptionCode.ToString(), string.Empty, string.Empty, string.Empty, false, userId);
+                s = Core.Pricing.Module.Instance.GetSubscriptionData(groupId, newSubscriptionCode.ToString(), string.Empty, string.Empty, string.Empty, false, userId);
                 if (s == null || string.IsNullOrEmpty(s.m_SubscriptionCode))
                 {
                     log.Debug("SwapSubscription - New Subscription ID: " + newSubscriptionCode + " was not found. Subscription was not changed");
@@ -705,7 +705,7 @@ namespace Core.ConditionalAccess
                     }
                 }
 
-                SubscriptionsResponse subscriptionsResponse = Pricing.Module.GetSubscriptions(groupId, subscriptionIds, string.Empty, string.Empty, string.Empty,
+                SubscriptionsResponse subscriptionsResponse = Pricing.Module.Instance.GetSubscriptions(groupId, subscriptionIds, string.Empty, string.Empty, string.Empty,
                     new AssetSearchDefinition() { UserId = long.Parse(userId), IsAllowedToViewInactiveAssets = true });
 
                 if (subscriptionsResponse != null &&

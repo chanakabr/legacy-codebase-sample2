@@ -669,7 +669,7 @@ namespace Core.ConditionalAccess
             long purchaseId = 0;
 
             PPVModule thePPVModule = Core.Pricing.Module.GetPPVModuleData(groupId, sPPVModuleCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME);
-            Subscription relevantSub = Core.Pricing.Module.GetSubscriptionData(groupId, sSubCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
+            Subscription relevantSub = Core.Pricing.Module.Instance.GetSubscriptionData(groupId, sSubCode, sCountryCd, sLANGUAGE_CODE, sDEVICE_NAME, false);
 
             Int32 nMediaID = Utils.GetMediaIDFromFileID(nMediaFileID, groupId);
 

@@ -730,7 +730,7 @@ namespace Core.ConditionalAccess
                 Subscription subscription = null;
                 try
                 {
-                    subscription = Core.Pricing.Module.GetSubscriptionData(groupId, productId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                    subscription = Core.Pricing.Module.Instance.GetSubscriptionData(groupId, productId.ToString(), string.Empty, string.Empty, string.Empty, false);
                 }
                 catch (Exception ex)
                 {
@@ -2392,7 +2392,7 @@ namespace Core.ConditionalAccess
 
             try
             {
-                subscription = Pricing.Module.GetSubscriptionData(groupId, productId.ToString(), string.Empty, string.Empty, string.Empty, false);
+                subscription = Pricing.Module.Instance.GetSubscriptionData(groupId, productId.ToString(), string.Empty, string.Empty, string.Empty, false);
             }
             catch (Exception ex)
             {

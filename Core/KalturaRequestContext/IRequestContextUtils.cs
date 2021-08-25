@@ -9,5 +9,6 @@ namespace KalturaRequestContext
         string GetUdid();
         string GetUserIp();
         void SetIsPartnerRequest();
+        bool IsImpersonateRequest();
     }
 }

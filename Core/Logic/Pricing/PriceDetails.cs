@@ -1,5 +1,4 @@
-﻿using ApiObjects;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Core.Pricing
@@ -7,9 +6,12 @@ namespace Core.Pricing
     [Serializable]
     public class PriceDetails
     {
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public List<Price> Prices { get; set; }
+
         public PriceDetails()
         {
-
         }
 
         public PriceDetails(PriceDetails pc)
@@ -24,16 +26,5 @@ namespace Core.Pricing
                 Prices.Add(new Price(item));
             }
         }
-
-        public string Name { get; set; }
-        public long Id { get; set; }
-        public List<Price> Prices { get; set; }
-    }
-
-    public class PriceDetailsResponse
-    {
-        public List<PriceDetails> PriceCodes { get; set; }
-
-        public ApiObjects.Response.Status Status { get; set; }
     }
 }

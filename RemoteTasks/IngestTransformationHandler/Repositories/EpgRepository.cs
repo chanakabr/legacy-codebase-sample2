@@ -1,15 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using ApiObjects.BulkUpload;
-using ApiObjects.SearchObjects;
 using Core.Catalog;
-using Core.Catalog.CatalogManagement;
-using Core.Social.Requests;
-using ElasticSearch.Common;
-using ElasticSearch.Searcher;
 using KLogMonitor;
-using Newtonsoft.Json.Linq;
 using ESUtils = ElasticSearch.Common.Utils;
 
 namespace IngestTransformationHandler.Repositories
@@ -17,6 +12,8 @@ namespace IngestTransformationHandler.Repositories
     public interface IEpgRepository
     {
         IList<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(int groupId, int channelId, DateTime fromDate, DateTime toDate);
+
+        EpgProgramInfo[] GetCurrentProgramInfosByDate(int groupId, int channelId, DateTime fromDate, DateTime toDate);
     }
 
     public class EpgRepository : IEpgRepository
@@ -32,6 +29,11 @@ namespace IngestTransformationHandler.Repositories
         public IList<EpgProgramBulkUploadObject> GetCurrentProgramsByDate(int groupId, int channelId, DateTime fromDate, DateTime toDate)
         {
             return _indexManagerFactory.GetIndexManager(groupId).GetCurrentProgramsByDate(channelId, fromDate, toDate);
+        }
+
+        public EpgProgramInfo[] GetCurrentProgramInfosByDate(int groupId, int channelId, DateTime fromDate, DateTime toDate)
+        {
+            return _indexManagerFactory.GetIndexManager(groupId).GetCurrentProgramInfosByDate(channelId, fromDate, toDate).ToArray();
         }
     }
 }

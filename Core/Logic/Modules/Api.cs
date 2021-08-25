@@ -2027,7 +2027,8 @@ namespace Core.Api
                             Id = segmentationType.Id,
                             Name = segmentationType.Name,
                             Description = segmentationType.Description,
-                            UserId = userId
+                            UserId = userId,
+                            IsActive = true
                         };
 
                         var res = api.Instance.AddVirtualAsset(groupId, virtualAssetInfo);

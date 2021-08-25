@@ -40,6 +40,7 @@ namespace IngestTransformationHandler
         private BulkUploadIngestJobData _jobData;
         private BulkUploadEpgAssetData _objectData;
         private IDictionary<string,LanguageObj> _languages;
+        private LanguagesInfo _languagesInfo;
         private LanguageObj _defaultLanguage;
 
         private IngestProfile _ingestProfile;
@@ -95,7 +96,7 @@ namespace IngestTransformationHandler
                 SetDatesOfIngestToJobData(CalculateIngestDates(_bulUpload.Results));
                 AcquireLockOnIngestRange();
 
-                var crudOperations = _crudOperationsManager.CalculateCRUDOperations(_bulUpload, _ingestProfile.DefaultOverlapPolicy, _ingestProfile.DefaultAutoFillPolicy);
+                var crudOperations = _crudOperationsManager.CalculateCRUDOperations(_bulUpload, _ingestProfile.DefaultOverlapPolicy, _ingestProfile.DefaultAutoFillPolicy, _languagesInfo);
                 if (_bulUpload.Results.Any(r => r.Errors?.Any() == true))
                 {
                     _bulUpload.AddError(eResponseStatus.Error, "error while trying to calculate required changes to Epg, see results for more information");
@@ -173,6 +174,11 @@ namespace IngestTransformationHandler
             _bulUpload.UpdaterId = serviceEvent.UserId;
             
             _languages = BulkUploadMethods.GetGroupLanguages(_eventData.GroupId, out _defaultLanguage);
+            _languagesInfo = new LanguagesInfo
+            {
+                Languages = _languages,
+                DefaultLanguage = _defaultLanguage
+            };
         }
 
         private Status ValidateBulkUpload()

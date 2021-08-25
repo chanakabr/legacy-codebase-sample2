@@ -70,8 +70,13 @@ namespace Core.Api
         int GetDeviceFamilyIdByUdid(int domainId, int groupId, string udid);
         Dictionary<string, int> GetDomainDevices(int domainId, int groupId);
     }
-
-    public class api : IVirtualAssetManager, IDeviceFamilyManager
+    
+    public interface ICountryManager
+    {
+        Dictionary<int, Country> GetCountryMapById(int groupId);
+    }
+    
+    public class api : IVirtualAssetManager, IDeviceFamilyManager, ICountryManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -9760,7 +9765,7 @@ namespace Core.Api
             return result;
         }
 
-        public static List<Country> GetCountryListByIds(List<int> countryIds, int groupId)
+        public static List<Country> GetCountryListByIds(int groupId, List<int> countryIds = null)
         {
             List<Country> countries = null;
             try
@@ -9790,10 +9795,23 @@ namespace Core.Api
             return countries;
         }
 
+        public Dictionary<int, Country> GetCountryMapById(int groupId)
+        {
+            var countryMap = new Dictionary<int, Country>();
+            List<Country> allCountries = GetCountryListByIds(groupId);
+            if (allCountries == null)
+            {
+                log.Warn($"could not get Country list for groupId:{groupId}");
+                return countryMap;
+            }
+            countryMap = allCountries.ToDictionary(x => x.Id);
+            return countryMap;
+        }
+
         public static CountryLocaleResponse GetCountryLocaleList(List<int> countryIds, int groupId = 0)
         {
             CountryLocaleResponse result = new CountryLocaleResponse();
-            List<Country> countries = GetCountryListByIds(countryIds, groupId);
+            List<Country> countries = GetCountryListByIds(groupId, countryIds);
 
             Dictionary<int, CountryLocale> countriesLocaleMap = null;
             if (groupId > 0)
@@ -11950,6 +11968,8 @@ namespace Core.Api
 
                 string filter = $"(and {structFilter} {assetSearchDefinition.Filter} {assetFilter} {filterIds})";
 
+                objectVirtualAssetFilter.Filterd = true;
+
                 var assets = SearchAssetsExtended(groupId, filter, pageIndex, pageSize, true, 0, true, string.Empty, string.Empty,
                     assetSearchDefinition.UserId.ToString(), 0, 0, true, assetSearchDefinition.IsAllowedToViewInactiveAssets,
                     extraReturnFields, order);
@@ -11958,7 +11978,6 @@ namespace Core.Api
                 {
                     objectVirtualAssetFilter.TotalItems = assets.m_nTotalItems;
                     objectVirtualAssetFilter.ObjectIds = new List<long>();
-                    long objectId = 0;
                     ExtendedSearchResult esr;
 
                     foreach (var item in assets.searchResults)
@@ -11966,7 +11985,7 @@ namespace Core.Api
                         esr = (ExtendedSearchResult)item;
                         string oId = GetStringParamFromExtendedSearchResult(esr, extraReturnFields[0]);
 
-                        if (long.TryParse(oId, out objectId))
+                        if (long.TryParse(oId, out long objectId))
                         {
                             if (objectIds == null || objectIds.Count == 0 || objectIds.Contains(objectId))
                             {

@@ -426,7 +426,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Pricing.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Pricing.Module.GetSubscriptionData(nGroupID, sSubscriptionCode, sCountryCd2, sLanguageCode3, sDeviceName, bGetAlsoUnActive);
+                return Core.Pricing.Module.Instance.GetSubscriptionData(nGroupID, sSubscriptionCode, sCountryCd2, sLanguageCode3, sDeviceName, bGetAlsoUnActive);
             }
             else
             {
@@ -1220,7 +1220,7 @@ namespace WebAPI.WebServices
                     }
                 }
 
-                return Core.Pricing.Module.GetSubscriptions(nGroupID, subIds, sCountryCd2, sLanguageCode3, sDeviceName, null, orderBy);
+                return Core.Pricing.Module.Instance.GetSubscriptions(nGroupID, subIds, sCountryCd2, sLanguageCode3, sDeviceName, null, orderBy);
             }
             else
             {
@@ -1291,7 +1291,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Pricing.Utils.GetGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                var res = Core.Pricing.Module.GetSubscriptionsByProductCodes(nGroupID, productCodes);
+                var res = Core.Pricing.Module.Instance.GetSubscriptionsByProductCodes(nGroupID, productCodes);
                 if (res != null)
                 {
                     response = res.Subscriptions;

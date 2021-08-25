@@ -16,6 +16,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.IndexManager.Mappings;
 using TVinciShared;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 
@@ -39,6 +40,7 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<IWatchRuleManager> _mockWatchRuleManager;
         private Mock<IChannelQueryBuilder> _mockChannelQueryBuilder;
         private Mock<IApplicationConfiguration> _mockApplicationConfiguration;
+        private Mock<IMappingTypeResolver> _mockMappingTypeResolver;
 
         [SetUp]
         public void SetUp()
@@ -55,6 +57,7 @@ namespace ApiLogic.Tests.IndexManager
             _mockApplicationConfiguration = _mockRepository.Create<IApplicationConfiguration>();
             _mockChannelQueryBuilder = _mockRepository.Create<IChannelQueryBuilder>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance, _mockApplicationConfiguration.Object);
+            _mockMappingTypeResolver = _mockRepository.Create<IMappingTypeResolver>();
         }
 
 
@@ -85,8 +88,9 @@ namespace ApiLogic.Tests.IndexManager
                 _mockChannelManager.Object,
                 _mockCatalogCache.Object,
                 _mockWatchRuleManager.Object,
-                _mockChannelQueryBuilder.Object
-                );
+                _mockChannelQueryBuilder.Object,
+                _mockMappingTypeResolver.Object
+            );
 
             var groupBy = KeyValuePair.Create("content_reference_id", "content_reference_id.name.in.elastic");
             var unifiedSearchDefinitions = new UnifiedSearchDefinitions

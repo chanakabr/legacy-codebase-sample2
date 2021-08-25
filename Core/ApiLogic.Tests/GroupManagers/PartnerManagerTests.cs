@@ -60,7 +60,7 @@ namespace ApiLogic.Tests.GroupManagers
                                              Mock.Of<IUserPartnerRepository>(), 
                                              Mock.Of<IBillingPartnerRepository>(), 
                                              Mock.Of<ICAPartnerRepository>(),
-                                             Mock.Of<IIndexManager>());
+                                             Mock.Of<IIndexManagerFactory>());
 
 
             var response = manager.GetPartners(partnerIds);
@@ -133,7 +133,7 @@ namespace ApiLogic.Tests.GroupManagers
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object, 
                                             caPartnerRepository.Object,
-                                            Mock.Of<IIndexManager>());
+                                            Mock.Of<IIndexManagerFactory>());
 
 
             Assert.Throws<AggregateException>(() => manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
@@ -176,7 +176,7 @@ namespace ApiLogic.Tests.GroupManagers
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object,
                                             caPartnerRepository.Object,
-                                            Mock.Of<IIndexManager>());
+                                            Mock.Of<IIndexManagerFactory>());
 
             Assert.Throws<Exception>(() => manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
                 fixture.Create<ApiObjects.PartnerSetup>(), fixture.Create<long>()));
@@ -207,7 +207,7 @@ namespace ApiLogic.Tests.GroupManagers
                                              Mock.Of<IUserPartnerRepository>(),
                                              Mock.Of<IBillingPartnerRepository>(),
                                              Mock.Of<ICAPartnerRepository>(),
-                                             Mock.Of<IIndexManager>());
+                                             Mock.Of<IIndexManagerFactory>());
 
             var partner = new ApiObjects.Partner { Id = 1, Name = "Abc" };
             var partnerResponse = manager.AddPartner(partner,
@@ -262,7 +262,7 @@ namespace ApiLogic.Tests.GroupManagers
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object, 
                                             caPartnerRepository.Object,
-                                            Mock.Of<IIndexManager>());
+                                            Mock.Of<IIndexManagerFactory>());
 
 
             var partnerResponse = manager.AddPartner(fixture.Create<ApiObjects.Partner>(),
@@ -324,7 +324,7 @@ namespace ApiLogic.Tests.GroupManagers
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object,
                                             caPartnerRepository.Object,
-                                            Mock.Of<IIndexManager>());
+                                            Mock.Of<IIndexManagerFactory>());
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
 
@@ -376,7 +376,7 @@ namespace ApiLogic.Tests.GroupManagers
                                             userPartnerRepository.Object,
                                             billingPartnerRepository.Object,
                                             caPartnerRepository.Object,
-                                            Mock.Of<IIndexManager>());
+                                            Mock.Of<IIndexManagerFactory>());
 
             var response = manager.Delete(fixture.Create<long>(), fixture.Create<int>());
 

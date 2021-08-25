@@ -1,4 +1,5 @@
-﻿using CachingProvider.LayeredCache;
+﻿
+using CachingProvider.LayeredCache;
 using Moq;
 using System;
 using System.Collections.Generic;

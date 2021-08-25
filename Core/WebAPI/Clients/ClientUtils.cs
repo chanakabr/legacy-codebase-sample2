@@ -306,5 +306,34 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal static U GetResponseFromWS<U, T>(Func<T> funcInWS)
+            where U : KalturaOTTObject where T : class
+        {
+            U result = null;
+            T response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = funcInWS();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while calling catalog service.", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException(StatusCode.Error);
+            }
+
+            result = AutoMapper.Mapper.Map<U>(response);
+
+            return result;
+        }
     }
 }

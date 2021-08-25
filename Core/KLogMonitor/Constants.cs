@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace KLogMonitor
+﻿namespace KLogMonitor
 {
     public class Constants
     {
@@ -48,5 +43,7 @@ namespace KLogMonitor
         // http context
         public const string PRIVILIGES = "priviliges";
 
+        // http headers
+        public const string SESSION_ID_KEY = "x-kaltura-session-id";
     }
 }
