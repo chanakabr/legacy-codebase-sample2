@@ -343,7 +343,7 @@ namespace Core.Catalog
                 }
 
                 definitions.isGroupingOptionInclude = request.searchGroupBy != null && request.searchGroupBy.isGroupingOptionInclude;
-                definitions.trendingAssetWindow = request.order.trendingAssetWindow;
+                definitions.trendingAssetWindow = request.order?.trendingAssetWindow;
                 #endregion
 
                 #region Get Recordings
