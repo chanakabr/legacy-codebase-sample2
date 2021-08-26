@@ -15,9 +15,6 @@ namespace ConfigurationManager
         public BaseValue<int> MaxStatSortResults = new BaseValue<int>("max_stat_sort_results",0);
         public BaseValue<int> StatSortBulkSize = new BaseValue<int>("stat_sort_bulk_size", 5000);
 
-        public BaseValue<bool> ShouldUseClassAnalyzerDefinitions = new BaseValue<bool>("should_use_class_analyzer_definitions", false);
-
-
         public override string TcmKey => TcmObjectKeys.ElasticSearchConfiguration;
 
         public override string[] TcmPath => new string[] { TcmKey };

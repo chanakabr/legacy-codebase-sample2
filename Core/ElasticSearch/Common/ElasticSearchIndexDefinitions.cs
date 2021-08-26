@@ -97,31 +97,19 @@ namespace ElasticSearch.Common
                     break;
             }
 
-            if (_configuration.ElasticSearchConfiguration.ShouldUseClassAnalyzerDefinitions.Value)
-            {
-                // TODO: future implementation
-            }
-            else
-            {
-                string tcmKey = Utils.GetLangCodeAnalyzerKey(languageCode, versionString);
-                string analyzerString = GetAnalyzerDefinition(tcmKey);
+            string tcmKey = Utils.GetLangCodeAnalyzerKey(languageCode, versionString);
+            string analyzerString = GetAnalyzerDefinition(tcmKey);
 
-                if (string.IsNullOrEmpty(analyzerString))
-                {
-                    return result;
-                }
-
-                string jsonAnalyzerString = $"{{{analyzerString}}}";
-                result = JsonConvert.DeserializeObject<Dictionary<string, Analyzer>>(jsonAnalyzerString);
+            if (string.IsNullOrEmpty(analyzerString))
+            {
+                return result;
             }
+
+            string jsonAnalyzerString = $"{{{analyzerString}}}";
+            result = JsonConvert.DeserializeObject<Dictionary<string, Analyzer>>(jsonAnalyzerString);
 
             return result;
         }
-
-        //public List<Tokenizer> GetTokenizers(ElasticsearchVersion version, string languageCode)
-        //{
-        //    throw new NotImplementedException();
-        //}
 
         public Dictionary<string, Filter> GetFilters(ElasticsearchVersion version, string languageCode)
         {
@@ -210,7 +198,6 @@ namespace ElasticSearch.Common
                     default:
                         break;
                 }
-
             }
 
             return result;
