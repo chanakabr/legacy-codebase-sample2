@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using ApiObjects.Response;
 using Microsoft.AspNetCore.Http;
@@ -46,14 +47,28 @@ namespace Phoenix.Rest.Middleware.Metrics
             // Please, note that we're not parsing MultiRequest inner structure.
             // So, it'll look like code="200" method="POST" service="multirequest" action="".
             var (code, message) = ExtractCode(context);
+            var path = ExtractPath(context);
             return new[]
             {
                 context.Response.StatusCode.ToString().ToLowerInvariant(),
                 code.ToString(),
                 message,
                 (context.Request.Method ?? string.Empty).ToLowerInvariant(),
-                context.Request.Path.ToString().ToLowerInvariant()
+                path
             };
+        }
+
+        private static string ExtractPath(HttpContext context)
+        {
+            // it's possible to send custom "pathData"
+            // e.g. "/api_v3/service/system/action/getVersion/customId/1483/anotherOne/20210820"
+            // it'll generate a lot of unique paths.
+            // that's why only main part is taken /service/{xxx}/action/{yyy} or /service/{xxx} 
+            const int phoenixPathMainParts = 5;
+            var parts = context.Request.Path.Value
+                .ToLowerInvariant()
+                .Split("/", StringSplitOptions.RemoveEmptyEntries);
+            return "/" + string.Join('/', parts.Take(Math.Min(parts.Length, phoenixPathMainParts)));
         }
 
         private static (int code, string message) ExtractCode(HttpContext context)
