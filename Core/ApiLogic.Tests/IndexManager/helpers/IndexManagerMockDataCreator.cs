@@ -74,7 +74,7 @@ namespace ApiLogic.Tests.IndexManager.helpers
             var language = new ApiObjects.LanguageObj()
             {
                 ID = _random.Next(1000) + 1,
-                Code = "en",
+                Code = "eng",
                 Name = "english",
                 IsDefault = true,
             };

@@ -24,6 +24,7 @@ namespace ElasticSearch.Searcher.Settings
 
         public KuromojiTokenizer()
         {
+            this.type = "kuromoji_tokenizer";
         }
     }
 }

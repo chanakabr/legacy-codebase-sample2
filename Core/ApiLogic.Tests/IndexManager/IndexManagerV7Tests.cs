@@ -928,5 +928,56 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsNotEmpty(epgProgramBulkUploadObjects);
             Assert.AreEqual(epgId, epgProgramBulkUploadObjects[0].EpgId);
         }
+
+        [Test]
+        public void Test3Languages()
+        {
+            var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
+            var language = IndexManagerMockDataCreator.GetEnglishLanguageWithRandomId();
+            var languageRus = new ApiObjects.LanguageObj()
+            {
+                ID = language.ID + 1,
+                Code = "rus",
+                Name = "Russian",
+                IsDefault = false,
+            };
+            var languageJap = new ApiObjects.LanguageObj()
+            {
+                ID = language.ID + 2,
+                Code = "jap",
+                Name = "Japanese",
+                IsDefault = false,
+            };
+            var languageObjs = new List<LanguageObj>() { language, languageRus, languageJap }.ToDictionary(x => x.Code);
+            IndexManagerMockDataCreator.SetupOpcPartnerMocks(partnerId, new[] { language, languageRus, languageJap },
+                ref _mockCatalogManager);
+            var indexManager = GetIndexV7Manager(partnerId);
+
+            var indexName = indexManager.SetupMediaIndex();
+
+            var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
+            randomMedia.m_sName = "multilingualName eng";
+
+            var randomMediaRus = randomMedia.Clone();
+            randomMediaRus.m_sName = "multilingualName rus";
+
+            var randomMediaJap = randomMedia.Clone();
+            randomMediaJap.m_sName = "multilingualName jap";
+
+            var innerDictionary = new Dictionary<int, ApiObjects.SearchObjects.Media>() { };
+            innerDictionary[language.ID] = randomMedia;
+            innerDictionary[languageRus.ID] = randomMediaRus;
+            innerDictionary[languageJap.ID] = randomMediaJap;
+
+            _mockCatalogManager
+                .Setup(x => x.GetGroupMedia(It.IsAny<int>(), randomMedia.m_nMediaID))
+                .Returns(innerDictionary);
+
+            var dictionary = new Dictionary<int, Dictionary<int, Media>>();
+            dictionary[randomMedia.m_nMediaID] = innerDictionary;
+            indexManager.InsertMedias(dictionary, indexName);
+
+            indexManager.PublishMediaIndex(indexName, true, true);
+        }
     }
 }

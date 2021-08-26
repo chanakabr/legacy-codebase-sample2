@@ -25,6 +25,7 @@ services:
       - sh
       - -c
       - "bin/elasticsearch-plugin install analysis-icu; 
+         bin/elasticsearch-plugin install analysis-kuromoji; 
          /usr/local/bin/docker-entrypoint.sh elasticsearch"
     
     volumes:
