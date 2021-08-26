@@ -151,7 +151,7 @@ namespace ApiLogic.Tests.IndexManager.helpers
             epgCb.Name = name == string.Empty ? "la movie" : name;
             epgCb.Description = description == "" ? "this is the movie description" : description;
             epgCb.EpgID = (ulong) epgId;
-            epgCb.Language = "en";
+            epgCb.Language = "eng";
             epgCb.CreateDate= DateTime.Now.ToUniversalTime();
             epgCb.EndDate = startDate.HasValue ? startDate.Value : DateTime.Now.AddDays(1).ToUniversalTime();
             epgCb.StartDate=startDate ??DateTime.Now.ToUniversalTime();

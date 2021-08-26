@@ -3934,8 +3934,8 @@ namespace Core.Catalog
                 {
                     propertiesDescriptor.Keyword(t => 
                         InitializeTextField<T>(field, propertiesDescriptor, 
-                            $"{defaultLanguageCode}_{DEFAULT_INDEX_ANALYZER}", $"{defaultLanguageCode}_{DEFAULT_SEARCH_ANALYZER}", 
-                            $"{defaultLanguageCode}_{DEFAULT_AUTOCOMPLETE_ANALYZER}", $"{defaultLanguageCode}_{DEFAULT_AUTOCOMPLETE_SEARCH_ANALYZER}", false));
+                            DEFAULT_INDEX_ANALYZER, DEFAULT_SEARCH_ANALYZER, 
+                            DEFAULT_AUTOCOMPLETE_ANALYZER, DEFAULT_AUTOCOMPLETE_SEARCH_ANALYZER, false));
                 }
             }
 

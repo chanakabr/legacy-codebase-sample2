@@ -910,8 +910,7 @@ namespace ApiLogic.Tests.IndexManager
                 Crid = $"2{epgId}",
                 GroupID = partnerId,
                 ParentGroupID = partnerId,
-                Language = "en"
-
+                Language = "eng"
             };
 
             _mockCatalogCache.Setup(x => x.GetLinearChannelSettings(It.IsAny<int>(), It.IsAny<List<string>>()))
