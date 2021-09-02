@@ -75,25 +75,29 @@ namespace Core.ConditionalAccess
 
                 if (assetType == eAssetTypes.NPVR || assetType == eAssetTypes.EPG)
                 {
-                    // check permissions                     
-                    bool permittedEpg = RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_EPG);
-                    bool permittedRecording = RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_RECORDING);
-
-                    if (validationStatus.Code != (int)eResponseStatus.OK)
+                    if (validationStatus.Code == (int)eResponseStatus.UserSuspended || validationStatus.Code == (int)eResponseStatus.OK)
                     {
-                        if (validationStatus.Code == (int)eResponseStatus.UserSuspended)
+                        // check permissions                     
+                        bool permittedEpg = RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_EPG);
+                        bool permittedRecording = RolesPermissionsManager.Instance.IsPermittedPermission(groupId, userId, RolePermissions.PLAYBACK_RECORDING);
+                        if ((assetType == eAssetTypes.NPVR && !permittedRecording) || (assetType == eAssetTypes.EPG && !permittedEpg))
                         {
-                            if ((assetType == eAssetTypes.NPVR && !permittedRecording) || (assetType == eAssetTypes.EPG && !permittedEpg))
+                            if (validationStatus.Code == (int)eResponseStatus.UserSuspended)
                             {
                                 return HandleUserSuspended(groupId, userId, assetId, assetType, response, domainId);
                             }
+                            else
+                            {
+                                response.Status = new ApiObjects.Response.Status((int)eResponseStatus.NotAllowed, "Action not allowed");
+                                return response;
+                            }
                         }
-                        else
-                        {
-                            log.DebugFormat("User or domain not valid, groupId = {0}, userId: {1}, domainId = {2}", groupId, userId, domainId);
-                            response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
-                            return response;
-                        }
+                    }
+                    else
+                    {
+                        log.DebugFormat("User or domain not valid, groupId = {0}, userId: {1}, domainId = {2}", groupId, userId, domainId);
+                        response.Status = new ApiObjects.Response.Status(validationStatus.Code, validationStatus.Message);
+                        return response;
                     }
                 }
 
