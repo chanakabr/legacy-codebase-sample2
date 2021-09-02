@@ -1,7 +1,7 @@
 /* This describes a single list, the duallist, well.. uses two of these */
 var List = function (listId, listTitle, pageName, withCalendar, dualListParent, WithOrderByButtons, withQuota) {
     var listComponentId = listId;
-    var listComponentTitle = listTitle;    
+    var listComponentTitle = listTitle;
     var listWrapper, listItems, listItemsArray, quickSearchInput;
     var listParent = dualListParent;
 
@@ -110,7 +110,7 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                     //       // new NumberField(items[i], listLiItem);
                     //    }
                     //}
-                    
+
                     if (WithOrderByButtons === true) {
                         if (toChangeStatus === true) {
                             var liItems = listItems.children;
@@ -146,7 +146,7 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                         listLiItem.childNodes[0].style.width = "100%";
                     }
                     else {
-                        listLiItem.childNodes[0].className = "ppvm-text-withButtons";                        
+                        listLiItem.childNodes[0].className = "ppvm-text-withButtons";
                     }
 
                     $(listLiItem).hide();
@@ -164,8 +164,7 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                         if (withCalendar === true) {
                             new Calendar(items[i], listLiItem, pageName);
                         }
-                        else if (withQuota === true)
-                        {
+                        else if (withQuota === true) {
                             var numbervalue = items[i].NumberField;
                             if (numbervalue >= 0) {
                                 new NumberField(items[i], listLiItem, pageName, toChangeStatus);
@@ -184,7 +183,7 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
         }
     };
 
-    var removeItemsFromList = function (itemsId, toRemoveAllItems,listType) {
+    var removeItemsFromList = function (itemsId, toRemoveAllItems, listType) {
         if (toRemoveAllItems) {
             while (listItems.firstChild) {
                 listItems.removeChild(listItems.firstChild);
@@ -194,19 +193,33 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
             if (itemsId && itemsLength) {
                 var liItems = listItems.children;
                 var liItemsLength = liItems.length;
+                var deleteOrderNum = NaN;
                 for (var j = 0; j < liItemsLength; j++) {
-                    var liItem = liItems[j];
+                    var liItem = liItems[j];                  
                     if ($(liItem).data('id') && itemsId.indexOf(parseInt($(liItem).data('id'))) !== -1) {
+
+                        var hideItem = liItem;
+
                         var direction = 'right';
                         if (listType == 'add') {
                             direction = 'left';
                         }
-                        $(liItem).hide("slide", { direction: direction }, 800, function () {
-                            $($(liItem)[0].nextSibling).remove();
-                            $(liItem).remove();
+                        $(hideItem).hide("slide", { direction: direction }, 800, function () {
+                            $($(hideItem)[0].nextSibling).remove();
+                            $(hideItem).remove();
                         });
-                        
-                        break;
+
+                        deleteOrderNum = liItem.getAttribute("data-orderNum");
+                    }
+
+                    if (!isNaN(deleteOrderNum) && deleteOrderNum < liItem.getAttribute("data-orderNum")) {
+                        var currentItemOrderNum = liItem.getAttribute("data-orderNum");
+                        liItem.innerHTML = liItem.innerHTML.replace("#" + currentItemOrderNum, "#" + deleteOrderNum);
+                        liItem.innerHTML = liItem.innerHTML.replace("#" + currentItemOrderNum, "#" + deleteOrderNum);
+                        liItem.setAttribute("data-orderNum", deleteOrderNum);
+                        var itemId = liItem.getAttribute("data-id");
+                        changeItemOrder(itemId, pageName, deleteOrderNum);
+                        deleteOrderNum++;
                     }
                 }
             }
@@ -218,7 +231,7 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
         if (itemsId && itemsLength) {
             var liItems = listItems.children;
             var liItemsLength = liItems.length;
-            for (var j = 0; j+1 < liItemsLength; j++) {
+            for (var j = 0; j + 1 < liItemsLength; j++) {
                 var liItem = liItems[j];
                 if ($(liItem).data('id') && itemsId.indexOf(parseInt($(liItem).data('id'))) !== -1) {
                     if (!canBeMoved("up", j, liItemsLength)) {
@@ -226,12 +239,15 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                     }
                     var previousItem = liItems[j - 2];
                     var updatedOrderNum = previousItem.getAttribute("data-orderNum");
-                    if (updatedOrderNum > 1) {
-                        updatedOrderNum--;
-                    }
+                    var currentOrderNum = liItem.getAttribute("data-orderNum");
+                    //if (updatedOrderNum > 1) {
+                    //    updatedOrderNum--;
+                    //}
                     if (swapItems(liItems, updatedOrderNum, j, liItemsLength, "up")) {
                         var itemId = liItem.getAttribute("data-id");
+                        var previousItemId = previousItem.getAttribute("data-id");
                         changeItemOrder(itemId, pageName, updatedOrderNum);
+                        changeItemOrder(previousItemId, pageName, currentOrderNum);
                     }
 
                     break;
@@ -253,12 +269,14 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
                     }
                     var nextItem = liItems[j + 2];
                     var updatedOrderNum = nextItem.getAttribute("data-orderNum");
-                    updatedOrderNum++;
+                    var currentOrderNum = liItem.getAttribute("data-orderNum");
+                    //updatedOrderNum++;
                     if (swapItems(liItems, updatedOrderNum, j, liItemsLength, "down")) {
-                        var itemId = liItem.getAttribute("data-id");                        
+                        var itemId = liItem.getAttribute("data-id");
+                        var nextItemId = nextItem.getAttribute("data-id");
                         changeItemOrder(itemId, pageName, updatedOrderNum);
+                        changeItemOrder(nextItemId, pageName, currentOrderNum);
                     }
-
                     break;
                 }
             }
@@ -274,16 +292,19 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
         currentItem.innerHTML = currentItem.innerHTML.replace("#" + currentItemOrderNum, "#" + currentItemUpdatedOrderNum);
         currentItem.innerHTML = currentItem.innerHTML.replace("#" + currentItemOrderNum, "#" + currentItemUpdatedOrderNum);
         if (direction.toUpperCase() == "UP") {
-            while (canBeMoved(direction, itemIndex, listLength)) {
+            if (canBeMoved(direction, itemIndex, listLength)) {
                 var nextItem = itemsList[itemIndex - 2];
                 var nextItemOrderNum = nextItem.getAttribute("data-orderNum");
-                if (nextItemOrderNum > currentItemUpdatedOrderNum || (currentItemUpdatedOrderNum == 1 && originalItemIndex == 2)) {
+                if (nextItemOrderNum < currentItemOrderNum || (currentItemUpdatedOrderNum == 1 && originalItemIndex == 2)) {
                     var ItemsDiv = currentItem.nextSibling;
                     $(ItemsDiv).remove();
                     $(currentItem).remove();
                     $(nextItem).before(currentItem);
                     $(currentItem).after(ItemsDiv);
                     itemIndex = itemIndex - 2;
+                    nextItem.innerHTML = nextItem.innerHTML.replace("#" + nextItemOrderNum, "#" + currentItemOrderNum);
+                    nextItem.innerHTML = nextItem.innerHTML.replace("#" + nextItemOrderNum, "#" + currentItemOrderNum);
+                    nextItem.setAttribute("data-orderNum", currentItemOrderNum);
                     didItemMove = true;
                 }
                 else {
@@ -292,16 +313,20 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
             }
         }
         else if (direction.toUpperCase() == "DOWN") {
-            while (canBeMoved(direction, itemIndex, listLength)) {
+            if (canBeMoved(direction, itemIndex, listLength)) {
                 var nextItem = itemsList[itemIndex + 2];
                 var nextItemOrderNum = nextItem.getAttribute("data-orderNum");
-                if (nextItemOrderNum < currentItemUpdatedOrderNum) {
+                if (nextItemOrderNum > currentItemOrderNum) {
                     var ItemsDiv = currentItem.nextSibling;
                     $(ItemsDiv).remove();
                     $(currentItem).remove();
                     $(nextItem.nextSibling).after(currentItem);
                     $(currentItem).after(ItemsDiv);
                     itemIndex = itemIndex + 2;
+                    nextItem.innerHTML = nextItem.innerHTML.replace("#" + nextItemOrderNum, "#" + currentItemOrderNum);
+                    nextItem.innerHTML = nextItem.innerHTML.replace("#" + nextItemOrderNum, "#" + currentItemOrderNum);
+                    nextItem.setAttribute("data-orderNum", currentItemOrderNum);
+
                     didItemMove = true;
                 }
                 else {
@@ -313,13 +338,11 @@ var List = function (listId, listTitle, pageName, withCalendar, dualListParent, 
         return didItemMove;
     };
 
-    var canBeMoved = function (direction, index, listLength) {        
-        if (direction.toUpperCase() == "UP")
-        {
+    var canBeMoved = function (direction, index, listLength) {
+        if (direction.toUpperCase() == "UP") {
             return index > 0 && index - 2 >= 0;
         }
-        else if (direction.toUpperCase() == "DOWN")
-        {
+        else if (direction.toUpperCase() == "DOWN") {
             return index < listLength && index + 2 < listLength;
         }
 
