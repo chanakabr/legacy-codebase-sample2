@@ -37705,6 +37705,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("apptokenUserValidationDisabled", "\"apptokenUserValidationDisabled\": " + ApptokenUserValidationDisabled.ToString().ToLower());
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("autoRefreshAppToken")))
+            {
+                ret.Add("autoRefreshAppToken", "\"autoRefreshAppToken\": " + AutoRefreshAppToken.ToString().ToLower());
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("ksExpirationSeconds")))
             {
                 ret.Add("ksExpirationSeconds", "\"ksExpirationSeconds\": " + KsExpirationSeconds);
@@ -37746,6 +37750,10 @@ namespace WebAPI.Models.Partner
             if((retrievedProperties == null || retrievedProperties.Contains("apptokenUserValidationDisabled")))
             {
                 ret.Add("apptokenUserValidationDisabled", "<apptokenUserValidationDisabled>" + ApptokenUserValidationDisabled.ToString().ToLower() + "</apptokenUserValidationDisabled>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("autoRefreshAppToken")))
+            {
+                ret.Add("autoRefreshAppToken", "<autoRefreshAppToken>" + AutoRefreshAppToken.ToString().ToLower() + "</autoRefreshAppToken>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("ksExpirationSeconds")))
             {

@@ -93,6 +93,9 @@ namespace TVPApiModule.Objects.Authorization
         [JsonProperty("app_token_max_expiry_seconds")]
         public int AppTokenMaxExpirySeconds { get; set; }
 
+        [JsonProperty("auto_refresh_app_token")]
+        public int AutoRefreshAppToken { get; set; }
+
         [JsonProperty("upload_token_key_format")]
         public string UploadTokenKeyFormat { get; set; }
 

@@ -337,6 +337,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.AnonymousKSExpirationSeconds, opt => opt.MapFrom(src => src.AnonymousKSExpirationSeconds))
               .ForMember(dest => dest.RefreshExpirationForPinLoginSeconds, opt => opt.MapFrom(src => src.RefreshExpirationForPinLoginSeconds))
               .ForMember(dest => dest.AppTokenMaxExpirySeconds, opt => opt.MapFrom(src => src.AppTokenMaxExpirySeconds))
+              .ForMember(dest => dest.AutoRefreshAppToken, opt => opt.MapFrom(src => src.AutoRefreshAppToken))
               .ForMember(dest => dest.UploadTokenExpirySeconds, opt => opt.MapFrom(src => src.UploadTokenExpirySeconds))
               .ForMember(dest => dest.ApptokenUserValidationDisabled, opt => opt.MapFrom(src => src.ApptokenUserValidationDisabled));
 
@@ -346,6 +347,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.AnonymousKSExpirationSeconds, opt => opt.MapFrom(src => src.AnonymousKSExpirationSeconds))
               .ForMember(dest => dest.RefreshExpirationForPinLoginSeconds, opt => opt.MapFrom(src => src.RefreshExpirationForPinLoginSeconds))
               .ForMember(dest => dest.AppTokenMaxExpirySeconds, opt => opt.MapFrom(src => src.AppTokenMaxExpirySeconds))
+              .ForMember(dest => dest.AutoRefreshAppToken, opt => opt.MapFrom(src => src.AutoRefreshAppToken))
               .ForMember(dest => dest.UploadTokenExpirySeconds, opt => opt.MapFrom(src => src.UploadTokenExpirySeconds))
               .ForMember(dest => dest.ApptokenUserValidationDisabled, opt => opt.MapFrom(src => src.ApptokenUserValidationDisabled));
 

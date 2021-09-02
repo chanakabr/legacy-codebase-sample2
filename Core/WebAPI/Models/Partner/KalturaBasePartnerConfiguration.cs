@@ -53,7 +53,15 @@ namespace WebAPI.Models.Partner
         [JsonProperty("appTokenMaxExpirySeconds")]
         [XmlElement(ElementName = "appTokenMaxExpirySeconds")]
         [SchemeProperty(MinInteger = 1)]
-        public int AppTokenMaxExpirySeconds { get; set; } 
+        public int AppTokenMaxExpirySeconds { get; set; }
+
+        /// <summary>
+        /// AutoRefreshAppToken
+        /// </summary>
+        [DataMember(Name = "autoRefreshAppToken")]
+        [JsonProperty("autoRefreshAppToken")]
+        [XmlElement(ElementName = "autoRefreshAppToken")]
+        public bool AutoRefreshAppToken { get; set; }
 
         /// <summary>
         /// uploadTokenExpirySeconds
