@@ -250,7 +250,6 @@ namespace TVPApi
                 //TODO: Logger.Logger.Log("Start load pages", groupID + "_" + platfrom.ToString(), "TVPApi");
                 APIPageDataLoader pd = new APIPageDataLoader() { GroupID = groupID, Platform = platfrom };
                 DataOnPage = pd.Execute();
-
                 if (DataOnPage == null)
                 {
                     logger.ErrorFormat("Init-> [{0}, {1}] - Page data returned null", groupID, platfrom.ToString());
@@ -266,75 +265,75 @@ namespace TVPApi
             // Run on pages and create dictionary
             m_LanguageIDPages = new Dictionary<string, Dictionary<long, PageContext>>();
             m_LanguageTokenPages = new Dictionary<string, Dictionary<string, PageContext>>();
-            foreach (var page in DataOnPage.Pages)
-            {
-                string culture = GetLanguageString(page.LanguageCulture);
-                PageContext pg = CreatePageItem(page);
+            //foreach (var page in DataOnPage.Pages)
+            //{
+            //    string culture = GetLanguageString(page.LanguageCulture);
+            //    PageContext pg = CreatePageItem(page);
 
-                // Add to language by id dictionary
-                if (m_LanguageIDPages.ContainsKey(culture))
-                {
-                    // Check if page id exists for language
-                    if (m_LanguageIDPages[culture].ContainsKey(page.ID))
-                    {
-                        //m_Logger.ErrorFormat("Page ID:{0} already exists for langauge:{1}", page.ID, page.LanguageCulture);
-                        throw new Exception(string.Format("Page ID:{0} already exists for langauge:{1}", page.ID, page.LanguageCulture));
-                    }
+            //    // Add to language by id dictionary
+            //    if (m_LanguageIDPages.ContainsKey(culture))
+            //    {
+            //        // Check if page id exists for language
+            //        if (m_LanguageIDPages[culture].ContainsKey(page.ID))
+            //        {
+            //            //m_Logger.ErrorFormat("Page ID:{0} already exists for langauge:{1}", page.ID, page.LanguageCulture);
+            //            throw new Exception(string.Format("Page ID:{0} already exists for langauge:{1}", page.ID, page.LanguageCulture));
+            //        }
 
-                    m_LanguageIDPages[culture].Add(page.ID, pg);
-                }
-                else
-                {
-                    Dictionary<long, PageContext> langDict = new Dictionary<long, PageContext>();
-                    m_LanguageIDPages.Add(culture, langDict);
+            //        m_LanguageIDPages[culture].Add(page.ID, pg);
+            //    }
+            //    else
+            //    {
+            //        Dictionary<long, PageContext> langDict = new Dictionary<long, PageContext>();
+            //        m_LanguageIDPages.Add(culture, langDict);
 
-                    langDict.Add(page.ID, pg);
-                }
+            //        langDict.Add(page.ID, pg);
+            //    }
 
-                // Add to language by page token dictionary
-                if (pg.PageToken != Pages.UnKnown && pg.PageToken != Pages.Dynamic && pg.IsActive)
-                {
+            //    // Add to language by page token dictionary
+            //    if (pg.PageToken != Pages.UnKnown && pg.PageToken != Pages.Dynamic && pg.IsActive)
+            //    {
 
-                    if (m_LanguageTokenPages.ContainsKey(culture))
-                    {
-                        // Check if page id exists for language
-                        if (m_LanguageTokenPages[culture].ContainsKey(page.PageToken))
-                        {
-                            // m_Logger.ErrorFormat("Page Token:{0} already exists for langauge:{1}", page.PageToken, page.LanguageCulture);
-                            //throw new Exception(string.Format("Page Token:{0} already exists for langauge:{1}", page.PageToken, page.LanguageCulture));
-                        }
-                        else
-                            m_LanguageTokenPages[culture].Add(pg.PageToken.ToString(), pg);
-                    }
-                    else
-                    {
-                        Dictionary<string, PageContext> langDict = new Dictionary<string, PageContext>();
-                        m_LanguageTokenPages.Add(culture, langDict);
+            //        if (m_LanguageTokenPages.ContainsKey(culture))
+            //        {
+            //            // Check if page id exists for language
+            //            if (m_LanguageTokenPages[culture].ContainsKey(page.PageToken))
+            //            {
+            //                // m_Logger.ErrorFormat("Page Token:{0} already exists for langauge:{1}", page.PageToken, page.LanguageCulture);
+            //                //throw new Exception(string.Format("Page Token:{0} already exists for langauge:{1}", page.PageToken, page.LanguageCulture));
+            //            }
+            //            else
+            //                m_LanguageTokenPages[culture].Add(pg.PageToken.ToString(), pg);
+            //        }
+            //        else
+            //        {
+            //            Dictionary<string, PageContext> langDict = new Dictionary<string, PageContext>();
+            //            m_LanguageTokenPages.Add(culture, langDict);
 
-                        langDict.Add(pg.PageToken.ToString(), pg);
-                    }
-                }
-            }
+            //            langDict.Add(pg.PageToken.ToString(), pg);
+            //        }
+            //    }
+            //}
 
             // Run on all page and set page's children and parent
-            foreach (var page in DataOnPage.Pages)
-            {
-                string culture = GetLanguageString(page.LanguageCulture);
-                PageContext pg;
-                if (m_LanguageIDPages[culture].TryGetValue(page.ID, out pg))
-                {
-                    if (!page.IsParentPageIDNull())
-                    {
-                        // Try to get parent page
-                        PageContext parentPage;
-                        if (m_LanguageIDPages[culture].TryGetValue(page.ParentPageID, out parentPage))
-                        {
-                            // Add page to parent's children
-                            parentPage.Children.Add(pg);
-                        }
-                    }
-                }
-            }
+            //foreach (var page in DataOnPage.Pages)
+            //{
+            //    string culture = GetLanguageString(page.LanguageCulture);
+            //    PageContext pg;
+            //    if (m_LanguageIDPages[culture].TryGetValue(page.ID, out pg))
+            //    {
+            //        if (!page.IsParentPageIDNull())
+            //        {
+            //            // Try to get parent page
+            //            PageContext parentPage;
+            //            if (m_LanguageIDPages[culture].TryGetValue(page.ParentPageID, out parentPage))
+            //            {
+            //                // Add page to parent's children
+            //                parentPage.Children.Add(pg);
+            //            }
+            //        }
+            //    }
+            //}
 
             // m_Logger.Info("Finished intializing page information, found: " + DataOnPage.Pages.Count + " pages");
         }
