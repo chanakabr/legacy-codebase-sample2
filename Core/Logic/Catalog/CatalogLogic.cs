@@ -7698,6 +7698,12 @@ namespace Core.Catalog
                         }
                     }
                 }
+                
+                // If there are items left in media types after removing 0, we are searching for media
+                if (definitions.mediaTypes.Count > 0)
+                {
+                    definitions.shouldSearchMedia = true;
+                }
 
                 HashSet<int> mediaTypes = null;
                 if (doesGroupUsesTemplates)
