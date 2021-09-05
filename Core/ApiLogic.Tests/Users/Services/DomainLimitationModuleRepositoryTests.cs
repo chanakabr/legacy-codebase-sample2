@@ -37,11 +37,11 @@ namespace ApiLogic.Tests.Users.Services
         {
             var fakeLimits = FakeLimits();
             _domainLimitationModuleDalMock
-                .Setup(x => x.InsertGroupLimitsAndDeviceFamilies(1, 2, 3, 4, "name", 5, 6, fakeLimits.Item1, fakeLimits.Item2, fakeLimits.Item3, 7))
-                .Returns(FakeLimitationModuleDataSet());
+                .Setup(x => x.InsertGroupLimitsAndDeviceFamilies(It.IsAny<DAL.DTO.LimitationsManagerDTO>(), 1, 7))
+                .Returns(FakeLimitationsManagerResponse1());
             var domainLimitationModuleRepository = new DomainLimitationModuleRepository(_domainLimitationModuleDalMock.Object, _loggerMock.Object);
 
-            var result = domainLimitationModuleRepository.Add(1, 2, 3, 4, "name", 5, 6, FakeDeviceFamilyLimitations(), 7);
+            var result = domainLimitationModuleRepository.Add(1, 7, FakeLimitationsManager());
 
             result.Should().NotBeNull();
         }
@@ -51,13 +51,13 @@ namespace ApiLogic.Tests.Users.Services
         {
             var fakeLimits = FakeLimits();
             _domainLimitationModuleDalMock
-                .Setup(x => x.InsertGroupLimitsAndDeviceFamilies(1, 2, 3, 4, "name", 5, 6, fakeLimits.Item1, fakeLimits.Item2, fakeLimits.Item3, 7))
+                .Setup(x => x.InsertGroupLimitsAndDeviceFamilies(It.IsAny<DAL.DTO.LimitationsManagerDTO>(), 1, 7))
                 .Throws(new Exception("message"));
             _loggerMock
                 .Setup(LogLevel.Error, "Error while Add: message.");
             var domainLimitationModuleRepository = new DomainLimitationModuleRepository(_domainLimitationModuleDalMock.Object, _loggerMock.Object);
 
-            var result = domainLimitationModuleRepository.Add(1, 2, 3, 4, "name", 5, 6, FakeDeviceFamilyLimitations(), 7);
+            var result = domainLimitationModuleRepository.Add(1, 7, FakeLimitationsManager());
 
             result.Should().BeNull();
         }
@@ -66,62 +66,49 @@ namespace ApiLogic.Tests.Users.Services
         public void Get_ValidParameters_ReturnsLimitationsManager()
         {
             _domainLimitationModuleDalMock
-                .Setup(x => x.GetGroupLimitsAndDeviceFamilies(1, 2))
-                .Returns(FakeLimitationModuleDataSet());
+                .Setup(x => x.GetGroupLimitsAndDeviceFamilies(1, 1))
+                .Returns(FakeLimitationsManagerResponse1());
             var domainLimitationModuleRepository = new DomainLimitationModuleRepository(_domainLimitationModuleDalMock.Object, _loggerMock.Object);
 
-            var result = domainLimitationModuleRepository.Get(1, 2);
+            var result = domainLimitationModuleRepository.Get(1, 1);
 
             result.Should().NotBeNull();
             result.domianLimitID.Should().Be(1);
-            result.DomainLimitName.Should().Be("Household Limitation Module #1");
+            result.DomainLimitName.Should().Be("Domain Limit Name");
             result.Concurrency.Should().Be(2);
-            result.npvrQuotaInSecs.Should().Be(3);
-            result.Frequency.Should().Be(4);
-            result.Quantity.Should().Be(5);
+            result.npvrQuotaInSecs.Should().Be(0);
+            result.Frequency.Should().Be(3);
+            result.Quantity.Should().Be(4);
             result.nUserLimit.Should().Be(6);
-            result.UserFrequency.Should().Be(7);
+            result.UserFrequency.Should().Be(5);
             result.lDeviceFamilyLimitations.Count.Should().Be(2);
             result.lDeviceFamilyLimitations[0].Should().NotBeNull();
-            result.lDeviceFamilyLimitations[0].deviceFamily.Should().Be(10);
-            result.lDeviceFamilyLimitations[0].deviceFamilyName.Should().Be("Device Family 10");
-            result.lDeviceFamilyLimitations[0].concurrency.Should().Be(11);
-            result.lDeviceFamilyLimitations[0].quantity.Should().Be(12);
-            result.lDeviceFamilyLimitations[0].Frequency.Should().Be(13);
+            result.lDeviceFamilyLimitations[0].deviceFamily.Should().Be(1);
+            result.lDeviceFamilyLimitations[0].deviceFamilyName.Should().Be("Device Family 1");
+            result.lDeviceFamilyLimitations[0].concurrency.Should().Be(2);
+            result.lDeviceFamilyLimitations[0].quantity.Should().Be(4);
+            result.lDeviceFamilyLimitations[0].Frequency.Should().Be(-1);
             result.lDeviceFamilyLimitations[1].Should().NotBeNull();
-            result.lDeviceFamilyLimitations[1].deviceFamily.Should().Be(20);
-            result.lDeviceFamilyLimitations[1].deviceFamilyName.Should().Be("Device Family 20");
-            result.lDeviceFamilyLimitations[1].concurrency.Should().Be(2);
-            result.lDeviceFamilyLimitations[1].quantity.Should().Be(5);
-            result.lDeviceFamilyLimitations[1].Frequency.Should().Be(-1);
-        }
-
-        [TestCase(true, false)]
-        [TestCase(false, false)]
-        [TestCase(false, true)]
-        public void Get_GroupOrDomainLimitNotFound_ReturnsNull(bool hasGroupLimitTable, bool hasDomainLimitTable)
-        {
-            _domainLimitationModuleDalMock
-                .Setup(x => x.GetGroupLimitsAndDeviceFamilies(1, 2))
-                .Returns(FakeLimitationModuleDataSet(hasGroupLimitTable, hasDomainLimitTable));
-            var domainLimitationModuleRepository = new DomainLimitationModuleRepository(_domainLimitationModuleDalMock.Object, _loggerMock.Object);
-
-            var result = domainLimitationModuleRepository.Get(1, 2);
-
-            result.Should().BeNull();
+            result.lDeviceFamilyLimitations[1].deviceFamily.Should().Be(2);
+            result.lDeviceFamilyLimitations[1].deviceFamilyName.Should().Be("Device Family 2");
+            result.lDeviceFamilyLimitations[1].concurrency.Should().Be(5);
+            result.lDeviceFamilyLimitations[1].quantity.Should().Be(7);
+            result.lDeviceFamilyLimitations[1].Frequency.Should().Be(6);
         }
 
         [Test]
-        public void Get_ConcurrencySpecifiedOnDomainLevel_ReturnsLimitationModulesWithDomainConcurrentLimit()
+        public void Get_GroupOrDomainLimitNotFound_ReturnsNull()
         {
+            DAL.DTO.LimitationsManagerDTO dlmDTO = null;
+
             _domainLimitationModuleDalMock
-                .Setup(x => x.GetGroupLimitsAndDeviceFamilies(1, 2))
-                .Returns(FakeLimitationModuleDataSet(domainConcurrencyLimit: 1));
+                .Setup(x => x.GetGroupLimitsAndDeviceFamilies(1, 1))
+                .Returns(dlmDTO);
             var domainLimitationModuleRepository = new DomainLimitationModuleRepository(_domainLimitationModuleDalMock.Object, _loggerMock.Object);
 
-            var result = domainLimitationModuleRepository.Get(1, 2);
+            var result = domainLimitationModuleRepository.Get(1, 1);
 
-            result.Concurrency.Should().Be(1);
+            result.Should().BeNull();
         }
 
         [Test]
@@ -129,7 +116,7 @@ namespace ApiLogic.Tests.Users.Services
         {
             _domainLimitationModuleDalMock
                 .Setup(x => x.GetGroupDeviceLimitationModules(1))
-                .Returns(FakeLimitationModuleIdsDataTable(3));
+                .Returns(FakeLimitationModuleIds(3));
             var domainLimitationModuleRepository = new DomainLimitationModuleRepository(_domainLimitationModuleDalMock.Object, _loggerMock.Object);
 
             var result = domainLimitationModuleRepository.GetDomainLimitationModuleIds(1);
@@ -143,7 +130,7 @@ namespace ApiLogic.Tests.Users.Services
         {
             _domainLimitationModuleDalMock
                 .Setup(x => x.GetGroupDeviceLimitationModules(1))
-                .Returns(FakeLimitationModuleIdsDataTable(rowCount));
+                .Returns(FakeLimitationModuleIds(rowCount));
             var domainLimitationModuleRepository = new DomainLimitationModuleRepository(_domainLimitationModuleDalMock.Object, _loggerMock.Object);
 
             var result = domainLimitationModuleRepository.GetDomainLimitationModuleIds(1);
@@ -205,6 +192,36 @@ namespace ApiLogic.Tests.Users.Services
             var result = domainLimitationModuleRepository.Delete(1, 2);
 
             result.Should().BeFalse();
+        }
+
+        [Test]
+        public void Update_ValidParameters_ReturnsLimitationsManager()
+        {
+            var fakeLimits = FakeLimits();
+            _domainLimitationModuleDalMock
+                .Setup(x => x.UpdateGroupLimitsAndDeviceFamilies(1, 7, It.IsAny<DAL.DTO.LimitationsManagerDTO>()))
+                .Returns(FakeLimitationsManagerResponse1());
+            var domainLimitationModuleRepository = new DomainLimitationModuleRepository(_domainLimitationModuleDalMock.Object, _loggerMock.Object);
+
+            var result = domainLimitationModuleRepository.Update(1, 7, FakeLimitationsManager());
+
+            result.Should().NotBeNull();
+        }
+
+        [Test]
+        public void Update_ExceptionIsThrown_ReturnsNull()
+        {
+            var fakeLimits = FakeLimits();
+            _domainLimitationModuleDalMock
+                .Setup(x => x.UpdateGroupLimitsAndDeviceFamilies(1, 7, It.IsAny<DAL.DTO.LimitationsManagerDTO>()))
+                .Throws(new Exception("message"));
+            _loggerMock
+                .Setup(LogLevel.Error,$"Error with DB while trying to Update: limitId=1, exception=message.");
+            var domainLimitationModuleRepository = new DomainLimitationModuleRepository(_domainLimitationModuleDalMock.Object, _loggerMock.Object);
+
+            var result = domainLimitationModuleRepository.Update(1, 7, FakeLimitationsManager());
+
+            result.Should().BeNull();
         }
 
         private DeviceFamilyLimitations[] FakeDeviceFamilyLimitations()
@@ -293,6 +310,100 @@ namespace ApiLogic.Tests.Users.Services
             }
 
             return table;
+        }
+
+        private DAL.DTO.LimitationsManagerDTO FakeLimitationsManagerDTO1()
+        {
+            return new DAL.DTO.LimitationsManagerDTO
+            {
+                domianLimitID = 1,
+                Concurrency = 2,
+                Frequency = 3,
+                Quantity = 4,
+                DomainLimitName = "Domain Limit Name",
+                UserFrequency = 5,
+                nUserLimit = 6,
+                lDeviceFamilyLimitations = new List<DAL.DTO.DeviceFamilyLimitationsDTO>
+                {
+                    new DAL.DTO.DeviceFamilyLimitationsDTO(){ deviceFamily = 1,
+                                                              concurrency = -1, 
+                                                                Frequency = -1,
+                    quantity = -1},
+                    new DAL.DTO.DeviceFamilyLimitationsDTO(){ deviceFamily = 2,
+                                                              concurrency = 5,
+                                                                Frequency = 6,
+                    quantity = 7 }
+                },
+                Description = "description"
+            };
+        }
+
+        private DAL.DTO.LimitationsManagerDTO FakeLimitationsManagerResponse1()
+        {
+            return new DAL.DTO.LimitationsManagerDTO
+            {
+                domianLimitID = 1,
+                Concurrency = 2,
+                Frequency = 3,
+                Quantity = 4,
+                DomainLimitName = "Domain Limit Name",
+                UserFrequency = 5,
+                nUserLimit = 6,
+                lDeviceFamilyLimitations = new List<DAL.DTO.DeviceFamilyLimitationsDTO>
+                {
+                    new DAL.DTO.DeviceFamilyLimitationsDTO(){ deviceFamily = 1,
+                                                              concurrency = 2,
+                                                                Frequency = -1,
+                    quantity = 4,
+                     deviceFamilyName = "Device Family 1"},
+                    new DAL.DTO.DeviceFamilyLimitationsDTO(){ deviceFamily = 2,
+                                                              concurrency = 5,
+                                                                Frequency = 6,
+                    quantity = 7,
+                    deviceFamilyName = "Device Family 2"}
+                },
+                Description = "description"
+            };
+        }
+
+        private LimitationsManager FakeLimitationsManager()
+        {
+            return new LimitationsManager
+            {
+                domianLimitID = 1,
+                Concurrency = 2,
+                Frequency = 3,
+                Quantity = 4,
+                DomainLimitName = "Domain Limit Name",
+                UserFrequency = 5,
+                nUserLimit = 6,
+                lDeviceFamilyLimitations = new List<DeviceFamilyLimitations>
+                {
+                    new DeviceFamilyLimitations(){ deviceFamily = 1,
+                                                              concurrency = -1,
+                                                                Frequency = -1,
+                    quantity = -1 },
+                    new DeviceFamilyLimitations(){ deviceFamily = 2,
+                                                              concurrency = 5,
+                                                                Frequency = 6,
+                    quantity = 7 }
+                },
+                Description = "description"
+            };
+        }
+
+        private IEnumerable<int> FakeLimitationModuleIds(int rowCount) 
+        {
+            if (rowCount <= 0) return null;
+
+            var result = new List<int>();
+
+            for (int i = 1; i <= rowCount; i++) 
+            {
+                result.Add(i);
+            }
+
+            return result;
         }
     }
 }

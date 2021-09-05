@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using TVinciShared;
+using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using System.Linq;
 
 namespace WebAPI.Models.Domains
 {
@@ -12,6 +16,8 @@ namespace WebAPI.Models.Domains
     /// </summary>
     public partial class KalturaHouseholdLimitations : KalturaOTTObject
     {
+        private const int NO_LIMITATION_VALUE = -1;
+
         /// <summary>
         /// Household limitation module identifier
         /// </summary>
@@ -120,5 +126,64 @@ namespace WebAPI.Models.Domains
         [OldStandardProperty("device_families_limitations")]
         public List<KalturaHouseholdDeviceFamilyLimitations> DeviceFamiliesLimitations { get; set; }
 
+        /// <summary>
+        /// Allowed device change frequency description
+        /// </summary>
+        [DataMember(Name = "description")]
+        [JsonProperty("description")]
+        [XmlElement(ElementName = "description")]
+        [SchemeProperty(IsNullable = true)]
+        [OldStandardProperty("description")]
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Associated Device Families ids
+        /// </summary>
+        [DataMember(Name = "associatedDeviceFamiliesIdsIn")]
+        [JsonProperty("associatedDeviceFamiliesIdsIn")]
+        [XmlElement(ElementName = "associatedDeviceFamiliesIdsIn")]
+        [SchemeProperty(IsNullable = true)]
+        [OldStandardProperty("associatedDeviceFamiliesIdsIn")]
+        public string AssociatedDeviceFamiliesIdsIn { get; set; }
+
+        public void ValidateAssociatedDevices()
+        {
+            if (AssociatedDeviceFamiliesIdsIn != null && DeviceFamiliesLimitations != null)
+            {
+                var associatedIds = AssociatedDeviceFamiliesIdsIn.GetItemsIn<long>(out var failed, true).ThrowIfFailed(failed, () => new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "householdLimitations.AssociatedDeviceFamiliesIdsIn, id"));
+
+                if (DeviceFamiliesLimitations.Exists(dfl => !dfl.Id.HasValue))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "DeviceFamiliesLimitations.Id");
+                }
+
+                if (DeviceFamiliesLimitations.Exists(dfl => !associatedIds.Contains(dfl.Id.Value)))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "DeviceFamiliesLimitations.id", "AssociatedDeviceFamiliesIdsIn");
+                }
+            }
+        }
+
+        public void ValidateUpdate()
+        {
+            if (AssociatedDeviceFamiliesIdsIn == null)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CANNOT_BE_EMPTY, "AssociatedDeviceFamiliesIdsIn");
+            }
+            ValidateAssociatedDevices();
+        }
+
+        public IEnumerable<KalturaHouseholdDeviceFamilyLimitations> AssociatedDeviceFamiliesToLimitations() 
+        {
+            var associatedIds = AssociatedDeviceFamiliesIdsIn.GetItemsIn<long>(out var failed, true).ThrowIfFailed(failed, () => new BadRequestException(BadRequestException.ARGUMENT_MUST_BE_NUMERIC, "householdLimitations.AssociatedDeviceFamiliesIdsIn, id"));
+            return associatedIds.Where(ai => !DeviceFamiliesLimitations.Any(dfl => dfl.Id == ai)).
+                                                                                         Select(x => 
+                                                                                         new KalturaHouseholdDeviceFamilyLimitations() { 
+                                                                                             Id = x,
+                                                                                             ConcurrentLimit = NO_LIMITATION_VALUE,
+                                                                                             DeviceLimit = NO_LIMITATION_VALUE,
+                                                                                             Frequency = NO_LIMITATION_VALUE
+                                                                                         });
+        }
     }
 }

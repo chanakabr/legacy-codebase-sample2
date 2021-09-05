@@ -3539,8 +3539,12 @@ namespace WebAPI.Reflection
                 case "KalturaHouseholdLimitations":
                     switch(property.Name)
                     {
+                        case "AssociatedDeviceFamiliesIdsIn":
+                            return "associatedDeviceFamiliesIdsIn";
                         case "ConcurrentLimit":
                             return "concurrentLimit";
+                        case "Description":
+                            return "description";
                         case "DeviceFamiliesLimitations":
                             return "deviceFamiliesLimitations";
                         case "DeviceFrequency":
@@ -9740,9 +9744,17 @@ namespace WebAPI.Reflection
                             RolesManager.ValidateActionPermitted("householdLimitations", "get", false);
                             return HouseholdLimitationsController.Get((int) methodParams[0]);
                             
+                        case "isused":
+                            RolesManager.ValidateActionPermitted("householdLimitations", "isUsed", false);
+                            return HouseholdLimitationsController.IsUsed((int) methodParams[0]);
+                            
                         case "list":
                             RolesManager.ValidateActionPermitted("householdLimitations", "list", false);
                             return HouseholdLimitationsController.List();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("householdLimitations", "update", false);
+                            return HouseholdLimitationsController.Update((int) methodParams[0], (KalturaHouseholdLimitations) methodParams[1]);
                             
                     }
                     break;
@@ -16564,7 +16576,26 @@ namespace WebAPI.Reflection
                             });
                             return ret;
                             
+                        case "isused":
+                            ret.Add("dlmId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
                         case "list":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("dlmId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            ret.Add("householdLimitation", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaHouseholdLimitations),
+                            });
                             return ret;
                             
                     }

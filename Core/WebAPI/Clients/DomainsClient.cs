@@ -564,8 +564,9 @@ namespace WebAPI.Clients
 
         internal KalturaHouseholdLimitations AddDomainLimitationModule(int groupId, KalturaHouseholdLimitations householdLimitations, long userId)
         {
+            householdLimitations.DeviceFamiliesLimitations = householdLimitations.DeviceFamiliesLimitations ?? new List<KalturaHouseholdDeviceFamilyLimitations>();
             var limitationManager = Mapper.Map<LimitationsManager>(householdLimitations);
-            Func<GenericResponse<LimitationsManager>> addDlmFunc = () => new Core.Domains.Module().AddDLM(groupId, limitationManager, userId);
+            Func<GenericResponse<LimitationsManager>> addDlmFunc = () => new Core.Domains.Module().AddDLM(groupId, userId, limitationManager);
             var response = ClientUtils.GetResponseFromWS<KalturaHouseholdLimitations, LimitationsManager>(addDlmFunc);
 
             return response;
@@ -602,6 +603,87 @@ namespace WebAPI.Clients
             result = Mapper.Map<KalturaHouseholdLimitations>(response.dlm);
 
             return result;
+        }
+
+        internal KalturaHouseholdLimitations UpdateDLM(int limitId, int groupId, KalturaHouseholdLimitations householdLimitations, long userId)
+        {
+            DLMResponse response = new DLMResponse();
+
+            try
+            {
+                var dlmToUpdate = GetDomainLimitationModule(groupId, limitId);
+
+                householdLimitations.DeviceLimit = householdLimitations.DeviceLimit ?? dlmToUpdate.DeviceLimit;
+                householdLimitations.DeviceFrequency = householdLimitations.DeviceFrequency ?? dlmToUpdate.DeviceFrequency;
+                householdLimitations.ConcurrentLimit = householdLimitations.ConcurrentLimit ?? dlmToUpdate.ConcurrentLimit;
+                householdLimitations.Description = householdLimitations.Description ?? dlmToUpdate.Description;
+                householdLimitations.DeviceFrequencyDescription = householdLimitations.DeviceFrequencyDescription ?? dlmToUpdate.DeviceFrequencyDescription;
+                householdLimitations.NpvrQuotaInSeconds = householdLimitations.NpvrQuotaInSeconds ?? dlmToUpdate.NpvrQuotaInSeconds;
+                householdLimitations.AssociatedDeviceFamiliesIdsIn = householdLimitations.AssociatedDeviceFamiliesIdsIn ?? dlmToUpdate.AssociatedDeviceFamiliesIdsIn;
+                householdLimitations.UsersLimit = householdLimitations.UsersLimit ?? dlmToUpdate.UsersLimit;
+                householdLimitations.UserFrequencyDescription = householdLimitations.UserFrequencyDescription ?? dlmToUpdate.UserFrequencyDescription;
+                householdLimitations.DeviceFamiliesLimitations = householdLimitations.DeviceFamiliesLimitations ?? new List<KalturaHouseholdDeviceFamilyLimitations>();
+                if (string.IsNullOrEmpty(householdLimitations.AssociatedDeviceFamiliesIdsIn) && householdLimitations.DeviceFamiliesLimitations.Count == 0)
+                {
+                    householdLimitations.DeviceFamiliesLimitations = dlmToUpdate.DeviceFamiliesLimitations;
+                }
+
+                if (string.IsNullOrWhiteSpace(householdLimitations.Name))
+                {
+                    householdLimitations.Name = dlmToUpdate.Name;
+                }
+
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    LimitationsManager request = Mapper.Map<LimitationsManager>(householdLimitations);
+                    response = new Core.Domains.Module().UpdateDLM(limitId, groupId, userId, request);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("Exception received while calling householdLimitations Update. groupID: {0}, dlmId:{1}, exception: {2}", groupId, limitId, ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (!response.resp.IsOkStatusCode())
+            {
+                throw new ClientException(response.resp);
+            }
+
+            KalturaHouseholdLimitations newHouseholdLimitations = Mapper.Map<KalturaHouseholdLimitations>(response.dlm);
+            return newHouseholdLimitations;
+        }
+
+        public bool IsDLMInUse(int groupId, int dlmId) 
+        {
+            var response = new GenericResponse<bool>();
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    // Checking if DLM exist - throws error if not
+                    GetDomainLimitationModule(groupId, dlmId);
+
+                    response = new Core.Domains.Module().IsDLMInUse(dlmId, groupId);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat($"Exception received while calling DLM service.(IsUsed)  exception: {ex}");
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException(StatusCode.Error);
+            }
+
+            if (!response.IsOkStatusCode())
+            {
+                throw new ClientException(response.Status);
+            }
+
+            return response.Object;
         }
 
         internal KalturaHousehold ResetFrequency(int groupId, int domainId, KalturaHouseholdFrequencyType householdFrequency)

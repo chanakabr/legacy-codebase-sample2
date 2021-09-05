@@ -2440,5 +2440,19 @@ namespace DAL
 
             return status > 0;
         }
+
+        public static bool IsDLMInUse(int groupId, int dlmId)
+        {
+            int status = 0;
+
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("DomainDLMAmount");
+            sp.SetConnectionKey("USERS_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@dlmId", dlmId);
+
+            status = sp.ExecuteReturnValue<int>();
+
+            return status > 0;
+        }
     }
 }
