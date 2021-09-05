@@ -342,7 +342,7 @@ namespace Core.Social
             }
             catch (Exception ex)
             {
-                log.Warn("WriteLikeToES Was unable to insert record to ES", ex);
+                log.Warn($"WriteLikeToES Was unable to index record for asset {actionRequest.AssetID} on group {groupId}", ex);
             }
 
             return result;

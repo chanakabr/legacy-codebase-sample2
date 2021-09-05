@@ -16,8 +16,10 @@ namespace ConfigurationManager
         public BaseValue<int> EpgPageSize = new BaseValue<int>("epg_page_size", 1000, false, "Number of epgs to fetch from CB on each query to group_programs view");
         public BaseValue<int> MaxNgramDiff = new BaseValue<int>("max_ngram_diff", 20, false, "The maximum allowed difference between min_gram and max_gram for NGramTokenizer and NGramTokenFilter.");
         public BaseValue<int> TotalFieldsLimit = new BaseValue<int>("total_fields_limit", 10000, false, "The maximum number of fields in an index. Field and object mappings, as well as field aliases count towards this limit.");
-        // 4096 is the default on ES:
-        public BaseValue<int> MaxClauseCount = new BaseValue<int>("max_clause_count", 4096, false, "Maximum number of clauses a query can contain.");
+        // 1024 is the default on ES (v7.14)
+        // ES v8 default is 4096, by the way
+        // https://www.elastic.co/guide/en/elasticsearch/reference/current/search-settings.html
+        public BaseValue<int> MaxClauseCount = new BaseValue<int>("max_clause_count", 1024, false, "Maximum number of clauses a query can contain.");
 
         public override string TcmKey => TcmObjectKeys.ElasticsearchHandlerConfiguration;
 
