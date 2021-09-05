@@ -1,4 +1,5 @@
-﻿using ApiObjects.Response;
+﻿using ApiLogic.Catalog;
+using ApiObjects.Response;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.General;
 using WebAPI.Models.Upload;
 using WebAPI.Utils;
+using ApiObjects.SearchObjects;
 
 namespace WebAPI.Controllers
 {
@@ -247,7 +249,7 @@ namespace WebAPI.Controllers
                                     GroupBy = null,
                                     IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
                                     IgnoreEndDate = true,
-                                    GroupByType = ApiObjects.SearchObjects.GroupingOption.Omit,
+                                    GroupByType = GroupingOption.Omit,
                                     IsPersonalListSearch = false,
                                     UseFinal = false
                                 };
@@ -1019,8 +1021,25 @@ namespace WebAPI.Controllers
             {
                 KalturaSearchAssetFilter regularAssetFilter = (KalturaSearchAssetFilter)filter;
                 bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, userID, true);
-                response = ClientsManager.CatalogClient().GetAssetCount(groupId, userID, domainId, udid, language, regularAssetFilter.Ksql,
-                    regularAssetFilter.OrderBy, regularAssetFilter.getTypeIn(), regularAssetFilter.getEpgChannelIdIn(), groupByValuesList, filter.GroupByOrder, isAllowedToViewInactiveAssets);
+                var isIncluded = filter.GroupingOptionEqual.HasValue && filter.GroupingOptionEqual == KalturaGroupingOption.Include;
+
+                var _filter = new SearchAssetsFilter()
+                {
+                    GroupId = groupId,
+                    SiteGuid = userID,
+                    DomainId = domainId,
+                    Udid = udid,
+                    Language = language,
+                    Filter = regularAssetFilter.Ksql,
+                    AssetTypes = regularAssetFilter.getTypeIn(),
+                    EpgChannelIds = regularAssetFilter.getEpgChannelIdIn(),
+                    GroupBy = groupByValuesList,
+                    GroupByType = GenericExtensionMethods.ConvertEnumsById<KalturaGroupingOption, GroupingOption>(filter.GroupingOptionEqual, GroupingOption.Omit).Value,
+                    IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                    TrendingDays = regularAssetFilter.TrendingDaysEqual
+                };
+
+                response = ClientsManager.CatalogClient().GetAssetCount(_filter, regularAssetFilter.OrderBy, filter.GroupByOrder);
             }
             catch (ClientException ex)
             {

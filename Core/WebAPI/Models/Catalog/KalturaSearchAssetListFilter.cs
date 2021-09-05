@@ -6,6 +6,8 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using ApiObjects.SearchObjects;
+using TVinciShared;
 
 namespace WebAPI.Models.Catalog
 {
@@ -47,8 +49,24 @@ namespace WebAPI.Models.Catalog
 
             int domainId = (int)(contextData.DomainId ?? 0);
 
-            var response = ClientsManager.CatalogClient().SearchAssetsExcludeWatched(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(), pager.PageSize, 
-                this.Ksql, this.OrderBy, this.getTypeIn(), this.getEpgChannelIdIn(), contextData.ManagementData, this.DynamicOrderBy, this.TrendingDaysEqual);
+            var filter = new ApiLogic.Catalog.SearchAssetsFilter
+            {
+                GroupId = contextData.GroupId,
+                SiteGuid = userId.ToString(),
+                DomainId = domainId,
+                Udid = contextData.Udid,
+                Language = contextData.Language,
+                PageIndex = pager.getPageIndex(),
+                PageSize = pager.PageSize,
+                Filter = this.Ksql,
+                AssetTypes = this.getTypeIn(),
+                EpgChannelIds = this.getEpgChannelIdIn(),
+                TrendingDays = TrendingDaysEqual,
+                GroupByType = GenericExtensionMethods.ConvertEnumsById<KalturaGroupingOption, GroupingOption>
+                                (this.GroupingOptionEqual, GroupingOption.Omit).Value
+            };
+
+            var response = ClientsManager.CatalogClient().SearchAssetsExcludeWatched(filter, this.OrderBy, contextData.ManagementData, this.DynamicOrderBy);
 
             return response;
         }

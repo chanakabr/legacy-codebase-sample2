@@ -6510,6 +6510,7 @@ namespace Core.Catalog
             definitions = new UnifiedSearchDefinitions();
             definitions.shouldSearchEpg = false;
             definitions.shouldSearchMedia = true; // related media search MEDIA ONLY
+            definitions.isGroupingOptionInclude = request.isGroupingOptionInclude;
 
             Filter filter = new Filter();
             CatalogGroupCache catalogGroupCache = null;

@@ -607,7 +607,7 @@ namespace WebAPI.Utils
         }
 
         public static UnifiedSearchResponse SearchAssets(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, string filter, List<int> assetTypes,
-            DateTime serverTime, OrderObj order, Group group, string signature, string signString, string failoverCacheKey, ref UnifiedSearchRequest request)
+            DateTime serverTime, OrderObj order, Group group, string signature, string signString, string failoverCacheKey, ref UnifiedSearchRequest request, bool isGroupingOptionInclude)
         {
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
 
@@ -632,7 +632,8 @@ namespace WebAPI.Utils
                 order = order,
                 assetTypes = assetTypes,
                 m_sSiteGuid = userId.ToString(),
-                domainId = domainId
+                domainId = domainId,
+                isGroupingOptionInclude = isGroupingOptionInclude
             };
 
             // fire unified search request

@@ -60,8 +60,8 @@ namespace Core.Catalog.Request
         /// <param name="epgIds"></param>
         public AssetInfoRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature,
             string sSignString, string sSiteGuid, int domainId,
-            List<long> mediaIds, List<long> epgIds)
-            : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, sSiteGuid, domainId)
+            List<long> mediaIds, List<long> epgIds, bool isGroupingOptionInclude)
+            : base(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, sSiteGuid, domainId, isGroupingOptionInclude)
         {
             this.mediaIds = mediaIds;
             this.epgIds = epgIds;
