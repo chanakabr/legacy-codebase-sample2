@@ -382,7 +382,7 @@ namespace WebAPI.Clients
             }
 
             result = Mapper.Map<KalturaAsset>(response.Object);
-            result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, groupId);
 
             return result;
         }
@@ -429,7 +429,7 @@ namespace WebAPI.Clients
             if (response.Object != null)
             {
                 result = Mapper.Map<KalturaProgramAsset>(response.Object);
-                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, groupId);
             }
 
             return result;
@@ -459,7 +459,6 @@ namespace WebAPI.Clients
                 {
                     result.Objects = new List<KalturaAsset>();
                     // convert assets
-                    Dictionary<long, string> imageTypeIdToRatioNameMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId);
                     foreach (Asset assetToConvert in assetListResponse.Objects)
                     {
                         KalturaAsset asset = null;
@@ -471,7 +470,7 @@ namespace WebAPI.Clients
                         else
                         {
                             asset = Mapper.Map<KalturaAsset>(assetToConvert);
-                            asset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(assetToConvert.Images, imageTypeIdToRatioNameMap);
+                            asset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(assetToConvert.Images, groupId);
                         }
 
                         result.Objects.Add(asset);
@@ -3554,7 +3553,11 @@ namespace WebAPI.Clients
 
             KalturaImage result =
                 ClientUtils.GetResponseFromWS<KalturaImage, Image>(image, addImageFunc);
-
+            
+            Dictionary<long, string> imageTypeIdToNameMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToNameMap(groupId);
+            result.ImageTypeName = imageTypeIdToNameMap != null && imageTypeIdToNameMap.ContainsKey(result.ImageTypeId) ? 
+                imageTypeIdToNameMap[result.ImageTypeId] : string.Empty;
+            
             return result;
         }
 

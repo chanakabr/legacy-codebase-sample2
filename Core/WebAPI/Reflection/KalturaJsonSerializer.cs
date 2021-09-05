@@ -25814,6 +25814,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("imageTypeId", "\"imageTypeId\": " + ImageTypeId);
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("imageTypeName")))
+            {
+                ret.Add("imageTypeName", "\"imageTypeName\": " + "\"" + ImageTypeName + "\"");
+            }
             if(IsDefault.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefault")))
             {
                 ret.Add("isDefault", "\"isDefault\": " + IsDefault.ToString().ToLower());
@@ -27411,6 +27415,10 @@ namespace WebAPI.Models.Catalog
             if((retrievedProperties == null || retrievedProperties.Contains("imageTypeId")))
             {
                 ret.Add("imageTypeId", "\"imageTypeId\": " + ImageTypeId);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("imageTypeName")))
+            {
+                ret.Add("imageTypeName", "\"imageTypeName\": " + "\"" + ImageTypeName + "\"");
             }
             if(IsDefault.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefault")))
             {

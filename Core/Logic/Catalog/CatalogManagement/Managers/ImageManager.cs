@@ -252,6 +252,10 @@ namespace Core.Catalog.CatalogManagement
         {
             Image image = null;
             long imageId = id == 0 ? ODBCWrapper.Utils.GetLongSafeVal(row, "ID") : id;
+            Dictionary<long, string> imageTypeIdToNameMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToNameMap(groupId);
+            long ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID");
+            string ImageTypeName = imageTypeIdToNameMap != null && imageTypeIdToNameMap.ContainsKey(ImageTypeId) ? 
+                imageTypeIdToNameMap[ImageTypeId] : string.Empty;
             if (imageId > 0)
             {
                 image = new Image()
@@ -262,7 +266,8 @@ namespace Core.Catalog.CatalogManagement
                     ImageObjectType = (eAssetImageType)ODBCWrapper.Utils.GetIntSafeVal(row, "ASSET_IMAGE_TYPE"),
                     Status = (eTableStatus)ODBCWrapper.Utils.GetIntSafeVal(row, "STATUS"),
                     Version = ODBCWrapper.Utils.GetIntSafeVal(row, "VERSION"),
-                    ImageTypeId = ODBCWrapper.Utils.GetLongSafeVal(row, "IMAGE_TYPE_ID"),
+                    ImageTypeId = ImageTypeId,
+                    ImageTypeName = ImageTypeName,
                     IsDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_DEFAULT", 0) > 0 ? true : false,
                     ReferenceTable = ImageReferenceTable.Pics,
                     ReferenceId = imageId
@@ -1342,7 +1347,24 @@ namespace Core.Catalog.CatalogManagement
 
             return result;
         }
+        
+        public static Dictionary<long, string> GetImageTypeIdToNameMap(int groupId)
+        {
+            Dictionary<long, string> result = null;
+            List<ImageType> groupImageTypes = GetGroupImageTypes(groupId);
+            if (groupImageTypes != null && groupImageTypes.Count > 0)
+            {
+                    result = groupImageTypes.Aggregate(new Dictionary<long, string>(),
+                        (x, y) =>
+                        {
+                            x.Add(y.Id, y.Name);
+                            return x;
+                        });
+            }
 
+            return result;
+        }
+        
         public static Dictionary<string, ApiObjects.Catalog.ImageType> GetImageTypesMapBySystemName(int groupId)
         {
             Dictionary<string, ImageType> groupRatioNamesToImageTypes = null;
@@ -1443,11 +1465,14 @@ namespace Core.Catalog.CatalogManagement
                 Dictionary<long, Image> pics = new Dictionary<long, Image>();
                 Dictionary<long, Image> epgPics = new Dictionary<long, Image>();
                 var ratioNamesToImageTypes = GetImageTypesMapBySystemName(groupId);
-
+                Dictionary<long, string> imageTypeIdToNameMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToNameMap(groupId);
+                
                 foreach (var pic in epgCB.pictures)
                 {
                     long imageTypeId = pic.ImageTypeId > 0 ? pic.ImageTypeId : ratioNamesToImageTypes.ContainsKey(pic.Ratio) ? ratioNamesToImageTypes[pic.Ratio].Id : 0;
-
+                    string imageTypeName = imageTypeIdToNameMap != null && imageTypeIdToNameMap.ContainsKey(imageTypeId) ? 
+                        imageTypeIdToNameMap[imageTypeId] : string.Empty;
+                    
                     Image image = new Image()
                     {
                         Id = pic.PicID,
@@ -1456,7 +1481,8 @@ namespace Core.Catalog.CatalogManagement
                         IsDefault = false,
                         ImageObjectId = imageObjectId,
                         Status = eTableStatus.OK,
-                        ImageTypeId = imageTypeId
+                        ImageTypeId = imageTypeId,
+                        ImageTypeName = imageTypeName
                     };
                     if (pic.IsProgramImage)
                     {

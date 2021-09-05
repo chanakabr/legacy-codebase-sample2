@@ -4459,6 +4459,8 @@ namespace WebAPI.Reflection
                             return "id";
                         case "ImageTypeId":
                             return "imageTypeId";
+                        case "ImageTypeName":
+                            return "imageTypeName";
                         case "IsDefault":
                             return "isDefault";
                         case "Ratio":

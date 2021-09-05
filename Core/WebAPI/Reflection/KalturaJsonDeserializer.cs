@@ -21549,6 +21549,14 @@ namespace WebAPI.Models.Catalog
                     }
                     ImageTypeId = (Int64) Convert.ChangeType(parameters["imageTypeId"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("imageTypeName") && parameters["imageTypeName"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ImageTypeIdSchemaProperty.Validate("imageTypeName", parameters["imageTypeName"]);
+                    }
+                    ImageTypeName = (String) Convert.ChangeType(parameters["imageTypeName"], typeof(String));
+                }
                 if (parameters.ContainsKey("imageObjectId") && parameters["imageObjectId"] != null)
                 {
                     if(!isOldVersion)
@@ -23256,6 +23264,10 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("imageTypeId") && parameters["imageTypeId"] != null)
                 {
                     ImageTypeId = (Int64) Convert.ChangeType(parameters["imageTypeId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("imageTypeName") && parameters["imageTypeName"] != null)
+                {
+                    ImageTypeName = (String) Convert.ChangeType(parameters["imageTypeName"], typeof(String));
                 }
             }
         }

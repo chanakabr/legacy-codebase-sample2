@@ -21,6 +21,9 @@ namespace Core.Catalog
         [JsonProperty("ImageTypeId")]
         public long ImageTypeId { get; set; }
 
+        [JsonProperty("ImageTypeName")]
+        public string ImageTypeName { get; set; }
+        
         [JsonProperty("ImageObjectId")]
         public long ImageObjectId { get; set; }
 
@@ -70,6 +73,7 @@ namespace Core.Catalog
             this.ImageObjectId = imageToCopy.ImageObjectId;
             this.ImageObjectType = imageToCopy.ImageObjectType;
             this.ImageTypeId = imageToCopy.ImageTypeId;
+            this.ImageTypeName = imageToCopy.ImageTypeName;
             this.IsDefault = imageToCopy.IsDefault;
             this.RatioName = imageToCopy.RatioName;
             this.ReferenceId = imageToCopy.ReferenceId;
