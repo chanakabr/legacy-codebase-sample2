@@ -907,6 +907,8 @@ namespace WebAPI.Reflection
                             return "appTokenSessionMaxDurationSeconds";
                         case "ApptokenUserValidationDisabled":
                             return "apptokenUserValidationDisabled";
+                        case "AutoRefreshAppToken":
+                            return "autoRefreshAppToken";
                         case "KsExpirationSeconds":
                             return "ksExpirationSeconds";
                         case "RefreshExpirationForPinLoginSeconds":

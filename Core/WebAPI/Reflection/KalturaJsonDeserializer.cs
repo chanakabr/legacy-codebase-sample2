@@ -32360,6 +32360,10 @@ namespace WebAPI.Models.Partner
                     }
                     AppTokenMaxExpirySeconds = (Int32) Convert.ChangeType(parameters["appTokenMaxExpirySeconds"], typeof(Int32));
                 }
+                if (parameters.ContainsKey("autoRefreshAppToken") && parameters["autoRefreshAppToken"] != null)
+                {
+                    AutoRefreshAppToken = (Boolean) Convert.ChangeType(parameters["autoRefreshAppToken"], typeof(Boolean));
+                }
                 if (parameters.ContainsKey("uploadTokenExpirySeconds") && parameters["uploadTokenExpirySeconds"] != null)
                 {
                     if(!isOldVersion)

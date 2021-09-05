@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Text;
 using System.Web;
 using ApiLogic.Users.Services;
-using ApiObjects.CanaryDeployment;
 using ApiObjects.CanaryDeployment.Microservices;
 using ApiObjects.DataMigrationEvents;
 using TVinciShared;
@@ -27,10 +26,10 @@ using ApiObjects.Response;
 using SessionManager;
 using AuthenticationGrpcClientWrapper;
 using CachingProvider.LayeredCache;
-using CachingProvider;
 using CanaryDeploymentManager;
 using EventBus.Kafka;
 using Grpc.Core;
+using KalturaRequestContext;
 using AppToken = WebAPI.Managers.Models.AppToken;
 using Status = ApiObjects.Response.Status;
 using StatusCode = Grpc.Core.StatusCode;
@@ -48,6 +47,7 @@ namespace WebAPI.Managers
         private const string KS_VALIDATION_FALLBACK_EXPIRATION_KEY = "ks_validation_fallback_expiration_{0}";
 
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(CB_SECTION_NAME);
+        private static readonly RequestContextUtils RequestContextUtils = new RequestContextUtils();
 
         public static KalturaLoginSession RefreshSession(string refreshToken, string udid = null)
         {
@@ -350,7 +350,16 @@ namespace WebAPI.Managers
                 throw new ForbiddenException(ForbiddenException.INVALID_APP_TOKEN_HASH);
             }
 
-            // 5. get token expiration: the session duration will be the minimum between the token session duration and the token left expiration time
+            // 5. If it is enabled, update AppToken's expiry and save it to CB
+            if (group.AutoRefreshAppToken)
+            {
+                var utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+                appToken.Expiry = (int)GetAppTokenExpiry(utcNow, appToken.Expiry, group.AppTokenMaxExpirySeconds, group.AutoRefreshAppToken);
+                SaveAppToken(utcNow, appTokenCbKey, appToken);
+                SendAppTokenCanaryMigrationEvent(eMigrationOperation.Update, new KalturaAppToken(appToken), groupId);
+            }
+
+            // 6. get token expiration: the session duration will be the minimum between the token session duration and the token left expiration time
             long sessionDuration = 0;
             if (appToken.Expiry > 0)
             {
@@ -374,10 +383,10 @@ namespace WebAPI.Managers
                 sessionDuration = Math.Min(sessionDuration, expiry.Value);
             }
 
-            // 6. get session type from cb token - user if not defined - we currently support only user
+            // 7. get session type from cb token - user if not defined - we currently support only user
             KalturaSessionType sessionType = KalturaSessionType.USER;
 
-            // 7. get session user id from cb token - if not defined - use the supplied userId
+            // 8. get session user id from cb token - if not defined - use the supplied userId
 
             if (!string.IsNullOrEmpty(appToken.SessionUserId))
             {
@@ -412,10 +421,10 @@ namespace WebAPI.Managers
                 log.Warn($"StartSessionWithAppToken InvalidUser groupId:{groupId}, userId:{userId}");
             }
 
-            // 8. get the group secret by the session type
+            // 9. get the group secret by the session type
             string secret = sessionType == KalturaSessionType.ADMIN ? group.AdminSecret : group.UserSecret;
 
-            // 9. privileges - we do not support it so copy from app token
+            // 10. privileges - we do not support it so copy from app token
             var privilegesList = new Dictionary<string, string>();
 
             if (!privilegesList.ContainsKey(APP_TOKEN_PRIVILEGE_APP_TOKEN))
@@ -462,16 +471,16 @@ namespace WebAPI.Managers
                 throw new InternalServerErrorException();
             }
 
-            // 10. build the ks:
+            // 11. build the ks:
             KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, ksData, privilegesList, KS.KSVersion.V2);
 
-            //11. update last login date
+            // 12. update last login date
             usersClient.UpdateLastLoginDate(groupId, userId);
 
-            //12. update udid last activity
+            // 13. update udid last activity
             DeviceRemovalPolicyHandler.Instance.SaveDomainDeviceUsageDate(udid, groupId);
 
-            // 13. build the response from the ks:
+            // 14. build the response from the ks:
             response = new KalturaSessionInfo(ks);
 
             return response;
@@ -541,18 +550,9 @@ namespace WebAPI.Managers
             appToken.Token = Utils.Utils.Generate32LengthGuid();
 
             // 3. set default values for empty properties
-            List<long> userRoles = RolesManager.GetRoleIds(KS.GetFromRequest(), false);
-
-            int utcNow = (int)DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
-            int appTokenExpiry = appToken.getExpiry();
-
-            if ((appTokenExpiry == 0 || appTokenExpiry - utcNow > group.AppTokenMaxExpirySeconds) && userRoles.Count(ur => ur > RolesManager.MASTER_ROLE_ID) == 0)
-            {
-                appToken.Expiry = utcNow + group.AppTokenMaxExpirySeconds;
-            }
-
+            var utcNow = DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow);
+            appToken.Expiry = (int)GetAppTokenExpiry(utcNow, appToken.getExpiry(), group.AppTokenMaxExpirySeconds, false);
             appToken.CreateDate = utcNow;
-            appToken.UpdateDate = utcNow;
 
             // session duration
             if (appToken.SessionDuration == null || appToken.SessionDuration <= 0 || appToken.SessionDuration > group.AppTokenSessionMaxDurationSeconds)
@@ -576,15 +576,8 @@ namespace WebAPI.Managers
             }
 
             // 4. save in CB
-            AppToken cbAppToken = new AppToken(appToken);
-            int appTokenExpiryInSeconds = appToken.getExpiry() > 0 ? appToken.getExpiry() - (int)utcNow : 0;
-
-            if (!DAL.UtilsDal.SaveObjectInCB(CB_SECTION_NAME, appTokenCbKey, cbAppToken, true, (uint)appTokenExpiryInSeconds))
-            {
-                log.ErrorFormat("GenerateSession: Failed to store refreshed token");
-                throw new InternalServerErrorException();
-            }
-            
+            var cbAppToken = new AppToken(appToken);
+            SaveAppToken(utcNow, appTokenCbKey, cbAppToken);
             SendAppTokenCanaryMigrationEvent(eMigrationOperation.Create, appToken, groupId);
 
             return appToken;
@@ -1087,6 +1080,34 @@ namespace WebAPI.Managers
             session.Expiry = DateUtils.DateTimeToUtcUnixTimestampSeconds(KsObject.Expiration);
 
             return session;
+        }
+
+        private static long GetAppTokenExpiry(long utcNow, long appTokenExpiry, long maxExpirySeconds, bool autoRefreshExpiry)
+        {
+            if (RequestContextUtils.IsPartnerRequest())
+            {
+                return appTokenExpiry;
+            }
+            
+            if (appTokenExpiry == 0 || appTokenExpiry - utcNow > maxExpirySeconds || autoRefreshExpiry)
+            {
+                appTokenExpiry = utcNow + maxExpirySeconds;
+            }
+
+            return appTokenExpiry;
+        }
+
+        private static void SaveAppToken(long utcNow, string appTokenKey, AppToken appToken)
+        {
+            appToken.UpdateDate = utcNow;
+
+            var appTokenExpiryInSeconds = appToken.Expiry > 0 ? appToken.Expiry - (int)utcNow : 0;
+            if (!DAL.UtilsDal.SaveObjectInCB(CB_SECTION_NAME, appTokenKey, appToken, true, (uint)appTokenExpiryInSeconds))
+            {
+                log.Error($"{nameof(SaveAppToken)}: Failed to store refreshed token.");
+
+                throw new InternalServerErrorException();
+            }
         }
     }
 }

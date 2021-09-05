@@ -80,6 +80,7 @@ namespace WebAPI.Tests.Managers
                 AnonymousKSExpirationSeconds = copyFrom.AnonymousKSExpirationSeconds,
                 ApiCredentials = ConvertCredentialsToDTO(copyFrom.ApiCredentials),
                 AppTokenMaxExpirySeconds = copyFrom.AppTokenMaxExpirySeconds,
+                AutoRefreshAppToken = copyFrom.AutoRefreshAppToken,
                 AppTokenSessionMaxDurationSeconds = copyFrom.AppTokenSessionMaxDurationSeconds,
                 ApptokenUserValidationDisabled = copyFrom.ApptokenUserValidationDisabled,
                 BillingCredentials = ConvertCredentialsToDTO(copyFrom.BillingCredentials),
