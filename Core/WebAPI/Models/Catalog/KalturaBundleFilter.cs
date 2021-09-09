@@ -49,9 +49,22 @@ namespace WebAPI.Models.Catalog
             int domainId = (int)(contextData.DomainId ?? 0);
             bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
 
-            var response = ClientsManager.CatalogClient().GetBundleAssets(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language,
-               pager.getPageIndex(), pager.PageSize, this.IdEqual, this.OrderBy, this.getTypeIn(), this.BundleTypeEqual,
-               isAllowedToViewInactiveAssets, this.DynamicOrderBy, this.TrendingDaysEqual);
+            var filter = new ApiLogic.Catalog.SearchAssetsFilter
+            {
+                GroupId = contextData.GroupId,
+                SiteGuid = userId,
+                DomainId = domainId,
+                Udid = contextData.Udid,
+                Language = contextData.Language,
+                PageIndex = pager.getPageIndex(),
+                PageSize = pager.PageSize,
+                AssetTypes = this.getTypeIn(),
+                IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                TrendingDays = TrendingDaysEqual,
+                GroupByType = ApiObjects.SearchObjects.GroupingOption.Omit
+            };
+
+            var response = ClientsManager.CatalogClient().GetBundleAssets(filter, this.IdEqual, this.OrderBy, this.BundleTypeEqual, this.DynamicOrderBy);
             
             return response;
         }

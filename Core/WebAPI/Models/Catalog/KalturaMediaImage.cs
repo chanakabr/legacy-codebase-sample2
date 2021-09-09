@@ -76,5 +76,14 @@ namespace WebAPI.Models.Catalog
         [JsonProperty(PropertyName = "imageTypeId")]
         [XmlElement(ElementName = "imageTypeId")]        
         public long ImageTypeId { get; set; }
+        
+        /// <summary>
+        /// Image type Name
+        /// </summary>
+        [DataMember(Name = "imageTypeName")]
+        [JsonProperty(PropertyName = "imageTypeName")]
+        [XmlElement(ElementName = "imageTypeName")]        
+        public string ImageTypeName { get; set; }
+        
     }
 }

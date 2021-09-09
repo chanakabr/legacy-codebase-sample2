@@ -72,7 +72,8 @@ namespace Core.Catalog.Request
                     shouldUseStartDateForMedia = false,
                     shouldUseFinalEndDate = false,
                     shouldUseSearchEndDate = false,
-                    epgDaysOffest = 365
+                    epgDaysOffest = 365,
+                    isGroupingOptionInclude = request.isGroupingOptionInclude
                 };
 
                 int totalItems = 0;

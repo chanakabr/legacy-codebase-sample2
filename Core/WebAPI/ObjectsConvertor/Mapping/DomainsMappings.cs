@@ -83,9 +83,9 @@ namespace WebAPI.Mapping.ObjectsConvertor
             //KalturaHouseholdDeviceFamilyLimitations DeviceFamilyLimitations>
             cfg.CreateMap<KalturaHouseholdDeviceFamilyLimitations, DeviceFamilyLimitations>()
                 .ForMember(dest => dest.deviceFamily, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.concurrency, opt => opt.MapFrom(src => src.ConcurrentLimit))
-                .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency))
-                .ForMember(dest => dest.quantity, opt => opt.MapFrom(src => src.DeviceLimit));
+                .ForMember(dest => dest.concurrency, opt => opt.MapFrom(src => src.ConcurrentLimit ?? -1))
+                .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency ?? -1))
+                .ForMember(dest => dest.quantity, opt => opt.MapFrom(src => src.DeviceLimit ?? -1));
 
             //Domain
             cfg.CreateMap<Domain, KalturaHousehold>()
@@ -128,19 +128,22 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.UsersLimit, opt => opt.MapFrom(src => src.nUserLimit))
                 .ForMember(dest => dest.UserFrequency, opt => opt.MapFrom(src => src.UserFrequency))
                 .ForMember(dest => dest.UserFrequencyDescription, opt => opt.MapFrom(src => src.UserFrequencyDescrition))
-                .ForMember(dest => dest.DeviceFamiliesLimitations, opt => opt.MapFrom(src => src.lDeviceFamilyLimitations));
+                .ForMember(dest => dest.AssociatedDeviceFamiliesIdsIn, opt => opt.MapFrom(src => src.CreateAssociatedDeviceFamiliesFromLimitation()))
+                .ForMember(dest => dest.DeviceFamiliesLimitations, opt => opt.MapFrom(src => src.lDeviceFamilyLimitations))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
             
             //KalturaHouseholdLimitationModule to DLM
             cfg.CreateMap<KalturaHouseholdLimitations, LimitationsManager>()
                 .ForMember(dest => dest.domianLimitID, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Concurrency, opt => opt.MapFrom(src => src.ConcurrentLimit))
-                .ForMember(dest => dest.lDeviceFamilyLimitations, opt => opt.MapFrom(src => src.DeviceFamiliesLimitations))
+                .ForMember(dest => dest.lDeviceFamilyLimitations, opt => opt.MapFrom(src => src.DeviceFamiliesLimitations.Concat(src.AssociatedDeviceFamiliesToLimitations())))
                 .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.DeviceFrequency))
                 .ForMember(dest => dest.Quantity, opt => opt.MapFrom(src => src.DeviceLimit))
                 .ForMember(dest => dest.DomainLimitName, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.npvrQuotaInSecs, opt => opt.MapFrom(src => src.NpvrQuotaInSeconds))
                 .ForMember(dest => dest.UserFrequency, opt => opt.MapFrom(src => src.UserFrequency))
-                .ForMember(dest => dest.nUserLimit, opt => opt.MapFrom(src => src.UsersLimit));
+                .ForMember(dest => dest.nUserLimit, opt => opt.MapFrom(src => src.UsersLimit))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             //DomainDevice
             cfg.CreateMap<DomainDevice, KalturaHouseholdDevice>()

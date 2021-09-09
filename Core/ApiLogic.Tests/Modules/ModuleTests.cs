@@ -42,7 +42,7 @@ namespace ApiLogic.Tests.Modules
                 .Returns(_mockBaseDomain.Object);
             var module = new Module(_mockBaseDomainFactory.Object);
 
-            var response = module.AddDLM(1, limitationManager, 2);
+            var response = module.AddDLM(1, 2, limitationManager);
 
             response.Should().Match<GenericResponse<LimitationsManager>>(x => x.Status.Code == 100 && x.Status.Message == "Custom Status" && x.Object != null);
         }
@@ -55,7 +55,7 @@ namespace ApiLogic.Tests.Modules
                 .Returns((IBaseDomain)null);
             var module = new Module(_mockBaseDomainFactory.Object);
 
-            var response = module.AddDLM(1, new LimitationsManager(), 2);
+            var response = module.AddDLM(1, 2, new LimitationsManager());
 
             response.Should().Match<GenericResponse<LimitationsManager>>(x => x.Status.Code == (int)eResponseStatus.Error && x.Status.Message == "Error" && x.Object == null);
         }

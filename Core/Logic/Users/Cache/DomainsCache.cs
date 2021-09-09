@@ -629,26 +629,16 @@ namespace Core.Users.Cache
         }
         */
 
-        internal bool RemoveDLM(int groupId, int dlmId)
+        internal bool InvalidateDLM(int groupId, int dlmId)
         {
-            bool res = false;
-            try
+            string invalidationKey = LayeredCacheKeys.GetDlmInvalidationKey(groupId, dlmId);
+            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
             {
-                string invalidationKey = LayeredCacheKeys.GetDlmInvalidationKey(groupId, dlmId);
-                if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                {
-                    log.ErrorFormat("Failed removing DLM {0} from cache", dlmId);
-                    return res;
-                }
-
-                res = true;
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed removing DLM {0} from cache, ex = {1}", dlmId, ex.Message), ex);
+                log.ErrorFormat("Failed invalidating DLM {0} from cache", dlmId);
+                return false;
             }
 
-            return res;
+            return true;
         }
 
         #endregion

@@ -90,6 +90,8 @@ namespace Core.Catalog.Request
         public DateTime m_dServerTime;
         [DataMember]
         public int domainId;
+        [DataMember]
+        public bool isGroupingOptionInclude;
 
         /// <summary>
         /// Full constructor, including user Id and domain Id
@@ -104,7 +106,7 @@ namespace Core.Catalog.Request
         /// <param name="sSiteGuid"></param>
         /// <param name="nDomainId"></param>
         public BaseRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, 
-            string sSignature, string sSignString, string sSiteGuid, int nDomainId) : this()
+            string sSignature, string sSignString, string sSiteGuid, int nDomainId, bool isGroupingOptionInclude = false) : this()
         {
             m_nGroupID = nGroupID;
             m_sUserIP = sUserIP;
@@ -115,6 +117,7 @@ namespace Core.Catalog.Request
             m_sSignString = sSignString;
             m_sSiteGuid = sSiteGuid;
             domainId = nDomainId;
+            this.isGroupingOptionInclude = isGroupingOptionInclude;
         }
 
         /// <summary>
@@ -128,7 +131,7 @@ namespace Core.Catalog.Request
         /// <param name="sSignature"></param>
         /// <param name="sSignString"></param>
         public BaseRequest(Int32 nPageSize, Int32 nPageIndex, string sUserIP, Int32 nGroupID, Filter oFilter, string sSignature, string sSignString)
-            : this(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, string.Empty, 0)
+            : this(nPageSize, nPageIndex, sUserIP, nGroupID, oFilter, sSignature, sSignString, string.Empty, 0, false)
         {
         }
 

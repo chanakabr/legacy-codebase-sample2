@@ -21549,6 +21549,14 @@ namespace WebAPI.Models.Catalog
                     }
                     ImageTypeId = (Int64) Convert.ChangeType(parameters["imageTypeId"], typeof(Int64));
                 }
+                if (parameters.ContainsKey("imageTypeName") && parameters["imageTypeName"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ImageTypeIdSchemaProperty.Validate("imageTypeName", parameters["imageTypeName"]);
+                    }
+                    ImageTypeName = (String) Convert.ChangeType(parameters["imageTypeName"], typeof(String));
+                }
                 if (parameters.ContainsKey("imageObjectId") && parameters["imageObjectId"] != null)
                 {
                     if(!isOldVersion)
@@ -23256,6 +23264,10 @@ namespace WebAPI.Models.Catalog
                 if (parameters.ContainsKey("imageTypeId") && parameters["imageTypeId"] != null)
                 {
                     ImageTypeId = (Int64) Convert.ChangeType(parameters["imageTypeId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("imageTypeName") && parameters["imageTypeName"] != null)
+                {
+                    ImageTypeName = (String) Convert.ChangeType(parameters["imageTypeName"], typeof(String));
                 }
             }
         }
@@ -36389,6 +36401,26 @@ namespace WebAPI.Models.Domains
             MaxLength = -1,
             MinLength = -1,
         };
+        private static RuntimeSchemePropertyAttribute DescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute AssociatedDeviceFamiliesIdsInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaHouseholdLimitations(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
@@ -36564,6 +36596,38 @@ namespace WebAPI.Models.Domains
                     {
                         DeviceFamiliesLimitations = buildList(typeof(KalturaHouseholdDeviceFamilyLimitations), parameters["device_families_limitations"] as object[]);
                     }
+                }
+                if (parameters.ContainsKey("description") && parameters["description"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DescriptionSchemaProperty.Validate("description", parameters["description"]);
+                    }
+                    Description = (String) Convert.ChangeType(parameters["description"], typeof(String));
+                }
+                if (parameters.ContainsKey("description") && parameters["description"] != null && isOldVersion)
+                {
+                    if(!isOldVersion)
+                    {
+                        DescriptionSchemaProperty.Validate("description", parameters["description"]);
+                    }
+                    Description = (String) Convert.ChangeType(parameters["description"], typeof(String));
+                }
+                if (parameters.ContainsKey("associatedDeviceFamiliesIdsIn") && parameters["associatedDeviceFamiliesIdsIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AssociatedDeviceFamiliesIdsInSchemaProperty.Validate("associatedDeviceFamiliesIdsIn", parameters["associatedDeviceFamiliesIdsIn"]);
+                    }
+                    AssociatedDeviceFamiliesIdsIn = (String) Convert.ChangeType(parameters["associatedDeviceFamiliesIdsIn"], typeof(String));
+                }
+                if (parameters.ContainsKey("associatedDeviceFamiliesIdsIn") && parameters["associatedDeviceFamiliesIdsIn"] != null && isOldVersion)
+                {
+                    if(!isOldVersion)
+                    {
+                        AssociatedDeviceFamiliesIdsInSchemaProperty.Validate("associatedDeviceFamiliesIdsIn", parameters["associatedDeviceFamiliesIdsIn"]);
+                    }
+                    AssociatedDeviceFamiliesIdsIn = (String) Convert.ChangeType(parameters["associatedDeviceFamiliesIdsIn"], typeof(String));
                 }
             }
         }

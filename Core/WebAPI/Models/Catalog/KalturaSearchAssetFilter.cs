@@ -9,6 +9,8 @@ using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using ApiObjects.SearchObjects;
+using TVinciShared;
 
 namespace WebAPI.Models.Catalog
 {
@@ -102,15 +104,19 @@ namespace WebAPI.Models.Catalog
                 GroupBy = getGroupByValue(),
                 IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
                 IgnoreEndDate = false,
-                GroupByType = this.GroupingOptionEqual == null 
-                    ? ApiObjects.SearchObjects.GroupingOption.Omit : 
-                    AutoMapper.Mapper.Map<ApiObjects.SearchObjects.GroupingOption>(GroupingOptionEqual),
+                GroupByType = GenericExtensionMethods.ConvertEnumsById<KalturaGroupingOption, GroupingOption>
+                                (GroupingOptionEqual, GroupingOption.Omit).Value,
                 IsPersonalListSearch = false,
                 UseFinal = false,
-                TrendingDays = this.TrendingDaysEqual
+                TrendingDays = TrendingDaysEqual
             };
             
             var response = ClientsManager.CatalogClient().SearchAssets(searchAssetFilter, OrderBy, DynamicOrderBy, responseProfile, GroupByOrder);
+
+            if (pager.PageIndex.HasValue && pager.PageSize.HasValue && searchAssetFilter.GroupByType == GroupingOption.Include)
+            {
+                response.Objects = response.Objects.Skip(pager.PageIndex.Value * pager.PageSize.Value)?.Take(pager.PageSize.Value).ToList();
+            }
 
             return response;
         }

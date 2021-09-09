@@ -11,7 +11,8 @@ namespace ApiLogic.Users
 {
     public interface IDomainLimitationModuleRepository
     {
-        LimitationsManager Add(int groupId, int concurrentLimit, int deviceFrequency, int deviceLimit, string name, int userFrequency, int usersLimit, DeviceFamilyLimitations[] deviceFamilyLimitations, long updaterId);
+        LimitationsManager Add(int groupId, long updaterId, LimitationsManager limitationsManager);
+        LimitationsManager Update(int groupId, long updaterId, LimitationsManager limitationsManager);
         LimitationsManager Get(int groupId, int limitId);
         IEnumerable<int> GetDomainLimitationModuleIds(int groupId);
         bool Delete(int limitId, long updaterId);
@@ -33,16 +34,13 @@ namespace ApiLogic.Users
             _logger = logger;
         }
 
-        public LimitationsManager Add(int groupId, int concurrentLimit, int deviceFrequency, int deviceLimit, string name, int userFrequency, int usersLimit, DeviceFamilyLimitations[] deviceFamilyLimitations, long updaterId)
+        public LimitationsManager Add(int groupId, long updaterId, LimitationsManager limitationsManager)
         {
             try
             {
-                var concurrentLimits = deviceFamilyLimitations.Select(x => new KeyValuePair<int, int>(x.deviceFamily, x.concurrency));
-                var deviceLimits = deviceFamilyLimitations.Select(x => new KeyValuePair<int, int>(x.deviceFamily, x.quantity));
-                var frequencyLimits = deviceFamilyLimitations.Select(x => new KeyValuePair<int, int>(x.deviceFamily, x.Frequency));
-
-                var dataSet = _dlmDal.InsertGroupLimitsAndDeviceFamilies(groupId, concurrentLimit, deviceFrequency, deviceLimit, name, userFrequency, usersLimit, concurrentLimits, deviceLimits, frequencyLimits, updaterId);
-                var limitationManager = CreateLimitationsManager(dataSet);
+                var limitationsManagerDTO = CreateLimitationsManagerDTO(limitationsManager);
+                var resultLimitationsManagerDTO = _dlmDal.InsertGroupLimitsAndDeviceFamilies(limitationsManagerDTO, groupId, updaterId);
+                var limitationManager = CreateLimitationsManager(resultLimitationsManagerDTO);
 
                 return limitationManager;
             }
@@ -75,10 +73,7 @@ namespace ApiLogic.Users
         {
             try
             {
-                var dt = _dlmDal.GetGroupDeviceLimitationModules(groupId);
-                var limitationsManagerIds = GetGroupsDeviceLimitationModuleIds(dt);
-
-                return limitationsManagerIds;
+                return _dlmDal.GetGroupDeviceLimitationModules(groupId);
             }
             catch (Exception e)
             {
@@ -104,121 +99,85 @@ namespace ApiLogic.Users
             }
         }
 
-        private LimitationsManager CreateLimitationsManager(DataSet ds)
+        private LimitationsManager CreateLimitationsManager(DAL.DTO.LimitationsManagerDTO limitationsManagerDTO)
         {
-            if (ds?.Tables == null || ds.Tables.Count <= 0)
-            {
-                return null;
-            }
-
             LimitationsManager limitationsManager = null;
 
             #region GroupLevel + DLM Level
-
-            if (ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0 &&
-                ds.Tables[1] != null && ds.Tables[1].Rows.Count > 0)
+            if (limitationsManagerDTO != null) 
             {
                 limitationsManager = new LimitationsManager();
 
-                var drGroup = ds.Tables[0].Rows[0];
-                var drDLM = ds.Tables[1].Rows[0];
-                if (drGroup != null && drDLM != null)
+                limitationsManager.domianLimitID = limitationsManagerDTO.domianLimitID;
+                limitationsManager.DomainLimitName = limitationsManagerDTO.DomainLimitName;
+                limitationsManager.Concurrency = limitationsManagerDTO.Concurrency;
+                limitationsManager.npvrQuotaInSecs = limitationsManagerDTO.npvrQuotaInSecs;
+                limitationsManager.Frequency = limitationsManagerDTO.Frequency;
+                limitationsManager.FrequencyDescription = Core.Pricing.Utils.Instance.GetMinPeriodDescription(limitationsManager.Frequency);
+                limitationsManager.Quantity = limitationsManagerDTO.Quantity;
+                limitationsManager.nUserLimit = limitationsManagerDTO.nUserLimit;
+                limitationsManager.UserFrequency = limitationsManagerDTO.UserFrequency;
+                limitationsManager.UserFrequencyDescrition = Core.Pricing.Utils.Instance.GetMinPeriodDescription(limitationsManager.UserFrequency);
+                limitationsManager.UserFrequency = limitationsManagerDTO.UserFrequency;
+                limitationsManager.Description = limitationsManagerDTO.Description;
+                #endregion
+
+                #region DeviceFamily
+                if (limitationsManagerDTO.lDeviceFamilyLimitations != null)
                 {
-                    limitationsManager.domianLimitID = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "ID");
-                    limitationsManager.DomainLimitName = ODBCWrapper.Utils.GetSafeStr(drDLM, "NAME");
-                    var nConcurrencyGroupLevel = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "GROUP_CONCURRENT_MAX_LIMIT");
-                    limitationsManager.npvrQuotaInSecs = ODBCWrapper.Utils.GetIntSafeVal(drGroup, "npvr_quota_in_seconds");
-                    var nConcurrencyDomainLevel = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "CONCURRENT_MAX_LIMIT");
-                    limitationsManager.Frequency = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "freq_period_id");
-                    limitationsManager.FrequencyDescription = Core.Pricing.Utils.Instance.GetMinPeriodDescription(limitationsManager.Frequency);
-                    limitationsManager.Quantity = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "DEVICE_MAX_LIMIT");
-                    limitationsManager.nUserLimit = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "USER_MAX_LIMIT");
-                    limitationsManager.UserFrequency = ODBCWrapper.Utils.GetIntSafeVal(drDLM, "user_freq_period_id");
-                    limitationsManager.UserFrequencyDescrition = Core.Pricing.Utils.Instance.GetMinPeriodDescription(limitationsManager.UserFrequency);
-
-                    limitationsManager.SetConcurrency(nConcurrencyDomainLevel, nConcurrencyGroupLevel);
-                }
-            }
-
-            #endregion
-
-            #region DeviceFamily
-
-            if (limitationsManager != null && ds.Tables.Count >= 4)
-            {
-                DataTable dt = ds.Tables[2];
-                DataTable dtSpecificLimits = ds.Tables[3];
-                if (dt != null && dt.Rows.Count > 0)
-                {
-                    limitationsManager.lDeviceFamilyLimitations = new List<DeviceFamilyLimitations>();
-                    foreach (DataRow dr in dt.Rows)
+                    limitationsManager.lDeviceFamilyLimitations = limitationsManagerDTO.lDeviceFamilyLimitations.Select(x => new DeviceFamilyLimitations()
                     {
-                        var dfl = new DeviceFamilyLimitations
-                        {
-                            deviceFamily = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID"),
-                            deviceFamilyName = ODBCWrapper.Utils.GetSafeStr(dr, "NAME"),
-                            concurrency = -1,
-                            quantity = -1,
-                            Frequency = -1
-                        };
-
-                        DataRow[] drSpecific = dtSpecificLimits.Select("device_family_id = " + dfl.deviceFamily);
-                        foreach (DataRow drItem in drSpecific)
-                        {
-                            string sLimitationType = ODBCWrapper.Utils.GetSafeStr(drItem, "description");
-                            int nLimitationValue = ODBCWrapper.Utils.GetIntSafeVal(drItem, "value", -1);
-
-                            if (dfl.deviceFamily > 0 && nLimitationValue > -1 && sLimitationType.Length > 0)
-                            {
-                                if (sLimitationType.ToLower() == "concurrency")
-                                {
-                                    dfl.concurrency = nLimitationValue;
-                                }
-                                else if (sLimitationType.ToLower() == "quantity")
-                                {
-                                    dfl.quantity = nLimitationValue;
-                                }
-                                else if (sLimitationType.ToLower() == "frequency")
-                                {
-                                    dfl.Frequency = nLimitationValue;
-                                }
-                            }
-                        }
-
-                        // if concurrency / quantity is -1 take the value from the group itself.
-                        if (dfl.concurrency == -1)
-                        {
-                            dfl.concurrency = limitationsManager.Concurrency;
-                        }
-
-                        if (dfl.quantity == -1)
-                        {
-                            dfl.quantity = limitationsManager.Quantity;
-                        }
-
-                        limitationsManager.lDeviceFamilyLimitations.Add(dfl);
-                    }
+                        deviceFamily = x.deviceFamily,
+                        concurrency = x.concurrency,
+                        deviceFamilyName = x.deviceFamilyName,
+                        Frequency = x.Frequency,
+                        quantity = x.quantity
+                    }).ToList();
                 }
+                #endregion
             }
-
-            #endregion
 
             return limitationsManager;
         }
 
-        private IEnumerable<int> GetGroupsDeviceLimitationModuleIds(DataTable dt)
+        private DAL.DTO.LimitationsManagerDTO CreateLimitationsManagerDTO(LimitationsManager limitationsManager)
         {
-            List<int> response = null;
-            if (dt?.Rows.Count > 0)
+            return new DAL.DTO.LimitationsManagerDTO
             {
-                response = new List<int>();
-                foreach (DataRow row in dt.Rows)
+                domianLimitID = limitationsManager.domianLimitID,
+                Concurrency = limitationsManager.Concurrency,
+                Frequency = limitationsManager.Frequency,
+                Quantity = limitationsManager.Quantity,
+                DomainLimitName = limitationsManager.DomainLimitName,
+                UserFrequency = limitationsManager.UserFrequency,
+                nUserLimit = limitationsManager.nUserLimit,
+                Description = limitationsManager.Description,
+                lDeviceFamilyLimitations = limitationsManager.lDeviceFamilyLimitations.Select(x => new DAL.DTO.DeviceFamilyLimitationsDTO()
                 {
-                    response.Add(ODBCWrapper.Utils.GetIntSafeVal(row, "ID"));
-                }
-            }
+                    concurrency = x.concurrency,
+                    deviceFamily = x.deviceFamily,
+                    deviceFamilyName = x.deviceFamilyName,
+                    Frequency = x.Frequency,
+                    quantity = x.quantity
+                }).ToList()
+            };
+        }
 
-            return response;
+        public LimitationsManager Update(int groupId, long updaterId, LimitationsManager limitationsManager)
+        {
+            try
+            {
+                var dto = _dlmDal.UpdateGroupLimitsAndDeviceFamilies(groupId, updaterId, CreateLimitationsManagerDTO(limitationsManager));
+                var limitationManager = CreateLimitationsManager(dto);
+
+                return limitationManager;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error with DB while trying to {nameof(Update)}: limitId={limitationsManager.domianLimitID}, exception={e.Message}.");
+
+                return null;
+            }
         }
     }
 }

@@ -342,7 +342,7 @@ namespace Core.Catalog
                     }
                 }
 
-                definitions.isGroupingOptionInclude = request.searchGroupBy != null && request.searchGroupBy.isGroupingOptionInclude;
+                definitions.isGroupingOptionInclude = request.searchGroupBy != null && (request.searchGroupBy.isGroupingOptionInclude || request.isGroupingOptionInclude);
                 definitions.trendingAssetWindow = request.order?.trendingAssetWindow;
                 #endregion
 

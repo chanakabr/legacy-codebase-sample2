@@ -32,7 +32,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
         public static void RegisterMappings(MapperConfigurationExpression cfg)
         {
             #region Picture, EpgPicture -> KalturaMediaImage
-
+            
             // Picture to KalturaMediaImage
             cfg.CreateMap<Picture, KalturaMediaImage>()
                  .ForMember(dest => dest.Url, opt => opt.MapFrom(src => src.m_sURL))
@@ -2043,11 +2043,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             return assetType;
         }
 
-        public static List<KalturaMediaImage> ConvertImageListToKalturaMediaImageList(List<Image> images, Dictionary<long, string> imageTypeIdToRatioNameMap)
+        public static List<KalturaMediaImage> ConvertImageListToKalturaMediaImageList(List<Image> images, int groupId)
         {
             List<KalturaMediaImage> result = new List<KalturaMediaImage>();
             if (images != null && images.Count > 0)
             {
+                Dictionary<long, string> imageTypeIdToRatioNameMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId);
+                Dictionary<long, string> imageTypeIdToNameMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToNameMap(groupId);
                 foreach (Image image in images)
                 {
                     string ratioName = !string.IsNullOrEmpty(image.RatioName) ? image.RatioName :
@@ -2059,6 +2061,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                     if (convertedImage != null)
                     {
+                        convertedImage.ImageTypeName = imageTypeIdToNameMap != null && imageTypeIdToNameMap.ContainsKey(image.ImageTypeId) ? 
+                            imageTypeIdToNameMap[image.ImageTypeId] : string.Empty;
                         result.Add(convertedImage);
                     }
                 }

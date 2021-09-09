@@ -756,7 +756,7 @@ namespace Core.Domains
             return oChangeDLMObj;
         }
 
-        public GenericResponse<LimitationsManager> AddDLM(int groupId, LimitationsManager limitationsManager, long userId)
+        public GenericResponse<LimitationsManager> AddDLM(int groupId, long userId, LimitationsManager limitationsManager)
         {
             var baseDomain = _baseDomainFactory.GetBaseImpl(groupId);
             var response = baseDomain != null
@@ -764,6 +764,24 @@ namespace Core.Domains
                 : new GenericResponse<LimitationsManager>();
 
             return response;
+        }
+
+        public DLMResponse UpdateDLM(int limitId, int groupId, long userId, LimitationsManager limitationsManager)
+        {
+            IBaseDomain baseDomain = _baseDomainFactory.GetBaseImpl(groupId);
+
+            return  baseDomain != null 
+                    ? baseDomain.UpdateDLM(limitId, groupId, userId, limitationsManager)
+                    : new DLMResponse();
+        }
+
+        public GenericResponse<bool> IsDLMInUse(int limitId, int groupId)
+        {
+            IBaseDomain baseDomain = _baseDomainFactory.GetBaseImpl(groupId);
+
+            return baseDomain != null
+                ? baseDomain.IsDLMInUse(limitId, groupId)
+                : new GenericResponse<bool>();
         }
 
         public DLMResponse GetDLM(int nGroupID, int nDlmID)

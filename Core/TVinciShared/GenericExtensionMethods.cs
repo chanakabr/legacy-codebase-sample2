@@ -90,7 +90,7 @@ namespace TVinciShared
             return JsonConvert.DeserializeObject<T>(serializeObject, deserializeSettings);
         }
 
-        public static U? ConvertEnumsById<T, U>(T? value)
+        public static U? ConvertEnumsById<T, U>(T? value, U? defaultValue = null)
            where T : struct, IConvertible
            where U : struct, IConvertible
         {
@@ -102,6 +102,12 @@ namespace TVinciShared
                     return (U)(object)intValue;
                 }
             }
+
+            if (defaultValue.HasValue)
+            {
+                return defaultValue.Value;
+            }
+
             return null;
         }
     }

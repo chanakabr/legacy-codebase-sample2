@@ -20,19 +20,24 @@ using KeyValuePair = ApiObjects.KeyValuePair;
 using ApiObjects.Base;
 using ApiLogic.Users.Security;
 using log4net;
+using Core.Api;
 
 namespace Core.Users
 {
     public interface IBaseDomain
     {
         GenericResponse<LimitationsManager> AddDLM(int groupId, LimitationsManager limitationsManager, long userId);
+        DLMResponse UpdateDLM(int limitId, int groupId, long userId, LimitationsManager limitationsManager);
         ApiObjects.Response.Status DeleteDLM(int groupId, int dlmId, long userId);
+        GenericResponse<bool> IsDLMInUse(int limitId, int groupId);
     }
     
     public abstract class BaseDomain : IBaseDomain
     {
         private readonly IDomainLimitationModuleRepository _dlmRepository;
         private readonly KLogger log;
+        private readonly IDeviceFamilyManager _deviceFamilyManager;
+        
 
         protected int m_nGroupID;
 
@@ -46,12 +51,14 @@ namespace Core.Users
             m_nGroupID = nGroupID;
             _dlmRepository = new DomainLimitationModuleRepository();
             log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+            _deviceFamilyManager = api.Instance;
         }
 
-        protected BaseDomain(int groupId, IDomainLimitationModuleRepository dlmRepository, ILog log)
+        protected BaseDomain(int groupId, IDomainLimitationModuleRepository dlmRepository, ILog log, IDeviceFamilyManager deviceFamilyManager)
         {
             m_nGroupID = groupId;
             _dlmRepository = dlmRepository;
+            _deviceFamilyManager = deviceFamilyManager;
             this.log = new KLogger(log, MethodBase.GetCurrentMethod().DeclaringType.ToString());
         }
 
@@ -1589,7 +1596,7 @@ namespace Core.Users
             try
             {
                 DomainsCache oDomainCache = DomainsCache.Instance();
-                bool bRes = oDomainCache.RemoveDLM(m_nGroupID, nDlmID);
+                bool bRes = oDomainCache.InvalidateDLM(m_nGroupID, nDlmID);
                 if (bRes)
                     resp = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
                 else
@@ -1649,23 +1656,21 @@ namespace Core.Users
                 oChangeDLMObj.resp = new ApiObjects.Response.Status((int)eResponseStatus.Error, string.Empty);
                 return oChangeDLMObj;
             }
-        }
+        }        
 
         public GenericResponse<LimitationsManager> AddDLM(int groupId, LimitationsManager limitationsManager, long userId)
         {
             var response = new GenericResponse<LimitationsManager>();
             try
             {
-                limitationsManager = _dlmRepository.Add(
-                    groupId,
-                    limitationsManager.Concurrency,
-                    limitationsManager.Frequency,
-                    limitationsManager.Quantity,
-                    limitationsManager.DomainLimitName,
-                    limitationsManager.UserFrequency,
-                    limitationsManager.nUserLimit,
-                    limitationsManager.lDeviceFamilyLimitations.ToArray(),
-                    userId);
+                var devFamilyValidationResponse = ValidateDLMDeviceFamilies(limitationsManager);
+
+                if(!devFamilyValidationResponse.IsOkStatusCode())
+                {
+                    return devFamilyValidationResponse;
+                }
+
+                limitationsManager = _dlmRepository.Add(groupId, userId, limitationsManager);
                 response = limitationsManager != null
                     ? new GenericResponse<LimitationsManager>(ApiObjects.Response.Status.Ok, limitationsManager)
                     : new GenericResponse<LimitationsManager>(new ApiObjects.Response.Status((int)eResponseStatus.Error, "DLM not created"));
@@ -1694,7 +1699,7 @@ namespace Core.Users
                 }
                 else
                 {
-                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, "Dlm Not Exist");
+                    oDLMResponse.resp = new ApiObjects.Response.Status((int)eResponseStatus.DlmNotExist, $"Dlm Not Exist, id: {nDlmID}");
                 }
 
                 return oDLMResponse;
@@ -2514,6 +2519,71 @@ namespace Core.Users
                 log.Error($"An Exception was occurred in GetDomains. filter: {filter}, contextData:{contextData}", ex);
             }
 
+            return response;
+        }
+
+        public DLMResponse UpdateDLM(int limitId, int groupId, long userId, LimitationsManager limitationsManager)
+        {
+            var response = new DLMResponse();
+
+            try
+            {
+                var devFamilyValidationResponse = ValidateDLMDeviceFamilies(limitationsManager);
+
+                if (!devFamilyValidationResponse.IsOkStatusCode())
+                {
+                    return new DLMResponse(devFamilyValidationResponse.Status, devFamilyValidationResponse.Object);
+                }
+                limitationsManager.domianLimitID = limitId;
+                limitationsManager = _dlmRepository.Update(groupId, userId, limitationsManager);
+
+                if (limitationsManager != null)
+                {
+                    response = new DLMResponse(ApiObjects.Response.Status.Ok, limitationsManager);
+                    DomainsCache.Instance().InvalidateDLM(groupId, limitId);
+                }
+                else
+                {
+                    response = new DLMResponse(new ApiObjects.Response.Status((int)eResponseStatus.Error, "DLM not updated"), limitationsManager);
+                }
+            }
+            catch (Exception e)
+            {
+                log.Error($"An Exception was occurred in {nameof(BaseDomain)}.{nameof(UpdateDLM)} - failed {nameof(groupId)}={groupId}, {nameof(userId)}={userId}, exception: {e.Message}", e);
+            }
+
+            return response;
+        }
+
+        private GenericResponse<LimitationsManager> ValidateDLMDeviceFamilies(LimitationsManager limitationsManager)
+        {
+            var response = new GenericResponse<LimitationsManager>();
+            response.SetStatus(eResponseStatus.OK);
+
+            var deviceFamiliesRes = _deviceFamilyManager.GetDeviceFamilyList();
+
+            if (!deviceFamiliesRes.Status.IsOkStatusCode() || deviceFamiliesRes.DeviceFamilies == null)
+            {
+                response.SetStatus(new ApiObjects.Response.Status(deviceFamiliesRes.Status.Code, $"DLM is not valid, {deviceFamiliesRes.Status.ToString()}"));
+                return response;
+            }
+
+            var deviceFamiliesIdsDoesntExist = limitationsManager.lDeviceFamilyLimitations.Where(x => !deviceFamiliesRes.DeviceFamilies.Exists(y => y.Id == x.deviceFamily)).Select(dfl => dfl.deviceFamily.ToString());
+
+            if (deviceFamiliesIdsDoesntExist.Any())
+            {
+                response.SetStatus(new ApiObjects.Response.Status((int)eResponseStatus.Error, $"DLM is not valid, these device family ids doesnt exist {string.Join(",", deviceFamiliesIdsDoesntExist)}"));
+            }
+
+            return response;
+        }
+
+        public GenericResponse<bool> IsDLMInUse(int limitId, int groupId)
+        {
+            var response = new GenericResponse<bool>();
+            //DomainsCache.Instance().GetDomains.Any(x => x.maxLimit == limitId);
+            response.Object = DomainDal.IsDLMInUse(groupId, limitId);
+            response.SetStatus(eResponseStatus.OK);
             return response;
         }
     }

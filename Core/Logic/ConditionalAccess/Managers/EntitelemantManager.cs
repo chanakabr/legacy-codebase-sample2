@@ -2183,6 +2183,7 @@ namespace Core.ConditionalAccess
             compansation = string.Empty;
             countryCode = string.Empty;
 
+            if (string.IsNullOrEmpty(customData)) return;
             try
             {              
                 XmlDocument doc = new XmlDocument();

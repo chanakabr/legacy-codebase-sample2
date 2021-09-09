@@ -25814,6 +25814,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("imageTypeId", "\"imageTypeId\": " + ImageTypeId);
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("imageTypeName")))
+            {
+                ret.Add("imageTypeName", "\"imageTypeName\": " + "\"" + ImageTypeName + "\"");
+            }
             if(IsDefault.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefault")))
             {
                 ret.Add("isDefault", "\"isDefault\": " + IsDefault.ToString().ToLower());
@@ -27411,6 +27415,10 @@ namespace WebAPI.Models.Catalog
             if((retrievedProperties == null || retrievedProperties.Contains("imageTypeId")))
             {
                 ret.Add("imageTypeId", "\"imageTypeId\": " + ImageTypeId);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("imageTypeName")))
+            {
+                ret.Add("imageTypeName", "\"imageTypeName\": " + "\"" + ImageTypeName + "\"");
             }
             if(IsDefault.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefault")))
             {
@@ -42338,12 +42346,28 @@ namespace WebAPI.Models.Domains
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AssociatedDeviceFamiliesIdsIn != null && (retrievedProperties == null || retrievedProperties.Contains("associatedDeviceFamiliesIdsIn")))
+            {
+                ret.Add("associatedDeviceFamiliesIdsIn", "\"associatedDeviceFamiliesIdsIn\": " + "\"" + EscapeJson(AssociatedDeviceFamiliesIdsIn) + "\"");
+                if (currentVersion == null || isOldVersion)
+                {
+                    ret.Add("associatedDeviceFamiliesIdsIn", "\"associatedDeviceFamiliesIdsIn\": " + "\"" + EscapeJson(AssociatedDeviceFamiliesIdsIn) + "\"");
+                }
+            }
             if(ConcurrentLimit.HasValue && (retrievedProperties == null || retrievedProperties.Contains("concurrentLimit")))
             {
                 ret.Add("concurrentLimit", "\"concurrentLimit\": " + ConcurrentLimit);
                 if (currentVersion == null || isOldVersion)
                 {
                     ret.Add("concurrent_limit", "\"concurrent_limit\": " + ConcurrentLimit);
+                }
+            }
+            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
+            {
+                ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
+                if (currentVersion == null || isOldVersion)
+                {
+                    ret.Add("description", "\"description\": " + "\"" + EscapeJson(Description) + "\"");
                 }
             }
             if(DeviceFamiliesLimitations != null && (retrievedProperties == null || retrievedProperties.Contains("deviceFamiliesLimitations")))
@@ -42433,12 +42457,28 @@ namespace WebAPI.Models.Domains
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AssociatedDeviceFamiliesIdsIn != null && (retrievedProperties == null || retrievedProperties.Contains("associatedDeviceFamiliesIdsIn")))
+            {
+                ret.Add("associatedDeviceFamiliesIdsIn", "<associatedDeviceFamiliesIdsIn>" + EscapeXml(AssociatedDeviceFamiliesIdsIn) + "</associatedDeviceFamiliesIdsIn>");
+                if (currentVersion == null || isOldVersion)
+                {
+                ret.Add("associatedDeviceFamiliesIdsIn", "<associatedDeviceFamiliesIdsIn>" + EscapeXml(AssociatedDeviceFamiliesIdsIn) + "</associatedDeviceFamiliesIdsIn>");
+                }
+            }
             if(ConcurrentLimit.HasValue && (retrievedProperties == null || retrievedProperties.Contains("concurrentLimit")))
             {
                 ret.Add("concurrentLimit", "<concurrentLimit>" + ConcurrentLimit + "</concurrentLimit>");
                 if (currentVersion == null || isOldVersion)
                 {
                 ret.Add("concurrent_limit", "<concurrent_limit>" + ConcurrentLimit + "</concurrent_limit>");
+                }
+            }
+            if(Description != null && (retrievedProperties == null || retrievedProperties.Contains("description")))
+            {
+                ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
+                if (currentVersion == null || isOldVersion)
+                {
+                ret.Add("description", "<description>" + EscapeXml(Description) + "</description>");
                 }
             }
             if(DeviceFamiliesLimitations != null && (retrievedProperties == null || retrievedProperties.Contains("deviceFamiliesLimitations")))

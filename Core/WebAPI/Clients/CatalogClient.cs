@@ -382,7 +382,7 @@ namespace WebAPI.Clients
             }
 
             result = Mapper.Map<KalturaAsset>(response.Object);
-            result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+            result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, groupId);
 
             return result;
         }
@@ -429,7 +429,7 @@ namespace WebAPI.Clients
             if (response.Object != null)
             {
                 result = Mapper.Map<KalturaProgramAsset>(response.Object);
-                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId));
+                result.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(response.Object.Images, groupId);
             }
 
             return result;
@@ -459,7 +459,6 @@ namespace WebAPI.Clients
                 {
                     result.Objects = new List<KalturaAsset>();
                     // convert assets
-                    Dictionary<long, string> imageTypeIdToRatioNameMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToRatioNameMap(groupId);
                     foreach (Asset assetToConvert in assetListResponse.Objects)
                     {
                         KalturaAsset asset = null;
@@ -471,7 +470,7 @@ namespace WebAPI.Clients
                         else
                         {
                             asset = Mapper.Map<KalturaAsset>(assetToConvert);
-                            asset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(assetToConvert.Images, imageTypeIdToRatioNameMap);
+                            asset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(assetToConvert.Images, groupId);
                         }
 
                         result.Objects.Add(asset);
@@ -705,8 +704,16 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetListResponse SearchAssetsExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null)
+        public KalturaAssetListResponse SearchAssetsExcludeWatched(SearchAssetsFilter filter, KalturaAssetOrderBy orderBy, bool managementData,
+            KalturaDynamicOrderBy assetOrder = null)
+        {
+            return SearchAssetsExcludeWatched(filter.GroupId, int.Parse(filter.SiteGuid), filter.DomainId, filter.Udid, filter.Language, filter.PageIndex, filter.PageSize,
+                filter.Filter, orderBy, filter.AssetTypes, filter.EpgChannelIds, managementData, assetOrder, filter.TrendingDays, filter.GroupByType == GroupingOption.Include);
+        }
+
+        private KalturaAssetListResponse SearchAssetsExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize,
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, 
+            KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null, bool isGroupingOptionInclude = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -744,7 +751,7 @@ namespace WebAPI.Clients
             while (true && pageIndex < 10)
             {
                 searchResponse = CatalogUtils.SearchAssets(groupId, userId, domainId, udid, language, pageIndex, pageSize, filter, assetTypes,
-                    getServerTime(), order, group, Signature, SignString, key.ToString(), ref request);
+                    getServerTime(), order, group, Signature, SignString, key.ToString(), ref request, isGroupingOptionInclude);
 
                 if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
                 {
@@ -929,8 +936,15 @@ namespace WebAPI.Clients
             return result;
         }
 
-        public KalturaAssetCount GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy, KalturaGroupByOrder? groupByOrder, bool isAllowedToViewInactiveAssets)
+        public KalturaAssetCount GetAssetCount(SearchAssetsFilter filter, KalturaAssetOrderBy orderBy, KalturaGroupByOrder? groupByOrder)
+        {
+            return GetAssetCount(filter.GroupId, filter.SiteGuid, filter.DomainId, filter.Udid, filter.Language, filter.Filter,
+                    orderBy, filter.AssetTypes, filter.EpgChannelIds, filter.GroupBy, groupByOrder, filter.IsAllowedToViewInactiveAssets, 
+                    filter.GroupByType == GroupingOption.Include);
+        }
+
+        private KalturaAssetCount GetAssetCount(int groupId, string siteGuid, int domainId, string udid, string language,
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, List<string> groupBy, KalturaGroupByOrder? groupByOrder, bool isAllowedToViewInactiveAssets, bool isIncluded = false)
         {
             KalturaAssetCount result = new KalturaAssetCount();
 
@@ -1023,7 +1037,8 @@ namespace WebAPI.Clients
                     groupBy = groupBy,
                     groupByOrder = aggregationOrder
                 },
-                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
+                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                isGroupingOptionInclude = isIncluded
             };
 
             // fire unified search request
@@ -2964,8 +2979,15 @@ namespace WebAPI.Clients
             return result;
         }
 
-        internal KalturaAssetListResponse GetBundleAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
-            KalturaAssetOrderBy? orderBy, List<int> mediaTypes, KalturaBundleType bundleType, bool isAllowedToViewInactiveAssets, KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null)
+        internal KalturaAssetListResponse GetBundleAssets(SearchAssetsFilter searchAssetsFilter, int id, KalturaAssetOrderBy? orderBy, KalturaBundleType bundleType, KalturaDynamicOrderBy assetOrder = null)
+        {
+            return GetBundleAssets(searchAssetsFilter.GroupId, searchAssetsFilter.SiteGuid, searchAssetsFilter.DomainId, searchAssetsFilter.Udid, searchAssetsFilter.Language,
+                searchAssetsFilter.PageIndex, searchAssetsFilter.PageSize, id, orderBy, searchAssetsFilter.AssetTypes, bundleType, searchAssetsFilter.IsAllowedToViewInactiveAssets,
+                assetOrder, searchAssetsFilter.TrendingDays, searchAssetsFilter.GroupByType == GroupingOption.Include);
+        }
+
+        private KalturaAssetListResponse GetBundleAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
+            KalturaAssetOrderBy? orderBy, List<int> mediaTypes, KalturaBundleType bundleType, bool isAllowedToViewInactiveAssets, KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null, bool isGroupingOptionInclude = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -3009,7 +3031,8 @@ namespace WebAPI.Clients
                 m_dServerTime = getServerTime(),
                 m_eBundleType = bundleType == KalturaBundleType.collection ? eBundleType.COLLECTION : eBundleType.SUBSCRIPTION,
                 m_nBundleID = id,
-                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
+                isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
+                isGroupingOptionInclude = isGroupingOptionInclude
             };
 
             // build failover cache key
@@ -3530,7 +3553,11 @@ namespace WebAPI.Clients
 
             KalturaImage result =
                 ClientUtils.GetResponseFromWS<KalturaImage, Image>(image, addImageFunc);
-
+            
+            Dictionary<long, string> imageTypeIdToNameMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToNameMap(groupId);
+            result.ImageTypeName = imageTypeIdToNameMap != null && imageTypeIdToNameMap.ContainsKey(result.ImageTypeId) ? 
+                imageTypeIdToNameMap[result.ImageTypeId] : string.Empty;
+            
             return result;
         }
 

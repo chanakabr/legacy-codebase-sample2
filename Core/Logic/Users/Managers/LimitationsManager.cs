@@ -13,6 +13,8 @@ namespace Core.Users
     [JsonObject(Id = "LimitationsManager")]
     public class LimitationsManager
     {
+        public const int NO_LIMITATION_VALUE = -1;
+
         /// <summary>
         /// 1. Unlike quantity and concurrency, frequency is defined only at domain level (actually at group level in db.
         ///    Have a look at TVinci.dbo.groups_device_limitation_modules)
@@ -99,7 +101,9 @@ namespace Core.Users
         public string UserFrequencyDescrition { get; set; }
 
         public string FrequencyDescription { get; set; }
-        
+
+        public string Description { get; set; }
+
         public void SetConcurrency(int nConcurrencyDomainLevel, int nConcurrencyGroupLevel)
         {
             this.concurrency = nConcurrencyDomainLevel > 0 ? nConcurrencyDomainLevel : nConcurrencyGroupLevel;
@@ -148,6 +152,11 @@ namespace Core.Users
             this.quantity = 0;
             this.frequency = 0;
             this.nextActionFreqDate = Utils.FICTIVE_DATE;
+        }
+
+        public string CreateAssociatedDeviceFamiliesFromLimitation() 
+        {
+            return string.Join(", ", lDeviceFamilyLimitations?.Select(dfl => dfl.deviceFamily.ToString()));
         }
     }
 }
