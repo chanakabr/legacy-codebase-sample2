@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Reflection;
 using System.Text;
@@ -13,6 +12,7 @@ using KLogMonitor;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Phoenix.Context;
@@ -157,6 +157,16 @@ namespace Phoenix.Rest.Middleware
                     {
                         parsedActionParams = context.RouteData.UrlParams;
                     }
+                }
+            }
+
+            const string ksParamName = "ks";
+            if (!parsedActionParams.ContainsKey(ksParamName) && request.Headers.TryGetValue(HeaderNames.Authorization, out var authorizationHeaderValues))
+            {
+                var authorizationHeader = authorizationHeaderValues.FirstOrDefault();
+                if (!string.IsNullOrEmpty(authorizationHeader) && authorizationHeader.StartsWith("Bearer "))
+                {
+                    parsedActionParams.Add(ksParamName, authorizationHeader.Remove(0, 7));
                 }
             }
 
