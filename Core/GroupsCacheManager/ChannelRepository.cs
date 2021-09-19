@@ -782,7 +782,7 @@ namespace GroupsCacheManager
 
                 // date metas
                 var dtDateMetaValues = CatalogDAL.GetDateMetasByGroupId(group.m_nSubGroup);
-                if (dtDateMetaValues != null && dtDateMetaValues.Rows.Count > 0)
+                if (dtDateMetaValues != null && dtDateMetaValues.Rows != null && dtDateMetaValues.Rows.Count > 0)
                 {
                     foreach (DataRow metaDataRow in dtDateMetaValues.Rows)
                     {

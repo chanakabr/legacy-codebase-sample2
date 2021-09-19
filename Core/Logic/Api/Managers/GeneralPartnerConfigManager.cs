@@ -88,28 +88,28 @@ namespace ApiLogic.Api.Managers
             List<Currency> currencies = null;
             try
             {
-                int defaultGroupCurrencyId = 0;
-                if (LayeredCache.Instance.Get<int>(LayeredCacheKeys.GetGroupDefaultCurrencyKey(groupId), ref defaultGroupCurrencyId, GetGroupDefaultCurrency, new Dictionary<string, object>() { { "groupId", groupId } }, groupId, LayeredCacheConfigNames.GET_DEFAULT_GROUP_CURRENCY_LAYERED_CACHE_CONFIG_NAME) && defaultGroupCurrencyId > 0)
+                DataTable dt = null;
+                if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY,
+                    ref dt,
+                    GetAllCurrencies,
+                    new Dictionary<string, object>(),
+                    groupId,
+                    LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
-                    DataTable dt = null;
-                    if (LayeredCache.Instance.Get<DataTable>(LayeredCacheKeys.GET_CURRENCIES_KEY, ref dt, GetAllCurrencies, new Dictionary<string, object>(), groupId,
-                                                            LayeredCacheConfigNames.GET_CURRENCIES_LAYERED_CACHE_CONFIG_NAME) && dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                    currencies = new List<Currency>();
+                    Currency currency;
+                    foreach (DataRow dr in dt.Rows)
                     {
-                        currencies = new List<Currency>();
-                        Currency currency;
-                        foreach (DataRow dr in dt.Rows)
+                        currency = new Currency()
                         {
-                            currency = new Currency()
-                            {
-                                m_nCurrencyID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id"),
-                                m_sCurrencyName = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
-                                m_sCurrencyCD2 = ODBCWrapper.Utils.GetSafeStr(dr, "code2"),
-                                m_sCurrencyCD3 = ODBCWrapper.Utils.GetSafeStr(dr, "code3"),
-                                m_sCurrencySign = ODBCWrapper.Utils.GetSafeStr(dr, "currency_sign")
-                            };
+                            m_nCurrencyID = ODBCWrapper.Utils.GetIntSafeVal(dr, "id"),
+                            m_sCurrencyName = ODBCWrapper.Utils.GetSafeStr(dr, "name"),
+                            m_sCurrencyCD2 = ODBCWrapper.Utils.GetSafeStr(dr, "code2"),
+                            m_sCurrencyCD3 = ODBCWrapper.Utils.GetSafeStr(dr, "code3"),
+                            m_sCurrencySign = ODBCWrapper.Utils.GetSafeStr(dr, "currency_sign")
+                        };
 
-                            currencies.Add(currency);
-                        }
+                        currencies.Add(currency);
                     }
                 }
             }
@@ -443,6 +443,7 @@ namespace ApiLogic.Api.Managers
                                 PartnerName = ODBCWrapper.Utils.GetSafeStr(dt.Rows[0], "GROUP_NAME"),
                                 MainLanguage = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "LANGUAGE_ID"),
                                 RollingDeviceRemovalData = GetRollingDeviceRemovalData(dt.Rows[0]),
+                                LinearWatchHistoryThreshold = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0], "LINEAR_WATCH_HISTORY_THRESHOLD", 0),
                                 FinishedPercentThreshold = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "FINISHED_PERCENT_THRESHOLD"),
                                 AllowDeviceMobility = ODBCWrapper.Utils.GetNullableInt(dt.Rows[0], "ALLOW_DEVICE_MOBILITY") == 1
                             };

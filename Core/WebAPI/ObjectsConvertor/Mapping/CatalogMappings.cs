@@ -23,7 +23,6 @@ using WebAPI.Models.Catalog;
 using WebAPI.Models.General;
 using WebAPI.Models.Upload;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
-using ApiLogic.Catalog;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -312,6 +311,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsActive, opt => opt.ResolveUsing(src => ConvertToNullableBool(src.m_nIsActive)))
                 .ForMember(dest => dest.OrderBy, opt => opt.ResolveUsing(src => ConvertToKalturaChannelOrder(src.m_OrderObject)))
                 .ForMember(dest => dest.MediaIds, opt => opt.MapFrom(src => src.m_lManualMedias != null ? string.Join(",", src.m_lManualMedias.OrderBy(x => x.m_nOrderNum).Select(x => x.m_sMediaId)) : string.Empty))
+                .ForMember(dest => dest.Assets, opt => opt.ResolveUsing(src => ConvertToManualAssets(src.ManualAssets)))
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.CreateDate)))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.UpdateDate)))
                 .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
@@ -329,6 +329,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.m_sDescription, opt => opt.MapFrom(src => src.Description.GetDefaultLanugageValue()))
                .ForMember(dest => dest.DescriptionInOtherLanguages, opt => opt.MapFrom(src => src.Description.GetNoneDefaultLanugageContainer()))
                .ForMember(dest => dest.m_lManualMedias, opt => opt.ResolveUsing(src => ConvertToManualMedias(src.MediaIds)))
+               .ForMember(dest => dest.ManualAssets, opt => opt.ResolveUsing(src => ConvertToManualAssets(src.Assets)))
                .ForMember(dest => dest.m_nIsActive, opt => opt.MapFrom(src => ConvertToNullableInt(src.IsActive)))
                .ForMember(dest => dest.m_OrderObject, opt => opt.ResolveUsing(src => ConvertAssetOrderToOrderObj(src.OrderBy)))
                .ForMember(dest => dest.searchGroupBy, opt => opt.ResolveUsing(src => ConvertToGroupBy(src.GroupBy)))
@@ -340,7 +341,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.SupportSegmentBasedOrdering, opt => opt.MapFrom(src => src.SupportSegmentBasedOrdering))
                .ForMember(dest => dest.AssetUserRuleId, opt => opt.MapFrom(src => src.AssetUserRuleId))
                .ForMember(dest => dest.MetaData, opt => opt.MapFrom(src => ConditionalAccessMappings.ConvertMetaData(src.MetaData)))
-               .AfterMap((src, dest) => dest.MetaData = src.MetaData != null ? dest.MetaData : null);
+               .AfterMap((src, dest) => dest.MetaData = src.MetaData != null ? dest.MetaData : null)
+               .AfterMap((src, dest) => dest.ManualAssets = src.Assets != null ? dest.ManualAssets : null);
 
             //CategoryResponse to Category
             cfg.CreateMap<CategoryResponse, WebAPI.Models.Catalog.KalturaOTTCategory>()
@@ -1636,7 +1638,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                 case StreamerType.url:
                     return KalturaMediaFileStreamerType.URL;
-                
+
                 case StreamerType.multicast:
                     return KalturaMediaFileStreamerType.MULTICAST;
 
@@ -1668,7 +1670,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
                 case KalturaMediaFileStreamerType.URL:
                     return StreamerType.url;
-                
+
                 case KalturaMediaFileStreamerType.MULTICAST:
                     return StreamerType.multicast;
 
@@ -3194,6 +3196,60 @@ namespace WebAPI.ObjectsConvertor.Mapping
             if (startDateInSeconds.HasValue || endDateInSeconds.HasValue)
             {
                 return new TimeSlot() { StartDateInSeconds = startDateInSeconds, EndDateInSeconds = endDateInSeconds };
+            }
+
+            return null;
+        }
+
+        private static List<ManualAsset> ConvertToManualAssets(List<KalturaManualCollectionAsset> assets)
+        {
+            List<ManualAsset> manualMedias = null;
+
+            if (assets?.Count > 0)
+            {
+                manualMedias = new List<ManualAsset>();
+                long assetId;
+                for (int orderNum = 1; orderNum <= assets.Count; orderNum++)
+                {
+                    long.TryParse(assets[orderNum - 1].Id, out assetId);
+                    manualMedias.Add(new ManualAsset() { AssetId = assetId, AssetType = ConvertToAssetTypes(assets[orderNum - 1].Type), OrderNum = orderNum });
+                }
+            }
+
+            return manualMedias;
+        }
+
+        public static eAssetTypes ConvertToAssetTypes(KalturaManualCollectionAssetType type)
+        {
+            switch (type)
+            {
+                case KalturaManualCollectionAssetType.media:
+                    return eAssetTypes.MEDIA;
+                case KalturaManualCollectionAssetType.epg:
+                    return eAssetTypes.EPG;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+            }
+        }
+
+        public static KalturaManualCollectionAssetType ConvertToAssetTypes(eAssetTypes type)
+        {
+            switch (type)
+            {
+                case eAssetTypes.EPG:
+                    return KalturaManualCollectionAssetType.epg;
+                case eAssetTypes.MEDIA:
+                    return KalturaManualCollectionAssetType.media;
+                default:
+                    throw new ClientException((int)StatusCode.Error, "Invalid assetType");
+            }
+        }
+
+        private static List<KalturaManualCollectionAsset> ConvertToManualAssets(List<ManualAsset> manualAssets)
+        {
+            if (manualAssets?.Count > 0)
+            {
+                return manualAssets.OrderBy(x => x.OrderNum).ToList().Select(x => new KalturaManualCollectionAsset() { Id = x.AssetId.ToString(), Type = ConvertToAssetTypes(x.AssetType) }).ToList();
             }
 
             return null;

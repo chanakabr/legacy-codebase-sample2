@@ -1,11 +1,10 @@
-﻿using System;
-using ApiObjects;
+﻿using ApiObjects;
 using ApiObjects.BulkUpload;
 
 namespace IngestHandler.Domain.IngestProtection
 {
     public interface IIngestProtectProcessor
     {
-        void ProcessIngestProtect(CRUDOperations<EpgProgramBulkUploadObject> crudOperations, Lazy<string[]> protectedMetasAndTagsLazy);
+        void ProcessIngestProtect(int groupId, CRUDOperations<EpgProgramBulkUploadObject> crudOperations);
     }
 }

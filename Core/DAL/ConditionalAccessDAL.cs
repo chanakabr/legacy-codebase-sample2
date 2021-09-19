@@ -974,6 +974,10 @@ namespace DAL
             sp.AddParameter("@SiteGUID", sSiteGUID);
             sp.AddParameter("@GroupID", nGroupID);
             sp.AddParameter("@SubscriptionCode", nSubscriptionCode);
+            if (subscriptionPurchaseStatus == (int) SubscriptionPurchaseStatus.Fail)
+            {
+                sp.AddParameter("@IsActive", 2);
+            }
             // Thor version : new parameter for the status for cancel (Ok / fail / cancel )
             sp.AddParameter("@SubscriptionPurchaseStatus", subscriptionPurchaseStatus);
 
@@ -2204,7 +2208,7 @@ namespace DAL
             spGet_AllUsersEntitlements.AddParameter("@DomainID", domainID);
             dt = spGet_AllUsersEntitlements.Execute();
 
-            if (dt != null && dt.Rows.Count > 0)
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 int ppvmTagLength = 6;
                 foreach (DataRow dr in dt.Rows)
@@ -2247,7 +2251,7 @@ namespace DAL
             spGet_AllMediaFilesMappings.SetConnectionKey("MAIN_CONNECTION_STRING");
             dt = spGet_AllMediaFilesMappings.Execute();
 
-            if (dt != null && dt.Rows.Count > 0)
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 foreach (DataRow dr in dt.Rows)
                 {

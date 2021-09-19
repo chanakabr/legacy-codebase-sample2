@@ -1,6 +1,5 @@
 ﻿using ApiObjects;
 using ApiObjects.SearchObjects;
-using ConfigurationManager;
 using Core.Catalog.Cache;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Response;
@@ -13,7 +12,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
-using Tvinci.Core.DAL;
 
 namespace Core.Catalog.Request
 {
@@ -165,12 +163,27 @@ namespace Core.Catalog.Request
         {
             if (oOrderObj.m_eOrderBy.Equals(OrderBy.ID))
             {
+                IEnumerable<int> ids;
+
+                if (channel.ManualAssets?.Count > 0)
+                {
+                    if (oOrderObj.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC)
+                    {
+                        medias = channel.ManualAssets.OrderByDescending(x => x.OrderNum).Select(x => (int)x.AssetId).ToList();
+                    }
+                    else
+                    {
+                        medias = channel.ManualAssets.OrderBy(x => x.OrderNum).Select(x => (int)x.AssetId).ToList();
+                    }
+
+                    return;
+                }
+
                 if (channel.m_lManualMedias == null)
                 {
                     channel.m_lManualMedias = new List<GroupsCacheManager.ManualMedia>();
                 }
 
-                IEnumerable<int> ids;
                 if (oOrderObj.m_eOrderDir == ApiObjects.SearchObjects.OrderDir.DESC)
                 {
                     ids = from m in medias
@@ -206,7 +219,7 @@ namespace Core.Catalog.Request
             var response = new ChannelResponse();
             MediaSearchObj channelSearchObject = GetManualSearchObject(channel, request, groupId, defaultLanguage, permittedWatchRules);
             channelSearchObject.m_bIgnoreDeviceRuleId = request.m_bIgnoreDeviceRuleID;
-            
+
             int nPageIndex = 0;
             int nPageSize = 0;
 
@@ -219,7 +232,7 @@ namespace Core.Catalog.Request
             }
 
             IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
-            
+
             SearchResultsObj oSearchResults = indexManager.SearchMedias(channelSearchObject, request.m_oFilter.m_nLanguage, request.m_oFilter.m_bUseStartDate);
             if (oSearchResults == null || oSearchResults.m_resultIDs == null || oSearchResults.m_resultIDs.Count == 0)
             {
@@ -228,7 +241,7 @@ namespace Core.Catalog.Request
 
             List<int> medias = oSearchResults.m_resultIDs.Select(item => item.assetID).ToList();
             int nTotalItems = oSearchResults.n_TotalItems;
-            List<SearchResult> lMediaRes = 
+            List<SearchResult> lMediaRes =
                 oSearchResults.m_resultIDs.Select(
                     item => new SearchResult() { assetID = item.assetID, UpdateDate = item.UpdateDate }).ToList();
 

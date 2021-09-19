@@ -472,7 +472,7 @@ namespace Core.Notification
                     {
 
                         var dt = NotificationDal.GetTopicNotifications(groupId.Value, type.Value);
-                        if (dt != null && dt.Rows.Count > 0)
+                        if (dt != null && dt.Rows?.Count > 0)
                         {
                             topics = new List<long>();
                             foreach (DataRow row in dt.Rows)

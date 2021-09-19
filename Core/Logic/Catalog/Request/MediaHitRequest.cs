@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Reflection;
 using Core.Catalog.Cache;
-using System.Threading.Tasks;
 using ApiObjects;
 using Core.Catalog.Response;
 using KLogMonitor;
-using KlogMonitorHelper;
 using ApiObjects.Catalog;
 using ApiObjects.MediaMarks;
 using ConfigurationManager;

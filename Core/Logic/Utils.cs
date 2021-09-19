@@ -710,7 +710,7 @@ namespace APILogic
                     if (groupId.HasValue && mediaId.HasValue)
                     {
                         DataTable dt = DAL.ApiDAL.GetMediaFilesByMediaId(groupId.Value, mediaId.Value);
-                        if (dt != null && dt.Rows != null)
+                        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                         {
                             result = new List<int>();
                             HashSet<int> ids = new HashSet<int>();

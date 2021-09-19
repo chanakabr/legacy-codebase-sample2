@@ -3283,6 +3283,8 @@ namespace WebAPI.Reflection
                             return "finishedPercentThreshold";
                         case "HouseholdLimitationModule":
                             return "householdLimitationModule";
+                        case "LinearWatchHistoryThreshold":
+                            return "linearWatchHistoryThreshold";
                         case "MailSettings":
                             return "mailSettings";
                         case "MainCurrency":
@@ -3725,6 +3727,8 @@ namespace WebAPI.Reflection
                             return "imageObjectType";
                         case "ImageTypeId":
                             return "imageTypeId";
+                        case "ImageTypeName":
+                            return "imageTypeName";
                         case "IsDefault":
                             return "isDefault";
                         case "Status":
@@ -4261,8 +4265,20 @@ namespace WebAPI.Reflection
                 case "KalturaManualChannel":
                     switch(property.Name)
                     {
+                        case "Assets":
+                            return "assets";
                         case "MediaIds":
                             return "mediaIds";
+                    }
+                    break;
+                    
+                case "KalturaManualCollectionAsset":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "Type":
+                            return "type";
                     }
                     break;
                     

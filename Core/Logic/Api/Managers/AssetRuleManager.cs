@@ -1515,7 +1515,7 @@ namespace Core.Api.Managers
             while (true)
             {
                 DataTable dt = ApiDAL.GetMediaCountriesMediaIdsByRuleId(ruleId, offset);
-                if (dt != null && dt.Rows.Count > 0)
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     foreach (DataRow row in dt.Rows)
                     {

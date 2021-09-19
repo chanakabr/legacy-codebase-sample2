@@ -784,18 +784,18 @@ namespace DAL
             spGetSeriesFollowingDomainsIds.AddParameter("@EpgChannelId", epgChannelId);
             DataTable dt = spGetSeriesFollowingDomainsIds.Execute();
 
-            if (dt != null && dt.Rows != null)
+            maxDomainSeriesId = -1;
+
+            if (dt?.Rows?.Count > 0)
             {
                 foreach (DataRow dr in dt.Rows)
                 {
-                    long domainSeriesId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
-                    if (domainSeriesId > 0 && !domainSeriesIds.Contains(domainSeriesId))
+                    maxDomainSeriesId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID", 0);
+                    if (maxDomainSeriesId > 0 && !domainSeriesIds.Contains(maxDomainSeriesId))
                     {
-                        domainSeriesIds.Add(domainSeriesId);
+                        domainSeriesIds.Add(maxDomainSeriesId);
                     }
                 }
-
-                maxDomainSeriesId = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[dt.Rows.Count - 1], "ID", -1);
             }
 
             return domainSeriesIds;
@@ -812,7 +812,7 @@ namespace DAL
             sp.AddParameter("@fileType", fileType);
 
             DataTable dt = sp.Execute();
-            if (dt != null && dt.Rows != null)
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 recordingLink = new RecordingLink()
                 {

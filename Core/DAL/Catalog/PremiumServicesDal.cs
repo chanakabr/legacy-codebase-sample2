@@ -27,7 +27,7 @@ namespace DAL.Catalog
 
             var dt = UtilsDal.Execute("Get_Services", null, "MAIN_CONNECTION_STRING");
 
-            if (dt?.Rows.Count > 0)
+            if (dt?.Rows?.Count > 0)
             {
                 foreach (DataRow row in dt.Rows)
                 {
@@ -44,7 +44,7 @@ namespace DAL.Catalog
             var parameters = new Dictionary<string, object>() { { "@groupId", groupId } };
             var dt = UtilsDal.Execute("GetGroupServices", parameters, "MAIN_CONNECTION_STRING");
 
-            if (dt?.Rows.Count > 0)
+            if (dt?.Rows?.Count > 0)
             {
                 foreach (DataRow row in dt.Rows)
                 {

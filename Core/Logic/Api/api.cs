@@ -9740,7 +9740,7 @@ namespace Core.Api
         {
             DeviceBrandResponse result = new DeviceBrandResponse();
             DataTable dt = DAL.ApiDAL.GetDeviceBrands();
-            if (dt != null && dt.Rows != null)
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
@@ -10243,7 +10243,7 @@ namespace Core.Api
             try
             {
                 DataTable dt = DAL.ApiDAL.GetLanguages(groupId, languageCodes);
-                if (dt != null && dt.Rows != null)
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     HashSet<int> languageIds = new HashSet<int>();
                     foreach (DataRow dr in dt.Rows)
@@ -10277,7 +10277,7 @@ namespace Core.Api
             try
             {
                 DataTable dt = DAL.ApiDAL.GetCurrencies(groupId, currencyCodes);
-                if (dt != null && dt.Rows != null)
+                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                 {
                     HashSet<int> languageIds = new HashSet<int>();
                     foreach (DataRow dr in dt.Rows)
@@ -11773,7 +11773,7 @@ namespace Core.Api
             {
                 DataTable dt = ApiDAL.GetPermission(groupId, id);
 
-                if (dt?.Rows.Count > 0)
+                if (dt?.Rows?.Count > 0)
                 {
                     permission = new Permission()
                     {

@@ -29,7 +29,6 @@ using GroupsCacheManager;
 using KLogMonitor;
 using KlogMonitorHelper;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NPVR;
 using QueueWrapper;
 using StatisticsBL;
@@ -558,7 +557,7 @@ namespace Core.Catalog
                     DateTime? endDate = null;
                     string ppbMoudleName = string.Empty;
 
-                    if (mediaFilePPVModulesTable != null)
+                    if (mediaFilePPVModulesTable != null && mediaFilePPVModulesTable.Rows != null && mediaFilePPVModulesTable.Rows.Count > 0)
                     {
                         for (int index = 0; index < mediaFilePPVModulesTable.Rows.Count; index++)
                         {
@@ -7758,13 +7757,17 @@ namespace Core.Catalog
             }
             else
             {
-                definitions.shouldSearchMedia = true;
+                definitions.shouldSearchMedia = true;               
 
                 #region Channel Tags
-
                 // If there is at least one tag
                 if (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0)
                 {
+                    if (channel.m_nChannelTypeID == (int)ChannelType.Manual && channel.m_lChannelTags.Any(x => x.m_sKey.Equals("epg_id")))
+                    {
+                        definitions.shouldSearchEpg = true;
+                    }
+
                     initialTree = GetChannelTagsBooleanPhrase(channel.m_lChannelTags, channel.m_eCutWith);
                 }
                 else

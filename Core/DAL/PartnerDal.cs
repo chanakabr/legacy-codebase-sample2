@@ -43,7 +43,7 @@ namespace DAL
             List<Partner> returnList = new List<Partner>();
 
             DataTable dt = UtilsDal.Execute("Get_Groups");
-            if (dt?.Rows.Count > 0)
+            if (dt?.Rows?.Count > 0)
             {
                 foreach (DataRow dr in dt.Rows)
                 {

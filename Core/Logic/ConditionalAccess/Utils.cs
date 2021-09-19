@@ -3944,7 +3944,7 @@ namespace Core.ConditionalAccess
                     if (fileIDs != null && groupId.HasValue)
                     {
                         DataTable dt = Tvinci.Core.DAL.CatalogDAL.Get_ValidateMediaFiles(fileIDs, groupId.Value);
-                        if (dt != null && dt.Rows != null)
+                        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                         {
                             DataTable tempDt;
                             foreach (DataRow dr in dt.Rows)
@@ -9280,7 +9280,7 @@ namespace Core.ConditionalAccess
                             }
                         }
                     }
-                    if (DomainRecordingIdToRecordingMap != null)
+                    if (DomainRecordingIdToRecordingMap != null && DomainRecordingIdToRecordingMap.Count > 0)
                     {
                         DomainRecordingIdToRecordingMap = DomainRecordingIdToRecordingMap.OrderByDescending(kvp => kvp.Value.EpgStartDate)
                             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);

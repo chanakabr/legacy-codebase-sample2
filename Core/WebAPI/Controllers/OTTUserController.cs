@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using ApiObjects.User;
+using KalturaRequestContext;
 using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
@@ -916,10 +917,9 @@ namespace WebAPI.Controllers
 
             try
             {
-                bool isOperatorOrAbove = RolesManager.GetRoleIds(ks).
-                    Any(ur => ur == RolesManager.OPERATOR_ROLE_ID || ur == RolesManager.MANAGER_ROLE_ID || ur == RolesManager.ADMINISTRATOR_ROLE_ID);
+                bool isPartnerRequest = RequestContextUtilsInstance.Get().IsPartnerRequest();
 
-                filter.Validate(isOperatorOrAbove);
+                filter.Validate(isPartnerRequest);
 
                 if (!string.IsNullOrEmpty(filter.UsernameEqual))
                 {
@@ -939,7 +939,7 @@ namespace WebAPI.Controllers
                     KalturaHousehold household = HouseholdUtils.GetHouseholdFromRequest();
 
                     // get users only from my domain
-                    if (household != null && !isOperatorOrAbove)
+                    if (household != null && !isPartnerRequest)
                     {
                         var householdUsers = HouseholdUtils.GetHouseholdUserIds(groupId);
                         if (householdUsers != null && householdUsers.Count > 0)
@@ -948,7 +948,7 @@ namespace WebAPI.Controllers
                         }
                     }
                     // get users from idIn
-                    else if (isOperatorOrAbove)
+                    else if (isPartnerRequest)
                     {
                         usersToGet = filter.GetIdIn();
                     }
@@ -974,7 +974,7 @@ namespace WebAPI.Controllers
 
                     // get all users of the master / itself                    
                     List<string> householdUserIds = null;
-                    if (!userId.Equals(originalUserId) || !isOperatorOrAbove)
+                    if (!userId.Equals(originalUserId) || !isPartnerRequest)
                     {
                         householdUserIds = new List<string>();
                         if (HouseholdUtils.GetHouseholdFromRequest() != null)

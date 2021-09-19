@@ -17,6 +17,7 @@ namespace ApiObjects
         public int? DefaultRegion { get; set; }
         public bool? EnableRegionFiltering { get; set; }
         public RollingDeviceRemovalData RollingDeviceRemovalData { get; set; }
+        public int? LinearWatchHistoryThreshold { get; set; }
         public int? FinishedPercentThreshold { get; set; }
         public SuspensionProfileInheritanceType? SuspensionProfileInheritanceType { get; set; }
         public bool? AllowDeviceMobility { get; set; }

@@ -8,10 +8,8 @@ using ApiObjects.Response;
 using Core.Catalog.CatalogManagement;
 using Core.GroupManagers;
 using CouchbaseManager;
-using ElasticSearch.Common;
 using EpgBL;
 using EventBus.Abstraction;
-using GroupsCacheManager;
 using IngestHandler.Common;
 using KLogMonitor;
 using Polly;
@@ -46,9 +44,6 @@ namespace IngestHandler
         private BulkUploadResultsDictionary _relevantResultsDictionary;
         private IDictionary<string, LanguageObj> _languages;
         private LanguageObj _defaultLanguage;
-        private CatalogGroupCache _catalogGroupCache;
-        private bool _doesGroupUsesTemplates;
-        private Lazy<string[]> _protectedMetasAndTagsLazy;
 
         private readonly RetryPolicy _ingestRetryPolicy;
         // private EpgElasticUpdater _elasticSearchUpdater;
@@ -199,14 +194,6 @@ namespace IngestHandler
                 throw new Exception(message);
             }
 
-            _doesGroupUsesTemplates = _catalogManagerAdapter.DoesGroupUsesTemplates(_bulkUpload.GroupId);
-            if (_doesGroupUsesTemplates)
-            {
-                _catalogGroupCache = _catalogManagerAdapter.GetCatalogGroupCache(_bulkUpload.GroupId);
-            }
-
-            _protectedMetasAndTagsLazy = new Lazy<string[]>(RetrieveProtectedMetasAndTagsNames);
-
             _linearChannelToRegionsMap = new Lazy<IReadOnlyDictionary<long, List<int>>>(
                 () => RegionManager.GetLinearMediaToRegionsMapWhenEnabled(_eventData.GroupId));
         }
@@ -273,9 +260,10 @@ namespace IngestHandler
                 }
             }
 
-            if (_doesGroupUsesTemplates)
+            var doesGroupUsesTemplates = _catalogManagerAdapter.DoesGroupUsesTemplates(_bulkUpload.GroupId);
+            if (doesGroupUsesTemplates)
             {
-                _ingestProtectProcessor.ProcessIngestProtect(crudOperations, _protectedMetasAndTagsLazy);   
+                _ingestProtectProcessor.ProcessIngestProtect(_eventData.GroupId, crudOperations);
             }
 
             // add existing documentIds to affectedItems
@@ -480,30 +468,6 @@ namespace IngestHandler
             return _linearChannelToRegionsMap.Value.TryGetValue(linearMediaId, out var regions)
                 ? regions
                 : null;
-        }
-        
-        private string[] RetrieveProtectedMetasAndTagsNames()
-        {
-            // backward compatibility for non-OPC accounts.
-            if (!_doesGroupUsesTemplates)
-            {
-                return new string[] { };
-            }
-
-            if (!_catalogGroupCache.AssetStructsMapById.TryGetValue(_catalogGroupCache.GetProgramAssetStructId(), out var programStruct))
-            {
-                return new string[] { };
-            }
-
-            var protectedMetasAndTagsById = programStruct.AssetStructMetas.Values.Where(x => x.ProtectFromIngest.HasValue && x.ProtectFromIngest.Value)
-                .Select(x => x.MetaId)
-                .ToArray();
-            if (protectedMetasAndTagsById.Length == 0)
-            {
-                return new string[] { };
-            }
-            
-            return _catalogGroupCache.TopicsMapById.Where(x => protectedMetasAndTagsById.Contains(x.Key)).Select(y => y.Value.SystemName).ToArray();
         }
     }
 }

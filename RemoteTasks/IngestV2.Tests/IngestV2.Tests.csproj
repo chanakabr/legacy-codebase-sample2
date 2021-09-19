@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\IngestHandler\IngestHandler.csproj" />
       <ProjectReference Include="..\IngestTransformationHandler\IngestTransformationHandler.csproj" />
     </ItemGroup>
 

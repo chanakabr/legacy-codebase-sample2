@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Catalog;
 using ApiObjects.SearchObjects;
 using Newtonsoft.Json;
 using System;
@@ -97,7 +98,7 @@ namespace GroupsCacheManager
         public DateTime? CreateDate { get; set; }
         [DataMember]
         public DateTime? UpdateDate { get; set; }
-        
+
         [DataMember]
         public bool SupportSegmentBasedOrdering { get; set; }
 
@@ -112,6 +113,9 @@ namespace GroupsCacheManager
         public Dictionary<string, string> MetaData { get; set; }
 
         public long? VirtualAssetId { get; set; }
+
+        [DataMember]
+        public List<ManualAsset> ManualAssets { get; set; } // Populated when the channel is manual
 
         #endregion
 

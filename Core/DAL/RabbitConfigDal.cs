@@ -22,7 +22,7 @@ namespace DAL
             Dictionary<string, string> rabbitQueueBindings = new Dictionary<string, string>();
             DataTable result = UtilsDal.Execute("Get_RabbitQueueBindings");
 
-            if (result?.Rows.Count > 0)
+            if (result?.Rows?.Count > 0)
             {
                 foreach (DataRow row in result.Rows)
                 {

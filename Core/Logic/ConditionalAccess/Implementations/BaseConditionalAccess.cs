@@ -11314,7 +11314,7 @@ namespace Core.ConditionalAccess
                                                                              devicePlayDataToInsert.AssetEpgConcurrencyRuleIds, devicePlayDataToInsert.AssetId,
                                                                              devicePlayDataToInsert.ProgramId, deviceFamilyId, devicePlayDataToInsert.GetPlayType(),
                                                                              devicePlayDataToInsert.NpvrId, expirationTTL, MediaPlayActions.NONE, devicePlayDataToInsert.BookmarkEventThreshold,
-                                                                             devicePlayDataToInsert.ProductType, devicePlayDataToInsert.ProductId);
+                                                                             devicePlayDataToInsert.ProductType, devicePlayDataToInsert.ProductId, devicePlayDataToInsert.LinearWatchHistoryThreshold);
             }
 
             if (devicePlayDataToInsert != null && !string.IsNullOrEmpty(devicePlayDataToInsert.PlayCycleKey))
@@ -11446,6 +11446,9 @@ namespace Core.ConditionalAccess
 
                 response.Data.DomainId = domainId;
                 response.Data.MediaConcurrencyRuleIds = mediaConcurrencyRuleIds;
+
+                var generalPartnerConfig = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(m_nGroupID);
+                response.Data.LinearWatchHistoryThreshold = generalPartnerConfig?.LinearWatchHistoryThreshold;
 
                 // validate Concurrency for domain
                 validationResponse = Domains.Module.ValidateLimitationModule(this.m_nGroupID, 0, Users.ValidationType.Concurrency, response.Data);
@@ -18450,7 +18453,7 @@ namespace Core.ConditionalAccess
             }
 
             var domainExistingRecordingsDataTable = RecordingsDAL.GetDomainExistingRecordingsByEpgIds(m_nGroupID, domainId, new List<long> { epgId });
-            if (domainExistingRecordingsDataTable == null || domainExistingRecordingsDataTable.Rows.Count <= 0)
+            if (domainExistingRecordingsDataTable == null || domainExistingRecordingsDataTable.Rows?.Count <= 0)
             {
                 log.Debug($"Recording was not found, {nameof(domainId)}: {domainId}, {nameof(epgId)}: {epgId}.");
 

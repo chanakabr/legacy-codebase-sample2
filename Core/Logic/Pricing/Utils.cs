@@ -1093,20 +1093,29 @@ namespace Core.Pricing
         public string GetMinPeriodDescription(int id)
         {
             string res = null;
-            Dictionary<string, string> minPeriods;
-            if (CachingManager.CachingManager.Exists("MinPeriods"))
-            {
-                minPeriods = CachingManager.CachingManager.GetCachedData("MinPeriods") as Dictionary<string, string>;
-            }
-            else
-            {
-                minPeriods = Tvinci.Core.DAL.CatalogDAL.GetMinPeriods();
-                if (minPeriods != null)
-                    CachingManager.CachingManager.SetCachedData("MinPeriods", minPeriods, 604800, CacheItemPriority.Default, 0, false);
-            }
 
-            if (minPeriods != null)
-                minPeriods.TryGetValue(id.ToString(), out res);
+            if (id > 0)
+            {
+                Dictionary<string, string> minPeriods;
+                if (CachingManager.CachingManager.Exists("MinPeriods"))
+                {
+                    minPeriods = CachingManager.CachingManager.GetCachedData("MinPeriods") as Dictionary<string, string>;
+                }
+                else
+                {
+                    minPeriods = Tvinci.Core.DAL.CatalogDAL.GetMinPeriods();
+                    if (minPeriods != null)
+                        CachingManager.CachingManager.SetCachedData("MinPeriods", minPeriods, 604800, CacheItemPriority.Default, 0, false);
+                }
+
+                if (minPeriods != null)
+                    minPeriods.TryGetValue(id.ToString(), out res);
+                else
+                {
+                    Duration duration = new Duration(id);
+                    res = duration.ToString();
+                }
+            }
 
             return res;
         }

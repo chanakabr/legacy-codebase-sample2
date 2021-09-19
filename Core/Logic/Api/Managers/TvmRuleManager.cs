@@ -474,7 +474,7 @@ namespace APILogic.Api.Managers
                     if (groupId.HasValue && groupId.Value > 0)
                     {
                         DataTable dt = CatalogDAL.GetGroupDeviceRules(groupId.Value);
-                        if (dt != null && dt.Rows != null)
+                        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                         {
                             result = new Dictionary<long, TvmDeviceRule>();
                             foreach (DataRow dr in dt.Rows)
@@ -532,7 +532,7 @@ namespace APILogic.Api.Managers
                     if (groupId.HasValue && mediaId.HasValue)
                     {
                         dt = DAL.ApiDAL.Get_GeoBlockRuleForMediaAndCountries(groupId.Value, mediaId.Value);
-                        res = dt != null;
+                        res = dt != null && dt.Rows != null && dt.Rows.Count > 0;
                     }
                 }
 
@@ -556,7 +556,7 @@ namespace APILogic.Api.Managers
                     if (groupId.HasValue && groupId.Value > 0)
                     {
                         DataTable dt = CatalogDAL.GetGroupGeoblockRules(groupId.Value);
-                        if (dt != null && dt.Rows != null)
+                        if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
                         {
                             result = new Dictionary<long, TvmGeoRule>();
                             foreach (DataRow dr in dt.Rows)

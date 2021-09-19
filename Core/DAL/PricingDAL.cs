@@ -242,7 +242,7 @@ namespace DAL
             if (ds != null && ds.Tables != null && ds.Tables.Count > 0)
                 return ds.Tables[0];
             return null;
-        }       
+        }
         public List<PreviewModuleDTO> Get_PreviewModules(int nGroupID)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_PreviewModulesByGroupID");
@@ -1218,7 +1218,7 @@ namespace DAL
             return false;
         }
 
-        public long InsertPreviewModule( int groupID, PreviewModuleDTO previewModuleDTO, long userId)
+        public long InsertPreviewModule(int groupID, PreviewModuleDTO previewModuleDTO, long userId)
         {
             try
             {
@@ -1521,7 +1521,7 @@ namespace DAL
             sp.AddParameter("@Name", pricePlan.Name);
             sp.AddParameter("@UserId", userId);
             sp.AddParameter("@IsActive", true);
-            sp.AddParameter("@MaxViews", pricePlan.MaxViewsNumber);
+            sp.AddParameter("@MaxViews", pricePlan.MaxViewsNumber.HasValue ? pricePlan.MaxViewsNumber.Value : 0);
             sp.AddParameter("@IsRenewable", pricePlan.IsRenewable);
             sp.AddParameter("@RecurringPeriods", pricePlan.RenewalsNumber);
             sp.AddParameter("@PricCodeID", pricePlan.PriceDetailsId);
@@ -1529,9 +1529,9 @@ namespace DAL
             sp.AddParameter("@ViewLifeCycleID", pricePlan.ViewLifeCycle);
             sp.AddParameter("@DiscountID", pricePlan.DiscountId);
             sp.AddParameter("@Date", DateTime.UtcNow);
-            sp.AddParameter("@IsOfflinePlayBack", pricePlan.IsOfflinePlayBack.HasValue? pricePlan.IsOfflinePlayBack : false);
+            sp.AddParameter("@IsOfflinePlayBack", pricePlan.IsOfflinePlayBack.HasValue ? pricePlan.IsOfflinePlayBack : false);
             sp.AddParameter("@Waiver", pricePlan.IsWaiverEnabled.HasValue ? pricePlan.IsWaiverEnabled : false);
-            sp.AddParameter("@WaiverPeriod", pricePlan.WaiverPeriod.HasValue? pricePlan.WaiverPeriod: 0);
+            sp.AddParameter("@WaiverPeriod", pricePlan.WaiverPeriod.HasValue ? pricePlan.WaiverPeriod : 0);
 
             return sp.ExecuteReturnValue<long>();
         }
@@ -1900,7 +1900,7 @@ namespace DAL
             sp.AddParameter("@shouldGetAll", pricePlanIds == null || pricePlanIds.Count == 0 ? 1 : 0);
             return sp.Execute();
         }
-        
+
         public List<PricePlan> GetPricePlans(int groupId, List<long> pricePlanIds = null)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPricePlans");
@@ -2427,12 +2427,12 @@ namespace DAL
             sp.AddParameter("@priceCodesLocalesExist", priceDetails.Prices == null || priceDetails.Prices.Count == 0 ? 0 : 1);
             sp.AddDataTableParameter("@priceCodesLocales", priceCodesLocalesDt);
             sp.AddParameter("@updaterId", userId);
-            
+
             var id = sp.ExecuteReturnValue<long>();
             return id;
-        }     
-        
-        public long InsertDiscountDetails(int groupId, long userId,DiscountDetailsDTO discountDetailsDTO)
+        }
+
+        public long InsertDiscountDetails(int groupId, long userId, DiscountDetailsDTO discountDetailsDTO)
         {
             var sp = new StoredProcedure("Insert_DiscountDetails");
             sp.SetConnectionKey("pricing_connection");
@@ -2463,7 +2463,7 @@ namespace DAL
             sp.AddParameter("@currencyId", needToUpdateDiscountCodeLocals ? "0" : null);
             sp.AddParameter("@whenAlgoType", discountDetailsDTO.WhenAlgoType);
             sp.AddParameter("@whenAlgoTimes", discountDetailsDTO.WhenAlgoTimes);
-            sp.AddParameter("@NeedToUpdateDiscountCode", needToUpdateDiscountCode ? 1: 0);
+            sp.AddParameter("@NeedToUpdateDiscountCode", needToUpdateDiscountCode ? 1 : 0);
             sp.AddDataTableParameter("@discountCodesLocales", SetDiscountCodesLocales(discountDetailsDTO.Discounts));
             sp.AddParameter("@updaterId", userId);
 
@@ -2659,7 +2659,7 @@ namespace DAL
                 log.Error($"Error while Delete DiscountDetails, groupId: {groupId}, Id: {id}", ex);
                 return false;
             }
-        }       
+        }
 
         public bool IsSubscriptionExists(int groupId, long id)
         {

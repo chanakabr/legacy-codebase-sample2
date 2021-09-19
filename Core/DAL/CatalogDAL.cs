@@ -4182,7 +4182,7 @@ namespace Tvinci.Core.DAL
         public static DevicePlayData InsertDevicePlayDataToCB(int userId, string udid, int domainId, List<int> mediaConcurrencyRuleIds, List<long> assetMediaRuleIds,
                                                               List<long> assetEpgRuleIds, int assetId, long programId, int deviceFamilyId, ePlayType playType,
                                                               string npvrId, uint ttl, MediaPlayActions mediaPlayAction = MediaPlayActions.NONE,
-                                                              int? bookmarkEventThreshold = null, eTransactionType? productType = null, int? productId = null)
+                                                              int? bookmarkEventThreshold = null, eTransactionType? productType = null, int? productId = null, int? linearWatchHistoryThreshold = null)
         {
             DevicePlayData devicePlayData = GetDevicePlayData(udid);
             if (devicePlayData != null)
@@ -4201,13 +4201,14 @@ namespace Tvinci.Core.DAL
                 devicePlayData.BookmarkEventThreshold = bookmarkEventThreshold;
                 devicePlayData.ProductType = productType;
                 devicePlayData.ProductId = productId;
+                devicePlayData.LinearWatchHistoryThreshold = linearWatchHistoryThreshold;
             }
             // save firstPlay in cache 
             else if (deviceFamilyId > 0)
             {
                 devicePlayData = new DevicePlayData(udid, assetId, userId, 0, playType, mediaPlayAction, deviceFamilyId, 0, programId, npvrId,
                                                     domainId, mediaConcurrencyRuleIds, assetMediaRuleIds, assetEpgRuleIds, bookmarkEventThreshold,
-                                                    productType, productId);
+                                                    productType, productId, linearWatchHistoryThreshold: linearWatchHistoryThreshold);
             }
 
             if (devicePlayData != null)
@@ -5639,8 +5640,10 @@ namespace Tvinci.Core.DAL
         public static DataSet InsertChannel(int groupId, string systemName, string name, string description, int? isActive, int orderBy, int orderByDir, string orderByValue, int? isSlidingWindow,
                                             int? slidingWindowPeriod, int channelType, string filterQuery, List<int> assetTypes, string groupBy, List<KeyValuePair<string, string>> namesInOtherLanguages,
                                             List<KeyValuePair<string, string>> descriptionsInOtherLanguages, List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId,
-                                            bool supportSegmentBasedOrdering, long? assetUserRuleId, bool hasMetadata)
+                                            bool supportSegmentBasedOrdering, long? assetUserRuleId, bool hasMetadata, List<ManualAsset> manualAssets)
         {
+            DataTable manualAssetsDt = SetManualAssetsTable(manualAssets);
+
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
@@ -5668,6 +5671,8 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@supportSegmentBasedOrdering", supportSegmentBasedOrdering);
             sp.AddParameter("@assetRuleId", assetUserRuleId);
             sp.AddParameter("@hasMetadata", hasMetadata);
+            sp.AddParameter("@manualAssetsExist", manualAssets == null ? 0 : 1);
+            sp.AddDataTableParameter("@manualAssets", manualAssetsDt);
 
             return sp.ExecuteDataSet();
         }
@@ -5677,8 +5682,10 @@ namespace Tvinci.Core.DAL
             int? orderByDir, string orderByValue, int? isSlidingWindow, int? slidingWindowPeriod, string filterQuery, List<int> assetTypes, string groupBy,
             List<KeyValuePair<string, string>> namesInOtherLanguages, List<KeyValuePair<string, string>> descriptionsInOtherLanguages,
             List<KeyValuePair<long, int>> mediaIdsToOrderNum, long userId, bool supportSegmentBasedOrdering,
-            long? assetUserRuleId, int assetTypesValuesInd, bool? hasMetadata, int? channelType = null)
+            long? assetUserRuleId, int assetTypesValuesInd, bool? hasMetadata, List<ManualAsset> manualAssets, int? channelType = null)
         {
+            DataTable manualAssetsDt = SetManualAssetsTable(manualAssets);
+            
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("UpdateChannel");
             sp.SetConnectionKey("MAIN_CONNECTION_STRING");
             sp.AddParameter("@groupId", groupId);
@@ -5711,6 +5718,8 @@ namespace Tvinci.Core.DAL
             {
                 sp.AddParameter("@hasMetadata", hasMetadata.Value);
             }
+            sp.AddParameter("@manualAssetsExist", manualAssets == null ? 0 : 1);
+            sp.AddDataTableParameter("@manualAssets", manualAssetsDt);
 
             return sp.ExecuteDataSet();
         }
@@ -6456,7 +6465,7 @@ namespace Tvinci.Core.DAL
             {
                 var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@onlyActive", 0 } };
                 var dt = UtilsDal.Execute("Get_CategoriesIds", parameters);
-                if (dt?.Rows.Count > 0)
+                if (dt?.Rows?.Count > 0)
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
@@ -6575,7 +6584,7 @@ namespace Tvinci.Core.DAL
             {
                 var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@channelId", channelId }, { "@channelType", (int)channelType } };
                 var dt = UtilsDal.Execute("Get_CategoriesIdsByChannel", parameters);
-                if (dt == null)
+                if (dt == null || dt.Rows == null)
                 {
                     return null;
                 }
@@ -6708,7 +6717,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("@groupId", groupId);
 
             var dt = sp.Execute();
-            if (dt == null)
+            if (dt == null || dt.Rows == null)
             {
                 return null;
             }
@@ -6730,7 +6739,7 @@ namespace Tvinci.Core.DAL
             sp.AddParameter("treeId", treeId);
 
             var dt = sp.Execute();
-            if (dt == null)
+            if (dt == null || dt.Rows == null)
             {
                 return null;
             }
@@ -6913,6 +6922,29 @@ namespace Tvinci.Core.DAL
             }
 
             return dataTable;
-        }      
+        }
+
+        private static DataTable SetManualAssetsTable(List<ManualAsset> manualAssets)
+        {
+            DataTable dt = null;
+            if (manualAssets != null)
+            {
+                dt = new DataTable("OrderKeyValueList");
+                dt.Columns.Add("idKey", typeof(long));
+                dt.Columns.Add("value", typeof(int));
+                dt.Columns.Add("ordered", typeof(int));
+
+                foreach (var manualAsset in manualAssets)
+                {
+                    var row = dt.NewRow();
+                    row["idKey"] = manualAsset.AssetId;
+                    row["value"] = manualAsset.AssetType;
+                    row["ordered"] = manualAsset.OrderNum;
+                    dt.Rows.Add(row);
+                }
+            }
+
+            return dt;
+        }
     }
 }

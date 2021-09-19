@@ -351,7 +351,7 @@ namespace Core.Notification
 
                 // get topicNotificationMessages                
                 DataTable topicNotificationMessageDT = NotificationDal.GetTopicNotificationMessages(groupId, topicNotificationId);
-                if (topicNotificationMessageDT?.Rows.Count > 0)
+                if (topicNotificationMessageDT?.Rows?.Count > 0)
                 {
                     List<long> topicNotificationMessageIds = new List<long>();
                     response.Objects = new List<TopicNotificationMessage>();

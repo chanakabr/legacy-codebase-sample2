@@ -25814,9 +25814,9 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("imageTypeId", "\"imageTypeId\": " + ImageTypeId);
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("imageTypeName")))
+            if(ImageTypeName != null && (retrievedProperties == null || retrievedProperties.Contains("imageTypeName")))
             {
-                ret.Add("imageTypeName", "\"imageTypeName\": " + "\"" + ImageTypeName + "\"");
+                ret.Add("imageTypeName", "\"imageTypeName\": " + "\"" + EscapeJson(ImageTypeName) + "\"");
             }
             if(IsDefault.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefault")))
             {
@@ -25867,6 +25867,10 @@ namespace WebAPI.Models.Catalog
             if((retrievedProperties == null || retrievedProperties.Contains("imageTypeId")))
             {
                 ret.Add("imageTypeId", "<imageTypeId>" + ImageTypeId + "</imageTypeId>");
+            }
+            if(ImageTypeName != null && (retrievedProperties == null || retrievedProperties.Contains("imageTypeName")))
+            {
+                ret.Add("imageTypeName", "<imageTypeName>" + EscapeXml(ImageTypeName) + "</imageTypeName>");
             }
             if(IsDefault.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefault")))
             {
@@ -26656,6 +26660,11 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Assets != null && (retrievedProperties == null || retrievedProperties.Contains("assets")))
+            {
+                propertyValue = "[" + String.Join(", ", Assets.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("assets", "\"assets\": " + propertyValue);
+            }
             if(MediaIds != null && (retrievedProperties == null || retrievedProperties.Contains("mediaIds")))
             {
                 ret.Add("mediaIds", "\"mediaIds\": " + "\"" + EscapeJson(MediaIds) + "\"");
@@ -26674,9 +26683,60 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(Assets != null && (retrievedProperties == null || retrievedProperties.Contains("assets")))
+            {
+                propertyValue = Assets.Count > 0 ? "<item>" + String.Join("</item><item>", Assets.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("assets", "<assets>" + propertyValue + "</assets>");
+            }
             if(MediaIds != null && (retrievedProperties == null || retrievedProperties.Contains("mediaIds")))
             {
                 ret.Add("mediaIds", "<mediaIds>" + EscapeXml(MediaIds) + "</mediaIds>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaManualCollectionAsset
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("type")))
+            {
+                ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaManualCollectionAssetType), Type) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("type")))
+            {
+                ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaManualCollectionAssetType), Type) + "" + "</type>");
             }
             return ret;
         }
@@ -27416,9 +27476,9 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("imageTypeId", "\"imageTypeId\": " + ImageTypeId);
             }
-            if((retrievedProperties == null || retrievedProperties.Contains("imageTypeName")))
+            if(ImageTypeName != null && (retrievedProperties == null || retrievedProperties.Contains("imageTypeName")))
             {
-                ret.Add("imageTypeName", "\"imageTypeName\": " + "\"" + ImageTypeName + "\"");
+                ret.Add("imageTypeName", "\"imageTypeName\": " + "\"" + EscapeJson(ImageTypeName) + "\"");
             }
             if(IsDefault.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefault")))
             {
@@ -27469,6 +27529,10 @@ namespace WebAPI.Models.Catalog
             if((retrievedProperties == null || retrievedProperties.Contains("imageTypeId")))
             {
                 ret.Add("imageTypeId", "<imageTypeId>" + ImageTypeId + "</imageTypeId>");
+            }
+            if(ImageTypeName != null && (retrievedProperties == null || retrievedProperties.Contains("imageTypeName")))
+            {
+                ret.Add("imageTypeName", "<imageTypeName>" + EscapeXml(ImageTypeName) + "</imageTypeName>");
             }
             if(IsDefault.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isDefault")))
             {
@@ -38287,6 +38351,10 @@ namespace WebAPI.Models.Partner
             {
                 ret.Add("householdLimitationModule", "\"householdLimitationModule\": " + HouseholdLimitationModule);
             }
+            if(LinearWatchHistoryThreshold.HasValue && (retrievedProperties == null || retrievedProperties.Contains("linearWatchHistoryThreshold")))
+            {
+                ret.Add("linearWatchHistoryThreshold", "\"linearWatchHistoryThreshold\": " + LinearWatchHistoryThreshold);
+            }
             if(MailSettings != null && (retrievedProperties == null || retrievedProperties.Contains("mailSettings")))
             {
                 ret.Add("mailSettings", "\"mailSettings\": " + "\"" + EscapeJson(MailSettings) + "\"");
@@ -38365,6 +38433,10 @@ namespace WebAPI.Models.Partner
             if(HouseholdLimitationModule.HasValue && (retrievedProperties == null || retrievedProperties.Contains("householdLimitationModule")))
             {
                 ret.Add("householdLimitationModule", "<householdLimitationModule>" + HouseholdLimitationModule + "</householdLimitationModule>");
+            }
+            if(LinearWatchHistoryThreshold.HasValue && (retrievedProperties == null || retrievedProperties.Contains("linearWatchHistoryThreshold")))
+            {
+                ret.Add("linearWatchHistoryThreshold", "<linearWatchHistoryThreshold>" + LinearWatchHistoryThreshold + "</linearWatchHistoryThreshold>");
             }
             if(MailSettings != null && (retrievedProperties == null || retrievedProperties.Contains("mailSettings")))
             {

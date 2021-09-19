@@ -5728,6 +5728,11 @@ namespace DAL
                     string.Join(",", partnerConfig.RollingDeviceRemovalData.RollingDeviceRemovalFamilyIds));
             }
 
+            if (partnerConfig.LinearWatchHistoryThreshold.HasValue)
+            {
+                sp.AddParameter("@linearWatchHistoryThreshold", partnerConfig.LinearWatchHistoryThreshold.Value);
+            }
+
             if (partnerConfig.FinishedPercentThreshold.HasValue)
             {
                 sp.AddParameter("@finishedPercentThreshold", partnerConfig.FinishedPercentThreshold.Value);
@@ -6011,7 +6016,7 @@ namespace DAL
                 var parameters = new Dictionary<string, object>() { { "@group_id", groupId } };
                 DataTable dt = UtilsDal.Execute("Get_PermissionItemsToFeatures", parameters);
 
-                if (dt?.Rows.Count > 0)
+                if (dt?.Rows?.Count > 0)
                 {
                     string key = string.Empty;
 
@@ -6116,7 +6121,7 @@ namespace DAL
                 sp.AddParameter("@groupId", groupId);
                 DataTable dt = sp.Execute();
 
-                if (dt?.Rows.Count > 0)
+                if (dt?.Rows?.Count > 0)
                 {
                     permissions = new List<Permission>();
                     foreach (DataRow dr in dt.Rows)

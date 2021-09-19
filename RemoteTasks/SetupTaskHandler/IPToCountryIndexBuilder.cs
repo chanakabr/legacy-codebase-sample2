@@ -40,7 +40,7 @@ namespace SetupTaskHandler
                 DataTable ipV6ToCountryMapping = DAL.ApiDAL.GetIpv6ToCountryTable();
                 DataTable ipV4ToCountryMapping = DAL.ApiDAL.Get_IPToCountryTable();
 
-                if (ipV6ToCountryMapping != null)
+                if (ipV6ToCountryMapping != null && ipV6ToCountryMapping.Rows != null && ipV6ToCountryMapping.Rows.Count > 0)
                 {
                     foreach (DataRow row in ipV6ToCountryMapping.Rows)
                     {
@@ -57,7 +57,7 @@ namespace SetupTaskHandler
                     }
                 }
 
-                if (ipV4ToCountryMapping != null)
+                if (ipV4ToCountryMapping != null && ipV4ToCountryMapping.Rows != null && ipV4ToCountryMapping.Rows.Count > 0)
                 {
                     foreach (DataRow row in ipV4ToCountryMapping.Rows)
                     {

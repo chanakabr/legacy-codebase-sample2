@@ -429,7 +429,7 @@ namespace APILogic.Api.Managers
             try
             {
                 DataTable dt = ApiDAL.GetGroupFeatures(groupId);
-                if (dt?.Rows.Count > 0)
+                if (dt?.Rows?.Count > 0)
                 {
                     foreach (DataRow dr in dt.Rows)
                     {
@@ -742,7 +742,7 @@ namespace APILogic.Api.Managers
             try
             {
                 DataTable dt = ApiDAL.GetGroupPermissions(groupId);
-                if (dt?.Rows.Count > 0)
+                if (dt?.Rows?.Count > 0)
                 {
                     foreach (DataRow dr in dt.Rows)
                     {

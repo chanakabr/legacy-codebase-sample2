@@ -488,7 +488,7 @@ namespace DAL
 
             DataTable dtResult = spUpdateSetUserStatusInDomain.Execute();
 
-            if (dtResult == null || dtResult.Rows.Count == 0)
+            if (dtResult == null || dtResult.Rows == null || dtResult.Rows.Count == 0)
             {
                 return 1;
             }
@@ -512,7 +512,7 @@ namespace DAL
 
             DataTable dtResult = spUpdateSetDeviceStatusInDomain.Execute();
 
-            if (dtResult == null)
+            if (dtResult == null || dtResult.Rows == null)
             {
                 return 1;
             }
@@ -755,7 +755,7 @@ namespace DAL
 
             DataTable dtResult = spResetDomainFrequency.Execute();
 
-            if (dtResult == null || dtResult.Rows.Count == 0)
+            if (dtResult == null || dtResult.Rows == null || dtResult.Rows.Count == 0)
             {
                 return true;
             }

@@ -134,7 +134,7 @@ public partial class adm_device_rules_new : System.Web.UI.Page
         List<string> devicetypesInRuleHashSet = new List<string>();
         List<string> deviceBrandsFamiliesHashSet = new List<string>();
 
-        if (devicetypesInRule != null)
+        if (devicetypesInRule != null && devicetypesInRule.Rows != null)
         {
             foreach (DataRow dr in devicetypesInRule.Rows)
             {
@@ -150,26 +150,28 @@ public partial class adm_device_rules_new : System.Web.UI.Page
             }
         }
 
-        foreach (DataRow dr in deviceBrandsFamilies.Rows)
+        if (deviceBrandsFamilies.Rows != null)
         {
-            if (devicetypesInRuleHashSet.Count == 0 || !devicetypesInRuleHashSet.Contains(dr["id"].ToString()))
+            foreach (DataRow dr in deviceBrandsFamilies.Rows)
             {
-                deviceBrandsFamiliesHashSet.Add(dr["id"].ToString());
-
-                var data = new
+                if (devicetypesInRuleHashSet.Count == 0 || !devicetypesInRuleHashSet.Contains(dr["id"].ToString()))
                 {
-                    ID = dr["Id"],
-                    Title = $"{dr["DISPLAY_NAME"]}",
-                    Description = $"{dr["DISPLAY_NAME"]}",
-                    InList = false
-                };
-                deviceBrandsList.Add(data);
+                    deviceBrandsFamiliesHashSet.Add(dr["id"].ToString());
+
+                    var data = new
+                    {
+                        ID = dr["Id"],
+                        Title = $"{dr["DISPLAY_NAME"]}",
+                        Description = $"{dr["DISPLAY_NAME"]}",
+                        InList = false
+                    };
+                    deviceBrandsList.Add(data);
+                }
             }
         }
 
         Session["devicetypesInRule"] = devicetypesInRuleHashSet;
         Session["deviceBrandsFamilies"] = deviceBrandsFamiliesHashSet;
-
 
         object[] resultData = deviceBrandsList.ToArray();
 

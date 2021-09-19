@@ -6,4 +6,10 @@
         recording,
         epg
     }
+
+    public enum KalturaManualCollectionAssetType
+    {
+        media,
+        epg
+    }
 }

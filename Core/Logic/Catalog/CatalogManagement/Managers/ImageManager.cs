@@ -227,7 +227,7 @@ namespace Core.Catalog.CatalogManagement
         private static List<Ratio> CreateRatios(DataTable dt)
         {
             List<Ratio> response = null;
-            if (dt != null && dt.Rows != null)
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 response = new List<Ratio>();
                 foreach (DataRow dr in dt.Rows)
@@ -1572,7 +1572,7 @@ namespace Core.Catalog.CatalogManagement
             GenericListResponse<Image> response = new GenericListResponse<Image>();
 
             DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectId, imageObjectType);
-            if (dt != null && dt.Rows.Count > 0)
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 return GetAssetImage(groupId, dt, isDefault);
             }
@@ -1641,7 +1641,7 @@ namespace Core.Catalog.CatalogManagement
             GenericListResponse<Image> response = new GenericListResponse<Image>();
 
             DataTable dt = CatalogDAL.GetImagesByObject(groupId, imageObjectIds, imageObjectType);
-            if (dt != null && dt.Rows.Count > 0)
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 return GetAssetImage(groupId, dt, isDefault);
             }

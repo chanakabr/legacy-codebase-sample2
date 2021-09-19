@@ -13,7 +13,12 @@ using System.Reflection;
 
 namespace Tvinci.Core.DAL
 {
-    public class EpgDal : BaseDal
+    public interface IEpgDal
+    {
+        IEnumerable<EpgCB> GetEpgDocs(IEnumerable<string> documentIds, bool isNewEpgIngestEnabled);
+    }
+
+    public class EpgDal : BaseDal, IEpgDal
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
@@ -845,6 +850,11 @@ namespace Tvinci.Core.DAL
             }
 
             return bRes;
+        }
+
+        public IEnumerable<EpgCB> GetEpgDocs(IEnumerable<string> documentIds, bool isNewEpgIngestEnabled)
+        {
+            return GetEpgCBList(documentIds.ToList(), isNewEpgIngestEnabled);
         }
 
         public static List<EpgCB> GetEpgCBList(List<string> documentIds, bool isNewEpgIngestEnabled = false)

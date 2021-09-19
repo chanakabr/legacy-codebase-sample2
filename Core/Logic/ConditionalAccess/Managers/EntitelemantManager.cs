@@ -1505,7 +1505,7 @@ namespace Core.ConditionalAccess
             {
                 // Get subscriptions_purchase
                 DataTable dt = ConditionalAccessDAL.GetSubscriptionsPurchasesByBillingGuid(groupId, billingGuid);
-                if (dt?.Rows.Count > 0)
+                if (dt?.Rows?.Count > 0)
                 {
                     DateTime now = DateTime.UtcNow;
 
@@ -1581,7 +1581,7 @@ namespace Core.ConditionalAccess
             {
                 // Get subscriptions_purchase
                 DataTable dt = ConditionalAccessDAL.GetPPVPurchasesByBillingGuid(groupId, billingGuid);
-                if (dt?.Rows.Count > 0)
+                if (dt?.Rows?.Count > 0)
                 {
                     DateTime now = DateTime.UtcNow;
 
@@ -1647,7 +1647,7 @@ namespace Core.ConditionalAccess
             {
                 // Get subscriptions_purchase
                 DataTable dt = ConditionalAccessDAL.GetCollectionsPurchasesByBillingGuid(groupId, billingGuid);
-                if (dt?.Rows.Count > 0)
+                if (dt?.Rows?.Count > 0)
                 {
                     DateTime now = DateTime.UtcNow;
 
@@ -1734,7 +1734,7 @@ namespace Core.ConditionalAccess
             {
                 // Get subscriptions_purchase
                 DataTable dt = ConditionalAccessDAL.GetSubscriptionsPurchasesByBillingGuid(groupId, billingGuid);
-                if (dt?.Rows.Count > 0)
+                if (dt?.Rows?.Count > 0)
                 {
                     var row = dt.Rows[0];
 
@@ -1785,7 +1785,7 @@ namespace Core.ConditionalAccess
             {
                 // Get subscriptions_purchase
                 DataTable dt = ConditionalAccessDAL.GetPPVPurchasesByBillingGuid(groupId, billingGuid);
-                if (dt?.Rows.Count > 0)
+                if (dt?.Rows?.Count > 0)
                 {
                     DateTime now = DateTime.UtcNow;
 

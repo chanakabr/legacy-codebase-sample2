@@ -69,6 +69,9 @@ namespace ApiObjects.MediaMarks
         [JsonProperty("Revoke")]
         public bool? Revoke { get; set; }
 
+        [JsonProperty("linearWatchHistoryThreshold")]
+        public int? LinearWatchHistoryThreshold { get; set; }
+
         public DevicePlayData()
         {
             // default values to members from joker version
@@ -78,8 +81,7 @@ namespace ApiObjects.MediaMarks
         
         public DevicePlayData(string udid, int assetID, int userId, long timeStamp, ePlayType playType, MediaPlayActions action, 
                               int deviceFamilyId, long createdAt, long programId, string npvrId, int domainId, List<int> mediaConcurrencyRuleIds = null,
-                              List<long> assetMediaConcurrencyRuleIds = null, List<long> assetEpgConcurrencyRuleIds = null, int? bookmarkEventThreshold = null, 
-                              eTransactionType? productType = null, int? productId = null)
+                              List<long> assetMediaConcurrencyRuleIds = null, List<long> assetEpgConcurrencyRuleIds = null, int? bookmarkEventThreshold = null, eTransactionType? productType = null, int? productId = null, int? linearWatchHistoryThreshold = null)
         {
             this.UDID = udid;
             this.AssetId = assetID;
@@ -99,6 +101,7 @@ namespace ApiObjects.MediaMarks
             this.BookmarkEventThreshold = bookmarkEventThreshold;
             this.ProductType = productType;
             this.ProductId = productId;
+            LinearWatchHistoryThreshold = linearWatchHistoryThreshold;
         }
 
         public DevicePlayData(DevicePlayData other)
@@ -121,6 +124,7 @@ namespace ApiObjects.MediaMarks
             this.BookmarkEventThreshold = other.BookmarkEventThreshold;
             this.ProductType = other.ProductType;
             this.ProductId = other.ProductId;
+            LinearWatchHistoryThreshold = other.LinearWatchHistoryThreshold;
         }
 
         public UserMediaMark ConvertToUserMediaMark(int location, int fileDuration, int assetTypeId, eAssetTypes assetType)
@@ -171,6 +175,7 @@ namespace ApiObjects.MediaMarks
             sb.AppendLine(String.Concat("bookmarkEventThreshold: ", this.BookmarkEventThreshold));
             sb.AppendLine(String.Concat("ProductType: ", this.ProductType));
             sb.AppendLine(String.Concat("ProductId: ", this.ProductId));
+            sb.AppendLine($"{nameof(LinearWatchHistoryThreshold)}: {LinearWatchHistoryThreshold}");
 
             return sb.ToString();
         }

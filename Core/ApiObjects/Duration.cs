@@ -164,6 +164,11 @@ namespace ApiObjects
                 return (int)duration.TvmCode / 1440;
             }
         }
+
+        public override string ToString()
+        {
+            return $"{this.Value} {this.Unit}";
+        }
     }
 
     public enum DurationUnit

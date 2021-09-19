@@ -131,6 +131,14 @@ namespace WebAPI.Models.Partner
         public KalturaRollingDeviceRemovalData RollingDeviceRemovalData { get; set; }
 
         /// <summary>
+        /// minimum bookmark position of a linear channel to be included in a watch history 
+        /// </summary>
+        [DataMember(Name = "linearWatchHistoryThreshold")]
+        [JsonProperty("linearWatchHistoryThreshold")]
+        [XmlElement(ElementName = "linearWatchHistoryThreshold")]
+        public int? LinearWatchHistoryThreshold { get; set; }
+
+        /// <summary>
         /// Finished PercentThreshold
         /// </summary>
         [DataMember(Name = "finishedPercentThreshold")]

@@ -1,5 +1,4 @@
 ﻿using ApiObjects;
-using ApiObjects.Base;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
@@ -8,7 +7,6 @@ using Core.Api.Managers;
 using Core.Catalog.Response;
 using GroupsCacheManager;
 using KLogMonitor;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -57,6 +55,15 @@ namespace Core.Catalog.CatalogManagement
             EnumerableRowCollection<DataRow> descriptionTranslations = ds.Tables[2] != null && ds.Tables[2].Rows != null ? ds.Tables[2].AsEnumerable() : new DataTable().AsEnumerable();
             EnumerableRowCollection<DataRow> mediaTypes = ds.Tables[3] != null && ds.Tables[3].Rows != null ? ds.Tables[3].AsEnumerable() : new DataTable().AsEnumerable();
             EnumerableRowCollection<DataRow> channelsMedias = ds.Tables[4] != null && ds.Tables[4].Rows != null ? ds.Tables[4].AsEnumerable() : new DataTable().AsEnumerable();
+            EnumerableRowCollection<DataRow> channelsAssets;
+            if (ds.Tables.Count == 6)
+            {
+                channelsAssets = ds.Tables[5] != null && ds.Tables[5].Rows != null ? ds.Tables[5].AsEnumerable() : new DataTable().AsEnumerable();
+            }
+            else
+            {
+                channelsAssets = channelsMedias;
+            }
 
             foreach (DataRow dr in channelsTable.Rows)
             {
@@ -77,7 +84,11 @@ namespace Core.Catalog.CatalogManagement
                                             where (Int64)row["CHANNEL_ID"] == id
                                             select row).ToList();
 
-                    Channel channel = CreateChannel(id, dr, channelNameTranslations, channelDescriptionTranslations, channelmediaTypes, medias);
+                    List<DataRow> assets = (from row in channelsAssets
+                                            where (Int64)row["CHANNEL_ID"] == id
+                                            select row).ToList();
+
+                    Channel channel = CreateChannel(id, dr, channelNameTranslations, channelDescriptionTranslations, channelmediaTypes, medias, assets);
                     if (channel != null)
                     {
                         channels.Add(channel);
@@ -88,7 +99,8 @@ namespace Core.Catalog.CatalogManagement
             return channels;
         }
 
-        private static Channel CreateChannel(int id, DataRow dr, List<DataRow> nameTranslations, List<DataRow> descriptionTranslations, List<DataRow> mediaTypes, List<DataRow> channelMedias)
+        private static Channel CreateChannel(int id, DataRow dr, List<DataRow> nameTranslations, List<DataRow> descriptionTranslations, List<DataRow> mediaTypes,
+            List<DataRow> channelMedias, List<DataRow> assets)
         {
             Channel channel = new Channel();
             if (channel.m_lChannelTags == null)
@@ -219,7 +231,34 @@ namespace Core.Catalog.CatalogManagement
                 case ChannelType.Manual:
                     {
                         #region Manual
-                        if (channelMedias != null)
+                        if (assets != null)
+                        {
+                            List<ManualAsset> manualMedias = new List<ManualAsset>();
+                            int? assetType;
+                            foreach (DataRow row in assets)
+                            {
+                                assetType = ODBCWrapper.Utils.GetNullableInt(row, "asset_type");
+                                manualMedias.Add(new ManualAsset()
+                                {
+                                    AssetId = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_ID"),
+                                    AssetType = assetType.HasValue ? (eAssetTypes)assetType.Value : eAssetTypes.MEDIA,
+                                    OrderNum = ODBCWrapper.Utils.GetIntSafeVal(row, "ORDER_NUM")
+
+
+                                });
+                            }
+                            if (manualMedias != null && manualMedias.Count > 0)
+                            {
+                                channel.ManualAssets = manualMedias.OrderBy(x => x.OrderNum).ToList();
+                                channel.m_lChannelTags = channel.ManualAssets.Select(x => new SearchValue()
+                                {
+                                    m_sKey = x.AssetType == eAssetTypes.MEDIA ? "media_id" : "epg_id",
+                                    m_lValue = new List<string>() { x.AssetId.ToString() }
+                                }).ToList();
+                            }
+                        }
+
+                        if (channelMedias != null && (assets == null || assets.Count < 1))
                         {
                             List<GroupsCacheManager.ManualMedia> manualMedias = new List<GroupsCacheManager.ManualMedia>();
                             HashSet<int> mediaIdsSet = new HashSet<int>();
@@ -840,29 +879,24 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // validate medias exist for manual channel only
-                    if (channelToAdd.m_nChannelTypeID == (int)ChannelType.Manual && channelToAdd.m_lManualMedias != null && channelToAdd.m_lManualMedias.Count > 0)
+                    if (channelToAdd.m_nChannelTypeID == (int)ChannelType.Manual)
                     {
-                        mediaIdsToOrderNum = new List<KeyValuePair<long, int>>();
-                        List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
-                        foreach (GroupsCacheManager.ManualMedia manualMedia in channelToAdd.m_lManualMedias)
+                        if (channelToAdd.m_lManualMedias?.Count > 0)
                         {
-                            long mediaId;
-                            if (long.TryParse(manualMedia.m_sMediaId, out mediaId) && mediaId > 0)
+                            Status assetStatus = ValidateMediasForManualChannel(groupId, channelToAdd.m_lManualMedias, out mediaIdsToOrderNum);
+                            if (!assetStatus.IsOkStatusCode())
                             {
-                                assets.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(ApiObjects.eAssetTypes.MEDIA, mediaId));
-                                mediaIdsToOrderNum.Add(new KeyValuePair<long, int>(mediaId, manualMedia.m_nOrderNum));
+                                response.SetStatus(assetStatus);
+                                return response;
                             }
                         }
 
-                        if (assets.Count > 0)
+                        if (channelToAdd.ManualAssets?.Count > 0)
                         {
-                            // isAllowedToViewInactiveAssets = true becuase only operator can add channel
-                            List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true);
-                            if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToAdd.m_lManualMedias.Count)
+                            Status assetStatus = ValidateAssetsForManualChannel(groupId, channelToAdd.ManualAssets);
+                            if (!assetStatus.IsOkStatusCode())
                             {
-                                List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
-                                response.SetStatus(eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
-                                                eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
+                                response.SetStatus(assetStatus);
                                 return response;
                             }
                         }
@@ -920,11 +954,10 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 DataSet ds = CatalogDAL.InsertChannel(
-                    groupId, channelToAdd.SystemName, channelToAdd.m_sName, channelToAdd.m_sDescription,
-                    channelToAdd.m_nIsActive, (int)channelToAdd.m_OrderObject.m_eOrderBy,
+                    groupId, channelToAdd.SystemName, channelToAdd.m_sName, channelToAdd.m_sDescription, channelToAdd.m_nIsActive, (int)channelToAdd.m_OrderObject.m_eOrderBy,
                     (int)channelToAdd.m_OrderObject.m_eOrderDir, channelToAdd.m_OrderObject.m_sOrderValue, isSlidingWindow, slidingWindowPeriod, channelToAdd.m_nChannelTypeID,
                     channelToAdd.filterQuery, channelToAdd.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
-                    mediaIdsToOrderNum, userId, channelToAdd.SupportSegmentBasedOrdering, channelToAdd.AssetUserRuleId, channelToAdd.MetaData != null);
+                    mediaIdsToOrderNum, userId, channelToAdd.SupportSegmentBasedOrdering, channelToAdd.AssetUserRuleId, channelToAdd.MetaData != null, channelToAdd.ManualAssets);
 
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
@@ -933,11 +966,12 @@ namespace Core.Catalog.CatalogManagement
                     List<DataRow> descriptionTranslations = ds.Tables[2] != null && ds.Tables[2].Rows != null ? ds.Tables[2].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
                     List<DataRow> mediaTypes = ds.Tables[3] != null && ds.Tables[3].Rows != null ? ds.Tables[3].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
                     List<DataRow> mediaIds = ds.Tables[4] != null && ds.Tables[4].Rows != null ? ds.Tables[4].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                    List<DataRow> assets = ds.Tables[5] != null && ds.Tables[5].Rows != null ? ds.Tables[5].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
                     int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
 
                     if (id > 0)
                     {
-                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
+                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds, assets);
 
                         if (response.Object.HasMetadata)
                         {
@@ -1067,29 +1101,24 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // validate medias exist for manual channel only
-                    if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.Manual && channelToUpdate.m_lManualMedias != null)
+                    if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.Manual)
                     {
-                        mediaIdsToOrderNum = new List<KeyValuePair<long, int>>();
-                        List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
-                        foreach (GroupsCacheManager.ManualMedia manualMedia in channelToUpdate.m_lManualMedias)
+                        if (channelToUpdate.m_lManualMedias?.Count > 0)
                         {
-                            long mediaId;
-                            if (long.TryParse(manualMedia.m_sMediaId, out mediaId) && mediaId > 0)
+                            Status assetStatus = ValidateMediasForManualChannel(groupId, channelToUpdate.m_lManualMedias, out mediaIdsToOrderNum);
+                            if (!assetStatus.IsOkStatusCode())
                             {
-                                assets.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(ApiObjects.eAssetTypes.MEDIA, mediaId));
-                                mediaIdsToOrderNum.Add(new KeyValuePair<long, int>(mediaId, manualMedia.m_nOrderNum));
+                                response.SetStatus(assetStatus);
+                                return response;
                             }
                         }
 
-                        if (assets.Count > 0)
+                        if (channelToUpdate.ManualAssets?.Count > 0)
                         {
-                            // isAllowedToViewInactiveAssets = true becuase only operator can update channel
-                            List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true);
-                            if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != channelToUpdate.m_lManualMedias.Count)
+                            Status assetStatus = ValidateAssetsForManualChannel(groupId, channelToUpdate.ManualAssets);
+                            if (!assetStatus.IsOkStatusCode())
                             {
-                                List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
-                                response.SetStatus(eResponseStatus.AssetDoesNotExist, string.Format("{0} for the following Media Ids: {1}",
-                                                    eResponseStatus.AssetDoesNotExist.ToString(), string.Join(",", missingAssetIds)));
+                                response.SetStatus(assetStatus);
                                 return response;
                             }
                         }
@@ -1151,7 +1180,7 @@ namespace Core.Catalog.CatalogManagement
                 DataSet ds = CatalogDAL.UpdateChannel(groupId, channelId, channelToUpdate.SystemName, channelToUpdate.m_sName, channelToUpdate.m_sDescription, channelToUpdate.m_nIsActive, orderByType,
                                                         orderByDir, orderByValue, isSlidingWindow, slidingWindowPeriod, channelToUpdate.filterQuery, channelToUpdate.m_nMediaType, groupBy, languageCodeToName, languageCodeToDescription,
                                                         mediaIdsToOrderNum, userId, channelToUpdate.SupportSegmentBasedOrdering,
-                                                        channelToUpdate.AssetUserRuleId, assetTypesValuesInd, hasMetadata, updatedChannelType);
+                                                        channelToUpdate.AssetUserRuleId, assetTypesValuesInd, hasMetadata, channelToUpdate.ManualAssets, updatedChannelType);
 
                 if (ds != null && ds.Tables.Count > 4 && ds.Tables[0] != null && ds.Tables[0].Rows.Count > 0)
                 {
@@ -1160,6 +1189,12 @@ namespace Core.Catalog.CatalogManagement
                     List<DataRow> descriptionTranslations = ds.Tables[2] != null && ds.Tables[2].Rows != null ? ds.Tables[2].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
                     List<DataRow> mediaTypes = ds.Tables[3] != null && ds.Tables[3].Rows != null ? ds.Tables[3].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
                     List<DataRow> mediaIds = ds.Tables[4] != null && ds.Tables[4].Rows != null ? ds.Tables[4].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                    List<DataRow> assets = null;
+                    if (ds.Tables.Count == 6)
+                    {
+                        assets = ds.Tables[5] != null && ds.Tables[5].Rows != null ? ds.Tables[5].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
+                    }
+
                     int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
                     if (id > 0)
                     {
@@ -1178,10 +1213,10 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else
                         {
-                            metaData = currentChannel != null ? currentChannel.MetaData : null;
+                            metaData = currentChannel?.MetaData;
                         }
 
-                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds);
+                        response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds, assets);
                         response.Object.MetaData = metaData;
                     }
                 }
@@ -1399,6 +1434,48 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        private static Status ValidateMediasForManualChannel(int groupId, List<GroupsCacheManager.ManualMedia> manualMedias, out List<KeyValuePair<long, int>> mediaIdsToOrderNum)
+        {
+            mediaIdsToOrderNum = new List<KeyValuePair<long, int>>();
+            List<KeyValuePair<ApiObjects.eAssetTypes, long>> assets = new List<KeyValuePair<ApiObjects.eAssetTypes, long>>();
+            foreach (GroupsCacheManager.ManualMedia manualMedia in manualMedias)
+            {
+                long mediaId;
+                if (long.TryParse(manualMedia.m_sMediaId, out mediaId) && mediaId > 0)
+                {
+                    assets.Add(new KeyValuePair<ApiObjects.eAssetTypes, long>(ApiObjects.eAssetTypes.MEDIA, mediaId));
+                    mediaIdsToOrderNum.Add(new KeyValuePair<long, int>(mediaId, manualMedia.m_nOrderNum));
+                }
+            }
+
+            if (assets.Count > 0)
+            {
+                // isAllowedToViewInactiveAssets = true becuase only operator can add channel
+                List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true);
+                if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != manualMedias.Count)
+                {
+                    List<long> missingAssetIds = existingAssets != null ? assets.Select(x => x.Value).Except(existingAssets.Select(x => x.Id)).ToList() : assets.Select(x => x.Value).ToList();
+                    return new Status() { Code = (int)eResponseStatus.AssetDoesNotExist, Message = $"AssetDoesNotExist  Ids: {string.Join(",", missingAssetIds)}" };
+                }
+            }
+
+            return new Status(eResponseStatus.OK);
+        }
+
+        private static Status ValidateAssetsForManualChannel(int groupId, List<ManualAsset> manualAssets)
+        {
+            // isAllowedToViewInactiveAssets = true becuase only operator can add channel
+            var assets = manualAssets.Select(x => new KeyValuePair<eAssetTypes, long>(x.AssetType, x.AssetId)).ToList();
+            List<Asset> existingAssets = AssetManager.GetAssets(groupId, assets, true, false);
+            if (existingAssets == null || existingAssets.Count == 0 || existingAssets.Count != manualAssets.Count)
+            {
+                List<long> missingAssetIds = existingAssets != null ? manualAssets.Select(x => x.AssetId).Except(existingAssets.Select(x => x.Id)).ToList() : manualAssets.Select(x => x.AssetId).ToList();
+                return new Status() { Code = (int)eResponseStatus.AssetDoesNotExist, Message = $"AssetDoesNotExist  Ids: {string.Join(",", missingAssetIds)}" };
+            }
+
+            return new Status(eResponseStatus.OK);
         }
 
         #endregion

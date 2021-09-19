@@ -1627,7 +1627,7 @@ namespace DAL
             sp.AddParameter("@newUsername", encryptedUsername, true);
             sp.AddParameter("@groupId", groupId);
             var table = sp.Execute();
-            var userId = table?.Rows.Count > 0
+            var userId = table?.Rows?.Count > 0
                 ? Utils.GetNullableLong(table.Rows[0], "ID")
                 : null;
             return userId;
@@ -1901,7 +1901,7 @@ namespace DAL
                 spGetDefaultGroupOperator.SetConnectionKey("MAIN_CONNECTION_STRING");
                 spGetDefaultGroupOperator.AddParameter("@GroupID", groupId);
                 DataTable dt = spGetDefaultGroupOperator.Execute();
-                if (dt != null)
+                if (dt != null && dt.DefaultView != null && dt.DefaultView.Count > 0)
                 {
                     if (dt.DefaultView[0].Row != null)
                     {

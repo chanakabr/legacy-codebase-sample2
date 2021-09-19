@@ -6,6 +6,7 @@ using IngestHandler.Common.Infrastructure;
 using IngestHandler.Domain.IngestProtection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Tvinci.Core.DAL;
 using TvinciCache;
 using WebAPI.Filters;
 
@@ -23,6 +24,7 @@ namespace EPGTransformationHandler
                 .ConfigureServices(services =>
                 {
                     services.AddSingleton<IIngestProtectProcessor, IngestProtectProcessor>();
+                    services.AddSingleton<IEpgDal, EpgDal>();
                     services.AddSingleton<ICatalogManagerAdapter, CatalogManagerAdapter>();
                 })
                 .ConfigureEventBustConsumer(c =>

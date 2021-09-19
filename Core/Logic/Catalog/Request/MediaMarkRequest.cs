@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
+using ApiLogic.Api.Managers;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
@@ -175,6 +176,14 @@ namespace Core.Catalog.Request
 
             if (Enum.TryParse(m_oMediaPlayRequestData.m_sAction.ToUpper().Trim(), out mediaMarkAction))
             {
+                var linearWatchHistoryThreshold = GeneralPartnerConfigManager.Instance.GetGeneralPartnerConfig(m_nGroupID)?.LinearWatchHistoryThreshold;
+                if (IsLinearChannel(nMediaTypeID) 
+                    && IsFirstPlay((int)mediaMarkAction) 
+                    && m_oMediaPlayRequestData.m_nLoc < linearWatchHistoryThreshold)
+                {
+                    return response;
+                }
+
                 if (!isAnonymousUser)
                 {
                     bool isError = false;

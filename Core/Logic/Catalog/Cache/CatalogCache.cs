@@ -456,7 +456,7 @@ namespace Core.Catalog.Cache
                 {
                     DataTable dataTable = CatalogDAL.GetGroupWatchPermissionsTypes(groupID);
 
-                    if (dataTable == null || dataTable.Rows.Count == 0)
+                    if (dataTable == null || dataTable.Rows?.Count == 0)
                         return null;
                     else
                     {

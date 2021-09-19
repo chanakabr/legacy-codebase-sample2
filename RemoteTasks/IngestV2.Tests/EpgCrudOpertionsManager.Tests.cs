@@ -36,6 +36,7 @@ namespace IngestV2.Tests
             _mappingTypeResolverMock = _mockRepository.Create<IMappingTypeResolver>();
         }
 
+        [TearDown]
         public void TearDown()
         {
             _mockRepository.VerifyAll();
@@ -137,8 +138,6 @@ namespace IngestV2.Tests
             var existingEpgStart = new DateTime(2000,1,1,0,0,0);
             var existingEpg = ProgramGenerator.Generate(3).BuildExistingPrograms();
             var epgRepositoryMock = GetMockEpgRepo(existingEpg);
-            _catalogManagerAdapterMock.Setup(x => x.DoesGroupUsesTemplates(It.IsAny<int>())).Returns(true);
-            _catalogManagerAdapterMock.Setup(x => x.GetCatalogGroupCache(It.IsAny<int>())).Returns(new CatalogGroupCache());
 
             var crudManager = new EpgCRUDOperationsManager(epgRepositoryMock.Object, _mappingTypeResolverMock.Object, _catalogManagerAdapterMock.Object);
             

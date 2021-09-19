@@ -73,8 +73,7 @@ namespace EpgIngest
             var data = EpgDal.GetEpgPicsBaseUrls(groupId, epgPicIds);
 
             var baseUrls = new Dictionary<int, string>();
-            if (data != null &&  data.Rows.Count > 0 &&
-                data.Rows != null)
+            if (data != null && data.Rows != null && data.Rows.Count > 0)
             {
                 foreach (DataRow row in data.Rows)
                 {

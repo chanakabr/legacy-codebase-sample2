@@ -206,7 +206,7 @@ namespace DAL
         private IEnumerable<int> GetGroupsDeviceLimitationModuleIds(DataTable dt)
         {
             List<int> response = null;
-            if (dt?.Rows.Count > 0)
+            if (dt?.Rows?.Count > 0)
             {
                 response = new List<int>();
                 foreach (DataRow row in dt.Rows)

@@ -284,7 +284,7 @@ namespace Core.ConditionalAccess
             Dictionary<long, Subscription> subscriptionsDictionary = GetSubscriptionsDataForExternalEntitlements(groupId, userId, ref subscriptionEntitlementsToInsert);
 
             DataTable dt = DAL.ConditionalAccessDAL.Get_AllSubscriptionsPurchasesByUsersIDsOrDomainID((int)householdId, null, groupId);
-            if (dt != null && dt.Rows.Count > 0)
+            if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
                 string subscriptionCode;
                 ExternalEntitlement subscription;

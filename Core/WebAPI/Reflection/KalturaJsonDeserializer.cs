@@ -1293,6 +1293,9 @@ namespace WebAPI.Reflection
                 case "KalturaManualChannel":
                     return new KalturaManualChannel(parameters);
                     
+                case "KalturaManualCollectionAsset":
+                    return new KalturaManualCollectionAsset(parameters);
+                    
                 case "KalturaMediaAsset":
                     return new KalturaMediaAsset(parameters);
                     
@@ -21551,10 +21554,6 @@ namespace WebAPI.Models.Catalog
                 }
                 if (parameters.ContainsKey("imageTypeName") && parameters["imageTypeName"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        ImageTypeIdSchemaProperty.Validate("imageTypeName", parameters["imageTypeName"]);
-                    }
                     ImageTypeName = (String) Convert.ChangeType(parameters["imageTypeName"], typeof(String));
                 }
                 if (parameters.ContainsKey("imageObjectId") && parameters["imageObjectId"] != null)
@@ -22480,13 +22479,97 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaManualChannel
     {
+        private static RuntimeSchemePropertyAttribute AssetsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaManualChannel")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 7,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
         public KalturaManualChannel(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("mediaIds") && parameters["mediaIds"] != null)
                 {
                     MediaIds = (String) Convert.ChangeType(parameters["mediaIds"], typeof(String));
+                }
+                if (parameters.ContainsKey("assets") && parameters["assets"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AssetsSchemaProperty.Validate("assets", parameters["assets"]);
+                    }
+                    if (parameters["assets"] is JArray)
+                    {
+                        Assets = buildList<KalturaManualCollectionAsset>(typeof(KalturaManualCollectionAsset), (JArray) parameters["assets"]);
+                    }
+                    else if (parameters["assets"] is IList)
+                    {
+                        Assets = buildList(typeof(KalturaManualCollectionAsset), parameters["assets"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaManualCollectionAsset
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaManualCollectionAsset")
+        {
+            ReadOnly = false,
+            InsertOnly = true,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaManualCollectionAsset")
+        {
+            ReadOnly = false,
+            InsertOnly = true,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaManualCollectionAsset(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
+                }
+                if (parameters.ContainsKey("type") && parameters["type"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        TypeSchemaProperty.Validate("type", parameters["type"]);
+                    }
+                    if(string.IsNullOrEmpty(parameters["type"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
+                    }
+
+                    Type = (KalturaManualCollectionAssetType) Enum.Parse(typeof(KalturaManualCollectionAssetType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaManualCollectionAssetType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaManualCollectionAssetType)));
+                    }
                 }
             }
         }
@@ -33060,6 +33143,10 @@ namespace WebAPI.Models.Partner
                     {
                         RollingDeviceRemovalData = (KalturaRollingDeviceRemovalData) Deserializer.deserialize(typeof(KalturaRollingDeviceRemovalData), (Dictionary<string, object>) parameters["rollingDeviceData"]);
                     }
+                }
+                if (parameters.ContainsKey("linearWatchHistoryThreshold") && parameters["linearWatchHistoryThreshold"] != null)
+                {
+                    LinearWatchHistoryThreshold = (Int32) Convert.ChangeType(parameters["linearWatchHistoryThreshold"], typeof(Int32));
                 }
                 if (parameters.ContainsKey("finishedPercentThreshold") && parameters["finishedPercentThreshold"] != null)
                 {
