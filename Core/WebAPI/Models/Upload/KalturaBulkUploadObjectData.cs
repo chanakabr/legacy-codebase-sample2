@@ -1,4 +1,5 @@
-﻿using ApiLogic.Api.Managers;
+﻿using System.Linq;
+using ApiLogic.Api.Managers;
 using ApiObjects.Base;
 using Core.Catalog.CatalogManagement;
 using Newtonsoft.Json;
@@ -93,8 +94,8 @@ namespace WebAPI.Models.Upload
 
         internal override void Validate(int groupId)
         {
-            var linearMediaTypeIds = CatalogManager.Instance.GetLinearMediaTypeIds(groupId);
-            if (!linearMediaTypeIds.Contains(this.TypeId))
+            var linearMediaTypes = CatalogManager.Instance.GetLinearMediaTypes(groupId);
+            if (linearMediaTypes.All(x => x.Id != TypeId))
             {
                 throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "bulkUploadAssetData.typeId");
             }

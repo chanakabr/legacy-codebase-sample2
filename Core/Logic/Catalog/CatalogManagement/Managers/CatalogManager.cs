@@ -1365,7 +1365,7 @@ namespace Core.Catalog.CatalogManagement
         public GenericListResponse<AssetStruct> GetAssetStructByVirtualEntityType(int groupId, ObjectVirtualAssetInfoType virtualEntityType)
         {
             GenericListResponse<AssetStruct> response = new GenericListResponse<AssetStruct>();
-            
+
             try
             {
                 var objectVirtualAssetInfo = VirtualAssetPartnerConfigManager.Instance.GetObjectVirtualAssetInfo(groupId, virtualEntityType);
@@ -1379,6 +1379,20 @@ namespace Core.Catalog.CatalogManagement
             {
                 log.Error(string.Format("Failed GetAssetStructByVirtualEntity with groupId: {0} and ObjectVirtualAssetInfoType: {1}", groupId, virtualEntityType), ex);
             }
+
+            return response;
+        }
+
+        public GenericListResponse<AssetStruct> GetLinearAssetStructs(int groupId)
+        {
+            var response = new GenericListResponse<AssetStruct>();
+            if (!TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache))
+            {
+                return response;
+            }
+
+            response.Objects = GetLinearMediaTypes(catalogGroupCache);
+            response.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             return response;
         }
@@ -2897,34 +2911,34 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<List<int>, bool>(result, res);
         }
 
-        public HashSet<long> GetLinearMediaTypeIds(int groupId)
+        public List<AssetStruct> GetLinearMediaTypes(int groupId)
         {
-            var linearMediaTypeIds = new HashSet<long>();
-
-            if (!TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache))
+            if (!TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache))
             {
                 log.Error($"failed to get catalogGroupCache for groupId: {groupId} when calling GetLinearMediaTypeIds");
+
+                return new List<AssetStruct>();
             }
-            else
+
+            return GetLinearMediaTypes(catalogGroupCache);
+        }
+
+        private static List<AssetStruct> GetLinearMediaTypes(CatalogGroupCache catalogGroupCache)
+        {
+            var result = new List<AssetStruct>();
+            if (catalogGroupCache.AssetStructsMapBySystemName.TryGetValue(LINEAR_ASSET_STRUCT_SYSTEM_NAME, out var linearMediaType))
             {
-                long linearMediaTypeId = -1;
-                if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(CatalogManager.LINEAR_ASSET_STRUCT_SYSTEM_NAME))
-                {
-                    linearMediaTypeId = catalogGroupCache.AssetStructsMapBySystemName[CatalogManager.LINEAR_ASSET_STRUCT_SYSTEM_NAME].Id;
-                    linearMediaTypeIds.Add(linearMediaTypeId);
-                }
-
-                var otherLinearMediaTypes = catalogGroupCache.AssetStructsMapById.Values.Where(x => x.IsLinearAssetStruct && x.Id != linearMediaTypeId).ToList();
-                foreach (var otherLinearMediaType in otherLinearMediaTypes)
-                {
-                    if (!linearMediaTypeIds.Contains(otherLinearMediaType.Id))
-                    {
-                        linearMediaTypeIds.Add(otherLinearMediaType.Id);
-                    }
-                }
+                result.Add(linearMediaType);
             }
 
-            return linearMediaTypeIds;
+            var otherLinearMediaTypeIds = catalogGroupCache.AssetStructsMapById.Values
+                .Where(x => x.IsLinearAssetStruct && x.Id != linearMediaType?.Id)
+                .Select(x => x.Id)
+                .Distinct();
+
+            result.AddRange(otherLinearMediaTypeIds.Select(x => catalogGroupCache.AssetStructsMapById[x]));
+
+            return result;
         }
 
         internal void SetHistoryValues(int groupId, UserMediaMark userMediaMark)

@@ -288,6 +288,9 @@ namespace WebAPI.Reflection
                 case "KalturaBaseAssetInfo":
                     return new KalturaBaseAssetInfo(parameters);
                     
+                case "KalturaBaseAssetStructFilter":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+
                 case "KalturaBaseChannel":
                     return new KalturaBaseChannel(parameters);
                     
@@ -1269,6 +1272,9 @@ namespace WebAPI.Reflection
                 case "KalturaLicensedUrlRecordingRequest":
                     return new KalturaLicensedUrlRecordingRequest(parameters);
                     
+                case "KalturaLinearAssetStructFilter":
+                    return new KalturaLinearAssetStructFilter(parameters);
+
                 case "KalturaListFollowDataTvSeriesResponse":
                     return new KalturaListFollowDataTvSeriesResponse(parameters);
                     
@@ -1469,10 +1475,10 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPartnerPremiumService":
                     return new KalturaPartnerPremiumService(parameters);
-                    
+
                 case "KalturaPartnerPremiumServices":
                     return new KalturaPartnerPremiumServices(parameters);
-                    
+
                 case "KalturaPartnerSetup":
                     return new KalturaPartnerSetup(parameters);
                     
@@ -1655,7 +1661,7 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPreviewModuleFilter":
                     return new KalturaPreviewModuleFilter(parameters);
-                    
+
                 case "KalturaPreviewModuleListResponse":
                     return new KalturaPreviewModuleListResponse(parameters);
                     
@@ -19273,6 +19279,12 @@ namespace WebAPI.Models.Catalog
             }
         }
     }
+    public partial class KalturaBaseAssetStructFilter
+    {
+        public KalturaBaseAssetStructFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
     public partial class KalturaBaseChannel
     {
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBaseChannel")
@@ -22110,6 +22122,12 @@ namespace WebAPI.Models.Catalog
                     }
                 }
             }
+        }
+    }
+    public partial class KalturaLinearAssetStructFilter
+    {
+        public KalturaLinearAssetStructFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
         }
     }
     public partial class KalturaLiveAsset

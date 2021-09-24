@@ -1,8 +1,4 @@
 ﻿using ApiObjects.Response;
-using KLogMonitor;
-using System;
-using System.Collections.Generic;
-using System.Reflection;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -15,47 +11,20 @@ namespace WebAPI.Controllers
     [Service("assetStruct")]
     public class AssetStructController : IKalturaController
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-
         /// <summary>
         /// Return a list of asset structs for the account with optional filter
         /// </summary>
         /// <param name="filter">Filter parameters for filtering out the result</param>
         /// <returns></returns>
         [Action("list")]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
         [ApiAuthorize]
-        static public KalturaAssetStructListResponse List(KalturaAssetStructFilter filter = null)
+        public static KalturaAssetStructListResponse List(KalturaBaseAssetStructFilter filter = null)
         {
-            if (filter == null)
-            {
-                filter = new KalturaAssetStructFilter();
-            }
+            filter = filter ?? new KalturaAssetStructFilter();
+            filter.Validate();
 
-            KalturaAssetStructListResponse response = new KalturaAssetStructListResponse();
-            int groupId = KS.GetFromRequest().GroupId;
-            try
-            {
-                filter.Validate();
-                if (filter.MetaIdEqual.HasValue && filter.MetaIdEqual.Value > 0)
-                {                    
-                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, new List<long>(), filter.OrderBy, filter.IsProtectedEqual, filter.MetaIdEqual.Value);
-                }
-                else if (filter.ObjectVirtualAssetInfoTypeEqual.HasValue)
-                {
-                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, new List<long>(), filter.OrderBy, null, 0, filter.ObjectVirtualAssetInfoTypeEqual.Value);
-                }
-                else
-                {           
-                    response = ClientsManager.CatalogClient().GetAssetStructs(groupId, filter.GetIdIn(), filter.OrderBy, filter.IsProtectedEqual);
-                }
-
-            }
-            catch (ClientException ex)
-            {
-                ErrorUtils.HandleClientException(ex);
-            }
-
-            return response;
+            return ClientsManager.CatalogClient().GetAssetStructs(KS.GetFromRequest().GroupId, filter);
         }
 
         /// <summary>

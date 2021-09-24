@@ -1,32 +1,25 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using ApiObjects;
+using ApiObjects.Response;
+using AutoMapper;
+using Core.Catalog;
+using Core.Catalog.CatalogManagement;
+using Newtonsoft.Json;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
-using WebAPI.Models.General;
 using WebAPI.Models.Partner;
 
 namespace WebAPI.Models.Catalog
 {
-    public enum KalturaAssetStructOrderBy
-    {
-        NAME_ASC,
-        NAME_DESC,
-        SYSTEM_NAME_ASC,
-        SYSTEM_NAME_DESC,
-        CREATE_DATE_ASC,
-        CREATE_DATE_DESC,
-        UPDATE_DATE_ASC,
-        UPDATE_DATE_DESC
-    }
-
     /// <summary>
     /// Filtering Asset Structs
     /// </summary>
     [Serializable]
-    public partial class KalturaAssetStructFilter : KalturaFilter<KalturaAssetStructOrderBy>
+    public partial class KalturaAssetStructFilter : KalturaBaseAssetStructFilter
     {
         /// <summary>
         /// Comma separated identifiers, id = 0 is identified as program AssetStruct
@@ -51,7 +44,7 @@ namespace WebAPI.Models.Catalog
         /// </summary>
         [DataMember(Name = "isProtectedEqual")]
         [JsonProperty("isProtectedEqual")]
-        [XmlElement(ElementName = "isProtectedEqual", IsNullable = true)]        
+        [XmlElement(ElementName = "isProtectedEqual", IsNullable = true)]
         public bool? IsProtectedEqual { get; set; }
 
         /// <summary>
@@ -62,41 +55,43 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "objectVirtualAssetInfoTypeEqual", IsNullable = true)]
         public KalturaObjectVirtualAssetInfoType? ObjectVirtualAssetInfoTypeEqual { get; set; }
 
-        public override KalturaAssetStructOrderBy GetDefaultOrderByValue()
-        {
-            return KalturaAssetStructOrderBy.NAME_ASC;
-        }
+        private List<long> AssetStructIds { get; set; }
 
-        internal void Validate()
+        internal override void Validate()
         {
             if (!string.IsNullOrEmpty(IdIn) && MetaIdEqual.HasValue)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, "KalturaAssetStructFilter.idIn", "KalturaAssetStructFilter.metaIdEqual");
             }
-        }
 
-        public List<long> GetIdIn()
-        {
-            HashSet<long> list = new HashSet<long>();
             if (!string.IsNullOrEmpty(IdIn))
             {
-                string[] stringValues = IdIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string stringValue in stringValues)
-                {
-                    long value;
-                    if (long.TryParse(stringValue, out value) && !list.Contains(value))
-                    {
-                        list.Add(value);
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaAssetStructFilter.idIn");
-                    }
-                }
+                // GetAssetStructIds does parsing and validation (throws BadRequest).
+                // Ideally it should be just validation here, but as result is available then we could save and use it.
+                AssetStructIds = GetAssetStructIds();
+            }
+        }
+
+        internal override GenericListResponse<AssetStruct> GetResponse(int groupId)
+        {
+            if (MetaIdEqual > 0)
+            {
+                return CatalogManager.Instance.GetAssetStructsByTopicId(groupId, MetaIdEqual.Value, IsProtectedEqual);
             }
 
-            return new List<long>(list);
-        }        
+            if (ObjectVirtualAssetInfoTypeEqual.HasValue)
+            {
+                var virtualEntityType = Mapper.Map<ObjectVirtualAssetInfoType>(ObjectVirtualAssetInfoTypeEqual);
 
+                return CatalogManager.Instance.GetAssetStructByVirtualEntityType(groupId, virtualEntityType);
+            }
+
+            var assetStructIds = AssetStructIds ?? GetAssetStructIds();
+
+            return CatalogManager.Instance.GetAssetStructsByIds(groupId, assetStructIds, IsProtectedEqual);
+        }
+
+        private List<long> GetAssetStructIds()
+            => GetItemsIn<List<long>, long>(IdIn, "KalturaAssetStructFilter.idIn", checkDuplicate: true);
     }
 }

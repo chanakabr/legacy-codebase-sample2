@@ -8468,7 +8468,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("assetStruct", "list", false);
-                            return AssetStructController.List((KalturaAssetStructFilter) methodParams[0]);
+                            return AssetStructController.List((KalturaBaseAssetStructFilter) methodParams[0]);
                             
                         case "update":
                             RolesManager.ValidateActionPermitted("assetStruct", "update", false);
@@ -13891,7 +13891,7 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaAssetStructFilter),
+                                Type = typeof(KalturaBaseAssetStructFilter),
                             });
                             return ret;
                             

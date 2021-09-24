@@ -72,69 +72,20 @@ namespace WebAPI.Clients
 
         #region New Catalog Management
 
-        public KalturaAssetStructListResponse GetAssetStructs(int groupId, List<long> ids, KalturaAssetStructOrderBy? orderBy, bool? isProtected, 
-            long metaId = 0, KalturaObjectVirtualAssetInfoType? objectVirtualAssetInfoType = null)
+        public KalturaAssetStructListResponse GetAssetStructs(int groupId, KalturaBaseAssetStructFilter filter)
         {
-            KalturaAssetStructListResponse result = new KalturaAssetStructListResponse() { TotalCount = 0 };
-
-            Func<GenericListResponse<AssetStruct>> getAssetStructsListFunc = delegate ()
+            GenericListResponse<AssetStruct> GetAssetStructsListFunc() => filter.GetResponse(groupId);
+            var response = ClientUtils.GetResponseListFromWS<KalturaAssetStruct, AssetStruct>(GetAssetStructsListFunc);
+            if (response.TotalCount > 0)
             {
-                if (metaId > 0)
-                {
-                    return CatalogManager.Instance.GetAssetStructsByTopicId(groupId, metaId, isProtected);
-                }
-                else if (objectVirtualAssetInfoType.HasValue)
-                {
-                    var virtualEntityType = Mapper.Map<ObjectVirtualAssetInfoType>(objectVirtualAssetInfoType);
-
-                    return Core.Catalog.CatalogManagement.CatalogManager.Instance.GetAssetStructByVirtualEntityType(groupId, virtualEntityType);
-                }
-                else
-                {
-                    return CatalogManager.Instance.GetAssetStructsByIds(groupId, ids, isProtected);
-                }
-            };
-
-            KalturaGenericListResponse<KalturaAssetStruct> response =
-                ClientUtils.GetResponseListFromWS<KalturaAssetStruct, AssetStruct>(getAssetStructsListFunc);
-
-            result.AssetStructs = response.Objects;
-            result.TotalCount = response.TotalCount;
-
-            if (result.TotalCount > 0 && orderBy.HasValue)
-            {
-                switch (orderBy.Value)
-                {
-                    case KalturaAssetStructOrderBy.NAME_ASC:
-                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.Name.ToString()).ToList();
-                        break;
-                    case KalturaAssetStructOrderBy.NAME_DESC:
-                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.Name.ToString()).ToList();
-                        break;
-                    case KalturaAssetStructOrderBy.SYSTEM_NAME_ASC:
-                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.SystemName).ToList();
-                        break;
-                    case KalturaAssetStructOrderBy.SYSTEM_NAME_DESC:
-                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.SystemName).ToList();
-                        break;
-                    case KalturaAssetStructOrderBy.CREATE_DATE_ASC:
-                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.CreateDate).ToList();
-                        break;
-                    case KalturaAssetStructOrderBy.CREATE_DATE_DESC:
-                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.CreateDate).ToList();
-                        break;
-                    case KalturaAssetStructOrderBy.UPDATE_DATE_ASC:
-                        result.AssetStructs = result.AssetStructs.OrderBy(x => x.UpdateDate).ToList();
-                        break;
-                    case KalturaAssetStructOrderBy.UPDATE_DATE_DESC:
-                        result.AssetStructs = result.AssetStructs.OrderByDescending(x => x.UpdateDate).ToList();
-                        break;
-                    default:
-                        break;
-                }
+                response.Objects = AssetStructUtils.GetSortedAssetStructs(response.Objects, filter.OrderBy).ToList();
             }
 
-            return result;
+            return new KalturaAssetStructListResponse
+            {
+                TotalCount = response.TotalCount,
+                AssetStructs = response.Objects
+            };
         }
 
         public KalturaAssetStruct AddAssetStruct(int groupId, KalturaAssetStruct assetStrcut, long userId)
