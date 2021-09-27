@@ -4164,6 +4164,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaLineupNotificationSettings":
+                    switch(property.Name)
+                    {
+                        case "Enabled":
+                            return "enabled";
+                    }
+                    break;
+                    
                 case "KalturaListFollowDataTvSeriesResponse":
                     switch(property.Name)
                     {
@@ -4743,6 +4751,8 @@ namespace WebAPI.Reflection
                             return "inboxEnabled";
                         case "IotEnabled":
                             return "iotEnabled";
+                        case "LineupNotification":
+                            return "lineupNotification";
                         case "MailNotificationAdapterId":
                             return "mailNotificationAdapterId";
                         case "MailSenderName":

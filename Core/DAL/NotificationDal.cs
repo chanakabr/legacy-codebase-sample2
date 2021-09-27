@@ -759,8 +759,13 @@ namespace DAL
             if (settings.IsIotEnabled.HasValue)
                 sp.AddParameter("@isIotEnabled", settings.IsIotEnabled.Value);
 
-            if (settings.EpgNotification != null) 
+            if (settings.EpgNotification != null)
                 sp.AddParameter("@epgNotification", SerializeEpgSettings(settings.EpgNotification));
+
+            if (settings.LineupNotification != null)
+            {
+                sp.AddParameter("@lineupNotification", SerializeLineupNotificationSettings(settings.LineupNotification));
+            }
 
             return sp.ExecuteReturnValue<bool>();
         }
@@ -806,7 +811,8 @@ namespace DAL
                         MailNotificationAdapterId = GetLongSafeVal(row, "MAIL_NOTIFICATION_ADAPTER_ID"),
                         IsSMSEnabled = GetIntSafeVal(row, "is_sms_enable") == 1,
                         IsIotEnabled = GetIntSafeVal(row, "is_iot_enable") == 1,
-                        EpgNotification = DeserializeEpgSettings(GetSafeStr(row, "epg_notification"))
+                        EpgNotification = DeserializeEpgSettings(GetSafeStr(row, "epg_notification")),
+                        LineupNotification = DeserializeLineupNotificationSettings(GetSafeStr(row, "lineup_notification"))
                     });
                 }
             }
@@ -839,6 +845,30 @@ namespace DAL
                 BackwardTimeRange = dto.BackwardTimeRange,
                 ForwardTimeRange = dto.ForwardTimeRange
             };
+        }
+
+        private static string SerializeLineupNotificationSettings(LineupNotificationSettings settings)
+        {
+            var dto = new DTO.Notification.LineupNotificationSettings
+            {
+                Enabled = settings.Enabled
+            };
+            var json = JsonConvert.SerializeObject(dto);
+
+            return json;
+        }
+
+        private static LineupNotificationSettings DeserializeLineupNotificationSettings(string settingsString)
+        {
+            var settings = new LineupNotificationSettings();
+
+            if (!string.IsNullOrEmpty(settingsString))
+            {
+                var dto = JsonConvert.DeserializeObject<DTO.Notification.LineupNotificationSettings>(settingsString);
+                settings.Enabled = dto.Enabled;
+            }
+
+            return settings;
         }
 
         public static DataRow GetNotificationSettings(int groupID, int userID)

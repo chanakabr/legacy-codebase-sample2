@@ -85,6 +85,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.SmsEnabled, opt => opt.MapFrom(src => src.IsSMSEnabled))
                  .ForMember(dest => dest.IotEnabled, opt => opt.MapFrom(src => src.IsIotEnabled))
                  .ForMember(dest => dest.EpgNotification, opt => opt.MapFrom(src => src.EpgNotification))
+                 .ForMember(dest => dest.LineupNotification, opt => opt.MapFrom(src => src.LineupNotification))
                  ;
 
             //KalturaNotificationPartnerSettings TO NotificationPartnerSettings
@@ -108,6 +109,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                  .ForMember(dest => dest.IsSMSEnabled, opt => opt.MapFrom(src => src.SmsEnabled))
                  .ForMember(dest => dest.IsIotEnabled, opt => opt.MapFrom(src => src.IotEnabled))
                  .ForMember(dest => dest.EpgNotification, opt => opt.MapFrom(src => src.EpgNotification))
+                 .ForMember(dest => dest.LineupNotification, opt => opt.MapFrom(src => src.LineupNotification))
                  ;
 
             cfg.CreateMap<KalturaEpgNotificationSettings, EpgNotificationSettings>()
@@ -121,6 +123,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                     .GetItemsIn<long>(out var failed, true)
                     .ThrowIfFailed(failed, () => new ClientException((int)StatusCode.InvalidArgumentValue, "invalid value in liveAssetIds"))))
                 ;
+
+            cfg.CreateMap<KalturaLineupNotificationSettings, LineupNotificationSettings>()
+                .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled));
+
             cfg.CreateMap<EpgNotificationSettings, KalturaEpgNotificationSettings>()
                 .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled))
                 .ForMember(dest => dest.BackwardTimeRange, opt => opt.MapFrom(src => src.BackwardTimeRange))
@@ -128,6 +134,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.DeviceFamilyIds, opt => opt.ResolveUsing(src => string.Join(",", src.DeviceFamilyIds)))
                 .ForMember(dest => dest.LiveAssetIds, opt => opt.ResolveUsing(src => string.Join(",", src.LiveAssetIds)))
                 ;
+
+            cfg.CreateMap<LineupNotificationSettings, KalturaLineupNotificationSettings>()
+                .ForMember(dest => dest.Enabled, opt => opt.MapFrom(src => src.Enabled));
 
             cfg.CreateMap<UserNotificationSettings, KalturaNotificationSettings>()
                  .ForMember(dest => dest.PushNotificationEnabled, opt => opt.MapFrom(src => src.EnablePush))

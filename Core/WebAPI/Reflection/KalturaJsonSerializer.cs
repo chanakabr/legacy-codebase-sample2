@@ -3379,7 +3379,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return ret;
         }
-
+        
         protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
@@ -3426,7 +3426,7 @@ namespace WebAPI.Models.ConditionalAccess
             }
             return ret;
         }
-
+        
         protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
@@ -19759,6 +19759,44 @@ namespace WebAPI.Models.Notification
             return ret;
         }
     }
+    public partial class KalturaLineupNotificationSettings
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("enabled")))
+            {
+                ret.Add("enabled", "\"enabled\": " + Enabled.ToString().ToLower());
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("enabled")))
+            {
+                ret.Add("enabled", "<enabled>" + Enabled.ToString().ToLower() + "</enabled>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaListFollowDataTvSeriesResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -20033,6 +20071,11 @@ namespace WebAPI.Models.Notification
             {
                 ret.Add("iotEnabled", "\"iotEnabled\": " + IotEnabled.ToString().ToLower());
             }
+            if(LineupNotification != null && (retrievedProperties == null || retrievedProperties.Contains("lineupNotification")))
+            {
+                propertyValue = LineupNotification.ToJson(currentVersion, omitObsolete);
+                ret.Add("lineupNotification", "\"lineupNotification\": " + propertyValue);
+            }
             if(MailNotificationAdapterId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("mailNotificationAdapterId")))
             {
                 ret.Add("mailNotificationAdapterId", "\"mailNotificationAdapterId\": " + MailNotificationAdapterId);
@@ -20139,6 +20182,11 @@ namespace WebAPI.Models.Notification
             if(IotEnabled.HasValue && (retrievedProperties == null || retrievedProperties.Contains("iotEnabled")))
             {
                 ret.Add("iotEnabled", "<iotEnabled>" + IotEnabled.ToString().ToLower() + "</iotEnabled>");
+            }
+            if(LineupNotification != null && (retrievedProperties == null || retrievedProperties.Contains("lineupNotification")))
+            {
+                propertyValue = LineupNotification.ToXml(currentVersion, omitObsolete);
+                ret.Add("lineupNotification", "<lineupNotification>" + propertyValue + "</lineupNotification>");
             }
             if(MailNotificationAdapterId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("mailNotificationAdapterId")))
             {
@@ -23676,7 +23724,7 @@ namespace WebAPI.Models.Catalog
 
             return ret;
         }
-
+        
         protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
@@ -26524,7 +26572,7 @@ namespace WebAPI.Models.Catalog
 
             return ret;
         }
-
+        
         protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
@@ -31527,7 +31575,7 @@ namespace WebAPI.Models.Pricing
             }
             return ret;
         }
-
+        
         protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
             bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);

@@ -25,6 +25,7 @@ namespace ApiObjects.Notification
         public bool? IsSMSEnabled { get; set; }
         public bool? IsIotEnabled { get; set; }
         public EpgNotificationSettings EpgNotification { get; set; }
+        public LineupNotificationSettings LineupNotification { get; set; }
 
         public NotificationPartnerSettings()
         {
@@ -53,5 +54,10 @@ namespace ApiObjects.Notification
         public IReadOnlyCollection<long> LiveAssetIds { get; set; } = new List<long>(0);
         public int BackwardTimeRange { get; set; } = 24;
         public int ForwardTimeRange { get; set; } = 24;
+    }
+
+    public class LineupNotificationSettings
+    {
+        public bool Enabled { get; set; } = false;
     }
 }

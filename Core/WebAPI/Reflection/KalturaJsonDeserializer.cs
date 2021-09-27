@@ -290,7 +290,7 @@ namespace WebAPI.Reflection
                     
                 case "KalturaBaseAssetStructFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
-
+                    
                 case "KalturaBaseChannel":
                     return new KalturaBaseChannel(parameters);
                     
@@ -1274,7 +1274,10 @@ namespace WebAPI.Reflection
                     
                 case "KalturaLinearAssetStructFilter":
                     return new KalturaLinearAssetStructFilter(parameters);
-
+                    
+                case "KalturaLineupNotificationSettings":
+                    return new KalturaLineupNotificationSettings(parameters);
+                    
                 case "KalturaListFollowDataTvSeriesResponse":
                     return new KalturaListFollowDataTvSeriesResponse(parameters);
                     
@@ -1475,10 +1478,10 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPartnerPremiumService":
                     return new KalturaPartnerPremiumService(parameters);
-
+                    
                 case "KalturaPartnerPremiumServices":
                     return new KalturaPartnerPremiumServices(parameters);
-
+                    
                 case "KalturaPartnerSetup":
                     return new KalturaPartnerSetup(parameters);
                     
@@ -1661,7 +1664,7 @@ namespace WebAPI.Reflection
                     
                 case "KalturaPreviewModuleFilter":
                     return new KalturaPreviewModuleFilter(parameters);
-
+                    
                 case "KalturaPreviewModuleListResponse":
                     return new KalturaPreviewModuleListResponse(parameters);
                     
@@ -16479,6 +16482,19 @@ namespace WebAPI.Models.Notification
             }
         }
     }
+    public partial class KalturaLineupNotificationSettings
+    {
+        public KalturaLineupNotificationSettings(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("enabled") && parameters["enabled"] != null)
+                {
+                    Enabled = (Boolean) Convert.ChangeType(parameters["enabled"], typeof(Boolean));
+                }
+            }
+        }
+    }
     public partial class KalturaListFollowDataTvSeriesResponse
     {
         public KalturaListFollowDataTvSeriesResponse(Dictionary<string, object> parameters = null) : base(parameters)
@@ -16791,6 +16807,17 @@ namespace WebAPI.Models.Notification
                     else if (parameters["epgNotification"] is IDictionary)
                     {
                         EpgNotification = (KalturaEpgNotificationSettings) Deserializer.deserialize(typeof(KalturaEpgNotificationSettings), (Dictionary<string, object>) parameters["epgNotification"]);
+                    }
+                }
+                if (parameters.ContainsKey("lineupNotification") && parameters["lineupNotification"] != null)
+                {
+                    if (parameters["lineupNotification"] is JObject)
+                    {
+                        LineupNotification = (KalturaLineupNotificationSettings) Deserializer.deserialize(typeof(KalturaLineupNotificationSettings), ((JObject) parameters["lineupNotification"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["lineupNotification"] is IDictionary)
+                    {
+                        LineupNotification = (KalturaLineupNotificationSettings) Deserializer.deserialize(typeof(KalturaLineupNotificationSettings), (Dictionary<string, object>) parameters["lineupNotification"]);
                     }
                 }
             }

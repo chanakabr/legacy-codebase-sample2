@@ -170,8 +170,16 @@ namespace WebAPI.Models.Notification
         [JsonProperty("epgNotification")]
         [XmlElement(ElementName = "epgNotification", IsNullable = true)]
         public KalturaEpgNotificationSettings EpgNotification { get; set; }
-    }
 
+        /// <summary>
+        /// Settings for lineup notifications
+        /// </summary>
+        [DataMember(Name = "lineupNotification")]
+        [JsonProperty("lineupNotification")]
+        [XmlElement(ElementName = "lineupNotification", IsNullable = true)]
+        public KalturaLineupNotificationSettings LineupNotification { get; set; }
+    }
+    
     public partial class KalturaEpgNotificationSettings : KalturaOTTObject
     {
         /// <summary>
@@ -219,6 +227,16 @@ namespace WebAPI.Models.Notification
         public int? ForwardTimeRange { get; set; }
     }
 
+    public partial class KalturaLineupNotificationSettings : KalturaOTTObject
+    {
+        /// <summary>
+        /// <see langword="true"/> if lineup notifications are enabled.
+        /// </summary>
+        [DataMember(Name = "enabled")]
+        [JsonProperty("enabled")]
+        [XmlElement(ElementName = "enabled")]
+        public bool Enabled { get; set; }
+    }
 
     [Obsolete]
     public partial class KalturaPartnerNotificationSettings : KalturaNotificationsPartnerSettings
