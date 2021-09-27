@@ -957,6 +957,9 @@ namespace APILogic
                     TVinciShared.ProtocolsFuncs.XMLEncode(prog.NAME, true)                  // {1} - title
                 );
 
+                // crid
+                xml.AppendFormat("<crid>{0}</crid>", ProtocolsFuncs.XMLEncode(prog.CRID, true));
+
                 // desc
                 xml.AppendFormat("<desc lang=\"{0}\">{1}</desc>",
                     TVinciShared.ProtocolsFuncs.XMLEncode(mainLang, true),                  // {0} - lang
@@ -1052,6 +1055,9 @@ namespace APILogic
                     TVinciShared.ProtocolsFuncs.XMLEncode(mainLang, true),                  // {0} - lang
                     TVinciShared.ProtocolsFuncs.XMLEncode(program.Name, true)               // {1} - title
                 );
+
+                // crid
+                xml.AppendFormat("<crid>{0}</crid>", ProtocolsFuncs.XMLEncode(program.Crid, true));
 
                 // desc
                 xml.AppendFormat("<desc lang=\"{0}\">{1}</desc>",
