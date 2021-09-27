@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using ApiObjects;
 using ApiObjects.Response;
@@ -92,6 +91,6 @@ namespace WebAPI.Models.Catalog
         }
 
         private List<long> GetAssetStructIds()
-            => GetItemsIn<List<long>, long>(IdIn, "KalturaAssetStructFilter.idIn", checkDuplicate: true);
+            => GetItemsIn<List<long>, long>(IdIn, "KalturaAssetStructFilter.idIn", checkDuplicate: true, ignoreDefaultValueValidation: true);
     }
 }
