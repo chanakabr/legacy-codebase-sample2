@@ -162,15 +162,6 @@ namespace Core.Catalog
             "blocked_countries"
         };
 
-        private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
-        {
-            "media_type_id",
-            "name",
-            "crid",
-            "suppressed",
-            LINEAR_MEDIA_ID
-        };
-
         private static readonly HashSet<string> predefinedAssetTypes = new HashSet<string>()
         {
             "media",
@@ -6776,7 +6767,7 @@ namespace Core.Catalog
 
             #region Group By
 
-            Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
+            Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, request.m_nGroupID);
 
             #endregion
 
@@ -7742,7 +7733,7 @@ namespace Core.Catalog
 
                 if (channel.searchGroupBy != null && channel.searchGroupBy.groupBy != null && channel.searchGroupBy.groupBy.Count > 0)
                 {
-                    Utils.BuildSearchGroupBy(channel.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
+                    Utils.BuildSearchGroupBy(channel.searchGroupBy, group, definitions, request.m_nGroupID);
 
                     // channel not contain definition for distinct ==> as default insert first groupBy in the list
                     if (string.IsNullOrEmpty(definitions.distinctGroup.Key) && string.IsNullOrEmpty(definitions.distinctGroup.Value) &&
@@ -8006,7 +7997,7 @@ namespace Core.Catalog
 
             #region Group By
 
-            Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
+            Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, request.m_nGroupID);
 
             definitions.isGroupingOptionInclude = request.searchGroupBy != null && request.searchGroupBy.isGroupingOptionInclude;
             definitions.trendingAssetWindow = request.order?.trendingAssetWindow;

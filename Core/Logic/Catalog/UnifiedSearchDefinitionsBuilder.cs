@@ -22,15 +22,6 @@ namespace Core.Catalog
     {
         private readonly IFilterTreeValidator _filterTreeValidator;
 
-        private static readonly HashSet<string> reservedGroupByFields = new HashSet<string>()
-        {
-            "media_type_id",
-            "name",
-            "crid",
-            "suppressed",
-            "linear_media_id"
-        };
-
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private bool shouldUseCache = false;
 
@@ -419,7 +410,7 @@ namespace Core.Catalog
 
                 #region Group By
 
-                Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, reservedGroupByFields, request.m_nGroupID);
+                Utils.BuildSearchGroupBy(request.searchGroupBy, group, definitions, request.m_nGroupID);
 
                 #endregion
 

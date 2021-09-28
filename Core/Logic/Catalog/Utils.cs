@@ -29,6 +29,20 @@ namespace Core.Catalog
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
+        private static readonly HashSet<string> LocalizedReservedGroupByFields = new HashSet<string>
+        {
+            "name",
+            "description"
+        };
+
+        private static readonly HashSet<string> ReservedGroupByFields = new HashSet<string>(LocalizedReservedGroupByFields)
+        {
+            "media_type_id",
+            "crid",
+            "suppressed",
+            "linear_media_id"
+        };
+
         public const int DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC = 500; // half a second
         public const string EMPTY_ASSET_ID = "0";
 
@@ -1083,7 +1097,7 @@ namespace Core.Catalog
             return true;
         }
 
-        public static void BuildSearchGroupBy(SearchAggregationGroupBy searchGroupBy, Group group, UnifiedSearchDefinitions definitions, HashSet<string> reservedGroupByFields, int groupId)
+        public static void BuildSearchGroupBy(SearchAggregationGroupBy searchGroupBy, Group @group, UnifiedSearchDefinitions definitions, int groupId)
         {
             if (searchGroupBy != null && searchGroupBy.groupBy != null && searchGroupBy.groupBy.Count > 0)
             {
@@ -1148,11 +1162,15 @@ namespace Core.Catalog
                 foreach (var groupBy in searchGroupBy.groupBy)
                 {
                     string lowered = groupBy.ToLower();
+                    string loweredLang = ApplyLanguageToMeta(lowered, definitions.langauge);
                     string requestGroupBy = string.Empty;
 
-                    if (reservedGroupByFields.Contains(lowered))
+                    if (ReservedGroupByFields.Contains(lowered))
                     {
-                        requestGroupBy = lowered;
+                        if (LocalizedReservedGroupByFields.Contains(lowered))
+                        {
+                            requestGroupBy = loweredLang;
+                        }
                     }
                     else if (doesGroupUsesTemplates)
                     {
@@ -1160,7 +1178,7 @@ namespace Core.Catalog
                         {
                             if (catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.Tag.ToString()))
                             {
-                                requestGroupBy = $"tags.{lowered}.lowercase";
+                                requestGroupBy = $"tags.{loweredLang}.lowercase";
                             }
                             else if (definitions.shouldSearchEpg ||
                                      definitions.shouldSearchRecordings ||
@@ -1168,7 +1186,7 @@ namespace Core.Catalog
                                      catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.MultilingualString.ToString()) ||
                                      catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.ReleatedEntity.ToString()))
                             {
-                                requestGroupBy = $"metas.{lowered}.lowercase";
+                                requestGroupBy = $"metas.{loweredLang}.lowercase";
                             }
                             else
                             {
@@ -1182,7 +1200,7 @@ namespace Core.Catalog
                         {
                             if (allMetas[lowered])
                             {
-                                requestGroupBy = $"metas.{lowered}.lowercase";
+                                requestGroupBy = $"metas.{loweredLang}.lowercase";
                             }
                             else
                             {
@@ -1191,7 +1209,7 @@ namespace Core.Catalog
                         }
                         else if (allTags.Contains(lowered))
                         {
-                            requestGroupBy = $"tags.{lowered}.lowercase";
+                            requestGroupBy = $"tags.{loweredLang}.lowercase";
                         }
                     }
 
@@ -1218,6 +1236,16 @@ namespace Core.Catalog
                     definitions.extraReturnFields.Add(distinctGroupByFormatted);
                 }
             }
+        }
+
+        private static string ApplyLanguageToMeta(string metaName, LanguageObj language)
+        {
+            if (language == null)
+            {
+                return metaName;
+            }
+
+            return language.IsDefault ? metaName : $"{metaName}_{language.Code}";
         }
 
         private static Tuple<List<int>, bool> GetMediaChannels(Dictionary<string, object> funcParams)
