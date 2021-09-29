@@ -39,8 +39,8 @@ namespace ElasticSearch.NEST
 
         private static IElasticClient GetNewNESTInstance(IApplicationConfiguration appConfig)
         {
-            _log.Info($"constructing new instance of NEST, url:[{appConfig.ElasticSearchConfiguration.URL_V7_13.Value}]");
-            var uri = new Uri(appConfig.ElasticSearchConfiguration.URL_V7_13.Value);
+            _log.Info($"constructing new instance of NEST, url:[{appConfig.ElasticSearchConfiguration.URL_V7.Value}]");
+            var uri = new Uri(appConfig.ElasticSearchConfiguration.URL_V7.Value);
             var pool = new SingleNodeConnectionPool(uri);
 
             var settings = new ConnectionSettings(pool)

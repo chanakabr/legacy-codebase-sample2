@@ -4,98 +4,214 @@ using EventBus.Abstraction;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace EventBus.Kafka
 {
     public class EventBusConsumerKafka : IEventBusConsumer, IDisposable
     {
+        public delegate void OnConsumeAction(ConsumeResult<string, string> consumeResult);
+
+        public delegate void OnBatchConsumeAction(List<ConsumeResult<string, string>> consumeResult);
+
         protected internal const string TRACE_ID_HEADER_NAME = "traceId";
 
-        private static readonly KLogger _Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        private bool _Cancelled = false;
-        private ConsumerBuilder<string, string> _Consumer = null;
-        private List<string> _Topics = null;
-        private Action<string, string> _OnConsume = null;
-        private IConsumer<string, string> _ConsumerBuild = null;
-        private bool _ShouldAutoCommit = false;
+        private bool _cancelled = false;
+        private ConsumerBuilder<string, string> _consumerBuilder = null;
+        private List<string> _topics = null;
+        private OnConsumeAction _onSingleMessageConsume = null;
+        private OnBatchConsumeAction _onBatchConsume = null;
+        private IConsumer<string, string> _consumer = null;
+        private bool _shouldAutoCommit = false;
 
-        public EventBusConsumerKafka(string consumerGroupName, List<string> topics, Action<string, string> onConsume)
+        private object _consumeBufferFlushLock = new object();
+        private List<ConsumeResult<string, string>> _consumeBuffer = new List<ConsumeResult<string, string>>();
+        private int _maxConsumeMessages;
+        private int _maxConsumeWaitTimeMs;
+
+        public EventBusConsumerKafka(string groupName, List<string> topics, int maxConsumeMessages, int maxConsumeWaitTimeMs, OnBatchConsumeAction onBatchConsume) : this(groupName, topics)
+        {
+            _maxConsumeMessages = maxConsumeMessages;
+            _maxConsumeWaitTimeMs = maxConsumeWaitTimeMs;
+            _onBatchConsume = onBatchConsume;
+
+            // in case of batch consume this should always be false to avoid losing part of the batch
+            _shouldAutoCommit = false;
+        }
+
+        public EventBusConsumerKafka(string groupName, List<string> topics, OnConsumeAction onSingleMessageConsume) : this(groupName, topics)
+        {
+            _onSingleMessageConsume = onSingleMessageConsume;
+        }
+
+        private EventBusConsumerKafka(string consumerGroupName, List<string> topics)
         {
             var kafkaConfig = new ConsumerConfig();
             kafkaConfig.GroupId = consumerGroupName;
             kafkaConfig.BootstrapServers = ApplicationConfiguration.Current.KafkaClientConfiguration.BootstrapServers.Value;
             kafkaConfig.SocketTimeoutMs = ApplicationConfiguration.Current.KafkaClientConfiguration.SocketTimeoutMs.Value;
-            _ShouldAutoCommit = ApplicationConfiguration.Current.KafkaClientConfiguration.ConsumerAutoCommit.Value;
-            kafkaConfig.EnableAutoCommit = _ShouldAutoCommit;
+            _shouldAutoCommit = ApplicationConfiguration.Current.KafkaClientConfiguration.ConsumerAutoCommit.Value;
 
-            _Topics = topics;
-            _OnConsume = onConsume;
-
-            _Consumer = new ConsumerBuilder<string, string>(kafkaConfig);
+            _topics = topics;
+            _consumerBuilder = new ConsumerBuilder<string, string>(kafkaConfig);
         }
 
         public Task StartConsumerAsync(CancellationToken cancellationToken)
         {
-            _ConsumerBuild = _Consumer.Build();
-            _ConsumerBuild.Subscribe(_Topics);
-            _Cancelled = false;
+            _consumerBuilder.SetErrorHandler(ConsumerErrorHandler);
+            _consumerBuilder.SetLogHandler(ConsumeLogHandler);
+            _consumer = _consumerBuilder.Build();
+            _consumer.Subscribe(_topics);
+            _cancelled = false;
 
-            while (!_Cancelled)
+            if (_onBatchConsume != null)
+            {
+                RunBatchConsumerLoop(cancellationToken);
+            }
+            else
+            {
+                RunSingleMessageConsumerLoop(cancellationToken);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private void RunBatchConsumerLoop(CancellationToken cancellationToken)
+        {
+            var consumeBufferFlushTimer = new System.Timers.Timer(_maxConsumeWaitTimeMs);
+            consumeBufferFlushTimer.Elapsed += (sender, e) => { FlushConsumeBuffer(); };
+            consumeBufferFlushTimer.Start();
+
+            while (!_cancelled)
             {
                 try
                 {
-                    // Poll for new messages / events. Blocks until a consume result is available or the operation has been cancelled.
-                    var consumedMessage = _ConsumerBuild.Consume(cancellationToken);
-
-                    // try to get trace ID from header
-                    SetRequestId(consumedMessage);
-
-                    var messageValue = consumedMessage.Message.Value;
-                    var messageKey = consumedMessage.Message.Key;
-
-                    var partition = consumedMessage.Partition.Value;
-                    var topic = consumedMessage.Topic;
-
-                    _Logger.Debug($"Consuming message. topic = {topic} partition = {partition} message = {messageValue} key = {messageKey}");
+                    // we update consumeBatchCount only inside a lock because of the flush timer
+                    var consumeBatchCount = 0;
+                    while (consumeBatchCount < _maxConsumeMessages)
+                    {
+                        // Poll for new messages / events. Blocks until a consume result is available or the operation has been cancelled.
+                        var consumeResult = _consumer.Consume(cancellationToken);
+                        lock (_consumeBufferFlushLock)
+                        {
+                            SetRequestId(consumeResult);
+                            _logger.Debug($"Consuming message. topic = {consumeResult.Topic} partition = {consumeResult.Partition.Value} message = {consumeResult.Message.Value} key = {consumeResult.Message.Key}");
+                            _consumeBuffer.Add(consumeResult);
+                            consumeBatchCount = _consumeBuffer.Count;
+                        }
+                    }
 
                     try
                     {
-                        _OnConsume.Invoke(messageKey, messageValue);
+                        // reset timer as we got to the size of batch and start it after batch is processed 
+                        consumeBufferFlushTimer.Stop();
+                        FlushConsumeBuffer();
+                        consumeBufferFlushTimer.Start();
                     }
                     catch (OperationCanceledException)
                     {
-                        _ConsumerBuild.Close();
-                        _Cancelled = true;
+                        _consumer.Close();
+                        _cancelled = true;
                     }
                     catch (Exception e)
                     {
-                        _Logger.Error($"Error when invoking on consume method when consuming message from kafka. ex = {e}", e);
+                        _logger.Error($"Error when invoking on consume method when consuming message from kafka. ex = {e}", e);
                     }
                     finally
                     {
-                        if (!_Cancelled && !_ShouldAutoCommit)
+                        if (!_cancelled && !_shouldAutoCommit)
                         {
-                            _ConsumerBuild.Commit();
+                            _consumer.Commit();
                         }
                     }
                 }
                 catch (OperationCanceledException)
                 {
-                    _ConsumerBuild.Close();
-                    _Cancelled = true;
+                    _consumer.Close();
+                    _cancelled = true;
                 }
                 catch (Exception e)
                 {
-                    _Logger.Error($"Error when consuming message from kafka. ex = {e}", e);
+                    _logger.Error($"Error when consuming message from kafka. ex = {e}", e);
                 }
             }
+        }
 
-            return Task.CompletedTask;
+        private void FlushConsumeBuffer()
+        {
+            // locking here to avoid consuming while flushing due to consume timeout
+            // interval passed
+            List<ConsumeResult<string, string>> batchMessageResults;
+            lock (_consumeBufferFlushLock)
+            {
+                if (_consumeBuffer.Count > 0)
+                {
+                    batchMessageResults = _consumeBuffer.ToList();
+                    _consumeBuffer.Clear(); 
+                    _onBatchConsume.Invoke(batchMessageResults);
+                }
+            }
+        }
+
+        private void RunSingleMessageConsumerLoop(CancellationToken cancellationToken)
+        {
+            while (!_cancelled)
+            {
+                try
+                {
+                    // Poll for new messages / events. Blocks until a consume result is available or the operation has been cancelled.
+                    var consumeResult = _consumer.Consume(cancellationToken);
+
+                    // try to get trace ID from header
+                    SetRequestId(consumeResult);
+
+                    var messageValue = consumeResult.Message.Value;
+                    var messageKey = consumeResult.Message.Key;
+
+                    var partition = consumeResult.Partition.Value;
+                    var topic = consumeResult.Topic;
+
+                    _logger.Debug($"Consuming message. topic = {topic} partition = {partition} message = {messageValue} key = {messageKey}");
+
+                    try
+                    {
+                        _onSingleMessageConsume.Invoke(consumeResult);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        _consumer.Close();
+                        _cancelled = true;
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Error($"Error when invoking on consume method when consuming message from kafka. ex = {e}", e);
+                    }
+                    finally
+                    {
+                        if (!_cancelled && !_shouldAutoCommit)
+                        {
+                            _consumer.Commit();
+                        }
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    _consumer.Close();
+                    _cancelled = true;
+                }
+                catch (Exception e)
+                {
+                    _logger.Error($"Error when consuming message from kafka. ex = {e}", e);
+                }
+            }
         }
 
         private void SetRequestId(ConsumeResult<string, string> consumedMessage)
@@ -111,56 +227,61 @@ namespace EventBus.Kafka
             }
             catch (Exception ex)
             {
-                _Logger.Error($"Failed getting request ID from message header. ex={ex}", ex);
+                _logger.Error($"Failed getting request ID from message header. ex={ex}", ex);
             }
         }
 
         public Task StopConsumerAsync(CancellationToken cancellationToken)
         {
-            _Cancelled = true;
+            _cancelled = true;
 
-            if (_ConsumerBuild != null)
+            if (_consumer != null)
             {
-                _ConsumerBuild.Dispose();
-                _ConsumerBuild = null;
+                _consumer.Dispose();
+                _consumer = null;
             }
 
             return Task.CompletedTask;
         }
 
-
-        public void Subscribe<T, TH>() where T : ServiceEvent where TH : IServiceEventHandler<T>
+        private void ConsumeLogHandler(IConsumer<string, string> consumer, LogMessage msg)
         {
-            var eventType = typeof(T);
-            var handlerType = typeof(TH);
-            this.Subscribe(eventType, handlerType);
+            switch (msg.Level)
+            {
+                case SyslogLevel.Emergency:
+                case SyslogLevel.Alert:
+                case SyslogLevel.Critical:
+                case SyslogLevel.Error:
+                    _logger.Error(msg.Message);
+                    break;
+                case SyslogLevel.Warning:
+                    _logger.Warn(msg.Message);
+                    break;
+                case SyslogLevel.Notice:
+                case SyslogLevel.Info:
+                    _logger.Info(msg.Message);
+                    break;
+                case SyslogLevel.Debug:
+                    _logger.Debug(msg.Message);
+                    break;
+                default:
+                    break;
+            }
         }
 
-        public void Unsubscribe<T, TH>() where TH : IServiceEventHandler<T> where T : ServiceEvent
+        private void ConsumerErrorHandler(IConsumer<string, string> consumer, Error err)
         {
-            var eventType = typeof(T);
-            var handlerType = typeof(TH);
-            this.Unsubscribe(eventType, handlerType);
-        }
-
-        public void Subscribe(Type eventType, Type handlerType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Unsubscribe(Type eventType, Type handlerType)
-        {
-            throw new NotImplementedException();
+            _logger.Error($"Error while trying to consume: [{err}]");
         }
 
         public void Dispose()
         {
-            _Cancelled = true;
+            _cancelled = true;
 
-            if (this._ConsumerBuild != null)
+            if (this._consumer != null)
             {
-                this._ConsumerBuild.Dispose();
-                this._ConsumerBuild = null;
+                this._consumer.Dispose();
+                this._consumer = null;
             }
         }
     }

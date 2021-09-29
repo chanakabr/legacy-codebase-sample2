@@ -926,7 +926,7 @@ namespace ApiLogic.Tests.IndexManager
             var medias = new Dictionary<int, Dictionary<int, Media>>();
             var mediaOne = new Dictionary<int, Media>();
             var randomMedia = IndexManagerMockDataCreator.GetRandomMedia(partnerId);
-            randomMedia.epgIdentifier = $"1{randomMedia.m_nMediaID}{randomMedia.m_nMediaTypeID}";
+            randomMedia.epgIdentifier = $"1{randomMedia.m_nMediaTypeID}";
             mediaOne.Add(language.ID, randomMedia);
             medias.Add(1, mediaOne);
 
@@ -1017,6 +1017,8 @@ namespace ApiLogic.Tests.IndexManager
                     new List<string>() {randomMedia.m_nMediaID.ToString(), randomMedia2.m_nMediaID.ToString()}
                 }
             };
+            var groupBy = new GroupByDefinition() { Key = "name", Type = eFieldType.LanguageSpecificField };
+
             var definitions =
                 new UnifiedSearchDefinitions()
                     .WithPageIndex(0)
@@ -1027,9 +1029,9 @@ namespace ApiLogic.Tests.IndexManager
                     .WithSpecificAssets(specificAssets)
                     .WithGroupByOrder(AggregationOrder.Count_Asc)
                     .WithOrder(orderObj)
-                    .WithDistinctGroup("name", "name");
+                    .WithDistinctGroup(groupBy);
 
-            definitions.groupBy = new List<KeyValuePair<string, string>>() { KeyValuePair.Create("name", "name") };
+            definitions.groupBy = new List<GroupByDefinition>() { groupBy };
 
             var result = policyGroupBy.Execute(() => { return indexManager.UnifiedSearchForGroupBy(definitions); });
 

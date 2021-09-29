@@ -229,7 +229,7 @@ namespace IngestTransformationHandler.Managers
                 result[externalGroup.Key] = new Dictionary<string, string>();
                 foreach (var epg in externalGroup)
                 {
-                    var languageCode = GetLanguageCode(languagesInfo, epg);
+                    var languageCode = epg.LanguageCode;
                     if (languageCode == null)
                     {
                         _logger.Warn($"The language code hasn't been recognized for EPG ({externalGroup.Key})");
@@ -241,17 +241,6 @@ namespace IngestTransformationHandler.Managers
             }
 
             return result;
-        }
-
-        private string GetLanguageCode(LanguagesInfo languagesInfo, EpgProgramInfo epg)
-        {
-            var langCodeType = _mappingTypeResolver.ExtractLanguageCodeFromMappingType(epg.Type, out var isDefaultLanguage);
-            if (isDefaultLanguage)
-            {
-                return languagesInfo.DefaultLanguage.Code;
-            }
-            
-            return !string.IsNullOrEmpty(langCodeType) ? languagesInfo.Languages[langCodeType].Code : null;
         }
 
         private bool ValidateSourceInputOverlaps(List<Tuple<EpgProgramBulkUploadObject, EpgProgramBulkUploadObject>> overlapsInIngestSource, Dictionary<int, Dictionary<string, BulkUploadProgramAssetResult>> resultsDictionary)

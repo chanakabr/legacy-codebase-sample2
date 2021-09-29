@@ -13,6 +13,11 @@ namespace ApiObjects
         public string name;
         public string id;
 
+        // default ctor for serialization when sending migration events to ES for example
+        public IPV4()
+        {
+        }
+        
         public IPV4(string id, int countryId, string code, string name, long ipFrom, long ipTo)
         {
             this.id = id;

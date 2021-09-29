@@ -3,7 +3,7 @@
     public enum ElasticsearchVersion
     {
         ES_2_3,
-        ES_7_13,
+        ES_7,
     }
     
     public class ElasticsearchCanaryDeploymentConfiguration

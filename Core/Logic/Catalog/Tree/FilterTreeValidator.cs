@@ -12,7 +12,7 @@ namespace ApiLogic.Catalog.Tree
         private readonly string _programAssetStructId;
 
         private static readonly string[] EpgFields =
-            new[] { CatalogLogic.EPG_CHANNEL_ID, CatalogLogic.EPG_ID, CatalogLogic.LINEAR_MEDIA_ID, ESUnifiedQueryBuilder.RECORDING_ID }
+            new[] { CatalogLogic.EPG_CHANNEL_ID, CatalogLogic.EPG_ID, CatalogLogic.LINEAR_MEDIA_ID, CatalogLogic.RECORDING_ID }
                 .Select(_ => _.ToLowerInvariant())
                 .ToArray();
         private static readonly string[] MediaFields = new[] { CatalogLogic.MEDIA_ID }.Select(_ => _.ToLowerInvariant()).ToArray();

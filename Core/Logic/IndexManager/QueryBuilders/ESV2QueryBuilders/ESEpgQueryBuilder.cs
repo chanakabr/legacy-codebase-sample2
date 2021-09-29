@@ -196,8 +196,8 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                     // Section 4 boolean expression described above
                     ESRange startDateRange = new ESRange(false) { Key = "start_date" };
-                    startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, m_oEpgSearchObj.m_dEndDate.ToString(Utils.ES_DATE_FORMAT)));
                     startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, m_oEpgSearchObj.m_dStartDate.ToString(Utils.ES_DATE_FORMAT)));
+                    startDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, m_oEpgSearchObj.m_dEndDate.ToString(Utils.ES_DATE_FORMAT)));
                     ESRange endDateRange = new ESRange(false) { Key = "end_date" };
                     endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, m_oEpgSearchObj.m_dStartDate.ToString(Utils.ES_DATE_FORMAT)));
                     endDateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.LTE, m_oEpgSearchObj.m_dEndDate.ToString(Utils.ES_DATE_FORMAT)));

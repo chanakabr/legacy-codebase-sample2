@@ -17,12 +17,17 @@ namespace ElasticSearch.Utilities
 
         public double GetEpgTtlMinutes(EpgCB epg)
         {
-            return Math.Ceiling(GetEpgTtlSeconds(epg) / 60);
+            return GetEpgTtlMinutes(epg.EndDate, epg.SearchEndDate);
+        }
+        
+        public double GetEpgTtlMinutes(DateTime programEndDate, DateTime searchEndDate)
+        {
+            return Math.Ceiling(GetEpgTtlSeconds(programEndDate, searchEndDate) / 60);
         }
 
         public uint GetEpgCouchbaseTtlSeconds(EpgCB epg)
         {
-            var ttlSeconds = GetEpgTtlSeconds(epg);
+            var ttlSeconds = GetEpgTtlSeconds(epg.EndDate, epg.SearchEndDate);
             if (ttlSeconds <= 0)
             {
                 return EXPIRATION_DATE;
@@ -31,12 +36,12 @@ namespace ElasticSearch.Utilities
             return (uint)ttlSeconds;
         }
 
-        private static double GetEpgTtlSeconds(EpgCB epg)
+        private static double GetEpgTtlSeconds(DateTime programEndDate, DateTime searchEndDate)
         {
-            var expiryDate = epg.EndDate.AddDays(EXPIRY_DATE_DELTA);
-            if (epg.SearchEndDate > expiryDate)
+            var expiryDate = programEndDate.AddDays(EXPIRY_DATE_DELTA);
+            if (searchEndDate > expiryDate)
             {
-                expiryDate = epg.SearchEndDate;
+                expiryDate = searchEndDate;
             }
 
             return Math.Ceiling((expiryDate - DateTime.UtcNow).TotalSeconds);

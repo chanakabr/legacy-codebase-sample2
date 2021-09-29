@@ -227,7 +227,8 @@ namespace Core.Catalog
                         else
                         {
                             isMetaValid = true;
-                            CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(request.m_nGroupID, order.m_sOrderValue.ToLower(), out isTagOrMeta, out type);
+                            var searchKeys = CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(request.m_nGroupID, order.m_sOrderValue.ToLower());
+                            type = searchKeys.FirstOrDefault().ValueType;
                         }
                     }
                     else
@@ -241,7 +242,8 @@ namespace Core.Catalog
                         else
                         {
                             isMetaValid = true;
-                            CatalogLogic.GetUnifiedSearchKey(order.m_sOrderValue, group, out isTagOrMeta, out type);
+                            var searchKeys = CatalogLogic.GetUnifiedSearchKey(order.m_sOrderValue, group);
+                            type = searchKeys.FirstOrDefault().ValueType;
                         }
                     }
 

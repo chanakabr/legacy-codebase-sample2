@@ -30,7 +30,7 @@ namespace ElasticSearch.Test
         {
             var config = new Mock<IApplicationConfiguration>();
             var esConfig = new ElasticSearchConfiguration();
-            esConfig.URL_V7_13.Value = "http://localhost:9200";
+            esConfig.URL_V7.Value = "http://localhost:9200";
             var esHttpConf = new ElasticSearchHttpClientConfiguration();
             config.SetupGet(c => c.ElasticSearchConfiguration).Returns(esConfig);
             config.SetupGet(c => c.ElasticSearchHttpClientConfiguration).Returns(esHttpConf);

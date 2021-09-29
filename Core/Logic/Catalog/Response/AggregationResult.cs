@@ -20,6 +20,11 @@ namespace Catalog.Response
 
         [DataMember]
         public List<AggregationResult> results;
+
+        public AggregationsResult()
+        {
+            results = new List<AggregationResult>();
+        }
     }
 
     [DataContract]
@@ -37,5 +42,11 @@ namespace Catalog.Response
         /// </summary>
         [DataMember]
         public List<UnifiedSearchResult> topHits;
+
+        public AggregationResult()
+        {
+            subs = new List<AggregationsResult>();
+            topHits = new List<UnifiedSearchResult>();
+        }
     }
 }

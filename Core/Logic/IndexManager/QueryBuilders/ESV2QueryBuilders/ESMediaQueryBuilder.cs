@@ -174,7 +174,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             {
                 filterParent.AddChild(oGroupWPComposite);
                 filterParent.AddChild(isActiveTerm);
-                filterParent.AddChild(userTypeTerm);
+                filterParent.AddChild(userTypeTerm);        
                 filterParent.AddChild(deviceRulesTerms);
             }
 
@@ -182,9 +182,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
             {
                 if (oSearchObject.m_oOrder.m_eOrderBy != OrderBy.RELATED)
                 {
-                    FilterCompositeType andComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
-                    FilterCompositeType orComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
-                    FilterCompositeType generatedComposite = this.FilterMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
+                    FilterCompositeType andComposite = FilterMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
+                    FilterCompositeType orComposite = FilterMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
+                    FilterCompositeType generatedComposite = FilterMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
 
                     filterParent.AddChild(andComposite);
                     filterParent.AddChild(orComposite);
@@ -192,23 +192,25 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 }
                 else
                 {
-                    BoolQuery oAndBoolQuery = this.QueryRelatedMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
-                    BoolQuery oOrBoolQuery = this.QueryRelatedMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
-                    BoolQuery oMultiFilterBoolQuery = this.QueryRelatedMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
+                    BoolQuery oAndBoolQuery = QueryRelatedMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
+                    BoolQuery oOrBoolQuery = QueryRelatedMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
+                    BoolQuery oMultiFilterBoolQuery = QueryRelatedMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
 
                     BoolQuery oBoolQuery = new BoolQuery();
                     oBoolQuery.AddChild(oAndBoolQuery, CutWith.OR);
                     oBoolQuery.AddChild(oOrBoolQuery, CutWith.OR);
                     oBoolQuery.AddChild(oMultiFilterBoolQuery, CutWith.OR);
+                    
+                    
 
                     query.Query = oBoolQuery;
                 }
             }
             else if (QueryType == eQueryType.BOOLEAN)
             {
-                BoolQuery oAndBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
-                BoolQuery oOrBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
-                BoolQuery oMultiFilterBoolQuery = this.QueryMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
+                BoolQuery oAndBoolQuery = QueryMetasAndTagsConditions(oSearchObject.m_dAnd, CutWith.AND);
+                BoolQuery oOrBoolQuery = QueryMetasAndTagsConditions(oSearchObject.m_dOr, CutWith.OR);
+                BoolQuery oMultiFilterBoolQuery = QueryMetasAndTagsConditions(oSearchObject.m_lFilterTagsAndMetas, (CutWith)oSearchObject.m_eFilterTagsAndMetasCutWith);
 
                 BoolQuery oBoolQuery = new BoolQuery();
                 oBoolQuery.AddChild(oAndBoolQuery, CutWith.OR);
@@ -750,6 +752,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
             foreach (SearchValue searchValue in oSearchList)
             {
                 string sSearchKey = ElasticSearch.Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey.ToLower(), searchValue.m_sKeyPrefix);
+                sSearchKey = ESUnifiedQueryBuilder.GetElasticsearchFieldName(false, oSearchObject.m_oLangauge, sSearchKey, searchValue.fieldType);
 
                 if (searchValue.m_eInnerCutWith == ApiObjects.SearchObjects.CutWith.AND)
                 {
@@ -775,7 +778,6 @@ namespace ApiLogic.IndexManager.QueryBuilders
             }
 
             return parent;
-
         }
 
         private static readonly char[] splitChars = new char[] { ' ', ';' };
@@ -784,12 +786,8 @@ namespace ApiLogic.IndexManager.QueryBuilders
         {
             BoolQuery oBoolQuery = new BoolQuery();
 
-            List<string> lMetasAndTagConditions = null;
-
             if (oSearchList != null && oSearchList.Count > 0)
             {
-                lMetasAndTagConditions = new List<string>();
-
                 foreach (SearchValue searchValue in oSearchList)
                 {
                     BoolQuery oValueBoolQuery = new BoolQuery();
@@ -797,6 +795,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         string sSearchKey = string.Concat(ElasticSearch.Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey.ToLower(), searchValue.m_sKeyPrefix),
                                                           ".analyzed");
+                        sSearchKey = ESUnifiedQueryBuilder.GetElasticsearchFieldName(false, oSearchObject.m_oLangauge, sSearchKey, searchValue.fieldType);
 
                         foreach (string sValue in searchValue.m_lValue)
                         {
@@ -818,7 +817,6 @@ namespace ApiLogic.IndexManager.QueryBuilders
         protected BoolQuery QueryRelatedMetasAndTagsConditions(List<SearchValue> oSearchList, CutWith oAndOrCondition)
         {
             BoolQuery oBoolQuery = new BoolQuery();
-
             List<string> lMetasAndTagConditions = null;
 
             if (oSearchList != null && oSearchList.Count > 0)
@@ -832,6 +830,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         string sSearchKey = (string.IsNullOrEmpty(searchValue.m_sKeyPrefix)) ?
                             searchValue.m_sKey.ToLower() : string.Format("{0}.{1}", searchValue.m_sKeyPrefix.ToLower(), searchValue.m_sKey.ToLower());
+                        sSearchKey = ESUnifiedQueryBuilder.GetElasticsearchFieldName(false, oSearchObject.m_oLangauge, sSearchKey, searchValue.fieldType);
 
                         if (searchValue.m_eInnerCutWith == ApiObjects.SearchObjects.CutWith.AND)
                         {

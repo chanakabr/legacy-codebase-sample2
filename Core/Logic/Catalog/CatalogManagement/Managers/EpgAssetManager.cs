@@ -20,6 +20,7 @@ using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
 using ApiObjects.Base;
+using static Core.Catalog.CatalogManagement.EpgAssetManager;
 
 namespace Core.Catalog.CatalogManagement
 {
@@ -214,10 +215,16 @@ namespace Core.Catalog.CatalogManagement
                 var epgsToIndex = SaveEpgCbToCB(groupId, epgCbToAdd, 
                     defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, true);
 
+                var linearChannelSettingsForEpgCb = Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgCbToAdd.ChannelID.ToString() });
                 bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertProgram(
                     epgsToIndex,
-                    GetLinearChannelSettingsForEpgCB(groupId, epgCbToAdd)
+                    linearChannelSettingsForEpgCb
                     );
+
+                InvalidateEpgs(groupId,
+                    epgsToIndex.Select(x => (long)x.EpgID), CatalogManager.Instance.DoesGroupUsesTemplates(groupId),
+                    epgsToIndex.Select(item => item.ChannelID.ToString()).Distinct().ToList(), false);
+                
                 if (!indexingResult)
                 {
                     log.ErrorFormat("Failed UpsertProgram index for epg ExternalId: {0}, groupId: {1} after AddEpgAsset", epgAssetToAdd.EpgIdentifier, groupId);
@@ -232,11 +239,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
-
-        private static Dictionary<string, LinearChannelSettings> GetLinearChannelSettingsForEpgCB(int groupId, EpgCB epgCbToAdd)
-        {
-            return Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgCbToAdd.ChannelID.ToString() });
         }
 
         internal static GenericResponse<Asset> UpdateEpgAsset(int groupId, EpgAsset epgAssetToUpdate, long userId, EpgAsset oldEpgAsset, CatalogGroupCache catalogGroupCache)
@@ -361,26 +363,39 @@ namespace Core.Catalog.CatalogManagement
                     defaultLanguageCode, allNames, allDescriptions.Object, epgMetas, epgTags, false);
 
                 // delete index, if EPG moved to another day
-                var indexAddAction = false;
                 var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
                 if (epgAssetToUpdate.StartDate?.Date != oldEpgAsset.StartDate?.Date && isIngestV2)
                 {
-                    var deleteIndexResult = indexManager.DeleteProgram(new List<long> { epgAssetToUpdate.Id }, new List<string> { epgAssetToUpdate.EpgChannelId.ToString() });
+                    var epgChannelIds = new List<string> { epgAssetToUpdate.EpgChannelId.ToString() };
+                    var epgIds = new List<long> { epgAssetToUpdate.Id };
+                    var deleteIndexResult = indexManager.DeleteProgram(epgIds, epgChannelIds);
                     if (deleteIndexResult)
                     {
-                        indexAddAction = true;
+                        // invalidate epg's for OPC and NON-OPC accounts
+                        InvalidateEpgs(groupId, epgIds, CatalogManager.Instance.DoesGroupUsesTemplates(groupId), epgChannelIds, true);
                     }
                     else
                     {
-                        log.ErrorFormat("Failed {0} index for groupId: {1}, assetId: {2}, channelId: {3} after {4}.", nameof(indexManager.DeleteProgram), groupId, epgAssetToUpdate.Id, epgAssetToUpdate.EpgChannelId, nameof(SaveEpgCbToCB));
+                        log.ErrorFormat("Failed {0} index for groupId: {1}, assetId: {2}, channelId: {3} after {4}.",
+                            nameof(indexManager.DeleteProgram),
+                            groupId,
+                            epgAssetToUpdate.Id,
+                            epgAssetToUpdate.EpgChannelId,
+                            nameof(SaveEpgCbToCB));
                     }
                 }
 
                 // update index
-                var upsertIndexingResult = indexManager.UpsertProgram(epgsToIndex, GetLinearChannelSettingsForEpgCB(groupId, epgCBToUpdate));
+                var upsertIndexingResult = indexManager.UpsertProgram(epgsToIndex, Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgCBToUpdate.ChannelID.ToString() }));
                 if (!upsertIndexingResult)
                 {
                     log.Error($"Failed to upsert to index for groupId: {groupId}, assetId: {epgAssetToUpdate.Id} after SaveEpgCbToCB.");
+                }
+                else
+                {
+                    InvalidateEpgs(groupId,
+                        epgsToIndex.Select(x => (long)x.EpgID), CatalogManager.Instance.DoesGroupUsesTemplates(groupId),
+                        epgsToIndex.Select(item => item.ChannelID.ToString()).Distinct().ToList(), false);
                 }
 
                 SendActionEvent(groupId, oldEpgAsset.Id, eAction.Update);
@@ -439,10 +454,18 @@ namespace Core.Catalog.CatalogManagement
             SendActionEvent(groupId, epgId, eAction.Delete);
 
             // Delete Index
-            bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).DeleteProgram(new List<long>() { epgId }, epgCbList.Select(x => x.ChannelID.ToString()));
+            var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
+            var epgChannelIds = epgCbList.Select(x => x.ChannelID.ToString());
+            var epgIds = new List<long>() { epgId };
+            var indexingResult = indexManager.DeleteProgram(epgIds, epgChannelIds);
             if (!indexingResult)
             {
                 log.ErrorFormat("Failed to delete epg index for assetId: {0}, groupId: {1} after DeleteEpgAsset", epgId, groupId);
+            }
+            else
+            {
+                // invalidate epg's for OPC and NON-OPC accounts
+                InvalidateEpgs(groupId, epgIds, CatalogManager.Instance.DoesGroupUsesTemplates(groupId), epgChannelIds, true);
             }
 
             return result;
@@ -513,17 +536,22 @@ namespace Core.Catalog.CatalogManagement
                     }
 
                     // update Epg metas and tags 
-                    var epgsToUpdate = RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
+                    List<EpgCB> epgsToUpdate = RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
 
                     // invalidate asset
                     AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
-
-                    var epgCb = CreateEpgCbFromEpgAsset(epgAsset, groupId, epgAsset.CreateDate.Value, epgAsset.UpdateDate.Value);
-                    // UpdateIndex
-                    bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertProgram(new List<EpgCB>() { epgCb }, GetLinearChannelSettingsForEpgCB(groupId, epgCb));
+                    var linearChannelSettingsForEpgCb = Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgsToUpdate?.First().ChannelID.ToString() });
+                    var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
+                    var indexingResult = indexManager.UpsertProgram(epgsToUpdate, linearChannelSettingsForEpgCb);
                     if (!indexingResult)
                     {
                         log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromProgram", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
+                    }
+                    else
+                    {
+                        InvalidateEpgs(groupId,
+                            epgsToUpdate.Select(x => (long)x.EpgID), CatalogManager.Instance.DoesGroupUsesTemplates(groupId),
+                            epgsToUpdate.Select(item => item.ChannelID.ToString()).Distinct().ToList(), false);
                     }
 
                     result = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());

@@ -57,7 +57,7 @@ namespace Core.Catalog
         bool DoesMediaBelongToChannels(List<int> channelIDs, int mediaId);
         List<int> GetMediaChannels(int mediaId);
 
-        List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch);
+        List<string> GetEpgAutoCompleteList(EpgSearchObj epgSearchObj);
 
         // could be deprecated, but we really can't tell...
         List<List<string>> GetChannelsDefinitions(List<List<long>> listsOfChannelIDs);
@@ -136,10 +136,10 @@ namespace Core.Catalog
 
         // remark: Verify these methods should really be here ..
 
-        SearchResultsObj SearchMedias(MediaSearchObj oSearch, int nLangID, bool bUseStartDate);
-        SearchResultsObj SearchSubscriptionMedias(List<MediaSearchObj> oSearch, int nLangID, bool shouldUseStartDate, string sMediaTypes, OrderObj oOrderObj, int nPageIndex, int nPageSize);
+        SearchResultsObj SearchMedias(MediaSearchObj search, int langId, bool useStartDate);
+        SearchResultsObj SearchSubscriptionMedias(List<MediaSearchObj> oSearch, int nLangID, bool shouldUseStartDate, string sMediaTypes, OrderObj orderObj, int nPageIndex, int nPageSize);
         SearchResultsObj SearchEpgs(EpgSearchObj epgSearch);
-        List<string> GetAutoCompleteList(MediaSearchObj oSearch, int nLangID, ref int nTotalItems);
+        List<string> GetAutoCompleteList(MediaSearchObj mediaSearch, int nLangID, ref int nTotalItems);
         
         Dictionary<long, bool> ValidateMediaIDsInChannels(List<long> distinctMediaIDs,
             List<string> jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,

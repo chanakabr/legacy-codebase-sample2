@@ -35,7 +35,6 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
     <None Include="EventBusConsumerRabbitMQ.cs" />
-    <None Include="KalturaEventBusRabbitMQConsumerService.cs" />
     <None Include="KalturaEventBusRabbitMQConsumerServiceExtensions.cs" />
   </ItemGroup>
 

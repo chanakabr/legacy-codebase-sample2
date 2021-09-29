@@ -61,7 +61,7 @@ namespace CanaryDeploymentManager.Tests
             const string EXPECTED_CONFIG_KEY = "elasticsearch_canary_configuration_100";
             var expectedConfig = new ElasticsearchCanaryDeploymentConfiguration
             {
-                ElasticsearchActiveVersion = ElasticsearchVersion.ES_7_13,
+                ElasticsearchActiveVersion = ElasticsearchVersion.ES_7,
                 EnableMigrationEvents = true
             };
             var cbMock = new Mock<ICouchbaseManager>();

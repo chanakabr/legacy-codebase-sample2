@@ -83,6 +83,7 @@ namespace Core.Catalog
         public static readonly string LINEAR_MEDIA_ID = "linear_media_id";
         public static readonly string MEDIA_ID = "media_id";
         public static readonly string EPG_ID = "epg_id";
+        public static readonly string RECORDING_ID = "recording_id";
         public static readonly string EPG_CHANNEL_ID = "epg_channel_id";
         public static readonly string ASSET_TYPE = "asset_type";
 
@@ -138,10 +139,10 @@ namespace Core.Catalog
             MEDIA_ID,
             EPG_ID,
             LINEAR_MEDIA_ID,
-            ESUnifiedQueryBuilder.RECORDING_ID,
             STATUS,
-            ESUnifiedQueryBuilder.ENABLE_CDVR,
-            ESUnifiedQueryBuilder.ENABLE_CATCHUP,
+            RECORDING_ID,
+            NamingHelper.ENABLE_CDVR,
+            NamingHelper.ENABLE_CATCHUP
         };
 
         private static readonly HashSet<string> reservedUnifiedDateFields = new HashSet<string>()
@@ -1585,16 +1586,16 @@ namespace Core.Catalog
         /// <param name="group"></param>
         /// <param name="isTagOrMeta"></param>
         /// <returns></returns>
-        public static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta, int groupId)
+        public static HashSet<BooleanLeafFieldDefinitions> GetUnifiedSearchKey(string originalKey, Group group, int groupId)
         {
             Type type;
             if (CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId))
             {
-                return CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, originalKey, out isTagOrMeta, out type);
+                return CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, originalKey);
             }
             else
             {
-                return GetUnifiedSearchKey(originalKey, group, out isTagOrMeta, out type);
+                return GetUnifiedSearchKey(originalKey, group);
             }
         }
 
@@ -1605,15 +1606,25 @@ namespace Core.Catalog
         /// <param name="group"></param>
         /// <param name="isTagOrMeta"></param>
         /// <returns></returns>
-        public static HashSet<string> GetUnifiedSearchKey(string originalKey, Group group, out bool isTagOrMeta, out Type type)
+        public static HashSet<BooleanLeafFieldDefinitions> GetUnifiedSearchKey(string originalKey, Group group)
         {
-            isTagOrMeta = false;
-            type = typeof(string);
+            Type valueType = typeof(string);
 
-            HashSet<string> searchKeys = new HashSet<string>();
+            HashSet<BooleanLeafFieldDefinitions> searchKeys = new HashSet<BooleanLeafFieldDefinitions>();
 
             // get alias + regex expression 
             List<FieldTypeEntity> FieldEpgAliasMapping = ConditionalAccess.Utils.Instance.GetAliasMappingFields(group.m_nParentGroupID);
+
+            Dictionary<string, string> reverseDictionary = new Dictionary<string, string>();
+            var dictionaries = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>();
+
+            foreach (var dictionary in dictionaries)
+            {
+                foreach (var pair in dictionary)
+                {
+                    reverseDictionary[pair.Value] = pair.Key;
+                }
+            }
 
             if (originalKey.StartsWith("tags."))
             {
@@ -1621,9 +1632,12 @@ namespace Core.Catalog
                 {
                     if (tag.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
                     {
-                        isTagOrMeta = true;
-
-                        searchKeys.Add(originalKey.ToLower());
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = tag.ToLower(),
+                            ValueType = valueType,
+                            FieldType = eFieldType.Tag
+                        });
                         break;
                     }
                 }
@@ -1632,8 +1646,12 @@ namespace Core.Catalog
                 {
                     if (FieldEpgAlias.Alias.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
                     {
-                        isTagOrMeta = true;
-                        searchKeys.Add(string.Format("tags.{0}", FieldEpgAlias.Name.ToLower()));
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = FieldEpgAlias.Name.ToLower(),
+                            ValueType = valueType,
+                            FieldType = eFieldType.Tag
+                        });
                         break;
                     }
                 }
@@ -1642,8 +1660,12 @@ namespace Core.Catalog
                 {
                     if (tag.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
                     {
-                        isTagOrMeta = true;
-                        searchKeys.Add(originalKey.ToLower());
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = tag.ToLower(),
+                            ValueType = valueType,
+                            FieldType = eFieldType.Tag
+                        });
                         break;
                     }
                 }
@@ -1656,8 +1678,13 @@ namespace Core.Catalog
                 {
                     if (meta.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
                     {
-                        isTagOrMeta = true;
-                        searchKeys.Add(originalKey.ToLower());
+                        GetMetaType(reverseDictionary[meta], out valueType);
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = meta.ToLower(),
+                            ValueType = valueType,
+                            FieldType = valueType == typeof(string) ? eFieldType.StringMeta : eFieldType.NonStringMeta
+                        });
                         break;
                     }
                 }
@@ -1666,8 +1693,12 @@ namespace Core.Catalog
                 {
                     if (FieldEpgAlias.Alias.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
                     {
-                        isTagOrMeta = true;
-                        searchKeys.Add(string.Format("metas.{0}", FieldEpgAlias.Name.ToLower()));
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = FieldEpgAlias.Name.ToLower(),
+                            ValueType = valueType,
+                            FieldType = eFieldType.Tag
+                        });
                         break;
                     }
                 }
@@ -1676,8 +1707,12 @@ namespace Core.Catalog
                 {
                     if (meta.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
                     {
-                        isTagOrMeta = true;
-                        searchKeys.Add(originalKey.ToLower());
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = meta.ToLower(),
+                            ValueType = valueType,
+                            FieldType = eFieldType.StringMeta
+                        });
                         break;
                     }
                 }
@@ -1688,33 +1723,29 @@ namespace Core.Catalog
                 {
                     if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        isTagOrMeta = true;
-
-                        searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = tag.ToLower(),
+                            ValueType = valueType,
+                            FieldType = eFieldType.Tag
+                        });
                         break;
                     }
                 }
 
                 var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
 
-                Dictionary<string, string> reverseDictionary = new Dictionary<string, string>();
-                var dictionaries = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>();
-
-                foreach (var dictionary in dictionaries)
-                {
-                    foreach (var pair in dictionary)
-                    {
-                        reverseDictionary[pair.Value] = pair.Key;
-                    }
-                }
-
                 foreach (var meta in metas)
                 {
                     if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        isTagOrMeta = true;
-                        GetMetaType(reverseDictionary[meta], out type);
-                        searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
+                        GetMetaType(reverseDictionary[meta], out valueType);
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = meta.ToLower(),
+                            ValueType = valueType,
+                            FieldType = valueType == typeof(string) ? eFieldType.StringMeta : eFieldType.NonStringMeta
+                        });
                         break;
                     }
                 }
@@ -1723,8 +1754,12 @@ namespace Core.Catalog
                 {
                     if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        isTagOrMeta = true;
-                        searchKeys.Add(string.Format("tags.{0}", FieldEpgAlias.Name.ToLower()));
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = FieldEpgAlias.Name.ToLower(),
+                            ValueType = valueType,
+                            FieldType = eFieldType.Tag
+                        });
                         break;
                     }
                 }
@@ -1733,8 +1768,12 @@ namespace Core.Catalog
                 {
                     if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        isTagOrMeta = true;
-                        searchKeys.Add(string.Format("metas.{0}", FieldEpgAlias.Name.ToLower()));
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = FieldEpgAlias.Name.ToLower(),
+                            ValueType = valueType,
+                            FieldType = eFieldType.Tag
+                        });
                         break;
                     }
                 }
@@ -1743,8 +1782,12 @@ namespace Core.Catalog
                 {
                     if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        isTagOrMeta = true;
-                        searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = tag.ToLower(),
+                            ValueType = valueType,
+                            FieldType = eFieldType.Tag
+                        });
                         break;
                     }
                 }
@@ -1753,17 +1796,26 @@ namespace Core.Catalog
                 {
                     if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        isTagOrMeta = true;
-                        searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = meta.ToLower(),
+                            ValueType = valueType,
+                            FieldType = eFieldType.StringMeta
+                        });
                         break;
                     }
                 }
 
 
             }
-            if (!isTagOrMeta)
+            if (searchKeys.Count == 0)
             {
-                searchKeys.Add(originalKey.ToLower());
+                searchKeys.Add(new BooleanLeafFieldDefinitions()
+                {
+                    Field = originalKey.ToLower(),
+                    ValueType = valueType,
+                    FieldType = eFieldType.Default
+                });
             }
 
             return searchKeys;
@@ -2173,12 +2225,13 @@ namespace Core.Catalog
                 {
                     foreach (KeyValue andKeyValue in originalAnds)
                     {
-                        searchKey = GetFullSearchKey(andKeyValue.m_sKey, ref group); // returns search key with prefix e.g. metas.{key}
+                        searchKey = GetFullSearchKey(andKeyValue.m_sKey, ref group, out _, out var type); // returns search key with prefix e.g. metas.{key}
 
                         SearchValue search = new SearchValue();
                         search.m_sKey = searchKey;
                         search.m_lValue = new List<string> { andKeyValue.m_sValue };
                         search.m_sValue = andKeyValue.m_sValue;
+                        search.fieldType = type;
                         resultAnds.Add(search);
                     }
                 }
@@ -2189,10 +2242,11 @@ namespace Core.Catalog
                     {
                         SearchValue search = new SearchValue();
 
-                        searchKey = GetFullSearchKey(orKeyValue.m_sKey, ref group);// returns search key with prefix e.g. metas.{key}
+                        searchKey = GetFullSearchKey(orKeyValue.m_sKey, ref group, out _, out var type);// returns search key with prefix e.g. metas.{key}
                         search.m_sKey = searchKey;
                         search.m_lValue = new List<string> { orKeyValue.m_sValue };
                         search.m_sValue = orKeyValue.m_sValue;
+                        search.fieldType = type;
                         resultOrs.Add(search);
                     }
                 }
@@ -2957,9 +3011,10 @@ namespace Core.Catalog
                 {
                     if (!string.IsNullOrEmpty(keyValue.m_sKey) && !string.IsNullOrEmpty(keyValue.m_sValue))
                     {
-                        bool isTagOrMeta;
-                        var searchKeys = GetUnifiedSearchKey(keyValue.m_sKey, group, out isTagOrMeta, groupId);
+                        bool isTagOrMeta = false;
+                        var searchKeys = GetUnifiedSearchKey(keyValue.m_sKey, group, groupId);
 
+                        isTagOrMeta = searchKeys.Count > 1 || searchKeys.FirstOrDefault().FieldType != eFieldType.Default;
                         switch (cutWith)
                         {
                             case CutWith.OR:
@@ -2967,8 +3022,9 @@ namespace Core.Catalog
                                     foreach (var currentKey in searchKeys)
                                     {
                                         SearchValue search = new SearchValue();
-                                        search.m_sKey = currentKey;
+                                        search.m_sKey = currentKey.Field;
                                         search.m_lValue = new List<string> { keyValue.m_sValue };
+                                        search.fieldType = currentKey.FieldType;
                                         returnedSearchValues.Add(search);
                                     }
 
@@ -2982,7 +3038,7 @@ namespace Core.Catalog
 
                                     if (isTagOrMeta)
                                     {
-                                        searchKey = searchKeys.First();
+                                        searchKey = searchKeys.First().Field;
                                     }
 
                                     search.m_sKey = searchKey;
@@ -3072,8 +3128,7 @@ namespace Core.Catalog
                         }
                         else
                         {
-                            bool isTagOrMeta;
-                            var searchKeys = GetUnifiedSearchKey(searchValue.m_sKey, group, out isTagOrMeta, searchObject.m_nGroupId);
+                            var searchKeys = GetUnifiedSearchKey(searchValue.m_sKey, group, searchObject.m_nGroupId);
 
                             switch (cutWith)
                             {
@@ -3082,10 +3137,11 @@ namespace Core.Catalog
                                         foreach (var currentKey in searchKeys)
                                         {
                                             search = new SearchValue();
-                                            search.m_sKey = currentKey;
+                                            search.m_sKey = currentKey.Field;
                                             search.m_lValue = searchValue.m_lValue;
                                             search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
                                             search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
+                                            search.fieldType = currentKey.FieldType;
                                             m_dOr.Add(search);
                                         }
 
@@ -3097,15 +3153,16 @@ namespace Core.Catalog
 
                                         string searchKey = searchValue.m_sKey;
 
-                                        if (isTagOrMeta)
-                                        {
-                                            searchKey = searchKeys.First();
-                                        }
+                                        //if (searchKeys.Count > 1 || searchKeys.FirstOrDefault().FieldType != eFieldType.Default)
+                                        //{
+                                        //    searchKey = searchKeys.First().Field;
+                                        //}
 
                                         search.m_sKey = searchKey;
                                         search.m_lValue = searchValue.m_lValue;
                                         search.m_sKeyPrefix = searchValue.m_sKeyPrefix;
                                         search.m_eInnerCutWith = searchValue.m_eInnerCutWith;
+                                        search.fieldType = searchKeys.First().FieldType;
 
                                         m_dAnd.Add(search);
                                         break;
@@ -4217,7 +4274,6 @@ namespace Core.Catalog
         internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest,
             ref List<List<string>> outJsonizedChannelsDefinitions, ref int operatorID)
         {
-            var indexManager = IndexManagerFactory.Instance.GetIndexManager(oMediaRequest.m_nGroupID);
             bool res = false;
             long lSiteGuid = 0;
             if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
@@ -4258,6 +4314,8 @@ namespace Core.Catalog
 
                         if (channelsOfIPNO != null && channelsOfIPNO.Count > 0 && allChannelsOfAllIPNOs != null && allChannelsOfAllIPNOs.Count > 0)
                         {
+                            var indexManager = IndexManagerFactory.Instance.GetIndexManager(oMediaRequest.m_nGroupID);
+
                             // get channels definitions from ES Percolator
                             outJsonizedChannelsDefinitions = indexManager.GetChannelsDefinitions(new List<List<long>>(2) { channelsOfIPNO, allChannelsOfAllIPNOs });
                         }
@@ -4383,12 +4441,12 @@ namespace Core.Catalog
 
         private static string GetFullSearchKey(string originalKey, ref Group group)
         {
-            bool isTagOrMeta;
-            return CatalogLogic.GetFullSearchKey(originalKey, ref group, out isTagOrMeta);
+            return CatalogLogic.GetFullSearchKey(originalKey, ref group, out _, out _);
         }
 
-        private static string GetFullSearchKey(string originalKey, ref Group group, out bool isTagOrMeta)
+        private static string GetFullSearchKey(string originalKey, ref Group group, out bool isTagOrMeta, out eFieldType type)
         {
+            type = eFieldType.Default;
             isTagOrMeta = false;
 
             string searchKey = originalKey;
@@ -4397,7 +4455,8 @@ namespace Core.Catalog
             {
                 if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                 {
-                    searchKey = string.Concat(TAGS, ".", tag.ToLower());
+                    //searchKey = string.Concat(TAGS, ".", tag.ToLower());
+                    type = eFieldType.Tag;
                     isTagOrMeta = true;
                     break;
                 }
@@ -4411,12 +4470,18 @@ namespace Core.Catalog
                 {
                     if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
-                        searchKey = string.Concat(METAS, ".", meta.ToLower());
+                        //searchKey = string.Concat(METAS, ".", meta.ToLower());
+                        type = eFieldType.StringMeta;
                         isTagOrMeta = true;
                         break;
                     }
                 }
+            }
 
+            string loweredKey = searchKey.ToLower();
+            if (loweredKey == "name" || loweredKey == "description")
+            {
+                type = eFieldType.LanguageSpecificField;
             }
 
             return searchKey;
@@ -5397,7 +5462,8 @@ namespace Core.Catalog
                 }
 
                 // Map order of IDs
-                searchDefinitions.specificOrder = recommendations.Select(item => long.Parse(item.id)).ToList();
+                searchDefinitions.specificOrder = recommendations.Select(
+                    item => new KeyValuePair<eAssetTypes, long>(item.type, long.Parse(item.id))).ToList();
 
                 int parentGroupId = CatalogCache.Instance().GetParentGroup(request.m_nGroupID);
                 var indexManager = IndexManagerFactory.Instance.GetIndexManager(parentGroupId);
@@ -6244,7 +6310,7 @@ namespace Core.Catalog
                         }
                     }
 
-                    if (personalData.Contains(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD))
+                    if (personalData.Contains(NamingHelper.ENTITLED_ASSETS_FIELD))
                     {
                         UserPurhcasedAssetsResponse purchasedAssets = ConditionalAccess.Module.GetUserPurchasedAssets(groupId, domainId, null);
                         if (purchasedAssets.status.Code == (int)eResponseStatus.OK)
@@ -6265,13 +6331,13 @@ namespace Core.Catalog
                         }
                     }
 
-                    if (personalData.Contains(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD))
+                    if (personalData.Contains(NamingHelper.GEO_BLOCK_FIELD))
                     {
                         int countryId = Utils.GetIP2CountryId(groupId, ip);
                         cacheKey.AppendFormat("_countryId={0}", countryId);
                     }
 
-                    if (personalData.Contains(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD))
+                    if (personalData.Contains(NamingHelper.PARENTAL_RULES_FIELD))
                     {
                         Dictionary<long, eRuleLevel> ruleIds = null;
 
@@ -6344,7 +6410,7 @@ namespace Core.Catalog
                         }
                     }
 
-                    if (personalData.Contains(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD))
+                    if (personalData.Contains(NamingHelper.ENTITLED_ASSETS_FIELD))
                     {
                         UserPurhcasedAssetsResponse purchasedAssets = ConditionalAccess.Module.GetUserPurchasedAssets(groupId, domainId, null);
                         if (purchasedAssets.status.Code == (int)eResponseStatus.OK)
@@ -6374,13 +6440,13 @@ namespace Core.Catalog
                         }
                     }
 
-                    if (personalData.Contains(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD))
+                    if (personalData.Contains(NamingHelper.GEO_BLOCK_FIELD))
                     {
                         int countryId = Utils.GetIP2CountryId(groupId, ip);
                         cacheKey.AppendFormat("_countryId={0}", countryId);
                     }
 
-                    if (personalData.Contains(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD))
+                    if (personalData.Contains(NamingHelper.PARENTAL_RULES_FIELD))
                     {
                         Dictionary<long, eRuleLevel> ruleIds = null;
 
@@ -6678,26 +6744,31 @@ namespace Core.Catalog
                         string key = keyValue.m_sKey;
                         string value = keyValue.m_sValue;
 
-                        bool dummyBoolean;
-                        Type type;
+                        HashSet<BooleanLeafFieldDefinitions> searchKeys = null;
                         if (doesGroupUsesTemplates)
                         {
-                            CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, key, out dummyBoolean, out type);
+                            searchKeys = CatalogManagement.CatalogManager.Instance.GetUnifiedSearchKey(groupId, key);
                         }
                         else
                         {
-                            GetUnifiedSearchKey(key, group, out dummyBoolean, out type);
+                            searchKeys = GetUnifiedSearchKey(key, group);
                         }
 
+                        Type type = searchKeys.FirstOrDefault().ValueType;
                         bool shouldLowercase = false;
 
+                        eFieldType fieldType = eFieldType.StringMeta;
                         if (type == typeof(int) || type == typeof(long) || type == typeof(double))
                         {
                             shouldLowercase = true;
+                            fieldType = eFieldType.NonStringMeta;
                         }
 
                         BooleanLeaf leaf = new BooleanLeaf(
-                            string.Format("metas.{0}{1}", key.ToLower(), suffix), value.ToLower(), type, ComparisonOperator.Equals, shouldLowercase);
+                            string.Format("{0}{1}", key.ToLower(), suffix), value.ToLower(), type, ComparisonOperator.Equals, shouldLowercase)
+                        {
+                            fieldType = fieldType
+                        };
                         nodes.Add(leaf);
                     }
                 }
@@ -6892,74 +6963,61 @@ namespace Core.Catalog
             Dictionary<string, List<string>> epgParentalRulesTags = null;
 
             BooleanLeaf leaf = node as BooleanLeaf;
-            bool isTagOrMeta;
 
             // Add prefix (meta/tag) e.g. metas.{key}
             Type metaType;
-            HashSet<string> searchKeys = new HashSet<string>();
+            var searchKeys = new HashSet<BooleanLeafFieldDefinitions>();
             if (catalogManager.DoesGroupUsesTemplates(groupId))
             {
-                searchKeys = catalogManager.GetUnifiedSearchKey(groupId, leaf.field, out isTagOrMeta, out metaType);
+                searchKeys = catalogManager.GetUnifiedSearchKey(groupId, leaf.field);
             }
             else
             {
-                searchKeys = GetUnifiedSearchKey(leaf.field, group, out isTagOrMeta, out metaType);
+                searchKeys = GetUnifiedSearchKey(leaf.field, group);
             }
 
-            string suffix = string.Empty;
-
-            if (definitions.langauge != null && !definitions.langauge.IsDefault)
+            if (searchKeys.Count > 1 && searchKeys.First().FieldType != eFieldType.Default)
             {
-                suffix = string.Format("_{0}", definitions.langauge.Code);
-            }
+                List<BooleanPhraseNode> newList = new List<BooleanPhraseNode>();
 
-            if (searchKeys.Count > 1)
-            {
-                if (isTagOrMeta)
+                // Split the single leaf into several brothers connected with:
+                // "or" operand (if it positive)
+                // "and" operand (if it negative)
+                foreach (var searchKey in searchKeys)
                 {
-                    List<BooleanPhraseNode> newList = new List<BooleanPhraseNode>();
+                    object value = leaf.value;
 
-                    // Split the single leaf into several brothers connected with:
-                    // "or" operand (if it positive)
-                    // "and" operand (if it negative)
-                    foreach (var searchKey in searchKeys)
+                    bool shouldLowercase = true;
+
+                    if (searchKey.ValueType == typeof(double))
                     {
-                        // add language suffix (if the language is not the default)
-                        string languageSpecificSearchKey = string.Format("{0}{1}", searchKey, suffix);
-
-                        object value = leaf.value;
-
-                        bool shouldLowercase = true;
-
-                        if (metaType == typeof(double))
-                        {
-                            value = Convert.ToDouble(value);
-                            shouldLowercase = false;
-                        }
-                        else if (metaType == typeof(int) || metaType == typeof(long))
-                        {
-                            value = Convert.ToInt64(value);
-                            shouldLowercase = false;
-                        }
-
-                        newList.Add(new BooleanLeaf(languageSpecificSearchKey, value, value.GetType(), leaf.operand, shouldLowercase));
+                        value = Convert.ToDouble(value);
+                        shouldLowercase = false;
+                    }
+                    else if (searchKey.ValueType == typeof(int) || searchKey.ValueType == typeof(long))
+                    {
+                        value = Convert.ToInt64(value);
+                        shouldLowercase = false;
                     }
 
-                    eCutType cutType = eCutType.Or;
-
-                    if (leaf.operand == ComparisonOperator.NotContains || leaf.operand == ComparisonOperator.NotEquals || leaf.operand == ComparisonOperator.NotExists)
-                    {
-                        cutType = eCutType.And;
-                    }
-
-                    BooleanPhrase newPhrase = new BooleanPhrase(newList, cutType);
-
-                    BooleanPhraseNode.ReplaceLeafWithPhrase(ref filterTree, parentMapping, leaf, newPhrase);
+                    newList.Add(new BooleanLeaf(searchKey.Field, value, value.GetType(), leaf.operand, shouldLowercase, true));
                 }
+
+                eCutType cutType = eCutType.Or;
+
+                if (leaf.operand == ComparisonOperator.NotContains || leaf.operand == ComparisonOperator.NotEquals || leaf.operand == ComparisonOperator.NotExists)
+                {
+                    cutType = eCutType.And;
+                }
+
+                BooleanPhrase newPhrase = new BooleanPhrase(newList, cutType);
+
+                BooleanPhraseNode.ReplaceLeafWithPhrase(ref filterTree, parentMapping, leaf, newPhrase);
             }
             else if (searchKeys.Count == 1)
             {
-                string searchKeyLowered = searchKeys.FirstOrDefault().ToLower();
+                var searchKey = searchKeys.FirstOrDefault();
+                string searchKeyLowered = searchKey.Field.ToLower();
                 string originalKey = leaf.field;
 
                 // Default - string, until proved otherwise
@@ -6968,17 +7026,14 @@ namespace Core.Catalog
                 // If this is a tag or a meta, we need to add the language suffix
                 // If not, we check if it is one of the "core" fields.
                 // If it is not one of them, an exception will be thrown
-                if (isTagOrMeta)
+                if (searchKey.FieldType != eFieldType.Default)
                 {
-                    // add language suffix (if the language is not the default)
-                    string languageSpecificSearchKey = string.Format("{0}{1}", searchKeyLowered, suffix);
+                    searchKey.Field = searchKeyLowered;
 
-                    searchKeys.Clear();
-                    searchKeys.Add(languageSpecificSearchKey);
+                    leaf.field = searchKeyLowered;
+                    leaf.isLanguageSpecific = true;
 
-                    leaf.field = languageSpecificSearchKey;
-
-                    if (metaType == typeof(DateTime))
+                    if (searchKey.ValueType == typeof(DateTime))
                     {
                         leaf.valueType = typeof(long);
 
@@ -6993,7 +7048,7 @@ namespace Core.Catalog
 
                         leaf.shouldLowercase = false;
                     }
-                    else if (metaType == typeof(double))
+                    else if (searchKey.ValueType == typeof(double))
                     {
                         if (leaf.value != DBNull.Value && leaf.value != null && Convert.ToString(leaf.value) != string.Empty)
                         {
@@ -7007,7 +7062,7 @@ namespace Core.Catalog
                         leaf.valueType = typeof(double);
                         leaf.shouldLowercase = false;
                     }
-                    else if (metaType == typeof(int) || metaType == typeof(long))
+                    else if (searchKey.ValueType == typeof(int) || searchKey.ValueType == typeof(long))
                     {
                         if (leaf.value != DBNull.Value && leaf.value != null && Convert.ToString(leaf.value) != string.Empty)
                         {
@@ -7049,36 +7104,30 @@ namespace Core.Catalog
                         bool mustBeAllowedToViewInactiveAssets = false;
                         if (searchKeyLowered == CREATIONDATE)
                         {
-                            searchKeys.Clear();
-                            searchKeys.Add(CREATE_DATE);
+                            searchKey.Field = CREATE_DATE;
                             mustBeAllowedToViewInactiveAssets = true;
                         }
                         else if (searchKeyLowered == PLAYBACKSTARTDATETIME)
                         {
-                            searchKeys.Clear();
-                            searchKeys.Add(START_DATE);
+                            searchKey.Field = START_DATE;
                         }
                         else if (searchKeyLowered == PLAYBACKENDDATETIME)
                         {
-                            searchKeys.Clear();
-                            searchKeys.Add(FINAL_DATE);
+                            searchKey.Field = FINAL_DATE;
                             mustBeAllowedToViewInactiveAssets = true;
                         }
                         else if (searchKeyLowered == CATALOGSTARTDATETIME)
                         {
-                            searchKeys.Clear();
-                            searchKeys.Add(CATALOG_START_DATE);
+                            searchKey.Field = CATALOG_START_DATE;
                             mustBeAllowedToViewInactiveAssets = true;
                         }
                         else if (searchKeyLowered == CATALOGENDDATETIME)
                         {
-                            searchKeys.Clear();
-                            searchKeys.Add(END_DATE);
+                            searchKey.Field = END_DATE;
                         }
                         else if (searchKeyLowered == LASTMODIFIED)
                         {
-                            searchKeys.Clear();
-                            searchKeys.Add(UPDATE_DATE);
+                            searchKey.Field = UPDATE_DATE;
                         }
 
                         if (mustBeAllowedToViewInactiveAssets && !definitions.isAllowedToViewInactiveAssets)
@@ -7092,12 +7141,12 @@ namespace Core.Catalog
 
                         leaf.shouldLowercase = false;
                     }
-                    else if (searchKeyLowered == ESUnifiedQueryBuilder.GEO_BLOCK_FIELD)
+                    else if (searchKeyLowered == NamingHelper.GEO_BLOCK_FIELD)
                     {
                         // geo_block is a personal filter that currently will work only with "true".
                         if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
                         {
-                            definitions.PersonalData.Add(ESUnifiedQueryBuilder.GEO_BLOCK_FIELD);
+                            definitions.PersonalData.Add(NamingHelper.GEO_BLOCK_FIELD);
 
                             if (geoBlockRules == null)
                             {
@@ -7125,14 +7174,14 @@ namespace Core.Catalog
                             throw new KalturaException("Invalid search value or operator was sent for geo_block", (int)eResponseStatus.BadSearchRequest);
                         }
                     }
-                    else if (searchKeyLowered == ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD)
+                    else if (searchKeyLowered == NamingHelper.PARENTAL_RULES_FIELD)
                     {
                         // Same as geo_block: it is a personal filter that currently will work only with "true".
                         if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
                         {
                             if (mediaParentalRulesTags == null || epgParentalRulesTags == null)
                             {
-                                definitions.PersonalData.Add(ESUnifiedQueryBuilder.PARENTAL_RULES_FIELD);
+                                definitions.PersonalData.Add(NamingHelper.PARENTAL_RULES_FIELD);
 
                                 if (shouldUseCache)
                                 {
@@ -7160,11 +7209,14 @@ namespace Core.Catalog
                             {
                                 // Create a Not-in leaf for each of the tags
                                 BooleanLeaf newLeaf = new BooleanLeaf(
-                                    string.Concat("tags.", tagValues.Key.ToLower()),
+                                    tagValues.Key.ToLower(),
                                     tagValues.Value.Select(value => value.ToLower()).ToList(),
                                     typeof(List<string>),
                                     ComparisonOperator.NotIn,
-                                    true);
+                                    true)
+                                {
+                                    fieldType = eFieldType.Tag
+                                };
 
                                 newMediaNodes.Add(newLeaf);
                             }
@@ -7184,11 +7236,14 @@ namespace Core.Catalog
                             {
                                 // Create a Not-in leaf for each of the tags
                                 BooleanLeaf newLeaf = new BooleanLeaf(
-                                    string.Concat("tags.", tagValues.Key.ToLower()),
+                                    tagValues.Key.ToLower(),
                                     tagValues.Value.Select(value => value.ToLower()).ToList(),
                                     typeof(List<string>),
                                     ComparisonOperator.NotIn,
-                                    true);
+                                    true)
+                                {
+                                    fieldType = eFieldType.Tag
+                                };
 
                                 newEpgNodes.Add(newLeaf);
                             }
@@ -7212,7 +7267,7 @@ namespace Core.Catalog
                             throw new KalturaException("Invalid search value or operator was sent for parental_rules", (int)eResponseStatus.BadSearchRequest);
                         }
                     }
-                    else if (searchKeyLowered == ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD)
+                    else if (searchKeyLowered == NamingHelper.ENTITLED_ASSETS_FIELD)
                     {
                         // Same as geo_block: it is a personal filter that currently will work only with "true".
                         if (leaf.operand != ComparisonOperator.Equals)
@@ -7231,7 +7286,7 @@ namespace Core.Catalog
                                     definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
                                     definitions.entitlementSearchDefinitions.shouldSearchNotEntitled = true;
-                                    definitions.PersonalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
+                                    definitions.PersonalData.Add(NamingHelper.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             case ("free"):
@@ -7242,14 +7297,14 @@ namespace Core.Catalog
                             case ("entitled"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
-                                    definitions.PersonalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
+                                    definitions.PersonalData.Add(NamingHelper.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             case ("both"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;
                                     definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
-                                    definitions.PersonalData.Add(ESUnifiedQueryBuilder.ENTITLED_ASSETS_FIELD);
+                                    definitions.PersonalData.Add(NamingHelper.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
                             default:
@@ -7262,7 +7317,7 @@ namespace Core.Catalog
                         // I mock a "contains" operator so that the query builder will know it is a not-exact search
                         leaf.operand = ComparisonOperator.Contains;
                     }
-                    else if (searchKeyLowered == ESUnifiedQueryBuilder.USER_INTERESTS_FIELD)
+                    else if (searchKeyLowered == NamingHelper.USER_INTERESTS_FIELD)
                     {
                         // Same as geo_block: it is a personal filter that currently will work only with "true".
                         if (leaf.operand != ComparisonOperator.Equals && leaf.value.ToString().ToLower() != "true")
@@ -7276,7 +7331,7 @@ namespace Core.Catalog
                             definitions.shouldGetUserPreferences = true;
                         }
                     }
-                    else if (searchKeyLowered == ESUnifiedQueryBuilder.ASSET_TYPE)
+                    else if (searchKeyLowered == NamingHelper.ASSET_TYPE)
                     {
                         string loweredValue = leaf.value.ToString().ToLower();
                         int assetType;
@@ -7305,8 +7360,7 @@ namespace Core.Catalog
                             // We will allow KSQL to contain "status" field only for operators.
                             if (definitions.isAllowedToViewInactiveAssets)
                             {
-                                searchKeys.Clear();
-                                searchKeys.Add(IS_ACTIVE);
+                                searchKey.Field = IS_ACTIVE;
                             }
                             else
                             {
@@ -7314,7 +7368,7 @@ namespace Core.Catalog
                             }
                         }
 
-                        if (searchKeyLowered == ESUnifiedQueryBuilder.RECORDING_ID)
+                        if (searchKeyLowered == NamingHelper.RECORDING_ID)
                         {
                             definitions.shouldSearchRecordings = true;
                             // I mock a "in" operator so that the query builder will know it is a not-exact search
@@ -7335,7 +7389,7 @@ namespace Core.Catalog
                             }
                         }
 
-                        if (leaf.field == MEDIA_ID) 
+                        if (leaf.field == MEDIA_ID)
                         {
                             definitions.hasMediaIdTerm = true;
                         }
@@ -7364,19 +7418,17 @@ namespace Core.Catalog
 
                         if (searchKeyLowered == NAME || searchKeyLowered == DESCRIPION)
                         {
-                            // add language suffix (if the language is not the default)
-                            searchKeys.Clear();
-                            searchKeys.Add(string.Format("{0}{1}", searchKeyLowered, suffix));
+                            leaf.isLanguageSpecific = true;
+                            searchKey.Field = searchKeyLowered;
+                            searchKey.FieldType = eFieldType.LanguageSpecificField;
                         }
                         else if (searchKeyLowered == EXTERNALID)
                         {
-                            searchKeys.Clear();
-                            searchKeys.Add(EXTERNAL_ID);
+                            searchKey.Field = EXTERNAL_ID;
                         }
                         else if (searchKeyLowered == ENTRYID)
                         {
-                            searchKeys.Clear();
-                            searchKeys.Add(ENTRY_ID);
+                            searchKey.Field = ENTRY_ID;
                         }
                     }
                     else if (searchKeyLowered == INHERITANCE_POLICY)
@@ -7402,7 +7454,7 @@ namespace Core.Catalog
                         leaf.valueType = typeof(int);
                         leaf.value = (int)inheritancePolicy;
                     }
-                    else if (searchKeyLowered == ESUnifiedQueryBuilder.AUTO_FILL_FIELD)
+                    else if (searchKeyLowered == NamingHelper.AUTO_FILL_FIELD)
                     {
                         // Same as geo_block: it is a personal filter that currently will work only with "true".
                         if (leaf.operand == ComparisonOperator.Equals && leaf.value.ToString().ToLower() == "true")
@@ -7420,7 +7472,10 @@ namespace Core.Catalog
                     }
                 }
 
-                leaf.field = searchKeys.FirstOrDefault();
+                //
+                // DONT MISS THE LINE
+                //
+                leaf.field = searchKey.Field;
 
                 #region IN operator
 
@@ -7456,6 +7511,7 @@ namespace Core.Catalog
 
                 #endregion
 
+                leaf.fieldType = searchKey.FieldType;
             }
 
             #region Trim search value
@@ -7900,7 +7956,7 @@ namespace Core.Catalog
                 HashSet<long> userSegmentIds = new HashSet<long>(userSegments.Select(i => i.SegmentId));
                 List<SegmentationType> segmentationTypes = SegmentationType.GetSegmentationTypesBySegmentIds(groupId, userSegmentIds);
 
-                definitions.boostScoreValues = new List<KeyValuePair<string, string>>();
+                definitions.boostScoreValues = new List<BoostScoreValueDefinition>();
 
                 foreach (var segmentationType in segmentationTypes)
                 {
@@ -7912,16 +7968,20 @@ namespace Core.Catalog
                             {
                                 if (!string.IsNullOrEmpty(castedCondition.Field) && castedCondition.Values != null && castedCondition.Values.Count > 0)
                                 {
-                                    bool isTagOrMeta;
-                                    HashSet<string> fields = GetUnifiedSearchKey(castedCondition.Field.ToLower(), group, out isTagOrMeta, groupId);
+                                    var fields = GetUnifiedSearchKey(castedCondition.Field.ToLower(), group, groupId);
 
-                                    if (isTagOrMeta)
+                                    if (fields.Any() && fields.FirstOrDefault().FieldType != eFieldType.Default)
                                     {
                                         foreach (var field in fields)
                                         {
                                             foreach (var value in castedCondition.Values)
                                             {
-                                                definitions.boostScoreValues.Add(new KeyValuePair<string, string>(field, value));
+                                                definitions.boostScoreValues.Add(new BoostScoreValueDefinition()
+                                                {
+                                                    Key = field.Field,
+                                                    Value = value,
+                                                    Type = field.FieldType
+                                                });
                                             }
                                         }
                                     }
@@ -7938,9 +7998,23 @@ namespace Core.Catalog
                             {
                                 if (!string.IsNullOrEmpty(castedAction.Name) && castedAction.Values != null && castedAction.Values.Count > 0)
                                 {
-                                    foreach (var value in castedAction.Values)
+                                    var fields = GetUnifiedSearchKey(castedAction.Name.ToLower(), group, groupId);
+
+                                    if (fields.Any())
                                     {
-                                        definitions.boostScoreValues.Add(new KeyValuePair<string, string>(castedAction.Name, value));
+                                        foreach (var field in fields)
+                                        {
+                                            foreach (var value in castedAction.Values)
+                                            {
+                                                definitions.boostScoreValues.Add(
+                                                    new BoostScoreValueDefinition()
+                                                    {
+                                                        Key = field.Field,
+                                                        Value = value,
+                                                        Type = field.FieldType
+                                                    });
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -7959,14 +8033,18 @@ namespace Core.Catalog
                             {
                                 if (userSegmentIds.Contains(value.Id))
                                 {
-                                    bool isTagOrMeta;
-                                    HashSet<string> fields = GetUnifiedSearchKey(castedSource.Field.ToLower(), group, out isTagOrMeta, groupId);
+                                    var fields = GetUnifiedSearchKey(castedSource.Field.ToLower(), group, groupId);
 
-                                    if (isTagOrMeta)
+                                    if (fields.Any() && fields.FirstOrDefault().FieldType != eFieldType.Default)
                                     {
                                         foreach (var field in fields)
                                         {
-                                            definitions.boostScoreValues.Add(new KeyValuePair<string, string>(field, value.Value));
+                                            definitions.boostScoreValues.Add(new BoostScoreValueDefinition()
+                                            {
+                                                Key = field.Field,
+                                                Value = value.Value,
+                                                Type = field.FieldType
+                                            });
                                         }
                                     }
                                 }

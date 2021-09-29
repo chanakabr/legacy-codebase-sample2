@@ -11,6 +11,7 @@ using TVinciShared;
 using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using ElasticSearch.Searcher;
 using Nest;
+using ApiLogic.IndexManager.Helpers;
 
 namespace ApiLogic.IndexManager.QueryBuilders
 {
@@ -29,16 +30,8 @@ namespace ApiLogic.IndexManager.QueryBuilders
         public static readonly string TAGS = "TAGS";
         public static readonly string ES_DATE_FORMAT = "yyyyMMddHHmmss";
 
-        public const string ENTITLED_ASSETS_FIELD = "entitled_assets";
-        public const string GEO_BLOCK_FIELD = "geo_block";
-        public const string PARENTAL_RULES_FIELD = "parental_rules";
-        public const string USER_INTERESTS_FIELD = "user_interests";
-        public const string ASSET_TYPE = "asset_type";
-        public const string RECORDING_ID = "recording_id";
-        public const string AUTO_FILL_FIELD = "auto_fill";
-        public const string ENABLE_CDVR = "enable_cdvr";
-        public const string ENABLE_CATCHUP = "enable_catchup";
         public static readonly int MissedHitBucketKey = 999;
+
         protected static readonly Dictionary<string, string> NONE_PHONETIC_LANGUAGES 
             = new Dictionary<string, string> { { "heb", @"[\u0590-\u05FF]+" } };
 
@@ -361,7 +354,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         {
                             size = -1;
                         }
-                        else if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup.Key))
+                        else if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(SearchDefinitions.distinctGroup?.Key))
                         {
                             size = this.SearchDefinitions.pageSize * (this.SearchDefinitions.pageIndex + 1);
                         }
@@ -382,7 +375,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         }
 
                         // Get top hit as well if necessary
-                        if (this.SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.SearchDefinitions.distinctGroup.Key))
+                        if (SearchDefinitions.topHitsCount > 0 || !string.IsNullOrEmpty(SearchDefinitions.distinctGroup?.Key))
                         {
                             int topHitsSize = -1;
 
@@ -527,9 +520,10 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
             foreach (var item in this.SearchDefinitions.boostScoreValues)
             {
+                var key = GetElasticsearchFieldName(true, this.SearchDefinitions.langauge, item.Key, item.Type);
                 var term = new ESTerm(false)
                 {
-                    Key = item.Key,
+                    Key = key,
                     Value = item.Value
                 };
 
@@ -639,6 +633,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         {
                             Key = "_id"
                         };
+                        
 
                         idsTerm.Value.AddRange(item.Value);
 
@@ -897,6 +892,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 #endregion
 
                 #region Device types
+                
                 if (!ignoreDeviceRuleID && !shouldMinimizeQuery)
                 {
                     ESTerms deviceRulesTerms = new ESTerms(true)
@@ -1088,17 +1084,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
             }
 
-            // Recordings specific filters
-            if (this.SearchDefinitions.shouldSearchRecordings)
-            {
-                FilterCompositeType recoedingsDatesFilter = new FilterCompositeType(CutWith.AND);
-
-                if (!recoedingsDatesFilter.IsEmpty())
-                {
-                    recordingFilter.AddChild(recoedingsDatesFilter);
-                }
-            }
-
+            
             #region Excluded CRIDs
 
             if (this.SearchDefinitions.shouldSearchRecordings || this.SearchDefinitions.shouldSearchEpg)
@@ -1683,109 +1669,36 @@ namespace ApiLogic.IndexManager.QueryBuilders
             return finalBuilder.ToString();
         }
 
-        /// <summary>
-        /// Connects with "OR" several, different queries alltogther.
-        /// </summary>
-        /// <param name="unifiedSearchDefinitions"></param>
-        /// <returns></returns>
-        public string BuildMultiSearchQueryString(List<UnifiedSearchDefinitions> unifiedSearchDefinitions)
+        internal static string GetElasticsearchFieldName(bool isLanguageSpecific, ApiObjects.LanguageObj language, string key, eFieldType type)
         {
-            this.ReturnFields = DEFAULT_RETURN_FIELDS.ToList();
-
-            this.ReturnFields.Add("\"epg_id\"");
-            this.ReturnFields.Add("\"media_id\"");
-            this.ReturnFields.Add("\"recording_id\"");
-
-            // This is a query-filter.
-            // First comes query
-            // Then comes filter
-            // Query is for non-exact phrases
-            // Filter is for exact phrases
-
-            // filtered query :
-            //  {
-            //      { 
-            //          query : {},
-            //          filter : {}
-            //      }
-            // }
-
-            string fullQuery = string.Empty;
-
-            if (this.SearchDefinitions == null)
+            if (isLanguageSpecific && language != null && !language.IsDefault)
             {
-                return fullQuery;
+                key = $"{key}_{language.Code}";
             }
 
-            FilteredQuery filteredQuery = new FilteredQuery(true)
+            string value = null;
+            switch (type)
             {
-                PageIndex = 0,
-                PageSize = 0
-            };
-
-            filteredQuery.Filter = new QueryFilter();
-            filteredQuery.Filter.FilterSettings = new FilterCompositeType(CutWith.OR);
-
-            ElasticSearch.Searcher.BoolQuery boolquery = new ElasticSearch.Searcher.BoolQuery();
-
-            ESUnifiedQueryBuilder innerQueryBuilder = new ESUnifiedQueryBuilder(null, this.GroupID);
-
-            foreach (var definition in unifiedSearchDefinitions)
-            {
-                BaseFilterCompositeType filterPart;
-                IESTerm queryTerm;
-
-                innerQueryBuilder.SearchDefinitions = definition;
-                innerQueryBuilder.BuildInnerFilterAndQuery(out filterPart, out queryTerm, definition.shouldIgnoreDeviceRuleID);
-
-                filteredQuery.Filter.FilterSettings.AddChild(filterPart);
-                boolquery.AddChild(queryTerm, CutWith.OR);
+                case eFieldType.Default:
+                case eFieldType.LanguageSpecificField:
+                    value = key;
+                    break;
+                case eFieldType.StringMeta:
+                    value = $"metas.{key}";
+                    break;
+                case eFieldType.NonStringMeta:
+                    value = $"metas.{key}";
+                    break;
+                case eFieldType.Tag:
+                    value = $"tags.{key}";
+                    break;
+                default:
+                    break;
             }
 
-            filteredQuery.Query = boolquery;
-
-            PageSize = MAX_RESULTS;
-
-            int fromIndex = 0;
-
-            StringBuilder filteredQueryBuilder = new StringBuilder();
-
-            filteredQueryBuilder.Append("{");
-            filteredQueryBuilder.AppendFormat(" \"size\": {0}, ", PageSize);
-            filteredQueryBuilder.AppendFormat(" \"from\": {0}, ", fromIndex);
-
-            // If not exact, order by score, and vice versa
-            string sort = SortUtils.GetSort(this.SearchDefinitions.order, this.ReturnFields);
-
-            // Join return fields with commas
-            if (ReturnFields.Count > 0)
-            {
-                filteredQueryBuilder.Append("\"fields\": [");
-
-                filteredQueryBuilder.Append(ReturnFields.Aggregate((current, next) => string.Format("{0}, {1}", current, next)));
-
-                filteredQueryBuilder.Append("], ");
-            }
-
-            filteredQueryBuilder.AppendFormat("{0}, ", sort);
-            filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
-
-            if (filteredQuery.Query != null && !filteredQuery.Query.IsEmpty())
-            {
-                string queryPart = filteredQuery.Query.ToString();
-
-                if (!string.IsNullOrEmpty(queryPart))
-                {
-                    filteredQueryBuilder.AppendFormat(" \"query\": {0},", queryPart.ToString());
-                }
-            }
-
-            filteredQueryBuilder.Append(filteredQuery.Filter.ToString());
-            filteredQueryBuilder.Append(" } } }");
-            fullQuery = filteredQueryBuilder.ToString();
-
-            return fullQuery;
+            return value;
         }
+
         #endregion
 
         #region Protected and Private Methods
@@ -1807,7 +1720,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 BooleanLeaf leaf = filterNode as BooleanLeaf;
                 IESTerm leafTerm = ConvertToFilter(leaf);
 
-                if (leaf.field == "auto_fill")
+                if (leaf.field == NamingHelper.AUTO_FILL_FIELD)
                 {
                     return composite;
                 }
@@ -1889,21 +1802,22 @@ namespace ApiLogic.IndexManager.QueryBuilders
             if (root.type == BooleanNodeType.Leaf)
             {
                 BooleanLeaf leaf = root as BooleanLeaf;
+                HandleLanguageSpecificLeafField(leaf);
 
                 // Special case - if this is the entitled assets leaf, we build a specific term for it
-                if (leaf.field == ENTITLED_ASSETS_FIELD)
+                if (leaf.field == NamingHelper.ENTITLED_ASSETS_FIELD)
                 {
                     term = BuildEntitledAssetsQuery();
                 }
-                else if (leaf.field == USER_INTERESTS_FIELD)
+                else if (leaf.field == NamingHelper.USER_INTERESTS_FIELD)
                 {
                     term = BuildUserInterestsQuery();
                 }
-                else if (leaf.field == ASSET_TYPE)
+                else if (leaf.field == NamingHelper.ASSET_TYPE)
                 {
                     term = BuildAssetTypeQuery(leaf);
                 }
-                else if (leaf.field == RECORDING_ID)
+                else if (leaf.field == NamingHelper.RECORDING_ID)
                 {
                     term = BuildRecordingIdTerm(leaf);
                 }
@@ -1960,7 +1874,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         }
                         else if (leaf.operand == ApiObjects.ComparisonOperator.Phonetic)
                         {
-                            if (leaf.valueType == typeof(string) && !IsLanguagePhoneticSupported(leaf.value.ToString()))
+                            if (leaf.valueType == typeof(string) && !IndexManagerCommonHelpers.IsLanguagePhoneticSupported(leaf.value.ToString()))
                             {
                                 isFuzzySearch = true;
                                 field = leaf.field;
@@ -2184,14 +2098,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
             return (term);
         }
 
-        //Select fuzzy instead of phonetic if phrase is in non supported language
-        private bool IsLanguagePhoneticSupported(string phrase)
+        private void HandleLanguageSpecificLeafField(BooleanLeaf leaf)
         {
-            if (string.IsNullOrEmpty(phrase))
-                return true;
-
-            var anyMatch = NONE_PHONETIC_LANGUAGES.Any(x => System.Text.RegularExpressions.Regex.IsMatch(phrase, x.Value));
-            return !anyMatch;
+            leaf.field = GetElasticsearchFieldName(leaf.isLanguageSpecific, this.SearchDefinitions.langauge, leaf.field, leaf.fieldType);
         }
 
         private IESTerm BuildRecordingIdTerm(BooleanLeaf leaf)
@@ -2209,7 +2118,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                 result = new ESTerm(true)
                 {
-                    Key = RECORDING_ID,
+                    Key = NamingHelper.RECORDING_ID,
                     Value = recordingId
                 };
             }
@@ -2234,7 +2143,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                 result = new ESTerms(true)
                 {
-                    Key = RECORDING_ID
+                    Key = NamingHelper.RECORDING_ID
                 };
 
                 (result as ESTerms).Value.AddRange(recordingIds);
@@ -2541,6 +2450,8 @@ namespace ApiLogic.IndexManager.QueryBuilders
             bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long);
             string value = string.Empty;
 
+            HandleLanguageSpecificLeafField(leaf);
+
             // First find out the value to use in the filter body 
             if (isNumeric)
             {
@@ -2564,7 +2475,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 value = leaf.value.ToString().ToLower();
             }
 
-            if (leaf.field == RECORDING_ID)
+            if (leaf.field == NamingHelper.RECORDING_ID)
             {
                 List<string> domainRecordingIds = new List<string>();
 
@@ -2595,7 +2506,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                 term = new ESTerms(true)
                 {
-                    Key = RECORDING_ID
+                    Key = NamingHelper.RECORDING_ID
                 };
 
                 (term as ESTerms).Value.AddRange(recordingIds);

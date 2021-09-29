@@ -15,6 +15,12 @@ namespace ApiObjects
         [JsonIgnore]
         public string id;
 
+        // default ctor for serialization when sending migration events to ES for example
+        public IPV6()
+        {
+        }
+
+        
         public IPV6(Tuple<string, string> tuple, int countryId, string code, string name)
         {
             ipv6_from = tuple.Item1;

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using ApiObjects;
+using ApiObjects.BulkUpload;
 using ApiObjects.Epg;
 using Nest;
 using Newtonsoft.Json;
@@ -16,103 +17,71 @@ using ESUtils = ElasticSearch.Common.Utils;
 namespace ApiLogic.IndexManager.NestData
 {
     [ElasticsearchType(RelationName = "epg")]
-    public class NestEpg
+    public class NestEpg : NestBaseAsset
     {
         #region DataMembers
 
         [PropertyName("epg_id")]
-        public ulong EpgID  { get; set; }
-        
+        public ulong EpgID { get; set; }
+
         [PropertyName("epg_identifier")]
         public string EpgIdentifier { get; set; }
-        
+
         [PropertyName("external_id")]
         public string ExternalId { get; set; }
 
-        [PropertyName("is_active")]
-        public bool IsActive { get; set; }
-
-        [PropertyName("group_id")]
-        public int GroupID { get; set; }
-
         [PropertyName("epg_channel_id")]
         public int ChannelID { get; set; }
-        
-        [PropertyName("name")]
-        public Dictionary<string, string> Name { get; set; }
 
-        [PropertyName("description")]
-        public  Dictionary<string,string> Description { get; set; }
-
-        [Date(Name = "create_date" )]
-        public DateTime CreateDate { get; set; }
-        
-        [Date(Name = "update_date" )]
-        public DateTime UpdateDate { get; set; }
-        
-        [Date(Name = "start_date" )]
-        public DateTime StartDate { get; set; }
-        
-        [Date(Name = "end_date" )]
-        public DateTime EndDate { get; set; }
-
-        [Date(Name = "search_end_date" )]
+        [Date(Name = "search_end_date")]
         public DateTime SearchEndDate { get; set; }
-        
-        [Date(Name = "cache_date" )]
-        public DateTime CacheDate { get; set; }
-        
+
         [PropertyName("linear_media_id")]
         public long? LinearMediaId { get; set; }
-
-        [PropertyName("metas")]
-        public Dictionary<string,Dictionary<string, List<string>>> Metas { get; set; }
-
-        [PropertyName("tags")]
-        public Dictionary<string,Dictionary<string, List<string>>> Tags { get; set; }
-
-        [PropertyName("language")]
-        public string Language { get; set; }
-
-        [PropertyName("language_id")]
-        public int LanguageId { get; set; }
 
         [PropertyName("date_routing")]
         public string DateRouting { get; set; }
 
         [PropertyName("enable_cdvr")]
-        public int? EnableCDVR { get; set; }
+        public int EnableCDVR { get; set; }
 
         [PropertyName("enable_catch_up")]
-        public int? EnableCatchUp { get; set; }
-        
-        [PropertyName ("crid")]
+        public int EnableCatchUp { get; set; }
+
+        [PropertyName("crid")]
         public string Crid { get; set; }
 
-        [PropertyName ("document_id")]
-        public string DocumentId { get; set; }
-        
-        [PropertyName ("is_auto_fill")]
+        [PropertyName("cb_document_id")]
+        public string CouchbaseDocumentId { get; set; }
+
+        [PropertyName("is_auto_fill")]
         public bool IsAutoFill { get; set; }
-        
-        [PropertyName ("suppressed")]
+
+        [PropertyName("suppressed")]
         public string Suppressed { get; set; }
-        
-        [PropertyName ("recording_id")]
+
+        [PropertyName("recording_id")]
         public long? RecordingId { get; set; }
+        
+        [PropertyName("regions")]
+        public List<int> Regions{ get; set; }
 
         [PropertyName("__expiration")]
         public long? Expiration { get; set; }
-        
+
         #endregion
 
         #region Ctor
+
+        // used by autommaper for migration consumer
+        public NestEpg() { }
         
         public NestEpg(EpgCB epgCb, int languageId, bool isOpc = false, bool withRouting = true,
-            string esDateOnlyFormat = "", long? recordingId = null, long? expiryUnixTimeStamp=null)
+            string esDateOnlyFormat = "", long? recordingId = null, long? expiryUnixTimeStamp = null)
         {
-            Initialize(epgCb, isOpc, withRouting,esDateOnlyFormat,languageId,recordingId,expiryUnixTimeStamp);
+            Initialize(epgCb, isOpc, withRouting, esDateOnlyFormat, languageId, recordingId, expiryUnixTimeStamp);
         }
+
         #endregion
 
         #region Initialize
@@ -133,11 +102,12 @@ namespace ApiLogic.IndexManager.NestData
             Crid = epgCb.Crid;
             EpgIdentifier = epgCb.EpgIdentifier;
             ExternalId = epgCb.EpgIdentifier;
-            DocumentId = epgCb.DocumentId;
+            CouchbaseDocumentId = epgCb.DocumentId;
             IsAutoFill = epgCb.IsAutoFill;
             EnableCDVR = epgCb.EnableCDVR;
-            EnableCatchUp = epgCb.EnableCatchUp;
+            EnableCatchUp = epgCb.EnableCatchUp; 
             Suppressed = epgCb.Suppressed;
+            Regions = epgCb.regions;
 
             if (epgCb.LinearMediaId > 0)
             {
@@ -149,32 +119,40 @@ namespace ApiLogic.IndexManager.NestData
                 DateRouting = epgCb.StartDate.ToUniversalTime().ToString(esDateOnlyFormat);
             }
 
-            var metasDict = new Dictionary<string, Dictionary<string, List<string>>>();
+            var metasDict = new Dictionary<string, Dictionary<string, HashSet<string>>>();
             var langCode = epgCb.Language;
 
-            var metas = new Dictionary<string, List<string>>();
-            foreach (var epgCbMeta in epgCb.Metas)
+            var metas = new Dictionary<string, HashSet<string>>();
+
+            if (epgCb.Metas != null)
             {
-                metas[epgCbMeta.Key] =
-                    epgCbMeta.Value.Select(x => ESUtils.ReplaceDocumentReservedCharacters(x, false)).ToList();
+                foreach (var epgCbMeta in epgCb.Metas)
+                {
+                    metas[epgCbMeta.Key.ToLower()] =
+                        epgCbMeta.Value.Select(x => ESUtils.ReplaceDocumentReservedCharacters(x, false)).ToHashSet();
+                }
             }
 
-            metasDict.Add(langCode, new Dictionary<string, List<string>>(metas));
+            metasDict.Add(langCode, new Dictionary<string, HashSet<string>>(metas));
             Metas = metasDict; //lang
 
-            var tagsDict = new Dictionary<string, Dictionary<string, List<string>>>();
-            var tags = new Dictionary<string, List<string>>();
-            foreach (var tag in epgCb.Tags)
+            var tagsDict = new Dictionary<string, Dictionary<string, HashSet<string>>>();
+            var tags = new Dictionary<string, HashSet<string>>();
+
+            if (epgCb.Tags != null)
             {
-                tags[tag.Key] = tag.Value.Select(x => ESUtils.ReplaceDocumentReservedCharacters(x, false)).ToList();
+                foreach (var tag in epgCb.Tags)
+                {
+                    tags[tag.Key.ToLower()] = tag.Value.Select(x => ESUtils.ReplaceDocumentReservedCharacters(x, false)).ToHashSet();
+                }
             }
 
-            tagsDict.Add(langCode, new Dictionary<string, List<string>>(tags));
+            tagsDict.Add(langCode, new Dictionary<string, HashSet<string>>(tags));
             Tags = tagsDict; //lang
 
             var nameDict = new Dictionary<string, string>();
             nameDict.Add(langCode, ESUtils.ReplaceDocumentReservedCharacters(epgCb.Name, false));
-            Name = nameDict; //lang
+            NamesDictionary = nameDict; //lang
 
             var descriptionDict = new Dictionary<string, string>();
             descriptionDict.Add(langCode, ESUtils.ReplaceDocumentReservedCharacters(epgCb.Description, false));
@@ -183,17 +161,38 @@ namespace ApiLogic.IndexManager.NestData
             Language = langCode;
             LanguageId = languageId;
 
+            ulong assetId = this.EpgID;
+            
             if (recordingId.HasValue)
             {
                 RecordingId = recordingId.Value;
+                assetId = (ulong)recordingId.Value;
             }
 
             if (expiryUnixTimeStamp.HasValue)
             {
                 Expiration = expiryUnixTimeStamp.Value;
             }
+
+            this.DocumentId = $"{assetId}_{this.Language}";
         }
 
         #endregion
+
+        internal EpgProgramBulkUploadObject ToEpgProgramBulkUploadObject()
+        {
+            var epgItem = new EpgProgramBulkUploadObject();
+            epgItem.EpgExternalId = this.EpgIdentifier;
+            epgItem.StartDate = this.StartDate;
+            epgItem.EndDate = this.EndDate;
+            epgItem.EpgId = this.EpgID;
+            epgItem.IsAutoFill = this.IsAutoFill;
+            epgItem.ChannelId = this.ChannelID;
+            epgItem.LinearMediaId = this.LinearMediaId.HasValue ? this.LinearMediaId.Value : 0;
+            epgItem.ParentGroupId = this.GroupID;
+            epgItem.GroupId = this.GroupID;
+            return epgItem;
+        }
+
     }
 }

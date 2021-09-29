@@ -15,9 +15,9 @@ namespace ApiLogic.Tests.IndexManager.helpers
     public static class IndexManagerMockDataCreator
     {
         private static int _nextPartnerId = 10000;
-        private static Random _random=new Random();
+        private static Random _random = new Random();
 
-        public static void SetupOpcPartnerMocks(int partnerId, IEnumerable<LanguageObj> languages,ref Mock<ICatalogManager> _mockCatalogManager)
+        public static void SetupOpcPartnerMocks(int partnerId, IEnumerable<LanguageObj> languages, ref Mock<ICatalogManager> _mockCatalogManager)
         {
             _mockCatalogManager.Setup(x => x.DoesGroupUsesTemplates(partnerId)).Returns(true);
 
@@ -34,7 +34,7 @@ namespace ApiLogic.Tests.IndexManager.helpers
                         ApiObjects.MetaType.Tag.ToString(),
                         new Topic()
                             {
-                                
+
                             }
                     }
                 }
@@ -73,7 +73,7 @@ namespace ApiLogic.Tests.IndexManager.helpers
         {
             var language = new ApiObjects.LanguageObj()
             {
-                ID = _random.Next(1000) + 1,
+                ID = _random.Next(100000) + 1,
                 Code = "eng",
                 Name = "english",
                 IsDefault = true,
@@ -89,7 +89,8 @@ namespace ApiLogic.Tests.IndexManager.helpers
 
         public static Media GetRandomMedia(int partnerId)
         {
-            var rand = _random.Next(1000);
+            var startDate = DateTime.Today.AddDays(-1).ToString(Utils.ES_DATE_FORMAT);
+            var rand = _random.Next(1000000);
             return new Media()
             {
                 m_nIsActive = 1,
@@ -97,14 +98,18 @@ namespace ApiLogic.Tests.IndexManager.helpers
                 m_sName = $"test media {rand}",
                 m_sDescription = "test description",
                 m_nGroupID = partnerId,
-                m_sStartDate = DateTime.Today.AddDays(-1).ToString(Utils.ES_DATE_FORMAT),
-                m_nMediaTypeID = rand + 1
+                m_sStartDate = startDate,
+                CatalogStartDate = startDate,
+                m_nMediaTypeID = rand + 1,
+                m_sUserTypes = "0",
+                allowedCountries = new List<int>() { 0 },
+                m_sCreateDate = startDate
             };
         }
 
         public static Channel GetRandomChannel(int randomPartnerId)
         {
-            var randomNum = _random.Next(1000) + 1;
+            var randomNum = _random.Next(1000000) + 1;
             return new Channel()
             {
                 m_nParentGroupID = randomPartnerId,
@@ -124,15 +129,15 @@ namespace ApiLogic.Tests.IndexManager.helpers
             {
                 GroupID = randomPartnerId,
                 Date = DateTime.Now.AddDays(-1),
-                MediaID = _random.Next(1000),
+                MediaID = _random.Next(1000000),
                 Action = "like",
                 Count = 10
             };
         }
-        
+
         public static TagValue GetRandomTag(int languageId)
         {
-            var random = _random.Next(1000) + 1;
+            var random = _random.Next(1000000) + 1;
             return new TagValue()
             {
                 tagId = random,
@@ -143,19 +148,19 @@ namespace ApiLogic.Tests.IndexManager.helpers
                 updateDate = 1000
             };
         }
-        
-        public static EpgCB GetRandomEpgCb(DateTime? startDate=null, string name = "",string description="")
+
+        public static EpgCB GetRandomEpgCb(DateTime? startDate = null, string name = "", string description = "")
         {
             var epgCb = new EpgCB();
-            var epgId = 1 + new Random().Next(1000);
+            var epgId = 1 + new Random().Next(500000);
             epgCb.Name = name == string.Empty ? "la movie" : name;
             epgCb.Description = description == "" ? "this is the movie description" : description;
-            epgCb.EpgID = (ulong) epgId;
+            epgCb.EpgID = (ulong)epgId;
             epgCb.Language = "eng";
-            epgCb.CreateDate= DateTime.Now.ToUniversalTime();
+            epgCb.CreateDate = DateTime.Now.ToUniversalTime();
             epgCb.EndDate = startDate.HasValue ? startDate.Value : DateTime.Now.AddDays(1).ToUniversalTime();
-            epgCb.StartDate=startDate ??DateTime.Now.ToUniversalTime();
-            epgCb.CreateDate=DateTime.Now.ToUniversalTime();
+            epgCb.StartDate = startDate ?? DateTime.Now.ToUniversalTime();
+            epgCb.CreateDate = DateTime.Now.ToUniversalTime();
             epgCb.EpgIdentifier = epgId.ToString();
             epgCb.DocumentId = $"{epgId}";
             return epgCb;

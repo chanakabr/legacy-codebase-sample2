@@ -2,7 +2,7 @@
 {
     public class EpgProgramInfo
     {
-        public string Type { get; set; }
+        public string LanguageCode { get; set; }
 
         public string DocumentId { get; set; }
 

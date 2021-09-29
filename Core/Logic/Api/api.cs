@@ -5497,10 +5497,8 @@ namespace Core.Api
                         {
                             // find all asset ids that match the tag + tag value ==> if so save the rule id
                             //build serach for each tag and tag values
-
+                            
                             List<string> tempFilter = new List<string>();
-
-
                             groupsParentalRules = groupsParentalRules.Where(x => !string.IsNullOrEmpty(x.mediaTagType)).ToList();
                             Parallel.ForEach(groupsParentalRules, (rule) =>
                             {

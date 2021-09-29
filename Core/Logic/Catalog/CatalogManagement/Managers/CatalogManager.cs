@@ -36,7 +36,7 @@ namespace Core.Catalog.CatalogManagement
         bool InvalidateCacheAndUpdateIndexForTopicAssets(int groupId, List<long> tagTopicIds, bool shouldDeleteTag, bool shouldDeleteAssets, List<long> metaTopicIds, long assetStructId, long userId, List<long> relatedEntitiesTopicIds, bool shouldDeleteRelatedEntities);
         Dictionary<int, Media> GetGroupMedia(int groupId, long mediaId);
         void GetLinearChannelValues(List<EpgCB> lEpg, int groupID, Action<EpgCB> action);
-        HashSet<string> GetUnifiedSearchKey(int groupId, string originalKey, out bool isTagOrMeta, out Type type);
+        HashSet<BooleanLeafFieldDefinitions> GetUnifiedSearchKey(int groupId, string originalKey);
     }
 
     public class CatalogManager : ICatalogManager
@@ -1928,11 +1928,10 @@ namespace Core.Catalog.CatalogManagement
             return response;
         }
 
-        public HashSet<string> GetUnifiedSearchKey(int groupId, string originalKey, out bool isTagOrMeta, out Type type)
+        public HashSet<BooleanLeafFieldDefinitions> GetUnifiedSearchKey(int groupId, string originalKey)
         {
-            isTagOrMeta = false;
-            type = typeof(string);
-            HashSet<string> searchKeys = new HashSet<string>();
+            Type valueType = typeof(string);
+            var searchKeys = new HashSet<BooleanLeafFieldDefinitions>();
             try
             {
                 CatalogGroupCache catalogGroupCache;
@@ -1958,8 +1957,12 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (tag.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
                         {
-                            isTagOrMeta = true;
-                            searchKeys.Add(originalKey.ToLower());
+                            searchKeys.Add(new BooleanLeafFieldDefinitions()
+                            {
+                                Field = tag.ToLower(),
+                                ValueType = valueType,
+                                FieldType = eFieldType.Tag
+                            });
                             break;
                         }
                     }
@@ -1970,8 +1973,14 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (meta.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
                         {
-                            isTagOrMeta = true;
-                            searchKeys.Add(originalKey.ToLower());
+                            valueType = catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(meta) ? GetMetaType(catalogGroupCache.TopicsMapBySystemNameAndByType[meta]) : typeof(string);
+
+                            searchKeys.Add(new BooleanLeafFieldDefinitions()
+                            {
+                                Field = meta.ToLower(),
+                                ValueType = valueType,
+                                FieldType = valueType == typeof(string) ? eFieldType.StringMeta : eFieldType.NonStringMeta
+                            });
                             break;
                         }
                     }
@@ -1982,9 +1991,12 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                         {
-                            isTagOrMeta = true;
-
-                            searchKeys.Add(string.Format("tags.{0}", tag.ToLower()));
+                            searchKeys.Add(new BooleanLeafFieldDefinitions()
+                            {
+                                Field = tag.ToLower(),
+                                ValueType = valueType,
+                                FieldType = eFieldType.Tag
+                            });
                             break;
                         }
                     }
@@ -1993,17 +2005,27 @@ namespace Core.Catalog.CatalogManagement
                     {
                         if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                         {
-                            isTagOrMeta = true;
-                            type = catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(meta) ? GetMetaType(catalogGroupCache.TopicsMapBySystemNameAndByType[meta]) : typeof(string);
-                            searchKeys.Add(string.Format("metas.{0}", meta.ToLower()));
+                            valueType = catalogGroupCache.TopicsMapBySystemNameAndByType.ContainsKey(meta) ? GetMetaType(catalogGroupCache.TopicsMapBySystemNameAndByType[meta]) : typeof(string);
+
+                            searchKeys.Add(new BooleanLeafFieldDefinitions()
+                            {
+                                Field = meta.ToLower(),
+                                ValueType = valueType,
+                                FieldType = valueType == typeof(string) ? eFieldType.StringMeta : eFieldType.NonStringMeta
+                            });
                             break;
                         }
                     }
                 }
 
-                if (!isTagOrMeta)
+                if (searchKeys.Count == 0)
                 {
-                    searchKeys.Add(originalKey.ToLower());
+                    searchKeys.Add(new BooleanLeafFieldDefinitions()
+                    {
+                        Field = originalKey.ToLower(),
+                        ValueType = valueType,
+                        FieldType = eFieldType.Default
+                    });
                 }
             }
             catch (Exception ex)

@@ -29,6 +29,9 @@ namespace ApiLogic.IndexManager.Helpers
         public static readonly string META_BOOL_SUFFIX = "_BOOL";
         public static readonly string META_DATE_PREFIX = "date";
 
+        private static readonly Dictionary<string, string> NONE_PHONETIC_LANGUAGES
+            = new Dictionary<string, string> { { "heb", @"[\u0590-\u05FF]+" } };
+
         public static string GetTranslationType(string type, LanguageObj language)
         {
             if (language.IsDefault)
@@ -38,27 +41,7 @@ namespace ApiLogic.IndexManager.Helpers
             
             return string.Concat(type, "_", language.Code);
         }
-
-        public static List<string> GetEpgsCBKeysV1(IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes)
-        {
-            var result = new List<string>();
-            if (langCodes == null)
-            {
-                result = epgIds.Select(x => x.ToString()).ToList();
-            }
-            else
-            {
-                foreach (var epgId in epgIds)
-                {
-                    var keys = langCodes.Select(langCode => langCode.IsDefault ? epgId.ToString() : $"epg_{epgId}_lang_{langCode.Code.ToLower()}");
-
-                    result.AddRange(keys.ToList());
-                }
-            }
-
-            return result;
-        }
-
+        
         internal static RetryPolicy GetRetryPolicy<TException>(int retryCount = 3) where TException : Exception
         {
             return Policy.Handle<TException>()
@@ -249,5 +232,23 @@ namespace ApiLogic.IndexManager.Helpers
 
             return groupChannels;
         }
+
+        public static bool OrderByString(OrderBy? orderBy)
+        {
+            if (!orderBy.HasValue) return false;
+
+            return orderBy == OrderBy.META || orderBy == OrderBy.NAME;
+        }
+
+        //Select fuzzy instead of phonetic if phrase is in non supported language
+        public static bool IsLanguagePhoneticSupported(string phrase)
+        {
+            if (string.IsNullOrEmpty(phrase))
+                return true;
+
+            var anyMatch = NONE_PHONETIC_LANGUAGES.Any(x => System.Text.RegularExpressions.Regex.IsMatch(phrase, x.Value));
+            return !anyMatch;
+        }
+
     }
 }

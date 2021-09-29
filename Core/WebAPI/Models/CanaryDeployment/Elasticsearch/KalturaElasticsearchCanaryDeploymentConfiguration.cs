@@ -28,8 +28,6 @@ namespace WebAPI.Models.CanaryDeployment.Elasticsearch
     public enum KalturaElasticsearchVersion
     {
         ES_2_3,
-        ES_7_13,
+        ES_7,
     }
-    
-   
 }

@@ -12,11 +12,11 @@ using System.Reflection;
 
 namespace HealthCheck
 {
-    public class ElasticSearch_7_13_HealthCheck: ElasticSearchHealthCheck
+    public class ElasticSearch_7_HealthCheck: ElasticSearchHealthCheck
     {
-        public ElasticSearch_7_13_HealthCheck(IHttpClientFactory factory) : base(factory)
+        public ElasticSearch_7_HealthCheck(IHttpClientFactory factory) : base(factory)
         {
-            base.esUrl = $"{ApplicationConfiguration.Current.ElasticSearchConfiguration.URL_V7_13.Value}/{"_cluster/health"}";
+            base.esUrl = $"{ApplicationConfiguration.Current.ElasticSearchConfiguration.URL_V7.Value}/{"_cluster/health"}";
         }
     }
     

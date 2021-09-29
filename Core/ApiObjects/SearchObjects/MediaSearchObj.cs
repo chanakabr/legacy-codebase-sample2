@@ -16,6 +16,7 @@ namespace ApiObjects.SearchObjects
         public string m_sValue;
         public CutWith m_eInnerCutWith { get; set; }
         public string m_sKeyPrefix { get; set; }
+        public eFieldType fieldType;
 
         public SearchValue()
         {

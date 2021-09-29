@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.IndexManager.Helpers;
+using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using Core.Catalog.Cache;
@@ -181,7 +182,7 @@ namespace Core.Catalog
             definitions.userTypeID = originalDefinitions.userTypeID;
 
             // Most important part - tell the definitions to search only entitled assets and only of linear channels
-            definitions.filterPhrase = new BooleanLeaf("entitled_assets", "true", typeof(string), ComparisonOperator.Contains);
+            definitions.filterPhrase = new BooleanLeaf(NamingHelper.ENTITLED_ASSETS_FIELD, "true", typeof(string), ComparisonOperator.Contains);
             definitions.mediaTypes = linearChannelMediaTypes;
 
             // Also indicate that we are interested in this field

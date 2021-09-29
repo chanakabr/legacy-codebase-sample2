@@ -12,7 +12,7 @@ namespace ApiLogic.IndexManager.Helpers
     public static class NestDataCreator
     {
         public static NestEpg GetEpg(EpgCB epgCb, int languageId, bool withRouting = true, bool isOpc = false,
-            long? expiryUnixTimeStamp=null, long? recordingId = null)
+            long? expiryUnixTimeStamp = null, long? recordingId = null)
         {
             return new NestEpg(epgCb,
                 languageId,
@@ -25,7 +25,7 @@ namespace ApiLogic.IndexManager.Helpers
 
         public static NestMedia GetMedia(ApiObjects.SearchObjects.Media media, LanguageObj language)
         {
-            return new NestMedia(media, language.Code,language.ID);
+            return new NestMedia(media, language.Code, language.ID);
         }
 
         public static NestSocialActionStatistics GetSocialActionStatistics(ApiObjects.Statistics.SocialActionStatistics statistics)

@@ -1052,6 +1052,7 @@ namespace EpgBL
             {
                 var indexManager = Core.Catalog.IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
                 List<string> documentIds = indexManager.GetChannelPrograms(channelId, startDate, endDate, esOrderObjs);
+                documentIds = GetEpgsCBKeysV1(documentIds.Select(x=>long.Parse(x)), null);
                 result = GetEpgChannelProgrammeObjects(documentIds);
             }
             catch (Exception ex)
@@ -1062,6 +1063,10 @@ namespace EpgBL
             return result;
         }
 
+        
+     
+        
+        
         #region Private
 
         public static EPGChannelProgrammeObject ConvertEpgCBtoEpgProgramm(EpgCB epg)
@@ -1145,13 +1150,17 @@ namespace EpgBL
                  //so there is no way for us to now what is the document id.
                  //ES holds the current document in CB so we go there to take it
                 result = indexManager.GetEpgCBDocumentIdsByEpgId(epgIds, langCodes);
+                //all vlues that are long get epgcbkeyssv1
+                var allLongTypeResults = result.Where(x => long.TryParse(x, out var res)).Select(long.Parse);
+                var epgCbKeys = GetEpgsCBKeysV1(allLongTypeResults, langCodes);
+                result = result.ToHashSet().Union(epgCbKeys).ToList();
             }
             else
             {
                 result.AddRange(GetEpgsCBKeysV1(epgIds, langCodes));
             }
 
-            return result;
+            return result.Distinct().ToList();
         }
 
         private List<string> GetEpgsCBKeysV1(IEnumerable<long> epgIds, IEnumerable<LanguageObj> langCodes)

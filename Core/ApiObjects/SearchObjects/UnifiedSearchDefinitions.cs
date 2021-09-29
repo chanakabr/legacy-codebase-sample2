@@ -265,7 +265,7 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public List<long> specificOrder;
+        public List<KeyValuePair<eAssetTypes, long>> specificOrder;
 
         /// <summary>
         /// All definitions regarding entitled assets of the user
@@ -337,7 +337,7 @@ namespace ApiObjects.SearchObjects
         /// </summary>
         [JsonProperty()]
         [DataMember]
-        public List<KeyValuePair<string, string>> groupBy
+        public List<GroupByDefinition> groupBy
         {
             get;
             set;
@@ -361,7 +361,7 @@ namespace ApiObjects.SearchObjects
 
         [JsonProperty()]
         [DataMember]
-        public KeyValuePair<string, string> distinctGroup
+        public GroupByDefinition distinctGroup
         {
             get;
             set;
@@ -422,7 +422,7 @@ namespace ApiObjects.SearchObjects
 
         [JsonProperty()]
         [DataMember]
-        public List<KeyValuePair<string, string>> boostScoreValues;
+        public List<BoostScoreValueDefinition> boostScoreValues;
 
         [JsonProperty()]
         [DataMember]
@@ -496,7 +496,7 @@ namespace ApiObjects.SearchObjects
             shouldDateSearchesApplyToAllTypes = false;
             isInternalSearch = false;
 
-            distinctGroup = new KeyValuePair<string, string>();
+            distinctGroup = null;
 
             recordingIdToSearchableRecordingMapping = new Dictionary<string, TimeShiftedTv.SearchableRecording>();
             domainRecordingIdToRecordingIdMapping = new Dictionary<string, string>();
@@ -506,7 +506,7 @@ namespace ApiObjects.SearchObjects
             countryId = 0;
 
             assetUserRuleIds = new List<long>();
-            boostScoreValues = new List<KeyValuePair<string, string>>();
+            boostScoreValues = new List<BoostScoreValueDefinition>();
         }
 
         #endregion

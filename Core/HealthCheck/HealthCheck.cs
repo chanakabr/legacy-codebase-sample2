@@ -42,8 +42,8 @@ namespace HealthCheck
                     case HealthCheckType.ElasticSearch:
                         healthCheckBuilder = healthCheckBuilder.AddCheck<ElasticSearch_2_3_HealthCheck>("elastic_search");
                         break;
-                    case HealthCheckType.ElasticSearch_7_13:
-                        healthCheckBuilder = healthCheckBuilder.AddCheck<ElasticSearch_7_13_HealthCheck>("elastic_search_7_13");
+                    case HealthCheckType.ElasticSearch_7:
+                        healthCheckBuilder = healthCheckBuilder.AddCheck<ElasticSearch_7_HealthCheck>("elastic_search_7");
                         break;
                     case HealthCheckType.RabbitMQ:
                         healthCheckBuilder = healthCheckBuilder.AddCheck<RabbitHealthCheck>("rabbitmq");

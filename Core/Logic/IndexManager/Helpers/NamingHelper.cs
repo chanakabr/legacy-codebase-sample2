@@ -15,6 +15,18 @@ namespace ApiLogic.IndexManager.Helpers
         internal const string STAT_ACTION_RATES = "rates";
         internal const string STAT_ACTION_COUNT_VALUE_FIELD = "count";
 
+        public const string ENTITLED_ASSETS_FIELD = "entitled_assets";
+        public const string GEO_BLOCK_FIELD = "geo_block";
+        public const string PARENTAL_RULES_FIELD = "parental_rules";
+        public const string USER_INTERESTS_FIELD = "user_interests";
+        public const string ASSET_TYPE = "asset_type";
+        public const string RECORDING_ID = "recording_id";
+        public const string AUTO_FILL_FIELD = "auto_fill";
+        public const string ENABLE_CDVR = "enable_cdvr";
+        public const string ENABLE_CATCHUP = "enable_catchup";
+
+        public const string EPG_IDENTIFIER = "epg_identifier";
+
         public static string GetEpgIndexAlias(int groupId)
         {
             return $"{groupId}_epg";

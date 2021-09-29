@@ -21,7 +21,7 @@ namespace Core.Catalog
     [KnownType(typeof(RecommendationSearchResult))]
     [DataContract]
     [Serializable]
-    public class BaseObject
+    public class BaseObject:IComparable
     {
         [DataMember]
         public string AssetId;
@@ -36,6 +36,15 @@ namespace Core.Catalog
         {
             m_dUpdateDate = DateTime.MinValue;
             AssetType = eAssetTypes.MEDIA;
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj != null && obj is BaseObject)
+            {
+                return AssetId.CompareTo((obj as BaseObject).AssetId);
+            }
+            return -1;
         }
     }
 }

@@ -52,6 +52,14 @@ namespace ApiObjects.SearchObjects
         [JsonProperty()]
         public bool shouldLowercase;
 
+        [DataMember]
+        [JsonProperty()]
+        public bool isLanguageSpecific;
+
+        [DataMember]
+        [JsonProperty()]
+        public eFieldType fieldType;
+
         #endregion
 
         #region Properties
@@ -77,13 +85,14 @@ namespace ApiObjects.SearchObjects
         /// <param name="type"></param>
         /// <param name="operand"></param>
         [JsonConstructor]
-        public BooleanLeaf(string field = "", object value = null, Type type = null, ComparisonOperator operand = ComparisonOperator.Equals, bool shouldLowercase = false)
+        public BooleanLeaf(string field = "", object value = null, Type type = null, ComparisonOperator operand = ComparisonOperator.Equals, bool shouldLowercase = false, bool isLanguageSpecific = false)
         {
             this.field = field;
             this.value = value;
             this.valueType = type;
             this.operand = operand;
             this.shouldLowercase = shouldLowercase;
+            this.isLanguageSpecific = isLanguageSpecific;
         }
 
         #endregion

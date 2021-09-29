@@ -8,19 +8,15 @@ using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
 using DAL;
-using ElasticSearch.Searcher;
 using GroupsCacheManager;
 using KLogMonitor;
-using KlogMonitorHelper;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 using Tvinci.Core.DAL;
 
 namespace Core.Catalog
@@ -251,16 +247,20 @@ namespace Core.Catalog
 
         public static void OrderMediasByStats(List<int> medias, int nOrderType, int nOrderDirection)
         {
-            if (medias.Count > 0)
-            {
-                DataTable dt = CatalogDAL.Get_OrderedMediaIdList(medias, nOrderType, nOrderDirection);
+            if (!medias.Any())
+                return;
 
-                if (dt != null && dt.Rows.Count > 0)
-                {
-                    medias.Clear();
-                    medias.AddRange(dt.AsEnumerable().Select(dr => ODBCWrapper.Utils.GetIntSafeVal(dr["ID"])));
-                }
+            var dt = CatalogDAL.Get_OrderedMediaIdList(medias, nOrderType, nOrderDirection);
+
+            var anyMedias = dt != null && dt.Rows.Count > 0;
+            if (!anyMedias)
+            {
+                return;
             }
+
+            medias.Clear();
+            medias.AddRange(dt.AsEnumerable().Select(dr => ODBCWrapper.Utils.GetIntSafeVal(dr["ID"])));
+
         }
 
         public static List<SearchResult> GetMediaUpdateDate(int nParentGroupID, List<int> lMediaIDs)
@@ -1103,6 +1103,9 @@ namespace Core.Catalog
             {
                 var allTags = new HashSet<string>();
                 var allMetas = new Dictionary<string, bool>();
+
+                #region Preparations
+
                 bool doesGroupUsesTemplates = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
                 CatalogGroupCache catalogGroupCache = null;
 
@@ -1156,21 +1159,31 @@ namespace Core.Catalog
                     }
                 }
 
-                definitions.groupBy = new List<KeyValuePair<string, string>>();
-                string distinctGroupByFormatted = string.Empty;
+                #endregion
+
+                definitions.groupBy = new List<GroupByDefinition>();
+                GroupByDefinition distinctGroupBy = null;
 
                 foreach (var groupBy in searchGroupBy.groupBy)
                 {
+                    var groupByDefinition = new GroupByDefinition()
+                    { 
+                        Key = groupBy
+                    };
+
                     string lowered = groupBy.ToLower();
-                    string loweredLang = ApplyLanguageToMeta(lowered, definitions.langauge);
-                    string requestGroupBy = string.Empty;
+                    bool isValid = false;
 
                     if (ReservedGroupByFields.Contains(lowered))
                     {
+                        groupByDefinition.Type = eFieldType.Default;
+
                         if (LocalizedReservedGroupByFields.Contains(lowered))
                         {
-                            requestGroupBy = loweredLang;
+                            groupByDefinition.Type = eFieldType.LanguageSpecificField;
                         }
+
+                        isValid = true;
                     }
                     else if (doesGroupUsesTemplates)
                     {
@@ -1178,7 +1191,8 @@ namespace Core.Catalog
                         {
                             if (catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.Tag.ToString()))
                             {
-                                requestGroupBy = $"tags.{loweredLang}.lowercase";
+                                isValid = true;
+                                groupByDefinition.Type = eFieldType.Tag;
                             }
                             else if (definitions.shouldSearchEpg ||
                                      definitions.shouldSearchRecordings ||
@@ -1186,11 +1200,13 @@ namespace Core.Catalog
                                      catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.MultilingualString.ToString()) ||
                                      catalogGroupCache.TopicsMapBySystemNameAndByType[lowered].ContainsKey(ApiObjects.MetaType.ReleatedEntity.ToString()))
                             {
-                                requestGroupBy = $"metas.{loweredLang}.lowercase";
+                                isValid = true;
+                                groupByDefinition.Type = eFieldType.StringMeta;
                             }
                             else
                             {
-                                requestGroupBy = $"metas.{lowered}";
+                                isValid = true;
+                                groupByDefinition.Type = eFieldType.NonStringMeta;
                             }
                         }
                     }
@@ -1200,29 +1216,32 @@ namespace Core.Catalog
                         {
                             if (allMetas[lowered])
                             {
-                                requestGroupBy = $"metas.{loweredLang}.lowercase";
+                                isValid = true;
+                                groupByDefinition.Type = eFieldType.StringMeta;
                             }
                             else
                             {
-                                requestGroupBy = $"metas.{lowered}";
+                                isValid = true;
+                                groupByDefinition.Type = eFieldType.NonStringMeta;
                             }
                         }
                         else if (allTags.Contains(lowered))
                         {
-                            requestGroupBy = $"tags.{loweredLang}.lowercase";
+                            isValid = true;
+                            groupByDefinition.Type = eFieldType.Tag;
                         }
                     }
 
-                    if (string.IsNullOrEmpty(requestGroupBy))
+                    if (!isValid)
                     {
                         throw new KalturaException($"Invalid group by field was sent: {groupBy}", (int)eResponseStatus.BadSearchRequest);
                     }
 
                     // Transform the list of group bys to metas/tags list
-                    definitions.groupBy.Add(new KeyValuePair<string, string>(groupBy, requestGroupBy));
+                    definitions.groupBy.Add(groupByDefinition);
                     if (groupBy == searchGroupBy.distinctGroup)
                     {
-                        distinctGroupByFormatted = requestGroupBy;
+                        distinctGroupBy = groupByDefinition;
                     }
                 }
 
@@ -1232,20 +1251,11 @@ namespace Core.Catalog
                 // Validate that we have a distinct group and that it is one of the fields listed in "group by"
                 if (!string.IsNullOrEmpty(searchGroupBy.distinctGroup) && searchGroupBy.groupBy.Contains(searchGroupBy.distinctGroup))
                 {
-                    definitions.distinctGroup = new KeyValuePair<string, string>(searchGroupBy.distinctGroup, distinctGroupByFormatted);
-                    definitions.extraReturnFields.Add(distinctGroupByFormatted);
+                    definitions.distinctGroup = distinctGroupBy;
+                    // TODO: this in Index manager
+                    //definitions.extraReturnFields.Add(distinctGroupBy.Key);
                 }
             }
-        }
-
-        private static string ApplyLanguageToMeta(string metaName, LanguageObj language)
-        {
-            if (language == null)
-            {
-                return metaName;
-            }
-
-            return language.IsDefault ? metaName : $"{metaName}_{language.Code}";
         }
 
         private static Tuple<List<int>, bool> GetMediaChannels(Dictionary<string, object> funcParams)
@@ -1264,9 +1274,9 @@ namespace Core.Catalog
 
                         if (groupId.HasValue && mediaId.HasValue)
                         {
-                        IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId.Value);
-                                    result = indexManager.GetMediaChannels(mediaId.Value);
-                                    res = true;
+                            IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId.Value);
+                            result = indexManager.GetMediaChannels(mediaId.Value);
+                            res = true;
                         }
                     }
                 }

@@ -1,5 +1,7 @@
 ﻿using ApiLogic.Catalog;
 using ApiLogic.IndexManager.NestData;
+using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders;
+using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using Core.Api.Managers;
@@ -25,7 +27,6 @@ namespace ApiLogic.IndexManager.QueryBuilders
         MediaSearchObj BuildBaseChannelSearchObject(Channel channel);
         UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel, bool useMediaTypes);
 
-        NestPercolatedQuery GetChannelQuery(ESMediaQueryBuilder mediaQueryParser, ESUnifiedQueryBuilder unifiedQueryBuilder, Channel currentChannel);
         NestPercolatedQuery GetChannelQuery(Channel currentChannel);
         string GetChannelQueryString(ESMediaQueryBuilder mediaQueryParser, ESUnifiedQueryBuilder unifiedQueryBuilder, Channel currentChannel);
     }
@@ -139,38 +140,6 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
             return channelQuery;
         }
-
-        public NestPercolatedQuery GetChannelQuery(ESMediaQueryBuilder mediaQueryParser, ESUnifiedQueryBuilder unifiedQueryBuilder,
-            Channel channel)
-        {
-            int groupId = channel.m_nParentGroupID;
-            bool doesGroupUseTemplates = _catalogManager.DoesGroupUsesTemplates(groupId);
-
-            if ((channel.m_nChannelTypeID == (int)ChannelType.KSQL) ||
-                (channel.m_nChannelTypeID == (int)ChannelType.Manual && doesGroupUseTemplates && channel.AssetUserRuleId > 0))
-            {
-                if (channel.m_nChannelTypeID == (int)ChannelType.Manual && channel.AssetUserRuleId > 0)
-                {
-                    string joinedString = string.Join(" ", channel.m_lChannelTags.Select(item => $"media_id='{item}'"));
-                    channel.filterQuery = $"(or {joinedString})";
-                }
-
-                UnifiedSearchDefinitions definitions = BuildSearchDefinitions(channel, true);
-                definitions.shouldSearchEpg = false;
-
-            }
-
-            QueryContainerDescriptor<object> queryContainerDescriptor = new QueryContainerDescriptor<object>();
-
-            var result = new NestPercolatedQuery()
-            {
-                Query = queryContainerDescriptor.Term(term => term.Field("is_active").Value(true)),
-                ChannelId = channel.m_nChannelID
-            };
-
-            return result;
-        }
-
 
         public UnifiedSearchDefinitions BuildSearchDefinitions(Channel channel, bool useMediaTypes)
         {
@@ -374,12 +343,112 @@ namespace ApiLogic.IndexManager.QueryBuilders
             }
         }
 
-        public NestPercolatedQuery GetChannelQuery(Channel currentChannel)
+        public NestPercolatedQuery GetChannelQuery(Channel channel)
         {
-            var mediaQueryParser = new ESMediaQueryBuilder() { QueryType = eQueryType.EXACT };
-            var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, currentChannel.m_nGroupID);
+            QueryContainer query = null;
 
-            return GetChannelQuery(mediaQueryParser, unifiedQueryBuilder, currentChannel);
+            if (channel == null)
+            {
+                log.ErrorFormat("BuildChannelQueries - All channels list has null or in-active channel, continuing");
+                return null;
+            }
+
+            int groupId = channel.m_nParentGroupID;
+            bool doesGroupUseTemplates = _catalogManager.DoesGroupUsesTemplates(groupId);
+
+            // if group uses templates - index inactive channel as well
+            if (doesGroupUseTemplates && channel.m_nIsActive != 1)
+            {
+                log.ErrorFormat("GetChannelQuery - channel is inactive");
+                return null;
+            }
+
+            try
+            {
+                log.DebugFormat("GetChannelQuery - Current channel  = {0}", channel.m_nChannelID);
+
+                if ((channel.m_nChannelTypeID == (int)ChannelType.KSQL) ||
+                   (channel.m_nChannelTypeID == (int)ChannelType.Manual && doesGroupUseTemplates && channel.AssetUserRuleId > 0))
+                {
+                    if (channel.m_nChannelTypeID == (int)ChannelType.Manual && channel.AssetUserRuleId > 0)
+                    {
+                        StringBuilder builder = new StringBuilder();
+                        builder.Append("(or ");
+
+                        foreach (var item in channel.m_lChannelTags)
+                        {
+                            builder.AppendFormat("media_id='{0}' ", string.Join(",", item.m_lValue));
+                        }
+
+                        builder.Append(")");
+
+                        channel.filterQuery = builder.ToString();
+                    }
+
+                    UnifiedSearchDefinitions definitions = BuildSearchDefinitions(channel, true);
+                    definitions.shouldSearchEpg = false;
+                    definitions.shouldIgnoreDeviceRuleID = true;
+                    
+                    // fill language with default language if not specified
+                    if (definitions.langauge == null)
+                    {
+                        definitions.langauge = GetDefaultLanguage(groupId);
+                    }
+
+                    UnifiedSearchNestBuilder nestBuilder = new UnifiedSearchNestBuilder()
+                    {
+                        Definitions = definitions
+                    };
+
+                    query = nestBuilder.GetQuery();
+                }
+                else
+                {
+                    MediaSearchObj mediaSearchObject = BuildBaseChannelSearchObject(channel);
+                    mediaSearchObject.m_bIgnoreDeviceRuleId = true;
+
+                    var nestBuilder = new UnifiedSearchNestMediaBuilder()
+                    {
+                        Definitions = mediaSearchObject,
+                    };
+
+                    query = nestBuilder.GetQuery();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.ErrorFormat("GetChannelQuery - building query for channel {0} has failed, ex = {1}", channel.m_nChannelID, ex);
+            }
+
+            var result = new NestPercolatedQuery()
+            {
+                Query = query,
+                ChannelId = channel.m_nChannelID
+            };
+
+            return result;
+        }
+
+        private LanguageObj GetDefaultLanguage(int partnerId)
+        {
+            return VerifyGroupUsesTemplates(partnerId) ? GetCatalogGroupCache(partnerId).GetDefaultLanguage() : GetGroupManager(partnerId).GetGroupDefaultLanguage();
+        }
+
+        private bool VerifyGroupUsesTemplates(int partnerId)
+        {
+            return _catalogManager.DoesGroupUsesTemplates(partnerId);
+        }
+
+        private CatalogGroupCache GetCatalogGroupCache(int partnerId)
+        {
+            CatalogGroupCache catalogGroupCache;
+            _catalogManager.TryGetCatalogGroupCacheFromCache(partnerId, out catalogGroupCache);
+            return catalogGroupCache;
+        }
+
+        private GroupsCacheManager.Group GetGroupManager(int partnerId)
+        {
+            return _groupManager.GetGroup(partnerId);
         }
     }
 }

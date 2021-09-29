@@ -351,9 +351,9 @@ namespace ApiLogic.Catalog.IndexManager
             return _indexManager.SearchEpgs(epgSearch);
         }
 
-        public List<string> GetAutoCompleteList(MediaSearchObj oSearch, int nLangID, ref int nTotalItems)
+        public List<string> GetAutoCompleteList(MediaSearchObj mediaSearch, int nLangID, ref int nTotalItems)
         {
-            return _indexManager.GetAutoCompleteList(oSearch, nLangID, ref nTotalItems);
+            return _indexManager.GetAutoCompleteList(mediaSearch, nLangID, ref nTotalItems);
         }
 
         public Dictionary<long, bool> ValidateMediaIDsInChannels(List<long> distinctMediaIDs,
@@ -459,9 +459,9 @@ namespace ApiLogic.Catalog.IndexManager
             return _indexManager.GetMediaChannels(mediaId);
         }
 
-        public List<string> GetEpgAutoCompleteList(EpgSearchObj oSearch)
+        public List<string> GetEpgAutoCompleteList(EpgSearchObj epgSearchObj)
         {
-            return _indexManager.GetEpgAutoCompleteList(oSearch);
+            return _indexManager.GetEpgAutoCompleteList(epgSearchObj);
         }
 
         public List<List<string>> GetChannelsDefinitions(List<List<long>> listsOfChannelIDs)
@@ -485,16 +485,16 @@ namespace ApiLogic.Catalog.IndexManager
             return _indexManager.SearchTags(definitions, out totalItems);
         }
 
-        public SearchResultsObj SearchMedias(MediaSearchObj oSearch, int nLangID, bool bUseStartDate)
+        public SearchResultsObj SearchMedias(MediaSearchObj search, int langId, bool useStartDate)
         {
-            return _indexManager.SearchMedias(oSearch, nLangID, bUseStartDate);
+            return _indexManager.SearchMedias(search, langId, useStartDate);
         }
 
         public SearchResultsObj SearchSubscriptionMedias(List<MediaSearchObj> oSearch, int nLangID, bool shouldUseStartDate, string sMediaTypes,
-            OrderObj oOrderObj, int nPageIndex, int nPageSize)
+            OrderObj orderObj, int nPageIndex, int nPageSize)
         {
             return _indexManager.SearchSubscriptionMedias(oSearch, nLangID, shouldUseStartDate, sMediaTypes,
-                oOrderObj, nPageIndex, nPageSize);
+                orderObj, nPageIndex, nPageSize);
         }
         #endregion
     }

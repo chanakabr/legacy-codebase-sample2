@@ -155,7 +155,6 @@ namespace Core.Catalog.Request
                     }
                 }
 
-
                 log.Debug("Info - BundleMediaRequest - total returned items = " + response.m_nTotalItems);
                 return (BaseResponse)response;
             }
