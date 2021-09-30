@@ -2415,6 +2415,12 @@ namespace Core.Catalog
                             oSearchOrderObj.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.UPDATE_DATE;
                             oSearchOrderObj.m_sOrderValue = oOrderObj.m_sOrderValue;
                             break;
+                        case ApiObjects.SearchObjects.OrderBy.MEDIA_ID:
+                            oSearchOrderObj.m_eOrderBy = OrderBy.MEDIA_ID;
+                            break;
+                        case ApiObjects.SearchObjects.OrderBy.EPG_ID:
+                            oSearchOrderObj.m_eOrderBy = OrderBy.EPG_ID;
+                            break;
                         default:
                             oSearchOrderObj.m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE;
                             break;

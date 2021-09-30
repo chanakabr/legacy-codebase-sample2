@@ -149,7 +149,11 @@ namespace ApiObjects.SearchObjects
         [EnumMember]
         RECOMMENDATION = -13,
         [EnumMember]
-        UPDATE_DATE = -14
+        UPDATE_DATE = -14,
+        [EnumMember]
+        MEDIA_ID = 102,
+        [EnumMember]
+        EPG_ID = 103,
 
         /*
     [EnumMember]

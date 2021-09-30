@@ -18,6 +18,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using ApiObjects.SearchObjects;
 using TVinciShared;
 using ApiLogic.Api.Managers;
 using ApiObjects.Response;
@@ -25,6 +26,8 @@ using ApiLogic;
 using ConfigurationManager.Types;
 using Core.GroupManagers;
 using ApiLogic.Api.Managers.Handlers;
+using MetaType = ApiObjects.MetaType;
+using OrderDir = ApiObjects.SearchObjects.OrderDir;
 
 namespace APILogic
 {
@@ -417,7 +420,6 @@ namespace APILogic
             {
                 ProgramObj[] programs;
                 // we need isLastRun to prevent retrieval of all assets on the last step (in case of the only one run).
-            
                 if (tasksCount == 1 && !isLastRun)
                 {
                     programs = GetProgramsByIds(programIds, groupId);
@@ -546,7 +548,6 @@ namespace APILogic
             try
             {
                 MediaObj[] medias;
-
                 if (tasksCount == 1 && !isLastRun)
                 {
                     medias = GetMediaByIds(mediaIds, groupId);
@@ -591,7 +592,7 @@ namespace APILogic
                 if (retrisCount < innerTaskRetriesLimit)
                 {
                     retrisCount++;
-                    return DoExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount);
+                    return DoExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount, isLastRun);
                 }
                 else
                 {
@@ -614,7 +615,6 @@ namespace APILogic
             {
                 List<Asset> assets;
                 // we need isLastRun to prevent retrieval of all assets on the last step (in case of the only one run).
-            
                 if (tasksCount == 1 && !isLastRun)
                 {
                     assets = AssetManager.GetAssets(groupId, mediaIds.Select(id => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, id)).ToList(), true); 
@@ -663,7 +663,7 @@ namespace APILogic
                 if (retrisCount < innerTaskRetriesLimit)
                 {
                     retrisCount++;
-                    return DoOpcExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount);
+                    return DoOpcExportUpdatedMediaJob(groupId, taskId, mediaIds, exportFullPath, mainLang, loopStartIndex, tasksCount, taskIndex, retrisCount, isLastRun);
                 }
                 else
                 {
@@ -1178,6 +1178,7 @@ namespace APILogic
         private static List<long> GetAssetsIdsByFilter(int groupId, string filter, eBulkExportDataType assetType, List<int> vodTypes, DateTime? since = null)
         {
             List<long> ids = new List<long>();
+            OrderBy? orderBy = null;
             
             // if since is not null - append the update date to the filter query
             if (since != null)
@@ -1190,9 +1191,11 @@ namespace APILogic
             {
                 case eBulkExportDataType.VOD:
                     filter = string.Format("(and {0} asset_type='media')", filter);
+                    orderBy = OrderBy.MEDIA_ID;
                     break;
                 case eBulkExportDataType.EPG:
                     filter = string.Format("(and {0} asset_type='epg')", filter);
+                    orderBy = OrderBy.EPG_ID;
                     break;
                 case eBulkExportDataType.Users:
                     throw new Exception("Export: users export date type not supported");
@@ -1209,7 +1212,7 @@ namespace APILogic
                     filter = MutateFilterForExport(filter, assetType, searchIds.Last());
                 }
                 
-                searchIds = SearchAssetIds(MaxPageSize, groupId, filter);
+                searchIds = SearchAssetIds(MaxPageSize, groupId, filter, orderBy);
                 if (searchIds.Count == 0)
                 {
                     break;
@@ -1237,7 +1240,7 @@ namespace APILogic
             return $"{filter.Remove(filter.Length - 1, 1)} {identifier} < '{assetId}')";
         }
 
-        private static List<long> SearchAssetIds(int pageSize, int groupId, string filter)
+        private static List<long> SearchAssetIds(int pageSize, int groupId, string filter, OrderBy? orderBy)
         {
             var result = new List<long>();
             UnifiedSearchRequest request = new UnifiedSearchRequest()
@@ -1249,7 +1252,13 @@ namespace APILogic
                     m_bOnlyActiveMedia = true,
                 },
                 shouldIgnoreDeviceRuleID = true,
-                order = new ApiObjects.SearchObjects.OrderObj(),
+                order = orderBy == null
+                    ? new OrderObj()
+                    : new OrderObj
+                    {
+                        m_eOrderBy = orderBy.Value,
+                        m_eOrderDir = OrderDir.DESC
+                    },
                 isAllowedToViewInactiveAssets = false,
                 m_nPageSize = pageSize,
             };
