@@ -992,6 +992,12 @@ namespace Core.Catalog.CatalogManagement
                         CatalogDAL.UpdateChannelVirtualAssetId(groupId, response.Object.m_nChannelID, virtualAssetId);
                     }
 
+                    string invalidationKey = LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat($"Failed invalidating group channels key for group {groupId}");
+                    }
+
                     bool updateResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertChannel(response.Object.m_nChannelID, response.Object, userId);
                     if (!updateResult)
                     {
@@ -1231,15 +1237,21 @@ namespace Core.Catalog.CatalogManagement
                             UpdateVirtualAsset(groupId, userId, response.Object);
                         }
 
+                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId)))
+                        {
+                            log.ErrorFormat($"Failed invalidating group channels key for group {groupId}");
+                        }
+
+                        if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
+                        {
+                            log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after UpdateChannel",
+                                                channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
+                        }
+
                         bool updateResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertChannel(response.Object.m_nChannelID, response.Object, userId);
                         if (!updateResult)
                         {
                             log.ErrorFormat("Failed update channel index with id: {0} after UpdateChannel", channelId);
-                        }
-                        else if (!LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId)))
-                        {
-                            log.ErrorFormat("Failed to invalidate channel with id: {0}, invalidationKey: {1} after UpdateChannel",
-                                                channelId, LayeredCacheKeys.GetChannelInvalidationKey(groupId, channelId));
                         }
                     }
                 }
@@ -1323,6 +1335,12 @@ namespace Core.Catalog.CatalogManagement
                 {
                     CatalogDAL.DeleteChannelMetaData(channelId, eChannelType.Internal);
                     RemoveRelatedEntitiesData(groupId, userId, channelId);
+
+                    string invalidationKey = LayeredCacheKeys.GetGroupChannelsInvalidationKey(groupId);
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.ErrorFormat($"Failed invalidating group channels key for group {groupId}");
+                    }
 
                     bool deleteResult = false;
                     bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);

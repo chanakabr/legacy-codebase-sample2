@@ -67,7 +67,7 @@ namespace ApiLogic.IndexManager.NestData
         [PropertyName("regions")]
         public List<int> Regions { get; set; }
 
-        [PropertyName("geo_block_rule")]
+        [PropertyName("geo_block_rule_id")]
         public int GeoBlockRule { get; set; }
 
         [PropertyName("free_file_types")]
@@ -117,15 +117,16 @@ namespace ApiLogic.IndexManager.NestData
 
             //metas
             var metasDict = new Dictionary<string, Dictionary<string, HashSet<string>>>();
-            var metas = media.m_dMeatsValues.Keys.ToDictionary(k => k.ToLower(),
-                k => new HashSet<string>() { ESUtils.ReplaceDocumentReservedCharacters(media.m_dMeatsValues[k]) });
+            var metas = media.m_dMeatsValues.Where(x => !x.Key.IsNullOrEmptyOrWhiteSpace()).ToDictionary(
+                k => k.Key.ToLower(),
+                k => new HashSet<string>() { ESUtils.ReplaceDocumentReservedCharacters(k.Value) });
             metasDict.Add(langCode, metas);
             Metas = metasDict; //lang
 
             //tags
             var tagsDict = new Dictionary<string, Dictionary<string, HashSet<string>>>();
             var tags = new Dictionary<string, HashSet<string>>();
-            foreach (var tag in media.m_dTagValues)
+            foreach (var tag in media.m_dTagValues.Where(x=>!x.Key.IsNullOrEmptyOrWhiteSpace()))
             {
                 var tagValues = tag.Value.Select(x => ESUtils.ReplaceDocumentReservedCharacters(x, false)).Distinct();
                 tags[tag.Key.ToLower()] = new HashSet<string>(tagValues);

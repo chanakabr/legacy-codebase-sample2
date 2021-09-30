@@ -27,7 +27,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         protected static readonly List<string> DEFAULT_RETURN_FIELDS = new List<string>()
             { "group_id", "name", "cache_date", "update_date" };
-
+        protected static readonly List<string> EXTRA_FIELDS_WITH_LANGUAGE_PREFIX = new List<string>() { "name", "description" };
         protected internal const string TOP_HITS_DEFAULT_NAME = "top_hits_assets";
         protected const int TERMS_AGGREGATION_MISSING_VALUE = 999;
 
@@ -104,14 +104,14 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                 foreach (var groupBy in this.Definitions.groupBy)
                 {
-                    int? size = 0;
+                    int? size = null;
 
                     if (this.GetAllDocuments && !ShouldPageGroups)
                     {
                         // not sure
                         size = ApplicationConfiguration.Current.ElasticSearchConfiguration.MaxResults.Value;
                     }
-                    else if (this.Definitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.Definitions.distinctGroup.Key))
+                    else if (this.Definitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.Definitions.distinctGroup?.Key))
                     {
                         size = this.Definitions.pageSize * (this.Definitions.pageIndex + 1);
                     }
@@ -135,7 +135,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         
                         // TODO: Understand this!
                         // Get top hit as well if necessary
-                        if (this.Definitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.Definitions.distinctGroup.Key))
+                        if (this.Definitions.topHitsCount > 0 || !string.IsNullOrEmpty(this.Definitions.distinctGroup?.Key))
                         {
                             int topHitsSize = -1;
 
@@ -202,7 +202,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         {
             TermsOrder termsOrder = null;
 
-            if (definitions.topHitsCount > 0 || !string.IsNullOrEmpty(definitions.distinctGroup.Key))
+            if (definitions.topHitsCount > 0 || !string.IsNullOrEmpty(definitions.distinctGroup?.Key))
             {
                 string aggregationName = "order_aggregation";
                 string aggregationsOrder = "order_aggregation";
@@ -390,13 +390,55 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         public QueryContainer GetQuery()
         {
-            var mainDescriptor = new QueryContainerDescriptor<NestBaseAsset>();
             SubscriptionsQuery = GetEntitledSubscriptionsQuery(Definitions.entitlementSearchDefinitions);
-            
+
             var globalQuery = GetGlobalQuery(Definitions);
             var assetsQuery = GetAssetTypesShouldQuery(Definitions);
-            mainDescriptor.Bool(b => b.Must(globalQuery, assetsQuery));
-            return mainDescriptor;
+
+            BoolQuery mainBoolQuery = new BoolQuery()
+            {
+                Must = new List<QueryContainer>() { globalQuery, assetsQuery }
+            };
+
+            var result = HandleBoostScoreValues(mainBoolQuery);
+
+            return result;
+        }
+
+        private QueryContainer HandleBoostScoreValues(BoolQuery mainBoolQuery)
+        {
+            if (Definitions.boostScoreValues != null && Definitions.boostScoreValues.Any())
+            {
+                var functions = new List<IScoreFunction>();
+                string language = this.Definitions.langauge != null ? this.Definitions.langauge.Code : string.Empty;
+
+                foreach (var item in Definitions.boostScoreValues)
+                {
+                    string key = GetElasticsearchFieldName(language, item.Key, item.Type, true);
+                    functions.Add(new WeightFunction()
+                    {
+                        Filter = new TermQuery()
+                        {
+                            Field = key,
+                            Value = item.Value
+                        },
+                        Weight = 100,
+                    });
+                }
+
+                var functionScoreQuery = new FunctionScoreQuery()
+                {
+                    Name = "function_score",
+                    ScoreMode = FunctionScoreMode.Sum,
+                    BoostMode = FunctionBoostMode.Replace,
+                    Functions = functions,
+                    Query = mainBoolQuery
+                };
+
+                return functionScoreQuery;
+            }
+
+            return mainBoolQuery;
         }
 
         private QueryContainer GetEntitledSubscriptionsQuery(EntitlementSearchDefinitions entitlementDefinitions)
@@ -638,9 +680,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 mustQueryContainer.Add(regionTerms);
 
             //auto fill term
-            var autoFillTerm = _nestEpgQueries.GetEpgAutoFillTerm(unifiedSearchDefinitions);
+            var autoFillTerm = _nestEpgQueries.GetEpgWithoutAutoFillTerm(unifiedSearchDefinitions);
             if (autoFillTerm != null)
-                mustNotQueryContainer.Add(autoFillTerm);
+                mustQueryContainer.Add(autoFillTerm);
 
             //get exclude CRIDS terms
             var epgExcludeCrids = _nestEpgQueries.GetEpgExcludeCrids(unifiedSearchDefinitions);
@@ -700,35 +742,20 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 else if (field == NamingHelper.RECORDING_ID)
                 {
                     result = BuildRecordingIdTerm(leaf);
+                } 
+                else if (field == NamingHelper.AUTO_FILL_FIELD)
+                {
+                    //this is the logic in v2
+                    //we dont want auto filled programs to be returned alone to the user, only with other programs
+                    //so when ShouldSearchAutoFill is set to false
+                    //we set the query to only return programs that are not autofilled
+                    //or in other words we filter out auto fill programs
+                    //I know its confusing but we cannot change it at this point :(
+                    return null;
                 }
                 else
                 {
                     bool isNumeric = leaf.valueType == typeof(int) || leaf.valueType == typeof(long) || leaf.valueType == typeof(bool);
-
-                    // TODO: pretty sure we don't need this
-                    //// First find out the value to use in the filter body 
-                    //if (isNumeric)
-                    //{
-                    //    value = leaf.value.ToString();
-                    //}
-                    //else 
-                    //if (leaf.valueType == typeof(DateTime))
-                    //{
-                    //    DateTime date = Convert.ToDateTime(leaf.value);
-
-                    //    if (date != null)
-                    //    {
-                    //        value = date.ToString(ES_DATE_FORMAT);
-                    //    }
-                    //}
-                    //else if (leaf.value is IEnumerable<string>)
-                    //{
-                    //    leaf.value = (leaf.value as IEnumerable<string>).Select(item => item.ToLower());
-                    //}
-                    //else
-                    //{
-                    //    value = leaf.value.ToString().ToLower();
-                    //}
 
                     // "Match" when search is not exact (contains)
                     if (leaf.operand == ApiObjects.ComparisonOperator.Contains ||
@@ -902,7 +929,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 {
                     if (cut == eCutType.Or)
                     {
-                        List<QueryContainer> shouldChildren = new List<QueryContainer>();
+                        List<QueryContainer> shouldChildren = new List<QueryContainer>(mustChildren);
                         foreach (var item in mustNotChildren)
                         {
                             shouldChildren.Add(queryContainerDescriptor.Bool(innerBool => innerBool.MustNot(item)));
@@ -912,10 +939,10 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     }
                     else
                     {
-                        b = b.MustNot(mustNotChildren.ToArray());
+                        b = b.MustNot(mustNotChildren.ToArray())
+                            .Must(mustChildren.ToArray());
+                        ;
                     }
-
-                    b = b.Must(mustChildren.ToArray());
 
                     return b;
                 });
@@ -1376,9 +1403,12 @@ namespace ApiLogic.IndexManager.QueryBuilders
             eAssetTypes assetTypeHandle)
             where T : class
         {
-            var ids = unifiedSearchDefinitions.specificAssets?[assetTypeHandle];
+            if (unifiedSearchDefinitions.specificAssets == null)
+                return null;
 
-            if (ids == null || !ids.Any())
+            bool getResult = unifiedSearchDefinitions.specificAssets.TryGetValue(assetTypeHandle, out var ids);
+
+            if (!getResult || ids == null || !ids.Any())
                 return null;
 
             var specificAssetsContainer = new QueryContainerDescriptor<T>();
@@ -1436,8 +1466,11 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
         public IEnumerable<string> GetFields()
         {
+            string language = this.Definitions.langauge != null ? this.Definitions.langauge.Code : string.Empty;
+
             var fields = DEFAULT_RETURN_FIELDS.ToList();
-            fields.AddRange(Definitions.extraReturnFields.Distinct());
+            fields.AddRange(Definitions.extraReturnFields);
+            fields = fields.Select(field => GetExtraFieldName(language, field)).Distinct().ToList();
 
             var epg_id_field = "epg_id";
 
@@ -1485,6 +1518,24 @@ namespace ApiLogic.IndexManager.QueryBuilders
             }
 
             return new List<string>(fields);
+        }
+
+        internal static string GetExtraFieldName(string language, string field)
+        {
+            if (EXTRA_FIELDS_WITH_LANGUAGE_PREFIX.Contains(field))
+            {
+                return $"{field}.{language}";
+            }
+            else if (field.StartsWith("metas."))
+            {
+                return $"metas.{language}.{field.Substring(6)}";
+            }
+            else if (field.StartsWith("tags."))
+            {
+                return $"metas.{language}.{field.Substring(5)}";
+            }
+
+            return field;
         }
 
         public SearchDescriptor<NestBaseAsset> SetFields(SearchDescriptor<NestBaseAsset> searchRequest)

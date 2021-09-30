@@ -420,6 +420,11 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 log.ErrorFormat("GetChannelQuery - building query for channel {0} has failed, ex = {1}", channel.m_nChannelID, ex);
             }
 
+            if (query == null)
+            {
+                return null;
+            }
+
             var result = new NestPercolatedQuery()
             {
                 Query = query,

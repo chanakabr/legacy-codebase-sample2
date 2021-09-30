@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ApiObjects.SearchObjects;
+using System;
 
 namespace ApiLogic.IndexManager.Helpers
 {
@@ -22,6 +23,7 @@ namespace ApiLogic.IndexManager.Helpers
         public const string ASSET_TYPE = "asset_type";
         public const string RECORDING_ID = "recording_id";
         public const string AUTO_FILL_FIELD = "auto_fill";
+        public const string IS_AUTO_FILL_FIELD = "is_auto_fill";
         public const string ENABLE_CDVR = "enable_cdvr";
         public const string ENABLE_CATCHUP = "enable_catchup";
 
@@ -121,6 +123,22 @@ namespace ApiLogic.IndexManager.Helpers
         public static string GetStatisticsIndexName(int groupId)
         {
             return string.Concat(groupId, "_statistics");
+        }
+
+        internal static string GetExtraFieldName(string key, eFieldType type)
+        {
+            if (type == eFieldType.NonStringMeta || type == eFieldType.StringMeta)
+            {
+                return $"metas.{key}";
+            }
+            else if (type == eFieldType.Tag)
+            {
+                return $"tags.{key}";
+            }
+            else
+            {
+                return key;
+            }
         }
     }
 }

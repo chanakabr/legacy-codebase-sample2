@@ -12,6 +12,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using RestSharp;
+using TVinciShared;
 using ESUtils = ElasticSearch.Common.Utils;
 
 namespace ApiLogic.IndexManager.NestData
@@ -126,7 +127,7 @@ namespace ApiLogic.IndexManager.NestData
 
             if (epgCb.Metas != null)
             {
-                foreach (var epgCbMeta in epgCb.Metas)
+                foreach (var epgCbMeta in epgCb.Metas.Where(x=>!x.Key.IsNullOrEmptyOrWhiteSpace()))
                 {
                     metas[epgCbMeta.Key.ToLower()] =
                         epgCbMeta.Value.Select(x => ESUtils.ReplaceDocumentReservedCharacters(x, false)).ToHashSet();
@@ -141,7 +142,7 @@ namespace ApiLogic.IndexManager.NestData
 
             if (epgCb.Tags != null)
             {
-                foreach (var tag in epgCb.Tags)
+                foreach (var tag in epgCb.Tags.Where(x=>!x.Key.IsNullOrEmptyOrWhiteSpace()))
                 {
                     tags[tag.Key.ToLower()] = tag.Value.Select(x => ESUtils.ReplaceDocumentReservedCharacters(x, false)).ToHashSet();
                 }

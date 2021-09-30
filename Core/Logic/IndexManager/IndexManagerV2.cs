@@ -469,13 +469,6 @@ namespace Core.Catalog
                         }
                     }
                 }
-
-                // Set invalidation for the entire group
-                string invalidationKey = LayeredCacheKeys.GetGroupChannelsInvalidationKey(_partnerId);
-                if (!_layeredCache.SetInvalidationKey(invalidationKey))
-                {
-                    log.ErrorFormat("Failed to invalidate key: {0} after UpdateChannelPercolator", invalidationKey);
-                }
             }
             catch (Exception ex)
             {
@@ -555,13 +548,6 @@ namespace Core.Catalog
                 else
                 {
                     log.Error("Error - " + string.Concat("Could not find indices for alias ", epgIndex));
-                }
-
-                // Set invalidation for the entire group
-                string invalidationKey = LayeredCacheKeys.GetGroupChannelsInvalidationKey(_partnerId);
-                if (!_layeredCache.SetInvalidationKey(invalidationKey))
-                {
-                    log.ErrorFormat("Failed to invalidate key: {0} after UpdateChannelPercolator", invalidationKey);
                 }
             }
             catch (Exception ex)

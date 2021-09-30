@@ -1611,10 +1611,9 @@ namespace Core.Catalog
             Type valueType = typeof(string);
 
             HashSet<BooleanLeafFieldDefinitions> searchKeys = new HashSet<BooleanLeafFieldDefinitions>();
-
+            HashSet<string> alreadyContained = new HashSet<string>();
             // get alias + regex expression 
             List<FieldTypeEntity> FieldEpgAliasMapping = ConditionalAccess.Utils.Instance.GetAliasMappingFields(group.m_nParentGroupID);
-
             Dictionary<string, string> reverseDictionary = new Dictionary<string, string>();
             var dictionaries = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>();
 
@@ -1630,11 +1629,13 @@ namespace Core.Catalog
             {
                 foreach (string tag in group.m_oGroupTags.Values)
                 {
-                    if (tag.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
+                    string tagToLower = tag.ToLower();
+                    if (!alreadyContained.Contains(tagToLower) && tag.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
                     {
+                        alreadyContained.Add(tagToLower);
                         searchKeys.Add(new BooleanLeafFieldDefinitions()
                         {
-                            Field = tag.ToLower(),
+                            Field = tagToLower,
                             ValueType = valueType,
                             FieldType = eFieldType.Tag
                         });
@@ -1644,11 +1645,13 @@ namespace Core.Catalog
 
                 foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Tag))
                 {
-                    if (FieldEpgAlias.Alias.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
+                    string tagToLower = FieldEpgAlias.Name.ToLower();
+                    if (!alreadyContained.Contains(tagToLower) && FieldEpgAlias.Alias.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
                     {
+                        alreadyContained.Add(tagToLower);
                         searchKeys.Add(new BooleanLeafFieldDefinitions()
                         {
-                            Field = FieldEpgAlias.Name.ToLower(),
+                            Field = tagToLower,
                             ValueType = valueType,
                             FieldType = eFieldType.Tag
                         });
@@ -1658,11 +1661,13 @@ namespace Core.Catalog
 
                 foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
                 {
-                    if (tag.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
+                    string tagToLower = tag.ToLower();
+                    if (!alreadyContained.Contains(tag) && tag.Equals(originalKey.Substring(5), StringComparison.OrdinalIgnoreCase))
                     {
+                        alreadyContained.Add(tagToLower);
                         searchKeys.Add(new BooleanLeafFieldDefinitions()
                         {
-                            Field = tag.ToLower(),
+                            Field = tagToLower,
                             ValueType = valueType,
                             FieldType = eFieldType.Tag
                         });
@@ -1676,12 +1681,14 @@ namespace Core.Catalog
 
                 foreach (var meta in metas)
                 {
-                    if (meta.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
+                    string metaToLower = meta.ToLower();
+                    if (!alreadyContained.Contains(meta) && meta.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
                     {
                         GetMetaType(reverseDictionary[meta], out valueType);
+                        alreadyContained.Add(metaToLower);
                         searchKeys.Add(new BooleanLeafFieldDefinitions()
                         {
-                            Field = meta.ToLower(),
+                            Field = metaToLower,
                             ValueType = valueType,
                             FieldType = valueType == typeof(string) ? eFieldType.StringMeta : eFieldType.NonStringMeta
                         });
@@ -1691,13 +1698,15 @@ namespace Core.Catalog
 
                 foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Meta))
                 {
-                    if (FieldEpgAlias.Alias.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
+                    string metaToLower = FieldEpgAlias.Name.ToLower();
+                    if (!alreadyContained.Contains(FieldEpgAlias.Name) && FieldEpgAlias.Alias.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
                     {
+                        alreadyContained.Add(metaToLower);
                         searchKeys.Add(new BooleanLeafFieldDefinitions()
                         {
-                            Field = FieldEpgAlias.Name.ToLower(),
+                            Field = metaToLower,
                             ValueType = valueType,
-                            FieldType = eFieldType.Tag
+                            FieldType = eFieldType.StringMeta
                         });
                         break;
                     }
@@ -1705,8 +1714,10 @@ namespace Core.Catalog
 
                 foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
                 {
-                    if (meta.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
+                    string metaToLower = meta.ToLower();
+                    if (!alreadyContained.Contains(meta) && meta.Equals(originalKey.Substring(6), StringComparison.OrdinalIgnoreCase))
                     {
+                        alreadyContained.Add(metaToLower);
                         searchKeys.Add(new BooleanLeafFieldDefinitions()
                         {
                             Field = meta.ToLower(),
@@ -1719,58 +1730,16 @@ namespace Core.Catalog
             }
             else
             {
+                #region Tags
                 foreach (string tag in group.m_oGroupTags.Values)
                 {
-                    if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    string tagToLower = tag.ToLower();
+                    if (!alreadyContained.Contains(tagToLower) && tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
+                        alreadyContained.Add(tagToLower);
                         searchKeys.Add(new BooleanLeafFieldDefinitions()
                         {
-                            Field = tag.ToLower(),
-                            ValueType = valueType,
-                            FieldType = eFieldType.Tag
-                        });
-                        break;
-                    }
-                }
-
-                var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
-
-                foreach (var meta in metas)
-                {
-                    if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
-                    {
-                        GetMetaType(reverseDictionary[meta], out valueType);
-                        searchKeys.Add(new BooleanLeafFieldDefinitions()
-                        {
-                            Field = meta.ToLower(),
-                            ValueType = valueType,
-                            FieldType = valueType == typeof(string) ? eFieldType.StringMeta : eFieldType.NonStringMeta
-                        });
-                        break;
-                    }
-                }
-
-                foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Tag))
-                {
-                    if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
-                    {
-                        searchKeys.Add(new BooleanLeafFieldDefinitions()
-                        {
-                            Field = FieldEpgAlias.Name.ToLower(),
-                            ValueType = valueType,
-                            FieldType = eFieldType.Tag
-                        });
-                        break;
-                    }
-                }
-
-                foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Meta))
-                {
-                    if (FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
-                    {
-                        searchKeys.Add(new BooleanLeafFieldDefinitions()
-                        {
-                            Field = FieldEpgAlias.Name.ToLower(),
+                            Field = tagToLower,
                             ValueType = valueType,
                             FieldType = eFieldType.Tag
                         });
@@ -1780,11 +1749,71 @@ namespace Core.Catalog
 
                 foreach (var tag in group.m_oEpgGroupSettings.m_lTagsName)
                 {
-                    if (tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    string tagToLower = tag.ToLower();
+                    if (!alreadyContained.Contains(tagToLower) && tag.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
+                        alreadyContained.Add(tagToLower);
                         searchKeys.Add(new BooleanLeafFieldDefinitions()
                         {
-                            Field = tag.ToLower(),
+                            Field = tagToLower,
+                            ValueType = valueType,
+                            FieldType = eFieldType.Tag
+                        });
+                        break;
+                    }
+                }
+
+                foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Tag))
+                {
+                    string tagToLower = FieldEpgAlias.Name.ToLower();
+                    if (!alreadyContained.Contains(tagToLower) && FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        alreadyContained.Add(tagToLower);
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = tagToLower,
+                            ValueType = valueType,
+                            FieldType = eFieldType.Tag
+                        });
+                        break;
+                    }
+                }
+
+                #endregion
+
+                // check for unique tags/metas separately, but too lazy to have two different hashsets :-)
+                alreadyContained.Clear();
+
+                #region Metas
+
+                var metas = group.m_oMetasValuesByGroupId.Select(i => i.Value).Cast<Dictionary<string, string>>().SelectMany(d => d.Values).ToList();
+
+                foreach (var meta in metas)
+                {
+                    string metaToLower = meta.ToLower();
+                    if (!alreadyContained.Contains(metaToLower) && meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        GetMetaType(reverseDictionary[meta], out valueType);
+                        alreadyContained.Add(metaToLower);
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = metaToLower,
+                            ValueType = valueType,
+                            FieldType = valueType == typeof(string) ? eFieldType.StringMeta : eFieldType.NonStringMeta
+                        });
+                        break;
+                    }
+                }
+
+                foreach (FieldTypeEntity FieldEpgAlias in FieldEpgAliasMapping.Where(x => x.FieldType == FieldTypes.Meta))
+                {
+                    string metaToLower = FieldEpgAlias.Name.ToLower();
+                    if (!alreadyContained.Contains(metaToLower) && FieldEpgAlias.Alias.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    {
+                        alreadyContained.Add(metaToLower);
+                        searchKeys.Add(new BooleanLeafFieldDefinitions()
+                        {
+                            Field = metaToLower,
                             ValueType = valueType,
                             FieldType = eFieldType.Tag
                         });
@@ -1794,20 +1823,23 @@ namespace Core.Catalog
 
                 foreach (var meta in group.m_oEpgGroupSettings.m_lMetasName)
                 {
-                    if (meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
+                    string metaToLower = meta.ToLower();
+                    if (!alreadyContained.Contains(metaToLower) && meta.Equals(originalKey, StringComparison.OrdinalIgnoreCase))
                     {
+                        alreadyContained.Add(metaToLower);
                         searchKeys.Add(new BooleanLeafFieldDefinitions()
                         {
-                            Field = meta.ToLower(),
+                            Field = metaToLower,
                             ValueType = valueType,
                             FieldType = eFieldType.StringMeta
                         });
                         break;
                     }
                 }
-
-
             }
+
+            #endregion
+
             if (searchKeys.Count == 0)
             {
                 searchKeys.Add(new BooleanLeafFieldDefinitions()
@@ -6999,8 +7031,9 @@ namespace Core.Catalog
                         value = Convert.ToInt64(value);
                         shouldLowercase = false;
                     }
-
-                    newList.Add(new BooleanLeaf(searchKey.Field, value, value.GetType(), leaf.operand, shouldLowercase, true));
+                    var newLeaf = new BooleanLeaf(searchKey.Field, value, value.GetType(), leaf.operand, shouldLowercase, true);
+                    HandleNumericLeaf(newLeaf);
+                    newList.Add(newLeaf);
                 }
 
                 eCutType cutType = eCutType.Or;
@@ -7050,14 +7083,7 @@ namespace Core.Catalog
                     }
                     else if (searchKey.ValueType == typeof(double))
                     {
-                        if (leaf.value != DBNull.Value && leaf.value != null && Convert.ToString(leaf.value) != string.Empty)
-                        {
-                            leaf.value = Convert.ToDouble(leaf.value);
-                        }
-                        else
-                        {
-                            leaf.value = default(double);
-                        }
+                        HandleNumericLeaf(leaf);
 
                         leaf.valueType = typeof(double);
                         leaf.shouldLowercase = false;
@@ -7153,7 +7179,7 @@ namespace Core.Catalog
                                 geoBlockRules = GetGeoBlockRules(request.m_nGroupID, request.m_sUserIP);
                             }
 
-                            BooleanLeaf mediaTypeCondition = new BooleanLeaf("_type", "media", typeof(string), ComparisonOperator.Prefix);
+                            BooleanLeaf mediaTypeCondition = new BooleanLeaf(NamingHelper.ASSET_TYPE, "media", typeof(string), ComparisonOperator.Prefix);
                             BooleanLeaf newLeaf =
                                 new BooleanLeaf("geo_block_rule_id",
                                     geoBlockRules.Select(id => id.ToString()).ToList(),
@@ -7529,6 +7555,34 @@ namespace Core.Catalog
             #endregion
         }
 
+        // well, in ESv7, NEST serializes doubles with .0 even if the number is an int.
+        // if the data is indedxed as a string (and on epg metas it is)
+        // 1.0 does not equal 1
+        // changing the way we index EPG is too risky, as far as i know, a lot depends on it being string (if not, i'd gladly change it...)
+        // so the solution is to see if the value is an int or not by... flooring the double and see if its value remains the same or not.
+        private static void HandleNumericLeaf(BooleanLeaf leaf)
+        {
+            if (leaf.value != DBNull.Value && leaf.value != null)
+            {
+                string leafValue = Convert.ToString(leaf.value);
+                double.TryParse(leafValue, out var doubleValue);
+
+                var flooredValue = Math.Floor(doubleValue);
+                if (doubleValue == flooredValue)
+                {
+                    leaf.value = Convert.ToInt32(flooredValue);
+                }
+                else
+                {
+                    leaf.value = doubleValue;
+                }
+            }
+            else
+            {
+                leaf.value = default(double);
+            }
+        }
+
         private static void GetLeafDate(ref BooleanLeaf leaf, DateTime serverTime)
         {
             leaf.valueType = typeof(DateTime);
@@ -7796,7 +7850,7 @@ namespace Core.Catalog
                         string.IsNullOrEmpty(channel.searchGroupBy.distinctGroup))
                     {
                         definitions.distinctGroup = definitions.groupBy[0];
-                        definitions.extraReturnFields.Add(definitions.distinctGroup.Value);
+                        definitions.extraReturnFields.Add(NamingHelper.GetExtraFieldName(definitions.distinctGroup.Key, definitions.distinctGroup.Type));
                     }
                 }
 
@@ -8978,10 +9032,10 @@ namespace Core.Catalog
 
             if (usersWatchHistory?.Count > 0)
             {
-                string filter = $"metas.seriesid='{seriesId.ToLower()}'";
+                string filter = $"seriesid='{seriesId.ToLower()}'";
                 BooleanPhraseNode filterTree = null;
                 var status = BooleanPhraseNode.ParseSearchExpression(filter, ref filterTree);
-
+                (filterTree as BooleanLeaf).fieldType = eFieldType.StringMeta;
                 Dictionary<eAssetTypes, List<string>> specificAssets = new Dictionary<eAssetTypes, List<string>>();
                 specificAssets.Add(eAssetTypes.MEDIA, usersWatchHistory.Select(x => x.AssetId).ToList());
 

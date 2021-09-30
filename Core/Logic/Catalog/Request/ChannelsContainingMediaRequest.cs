@@ -66,7 +66,5 @@ namespace Core.Catalog.Request
                 return null;
             }
         }
-
-        
     }
 }

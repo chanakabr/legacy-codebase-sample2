@@ -391,7 +391,8 @@ namespace GroupsCacheManager
                     {
                         log.ErrorFormat("Failed getting Channels from LayeredCache, groupId: {0}, channelIds: {1}", group.m_nParentGroupID, string.Join(",", channelIds));
                     }
-                    else if (channelMap != null)
+
+                    if (channelMap != null)
                     {
                         channels = channelMap.Values.ToList();
                     }

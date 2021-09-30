@@ -25,9 +25,11 @@ namespace ApiLogic.IndexManager.QueryBuilders
             if (!anyKsql)
                 return null;
 
-            return new QueryContainerDescriptor<NestMedia>().Terms(x => x
+            var queryContainerDescriptor = new QueryContainerDescriptor<NestMedia>();
+             queryContainerDescriptor.Terms(x => x
                 .Field(f => f.MediaTypeId)
                 .Terms(searchDefinitions.ObjectVirtualAssetIds));
+             return queryContainerDescriptor;
         }
 
         public List<QueryContainer> GetMediaParentalRules(UnifiedSearchDefinitions searchDefinitions)
@@ -63,8 +65,10 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 return null;
             }
 
-            return new QueryContainerDescriptor<NestMedia>().Terms(t =>
+            var queryContainerDescriptor = new QueryContainerDescriptor<NestMedia>();
+            queryContainerDescriptor.Terms(t =>
                 t.Field(f => f.GeoBlockRule).Terms(searchDefinitions.geoBlockRules));
+            return queryContainerDescriptor;
         }
 
         public QueryContainer GetMediaRegionTerms(MediaSearchObj searchDefinitions)
@@ -222,7 +226,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     .GreaterThanOrEquals(DateTime.MinValue)
                     .LessThanOrEquals(now);
 
-                mustContainer.Add(new QueryContainerDescriptor<NestMedia>().DateRange(x => dateRangeQueryDescriptor));
+                var containerDescriptor = new QueryContainerDescriptor<NestMedia>();
+                containerDescriptor.DateRange(x => dateRangeQueryDescriptor);
+                mustContainer.Add(containerDescriptor);
             }
 
             if (!shouldIgnoreEndDate)
@@ -248,8 +254,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
             if (!mustContainer.Any())
                 return null;
 
-            var queryContainer = new QueryContainerDescriptor<NestMedia>().Bool(x => x.Must(mustContainer.ToArray()));
-            return queryContainer;
+            var queryContainerDescriptor = new QueryContainerDescriptor<NestMedia>();
+             queryContainerDescriptor.Bool(x => x.Must(mustContainer.ToArray()));
+            return queryContainerDescriptor;
         }
 
         public QueryContainer GetMediaDeviceRulesTerms(UnifiedSearchDefinitions searchDefinitions)
@@ -279,11 +286,12 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 deviceRuleIds.UnionWith(deviceRuleId);
             }
 
-            var result = new QueryContainerDescriptor<NestMedia>()
+            var queryContainerDescriptor = new QueryContainerDescriptor<NestMedia>();
+             queryContainerDescriptor
                 .Terms(t => t
                     .Field(f => f.DeviceRuleId).Terms(deviceRuleIds)
                 );
-            return result;
+            return queryContainerDescriptor;
         }
 
         public QueryContainer GetMediaWatchPermissionRules(UnifiedSearchDefinitions searchDefinitions)
@@ -317,11 +325,13 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 .Field(f => f.GroupID)
                 .Value(groupId);
 
-            return new QueryContainerDescriptor<NestMedia>()
+            var queryContainerDescriptor = new QueryContainerDescriptor<NestMedia>();
+            queryContainerDescriptor
                 .Bool(b => b.Should(
                     s => s.Term(t => groupTerm),
                     s => s.Terms(t => termsQueryDescriptor)
                 ));
+            return queryContainerDescriptor;
         }
 
         public QueryContainer GetMediaTypeTerms(UnifiedSearchDefinitions searchDefinitions)
@@ -350,7 +360,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
             var termsQueryDescriptor = new TermsQueryDescriptor<NestMedia>();
             termsQueryDescriptor.Field(f => f.MediaTypeId).Terms(mediaTypes);
-            return new QueryContainerDescriptor<NestMedia>().Terms(t => t.Terms(termsQueryDescriptor));
+            var queryContainerDescriptor = new QueryContainerDescriptor<NestMedia>();
+            queryContainerDescriptor.Terms(t => t.Terms(termsQueryDescriptor));
+            return queryContainerDescriptor;
         }
 
         public QueryContainer GetMediaUserTypeTerms(UnifiedSearchDefinitions searchDefinitions)
@@ -372,7 +384,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
             //var termsQueryDescriptor = new TermsQueryDescriptor<NestMedia>();
             //termsQueryDescriptor.Field(f => f.UserTypes).Terms(new HashSet<int>() { 0, userTypeId });
-            return new QueryContainerDescriptor<NestMedia>().Terms(t => t.Field(f => f.UserTypes).Terms(new HashSet<int>() { 0, userTypeId }));
+            var queryContainerDescriptor = new QueryContainerDescriptor<NestMedia>();
+            queryContainerDescriptor.Terms(t => t.Field(f => f.UserTypes).Terms(new HashSet<int>() { 0, userTypeId }));
+            return queryContainerDescriptor;
         }
 
         public QueryContainer GetMediaPrefixQuery()
@@ -385,11 +399,11 @@ namespace ApiLogic.IndexManager.QueryBuilders
             if (definitions.m_nMediaID <= 0)
                 return null;
 
-            var queryContainer =
-                new QueryContainerDescriptor<NestMedia>().Term(x =>
+            var queryContainerDescriptor = new QueryContainerDescriptor<NestMedia>();
+            queryContainerDescriptor.Term(x =>
                     x.Field(f => f.MediaId).Value(definitions.m_nMediaID));
 
-            return queryContainer;
+            return queryContainerDescriptor;
         }
 
 
@@ -403,9 +417,10 @@ namespace ApiLogic.IndexManager.QueryBuilders
             var searchValues = definitions.m_dOr.Select(searchValue =>
                 ElasticSearch.Common.Utils.GetKeyNameWithPrefix(searchValue.m_sKey.ToLower(),
                     searchValue.m_sKeyPrefix.ToLower())).ToArray();
-                    
-            return new QueryContainerDescriptor<NestMedia>().MultiMatch(mm => mm.Fields(f => f.Fields(searchValues)));
-            
+
+            var queryContainerDescriptor = new QueryContainerDescriptor<NestMedia>();
+             queryContainerDescriptor.MultiMatch(mm => mm.Fields(f => f.Fields(searchValues)));
+             return queryContainerDescriptor;
         }
     }
 }

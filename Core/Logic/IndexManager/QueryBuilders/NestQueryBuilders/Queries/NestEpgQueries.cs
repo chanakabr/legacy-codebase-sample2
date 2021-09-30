@@ -37,16 +37,22 @@ namespace ApiLogic.IndexManager.QueryBuilders
             return queryContainer;
         }
 
-        public QueryContainer GetEpgAutoFillTerm(UnifiedSearchDefinitions unifiedSearchDefinitions)
+        public QueryContainer GetEpgWithoutAutoFillTerm(UnifiedSearchDefinitions unifiedSearchDefinitions)
         {
-            if (unifiedSearchDefinitions.ShouldSearchAutoFill || 
-                (unifiedSearchDefinitions.regionIds == null || !unifiedSearchDefinitions.regionIds.Any()))
+            //this is the logic in v2
+            //we dont want auto filled programs to be returned alone to the user, only with other programs
+            //so when ShouldSearchAutoFill is set to false
+            //we set the query to only return programs that are not autofilled
+            //or in other words we filter out auto fill programs
+            //I know its confusing but we cannot change it at this point :(
+            if (unifiedSearchDefinitions.ShouldSearchAutoFill)
                 return null;
             
             var termsQueryDescriptor = new TermQueryDescriptor<NestEpg>();
-            var termsValues = unifiedSearchDefinitions.regionIds?.Select(region => region.ToString());
-            termsQueryDescriptor.Field(f=>f.IsAutoFill).Value(true);
-            return new QueryContainerDescriptor<object>().Terms(t => t.Terms(termsQueryDescriptor));
+            termsQueryDescriptor.Field(f=>f.IsAutoFill).Value(false);
+            var queryContainerDescriptor = new QueryContainerDescriptor<NestEpg>();
+            queryContainerDescriptor.Terms(t => t.Terms(termsQueryDescriptor));
+            return queryContainerDescriptor;
         }
 
         public QueryContainer GetEpgRegionTerms(UnifiedSearchDefinitions unifiedSearchDefinitions)
@@ -58,7 +64,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
             var termsQueryDescriptor = new TermsQueryDescriptor<NestEpg>();
             var termsValues = unifiedSearchDefinitions.regionIds.Select(region => region.ToString());
             termsQueryDescriptor.Field(x=>x.RecordingId).Terms(termsValues);
-            return new QueryContainerDescriptor<object>().Terms(t => t.Terms(termsQueryDescriptor));
+            var queryContainerDescriptor = new QueryContainerDescriptor<NestEpg>();
+             queryContainerDescriptor.Terms(t => t.Terms(termsQueryDescriptor));
+             return queryContainerDescriptor;
         }
 
         public List<QueryContainer> GetEpgParentalRulesTerms(UnifiedSearchDefinitions unifiedSearchDefinitions)
@@ -192,11 +200,14 @@ namespace ApiLogic.IndexManager.QueryBuilders
             var prefixList = new List<QueryContainer>();
             foreach (EpgSearchValue kvp in epgSearchObj.m_lSearch)
             {
-                var queryContainer = new QueryContainerDescriptor<NestEpg>().Prefix(p => p.Field(kvp.m_sKey).Value(kvp.m_sValue));
+                var queryContainer = new QueryContainerDescriptor<NestEpg>();
+                queryContainer.Prefix(p => p.Field(kvp.m_sKey).Value(kvp.m_sValue));
                 prefixList.Add(queryContainer);
             }
 
-            return new QueryContainerDescriptor<NestEpg>().Bool(b => b.Should(prefixList.ToArray()));
+            var queryContainerDescriptor = new QueryContainerDescriptor<NestEpg>();
+             queryContainerDescriptor.Bool(b => b.Should(prefixList.ToArray()));
+             return queryContainerDescriptor;
         }
     }
 }

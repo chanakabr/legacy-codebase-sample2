@@ -664,7 +664,7 @@ namespace Core.Catalog
 
                 var indexResponse = _elasticClient.Index(channelMetadata, x => x.Index(index));
 
-                if (indexResponse.IsValid && indexResponse.Result == Result.Created)
+                if (indexResponse.IsValid && (indexResponse.Result == Result.Created || indexResponse.Result == Result.Updated))
                 {
                     result = true;
                     if ((channel.m_nChannelTypeID != (int)ChannelType.Manual ||
@@ -951,7 +951,7 @@ namespace Core.Catalog
             // get the programs - epg ids from elasticsearch, information from EPG DAL
             if (searchResponse.IsValid)
             {
-                return searchResponse.Hits?.Select(x => x.Source.ToEpgProgramBulkUploadObject()).ToList();
+                return searchResponse.Hits?.Select(x => x.Source.ToEpgProgramBulkUploadObject()).DistinctBy(x=>x.EpgId).ToList();
             }
             return result;
         }
@@ -1406,7 +1406,7 @@ namespace Core.Catalog
 
             // if there is only one group by and it is a distinct request, we need to reorder the buckets
             // so we will create the aggregation result with the correct order
-            if (groupBys.Count() == 1 && currentGroupBy.Key == sortAndPagingDefinitions.DistinctGroup.Key)
+            if (groupBys.Count() == 1 && currentGroupBy.Key == sortAndPagingDefinitions.DistinctGroup?.Key)
             {
                 ConvertDistinctGroupByAggregationResponse(aggregationsResult, topHitsMapping, orderedResults, sortAndPagingDefinitions, unifiedSearchResultToHit, result);
                 return result;
@@ -2105,7 +2105,8 @@ namespace Core.Catalog
 
                     foreach (var field in definitions.extraReturnFields)
                     {
-                        var value = doc.Fields.Value<object>(field);
+                        string language = definitions.langauge != null ? definitions.langauge.Code : string.Empty;
+                        var value = doc.Fields.Value<object>(UnifiedSearchNestBuilder.GetExtraFieldName(language, field));
                         if (value != null)
                         {
                             (result as ExtendedSearchResult).ExtraFields.Add(new ApiObjects.KeyValuePair()
@@ -2153,17 +2154,11 @@ namespace Core.Catalog
                     }
                     else
                     {
-                        string epgId = string.Empty;
-                        var docEpgId = doc.Fields["epg_id"];
-                        var docEpgIdentifier = doc.Fields[NamingHelper.EPG_IDENTIFIER];
-
-                        if (docEpgId != null)
+                        object epgId = doc.Fields.Value<object>("epg_id");
+                        
+                        if (epgId == null)
                         {
-                            epgId = docEpgId.As<string>();
-                        }
-                        else if (docEpgIdentifier != null)
-                        {
-                            epgId = docEpgIdentifier.As<string>();
+                            epgId = doc.Fields.Value<object>(NamingHelper.EPG_IDENTIFIER);
                         }
 
                         result = new RecordingSearchResult()
@@ -2171,7 +2166,7 @@ namespace Core.Catalog
                             AssetId = assetId,
                             m_dUpdateDate = doc.Source.UpdateDate,
                             AssetType = assetType,
-                            EpgId = epgId,
+                            EpgId = Convert.ToString(epgId),
                             Score = score,
                             RecordingId = assetId
                         };
@@ -2392,7 +2387,7 @@ namespace Core.Catalog
                 if (definitions.distinctGroup != null)
                 {
                     SetGroupByValue(definitions.distinctGroup, language);
-                    definitions.extraReturnFields.Add(definitions.distinctGroup.Value);
+                    definitions.extraReturnFields.Add(NamingHelper.GetExtraFieldName(definitions.distinctGroup.Key, definitions.distinctGroup.Type));
                 }
             }
 
@@ -2405,10 +2400,11 @@ namespace Core.Catalog
             var type = groupBy.Type;
             string value = UnifiedSearchNestBuilder.GetElasticsearchFieldName(language, key, type);
 
-            if (groupBy.Type == eFieldType.Tag || groupBy.Type == eFieldType.StringMeta)
-            {
-                value = $"{value}.lowercase";
-            }
+            // hmmm?
+            //if (groupBy.Type == eFieldType.Tag || groupBy.Type == eFieldType.StringMeta)
+            //{
+            //    value = $"{value}.lowercase";
+            //}
 
             groupBy.Value = value;
         }
@@ -2616,12 +2612,16 @@ namespace Core.Catalog
                 try
                 {
                     var searchResponse = _elasticClient.Search<NestPercolatedQuery>(
-                        x => x.Index(percolatorIndex)
+                        x => x
+                            .Index(percolatorIndex)
                             .Query(q =>
                                 q.Percolate(p => p.Documents(response.Source)
                                     .Field(f => f.Query)
                                 )
                             )
+                            .Size(_maxResults)
+                            // only the id is interesting
+                            .Source(source => source.Includes(fields => fields.Field(hit => hit.ChannelId)))
                     );
 
                     if (searchResponse.IsValid && searchResponse.Hits.Any())
@@ -2631,9 +2631,7 @@ namespace Core.Catalog
                 }
                 catch (Exception ex)
                 {
-                    log.Error(
-                        "Error - " + string.Format("GetMediaChannels - Could not parse response. Ex={0}, ST: {1}",
-                            ex.Message, ex.StackTrace), ex);
+                    log.Error($"Error - GetMediaChannels - Could not parse response. Ex={ex.Message}, ST: {ex.StackTrace}", ex);                            
                 }
             }
 
@@ -3020,7 +3018,7 @@ namespace Core.Catalog
                 }
                 else
                 {
-                    field = $"value.{language.Code}";
+                    field = $"value.{language.Code}.lowercase";
                 }
 
                 queryContainers.Add(CreateValueMatchQueryContainer<NestTag>(field, value));
@@ -3051,16 +3049,20 @@ namespace Core.Catalog
             var bulkRequests = new List<NestEsBulkRequest<NestTag>>();
             try
             {
+                var languageId = tagValue.languageId > 0 ? tagValue.languageId : GetDefaultLanguage().ID;
                 var catalogGroupCache = GetCatalogGroupCache();
-                if (!catalogGroupCache.LanguageMapById.ContainsKey(tagValue.languageId))
+                if (!catalogGroupCache.LanguageMapById.ContainsKey(languageId))
                 {
                     log.WarnFormat("Found tag value with non existing language ID. tagId = {0}, tagText = {1}, languageId = {2}",
-                        tagValue.tagId, tagValue.value, tagValue.languageId);
+                        tagValue.tagId, tagValue.value, languageId);
                 }
                 else
                 {
-                    var languageCode = catalogGroupCache.LanguageMapById[tagValue.languageId].Code;
-                    var tag = new NestTag(tagValue, languageCode);
+                    var languageCode = catalogGroupCache.LanguageMapById[languageId].Code;
+                    var tag = new NestTag(tagValue, languageCode)
+                    {
+                        languageId = languageId
+                    };
                     var bulkRequest = new NestEsBulkRequest<NestTag>()
                     {
                         DocID = $"{tag.tagId}_{languageCode}",
@@ -3073,15 +3075,15 @@ namespace Core.Catalog
 
                 foreach (var languageContainer in tagValue.TagsInOtherLanguages)
                 {
-                    int languageId = 0;
+                    int currentLanguageId = 0;
 
                     if (catalogGroupCache.LanguageMapByCode.ContainsKey(languageContainer.m_sLanguageCode3))
                     {
-                        languageId = catalogGroupCache.LanguageMapByCode[languageContainer.m_sLanguageCode3].ID;
+                        currentLanguageId = catalogGroupCache.LanguageMapByCode[languageContainer.m_sLanguageCode3].ID;
 
-                        if (languageId > 0)
+                        if (currentLanguageId > 0)
                         {
-                            var tag = new NestTag(tagValue.tagId, tagValue.topicId, languageId, languageContainer.m_sValue, languageContainer.m_sLanguageCode3, tagValue.createDate, tagValue.updateDate);
+                            var tag = new NestTag(tagValue.tagId, tagValue.topicId, currentLanguageId, languageContainer.m_sValue, languageContainer.m_sLanguageCode3, tagValue.createDate, tagValue.updateDate);
                             var bulkRequest = new NestEsBulkRequest<NestTag>()
                             {
                                 DocID = $"{tag.tagId}_{languageContainer.m_sLanguageCode3}",
@@ -4095,7 +4097,7 @@ namespace Core.Catalog
                 {
                     if (shouldAddPercolators)
                     {
-                        map = map.AutoMap<NestPercolatedQuery>();
+                        map = map.AutoMap<NestPercolatedQuery>().AutoMap<NestEpg>();
                     }
 
                     map = map.AutoMap<NestMedia>().AutoMap<NestBaseAsset>();
@@ -5352,6 +5354,9 @@ namespace Core.Catalog
                 .Analyzer(indexAnalyzer)
                 .SearchAnalyzer(searchAnalyzer);
 
+            // this will be something like this: {name}.{name} - keyword
+            // meaning, no analyzing at all
+            // good for sorts and all that
             PropertiesDescriptor<object> fieldsPropertiesDesctiptor = new PropertiesDescriptor<object>()
                 .Keyword(y => y.Name(nameFieldName))
                 .Text(y => lowercaseSubField)
