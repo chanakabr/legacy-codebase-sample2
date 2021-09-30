@@ -28,6 +28,7 @@ using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
 using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Controllers;
+using WebAPI.Models;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
@@ -43171,6 +43172,56 @@ namespace WebAPI.Controllers
             {
                 propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+}
+
+namespace WebAPI.Models
+{
+    public partial class KalturaEpgServicePartnerConfiguration
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(FirstSlotOffset.HasValue && (retrievedProperties == null || retrievedProperties.Contains("firstSlotOffset")))
+            {
+                ret.Add("firstSlotOffset", "\"firstSlotOffset\": " + FirstSlotOffset);
+            }
+            if(NumberOfSlots.HasValue && (retrievedProperties == null || retrievedProperties.Contains("numberOfSlots")))
+            {
+                ret.Add("numberOfSlots", "\"numberOfSlots\": " + NumberOfSlots);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(FirstSlotOffset.HasValue && (retrievedProperties == null || retrievedProperties.Contains("firstSlotOffset")))
+            {
+                ret.Add("firstSlotOffset", "<firstSlotOffset>" + FirstSlotOffset + "</firstSlotOffset>");
+            }
+            if(NumberOfSlots.HasValue && (retrievedProperties == null || retrievedProperties.Contains("numberOfSlots")))
+            {
+                ret.Add("numberOfSlots", "<numberOfSlots>" + NumberOfSlots + "</numberOfSlots>");
             }
             return ret;
         }

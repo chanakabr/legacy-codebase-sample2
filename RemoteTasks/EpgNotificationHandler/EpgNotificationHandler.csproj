@@ -23,7 +23,7 @@
     <PackageReference Include="EventBus.Abstraction" Version="5.9.0.28738" />
     <PackageReference Include="KLogMonitor" Version="5.9.0.28738" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
-    <PackageReference Include="ott.client.epgcache.grpc" Version="0.1.7" />
+    <PackageReference Include="ott.client.epgcache.grpc" Version="0.1.33-regenerate-service" />
     <PackageReference Include="prometheus-net" Version="4.1.1" />
   </ItemGroup>
 

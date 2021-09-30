@@ -8,8 +8,8 @@ using ApiLogic.Notification;
 using Moq;
 using System.Threading.Tasks;
 using Core.Notification;
-using EpgCacheGrpcClientWrapper;
 using Polly;
+using EpgCacheGrpcClientWrapper;
 
 namespace EpgNotificationHandler.Tests
 {

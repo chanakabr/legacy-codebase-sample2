@@ -16,6 +16,7 @@ using Polly;
 
 namespace EpgNotificationHandler
 {
+    // Regenerate service was the main branch when added this nuget(0.1.33-regenerate-service), can be changed in the future when needed
     public class EpgNotificationHandler : IServiceEventHandler<EpgNotificationEvent>
     {
         private static readonly KLogger Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

@@ -27,6 +27,7 @@ using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
 using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Controllers;
+using WebAPI.Models;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
@@ -929,6 +930,9 @@ namespace WebAPI.Reflection
                     
                 case "KalturaEpgNotificationSettings":
                     return new KalturaEpgNotificationSettings(parameters);
+                    
+                case "KalturaEpgServicePartnerConfiguration":
+                    return new KalturaEpgServicePartnerConfiguration(parameters);
                     
                 case "KalturaEventContext":
                     return new KalturaEventContext(parameters);
@@ -37021,6 +37025,57 @@ namespace WebAPI.Controllers
                     {
                         Objects = buildList(typeof(KalturaEpg), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+}
+
+namespace WebAPI.Models
+{
+    public partial class KalturaEpgServicePartnerConfiguration
+    {
+        private static RuntimeSchemePropertyAttribute NumberOfSlotsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEpgServicePartnerConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        private static RuntimeSchemePropertyAttribute FirstSlotOffsetSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEpgServicePartnerConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+        };
+        public KalturaEpgServicePartnerConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("numberOfSlots") && parameters["numberOfSlots"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        NumberOfSlotsSchemaProperty.Validate("numberOfSlots", parameters["numberOfSlots"]);
+                    }
+                    NumberOfSlots = (Int32) Convert.ChangeType(parameters["numberOfSlots"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("firstSlotOffset") && parameters["firstSlotOffset"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        FirstSlotOffsetSchemaProperty.Validate("firstSlotOffset", parameters["firstSlotOffset"]);
+                    }
+                    FirstSlotOffset = (Int32) Convert.ChangeType(parameters["firstSlotOffset"], typeof(Int32));
                 }
             }
         }

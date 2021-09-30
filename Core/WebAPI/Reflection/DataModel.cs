@@ -32,6 +32,7 @@ using WebAPI.Models.DMS;
 using WebAPI.Models.Domains;
 using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Controllers;
+using WebAPI.Models;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
@@ -2965,6 +2966,16 @@ namespace WebAPI.Reflection
                             return "forwardTimeRange";
                         case "LiveAssetIds":
                             return "liveAssetIds";
+                    }
+                    break;
+                    
+                case "KalturaEpgServicePartnerConfiguration":
+                    switch(property.Name)
+                    {
+                        case "FirstSlotOffset":
+                            return "firstSlotOffset";
+                        case "NumberOfSlots":
+                            return "numberOfSlots";
                     }
                     break;
                     
@@ -9341,6 +9352,21 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("epg", "list", false);
                             return EpgController.List((KalturaEpgFilter) methodParams[0]);
+                            
+                    }
+                    break;
+                    
+                case "epgservicepartnerconfiguration":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("epgServicePartnerConfiguration", "get", false);
+                            return EpgServicePartnerConfigurationController.Get();
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("epgServicePartnerConfiguration", "update", false);
+                            EpgServicePartnerConfigurationController.Update((KalturaEpgServicePartnerConfiguration) methodParams[0]);
+                            return null;
                             
                     }
                     break;
@@ -15741,6 +15767,23 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaEpgFilter),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "epgservicepartnerconfiguration":
+                    switch(action)
+                    {
+                        case "get":
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("config", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaEpgServicePartnerConfiguration),
                             });
                             return ret;
                             
