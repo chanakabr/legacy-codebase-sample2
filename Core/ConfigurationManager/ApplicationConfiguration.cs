@@ -78,6 +78,7 @@ namespace ConfigurationManager
         public BaseValue<bool> ShouldSubscriptionOverlapConsiderDLM = new BaseValue<bool>("should_subscription_overlap_consider_dlm", false);
         public BaseValue<bool> TVMSkipLoginIPCheck = new BaseValue<bool>("SKIP_LOGIN_IP_CHECK", false, false, "TVM key, whether IP check during login should be skipped or not.");
         public BaseValue<bool> EnableHttpLogin = new BaseValue<bool>("EnableHttpLogin", true);
+        public BaseValue<int> CbMaxInsertTries = new BaseValue<int>("cb_max_insert_tries", 2);
         public BaseValue<List<HealthCheckDefinition>> HealthCheckConfiguration = 
             new BaseValue<List<HealthCheckDefinition>>(TcmObjectKeys.HealthCheckConfiguration, new List<HealthCheckDefinition>()
                 {

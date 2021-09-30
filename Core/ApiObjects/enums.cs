@@ -145,8 +145,9 @@ namespace ApiObjects
         [EnumMember]
         Rebase = 5,
         [EnumMember]
-        GeoUpdate = 6
-
+        GeoUpdate = 6,
+        [EnumMember]
+        EpgRegionUpdate = 7,
     }
 
     [Serializable]

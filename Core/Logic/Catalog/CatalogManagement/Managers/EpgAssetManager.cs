@@ -217,9 +217,9 @@ namespace Core.Catalog.CatalogManagement
 
                 var linearChannelSettingsForEpgCb = Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgCbToAdd.ChannelID.ToString() });
                 bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertProgram(
-                    epgsToIndex,
-                    linearChannelSettingsForEpgCb
-                    );
+                                      epgsToIndex,
+                                      Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgCbToAdd.ChannelID.ToString() })
+                                      );
 
                 InvalidateEpgs(groupId,
                     epgsToIndex.Select(x => (long)x.EpgID), CatalogManager.Instance.DoesGroupUsesTemplates(groupId),
@@ -541,8 +541,10 @@ namespace Core.Catalog.CatalogManagement
                     // invalidate asset
                     AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
                     var linearChannelSettingsForEpgCb = Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgsToUpdate?.First().ChannelID.ToString() });
-                    var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
-                    var indexingResult = indexManager.UpsertProgram(epgsToUpdate, linearChannelSettingsForEpgCb);
+
+                    // UpdateIndex
+                    bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertProgram(epgsToUpdate, linearChannelSettingsForEpgCb);
+
                     if (!indexingResult)
                     {
                         log.ErrorFormat("Failed UpsertProgram index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromProgram", epgAsset.Id, eAssetTypes.EPG.ToString(), groupId);
@@ -799,6 +801,7 @@ namespace Core.Catalog.CatalogManagement
                 CreateDate = createDate,
                 Status = 1,
                 IsActive = true,
+                IsIngestV2 = epgAsset.IsIngestV2,
                 GroupID = groupId,
                 ExtraData = new EpgExtraData() { MediaID = epgAsset.RelatedMediaId.HasValue ? (int)epgAsset.RelatedMediaId.Value : 0 },
                 Crid = epgAsset.Crid,
@@ -895,6 +898,9 @@ namespace Core.Catalog.CatalogManagement
             {
                 return assetStructValidationStatus;
             }
+
+            epgAssetToUpdate.LinearAssetId = oldEpgAsset.LinearAssetId;
+            epgAssetToUpdate.IsIngestV2 = oldEpgAsset.IsIngestV2;
 
             return new Status((int)eResponseStatus.OK);
         }

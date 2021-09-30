@@ -5044,6 +5044,12 @@ namespace Core.Catalog
             return searchResponseHits.Select(x => x.Source.Name).ToList();
         }
 
+        public bool UpdateEpgsPartial(EpgPartialUpdateEsObject[] epgs)
+        {
+            throw new NotImplementedException();
+        }
+
+
         public IList<EpgProgramInfo> GetCurrentProgramInfosByDate(int channelId, DateTime fromDate, DateTime toDate)
         {
             log.Debug($"GetCurrentProgramsByDate > fromDate:[{fromDate}], toDate:[{toDate}]");
@@ -6277,5 +6283,4 @@ namespace Core.Catalog
 
         #endregion
     }
-
 }

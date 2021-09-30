@@ -22564,46 +22564,16 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaManualCollectionAsset
     {
-        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaManualCollectionAsset")
-        {
-            ReadOnly = false,
-            InsertOnly = true,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
-        private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaManualCollectionAsset")
-        {
-            ReadOnly = false,
-            InsertOnly = true,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = false,
-            MaxLength = -1,
-            MinLength = -1,
-        };
         public KalturaManualCollectionAsset(Dictionary<string, object> parameters = null) : base(parameters)
         {
             if (parameters != null)
             {
-                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
-                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("id") && parameters["id"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        IdSchemaProperty.Validate("id", parameters["id"]);
-                    }
                     Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
                 }
                 if (parameters.ContainsKey("type") && parameters["type"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        TypeSchemaProperty.Validate("type", parameters["type"]);
-                    }
                     if(string.IsNullOrEmpty(parameters["type"].ToString()))
                     {
                         throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");

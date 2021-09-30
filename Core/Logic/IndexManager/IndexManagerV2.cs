@@ -41,6 +41,8 @@ using ApiObjects.BulkUpload;
 using Polly;
 using ESUtils = ElasticSearch.Common.Utils;
 using ApiLogic.Catalog;
+using ElasticSearch.Common.Mappers;
+using EpgBL;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.Mappings;
@@ -6470,6 +6472,11 @@ namespace Core.Catalog
                 return _serializer.SerializeRecordingObject(epg, recordingId, suffix, doesGroupUsesTemplates);
             }
         }
+        
+        protected virtual string SerializeEPGObject(EpgEs epg, string suffix = null)
+        {
+            return _serializer.SerializeEpgObject(epg, suffix);
+        }
 
         #endregion
 
@@ -6605,6 +6612,138 @@ namespace Core.Catalog
                             document = serializedEpg,
                             routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd"),
                             ttl = ttl
+                        });
+
+                        if (bulkRequests.Count > sizeOfBulk)
+                        {
+                            // send request to ES API
+                            invalidResults = _elasticSearchApi.CreateBulkRequest(bulkRequests);
+
+                            if (invalidResults != null && invalidResults.Count > 0)
+                            {
+                                foreach (var invalidResult in invalidResults)
+                                {
+                                    log.Error("Error - " + string.Format(
+                                        "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                                        _partnerId, ES_EPG_TYPE, invalidResult.Key, invalidResult.Value));
+                                }
+
+                                result = false;
+                                temporaryResult = false;
+                            }
+                            else
+                            {
+                                temporaryResult &= true;
+                            }
+
+                            bulkRequests.Clear();
+                        }
+                    }
+                }
+            }
+
+            if (bulkRequests.Count > 0)
+            {
+                // send request to ES API
+                invalidResults = _elasticSearchApi.CreateBulkRequest(bulkRequests);
+
+                if (invalidResults != null && invalidResults.Count > 0)
+                {
+                    foreach (var invalidResult in invalidResults)
+                    {
+                        log.Error("Error - " + string.Format(
+                            "Could not update EPG in ES. GroupID={0};Type={1};EPG_ID={2};error={3};",
+                            _partnerId, ES_EPG_TYPE, invalidResult.Key, invalidResult.Value));
+                    }
+
+                    result = false;
+                    temporaryResult = false;
+                }
+                else
+                {
+                    temporaryResult &= true;
+                }
+
+                result = temporaryResult;
+            }
+
+            return result;
+        }
+        
+        /// <summary>
+        /// Update EPGs partially.
+        /// PadMetas aren't allowed during partial updates - be aware!
+        /// Fields responsible for TTL Calculation aren't allowed as well!
+        /// </summary>
+        /// <param name="languages"></param>
+        /// <param name="epgIds"></param>
+        /// <param name="fieldMappings"></param>
+        /// <returns></returns>
+        public bool UpdateEpgsPartial(EpgPartialUpdateEsObject[] epgs)
+        {
+            bool result = false;
+
+            List<ESBulkRequestObj<ulong>> bulkRequests = new List<ESBulkRequestObj<ulong>>();
+            List<KeyValuePair<string, string>> invalidResults = null;
+
+            string type = ES_EPG_TYPE;
+
+            int sizeOfBulk = ApplicationConfiguration.Current.ElasticSearchHandlerConfiguration.BulkSize.Value;
+            if (sizeOfBulk == 0)
+            {
+                sizeOfBulk = 500;
+            }
+
+            // Temporarily - assume success
+            bool temporaryResult = true;
+            List<LanguageObj> languages = VerifyGroupUsesTemplates() ? GetCatalogGroupCache().LanguageMapById.Values.ToList() : GetGroupManager().GetLangauges();
+
+            // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
+            // in that case we need to use the specific date alias for each epg item to update
+            bool isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
+            
+            var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
+            if (!_elasticSearchApi.IndexExists(alias))
+            {
+                log.Error($"Error - Index of type {type} for group {_partnerId} does not exist");
+                return result;
+            }
+
+            // Create dictionary by languages
+            foreach (LanguageObj language in languages)
+            {
+                // Filter programs to current language
+                EpgPartialUpdateEsObject[] currentLanguageEpgs = epgs.Where(epg =>
+                    epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToArray();
+
+                if (currentLanguageEpgs != null && currentLanguageEpgs.Length > 0)
+                {
+                    // Create bulk request object for each program
+                    foreach (EpgPartialUpdateEsObject epg in currentLanguageEpgs)
+                    {
+                        // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
+                        // in that case we need to use the specific date alias for each epg item to update
+                        if (isIngestV2)
+                        {
+                            alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
+                        }
+
+                        string suffix = null;
+                        if (!language.IsDefault)
+                        {
+                            suffix = language.Code;
+                        }
+                        
+                        string serializedEpg = SerializeEPGObject(epg.EpgPartial, suffix);
+                        
+                        bulkRequests.Add(new ESBulkRequestObj<ulong>()
+                        {
+                            docID = GetDocumentId(epg.EpgId, false, null),
+                            index = alias,
+                            type = GetTranslationType(type, language),
+                            Operation = eOperation.update,
+                            document = serializedEpg,
+                            routing = epg.StartDate.ToUniversalTime().ToString("yyyyMMdd")
                         });
 
                         if (bulkRequests.Count > sizeOfBulk)

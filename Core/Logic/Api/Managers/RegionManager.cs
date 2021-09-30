@@ -12,6 +12,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using ApiLogic.Api.Validators;
+using ConfigurationManager;
 using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace ApiLogic.Api.Managers
@@ -20,6 +21,7 @@ namespace ApiLogic.Api.Managers
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly IRegionValidator _regionValidator = new RegionValidator();
+        private static readonly bool ShouldUseUpdateRegionPerformanceImprovement = ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseUpdateRegionPerformanceImprovement.Value;
 
         internal static Status DeleteRegion(int groupId, int id, long userId)
         {
@@ -671,17 +673,20 @@ namespace ApiLogic.Api.Managers
         {
             var epgKsql = $"(and linear_media_id='{linearChannelId}')";
             var epgResult = api.SearchAssets(groupId, epgKsql, 0, 0, true, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
-
+            
             var result = CatalogLogic.UpdateIndex(new List<long> { linearChannelId }, groupId, eAction.Update);
             if (!result)
             {
                 log.Error($"Index update failed. {nameof(groupId)}:{groupId}, {nameof(linearChannelId)}:{linearChannelId}");
             }
-
+            
             if (epgResult?.Length > 0)
             {
                 var epgIds = epgResult.Select(x => long.Parse(x.AssetId)).ToList();
-                result = CatalogLogic.UpdateEpgIndex(epgIds, groupId, eAction.Update, null, false);
+                result = ShouldUseUpdateRegionPerformanceImprovement
+                    ? CatalogLogic.UpdateEpgRegionsIndex(epgIds, new[] { linearChannelId }, groupId, eAction.Update, null, false)
+                    : CatalogLogic.UpdateEpgIndex(epgIds, groupId, eAction.Update, null, false);
+                
                 if (!result)
                 {
                     log.Error($"Index update failed. {nameof(groupId)}:{groupId}, {nameof(epgIds)}:{string.Join(",", epgIds)}");

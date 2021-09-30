@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ElasticSearch.Common.Mappers;
 
 namespace ElasticSearch.Common
 {
@@ -1003,18 +1004,29 @@ namespace ElasticSearch.Common
 
         }
 
-        public virtual string SerializeEpgObject(EpgCB oEpg, string suffix = null, bool doesGroupUsesTemplates = false)
+        public virtual string SerializeEpgObject(EpgEs epg, string suffix = null)
         {
-            StringBuilder sRecord = new StringBuilder();
+            var sRecord = new StringBuilder();
+            
             sRecord.Append("{ ");
-
-            SerializeEPGBody(oEpg, sRecord, suffix, true, doesGroupUsesTemplates);
-
+            SerializeEPGBody(epg, sRecord, suffix);
             sRecord.Append(" }");
 
             return sRecord.ToString();
         }
 
+        public virtual string SerializeEpgObject(EpgCB oEpg, string suffix = null, bool doesGroupUsesTemplates = false)
+        {
+            StringBuilder sRecord = new StringBuilder();
+            
+            sRecord.Append("{ ");
+            SerializeEPGBody(EpgMapper.MapEpg(oEpg, doesGroupUsesTemplates), sRecord, suffix);
+            sRecord.Append(" }");
+            
+            return sRecord.ToString();
+        }
+
+        [Obsolete("Should use SerializeEPGObject overload with EpgMapper.")]
         protected virtual void SerializeEPGBody(EpgCB oEpg, StringBuilder sRecord, string suffix = null, bool withRouting = true, bool doesGroupUsesTemplates = false)
         {
             string name = oEpg.Name;
@@ -1154,6 +1166,156 @@ namespace ElasticSearch.Common
 
             #endregion
         }
+        
+        private void SerializeEPGBody(EpgEs epg, StringBuilder sRecord, string suffix = null)
+        {
+            void AddIfNotNullWithQuotes<T>(string key, T value) where T : class
+            {
+                if (value != null)
+                {
+                    sRecord.Append($"\"{key}\": \"{value}\",");
+                }
+            }
+            
+            void AddIfNotNull<T>(string key, T value)
+            {
+                if (value != null)
+                {
+                    sRecord.Append($"\"{key}\": {value},");
+                }
+            }
+            
+            epg.CacheDate = DateTime.UtcNow;
+            
+            AddIfNotNull("epg_id", epg.EpgID);
+            AddIfNotNull("group_id", epg.GroupId);
+            AddIfNotNull("epg_channel_id", epg.ChannelId);
+            AddIfNotNull("is_active", epg.IsActive != null ? (epg.IsActive.Value ? "1" : "0") : null);
+            AddIfNotNullWithQuotes("start_date", epg.StartDate.ToEsDateFormatString());
+            AddIfNotNullWithQuotes("end_date", epg.EndDate.ToEsDateFormatString());
+            AddIfNotNullWithQuotes(AddSuffix("name", suffix), Utils.ReplaceDocumentReservedCharacters(epg.Name, shouldLowerCase));
+            AddIfNotNullWithQuotes(AddSuffix("description", suffix), Utils.ReplaceDocumentReservedCharacters(epg.Description, shouldLowerCase));
+            AddIfNotNullWithQuotes("cache_date", epg.CacheDate.ToEsDateFormatString());
+            AddIfNotNullWithQuotes("create_date", epg.CreateDate.ToEsDateFormatString());
+            AddIfNotNullWithQuotes("update_date", epg.UpdateDate.ToEsDateFormatString());
+            AddIfNotNullWithQuotes("search_end_date", epg.SearchEndDate.ToEsDateFormatString());
+            AddIfNotNullWithQuotes("crid", epg.Crid);
+            AddIfNotNullWithQuotes("epg_identifier", epg.EpgIdentifier);
+            AddIfNotNullWithQuotes("external_id", epg.EpgIdentifier);
+            AddIfNotNullWithQuotes("document_id", epg.DocumentId);
+            AddIfNotNull("is_auto_fill", epg.IsAutoFill.HasValue ? (epg.IsAutoFill.Value ? "1" : "0") : null);
+            AddIfNotNull("enable_cdvr", epg.EnableCDVR);
+            AddIfNotNull("enable_catchup", epg.EnableCatchUp);
+            AddIfNotNullWithQuotes("suppressed", epg.Suppressed);
+            AddIfNotNull("linear_media_id", epg.LinearMediaId);
+            AddIfNotNull("date_routing", epg.DateRouting.ToEsDateOnlyFormatString());
+            AddIfNotNull("metas", GenerateMetasRepresentation(epg, suffix));
+            AddIfNotNull("tags", GenerateTagsRepresentation(epg, suffix));
+            AddIfNotNull("regions", GenerateRegions(epg));
+
+            sRecord.Remove(sRecord.Length - 1, 1);
+        }
+
+        private static string GenerateRegions(EpgEs epg)
+        {
+            if (epg.Regions == null)
+            {
+                return null;
+            }
+            
+            if (epg.Regions.Length > 0)
+            {
+                var regions = string.Join(",", epg.Regions.Select(x => x.ToString()));
+                return $"[ {regions} ]";
+            }
+
+            return "[ ]";
+        }
+
+        private string GenerateMetasRepresentation(EpgEs epg, string suffix)
+        {
+            if (epg.Metas == null)
+            {
+                return null;
+            }
+            
+            var metas = string.Empty;
+            if (epg.Metas.Keys.Count > 0)
+            {
+                var metaNameValues = new List<string>();
+                foreach (var sMetaName in epg.Metas.Keys)
+                {
+                    if (!string.IsNullOrWhiteSpace(sMetaName))
+                    {
+                        var lMetaValues = epg.Metas[sMetaName]?.Where(meta => !string.IsNullOrEmpty(meta)).ToList();
+                        if (lMetaValues != null && lMetaValues.Count > 0)
+                        {
+                            for (var i = 0; i < lMetaValues.Count; i++)
+                            {
+                                var metaValue = lMetaValues[i];
+                                if (!string.IsNullOrEmpty(metaValue))
+                                {
+                                    lMetaValues[i] = string.Format("\"{0}\"", Common.Utils.ReplaceDocumentReservedCharacters(metaValue.Trim(), shouldLowerCase));
+                                }
+                            }
+
+                            metaNameValues.Add(string.Format(" \"{0}\": [ {1} ]",
+                                AddSuffix(sMetaName.ToLower(), suffix),
+                                lMetaValues.Aggregate((current, next) => current + "," + next)));
+                        }
+                    }
+                }
+
+                if (metaNameValues.Count > 0)
+                {
+                    metas = metaNameValues.Aggregate((current, next) => current + "," + next);
+                }
+            }
+            
+            return $"{{ {metas} }}";
+        }
+
+        private string GenerateTagsRepresentation(EpgEs epg, string suffix)
+        {
+            if (epg.Tags == null)
+            {
+                return null;
+            }
+            
+            var tags = string.Empty;
+            if (epg.Tags.Keys.Count > 0)
+            {
+                var tagNameValues = new List<string>();
+                foreach (var sTagName in epg.Tags.Keys)
+                {
+                    if (!string.IsNullOrEmpty(sTagName))
+                    {
+                        var lTagValues = epg.Tags[sTagName]?.Where(tag => !string.IsNullOrEmpty(tag)).ToList();
+                        if (lTagValues != null && lTagValues.Count > 0)
+                        {
+                            for (var i = 0; i < lTagValues.Count; i++)
+                            {
+                                if (!string.IsNullOrEmpty(lTagValues[i]))
+                                {
+                                    lTagValues[i] = string.Format("\"{0}\"", Utils.ReplaceDocumentReservedCharacters(lTagValues[i].Trim(), shouldLowerCase));
+                                }
+                            }
+
+                            tagNameValues.Add(string.Format(" \"{0}\": [ {1} ]",
+                                AddSuffix(sTagName.ToLower(), suffix),
+                                lTagValues.Aggregate((current, next) => current + "," + next)));
+                        }
+                    }
+                }
+
+                if (tagNameValues.Count > 0)
+                {
+                    tags = tagNameValues.Aggregate((current, next) => current + "," + next);
+                }
+            }
+            
+            return $"{{ {tags} }}";
+        }
 
         public virtual string SerializeRecordingObject(EpgCB oEpg, long recordingId, string suffix = null, bool doesGroupUsesTemplates = false)
         {
@@ -1162,7 +1324,7 @@ namespace ElasticSearch.Common
             builder.Append("{ ");
             builder.AppendFormat("\"recording_id\": {0},", recordingId);
 
-            SerializeEPGBody(oEpg, builder, suffix, false, doesGroupUsesTemplates);
+            SerializeEPGBody(EpgMapper.MapRecording(oEpg, doesGroupUsesTemplates), builder, suffix);
 
             builder.Append(" }");
 

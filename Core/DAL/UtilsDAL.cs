@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ConfigurationManager;
 using CouchbaseManager;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -18,7 +19,6 @@ namespace DAL
         private const string SP_GET_OPERATOR_GROUP_ID = "sp_GetGroupIDByOperatorID";
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private const int RETRY_LIMIT = 5;
-        private const int NUM_OF_INSERT_TRIES = 10;
         private const int NUM_OF_TRIES = 3;
         private const string MAIN_CONNECTION_STRING = "MAIN_CONNECTION_STRING";
 
@@ -30,13 +30,14 @@ namespace DAL
             var internalCouchBaseManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
             var cbManager = compress ? (ICouchbaseManager) new CompressionCouchbaseManager(internalCouchBaseManager) : internalCouchBaseManager;
             var numOfTries = 0;
+            int maxNumOfInsertTries = ApplicationConfiguration.Current.CbMaxInsertTries.Value;
             ulong version;
             eResultStatus getResult = eResultStatus.ERROR;
             var r = new Random();
 
             try
             {
-                while (numOfTries < UtilsDal.NUM_OF_INSERT_TRIES)
+                while (numOfTries < maxNumOfInsertTries)
                 {
                     var objectToSave = cbManager.GetWithVersion<T>(key, out version, out getResult);
                     if (getResult == eResultStatus.KEY_NOT_EXIST)
@@ -59,14 +60,14 @@ namespace DAL
                             log.DebugFormat("successfully SaveObjectWithVersionCheckInCB. key:{0}, number of tries:{1}/{2}.",
                                 key,
                                 numOfTries,
-                                NUM_OF_INSERT_TRIES);
+                                maxNumOfInsertTries);
                             return true;
                         }
                     }
 
                     numOfTries++;
                     log.WarnFormat("while SaveObjectWithVersionCheckInCB. key:{0}, number of tries:{1}/{2}.",
-                        key, numOfTries, UtilsDal.NUM_OF_INSERT_TRIES);
+                        key, numOfTries, maxNumOfInsertTries);
                     Thread.Sleep(r.Next(50));
                 }
 
@@ -228,6 +229,7 @@ namespace DAL
                 var internalCouchbaseManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
                 var cbManager = compress ? (ICouchbaseManager) new CompressionCouchbaseManager(internalCouchbaseManager) : internalCouchbaseManager;
                 int numOfTries = 0;
+                int maxNumOfInsertTries = ApplicationConfiguration.Current.CbMaxInsertTries.Value;
 
                 try
                 {
@@ -239,13 +241,13 @@ namespace DAL
                         serializeObject = JsonConvert.SerializeObject(objectToSave, jsonSerializerSettings);
                     }
 
-                    while (numOfTries < NUM_OF_INSERT_TRIES)
+                    while (numOfTries < maxNumOfInsertTries)
                     {
                         if (serializeToString)
                         {
                             if (cbManager.Set(key, serializeObject, expirationTTL))
                             {
-                                log.Debug($"successfully SaveObjectInCB. key: {key}, number of tries: {numOfTries}/{NUM_OF_INSERT_TRIES}.");
+                                log.Debug($"successfully SaveObjectInCB. key: {key}, number of tries: {numOfTries}/{maxNumOfInsertTries}.");
                                 return true;
                             }
                         }
@@ -253,13 +255,13 @@ namespace DAL
                         {
                             if (cbManager.Set(key, objectToSave, expirationTTL))
                             {
-                                log.Debug($"successfully SaveObjectInCB. key: {key}, number of tries: {numOfTries}/{NUM_OF_INSERT_TRIES}.");
+                                log.Debug($"successfully SaveObjectInCB. key: {key}, number of tries: {numOfTries}/{maxNumOfInsertTries}.");
                                 return true;
                             }
                         }
 
                         numOfTries++;
-                        log.Error($"Error while SaveObjectInCBy. key: {key}, number of tries: {numOfTries}/{NUM_OF_INSERT_TRIES}.");
+                        log.Error($"Error while SaveObjectInCBy. key: {key}, number of tries: {numOfTries}/{maxNumOfInsertTries}.");
                         Thread.Sleep(r.Next(50));
                     }
                 }

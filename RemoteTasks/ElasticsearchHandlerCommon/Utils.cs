@@ -152,7 +152,7 @@ namespace ElasticsearchTasksCommon
             return sRules;
         }
 
-        public static EpgCB GetEpgProgram(int nGroupID, int nEpgID)
+        public static EpgCB GetEpgProgram(int nGroupID, long nEpgID)
         {
             EpgCB res = null;
 
@@ -232,7 +232,7 @@ namespace ElasticsearchTasksCommon
             return res;
         }
 
-        public static List<EpgCB> GetEpgPrograms(int groupId, int epgId, List<string> languages, EpgBL.BaseEpgBL epgBL = null)
+        public static List<EpgCB> GetEpgPrograms(int groupId, long epgId, List<string> languages, EpgBL.BaseEpgBL epgBL = null)
         {
             List<EpgCB> results = new List<EpgCB>();
 

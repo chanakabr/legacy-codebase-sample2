@@ -232,6 +232,7 @@ namespace ApiObjects
             this.EnableTrickPlay = epgCb.EnableTrickPlay;
             this.Crid = epgCb.Crid;
             this.IsIngestV2 = epgCb.IsIngestV2;
+            this.LinearMediaId = epgCb.LinearMediaId;
         }
 
         public void Initialize(int kalturaChannelID, int groupId, int parentGroupId, string externalId, DateTime startDate, DateTime endDate,

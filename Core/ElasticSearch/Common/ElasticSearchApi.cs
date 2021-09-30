@@ -940,7 +940,17 @@ namespace ElasticSearch.Common
 
                     if (!string.IsNullOrEmpty(bulk.document))
                     {
-                        requestString.AppendFormat("{0}\n", bulk.document);
+                        switch (bulk.Operation)
+                        {
+                            case eOperation.index:
+                            case eOperation.create:
+                            case eOperation.delete:
+                                requestString.AppendFormat("{0}\n", bulk.document);
+                                break;
+                            case eOperation.update:
+                                requestString.AppendFormat("{{\"doc\": {0} }}\n", bulk.document);
+                                break;
+                        }
                     }
                 }
             }

@@ -3271,6 +3271,17 @@ namespace Core.Catalog
             return UpdateEpg(lEpgIds, nGroupId, eObjectType.EPG, eAction, epgChannelIds, shouldGetChannelIds);
         }
 
+        public static bool UpdateEpgRegionsIndex(List<long> epgIds, IEnumerable<long> linearChannelIds, int groupId, eAction action, IEnumerable<string> epgChannelIds, bool shouldGetChannelIds)
+        {
+            return UpdateEpgCustom(epgIds, groupId,
+                (group, doesGroupUsesTemplates) =>
+                {
+                    var result = UpdateEpgRegionsUsingChannels(linearChannelIds, group);
+                    UpdateEpgLegacy(epgIds, group, eObjectType.EPG, action, epgChannelIds, shouldGetChannelIds, doesGroupUsesTemplates);
+                    return result;
+                });
+        }
+
         public static bool UpdateEpgChannelIndex(List<long> ids, int groupId, eAction action)
         {
             return UpdateEpg(ids, groupId, eObjectType.EpgChannel, action, null, false);
@@ -3365,6 +3376,17 @@ namespace Core.Catalog
 
         private static bool UpdateEpg(List<long> ids, int groupId, eObjectType objectType, eAction action, IEnumerable<string> epgChannelIds, bool shouldGetChannelIds)
         {
+            return UpdateEpgCustom(ids, groupId,
+                (group, doesGroupUsesTemplates) =>
+                {
+                    var result = UpdateEpg(ids, group, objectType, action);
+                    UpdateEpgLegacy(ids, group, eObjectType.EPG, action, epgChannelIds, shouldGetChannelIds, doesGroupUsesTemplates);
+                    return result;
+                });
+        }
+
+        private static bool UpdateEpgCustom(List<long> ids, int groupId, Func<int, bool, bool> updateEpgFunc)
+        {
             bool isUpdateIndexSucceeded = false;
 
             if (ids != null && ids.Count > 0)
@@ -3381,29 +3403,51 @@ namespace Core.Catalog
 
                 if (groupId > 0)
                 {
-                    var data = new CeleryIndexingData(groupId, ids, objectType, action, DateTime.UtcNow);
-                    var queue = new CatalogQueue();
-
-                    isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupId, objectType.ToString()));
-                    if (isUpdateIndexSucceeded)
-                        log.DebugFormat("successfully enqueue epg upload. data: {0}", data);
-                    else
-                        log.ErrorFormat("Failed enqueue of epg upload. data: {0}", data);
-
-                    // Backward compatibility
-                    if (objectType == eObjectType.EPG)
-                    {
-                        var legacyQueue = new CatalogQueue(true);
-                        ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupId, objectType, action);
-                        legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupId, objectType.ToString()));
-
-                        // invalidate epg's for OPC and NON-OPC accounts
-                        EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates, epgChannelIds, shouldGetChannelIds);
-                    }
+                    isUpdateIndexSucceeded = updateEpgFunc(groupId, doesGroupUsesTemplates);
                 }
             }
 
             return isUpdateIndexSucceeded;
+        }
+
+        private static bool UpdateEpg(List<long> ids, int groupId, eObjectType objectType, eAction action)
+        {
+            bool isUpdateIndexSucceeded;
+            var data = new CeleryIndexingData(groupId, ids, objectType, action, DateTime.UtcNow);
+            var queue = new CatalogQueue();
+
+            isUpdateIndexSucceeded = queue.Enqueue(data, string.Format(@"Tasks\{0}\{1}", groupId, objectType.ToString()));
+            if (isUpdateIndexSucceeded)
+                log.DebugFormat("successfully enqueue epg upload. data: {0}", data);
+            else
+                log.ErrorFormat("Failed enqueue of epg upload. data: {0}", data);
+            return isUpdateIndexSucceeded;
+        }
+
+        private static bool UpdateEpgRegionsUsingChannels(IEnumerable<long> linearChannelsId, int groupId)
+        {
+            return UpdateEpg(linearChannelsId.ToList(), groupId, eObjectType.Channel, eAction.EpgRegionUpdate);
+        }
+
+        private static void UpdateEpgLegacy(
+            List<long> ids,
+            int groupId,
+            eObjectType objectType,
+            eAction action,
+            IEnumerable<string> epgChannelIds,
+            bool shouldGetChannelIds,
+            bool doesGroupUsesTemplates)
+        {
+            // Backward compatibility
+            if (objectType == eObjectType.EPG)
+            {
+                var legacyQueue = new CatalogQueue(true);
+                ApiObjects.MediaIndexingObjects.IndexingData oldData = new ApiObjects.MediaIndexingObjects.IndexingData(ids, groupId, objectType, action);
+                legacyQueue.Enqueue(oldData, string.Format(@"{0}\{1}", groupId, objectType.ToString()));
+
+                // invalidate epg's for OPC and NON-OPC accounts
+                EpgAssetManager.InvalidateEpgs(groupId, ids, doesGroupUsesTemplates, epgChannelIds, shouldGetChannelIds);
+            }
         }
 
         #endregion

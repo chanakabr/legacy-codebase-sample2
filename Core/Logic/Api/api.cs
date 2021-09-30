@@ -3354,6 +3354,7 @@ namespace Core.Api
                     string ruleName;
                     if (TvmRuleManager.CheckGeoBlockMedia(groupId, (int)mediaId, ip, out ruleName))
                     {
+                        log.Debug($"There is Geo block for user {siteGuid} for media id {mediaId} ip {ip}, rule {ruleName}");
                         response.Rules.Add(new GenericRule() { Name = ruleName, RuleType = RuleType.Geo, Description = string.Empty });
                     }
 
@@ -3462,6 +3463,7 @@ namespace Core.Api
                         string ruleName;
                         if (TvmRuleManager.CheckGeoBlockMedia(groupId, (int)channelMediaId, ip, out ruleName))
                         {
+                            log.Debug($"There is Geo block for user {siteGuid} for channel media id {channelMediaId} epg id {epgId} ip {ip}, rule {ruleName}");
                             response.Rules.Add(new GenericRule()
                             {
                                 Name = ruleName,
@@ -3569,6 +3571,7 @@ namespace Core.Api
                     string ruleName;
                     if (mediaId != 0 && TvmRuleManager.CheckGeoBlockMedia(groupId, mediaId, ip, out ruleName))
                     {
+                        log.Debug($"There is Geo block for user {siteGuid} for media id {mediaId} ip {ip}, rule {ruleName}");
                         response.Rules.Add(new GenericRule() { Name = ruleName, RuleType = RuleType.Geo, Description = string.Empty });
                     }
 

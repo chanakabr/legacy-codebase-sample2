@@ -230,35 +230,37 @@ namespace Core.Catalog.CatalogManagement
                     break;
                 case ChannelType.Manual:
                     {
+                        bool isMixAssets = false;
                         #region Manual
                         if (assets != null)
                         {
-                            List<ManualAsset> manualMedias = new List<ManualAsset>();
-                            int? assetType;
-                            foreach (DataRow row in assets)
+                            if (assets.Count > 0 && ODBCWrapper.Utils.GetNullableInt(assets[0], "asset_type").HasValue)
                             {
-                                assetType = ODBCWrapper.Utils.GetNullableInt(row, "asset_type");
-                                manualMedias.Add(new ManualAsset()
+                                isMixAssets = true;
+                                List<ManualAsset> manualMedias = new List<ManualAsset>();
+                                int? assetType;
+                                foreach (DataRow row in assets)
                                 {
-                                    AssetId = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_ID"),
-                                    AssetType = assetType.HasValue ? (eAssetTypes)assetType.Value : eAssetTypes.MEDIA,
-                                    OrderNum = ODBCWrapper.Utils.GetIntSafeVal(row, "ORDER_NUM")
-
-
-                                });
-                            }
-                            if (manualMedias != null && manualMedias.Count > 0)
-                            {
-                                channel.ManualAssets = manualMedias.OrderBy(x => x.OrderNum).ToList();
-                                channel.m_lChannelTags = channel.ManualAssets.Select(x => new SearchValue()
+                                    assetType = ODBCWrapper.Utils.GetNullableInt(row, "asset_type");
+                                    manualMedias.Add(new ManualAsset()
+                                    {
+                                        AssetId = ODBCWrapper.Utils.GetIntSafeVal(row, "MEDIA_ID"),
+                                        AssetType = assetType.HasValue ? (eAssetTypes)assetType.Value : eAssetTypes.MEDIA,
+                                        OrderNum = ODBCWrapper.Utils.GetIntSafeVal(row, "ORDER_NUM")
+                                    });
+                                }
+                                if (manualMedias != null && manualMedias.Count > 0)
                                 {
-                                    m_sKey = x.AssetType == eAssetTypes.MEDIA ? "media_id" : "epg_id",
-                                    m_lValue = new List<string>() { x.AssetId.ToString() }
-                                }).ToList();
+                                    channel.ManualAssets = manualMedias.OrderBy(x => x.OrderNum).ToList();
+                                    channel.m_lChannelTags = channel.ManualAssets.Select(x => new SearchValue()
+                                    {
+                                        m_sKey = x.AssetType == eAssetTypes.MEDIA ? "media_id" : "epg_id",
+                                        m_lValue = new List<string>() { x.AssetId.ToString() }
+                                    }).ToList();
+                                }
                             }
                         }
-
-                        if (channelMedias != null && (assets == null || assets.Count < 1))
+                        if (channelMedias != null && !isMixAssets)
                         {
                             List<GroupsCacheManager.ManualMedia> manualMedias = new List<GroupsCacheManager.ManualMedia>();
                             HashSet<int> mediaIdsSet = new HashSet<int>();
@@ -272,16 +274,13 @@ namespace Core.Catalog.CatalogManagement
                                     manualMedias.Add(new GroupsCacheManager.ManualMedia(mediaId.ToString(), orderNum));
                                 }
                             }
-
                             if (manualMedias != null && manualMedias.Count > 0)
                             {
                                 channel.m_lManualMedias = manualMedias.OrderBy(x => x.m_nOrderNum).ToList();
                                 channel.m_lChannelTags = channel.m_lManualMedias.Select(x => new SearchValue() { m_sKey = "media_id", m_lValue = new List<string>() { x.m_sMediaId } }).ToList();
                             }
                         }
-
                         break;
-
                         #endregion
                     }
                 case ChannelType.KSQL:
@@ -398,7 +397,7 @@ namespace Core.Catalog.CatalogManagement
 
                         if (channelsIdsWithMetadata.Any())
                         {
-                            var metadatas = CatalogDAL.GetChannelsMetadataByIds(channelIds, eChannelType.Internal);
+                            var metadatas = CatalogDAL.GetChannelsMetadataByIds(channelsIdsWithMetadata, eChannelType.Internal);
 
                             foreach (var item in channelsWithMetadata)
                             {
@@ -1109,13 +1108,21 @@ namespace Core.Catalog.CatalogManagement
                     // validate medias exist for manual channel only
                     if (channelToUpdate.m_nChannelTypeID == (int)ChannelType.Manual)
                     {
-                        if (channelToUpdate.m_lManualMedias?.Count > 0)
+                        if (channelToUpdate.m_lManualMedias != null)
                         {
-                            Status assetStatus = ValidateMediasForManualChannel(groupId, channelToUpdate.m_lManualMedias, out mediaIdsToOrderNum);
-                            if (!assetStatus.IsOkStatusCode())
+                            mediaIdsToOrderNum = new List<KeyValuePair<long, int>>();
+                            if (channelToUpdate.m_lManualMedias.Count > 0)
+
+
+
+
                             {
-                                response.SetStatus(assetStatus);
-                                return response;
+                                Status assetStatus = ValidateMediasForManualChannel(groupId, channelToUpdate.m_lManualMedias, out mediaIdsToOrderNum);
+                                if (!assetStatus.IsOkStatusCode())
+                                {
+                                    response.SetStatus(assetStatus);
+                                    return response;
+                                }
                             }
                         }
 
@@ -1195,11 +1202,6 @@ namespace Core.Catalog.CatalogManagement
                     List<DataRow> descriptionTranslations = ds.Tables[2] != null && ds.Tables[2].Rows != null ? ds.Tables[2].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
                     List<DataRow> mediaTypes = ds.Tables[3] != null && ds.Tables[3].Rows != null ? ds.Tables[3].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
                     List<DataRow> mediaIds = ds.Tables[4] != null && ds.Tables[4].Rows != null ? ds.Tables[4].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
-                    List<DataRow> assets = null;
-                    if (ds.Tables.Count == 6)
-                    {
-                        assets = ds.Tables[5] != null && ds.Tables[5].Rows != null ? ds.Tables[5].AsEnumerable().ToList() : new DataTable().AsEnumerable().ToList();
-                    }
 
                     int id = ODBCWrapper.Utils.GetIntSafeVal(dr["Id"]);
                     if (id > 0)
@@ -1220,6 +1222,12 @@ namespace Core.Catalog.CatalogManagement
                         else
                         {
                             metaData = currentChannel?.MetaData;
+                        }
+
+                        List<DataRow> assets = null;
+                        if (mediaIdsToOrderNum == null)
+                        {
+                            assets = mediaIds;
                         }
 
                         response.Object = CreateChannel(id, dr, nameTranslations, descriptionTranslations, mediaTypes, mediaIds, assets);

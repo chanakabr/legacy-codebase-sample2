@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using ApiObjects;
 
 namespace ElasticSearchHandler
 {
@@ -29,7 +30,7 @@ namespace ElasticSearchHandler
                 // If the request is for a rebuild:
                 if (request.Action == ApiObjects.eAction.Rebuild)
                 {
-                    HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = true;
+                    // HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = true;
 
                     #region Rebuild
                     if (request.Type == ApiObjects.eObjectType.EPG && GroupSettingsManager.DoesGroupUseNewEpgIngest(request.GroupID))
@@ -84,6 +85,31 @@ namespace ElasticSearchHandler
                         }
                     }
                     #endregion
+                }
+                else if (request.Action == ApiObjects.eAction.EpgRegionUpdate)
+                {
+                    var updater = Updaters.UpdaterFactory.CreateUpdater(request.GroupID, eObjectType.EPG); 
+
+                    if (updater != null)
+                    {
+                        updater.Action = request.Action;
+                        updater.IDs = request.DocumentIDs;
+
+                        bool result = updater.Start();
+                        
+                        if (result)
+                        {
+                            res = "success";
+                            log.DebugFormat("Successfully perform {0} action on asset of type {1} with id: [{2}].",
+                                request.Action.ToString(), request.Type.ToString(), string.Join(",", request.DocumentIDs));
+                        }
+                        else
+                        {
+                            throw new Exception(
+                                string.Format("Performing {0} action on asset of type {1} with id: [{2}] did not finish successfully.",
+                                    request.Action.ToString(), request.Type.ToString(), string.Join(",", request.DocumentIDs)));
+                        }
+                    }
                 }
                 else
                 {

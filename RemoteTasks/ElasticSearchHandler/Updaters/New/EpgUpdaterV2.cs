@@ -14,6 +14,10 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using ApiObjects.SearchObjects;
+using Core.Api;
+using Core.Catalog.Response;
+using Core.ConditionalAccess;
+using Newtonsoft.Json;
 
 namespace ElasticSearchHandler.Updaters
 {
@@ -25,16 +29,28 @@ namespace ElasticSearchHandler.Updaters
 
         #region Data Members
 
-        protected int groupId;
+        protected readonly int groupId;
         protected EpgBL.BaseEpgBL epgBL;
-        protected int sizeOfBulk;
-        protected IIndexManager _indexManager;
+        protected readonly int sizeOfBulk;
+        protected readonly IIndexManager _indexManager;
+        private List<long> _identifiers;
+        private const int CHUNK_EPG_SIZE = 5;
 
         #endregion
 
         #region Properties
 
         public List<int> IDs { get; set; }
+
+        private List<long> Identifiers
+        {
+            get
+            {
+                _identifiers = _identifiers ?? IDs.Select(x => (long)x).ToList();
+                return _identifiers;
+            }
+        }
+
         public ApiObjects.eAction Action { get; set; }
 
         #endregion
@@ -77,18 +93,40 @@ namespace ElasticSearchHandler.Updaters
             {
                 case ApiObjects.eAction.Off:
                 case ApiObjects.eAction.Delete:
-                    result = DeleteEpg(IDs);
+                    result = DeleteEpg(Identifiers);
                     break;
                 case ApiObjects.eAction.On:
                 case ApiObjects.eAction.Update:
                     {
                         // First we delete so we don't get this weird duplicate ID bug.
-                        result = DeleteEpg(IDs);
+                        result = DeleteEpg(Identifiers);
 
                         // Only then we update normally
-                        result &= UpdateEpg(IDs);
+                        result &= UpdateEpg(Identifiers, UpdateEpgs);
                         break;
                     }
+                case eAction.EpgRegionUpdate:
+                {
+                    log.Debug($"Start {nameof(eAction.EpgRegionUpdate)}.");
+                    result = true;
+                    if (!IsRegionalizationEnabled())
+                    {
+                        log.Debug($"Regionalization is turned off! Can't proceed with {nameof(eAction.EpgRegionUpdate)} action.");
+                        return result;
+                    }
+
+                    foreach (var linearMediaId in IDs)
+                    {
+                        var epgIds = GetEpgIds(linearMediaId);
+                        log.Debug($"Took {epgIds.Count} to update.");
+                        if (epgIds.Count > 0)
+                        {
+                            result &= UpdateEpg(epgIds, epgCBs => UpdateEpgRegionsPartial(epgCBs, linearMediaId));
+                        }
+                    }
+
+                    break;
+                }
                 default:
                     result = true;
                     break;
@@ -99,7 +137,7 @@ namespace ElasticSearchHandler.Updaters
 
         #endregion
 
-        protected bool UpdateEpg(List<int> epgIds)
+        protected bool UpdateEpg(List<long> epgIds, Func<List<EpgCB>, bool> epgsUpdater)
         {
             bool result = true;
             //result &= Core.Catalog.CatalogManagement.IndexManager.UpsertEpg(groupId, id);
@@ -148,24 +186,24 @@ namespace ElasticSearchHandler.Updaters
                 }
                 else
                 {
-                    Task<List<EpgCB>>[] programsTasks = new Task<List<EpgCB>>[epgIds.Count];
-                    ContextData cd = new ContextData();
-
                     //open task factory and run GetEpgProgram on different threads
                     //wait to finish
                     //bulk insert
-                    for (int i = 0; i < epgIds.Count; i++)
+                    // It's absolutely useless to run 100+ epgs retrieval tasks -> due to context switching we can't retrieve them in reasonable amount of time. 
+                    var cd = new ContextData();
+                    var epgBL = EpgBL.Utils.GetInstance(groupId);
+                    foreach (var chunk in BaseConditionalAccess.Chunkify(epgIds, CHUNK_EPG_SIZE))
                     {
-                        programsTasks[i] = Task.Run<List<EpgCB>>(() =>
+                        var tasks = chunk.Select(ch => Task.Run(() =>
                         {
                             cd.Load();
-                            return ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, epgIds[i], languageCodes);
-                        });
+                            return ElasticsearchTasksCommon.Utils.GetEpgPrograms(groupId, ch, languageCodes, epgBL);
+                        })).ToArray();
+
+                        Task.WaitAll(tasks);
+
+                        epgObjects.AddRange(tasks.Where(t => t.Result != null).SelectMany(t => t.Result));
                     }
-
-                    Task.WaitAll(programsTasks);
-
-                    epgObjects = programsTasks.SelectMany(t => t.Result).Where(t => t != null).ToList();
                 }
 
                 if (epgObjects != null)
@@ -178,7 +216,7 @@ namespace ElasticSearchHandler.Updaters
                     }
                     else
                     {
-                        result = this.UpdateEpgs(epgObjects);
+                        result = epgsUpdater(epgObjects);
                     }
                 }
             }
@@ -191,15 +229,70 @@ namespace ElasticSearchHandler.Updaters
             return result;
         }
 
-        protected bool DeleteEpg(List<int> epgIDs)
+        protected bool DeleteEpg(List<long> epgIDs)
         {
-            return _indexManager.DeleteProgram(epgIDs.Select(id => (long)id).ToList(), null);
+            return _indexManager.DeleteProgram(epgIDs.Select(id => id).ToList(), null);
             //return result;
         }
 
         protected virtual bool UpdateEpgs(List<EpgCB> epgObjects)
         {
             return _indexManager.UpdateEpgs(epgObjects, false);
+        }
+        
+        private List<long> GetEpgIds(int linearMediaId)
+        {
+            var epgKsql = $"(and linear_media_id='{linearMediaId}')";
+            var epgResult = api.SearchAssets(groupId, epgKsql, 0, 0, true, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
+            return epgResult.Select(x => long.Parse(x.AssetId)).ToList();
+        }
+
+        private bool UpdateEpgRegionsPartial(IEnumerable<EpgCB> epgs, int linearMediaId)
+        {
+            var linearMediaRegions = RegionManager.GetLinearMediaRegions(groupId);
+            if (linearMediaRegions != null && linearMediaRegions.ContainsKey(linearMediaId))
+            {
+                var epgPartialUpdateEsObjects = epgs.Select(e => new EpgPartialUpdateEsObject
+                    {
+                        EpgId = e.EpgID,
+                        Language = e.Language,
+                        StartDate = e.StartDate,
+                        EpgPartial = new EpgEs
+                        {
+                            Regions = linearMediaRegions[linearMediaId].ToArray()
+                        }
+                    }).ToArray();
+
+                return _indexManager.UpdateEpgsPartial(epgPartialUpdateEsObjects);
+            }
+
+            return true;
+        }
+
+        private bool IsRegionalizationEnabled()
+        {
+            var doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
+            CatalogGroupCache catalogGroupCache = null;
+            Group group = null;
+            if (doesGroupUsesTemplates)
+            {
+                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+                {
+                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling UpdateEpg", groupId);
+                    return false;
+                }
+            }
+            else
+            {
+                group = GroupsCache.Instance().GetGroup(this.groupId);
+                if (group == null)
+                {
+                    log.ErrorFormat("Couldn't get group {0}", this.groupId);
+                    return false;
+                }
+            }
+            
+            return doesGroupUsesTemplates ? catalogGroupCache.IsRegionalizationEnabled : group.isRegionalizationEnabled;
         }
     }
 }

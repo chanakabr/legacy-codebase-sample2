@@ -15,6 +15,7 @@ namespace ConfigurationManager
         public BaseValue<string> GroupsWithIUserTypeSeperatedBySemiColon = new BaseValue<string>("GroupIDsWithIUserTypeSeperatedBySemiColon", "0");
         public BaseValue<bool> ShouldUseFirstPlayRateManager = new BaseValue<bool>("use_first_play_rate_manager", false);
         public BaseValue<int> SearchPastSeriesRecordingsPageSize = new BaseValue<int>("search_past_series_recordings_page_size", 200);
+        public BaseValue<bool> ShouldUseUpdateRegionPerformanceImprovement = new BaseValue<bool>("use_update_region_performance_improvement", false);
 
         public override string TcmKey => TcmObjectKeys.CatalogLogicConfiguration;
 

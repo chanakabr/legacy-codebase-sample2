@@ -26,7 +26,9 @@ using AuthenticationGrpcClientWrapper;
 using APILogic.Api.Managers;
 using ApiLogic.Users.Managers;
 using ApiObjects.CanaryDeployment.Microservices;
+using ApiObjects.Roles;
 using CanaryDeploymentManager;
+using Core.Api;
 
 namespace Core.Users
 {
@@ -905,34 +907,54 @@ namespace Core.Users
                 InvalidateDomainUser(nUserID.ToString());
             }
 
+            RolesResponse userRolesResponse = api.GetUserRoles(nGroupID, nMasterUserGuid.ToString());
+            User currUser = UsersCache.Instance().GetUser(nUserID, nGroupID);
+            bool isUpdateNeeded = false;
+            if (currUser != null && userRolesResponse.Roles != null & userRolesResponse.Roles.Count > 0)
+            {
+                List<Role> allMasterUserGuidRoles = userRolesResponse.Roles;
+                allMasterUserGuidRoles = allMasterUserGuidRoles.FindAll(r => r.Profile == RoleProfileType.Profile);
+                foreach (Role role in allMasterUserGuidRoles)
+                {
+                    if (!currUser.m_oBasicData.RoleIds.Contains(role.Id))
+                    {
+                        isUpdateNeeded = true;
+                        currUser.m_oBasicData.RoleIds.Add(role.Id);
+                    }
+                }
+            }
+            
             // if user was added successfully as master - set user role to be master
             if (eDomainResponseStatus == DomainResponseStatus.OK && UsersDal.IsUserDomainMaster(nGroupID, nUserID))
             {
-                User currUser = UsersCache.Instance().GetUser(nUserID, nGroupID);
                 if (currUser != null)
                 {
                     long roleId = ApplicationConfiguration.Current.RoleIdsConfiguration.MasterRoleId.Value;
                     if (roleId > 0 && !currUser.m_oBasicData.RoleIds.Contains(roleId))
                     {
+                        isUpdateNeeded = true;
                         currUser.m_oBasicData.RoleIds.Add(roleId);
-
-                        if (UsersDal.UpsertUserRoleIds(m_nGroupID, nUserID, currUser.m_oBasicData.RoleIds))
-                        {
-                            // add invalidation key for user roles cache
-                            string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nGroupID, nUserID.ToString());
-                            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
-                            {
-                                log.ErrorFormat("Failed to set invalidation key on AddUserToDomain key = {0}", invalidationKey);
-                            }
-                        }
-                        else
-                        {
-                            log.ErrorFormat("User created with no role. userId = {0}", nUserID);
-                        }
                     }
                 }
             }
 
+            if (isUpdateNeeded)
+            {
+                if (UsersDal.UpsertUserRoleIds(m_nGroupID, nUserID, currUser.m_oBasicData.RoleIds))
+                {
+                    // add invalidation key for user roles cache
+                    string invalidationKey = LayeredCacheKeys.GetUserRolesInvalidationKey(nGroupID, nUserID.ToString());
+                    if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+                    {
+                        log.Error($"Failed to set invalidation key on GetUserRoles key = {invalidationKey}");
+                    }
+                }
+                else
+                {
+                    log.Warn($"Upsert user role ids failed. userId = {nUserID}");
+                }
+            }
+            
             return eDomainResponseStatus;
         }
 
@@ -1120,19 +1142,22 @@ namespace Core.Users
         public DomainResponseStatus AddDeviceToDomain(int groupId, int domainId, string udid, string deviceName, int brandId, ref Device device)
         {
             DomainResponseStatus responseStatus = DomainResponseStatus.UnKnown;
-            bool removeSuccess = false;
+            bool insertSuccess = false;
             
-            responseStatus = DomainManager.Instance.AddDeviceToDomain(groupId, domainId, udid, deviceName, brandId, this, ref device, out removeSuccess);
+            responseStatus = DomainManager.Instance.AddDeviceToDomain(groupId, domainId, udid, deviceName, brandId, this, ref device, out insertSuccess);
 
             try
             {
                 // changes made on the domain - remove it from Cache
-                if (removeSuccess)
+                if (insertSuccess)
                 {
                     //Remove domain from cache
                     DomainsCache domainCache = DomainsCache.Instance();
                     domainCache.RemoveDomain(groupId, domainId);
                     InvalidateDomain();
+                    
+                    // remove device play data if exists (if device was removed from domain before)
+                    ConcurrencyManager.DeleteDevicePlayData(udid);
 
                     var domainDevices = Core.Api.api.Instance.GetDomainDevices(domainId, groupId);
                     if (domainDevices != null && !domainDevices.ContainsKey(udid))

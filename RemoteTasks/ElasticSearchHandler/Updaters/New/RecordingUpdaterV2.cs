@@ -59,7 +59,7 @@ namespace ElasticSearchHandler.Updaters
             // Map EPGs to original recordings,
             // Get all program IDs
 
-            List<int> epgIds = epgToRecordingMapping.Keys.Select(x => (int)x).ToList();
+            List<long> epgIds = epgToRecordingMapping.Keys.Select(x => (long)x).ToList();
 
             // Call to methods in EPG Updater with the EPG IDs we "collected"
             switch (Action)
@@ -73,7 +73,7 @@ namespace ElasticSearchHandler.Updaters
                 case ApiObjects.eAction.On:
                 case ApiObjects.eAction.Update:
                 {
-                    result = UpdateEpg(epgIds);
+                    result = UpdateEpg(epgIds, this.UpdateEpgs);
                     break;
                 }
                 default:

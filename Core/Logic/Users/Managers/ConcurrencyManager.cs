@@ -467,5 +467,11 @@ namespace Core.Users
                 }
             }
         }
+
+        internal static void DeleteDevicePlayData(string udid)
+        {
+            if (CatalogDAL.DeleteDevicePlayData(udid))
+                log.Debug($"device play data removed - udid:{udid}");
+        }
     }
 }

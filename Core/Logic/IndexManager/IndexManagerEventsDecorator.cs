@@ -299,6 +299,11 @@ namespace ApiLogic.Catalog.IndexManager
                 epgObjects, isRecording, epgToRecordingMapping);
         }
 
+        public bool UpdateEpgsPartial(EpgPartialUpdateEsObject[] epgs)
+        {
+            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, epgs);
+        }
+
         //CUD
         public string SetupEpgV2Index(DateTime dateOfProgramsToIngest)
         {
