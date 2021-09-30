@@ -19,6 +19,7 @@ using ElasticSearch.Utilities;
 using ApiLogic.IndexManager.QueryBuilders;
 using TvinciCache.Adapters;
 using ApiLogic.IndexManager.Mappings;
+using TVinciShared;
 
 namespace Core.Catalog
 {
@@ -32,28 +33,52 @@ namespace Core.Catalog
         
         private static readonly Lazy<IndexManagerFactory> Lazy = new Lazy<IndexManagerFactory>(() => new IndexManagerFactory(), LazyThreadSafetyMode.PublicationOnly);
 
+        private static readonly KLogger logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         public static IndexManagerFactory Instance { get { return Lazy.Value; } }
 
         private ConcurrentDictionary<string, IIndexManager> _indexManagerInstance;
+
+        private static ElasticsearchVersion? _esTestingVersion;
         
+        private const string ES_TESTING_VERSION = "ES_TESTING_VERSION";
+
         private IndexManagerFactory()
         {
             _indexManagerInstance = new ConcurrentDictionary<string, IIndexManager>();
+            _esTestingVersion = TryGetEsTestingVersion();
         }
-        
+
         public IIndexManager GetIndexManager(int partnerId)
         {
-            var isMigrationEventsEnabled =
-                CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager()
-                    .IsMigrationEventsEnabled(partnerId);
-            var activeElasticsearchActiveVersion = CanaryDeploymentFactory.Instance.GetElasticsearchCanaryDeploymentManager().
-                GetActiveElasticsearchActiveVersion(partnerId);
-            var keyName = $"{activeElasticsearchActiveVersion}{partnerId}{isMigrationEventsEnabled}";
+            var isMigrationEventsEnabled = !_esTestingVersion.HasValue && CanaryDeploymentFactory.Instance
+                .GetElasticsearchCanaryDeploymentManager()
+                .IsMigrationEventsEnabled(partnerId);
 
-            return _indexManagerInstance.GetOrAdd(keyName, s =>
+            var elasticsearchActiveVersion = _esTestingVersion ?? CanaryDeploymentFactory.Instance
+                .GetElasticsearchCanaryDeploymentManager().GetActiveElasticsearchActiveVersion(partnerId);
+            
+            var keyName = $"{elasticsearchActiveVersion}{partnerId}{isMigrationEventsEnabled}";
+
+            return _indexManagerInstance.GetOrAdd(keyName,
+                s => CreateIndexManager(partnerId, isMigrationEventsEnabled, elasticsearchActiveVersion));
+        }
+
+        private static ElasticsearchVersion? TryGetEsTestingVersion()
+        {
+            var esTestingVersion = Environment.GetEnvironmentVariable(ES_TESTING_VERSION);
+            if (esTestingVersion.IsNullOrEmptyOrWhiteSpace())
             {
-                return CreateIndexManager(partnerId, isMigrationEventsEnabled, activeElasticsearchActiveVersion);
-            });
+                return null;
+            }
+
+            if (!Enum.TryParse(esTestingVersion, out ElasticsearchVersion esVersion))
+            {
+                var message = $"error {ES_TESTING_VERSION} value {esTestingVersion} could not be parsed to ElasticsearchVersion type";
+                logger.Error(message);
+                return null;
+            }
+
+            return esVersion;
         }
 
         private IIndexManager CreateIndexManager(int partnerId, bool isMigrationEventsEnabled,

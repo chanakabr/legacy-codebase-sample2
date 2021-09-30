@@ -715,20 +715,6 @@ namespace Core.Catalog
             {
                 log.ErrorFormat("Delete media with id {0} failed", assetId);
             }
-            else
-            {
-                try
-                {
-                    // support for old invalidation keys
-                    // invalidate epg's for OPC and NON-OPC accounts
-                    _layeredCache.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(_partnerId, assetId));
-                }
-                catch (Exception ex)
-                {
-                    log.Error($"Failed invalidating media {assetId} on partner {_partnerId}", ex);
-                }
-            }
-
             return isSuccess;
         }
 
@@ -4152,8 +4138,10 @@ namespace Core.Catalog
                 var contextData = new ContextData();
                 ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
 
+                HashSet<string> metasToPad = GetMetasToPad();
+
                 // For each media
-                var bulkRequests = GetMediaBulkRequests(groupMedias, newIndexName, sizeOfBulk);
+                var bulkRequests = GetMediaBulkRequests(groupMedias, newIndexName, sizeOfBulk, metasToPad);
                 // Send request to elastic search in a different thread
                 Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
                 {
@@ -4173,7 +4161,8 @@ namespace Core.Catalog
 
         private Dictionary<int, List<NestEsBulkRequest<NestMedia>>> GetMediaBulkRequests(Dictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> groupMedias,
             string newIndexName,
-            int sizeOfBulk)
+            int sizeOfBulk,
+            HashSet<string> metasToPad = null)
         {
             var numOfBulkRequests = 0;
             var bulkRequests = new Dictionary<int, List<NestEsBulkRequest<NestMedia>>>() { { numOfBulkRequests, new List<NestEsBulkRequest<NestMedia>>() } };
@@ -4181,13 +4170,16 @@ namespace Core.Catalog
             foreach (var groupMedia in groupMedias)
             {
                 var groupMediaValue = groupMedia.Value;
-                numOfBulkRequests = GetMediaNestEsBulkRequest(newIndexName, sizeOfBulk, numOfBulkRequests, bulkRequests, groupMediaValue);
+                numOfBulkRequests = GetMediaNestEsBulkRequest(newIndexName, sizeOfBulk, numOfBulkRequests, bulkRequests, groupMediaValue, metasToPad);
             }
 
             return bulkRequests;
         }
 
-        private int GetMediaNestEsBulkRequest(string newIndexName, int sizeOfBulk, int numOfBulkRequests, Dictionary<int, List<NestEsBulkRequest<NestMedia>>> bulkRequests, Dictionary<int, ApiObjects.SearchObjects.Media> groupMediaValue)
+        private int GetMediaNestEsBulkRequest(string newIndexName, int sizeOfBulk, int numOfBulkRequests, 
+            Dictionary<int, List<NestEsBulkRequest<NestMedia>>> bulkRequests, 
+            Dictionary<int, ApiObjects.SearchObjects.Media> groupMediaValue,
+            HashSet<string> metasToPad = null)
         {
             // For each language
             foreach (var languageId in groupMediaValue.Keys.Distinct())
@@ -4198,7 +4190,12 @@ namespace Core.Catalog
                 if (media == null)
                     continue;
 
-                media.PadMetas(GetMetasToPad());
+                if (metasToPad == null)
+                {
+                    metasToPad = GetMetasToPad();
+                }
+
+                media.PadMetas(metasToPad);
 
                 var bulkRequest =
                     GetMediaNestEsBulkRequest(newIndexName,

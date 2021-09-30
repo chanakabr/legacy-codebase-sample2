@@ -246,11 +246,6 @@ namespace Core.Catalog
                                         log.Error("Error - " + string.Format("Could not update media in ES. GroupID={0};Type={1};MediaID={2};serializedObj={3};",
                                             _partnerId, type, media.m_nMediaID, serializedMedia));
                                     }
-                                    // support for old invalidation keys
-                                    else
-                                    {
-                                        _layeredCache.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(_partnerId, assetId));
-                                    }
                                 }
                             }
                         }
@@ -329,12 +324,7 @@ namespace Core.Catalog
             {
                 log.ErrorFormat("Delete media with id {0} failed", assetId);
             }
-            // support for old invalidation keys
-            else
-            {
-                _layeredCache.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(_partnerId, assetId));
-            }
-
+            
             return result;
         }
 
@@ -5366,6 +5356,7 @@ namespace Core.Catalog
                     int numOfBulkRequests = 0;
 
                     var bulkRequests =  new Dictionary<int, List<ESBulkRequestObj<int>>>() { { numOfBulkRequests, new List<ESBulkRequestObj<int>>() } };
+                    var metasToPad = GetMetasToPad();
 
                     // For each media
                     foreach (var groupMedia in groupMedias)
@@ -5390,7 +5381,7 @@ namespace Core.Catalog
 
                             if (media != null)
                             {
-                                media.PadMetas(GetMetasToPad());
+                                media.PadMetas(metasToPad);
 
                                 // Serialize media and create a bulk request for it
                                 string serializedMedia = _serializer.SerializeMediaObject(media, suffix);

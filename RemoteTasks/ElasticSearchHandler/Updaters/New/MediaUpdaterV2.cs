@@ -9,6 +9,7 @@ using GroupsCacheManager;
 using KLogMonitor;
 using System.Reflection;
 using APILogic.Api.Managers;
+using CachingProvider.LayeredCache;
 using Core.Catalog;
 
 namespace ElasticSearchHandler.Updaters
@@ -87,6 +88,7 @@ namespace ElasticSearchHandler.Updaters
             foreach (int mediaId in mediaIds)
             {
                 bool res = _indexManager.UpsertMedia(mediaId);
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupID, mediaId));
 
                 if (res)
                 {
@@ -106,8 +108,11 @@ namespace ElasticSearchHandler.Updaters
             foreach (int id in mediaIDs)
             {
                 result &= _indexManager.DeleteMedia(id);
+                //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
+                //not sure it's required but better be safe
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupID, id));    
+                
             }
-
             return result;
         }
 

@@ -2332,6 +2332,10 @@ namespace Core.Catalog.CatalogManagement
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateLinearMediaAsset", result.Object.Id, groupId);
                         }
+                        //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
+                         //not sure it's required but better be safe
+                         LayeredCache.Instance.SetInvalidationKey(
+                             LayeredCacheKeys.GetMediaInvalidationKey(groupId, result.Object.Id));
                     }
                 }
             }
@@ -2547,6 +2551,10 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.ErrorFormat("Failed to delete media index for assetId: {0}, groupId: {1} after DeleteAsset", mediaId, groupId);
                 }
+                //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
+                //not sure it's required but better be safe
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId));
+
             }
             else
             {
@@ -3938,11 +3946,16 @@ namespace Core.Catalog.CatalogManagement
                         // UpdateIndex
                         if (!isFromIngest)
                         {
-                            bool indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia(id);
+                            var indexingResult = IndexManagerFactory.Instance.GetIndexManager(groupId).UpsertMedia(id);
                             if (!indexingResult)
                             {
                                 log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromMediaAsset", id, eAssetTypes.MEDIA.ToString(), groupId);
                             }
+                            
+                            //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
+                            //not sure it's required but better be safe
+                            LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
+                            
                         }
                     }
                     else

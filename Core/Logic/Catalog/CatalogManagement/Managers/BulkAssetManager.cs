@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using CachingProvider.LayeredCache;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
@@ -88,6 +89,10 @@ namespace Core.Catalog.CatalogManagement
                     {
                         log.Error($"Failed UpsertMedia index for assetId: {mediaAsset.Id}, groupId: {groupId} after Ingest");
                     }
+                    
+                    //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
+                    //not sure it's required but better be safe
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaAsset.Id));
 
                     // invalidate asset
                     AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, (int)mediaAsset.Id);

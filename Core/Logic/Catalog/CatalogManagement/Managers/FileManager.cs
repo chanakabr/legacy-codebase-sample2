@@ -674,7 +674,10 @@ namespace Core.Catalog.CatalogManagement
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after InsertMediaFile", assetFileToAdd.AssetId, groupId);
                         }
-
+                        //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
+                        //not sure it's required but better be safe
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetFileToAdd.AssetId));
+                        
                         // invalidate asset
                         AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileToAdd.AssetId);
                     }
@@ -716,7 +719,10 @@ namespace Core.Catalog.CatalogManagement
                     {
                         log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after DeleteMediaFile", assetFileResponse.Object.AssetId, groupId);
                     }
-
+                    //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
+                    //not sure it's required but better be safe
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetFileResponse.Object.AssetId));
+                    
                     // invalidate asset
                     AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileResponse.Object.AssetId);
                 }
@@ -837,7 +843,11 @@ namespace Core.Catalog.CatalogManagement
                         {
                             log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after UpdateMediaFile", assetFileToUpdate.AssetId, groupId);
                         }
-
+                        
+                        //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
+                        //not sure it's required but better be safe
+                        LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetFileToUpdate.AssetId));
+                        
                         // invalidate asset
                         AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileToUpdate.AssetId);
                     }

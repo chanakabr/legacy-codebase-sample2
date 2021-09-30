@@ -12,6 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml;
 using System.Xml.Serialization;
+using CachingProvider.LayeredCache;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using TagValue = ApiObjects.SearchObjects.TagValue;
@@ -467,7 +468,10 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, groupId: {1} after IndexAndInvalidateAssets", asset.Key, groupId);
                 }
-
+                //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
+                //not sure it's required but better be safe
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, asset.Key));
+                
                 // if asset is exists
                 if (asset.Value)
                 {

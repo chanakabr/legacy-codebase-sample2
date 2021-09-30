@@ -511,8 +511,10 @@ namespace Core.Api.Managers
                     {
                         log.ErrorFormat("Failed UpsertMedia index for assetId: {0}", assetId);
                     }
+                    
+                    LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetId));
 
-                    Catalog.CatalogManagement.AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetId);
+                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetId);
 
                 }
                 return mediaToUpdate.Count;
@@ -1428,7 +1430,8 @@ namespace Core.Api.Managers
             var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
             foreach (var mediaId in updatedMediaIds)
             {
-                indexManager.UpsertMedia(mediaId);
+                var success = indexManager.UpsertMedia(mediaId);
+                LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaId));
             }
 
             assetRule.Status = RuleStatus.Ready;
