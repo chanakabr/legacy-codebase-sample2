@@ -383,32 +383,6 @@ namespace Core.Catalog.CatalogManagement
             return objectsListResponse;
         }
 
-        // TODO remove - not used
-        public static Status UpdateOrAddBulkUploadAffectedObjects(long bulkUploadId, IEnumerable<IAffectedObject> affectedObject)
-        {
-            var response = new Status((int)eResponseStatus.Error);
-
-            try
-            {
-                var isSuccess = CatalogDAL.UpdateOrAddBulkUploadAffectedObjectsToCB(bulkUploadId, affectedObject, BULK_UPLOAD_CB_TTL);
-                if (!isSuccess)
-                {
-                    log.ErrorFormat("UpdateOrAddBulkUploadAffectedObjects - Error while saving to CB. affectedObject:[{0}]", string.Join(",", affectedObject));
-                    response.Set(eResponseStatus.Error);
-                }
-
-                response.Set(eResponseStatus.OK);
-            }
-            catch (Exception)
-            {
-
-                log.Error(string.Format("An Exception was occurred in UpdateBulkUploadResult. results:[{0}]", string.Join(",", affectedObject)));
-                response.Set(eResponseStatus.Error);
-            }
-
-            return response;
-        }
-
         public static Status UpdateBulkUploadResults(IEnumerable<BulkUploadResult> results, out BulkUploadJobStatus status)
         {
             status = BulkUploadJobStatus.Processing;
