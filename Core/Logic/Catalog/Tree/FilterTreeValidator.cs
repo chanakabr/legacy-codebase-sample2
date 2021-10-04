@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ApiLogic.IndexManager.QueryBuilders;
+using ApiObjects;
 using ApiObjects.SearchObjects;
 using Core.Catalog;
 
@@ -26,6 +28,12 @@ namespace ApiLogic.Catalog.Tree
         public IndexesModel ValidateTree(BooleanPhraseNode tree)
         {
             return tree != null ? ReadNode(tree) : null;
+        }
+
+        public IndexesModel ValidateTree(BooleanPhraseNode tree, IEnumerable<int> mediaTypes)
+        {
+            var filterTree = PrepareTreeWithMediaTypes(tree, mediaTypes);
+            return ValidateTree(filterTree);
         }
 
         private IndexesModel ReadNode(BooleanPhraseNode node)
@@ -74,6 +82,33 @@ namespace ApiLogic.Catalog.Tree
             }
 
             return new IndexesModel();
+        }
+        
+        private static BooleanPhraseNode PrepareTreeWithMediaTypes(BooleanPhraseNode tree, IEnumerable<int> mediaTypes)
+        {
+            if (mediaTypes == null)
+            {
+                return tree;
+            }
+
+            if (!mediaTypes.Any())
+            {
+                return tree;
+            }
+            
+            var newNodes = new List<BooleanPhraseNode>();
+            var assetTypeNodes = mediaTypes.Select(mediaType => new BooleanLeaf("asset_type", mediaType.ToString())).Cast<BooleanPhraseNode>().ToList();
+
+            var assetTypesPhrase = new BooleanPhrase(assetTypeNodes);
+            newNodes.Add(assetTypesPhrase);
+
+            if (tree != null)
+            {
+                newNodes.Add(tree);
+            }
+
+            var filterTree = new BooleanPhrase(newNodes, eCutType.And);
+            return filterTree;
         }
     }
 }
