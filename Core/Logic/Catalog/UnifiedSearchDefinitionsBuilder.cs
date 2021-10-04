@@ -178,11 +178,11 @@ namespace Core.Catalog
                     definitions.shouldSearchEpg = false;
                 }
 
-                var result = _filterTreeValidator.ValidateTree(request.filterTree);
+                var result = _filterTreeValidator.ValidateTree(request.filterTree, definitions.mediaTypes);
                 if (result != null)
                 {
                     definitions.shouldSearchEpg = result.ShouldSearchEpg;
-                    definitions.shouldSearchMedia = result.ShouldSearchMedia;   
+                    definitions.shouldSearchMedia = result.ShouldSearchMedia;
                 }
 
                 HashSet<int> mediaTypes = null;

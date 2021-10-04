@@ -8,8 +8,20 @@ namespace ApiLogic.Catalog.Tree
     {
         public IndexesModel ProcessResults(eCutType operand, IEnumerable<IndexesModel> results)
         {
+            if (!results.Any())
+            {
+                return null;
+            }
+            
             var result = new IndexesModel();
-            var index = results.Aggregate(result.Indexes, (current, r) => current | r.Indexes);
+            var filteredResults = results.Where(x => x != null).ToArray();
+            // in case there is only 1 node with result, we don't care what operator is (or/and) 
+            if (filteredResults.Length == 1)
+            {
+                return filteredResults.First();
+            }
+            
+            var index = filteredResults.Aggregate(result.Indexes, (current, r) => current | r.Indexes);
             switch (operand)
             {
                 case eCutType.Or:
