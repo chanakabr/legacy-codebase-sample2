@@ -3254,5 +3254,63 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return null;
         }
+
+        public static ChannelType? ConvertChannelType(KalturaChannelStruct? type)
+        {
+            if (type.HasValue)
+            {
+                switch (type)
+                {
+                    case KalturaChannelStruct.Dynamic:
+                        return ChannelType.KSQL;
+                    case KalturaChannelStruct.Manual:
+                        return ChannelType.Manual;
+                    default:
+                        return null;
+                }
+            }
+
+            return null;
+        }
+
+        public static void ConvertChannelsOrderBy (KalturaChannelsOrderBy kOrderBy, out ChannelOrderBy orderBy, out ApiObjects.SearchObjects.OrderDir orderDirection)
+        {
+            orderBy = ChannelOrderBy.Id;
+            orderDirection = ApiObjects.SearchObjects.OrderDir.NONE;
+
+            switch (kOrderBy)
+            {
+                case KalturaChannelsOrderBy.NONE:
+                    orderBy = ChannelOrderBy.Id;
+                    orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                    break;
+                case KalturaChannelsOrderBy.NAME_ASC:
+                    orderBy = ChannelOrderBy.Name;
+                    orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
+                    break;
+                case KalturaChannelsOrderBy.NAME_DESC:
+                    orderBy = ChannelOrderBy.Name;
+                    orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                    break;
+                case KalturaChannelsOrderBy.CREATE_DATE_ASC:
+                    orderBy = ChannelOrderBy.CreateDate;
+                    orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
+                    break;
+                case KalturaChannelsOrderBy.CREATE_DATE_DESC:
+                    orderBy = ChannelOrderBy.CreateDate;
+                    orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                    break;
+                case KalturaChannelsOrderBy.UPDATE_DATE_ASC:
+                    orderBy = ChannelOrderBy.UpdateDate;
+                    orderDirection = ApiObjects.SearchObjects.OrderDir.ASC;
+                    break;
+                case KalturaChannelsOrderBy.UPDATE_DATE_DESC:
+                    orderBy = ChannelOrderBy.UpdateDate;
+                    orderDirection = ApiObjects.SearchObjects.OrderDir.DESC;
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

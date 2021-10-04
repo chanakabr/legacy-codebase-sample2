@@ -559,6 +559,12 @@ namespace WebAPI.Reflection
                 case "KalturaChannelProfile":
                     return new KalturaChannelProfile(parameters);
                     
+                case "KalturaChannelsBaseFilter":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaChannelSearchByKsqlFilter":
+                    return new KalturaChannelSearchByKsqlFilter(parameters);
+                    
                 case "KalturaChannelsFilter":
                     return new KalturaChannelsFilter(parameters);
                     
@@ -21161,6 +21167,39 @@ namespace WebAPI.Models.Catalog
                         SlidingWindowPeriodSchemaProperty.Validate("period", parameters["period"]);
                     }
                     SlidingWindowPeriod = (Int32) Convert.ChangeType(parameters["period"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaChannelsBaseFilter
+    {
+        public KalturaChannelsBaseFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaChannelSearchByKsqlFilter
+    {
+        public KalturaChannelSearchByKsqlFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("kSql") && parameters["kSql"] != null)
+                {
+                    Ksql = (String) Convert.ChangeType(parameters["kSql"], typeof(String));
+                }
+                if (parameters.ContainsKey("channelStructEqual") && parameters["channelStructEqual"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["channelStructEqual"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "channelStructEqual");
+                    }
+
+                    ChannelStructEqual = (KalturaChannelStruct) Enum.Parse(typeof(KalturaChannelStruct), parameters["channelStructEqual"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaChannelStruct), ChannelStructEqual))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ChannelStructEqual, typeof(KalturaChannelStruct)));
+                    }
                 }
             }
         }

@@ -1,6 +1,5 @@
 ﻿using ApiObjects.Response;
 using System;
-using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Filters;
@@ -164,7 +163,7 @@ namespace WebAPI.Controllers
         {
             KalturaChannel response = null;
             long userId = Utils.Utils.GetUserIdFromKs();
-            int groupId = KS.GetFromRequest().GroupId;            
+            int groupId = KS.GetFromRequest().GroupId;
             bool isManualChannelOrDynamicChannel = false;
 
             // KalturaManualChannel or KalturaDynamicChannel                             
@@ -185,7 +184,7 @@ namespace WebAPI.Controllers
                 if (isManualChannelOrDynamicChannel)
                 {
                     response = ClientsManager.CatalogClient().InsertChannel(groupId, channel, userId);
-                }                
+                }
                 else
                 {
                     Version version = new Version(OPC_MERGE_VERSION);
@@ -250,8 +249,8 @@ namespace WebAPI.Controllers
             }
 
             channel.FillEmptyFeildsForUpdate();
-            
-                try
+
+            try
             {
                 // KalturaManualChannel or KalturaDynamicChannel                             
                 if (isManualChannelOrDynamicChannel)
@@ -367,7 +366,9 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.ActionIsNotAllowed)]
         [Throws(eResponseStatus.ChannelDoesNotExist)]
         [Throws(eResponseStatus.ObjectNotExist)]
-        static public KalturaChannelListResponse List(KalturaChannelsFilter filter = null, KalturaFilterPager pager = null)
+        [Throws(eResponseStatus.AssetStructDoesNotExist)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        static public KalturaChannelListResponse List(KalturaChannelsBaseFilter filter = null, KalturaFilterPager pager = null)
         {
             KalturaChannelListResponse response = null;
 
@@ -381,51 +382,23 @@ namespace WebAPI.Controllers
                 filter = new KalturaChannelsFilter();
             }
 
+            filter.Validate();
+
             try
-            {                
-                // validate filter
-                filter.Validate();
+            {
+                var contextData = KS.GetContextData();
 
-                KS ks = KS.GetFromRequest();
-                int groupId = ks.GroupId;
-                long userId = Utils.Utils.GetUserIdFromKs();
-                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(groupId, ks.UserId);                
+                int groupId = KS.GetFromRequest().GroupId;
+                bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, contextData.UserId.ToString());
 
-                if (filter.MediaIdEqual > 0)
-                {
-                    response = ClientsManager.CatalogClient().GetChannelsContainingMedia(groupId, filter.MediaIdEqual, pager.getPageIndex(), 
-                        pager.getPageSize(), filter.OrderBy, isAllowedToViewInactiveAssets, userId);
-                }
-                else if (filter.IdEqual > 0)
-                {
-                    // get by id
-                    KalturaChannel channel = ClientsManager.CatalogClient().GetChannel(groupId, filter.IdEqual, isAllowedToViewInactiveAssets, userId);
-                    response = new KalturaChannelListResponse() { TotalCount = 1, Channels = new List<KalturaChannel>() { channel } };
-                }                
-                else if (!string.IsNullOrEmpty(filter.NameEqual))
-                {
-                    //search using ChannelEqual
-                    response = ClientsManager.CatalogClient().SearchChannels(groupId, true, filter.NameEqual, null, pager.getPageIndex(), 
-                        pager.getPageSize(), filter.OrderBy, isAllowedToViewInactiveAssets, userId);
-                }
-                else if (!string.IsNullOrEmpty(filter.IdIn))
-                {
-                    response = ClientsManager.CatalogClient().SearchChannels(groupId, filter.GetIdIn(), isAllowedToViewInactiveAssets, userId);
-                }
-                else
-                {
-                    //search using ChannelLike
-                    response = ClientsManager.CatalogClient().SearchChannels(groupId, false, filter.NameStartsWith, null, pager.getPageIndex(), 
-                        pager.getPageSize(), filter.OrderBy, isAllowedToViewInactiveAssets, userId);
-                }
+                response = filter.GetChannels(contextData, isAllowedToViewInactiveAssets, pager);
             }
             catch (ClientException ex)
             {
                 ErrorUtils.HandleClientException(ex);
             }
+
             return response;
         }
-
-
     }
 }

@@ -11,7 +11,6 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using ApiObjects.Pricing;
 
 namespace ApiLogic.Pricing.Handlers
 {
@@ -38,7 +37,7 @@ namespace ApiLogic.Pricing.Handlers
 
             long id = _repository.Insert_Collection(contextData.GroupId, collection.m_oCollectionPriceCode.m_nObjectID,
                 collection.m_oDiscountModule.m_nObjectID, collection.m_oCollectionUsageModule.m_nObjectID, collection.m_dStartDate, collection.m_dEndDate,
-                collection.CouponsGroups.Count > 0 ? collection.CouponsGroups[0].m_sGroupCode : "0", 
+                collection.CouponsGroups.Count > 0 ? collection.CouponsGroups[0].m_sGroupCode : "0",
                 contextData.UserId.Value, collection.m_sDescription, collection.m_sName, channelIds, couponsGroups, collection.ExternalProductCodes);
 
             if (id == 0)
@@ -145,13 +144,12 @@ namespace ApiLogic.Pricing.Handlers
         {
             BaseCollection t = null;
             Utils.GetBaseImpl(ref t, groupId);
-            if (t != null) 
+            if (t != null)
             {
                 return (new CollectionCacheWrapper(t)).GetCollectionIdsContainingMediaFile(mediaId, mediaFileID);
             }
 
             return null;
         }
-
     }
 }

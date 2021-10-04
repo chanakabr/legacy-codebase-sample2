@@ -97,7 +97,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "externalId")]
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId")]
-        public string ExternalId{ get; set; }
+        public string ExternalId { get; set; }
 
         /// <summary>
         /// List of Collection product codes
@@ -145,6 +145,7 @@ namespace WebAPI.Models.Pricing
         public List<KalturaCollection> Collections { get; set; }
     }
 
+
     /// <summary>
     /// Collection Filter
     /// </summary>
@@ -156,7 +157,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "collectionIdIn")]
         [JsonProperty("collectionIdIn")]
         [XmlElement(ElementName = "collectionIdIn")]
-        [SchemeProperty(MinLength=1)]
+        [SchemeProperty(MinLength = 1)]
         public string CollectionIdIn { get; set; }
 
         /// <summary>
