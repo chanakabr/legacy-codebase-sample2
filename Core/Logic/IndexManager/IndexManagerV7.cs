@@ -124,7 +124,7 @@ namespace Core.Catalog
         /// <param name="ttlService"></param>
         /// <param name="watchRuleManager"></param>
         /// <param name="channelQueryBuilder"></param>
-        public IndexManagerV7(int partnerId,
+        internal IndexManagerV7(int partnerId,
             IElasticClient elasticClient,
             IApplicationConfiguration applicationConfiguration,
             IGroupManager groupManager,

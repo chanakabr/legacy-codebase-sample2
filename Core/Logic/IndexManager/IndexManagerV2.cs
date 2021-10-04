@@ -119,7 +119,7 @@ namespace Core.Catalog
         /// <param name="catalogCache"></param>
         /// <param name="watchRuleManager"></param>
         /// <param name="channelQueryBuilder"></param>
-        public IndexManagerV2(int partnerId,
+        internal IndexManagerV2(int partnerId,
             IElasticSearchApi elasticSearchClient,
             IGroupManager groupManager, 
             ESSerializerV2 eSSerializerV2,

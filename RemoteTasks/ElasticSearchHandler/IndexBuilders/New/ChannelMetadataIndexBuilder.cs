@@ -45,7 +45,6 @@ namespace ElasticSearchHandler.IndexBuilders
                         log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling BuildIndex", groupId);
                         return false;
                     }
-
                 }
                 catch (Exception ex)
                 {
