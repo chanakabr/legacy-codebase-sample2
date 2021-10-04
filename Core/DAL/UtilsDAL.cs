@@ -25,12 +25,13 @@ namespace DAL
 
         #region Generic Methods
 
-        public static bool SaveObjectWithVersionCheckInCB<T>(uint ttl, eCouchbaseBucket couchbaseBucket, string key, Action<T> updateObjectAction, bool updateObjectActionIfNotExist = false, bool compress = false) where T : new()
+        public static bool SaveObjectWithVersionCheckInCB<T>(uint ttl, eCouchbaseBucket couchbaseBucket, string key, Action<T> updateObjectAction, bool updateObjectActionIfNotExist = false,
+                                                            bool compress = false, int limitMaxNumOfInsertTries = -1) where T : new()
         {
             var internalCouchBaseManager = new CouchbaseManager.CouchbaseManager(couchbaseBucket);
             var cbManager = compress ? (ICouchbaseManager) new CompressionCouchbaseManager(internalCouchBaseManager) : internalCouchBaseManager;
             var numOfTries = 0;
-            int maxNumOfInsertTries = ApplicationConfiguration.Current.CbMaxInsertTries.Value;
+            int maxNumOfInsertTries = limitMaxNumOfInsertTries > -1 ? limitMaxNumOfInsertTries : ApplicationConfiguration.Current.CbMaxInsertTries.Value;
             ulong version;
             eResultStatus getResult = eResultStatus.ERROR;
             var r = new Random();

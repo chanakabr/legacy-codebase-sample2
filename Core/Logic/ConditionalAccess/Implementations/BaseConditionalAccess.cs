@@ -18199,7 +18199,7 @@ namespace Core.ConditionalAccess
                 foreach (var purchaseId in suspended)
                 {
                     // get subscription purchase 
-                    DataRow subscriptionRenealDataRow = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseNextRenewal(m_nGroupID, purchaseId);
+                    DataRow subscriptionRenealDataRow = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseNextRenewal(m_nGroupID, householdId, purchaseId);
 
                     // validate subscription received
                     if (subscriptionRenealDataRow == null)
@@ -18261,7 +18261,7 @@ namespace Core.ConditionalAccess
                 return true;
             }
 
-            DataRow dataRow = ConditionalAccessDAL.Get_SubscriptionPurchaseData(this.m_nGroupID, purchaseId);
+            DataRow dataRow = ConditionalAccessDAL.Get_SubscriptionPurchaseData(this.m_nGroupID, householdId, purchaseId);
 
             if (dataRow == null)
             {

@@ -88,6 +88,7 @@ namespace Tvinci.Core.DAL
         /// </summary>
         private const int RETRY_LIMIT = 5;
 
+        private const int MAX_CB_UPDATE_ATTEMPTS_FOR_BULK_UPLOAD = 10;
         private static readonly Random _rand = new Random();
 
         private static readonly Lazy<CatalogDAL> lazy = new Lazy<CatalogDAL>(() => new CatalogDAL(), LazyThreadSafetyMode.PublicationOnly);
@@ -5997,31 +5998,9 @@ namespace Tvinci.Core.DAL
                 log.Debug($"SaveBulkUploadResultsCB > updated from status {currentBulkUpload.Status}, calculated bulkUpload.Status:[{bulkUpload.Status}]");
 
                 actualStatusThatWasUpdated = bulkUpload.Status;
-            }, compress: true);
+            }, compress: true, updateObjectActionIfNotExist: false, limitMaxNumOfInsertTries: MAX_CB_UPDATE_ATTEMPTS_FOR_BULK_UPLOAD);
 
             updatedStatus = actualStatusThatWasUpdated;
-
-            return isUpdateSuccess;
-        }
-
-        // TODO remove - used in one method, which should be removed
-        public static bool UpdateOrAddBulkUploadAffectedObjectsToCB(long bulkUploadId, IEnumerable<IAffectedObject> affectedObjects, uint ttl)
-        {
-            var bulkUploadKey = GetBulkUploadKey(bulkUploadId);
-            var isUpdateSuccess = UtilsDal.SaveObjectWithVersionCheckInCB<BulkUpload>(ttl, eCouchbaseBucket.OTT_APPS, bulkUploadKey, bulkUpload =>
-            {
-                var affectedObjectsDictionary = bulkUpload.AffectedObjects == null
-                                                ? new Dictionary<ulong, IAffectedObject>()
-                                                : bulkUpload.AffectedObjects.ToDictionary(o => o.ObjectId);
-
-                foreach (var affectedObject in affectedObjects)
-                {
-                    affectedObjectsDictionary[affectedObject.ObjectId] = affectedObject;
-                }
-
-                bulkUpload.AffectedObjects = affectedObjectsDictionary.Values.ToList();
-
-            });
 
             return isUpdateSuccess;
         }
@@ -6048,7 +6027,7 @@ namespace Tvinci.Core.DAL
                 statusAfterUpdate = GetBulkStatusByResultsStatus(bulkUpload);
                 log.Debug($"SaveBulkUploadResultsCB > updated resultsToSave.Count:[{resultsToSave.Count}], calculated bulkUpload.Status:[{bulkUpload.Status}]");
 
-            }, compress: true);
+            }, compress: true, updateObjectActionIfNotExist: false, limitMaxNumOfInsertTries: MAX_CB_UPDATE_ATTEMPTS_FOR_BULK_UPLOAD);
 
             status = statusAfterUpdate;
             return isUpdateSuccess;
@@ -6067,7 +6046,7 @@ namespace Tvinci.Core.DAL
 
                 statusThatWasActuallyUpdated = bulkUpload.Status;
                 bulkUpload.Errors = bulkUploadToSave.Errors;
-            }, compress: true);
+            }, compress: true, updateObjectActionIfNotExist: false, limitMaxNumOfInsertTries: MAX_CB_UPDATE_ATTEMPTS_FOR_BULK_UPLOAD);
             updatedStatus = statusThatWasActuallyUpdated;
 
             return isSaveSuccess;

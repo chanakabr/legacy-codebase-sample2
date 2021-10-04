@@ -1699,6 +1699,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaChannelSearchByKsqlFilter":
+                    switch(property.Name)
+                    {
+                        case "ChannelStructEqual":
+                            return "channelStructEqual";
+                        case "Ksql":
+                            return "kSql";
+                    }
+                    break;
+                    
                 case "KalturaChannelsFilter":
                     switch(property.Name)
                     {
@@ -8848,7 +8858,7 @@ namespace WebAPI.Reflection
                             
                         case "list":
                             RolesManager.ValidateActionPermitted("channel", "list", false);
-                            return ChannelController.List((KalturaChannelsFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            return ChannelController.List((KalturaChannelsBaseFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
                             
                         case "update":
                             if(isOldVersion)
@@ -14650,7 +14660,7 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 IsKalturaObject = true,
-                                Type = typeof(KalturaChannelsFilter),
+                                Type = typeof(KalturaChannelsBaseFilter),
                             });
                             ret.Add("pager", new MethodParam(){
                                 NewName = newParamName,

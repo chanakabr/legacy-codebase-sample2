@@ -128,6 +128,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         {
             var mediaDateRanges = GetMediaDateRangesTerms(searchDefinitions);
             var EmptyCountryId = 0;
+
             if (searchDefinitions.countryId > EmptyCountryId)
             {
                 // allowed_countries = 0 and dates filter
@@ -144,15 +145,15 @@ namespace ApiLogic.IndexManager.QueryBuilders
                         m => mediaDateRanges)
                 );
 
-                //allow empty with date range or not empty
+                // allow empty with date range or not empty
                 var allowedEmptyAndDateRangesOrNotEmpty = new QueryContainerDescriptor<NestMedia>();
                 var allowedCountries = new QueryContainerDescriptor<NestMedia>();
-                allowedEmptyCountries.Term(t =>
+                allowedCountries.Term(t =>
                     t.Field(f => f.AllowedCountries).Value(searchDefinitions.countryId));
+
                 allowedEmptyAndDateRangesOrNotEmpty.Bool(b => b.Should(
                     s => allowedCountries,
                     s => allowedEmptyAndDateRanges));
-
 
                 //not blocked and allowedEmptyAndDateRangesOrNotEmpty
 
@@ -358,10 +359,8 @@ namespace ApiLogic.IndexManager.QueryBuilders
             if (!mediaTypes.Any())
                 return null;
 
-            var termsQueryDescriptor = new TermsQueryDescriptor<NestMedia>();
-            termsQueryDescriptor.Field(f => f.MediaTypeId).Terms(mediaTypes);
             var queryContainerDescriptor = new QueryContainerDescriptor<NestMedia>();
-            queryContainerDescriptor.Terms(t => t.Terms(termsQueryDescriptor));
+            queryContainerDescriptor.Terms(t => t.Field(f => f.MediaTypeId).Terms(mediaTypes));
             return queryContainerDescriptor;
         }
 
@@ -382,8 +381,6 @@ namespace ApiLogic.IndexManager.QueryBuilders
             if (userTypeId < 0)
                 return null;
 
-            //var termsQueryDescriptor = new TermsQueryDescriptor<NestMedia>();
-            //termsQueryDescriptor.Field(f => f.UserTypes).Terms(new HashSet<int>() { 0, userTypeId });
             var queryContainerDescriptor = new QueryContainerDescriptor<NestMedia>();
             queryContainerDescriptor.Terms(t => t.Field(f => f.UserTypes).Terms(new HashSet<int>() { 0, userTypeId }));
             return queryContainerDescriptor;

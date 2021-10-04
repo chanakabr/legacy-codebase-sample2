@@ -3,6 +3,7 @@ using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
+using Core.Api;
 using Core.Api.Managers;
 using Core.Catalog.Response;
 using GroupsCacheManager;
@@ -517,7 +518,7 @@ namespace Core.Catalog.CatalogManagement
             AssetStruct assetStruct = GetAssetStructIdByChannelType(groupId, channel.m_nChannelTypeID);
 
             return CreateVirtualChannel(groupId, userId, assetStruct, channel.m_sName, channel.m_nChannelID.ToString(), channel.m_sDescription,
-                channel.NamesInOtherLanguages, channel.DescriptionInOtherLanguages);
+                channel.m_nIsActive, channel.NamesInOtherLanguages, channel.DescriptionInOtherLanguages);
         }
 
         private static AssetStruct GetAssetStructIdByChannelType(int groupId, int channelTypeId)
@@ -653,7 +654,7 @@ namespace Core.Catalog.CatalogManagement
         }
 
         internal static long CreateVirtualChannel(int groupId, long userId, AssetStruct assetStruct, string name, string channelId,
-            string description, List<LanguageContainer> namesWithLanguages = null, List<LanguageContainer> descriptionsWithLanguages = null)
+            string description, int? isActive, List<LanguageContainer> namesWithLanguages = null, List<LanguageContainer> descriptionsWithLanguages = null)
         {
             long assetId = 0;
 
@@ -662,7 +663,7 @@ namespace Core.Catalog.CatalogManagement
                 MediaAsset virtualChannel = new MediaAsset()
                 {
                     AssetType = eAssetTypes.MEDIA,
-                    IsActive = true,
+                    IsActive = isActive != null && isActive.HasValue && isActive.Value == 0 ? false : true,
                     CoGuid = Guid.NewGuid().ToString(),
                     Name = name,
                     NamesWithLanguages = namesWithLanguages,
@@ -1502,6 +1503,65 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return new Status(eResponseStatus.OK);
+        }
+
+        public GenericListResponse<GroupsCacheManager.Channel> GetChannels(int groupId, AssetSearchDefinition assetSearchDefinition, ChannelType? channelType, 
+            int pageIndex, int pageSize, ChannelOrderBy orderBy, OrderDir orderDirection)
+        {
+            GenericListResponse<GroupsCacheManager.Channel> response = new GenericListResponse<GroupsCacheManager.Channel>();
+            HashSet<long> channelIds = null;
+
+            // get userRules action filter && ApplyOnChannel
+            long assetUserRuleId = AssetUserRuleManager.GetAssetUserRule(groupId, assetSearchDefinition.UserId, true);
+
+            if (assetUserRuleId > 0)
+            {
+                ChannelSearchDefinitions definitions = new ChannelSearchDefinitions()
+                {
+                    GroupId = groupId,
+                    OrderBy = orderBy,
+                    OrderDirection = orderDirection,
+                    isAllowedToViewInactiveAssets = assetSearchDefinition.IsAllowedToViewInactiveAssets,
+                    AssetUserRuleId = assetUserRuleId
+                };
+
+                var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
+                int totalItems = 0;
+                channelIds = indexManager.SearchChannels(definitions, ref totalItems).Select(x => (long)x).ToHashSet();
+
+                if (totalItems == 0)
+                {
+                    response.SetStatus(eResponseStatus.OK);
+                    return response;
+                }
+            }
+
+            if (channelType.HasValue)
+            {
+                assetSearchDefinition.AssetStructId = api.GetChannelAssetStruct(groupId, channelType.Value);
+
+                if (assetSearchDefinition.AssetStructId == 0)
+                {
+                    response.SetStatus(eResponseStatus.AssetStructDoesNotExist, "AssetStruct for channel does not exist.");
+                    return response;
+                }
+            }
+
+            var result = api.Instance.GetObjectVirtualAssetObjectIdsForChannels(groupId, assetSearchDefinition, channelIds, pageIndex, pageSize);
+            if (result.ResultStatus == ObjectVirtualAssetFilterStatus.Error)
+            {
+                response.SetStatus(result.Status);
+                return response;
+            }
+
+            if (result.ObjectIds?.Count > 0)
+            {
+                response.Objects = GetChannels(groupId, result.ObjectIds.Select(x => (int)x).ToList(), assetSearchDefinition.IsAllowedToViewInactiveAssets);
+                response.TotalItems = result.TotalItems;
+            }
+
+            response.SetStatus(eResponseStatus.OK);
+            return response;
         }
 
         #endregion

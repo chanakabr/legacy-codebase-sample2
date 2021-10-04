@@ -335,5 +335,35 @@ namespace WebAPI.Clients
 
             return result;
         }
+
+        internal static GenericListResponse<T> GetGenericListResponseFromWS<T>(Func<GenericListResponse<T>> funcInWS) where T : class
+        {
+            GenericListResponse<T> response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = funcInWS();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while calling catalog service.", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException(StatusCode.Error);
+            }
+
+            if (!response.IsOkStatusCode())
+            {
+                throw new ClientException(response.Status);
+            }
+
+            return response;
+        }
     }
 }

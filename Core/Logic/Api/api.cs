@@ -1639,12 +1639,12 @@ namespace Core.Api
             rmo.Initialize(nVotesSum, nVotesCnt, dAvg);
 
             int mediaType = Tvinci.Core.DAL.CatalogDAL.Get_MediaTypeIdByMediaId(nMediaID);
-            
+
             // Insert statistic record to ElasticSearch
             var indexManager = IndexManagerFactory.Instance.GetIndexManager(nGroupID);
             indexManager.InsertSocialStatisticsData(
                 new ApiObjects.Statistics.SocialActionStatistics()
-                { 
+                {
                     Action = eUserAction.RATES.ToString().ToLower(),
                     RateValue = nRateVal,
                     GroupID = nGroupID,
@@ -11601,7 +11601,7 @@ namespace Core.Api
         {
             AssetStruct assetStruct = GetExternalChannelAssetStruct(groupId);
 
-            ChannelManager.CreateVirtualChannel(groupId, userId, assetStruct, channel.Name, channel.ID.ToString(), string.Empty);
+            ChannelManager.CreateVirtualChannel(groupId, userId, assetStruct, channel.Name, channel.ID.ToString(), string.Empty, channel.IsActive ? 1 : 0);
         }
 
         private static AssetStruct GetExternalChannelAssetStruct(int groupId)
@@ -11701,9 +11701,9 @@ namespace Core.Api
 
             try
             {
-                if( permission.Type == ePermissionType.Group)
+                if (permission.Type == ePermissionType.Group)
                 {
-                    response.SetStatus(eResponseStatus.CannotAddPermissionTypeGroup , "Permission type GROUP cannot be added");
+                    response.SetStatus(eResponseStatus.CannotAddPermissionTypeGroup, "Permission type GROUP cannot be added");
                     return response;
                 }
 
@@ -11999,6 +11999,107 @@ namespace Core.Api
             }
 
             return objectVirtualAssetFilter;
+        }
+
+        public ObjectVirtualAssetFilter GetObjectVirtualAssetObjectIdsForChannels(int groupId, AssetSearchDefinition assetSearchDefinition,
+            HashSet<long> objectIds = null, int pageIndex = 0, int pageSize = 0, OrderObj order = null)
+        {
+            var objectVirtualAssetFilter = new ObjectVirtualAssetFilter();
+
+            CatalogGroupCache catalogGroupCache;
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                return objectVirtualAssetFilter;
+            }
+
+            objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.None;
+
+            string meta = AssetManager.CHANNEL_ID_META_SYSTEM_NAME;
+
+            List<string> extraReturnFields = new List<string>() { $"metas.{meta}" };
+
+            string filterIds = GetIdsKsql(objectIds, meta);
+
+            string structFilter = string.Empty;
+
+            if (assetSearchDefinition.AssetStructId != 0)
+            {
+                structFilter = $"asset_type='{assetSearchDefinition.AssetStructId}'";
+            }
+            else
+            {
+                structFilter = $"(or ";
+
+                if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(AssetManager.MANUAL_ASSET_STRUCT_NAME))
+                {
+                    structFilter += $"asset_type='{catalogGroupCache.AssetStructsMapBySystemName[AssetManager.MANUAL_ASSET_STRUCT_NAME].Id}'";
+                }
+
+                if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(AssetManager.DYNAMIC_ASSET_STRUCT_NAME))
+                {
+                    structFilter += $" asset_type='{catalogGroupCache.AssetStructsMapBySystemName[AssetManager.DYNAMIC_ASSET_STRUCT_NAME].Id}'";
+                }
+
+                structFilter += ")";
+            }
+
+            string filter = $"(and {structFilter} {assetSearchDefinition.Filter} {filterIds})";
+
+            var assets = SearchAssetsExtended(groupId, filter, pageIndex, pageSize, true, 0, true, string.Empty, string.Empty,
+                assetSearchDefinition.UserId.ToString(), 0, 0, true, assetSearchDefinition.IsAllowedToViewInactiveAssets,
+                extraReturnFields, order);
+
+            if (assets != null && assets.searchResults?.Count > 0)
+            {
+                objectVirtualAssetFilter.TotalItems = assets.m_nTotalItems;
+                objectVirtualAssetFilter.ObjectIds = new List<long>();
+                long objectId = 0;
+                ExtendedSearchResult esr;
+
+                foreach (var item in assets.searchResults)
+                {
+                    esr = (ExtendedSearchResult)item;
+                    string oId = GetStringParamFromExtendedSearchResult(esr, extraReturnFields[0]);
+
+                    if (long.TryParse(oId, out objectId))
+                    {
+                        if (objectIds == null || objectIds.Count == 0 || objectIds.Contains(objectId))
+                        {
+                            objectVirtualAssetFilter.ResultStatus = ObjectVirtualAssetFilterStatus.Results;
+                            objectVirtualAssetFilter.ObjectIds.Add(objectId);
+                        }
+                    }
+                }
+            }
+
+            return objectVirtualAssetFilter;
+        }
+
+        public static long GetChannelAssetStruct(int groupId, GroupsCacheManager.ChannelType type)
+        {
+            CatalogGroupCache catalogGroupCache;
+            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
+            {
+                return 0;
+            }
+
+            if (type == GroupsCacheManager.ChannelType.Manual)
+            {
+                if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(AssetManager.MANUAL_ASSET_STRUCT_NAME))
+                {
+                    return catalogGroupCache.AssetStructsMapBySystemName[AssetManager.MANUAL_ASSET_STRUCT_NAME].Id;
+                }
+            }
+
+            else if (type == GroupsCacheManager.ChannelType.KSQL)
+            {
+                if (catalogGroupCache.AssetStructsMapBySystemName.ContainsKey(AssetManager.DYNAMIC_ASSET_STRUCT_NAME))
+                {
+                    return catalogGroupCache.AssetStructsMapBySystemName[AssetManager.DYNAMIC_ASSET_STRUCT_NAME].Id;
+                }
+            }
+
+            return 0;
         }
 
         private static string GetIdsKsql(HashSet<long> ids, string meta)

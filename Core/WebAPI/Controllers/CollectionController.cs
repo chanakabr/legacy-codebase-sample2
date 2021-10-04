@@ -1,19 +1,18 @@
-﻿using KLogMonitor;
+﻿using ApiLogic.Pricing.Handlers;
+using ApiObjects.Response;
+using Core.Pricing;
+using KLogMonitor;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using WebAPI.ClientManagers.Client;
+using WebAPI.Clients;
 using WebAPI.Exceptions;
+using WebAPI.Managers.Models;
+using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Utils;
-using WebAPI.Managers.Models;
-using WebAPI.Models.General;
-using WebAPI.Managers.Scheme;
-using WebAPI.Clients;
-using Core.Pricing;
-using ApiObjects.Response;
-using ApiLogic.Pricing.Handlers;
 
 namespace WebAPI.Controllers
 {
@@ -48,7 +47,7 @@ namespace WebAPI.Controllers
             {
                 filter.Validate();
             }
-            
+
             int groupId = KS.GetFromRequest().GroupId;
             string udid = KSUtils.ExtractKSPayload().UDID;
             string language = Utils.Utils.GetLanguageFromRequest();
@@ -112,7 +111,6 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         static public KalturaCollection Add(KalturaCollection collection)
         {
-            
             KalturaCollection result = null;
             collection.ValidateForAdd();
             var contextData = KS.GetContextData();

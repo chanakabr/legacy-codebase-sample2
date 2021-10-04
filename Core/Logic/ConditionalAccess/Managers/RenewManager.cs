@@ -1712,7 +1712,7 @@ namespace Core.ConditionalAccess
             };
 
             // get subscription purchase 
-            DataRow subscriptionRenealDataRow = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseNextRenewal(groupId, purchaseId);
+            DataRow subscriptionRenealDataRow = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseNextRenewal(groupId, householdId, purchaseId);
 
             // validate subscription received
             if (subscriptionRenealDataRow == null)
