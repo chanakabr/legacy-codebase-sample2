@@ -422,7 +422,7 @@ namespace Core.Catalog.CatalogManagement
                 {
                     log.ErrorFormat("UpdateBulkUploadResults - Error while saving to CB. results:[{0}]", string.Join(",", results));
                     response.Set(eResponseStatus.Error);
-
+                    return response;
                 }
 
                 response.Set(eResponseStatus.OK);
