@@ -3402,11 +3402,12 @@ namespace DAL
 
         }
 
-        public static DataRow Get_SubscriptionPurchaseNextRenewal(int groupId, long subscriptionPurchaseId)
+        public static DataRow Get_SubscriptionPurchaseNextRenewal(int groupId, long householdId, long subscriptionPurchaseId)
         {
             ODBCWrapper.StoredProcedure spLastBillingTransactions = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseNextRenewal");
             spLastBillingTransactions.SetConnectionKey("CA_CONNECTION_STRING");
             spLastBillingTransactions.AddParameter("@groupID", groupId);
+            spLastBillingTransactions.AddParameter("@domainId", householdId);
             spLastBillingTransactions.AddParameter("@purchaseId", subscriptionPurchaseId);
 
             DataSet ds = spLastBillingTransactions.ExecuteDataSet();
@@ -3460,7 +3461,7 @@ namespace DAL
             return null;
         }
 
-        public static DataRow Get_SubscriptionPurchaseData(int groupId, long purchaseId)
+        public static DataRow Get_SubscriptionPurchaseData(int groupId, long domainId, long purchaseId)
         {
             DataRow result = null;
 
@@ -3469,6 +3470,7 @@ namespace DAL
                 ODBCWrapper.StoredProcedure storedProcedure = new ODBCWrapper.StoredProcedure("Get_SubscriptionPurchaseData");
                 storedProcedure.SetConnectionKey("CA_CONNECTION_STRING");
                 storedProcedure.AddParameter("@groupID", groupId);
+                storedProcedure.AddParameter("@domainId", domainId);
                 storedProcedure.AddParameter("@purchaseId", purchaseId);
 
                 DataTable table = storedProcedure.Execute();
@@ -3544,12 +3546,16 @@ namespace DAL
             return UtilsDal.GetObjectFromCB<List<ApiObjects.KeyValuePair>>(CouchbaseManager.eCouchbaseBucket.OTT_APPS, key);
         }
 
-        public static bool UpdateSubscriptionsPurchases(int groupId, long purchaseId, DateTime startDate, DateTime endDate, bool isPending)
+        public static bool UpdateSubscriptionsPurchases(int groupId, long domainId, long purchaseId, DateTime startDate, DateTime endDate, bool isPending)
         {
             try
             {
-                var parameters = new Dictionary<string, object>() { { "@groupId", groupId }, { "@startDate", startDate }, { "@endDate", endDate },
-                                                                    { "@purchaseId", purchaseId }, { "@isPending", isPending ? 1: 0 }};
+                var parameters = new Dictionary<string, object>
+                {
+                    { "@groupId", groupId }, { "@domainId", domainId },
+                    { "@startDate", startDate }, { "@endDate", endDate },
+                    { "@purchaseId", purchaseId }, { "@isPending", isPending ? 1 : 0 }
+                };
                 return UtilsDal.ExecuteReturnValue<long>("Update_SubscriptionsPurchases", parameters, CA_CONNECTION_STRING) > 0;
             }
             catch (Exception ex)

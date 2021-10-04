@@ -95,7 +95,7 @@ namespace Core.ConditionalAccess.Modules
             {
                 if (UpdateFromPending)
                 {
-                    success = ConditionalAccessDAL.UpdateSubscriptionsPurchases(this.GroupId, this.purchaseId, this.startDate.Value, this.endDate.Value, this.IsPending);
+                    success = ConditionalAccessDAL.UpdateSubscriptionsPurchases(this.GroupId, houseHoldId, this.purchaseId, this.startDate.Value, this.endDate.Value, this.IsPending);
                 }                
                 else if (this.status == SubscriptionPurchaseStatus.Fail || UpdateFromCancelRenewal)
                 {
