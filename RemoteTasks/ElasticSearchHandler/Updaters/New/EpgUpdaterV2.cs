@@ -252,12 +252,12 @@ namespace ElasticSearchHandler.Updaters
             var linearMediaRegions = RegionManager.GetLinearMediaRegions(groupId);
             if (linearMediaRegions != null && linearMediaRegions.ContainsKey(linearMediaId))
             {
-                var epgPartialUpdateEsObjects = epgs.Select(e => new EpgPartialUpdateEsObject
+                var epgPartialUpdateEsObjects = epgs.Select(e => new EpgPartialUpdate
                     {
                         EpgId = e.EpgID,
                         Language = e.Language,
                         StartDate = e.StartDate,
-                        EpgPartial = new EpgEs
+                        EpgPartial = new EpgPartial
                         {
                             Regions = linearMediaRegions[linearMediaId].ToArray()
                         }

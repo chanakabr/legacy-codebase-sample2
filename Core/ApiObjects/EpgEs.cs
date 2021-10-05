@@ -54,5 +54,15 @@ namespace ApiObjects
         public IDictionary<string, List<string>> Tags { get; set; }
 
         public int[] Regions { get; set; }
+
+        public EpgEs()
+        {
+
+        }
+
+        public EpgEs(EpgPartial source)
+        {
+            this.Regions = source.Regions;
+        }
     }
 }

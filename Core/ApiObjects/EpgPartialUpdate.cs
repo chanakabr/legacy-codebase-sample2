@@ -2,7 +2,7 @@
 
 namespace ApiObjects
 {
-    public class EpgPartialUpdateEsObject
+    public class EpgPartialUpdate
     {
         public ulong EpgId { get; set; }
 
@@ -10,6 +10,11 @@ namespace ApiObjects
 
         public string Language { get; set; }
 
-        public EpgEs EpgPartial { get; set; }
+        public EpgPartial EpgPartial { get; set; }
+    }
+
+    public class EpgPartial
+    {
+        public int[] Regions { get; set; }
     }
 }

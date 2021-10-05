@@ -134,7 +134,7 @@ namespace Core.Catalog
         bool UpdateEpgs(List<EpgCB> epgObjects, 
             bool isRecording, Dictionary<long, long> epgToRecordingMapping = null);
 
-        bool UpdateEpgsPartial(EpgPartialUpdateEsObject[] epgs);
+        bool UpdateEpgsPartial(EpgPartialUpdate[] epgs);
 
         // remark: Verify these methods should really be here ..
 

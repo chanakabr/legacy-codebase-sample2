@@ -323,11 +323,17 @@ namespace Core.Catalog
 
             string index = NamingHelper.GetEpgIndexAlias(_partnerId);
             var deleteResponse = _elasticClient.DeleteByQuery<NestEpg>(request => request
+                .Conflicts(Conflicts.Proceed)
                 .Index(index)
                 .Query(query => query
                     .Terms(terms => terms.Field(epg => epg.EpgID).Terms<long>(epgIds))
                     ));
-            
+
+            if (deleteResponse.VersionConflicts > 0)
+            {
+                log.DebugFormat($"Got {deleteResponse.VersionConflicts} version conflicts when deleting epgs {string.Join(",", epgIds.Take(20))}");
+            }
+
             return deleteResponse.IsValid;
         }
 
@@ -795,14 +801,15 @@ namespace Core.Catalog
 
         private NestEsBulkRequest<NestEpg> GetEpgBulkRequest(string draftIndexName,
             DateTime routingDate,
-            NestEpg buildEpg)
+            NestEpg buildEpg,
+            eOperation operation = eOperation.index)
         {
             var bulkRequest = new NestEsBulkRequest<NestEpg>()
             {
                 DocID = buildEpg.DocumentId,
                 Document = buildEpg,
                 Index = draftIndexName,
-                Operation = eOperation.index,
+                Operation = operation,
                 Routing = routingDate.Date.ToString(ESUtils.ES_DATEONLY_FORMAT)
             };
 
@@ -840,20 +847,56 @@ namespace Core.Catalog
         private BulkResponse ExecuteBulkRequest<K>(List<NestEsBulkRequest<K>> bulkRequests) where K : class
         {
             var docToBulkReq = bulkRequests.ToDictionary(x => x.Document, x => x);
-            var docs = bulkRequests.Select(x => x.Document).ToList();
 
             var bulkResponse = _elasticClient.Bulk(b =>
             {
-                return b.IndexMany(docs.ToArray(), (descriptor, data) =>
+                // split to types
+                var indexRequests = bulkRequests.Where(req => req.Operation == eOperation.index);
+                var updateRequests = bulkRequests.Where(req => req.Operation == eOperation.update);
+                var deleteRequests = bulkRequests.Where(req => req.Operation == eOperation.delete);
+
+                if (indexRequests.Any())
                 {
-                    var bulkRequest = docToBulkReq[data];
-                    return descriptor
-                            .Index(bulkRequest.Index)
-                            .Document(data)
-                            .Routing(bulkRequest.Routing)
-                            .Id(bulkRequest.DocID)
-                        ;
-                });
+                    b.IndexMany(indexRequests.Select(x => x.Document), (descriptor, data) =>
+                    {
+                        var bulkRequest = docToBulkReq[data];
+                        return descriptor
+                                .Index(bulkRequest.Index)
+                                .Document(data)
+                                .Routing(bulkRequest.Routing)
+                                .Id(bulkRequest.DocID)
+                            ;
+                    });
+                }
+
+                if (updateRequests.Any())
+                {
+                    b.UpdateMany(updateRequests.Select(x => x.Document), (descriptor, data) =>
+                    {
+                        var bulkRequest = docToBulkReq[data];
+                        return descriptor
+                                .Index(bulkRequest.Index)
+                                .Doc(data)
+                                .Routing(bulkRequest.Routing)
+                                .Id(bulkRequest.DocID)
+                            ;
+                    });
+                }
+
+                if (deleteRequests.Any())
+                {
+                    b.DeleteMany(deleteRequests.Select(x => x.Document), (descriptor, data) =>
+                    {
+                        var bulkRequest = docToBulkReq[data];
+                        return descriptor
+                                .Index(bulkRequest.Index)
+                                .Routing(bulkRequest.Routing)
+                                .Id(bulkRequest.DocID)
+                            ;
+                    });
+                }
+
+                return b;
             });
             return bulkResponse;
         }
@@ -5041,10 +5084,109 @@ namespace Core.Catalog
             return searchResponseHits.Select(x => x.Source.Name).ToList();
         }
 
-        public bool UpdateEpgsPartial(EpgPartialUpdateEsObject[] epgs)
+
+        /// <summary>
+        /// Update EPGs partially.
+        /// PadMetas aren't allowed during partial updates - be aware!
+        /// Fields responsible for TTL Calculation aren't allowed as well!
+        /// </summary>
+        /// <param name="languages"></param>
+        /// <param name="epgIds"></param>
+        /// <param name="fieldMappings"></param>
+        /// <returns></returns>
+        public bool UpdateEpgsPartial(EpgPartialUpdate[] epgs)
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            var bulkRequests = new List<NestEsBulkRequest<NestEpgPartial>>();
+            int sizeOfBulk = GetBulkSize();
+
+            // Temporarily - assume success
+            bool temporaryResult = true;
+            List<LanguageObj> languages = VerifyGroupUsesTemplates() ? GetCatalogGroupCache().LanguageMapById.Values.ToList() : GetGroupManager().GetLangauges();
+
+            // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
+            // in that case we need to use the specific date alias for each epg item to update
+            bool isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
+
+            var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
+            if (!_elasticClient.Indices.Exists(alias).Exists)
+            {
+                log.Error($"Error - EPG index for group {_partnerId} does not exist");
+                return result;
+            }
+
+            // Create dictionary by languages
+            foreach (LanguageObj language in languages)
+            {
+                // Filter programs to current language
+                EpgPartialUpdate[] currentLanguageEpgs = epgs.Where(epg =>
+                    epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToArray();
+
+                if (currentLanguageEpgs != null && currentLanguageEpgs.Length > 0)
+                {
+                    // Create bulk request object for each program
+                    foreach (EpgPartialUpdate epg in currentLanguageEpgs)
+                    {
+                        // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
+                        // in that case we need to use the specific date alias for each epg item to update
+                        if (isIngestV2)
+                        {
+                            alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
+                        }
+
+                        string suffix = language.Code;
+
+                        NestEpgPartial nestEpg = new NestEpgPartial()
+                        {
+                            Regions = epg.EpgPartial.Regions?.ToList()
+                        };
+
+                        var documentId = $"{epg.EpgId}_{suffix}";
+                        bulkRequests.Add(new NestEsBulkRequest<NestEpgPartial>(documentId, alias, nestEpg)
+                        {
+                            Operation = eOperation.update,
+                            Routing = epg.StartDate.ToString(ESUtils.ES_DATEONLY_FORMAT)
+                        });
+                            
+                        if (bulkRequests.Count > sizeOfBulk)
+                        {
+                            var isValid = ExecuteAndValidateBulkRequests(bulkRequests);
+
+                            if (!isValid)
+                            {
+                                result = false;
+                                temporaryResult = false;
+                            }
+                            else
+                            {
+                                temporaryResult &= true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (bulkRequests.Count > 0)
+            {
+                var isValid = ExecuteAndValidateBulkRequests(bulkRequests);
+
+                if (!isValid)
+                {
+                    result = false;
+                    temporaryResult = false;
+                }
+                else
+                {
+                    temporaryResult &= true;
+                }
+
+                result = temporaryResult;
+            }
+
+            return result;
         }
+
 
 
         public IList<EpgProgramInfo> GetCurrentProgramInfosByDate(int channelId, DateTime fromDate, DateTime toDate)

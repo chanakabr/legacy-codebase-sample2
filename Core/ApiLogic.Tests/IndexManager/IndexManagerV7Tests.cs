@@ -355,6 +355,7 @@ namespace ApiLogic.Tests.IndexManager
 
             Assert.IsNotEmpty(indexName);
 
+            var startDate = DateTime.UtcNow.AddHours(-1);
             var randomChannel = IndexManagerMockDataCreator.GetRandomChannel(partnerId);
             Dictionary<ulong, Dictionary<string, EpgCB>> epgs = new Dictionary<ulong, Dictionary<string, EpgCB>>();
             epgs[epgId] = new Dictionary<string, EpgCB>();
@@ -364,7 +365,7 @@ namespace ApiLogic.Tests.IndexManager
                 Name = $"test epg {epgId}",
                 IsActive = true,
                 ChannelID = randomChannel.m_nChannelID,
-                StartDate = DateTime.UtcNow.AddHours(-1),
+                StartDate = startDate,
                 EndDate = DateTime.UtcNow.AddHours(1),
                 Status = 1,
                 UpdateDate = DateTime.UtcNow,
@@ -395,6 +396,41 @@ namespace ApiLogic.Tests.IndexManager
                DateTime.UtcNow.AddDays(3),
                esOrderObjs));
             Assert.AreEqual($"{epgId}", channelPrograms.FirstOrDefault());
+
+            var partialUpdateResult = indexManager.UpdateEpgsPartial(new EpgPartialUpdate[]
+            {
+                new EpgPartialUpdate()
+                {
+                    EpgId = epgId,
+                    Language = language.Code,
+                    StartDate = startDate,
+                    EpgPartial = new EpgPartial()
+                    {
+                        Regions = new int[] { 26 }
+                    }
+                }
+            });
+
+            Assert.IsTrue(partialUpdateResult);
+
+            var searchPolicy2 = Policy.HandleResult<List<UnifiedSearchResult>>(x => x == null || x.Count == 0).WaitAndRetry(
+                3,
+                retryAttempt => TimeSpan.FromSeconds(1));
+            int totalItems = 0;
+
+            var searchResults = searchPolicy2.Execute( () => 
+                indexManager.UnifiedSearch(new UnifiedSearchDefinitions() {
+                    groupId = partnerId,
+                    pageSize = 500,
+                    shouldSearchEpg = true,
+                    epgDaysOffest = 7,
+                    regionIds = new List<int>() { 26 }
+                }, ref totalItems));
+
+            Assert.IsNotNull(searchResults);
+            Assert.IsNotEmpty(searchResults);
+            Assert.AreEqual(1, searchResults.Count);
+            Assert.AreEqual(epgId.ToString(), searchResults[0].AssetId);
 
             bool deleteResult = indexManager.DeleteProgram(new List<long>() { Convert.ToInt64(epgId) }, null);
             Assert.IsTrue(deleteResult);

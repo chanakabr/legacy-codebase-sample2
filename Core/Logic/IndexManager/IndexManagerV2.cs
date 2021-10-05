@@ -6670,7 +6670,7 @@ namespace Core.Catalog
         /// <param name="epgIds"></param>
         /// <param name="fieldMappings"></param>
         /// <returns></returns>
-        public bool UpdateEpgsPartial(EpgPartialUpdateEsObject[] epgs)
+        public bool UpdateEpgsPartial(EpgPartialUpdate[] epgs)
         {
             bool result = false;
 
@@ -6704,13 +6704,13 @@ namespace Core.Catalog
             foreach (LanguageObj language in languages)
             {
                 // Filter programs to current language
-                EpgPartialUpdateEsObject[] currentLanguageEpgs = epgs.Where(epg =>
+                EpgPartialUpdate[] currentLanguageEpgs = epgs.Where(epg =>
                     epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToArray();
 
                 if (currentLanguageEpgs != null && currentLanguageEpgs.Length > 0)
                 {
                     // Create bulk request object for each program
-                    foreach (EpgPartialUpdateEsObject epg in currentLanguageEpgs)
+                    foreach (EpgPartialUpdate epg in currentLanguageEpgs)
                     {
                         // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
                         // in that case we need to use the specific date alias for each epg item to update
@@ -6725,7 +6725,7 @@ namespace Core.Catalog
                             suffix = language.Code;
                         }
                         
-                        string serializedEpg = SerializeEPGObject(epg.EpgPartial, suffix);
+                        string serializedEpg = SerializeEPGObject(new EpgEs(epg.EpgPartial), suffix);
                         
                         bulkRequests.Add(new ESBulkRequestObj<ulong>()
                         {
