@@ -76,6 +76,12 @@ namespace CanaryDeploymentManager
         public Status SetMigrationEventsStatus(int partnerId, bool enableMigrationEvents)
         {
             var config = GetPartnerConfiguration(partnerId);
+
+            if (config.Object == null)
+            {
+                config.Object = new ElasticsearchCanaryDeploymentConfiguration();
+            }
+
             config.Object.EnableMigrationEvents = enableMigrationEvents;
             var isSuccess = SetPartnerConfiguration(partnerId, config.Object);
             return isSuccess ? Status.Ok : Status.Error;
@@ -84,6 +90,12 @@ namespace CanaryDeploymentManager
         public Status SetElasticsearchActiveVersion(int partnerId, ElasticsearchVersion activeVersion)
         {
             var config = GetPartnerConfiguration(partnerId);
+
+            if (config.Object == null)
+            {
+                config.Object = new ElasticsearchCanaryDeploymentConfiguration();
+            }
+
             config.Object.ElasticsearchActiveVersion = activeVersion;
             var isSuccess = SetPartnerConfiguration(partnerId, config.Object);
             return isSuccess ? Status.Ok : Status.Error;
