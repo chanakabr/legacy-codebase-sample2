@@ -69,6 +69,8 @@ namespace EventBus.Kafka
             _consumerBuilder.SetErrorHandler(ConsumerErrorHandler);
             _consumerBuilder.SetLogHandler(ConsumeLogHandler);
             _consumer = _consumerBuilder.Build();
+
+            _logger.Debug($"Subscribing to topics {string.Join(",", _topics)}");
             _consumer.Subscribe(_topics);
             _cancelled = false;
 
@@ -147,17 +149,24 @@ namespace EventBus.Kafka
 
         private void FlushConsumeBuffer()
         {
-            // locking here to avoid consuming while flushing due to consume timeout
-            // interval passed
-            List<ConsumeResult<string, string>> batchMessageResults;
-            lock (_consumeBufferFlushLock)
+            try
             {
-                if (_consumeBuffer.Count > 0)
+                // locking here to avoid consuming while flushing due to consume timeout
+                // interval passed
+                List<ConsumeResult<string, string>> batchMessageResults;
+                lock (_consumeBufferFlushLock)
                 {
-                    batchMessageResults = _consumeBuffer.ToList();
-                    _consumeBuffer.Clear(); 
-                    _onBatchConsume.Invoke(batchMessageResults);
+                    if (_consumeBuffer.Count > 0)
+                    {
+                        batchMessageResults = _consumeBuffer.ToList();
+                        _consumeBuffer.Clear();
+                        _onBatchConsume.Invoke(batchMessageResults);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"error when flushing consume buffer", ex);
             }
         }
 
