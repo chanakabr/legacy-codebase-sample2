@@ -3839,7 +3839,8 @@ namespace Core.Catalog
         private static List<ProgramObj> GetProgramObjects(int groupId, List<long> epgIds, List<LanguageObj> languages)
         {
             var epgBl = EpgBL.Utils.GetInstance(groupId);
-            var basicEpgObjects = epgBl.GetEpgCBsWithLanguage(epgIds.Select(id => (ulong)id).ToList(), languages);
+            bool isOpcAccount = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
+            var basicEpgObjects = epgBl.GetEpgCBsWithLanguage(epgIds.Select(id => (ulong)id).ToList(), languages, isOpcAccount);
             if (basicEpgObjects == null || basicEpgObjects.Count == 0)
             {
                 return new List<ProgramObj>();
@@ -4046,7 +4047,8 @@ namespace Core.Catalog
         private static List<EPGChannelProgrammeObject> GetEpgsByGroupAndIDs(int groupID, List<int> epgIDs)
         {
             BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupID);
-            var result = epgBL.GetEpgs(epgIDs);
+            bool isOpcAccount = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupID);
+            var result = epgBL.GetEpgs(epgIDs, isOpcAccount);
 
             //var language = new GroupManager().GetGroup(groupID).GetGroupDefaultLanguage();
 
@@ -4076,7 +4078,8 @@ namespace Core.Catalog
             else
             {
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(groupID);
-                return epgBL.GetEpgCBsWithLanguage(epgIDs.Select(x => (ulong)x).ToList(), langCode);
+                bool isOpcAccount = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupID);
+                return epgBL.GetEpgCBsWithLanguage(epgIDs.Select(x => (ulong)x).ToList(), langCode, isOpcAccount);
             }
         }
 

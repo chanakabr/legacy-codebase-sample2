@@ -81,18 +81,18 @@ namespace Core.Catalog.Request
 
                 EpgProgramsResponse response = new EpgProgramsResponse();
                 BaseEpgBL epgBL = EpgBL.Utils.GetInstance(request.m_nGroupID);
-
+                bool isOpcAccount = CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(request.m_nGroupID);
                 List<EPGChannelProgrammeObject> retList = null;
 
                 if (initialSearchResult != null && initialSearchResult.Count > 0)
                 {
-                    retList = epgBL.GetEpgs(initialSearchResult.Select(item => Convert.ToInt32(item.AssetId)).ToList());
+                    retList = epgBL.GetEpgs(initialSearchResult.Select(item => Convert.ToInt32(item.AssetId)).ToList(), isOpcAccount);
                 }
                 else
                 {
                     retList = epgBL.GetEPGPrograms(request.m_nGroupID, 
                         request.pids == null ? null : request.pids.ToArray(), 
-                        request.eLang, request.duration);
+                        request.eLang, request.duration, isOpcAccount);
                 }
 
                 if (retList != null && retList.Count > 0)

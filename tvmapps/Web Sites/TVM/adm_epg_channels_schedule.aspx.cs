@@ -377,8 +377,8 @@ public partial class adm_epg_channels_schedule : System.Web.UI.Page
                 m_sOrderValue = "start_date"
             };
             
-
-            orderEpgs = epgBL.GetChannelPrograms(channelId, start.AddDays(-1), end, new List<ESOrderObj>() { orderObj });
+            // always passing false for isOpcAccount param because opcAccount should not use TVM to view epgs...
+            orderEpgs = epgBL.GetChannelPrograms(channelId, start.AddDays(-1), end, false, new List<ESOrderObj>() { orderObj });
 
             //if (programs != null && programs.Count > 0)
             //{

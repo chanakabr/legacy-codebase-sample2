@@ -371,7 +371,7 @@ namespace EpgBL
             }
         }
 
-        public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, List<LanguageObj> languages)
+        public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, List<LanguageObj> languages, bool isOpcAccount)
         {
             var result = new List<EPGChannelProgrammeObject>();
             var resultForMultilingual = new List<EPGChannelProgrammeObject>();
@@ -434,7 +434,7 @@ namespace EpgBL
                 List<Ratio> epgRatios = new List<Ratio>();
                 Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID, ref epgRatios);
 
-                MutateFullEpgPicURL(result, pictures, m_nGroupID);
+                MutateFullEpgPicURL(result, pictures, m_nGroupID, isOpcAccount);
             }
             catch (Exception ex)
             {
@@ -444,7 +444,7 @@ namespace EpgBL
             return result;
         }
 
-        public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, string language)
+        public override List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, string language, bool isOpcAccount)
         {
             List<EPGChannelProgrammeObject> result = new List<EPGChannelProgrammeObject>();
 
@@ -466,7 +466,7 @@ namespace EpgBL
                 List<Ratio> epgRatios = new List<Ratio>();
                 Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID, ref epgRatios);
 
-                MutateFullEpgPicURL(result, pictures, m_nGroupID);
+                MutateFullEpgPicURL(result, pictures, m_nGroupID, isOpcAccount);
             }
             catch (Exception)
             {
@@ -812,13 +812,13 @@ namespace EpgBL
         }
 
 
-        public override List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds)
+        public override List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds, bool isOpcAccount)
         {
             var lIdsStrings = lIds.ConvertAll(x => GetEpgCBKey(m_nGroupID, x));
-            return GetEpgChannelProgrammeObjects(lIdsStrings);
+            return GetEpgChannelProgrammeObjects(lIdsStrings, isOpcAccount);
         }
 
-        public override List<EPGChannelProgrammeObject> GetEpgChannelProgrammeObjects(List<string> lIdsStrings)
+        public override List<EPGChannelProgrammeObject> GetEpgChannelProgrammeObjects(List<string> lIdsStrings, bool isOpcAccount)
         {
             // get EPG programs
             List<EpgCB> result = m_oEpgCouchbase.GetProgram(lIdsStrings);
@@ -833,13 +833,13 @@ namespace EpgBL
                 List<Ratio> epgRatios = new List<Ratio>();
                 Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID, ref epgRatios);
 
-                MutateFullEpgPicURL(epgChannelProgram, pictures, m_nGroupID);
+                MutateFullEpgPicURL(epgChannelProgram, pictures, m_nGroupID, isOpcAccount);
             }
 
             return epgChannelProgram;
         }
 
-        private static void MutateFullEpgPicURL(List<EPGChannelProgrammeObject> epgList, Dictionary<int, List<EpgPicture>> pictures, int groupId)
+        private static void MutateFullEpgPicURL(List<EPGChannelProgrammeObject> epgList, Dictionary<int, List<EpgPicture>> pictures, int groupId, bool isOpcAccount)
         {
             try
             {
@@ -855,7 +855,14 @@ namespace EpgBL
                     foreach (ApiObjects.EPGChannelProgrammeObject oProgram in epgList)
                     {
                         int progGroup = int.Parse(oProgram.GROUP_ID);
-
+                        // fix for GEN-1580 - EPG images are not returned with pic sizes on TVPAPI after OPC migration
+                        // if it's an OPC account and the epg groupId (one that was migrated but ingested with "regular" groupId prior to migration) is not the parent
+                        // groupId (passed in the method) then it means we need to use the parent groupId value instead
+                        if (isOpcAccount && progGroup != groupId)
+                        {
+                            progGroup = groupId;
+                        }
+                        
                         finalEpgPicture = new List<EpgPicture>();
                         if (oProgram.EPG_PICTURES != null && oProgram.EPG_PICTURES.Count > 0) // work with list of pictures --LUNA version 
                         {
@@ -1011,7 +1018,7 @@ namespace EpgBL
             }
         }
 
-        public override List<EPGChannelProgrammeObject> GetEPGPrograms(int groupID, string[] externalids, Language eLang, int duration)
+        public override List<EPGChannelProgrammeObject> GetEPGPrograms(int groupID, string[] externalids, Language eLang, int duration, bool isOpcAccount)
         {
             List<EPGChannelProgrammeObject> lRes = null;
             try
@@ -1027,7 +1034,7 @@ namespace EpgBL
                         Dictionary<int, List<EpgPicture>> pictures = Tvinci.Core.DAL.CatalogDAL.GetGroupTreeMultiPicEpgUrl(m_nGroupID, ref epgRatios);
                         if (pictures != null)
                         {
-                            MutateFullEpgPicURL(lRes, pictures, groupID);
+                            MutateFullEpgPicURL(lRes, pictures, groupID, isOpcAccount);
                         }
                     }
                 }
@@ -1044,7 +1051,7 @@ namespace EpgBL
             return lRes;
         }
 
-        public override List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObjs = null)
+        public override List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, bool isOpcAccount, List<ESOrderObj> esOrderObjs = null)
         {
             List<EPGChannelProgrammeObject> result = new List<EPGChannelProgrammeObject>();
 
@@ -1053,7 +1060,7 @@ namespace EpgBL
                 var indexManager = Core.Catalog.IndexManagerFactory.Instance.GetIndexManager(m_nGroupID);
                 List<string> documentIds = indexManager.GetChannelPrograms(channelId, startDate, endDate, esOrderObjs);
                 documentIds = GetEpgsCBKeysV1(documentIds.Select(x=>long.Parse(x)), null);
-                result = GetEpgChannelProgrammeObjects(documentIds);
+                result = GetEpgChannelProgrammeObjects(documentIds, isOpcAccount);
             }
             catch (Exception ex)
             {

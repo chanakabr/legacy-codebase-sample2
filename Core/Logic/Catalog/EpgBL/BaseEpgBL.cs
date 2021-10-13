@@ -17,8 +17,8 @@ namespace EpgBL
         public int m_nGroupID { get; protected set; }
 
         public abstract EPGChannelProgrammeObject GetEpg(ulong nProgramID);
-        public abstract List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds);
-        public abstract List<EPGChannelProgrammeObject> GetEpgChannelProgrammeObjects(List<string> lIds);
+        public abstract List<EPGChannelProgrammeObject> GetEpgs(List<int> lIds, bool isOpcAccount);
+        public abstract List<EPGChannelProgrammeObject> GetEpgChannelProgrammeObjects(List<string> lIds, bool isOpcAccount);
         public abstract List<EpgCB> GetEpgs(List<string> lIds, bool isRecordings = false);
 
 
@@ -26,8 +26,8 @@ namespace EpgBL
         public abstract EpgCB GetEpgCB(ulong nProgramID, out ulong cas);
         public abstract EpgCB GetEpgCB(string ProgramID, out ulong cas);
         public abstract List<EpgCB> GetEpgCB(ulong nProgramID, List<string> languages, bool isAddAction = false);
-        public abstract List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, string language);
-        public abstract List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, List<LanguageObj> language);
+        public abstract List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, string language, bool isOpcAccount);
+        public abstract List<EPGChannelProgrammeObject> GetEpgCBsWithLanguage(List<ulong> programIDs, List<LanguageObj> language, bool isOpcAccount);
 
         public abstract ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> GetMultiChannelProgramsDic(int nPageSize, int nStartIndex, List<int> lChannelIDs, DateTime fromDate, DateTime toDate);
         public abstract ConcurrentDictionary<int, List<EPGChannelProgrammeObject>> GetMultiChannelProgramsDicCurrent(int nNextTop, int nPrevTop, List<int> lChannelIDs);
@@ -35,7 +35,7 @@ namespace EpgBL
         public abstract List<EPGChannelProgrammeObject> SearchEPGContent(int groupID, string searchValue, int pageIndex, int pageSize);
         public abstract List<EPGChannelProgrammeObject> GetEPGProgramsByScids(int groupID, string[] scids, Language eLang, int duration);
         public abstract List<EPGChannelProgrammeObject> GetEPGProgramsByProgramsIdentefier(int groupID, string[] pids, Language eLang, int duration);
-        public abstract List<EPGChannelProgrammeObject> GetEPGPrograms(int groupID, string[] externalids, Language eLang, int duration);
+        public abstract List<EPGChannelProgrammeObject> GetEPGPrograms(int groupID, string[] externalids, Language eLang, int duration, bool isOpcAccount);
 
         public abstract bool InsertEpg(EpgCB newEpgItem, out ulong epgID, ulong? cas = null);
         public abstract bool InsertEpg(EpgCB newEpgItem, bool isMainLang, out string docID, ulong? cas = null);
@@ -164,6 +164,6 @@ namespace EpgBL
             return GetNewEpgIds(1).First();
         }
 
-        public abstract List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, List<ESOrderObj> esOrderObj = null);
+        public abstract List<EPGChannelProgrammeObject> GetChannelPrograms(int channelId, DateTime startDate, DateTime endDate, bool isOpcAccount, List<ESOrderObj> esOrderObj = null);
     }
 }
