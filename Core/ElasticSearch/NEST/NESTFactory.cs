@@ -9,6 +9,8 @@ using Elasticsearch.Net;
 using KLogMonitor;
 using Nest;
 using Level = log4net.Core.Level;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace ElasticSearch.NEST
 {
@@ -39,9 +41,44 @@ namespace ElasticSearch.NEST
 
         private static IElasticClient GetNewNESTInstance(IApplicationConfiguration appConfig)
         {
-            _log.Info($"constructing new instance of NEST, url:[{appConfig.ElasticSearchConfiguration.URL_V7.Value}]");
-            var uri = new Uri(appConfig.ElasticSearchConfiguration.URL_V7.Value);
-            var pool = new SingleNodeConnectionPool(uri);
+            IConnectionPool pool = null;
+
+            if (appConfig.ElasticSearchConfiguration.ConnectionPoolType.Value == ConnectionPoolType.SingleNodeConnectionPool)
+            {
+                _log.Info($"constructing new instance of NEST, url:[{appConfig.ElasticSearchConfiguration.URL_V7.Value}]");
+                var uri = new Uri(appConfig.ElasticSearchConfiguration.URL_V7.Value);
+                pool = new SingleNodeConnectionPool(uri);
+            }
+            else
+            {
+
+                IEnumerable<Uri> uris = 
+                    appConfig.ElasticSearchConfiguration.URL_V7.Value.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(uri => new Uri(uri));
+
+                _log.Info($"constructing new instance of Nest, urls:[{string.Join(";", uris)}]");
+
+                switch (appConfig.ElasticSearchConfiguration.ConnectionPoolType.Value)
+                {
+                    case ConnectionPoolType.StaticConnectionPool:
+                        {
+                            pool = new StaticConnectionPool(uris);
+                            break;
+                        }
+                    case ConnectionPoolType.SniffingConnectionPool:
+                        {
+                            pool = new SniffingConnectionPool(uris);
+                            break;
+                        }
+                    case ConnectionPoolType.StickyConnectionPool:
+                        {
+                            pool = new StickyConnectionPool(uris);
+                            break;
+                        }
+                    default:
+                        break;
+                }
+            }
 
             var settings = new ConnectionSettings(pool)
                 // This can be used wither by Remote Task or any other phoenix component so we take the entry assembly name as the user agent
