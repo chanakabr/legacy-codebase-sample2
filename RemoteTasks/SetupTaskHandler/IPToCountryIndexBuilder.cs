@@ -51,7 +51,10 @@ namespace SetupTaskHandler
                         string id = ODBCWrapper.Utils.ExtractString(row, "ID");
 
                         var tuple = IpToCountryHandler.GetIpRangesByNetworkStatic(network);
-                        IPV6 ipv6 = new IPV6(tuple, countryId, code, name);
+                        IPV6 ipv6 = new IPV6(tuple, countryId, code, name)
+                        {
+                            id = id
+                        };
 
                         ipv6List.Add(ipv6);
                     }
