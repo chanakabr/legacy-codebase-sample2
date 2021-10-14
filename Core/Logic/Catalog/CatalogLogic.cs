@@ -1235,7 +1235,6 @@ namespace Core.Catalog
 
             try
             {
-                List<List<string>> jsonizedChannelsDefinitions = null;
                 IIndexManager indexManager = IndexManagerFactory.Instance.GetIndexManager(oMediaRequest.m_nGroupID);
                 ApiObjects.SearchObjects.MediaSearchObj search = null;
 
@@ -1250,15 +1249,7 @@ namespace Core.Catalog
                     oMediaRequest.m_oFilter.m_nUserTypeID = Utils.GetUserType(oMediaRequest.m_sSiteGuid, oMediaRequest.m_nGroupID);
                 }
 
-                if (IsUseIPNOFiltering(oMediaRequest, ref jsonizedChannelsDefinitions))
-                {
-                    search = BuildSearchObject(oMediaRequest, jsonizedChannelsDefinitions[0], jsonizedChannelsDefinitions[1]);
-                }
-                else
-                {
-                    search = BuildSearchObject(oMediaRequest);
-                }
-
+                search = BuildSearchObject(oMediaRequest);
 
                 search.m_nPageIndex = oMediaRequest.m_nPageIndex;
                 search.m_nPageSize = oMediaRequest.m_nPageSize;
@@ -4346,72 +4337,6 @@ namespace Core.Catalog
                         break;
                     }
             } // switch
-
-            return res;
-        }
-
-        internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest, ref List<List<string>> outJsonizedChannelsDefinitions)
-        {
-            int operatorID = 0;
-            return IsUseIPNOFiltering(oMediaRequest, ref outJsonizedChannelsDefinitions, ref operatorID);
-        }
-
-        internal static bool IsUseIPNOFiltering(BaseRequest oMediaRequest,
-            ref List<List<string>> outJsonizedChannelsDefinitions, ref int operatorID)
-        {
-            bool res = false;
-            long lSiteGuid = 0;
-            if (Utils.IsGroupIDContainedInConfig(oMediaRequest.m_nGroupID, ApplicationConfiguration.Current.CatalogLogicConfiguration.GroupsWithIUserTypeSeperatedBySemiColon.Value, ';'))
-            {
-                /*
-                 * 1. We need to filter results by IPNO.
-                 * 2. IPNO is a container of subscriptions.
-                 * 3. Subscription is a container of (Tvinci) channels
-                 * 4. Hence, we query the ES's percolator for (Tvinci) channels definitions
-                 * 5. We query the ES using IDs query. The (Tvinci) channels ids we store in cache.
-                 * 6. Then we concat the channels definitions with an AND to the search query.
-                 * 7. The IPNO ID we extract from database using the user's site guid.
-                 */
-                if (!Int64.TryParse(oMediaRequest.m_sSiteGuid, out lSiteGuid) || lSiteGuid == 0)
-                {
-
-                    throw new Exception("IPNO Filtering. No site guid at Catalog Request");
-                }
-                else
-                {
-                    // site guid exists. let's fetch operator id from DB.
-                    operatorID = Utils.GetOperatorIDBySiteGuid(oMediaRequest.m_nGroupID, lSiteGuid);
-                    if (operatorID == 0)
-                    {
-                        throw new Exception("IPNO Filtering. No operator ID extracted from DB");
-                    }
-                    else
-                    {
-                        // we have operator id
-                        res = true;
-                        GroupManager groupManager = new GroupManager();
-
-                        CatalogCache catalogCache = CatalogCache.Instance();
-                        int nParentGroupID = catalogCache.GetParentGroup(oMediaRequest.m_nGroupID);
-
-                        List<long> channelsOfIPNO = new List<long>(0);
-                        List<long> allChannelsOfAllIPNOs = new List<long>(0);
-
-                        if (channelsOfIPNO != null && channelsOfIPNO.Count > 0 && allChannelsOfAllIPNOs != null && allChannelsOfAllIPNOs.Count > 0)
-                        {
-                            var indexManager = IndexManagerFactory.Instance.GetIndexManager(oMediaRequest.m_nGroupID);
-
-                            // get channels definitions from ES Percolator
-                            outJsonizedChannelsDefinitions = indexManager.GetChannelsDefinitions(new List<List<long>>(2) { channelsOfIPNO, allChannelsOfAllIPNOs });
-                        }
-                        else
-                        {
-                            throw new Exception("IPNO Filtering. No cached channels");
-                        }
-                    }
-                }
-
-            } // end big if
 
             return res;
         }

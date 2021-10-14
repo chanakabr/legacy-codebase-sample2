@@ -46,7 +46,7 @@ namespace Core.Catalog.Request
             return CatalogLogic.DEFAULT_PWWAWP_MAX_RESULTS_SIZE;
         }
 
-        protected override List<SearchResult> ExecuteNonIPNOProtocol(BaseRequest oBaseRequest)
+        protected override List<SearchResult> GetSearchResults(BaseRequest oBaseRequest)
         {
             int nGroupID = 0, nMediaID = 0, nCountryID = 0;
             string sSiteGuid = string.Empty;
@@ -54,20 +54,6 @@ namespace Core.Catalog.Request
             GetProtocolData(oBaseRequest, ref nGroupID, ref nMediaID, ref sSiteGuid, ref nCountryID);
             DataTable dt = CatalogDAL.Get_PWWAWProtocol(nGroupID, nMediaID, sSiteGuid, nCountryID, nLanguageID, sEndDate, nDeviceID);
             return ConvertProtocolDataTableToList(dt, "m_id");
-        }
-
-        protected override List<SearchResult> ExecuteIPNOProtocol(BaseRequest oBaseRequest, 
-            int nOperatorID, List<List<string>> jsonizedChannelsDefinitions)
-        {
-            int nGroupID = 0, nMediaID = 0, nCountryID = 0;
-            string sSiteGuid = string.Empty;
-            GetEndDateLanguageDeviceID(oBaseRequest);
-            GetProtocolData(oBaseRequest, ref nGroupID, ref nMediaID, ref sSiteGuid, ref nCountryID);
-            DataTable dt = CatalogDAL.Get_IPWWAWProtocol(nGroupID, nMediaID, sSiteGuid,
-                nCountryID, nLanguageID, sEndDate, nDeviceID, nOperatorID);
-            List<SearchResult> initialResults = ConvertProtocolDataTableToList(dt, "m_id");
-
-            return GetProtocolFinalResultsUsingSearcher(initialResults, jsonizedChannelsDefinitions, nGroupID);
         }
 
         private void GetProtocolData(BaseRequest oRequest, ref int nGroupID, ref int nMediaID, ref string sSiteGuid, ref int nCountryID)

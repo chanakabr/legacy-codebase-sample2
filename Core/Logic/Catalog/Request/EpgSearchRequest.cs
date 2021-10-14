@@ -167,27 +167,6 @@ namespace Core.Catalog.Request
 
         public EpgSearchObj BuildEPGSearchObject()
         {
-            EpgSearchObj res = null;
-
-            List<List<string>> jsonizedChannelsDefinitions = null;
-            if (CatalogLogic.IsUseIPNOFiltering(this, ref jsonizedChannelsDefinitions))
-            {
-                m_oEPGChannelIDs = CatalogLogic.GetEpgChannelIDsForIPNOFiltering(m_nGroupID,
-                    this.domainId, this.m_sSiteGuid,
-                    ref jsonizedChannelsDefinitions);
-                res = BuildEPGSearchObjectInner();
-
-            }
-            else
-            {
-                res = BuildEPGSearchObjectInner();
-            }
-
-            return res;
-        }
-
-        private EpgSearchObj BuildEPGSearchObjectInner()
-        {
             List<string> lSearchList = new List<string>();
             EpgSearchObj searcherEpgSearch = new EpgSearchObj();
 

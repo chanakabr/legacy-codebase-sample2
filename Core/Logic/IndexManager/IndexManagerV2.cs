@@ -1288,36 +1288,6 @@ namespace Core.Catalog
             return resultFinalList;
         }
 
-        public List<List<string>> GetChannelsDefinitions(List<List<long>> listsOfChannelIDs)
-        {
-            long groupID = _partnerId;
-            if (listsOfChannelIDs != null && listsOfChannelIDs.Count > 0)
-            {
-                List<string> indicesBehindAlias = _elasticSearchApi.GetAliases(groupID + "");
-                if (indicesBehindAlias != null && indicesBehindAlias.Count > 0)
-                {
-                    List<List<string>> res = new List<List<string>>(listsOfChannelIDs.Count);
-                    for (int i = 0; i < listsOfChannelIDs.Count; i++)
-                    {
-                        string sESAnswer = _elasticSearchApi.MultiGetIDs("_percolator", indicesBehindAlias[0], listsOfChannelIDs[i], listsOfChannelIDs[i].Count);
-                        if (!string.IsNullOrEmpty(sESAnswer))
-                        {
-                            List<string> definitions = ExtractChannelsDefinitionsOutOfResultJSON(sESAnswer);
-                            res.Add(definitions);
-                        }
-                        else
-                        {
-                            res.Add(new List<string>(0));
-                        }
-                    }
-
-                    return res;
-                }
-            }
-
-            return new List<List<string>>(0);
-        }
-
         // Testable
         public SearchResultsObj SearchSubscriptionMedias(List<MediaSearchObj> oSearch, int nLangID, bool shouldUseStartDate,
             string sMediaTypes, OrderObj orderObj, int nPageIndex, int nPageSize)
@@ -1796,41 +1766,6 @@ namespace Core.Catalog
             }
 
             return epgResponse;
-        }
-
-        public Dictionary<long, bool> ValidateMediaIDsInChannels(List<long> distinctMediaIDs,
-            List<string> jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
-            List<string> jsonizedChannelsDefinitionsMediasMustNotAppearInAll)
-        {
-            Dictionary<long, bool> res = null;
-            if (distinctMediaIDs != null && distinctMediaIDs.Count > 0)
-            {
-                InitializeDictionary(distinctMediaIDs, ref res);
-                MediaSearchObj searchObj = BuildSearchObjectForValidatingMediaIDsInChannels(distinctMediaIDs,
-                    jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
-                    jsonizedChannelsDefinitionsMediasMustNotAppearInAll);
-                ESMediaQueryBuilder queryBuilder = new ESMediaQueryBuilder(_partnerId, searchObj);
-                string sQuery = queryBuilder.GetDocumentsByIdsQuery(distinctMediaIDs, new OrderObj()
-                {
-                    m_eOrderBy = ApiObjects.SearchObjects.OrderBy.ID
-                });
-
-                if (!string.IsNullOrEmpty(sQuery))
-                {
-                    string sESAnswer = _elasticSearchApi.Search(_partnerId + "", ES_MEDIA_TYPE, ref sQuery);
-                    if (sESAnswer.Length > 0)
-                    {
-                        int nTotalItems = 0;
-                        List<ElasticSearchApi.ESAssetDocument> lMediaDocs = ESUtils.DecodeAssetSearchJsonObject(sESAnswer, ref nTotalItems);
-
-                        UpdateDictionaryAccordingToESResults(lMediaDocs, ref res);
-
-                        return res;
-                    }
-                }
-            }
-
-            return null;
         }
 
         private void InitializeDictionary(List<long> distinctMediaIDs, ref Dictionary<long, bool> dict)

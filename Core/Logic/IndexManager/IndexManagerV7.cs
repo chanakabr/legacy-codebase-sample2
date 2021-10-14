@@ -2722,11 +2722,6 @@ namespace Core.Catalog
             return searchResponse.Hits.Select(x => x.Source.Name).Distinct().OrderBy(ob => ob).ToList();
         }
 
-        public List<List<string>> GetChannelsDefinitions(List<List<long>> listsOfChannelIDs)
-        {
-            throw new NotImplementedException();
-        }
-
         public List<SearchResult> GetAssetsUpdateDate(eObjectType assetType, List<int> assetIds)
         {
             List<SearchResult> response = new List<SearchResult>();
@@ -5236,13 +5231,6 @@ namespace Core.Catalog
             }
 
             return result;
-        }
-
-        public Dictionary<long, bool> ValidateMediaIDsInChannels(List<long> distinctMediaIDs,
-            List<string> jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
-            List<string> jsonizedChannelsDefinitionsMediasMustNotAppearInAll)
-        {
-            throw new NotImplementedException();
         }
 
         #region Private Methods

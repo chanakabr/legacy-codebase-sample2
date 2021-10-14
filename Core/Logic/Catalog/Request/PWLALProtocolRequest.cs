@@ -61,28 +61,13 @@ namespace Core.Catalog.Request
             return CatalogLogic.DEFAULT_PWLALP_MAX_RESULTS_SIZE;
         }
 
-        protected override List<SearchResult> ExecuteNonIPNOProtocol(BaseRequest oRequest)
+        protected override List<SearchResult> GetSearchResults(BaseRequest oRequest)
         {
             GetEndDateLanguageDeviceID(oRequest);
             DataTable dt = CatalogDAL.Get_PWLALProtocol(m_nGroupID, m_nMediaID, m_sSiteGuid, m_nSocialAction,
                 m_nSocialPlatform, m_nMediaFileID,
                 m_nCountryID, nLanguageID, sEndDate, nDeviceID);
             return ConvertProtocolDataTableToList(dt, "id");
-        }
-
-        protected override List<SearchResult> ExecuteIPNOProtocol(BaseRequest oRequest, int nOperatorID, List<List<string>> jsonizedChannelsDefinitions)
-        {
-            int nGroupID = 0, nMediaID = 0, nSocialAction = 0, nSocialPlatform = 0, nMediaFileID = 0, nCountryID = 0;
-            string sSiteGuid = string.Empty;
-            GetEndDateLanguageDeviceID(oRequest);
-            GetProtocolData(oRequest, ref nGroupID, ref m_nMediaID, ref sSiteGuid, ref nSocialAction, ref nSocialPlatform,
-                ref nMediaFileID, ref nCountryID);
-            DataTable dt = CatalogDAL.Get_IPWLALProtocol(nGroupID, nMediaID, sSiteGuid, nSocialAction,
-                nSocialPlatform, nMediaFileID,
-                nCountryID, nLanguageID, sEndDate, nDeviceID, nOperatorID);
-            List<SearchResult> initialResults = ConvertProtocolDataTableToList(dt, "id");
-
-            return GetProtocolFinalResultsUsingSearcher(initialResults, jsonizedChannelsDefinitions, m_nGroupID);
         }
 
         private void GetProtocolData(BaseRequest oRequest, ref int nGroupID, ref int nMediaID, ref string sSiteGuid,

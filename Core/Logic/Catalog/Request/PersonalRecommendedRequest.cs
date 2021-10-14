@@ -91,54 +91,7 @@ namespace Core.Catalog.Request
             return lMedias;
         }
 
-
-        protected override List<SearchResult> ExecuteIPNOProtocol(BaseRequest oBaseRequest, 
-            int nOperatorID, List<List<string>> jsonizedChannelsDefinitions)
-        {
-            List<SearchResult> lMedias = null;
-            try
-            {
-                var indexManager = IndexManagerFactory.Instance.GetIndexManager(oBaseRequest.m_nGroupID);
-
-                PersonalRecommendedRequest request = oBaseRequest as PersonalRecommendedRequest;
-                if (request == null)
-                    throw new Exception("Request object is null");
-
-
-                GroupManager groupManager = new GroupManager();
-                CatalogCache catalogCache = CatalogCache.Instance();
-                int nParentGroupID = catalogCache.GetParentGroup(request.m_nGroupID);
-                List<int> lSubGroup = groupManager.GetSubGroup(nParentGroupID);
-                DataTable dt = CatalogDAL.Get_IPersonalRecommended(request.m_nGroupID, request.m_sSiteGuid, request.m_nPageSize * request.m_nPageIndex + request.m_nPageSize, nOperatorID, lSubGroup);
-
-                if (dt != null && dt.Columns != null && dt.Rows != null && dt.Rows.Count > 0)
-                {
-                    if (ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["getRelated"]) == 1)
-                    {
-                        lMedias = HandleGetRelated(request, ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[0]["media_id"]));
-                    }
-                    else
-                    {
-                        //Return most viewed items and validate against ES they are still associated with the operator
-                        lMedias = HandleMostViewed(dt);
-                        lMedias = GetProtocolFinalResultsUsingSearcher(lMedias, jsonizedChannelsDefinitions, request.m_nGroupID);
-                    }
-                }
-                else
-                {
-                    lMedias = new List<SearchResult>(0);
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(this.ToString(), ex);
-                throw ex;
-            }
-
-            return lMedias;
-        }
-
-        protected override List<SearchResult> ExecuteNonIPNOProtocol(BaseRequest oBaseRequest)
+        protected override List<SearchResult> GetSearchResults(BaseRequest oBaseRequest)
         {
             List<SearchResult> lMedias = null;
             try

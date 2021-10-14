@@ -59,9 +59,6 @@ namespace Core.Catalog
 
         List<string> GetEpgAutoCompleteList(EpgSearchObj epgSearchObj);
 
-        // could be deprecated, but we really can't tell...
-        List<List<string>> GetChannelsDefinitions(List<List<long>> listsOfChannelIDs);
-
         // Method that were previous implemented and called directly from elasticWrapper instead of the interface
 
         List<SearchResult> GetAssetsUpdateDate(eObjectType assetType, List<int> assetIds);
@@ -136,16 +133,9 @@ namespace Core.Catalog
 
         bool UpdateEpgsPartial(EpgPartialUpdate[] epgs);
 
-        // remark: Verify these methods should really be here ..
-
         SearchResultsObj SearchMedias(MediaSearchObj search, int langId, bool useStartDate);
         SearchResultsObj SearchSubscriptionMedias(List<MediaSearchObj> oSearch, int nLangID, bool shouldUseStartDate, string sMediaTypes, OrderObj orderObj, int nPageIndex, int nPageSize);
         SearchResultsObj SearchEpgs(EpgSearchObj epgSearch);
-        List<string> GetAutoCompleteList(MediaSearchObj mediaSearch, int nLangID, ref int nTotalItems);
-        
-        Dictionary<long, bool> ValidateMediaIDsInChannels(List<long> distinctMediaIDs,
-            List<string> jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
-            List<string> jsonizedChannelsDefinitionsMediasMustNotAppearInAll);
-        
+        List<string> GetAutoCompleteList(MediaSearchObj mediaSearch, int nLangID, ref int nTotalItems);    
     }
 }

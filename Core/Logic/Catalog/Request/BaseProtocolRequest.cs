@@ -24,9 +24,7 @@ namespace Core.Catalog.Request
 
         #region Abstract methods
 
-        protected abstract List<SearchResult> ExecuteNonIPNOProtocol(BaseRequest oBaseRequest);
-
-        protected abstract List<SearchResult> ExecuteIPNOProtocol(BaseRequest oBaseRequest, int nOperatorID, List<List<string>> jsonizedChannelsDefinitions);
+        protected abstract List<SearchResult> GetSearchResults(BaseRequest oBaseRequest);
 
         protected abstract int GetProtocolMaxResultsSize();
         #endregion
@@ -49,57 +47,13 @@ namespace Core.Catalog.Request
 
         protected virtual BaseResponse ExecuteProtocol(BaseRequest oRequest)
         {
-            List<SearchResult> res = null;
-            List<List<string>> jsonizedChannelsDefinitions = null;
-            int nOperatorID = 0;
             MediaIdsResponse response = new MediaIdsResponse();
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            if (CatalogLogic.IsUseIPNOFiltering(oRequest, ref jsonizedChannelsDefinitions, ref nOperatorID))
-            {
-                res = ExecuteIPNOProtocol(oRequest, nOperatorID, jsonizedChannelsDefinitions);
-            }
-            else
-            {
-                res = ExecuteNonIPNOProtocol(oRequest);
-            }
-            sw.Stop();
-
-            log.Info(string.Format("Protocol execution finished. Request: {0} , Time elapsed: {1}", oRequest.ToString(), sw.ElapsedMilliseconds));
+            List<SearchResult> res = GetSearchResults(oRequest);
 
             response.m_nMediaIds = res;
             response.m_nTotalItems = res.Count;
 
             return response;
-        }
-
-        protected List<SearchResult> GetProtocolFinalResultsUsingSearcher(List<SearchResult> initialResults, 
-            List<List<string>> jsonizedChannelsDefinitions, int nGroupID)
-        {
-            if (initialResults.Count > 0)
-            {
-                List<long> mediaIDs = initialResults.Select<SearchResult, long>(item => item.assetID).ToList();
-                var indexManager = IndexManagerFactory.Instance.GetIndexManager(nGroupID);
-                Dictionary<long, bool> resDict = indexManager.ValidateMediaIDsInChannels(mediaIDs, jsonizedChannelsDefinitions[0], jsonizedChannelsDefinitions[1]);
-                if (resDict != null && resDict.Count > 0)
-                {
-                    int maxResults = GetProtocolMaxResultsSize();
-                    int counter = 0;
-                    List<SearchResult> finalResults = new List<SearchResult>(maxResults);
-                    for (int i = 0; i < initialResults.Count && counter < maxResults; i++)
-                    {
-                        if (resDict[initialResults[i].assetID])
-                        {
-                            finalResults.Add(initialResults[i]);
-                            counter++;
-                        }
-                    }
-
-                    return finalResults;
-                }
-            }
-
-            return new List<SearchResult>(0);
         }
 
         protected List<SearchResult> ConvertProtocolDataTableToList(DataTable protocolDT, string sIDColName)
@@ -145,6 +99,5 @@ namespace Core.Catalog.Request
                 nLanguageID = 0;
             }
         }
-
     }
 }

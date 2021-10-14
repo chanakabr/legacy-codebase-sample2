@@ -360,17 +360,7 @@ namespace ApiLogic.Catalog.IndexManager
         {
             return _indexManager.GetAutoCompleteList(mediaSearch, nLangID, ref nTotalItems);
         }
-
-        public Dictionary<long, bool> ValidateMediaIDsInChannels(List<long> distinctMediaIDs,
-            List<string> jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
-            List<string> jsonizedChannelsDefinitionsMediasMustNotAppearInAll)
-        {
-            return _indexManager.ValidateMediaIDsInChannels(distinctMediaIDs,
-                jsonizedChannelsDefinitionsMediasHaveToAppearInAtLeastOne,
-                jsonizedChannelsDefinitionsMediasMustNotAppearInAll);
-        }
-
-        public Country GetCountryByCountryName(string countryName)
+                public Country GetCountryByCountryName(string countryName)
         {
             return _indexManager.GetCountryByCountryName(countryName);
         }
@@ -467,11 +457,6 @@ namespace ApiLogic.Catalog.IndexManager
         public List<string> GetEpgAutoCompleteList(EpgSearchObj epgSearchObj)
         {
             return _indexManager.GetEpgAutoCompleteList(epgSearchObj);
-        }
-
-        public List<List<string>> GetChannelsDefinitions(List<List<long>> listsOfChannelIDs)
-        {
-            return _indexManager.GetChannelsDefinitions(listsOfChannelIDs);
         }
 
         public List<SearchResult> GetAssetsUpdateDate(eObjectType assetType, List<int> assetIds)

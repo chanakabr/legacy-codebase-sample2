@@ -85,17 +85,9 @@ namespace Core.Catalog.Request
                         searchObj.m_dOr.Add(new SearchValue() { m_sKey = tag, m_sKeyPrefix = "tags", m_sValue = request.m_sPrefix });
                     }
                 }
-                List<List<string>> jsonizedChannelsDefinitions = null;
-                if (CatalogLogic.IsUseIPNOFiltering(request, ref jsonizedChannelsDefinitions))
-                {
-                    searchObj.m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt = jsonizedChannelsDefinitions[0];
-                    searchObj.m_lOrMediaNotInAnyOfTheseChannelsDefinitions = jsonizedChannelsDefinitions[1];
-                }
-                else
-                {
-                    searchObj.m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt = null;
-                    searchObj.m_lOrMediaNotInAnyOfTheseChannelsDefinitions = null;
-                }
+
+                searchObj.m_lChannelsDefinitionsMediaNeedsToBeInAtLeastOneOfIt = null;
+                searchObj.m_lOrMediaNotInAnyOfTheseChannelsDefinitions = null;
 
                 List<int> regionIds;
                 List<string> linearMediaTypes;
