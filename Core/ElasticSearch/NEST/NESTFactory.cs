@@ -51,9 +51,8 @@ namespace ElasticSearch.NEST
             }
             else
             {
-
                 IEnumerable<Uri> uris = 
-                    appConfig.ElasticSearchConfiguration.URL_V7.Value.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                    appConfig.ElasticSearchConfiguration.URL_V7.Value.Split(new string[] { ";" }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(uri => new Uri(uri));
 
                 _log.Info($"constructing new instance of Nest, urls:[{string.Join(";", uris)}]");
