@@ -1779,9 +1779,8 @@ namespace Core.Users
                     manufacturerId = ODBCWrapper.Utils.GetIntSafeVal(dt.Rows[i], "manufacturer_id");
                     if (manufacturerId.HasValue && manufacturerId.Value > 0)
                     {
-                        var _filter = new DeviceManufacturersReferenceDataFilter() { IdsIn = new List<int>() { (int)manufacturerId.Value } };
-                        var cd = new ApiObjects.Base.ContextData(groupID);
-                        manufacturer = ApiLogic.Users.Managers.DeviceReferenceDataManager.Instance.List(cd, _filter, null)?.Objects?.FirstOrDefault()?.Name;
+                        var deviceReferenceData = DeviceReferenceDataManager.Instance.GetByManufacturerId(groupID, manufacturerId.Value);
+                        manufacturer = deviceReferenceData?.Name;
                     }
 
                     Device device = new Device(sUDID, nDeviceBrandID, m_nGroupID, sDeviceName, m_nDomainID, nDeviceID, nDeviceFamilyID, string.Empty, sPin,

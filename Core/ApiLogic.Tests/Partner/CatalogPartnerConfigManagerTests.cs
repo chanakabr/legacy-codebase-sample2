@@ -35,8 +35,8 @@ namespace ApiLogic.Tests.Partner
 
             var deviceFamilies = objectToUpdate.CategoryManagement.DeviceFamilyToCategoryTree.Select(x => new DeviceFamily(x.Key, fixture.Create<string>())).ToList();
             var deviceFamilyManagerMock = new Mock<IDeviceFamilyManager>();
-            deviceFamilyManagerMock.Setup(x => x.GetDeviceFamilyList())
-                                   .Returns(new DeviceFamilyResponse() { Status = Status.Ok, DeviceFamilies = deviceFamilies });
+            deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList())
+                                   .Returns(deviceFamilies);
 
             var repositoryMock = new Mock<ICatalogPartnerRepository>();
             repositoryMock.Setup(x => x.SaveCatalogPartnerConfig(It.IsAny<int>(), It.IsAny<CatalogPartnerConfig>()))
@@ -86,8 +86,7 @@ namespace ApiLogic.Tests.Partner
 
             var deviceFamilies = deviceFamilyIds.Select(x => new DeviceFamily(x, fixture.Create<string>())).ToList();
             var deviceFamilyManagerMock = new Mock<IDeviceFamilyManager>();
-            deviceFamilyManagerMock.Setup(x => x.GetDeviceFamilyList())
-                                   .Returns(new DeviceFamilyResponse() { Status = Status.Ok, DeviceFamilies = deviceFamilies });
+            deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(deviceFamilies);
 
             var repositoryMock = new Mock<ICatalogPartnerRepository>();
 

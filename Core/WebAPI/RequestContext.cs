@@ -52,16 +52,16 @@ namespace WebAPI
             {
 
                 //If object
-                KalturaOTTObject responseProfile = null;
+                KalturaBaseResponseProfile responseProfile = null;
                 Type type = typeof(KalturaBaseResponseProfile);
                 if (requestParams["responseProfile"] is JObject)
                 {
-                    responseProfile = Deserializer.deserialize(type,
+                    responseProfile = (KalturaBaseResponseProfile)Deserializer.deserialize(type,
                         ((JObject)requestParams["responseProfile"]).ToObject<Dictionary<string, object>>());
                 }
                 else if (requestParams["responseProfile"] is Dictionary<string, object>)
                 {
-                    responseProfile = Deserializer.deserialize(type,
+                    responseProfile = (KalturaBaseResponseProfile)Deserializer.deserialize(type,
                        ((JObject)requestParams["responseProfile"]).ToObject<Dictionary<string, object>>());
                 }
 

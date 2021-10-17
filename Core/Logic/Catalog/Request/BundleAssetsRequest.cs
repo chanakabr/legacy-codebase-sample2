@@ -31,6 +31,8 @@ namespace Core.Catalog.Request
         public string m_sMediaType;
         [DataMember]
         public bool isAllowedToViewInactiveAssets;
+        [DataMember]
+        public string AssetFilterKsql;
 
         private const string SUB_DATA_TABLE = "subscriptions";
         private const string COL_DATA_TABLE = "collections";
@@ -113,7 +115,7 @@ namespace Core.Catalog.Request
                         }
 
                         List<BaseSearchObject> searchObjectsList = BuildBaseSearchObjects(request, groupInCache, allChannels, sMediaTypesFromRequest, request.m_oOrderObj, parentGroupId, 
-                            doesGroupUsesTemplates, request.isAllowedToViewInactiveAssets);
+                            doesGroupUsesTemplates, request.isAllowedToViewInactiveAssets, request.AssetFilterKsql);
 
                         if (searchObjectsList != null && searchObjectsList.Count > 0)
                         {
@@ -165,8 +167,16 @@ namespace Core.Catalog.Request
             }
         }
 
-        public static List<BaseSearchObject> BuildBaseSearchObjects(BaseRequest request, Group groupInCache, 
-            List<GroupsCacheManager.Channel> allChannels, string[] mediaTypes, OrderObj order, int groupId, bool doesGroupUsesTemplates, bool isAllowedToViewInactiveAssets = false)
+        public static List<BaseSearchObject> BuildBaseSearchObjects(
+            BaseRequest request,
+            Group groupInCache, 
+            List<GroupsCacheManager.Channel> allChannels,
+            string[] mediaTypes,
+            OrderObj notUsed,
+            int groupId,
+            bool doesGroupUsesTemplates,
+            bool isAllowedToViewInactiveAssets,
+            string assetFilterKsql)
         {
             List<BaseSearchObject> searchObjectsList = new List<BaseSearchObject>();
 
@@ -210,7 +220,14 @@ namespace Core.Catalog.Request
                                      // or if at least one of the media types of the channel exists in the request
                                      typeIntersection.Count() > 0)
                                  {
-                                     UnifiedSearchDefinitions definitions = CatalogLogic.BuildInternalChannelSearchObjectWithBaseRequest(currentChannel, request, groupInCache, groupId, doesGroupUsesTemplates, isAllowedToViewInactiveAssets);
+                                     UnifiedSearchDefinitions definitions = CatalogLogic.BuildInternalChannelSearchObjectWithBaseRequest(
+                                         currentChannel,
+                                         request,
+                                         groupInCache,
+                                         groupId,
+                                         doesGroupUsesTemplates,
+                                         isAllowedToViewInactiveAssets,
+                                         assetFilterKsql);
 
                                      // If specific types were requested
                                      if (mediaTypes.Length > 0 && !mediaTypes.Contains("0"))

@@ -1,7 +1,6 @@
-﻿using ApiObjects.Base;
-using System.Collections.Generic;
+﻿using ApiObjects.Rules;
 using Newtonsoft.Json;
-using ApiObjects.Rules;
+using System.Collections.Generic;
 
 namespace ApiObjects
 {
@@ -14,15 +13,15 @@ namespace ApiObjects
                       TypeNameHandling = TypeNameHandling.Auto,
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        public List<Rules.RuleCondition> Conditions { get; set; }
+        public List<RuleCondition> Conditions { get; set; }
 
-        public bool EvaluateConditions(Rules.IConditionScope scope)
+        public bool EvaluateConditions(IConditionScope scope)
         {
             if (Conditions != null && Conditions.Count > 0)
             {
                 foreach (var condition in Conditions)
                 {
-                    if (!condition.Evaluate(scope))
+                    if (!scope.Evaluate(condition))
                     {
                         return false;
                     }

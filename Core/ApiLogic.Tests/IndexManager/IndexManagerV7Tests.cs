@@ -109,6 +109,7 @@ namespace ApiLogic.Tests.IndexManager
             _mockEsSerializerV2 = new ESSerializerV2();
             _mockRepository = new MockRepository(MockBehavior.Loose);
             _esApi = new ElasticSearchApi(ApplicationConfiguration.Current);
+            Assert.True(_esApi.HealthCheck()); // fail fast
             _mockGroupManager = _mockRepository.Create<IGroupManager>();
             _mockCatalogManager = _mockRepository.Create<ICatalogManager>();
             _mockChannelManager = _mockRepository.Create<IChannelManager>();

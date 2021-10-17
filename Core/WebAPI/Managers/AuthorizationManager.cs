@@ -1,34 +1,39 @@
-﻿using APILogic.Api.Managers;
+﻿using ApiLogic.Users;
+using ApiLogic.Users.Managers;
+using ApiLogic.Users.Services;
+using APILogic.Api.Managers;
 using ApiObjects;
+using ApiObjects.CanaryDeployment.Microservices;
+using ApiObjects.DataMigrationEvents;
+using ApiObjects.Response;
+using ApiObjects.User;
+using ApiObjects.User.SessionProfile;
+using AuthenticationGrpcClientWrapper;
+using CachingProvider.LayeredCache;
+using CanaryDeploymentManager;
 using ConfigurationManager;
+using Core.Users;
+using EventBus.Kafka;
+using Grpc.Core;
 using KLogMonitor;
+using Newtonsoft.Json;
+using SessionManager;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
-using ApiLogic.Users.Services;
-using ApiObjects.CanaryDeployment.Microservices;
-using ApiObjects.DataMigrationEvents;
 using TVinciShared;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
+using WebAPI.Clients;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
-using WebAPI.Clients;
-using ApiObjects.User;
-using ApiObjects.Response;
-using SessionManager;
-using AuthenticationGrpcClientWrapper;
-using CachingProvider.LayeredCache;
-using CanaryDeploymentManager;
-using EventBus.Kafka;
-using Grpc.Core;
 using KalturaRequestContext;
 using AppToken = WebAPI.Managers.Models.AppToken;
 using Status = ApiObjects.Response.Status;
@@ -129,7 +134,15 @@ namespace WebAPI.Managers
             };
         }
 
-        public static KalturaLoginSession GenerateSession(string userId, int groupId, bool isAdmin, bool isLoginWithPin, int domainId, string udid, List<long> userRoles, Dictionary<string, string> privileges = null)
+        public static KalturaLoginSession GenerateSession(
+            string userId,
+            int groupId,
+            bool isAdmin,
+            bool isLoginWithPin,
+            int domainId,
+            string udid,
+            List<long> userRoles,
+            Dictionary<string, string> privileges = null)
         {
             if (string.IsNullOrEmpty(userId))
             {
@@ -137,15 +150,25 @@ namespace WebAPI.Managers
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "userId");
             }
 
-            // generate access token and refresh token pair
-            var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
-
             // get group configurations
             var group = GetGroupConfiguration(groupId);
-            var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
-            var payload = new KS.KSData(udid, 0, regionId, userSegments, userRoles);
+            var sessionDuration = userId.IsAnonymous() ? group.AnonymousKSExpirationSeconds : group.KSExpirationSeconds; // TODO is it correct expiration?
+            var payload = CreateKsPayload(groupId, userId, domainId, udid, userRoles, 0);
             var token = new ApiToken(userId, groupId, payload, isAdmin, group, isLoginWithPin, privileges);
+
+            // generate access token and refresh token pair
             return GenerateSessionByApiToken(token, group);
+        }
+
+        private static KS.KSData CreateKsPayload(int groupId, string userId, int domainId, string udid, List<long> userRoles, int createDate)
+        {
+            var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
+            var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
+
+            // SessionCharacteristicKey is initialized only in Auth MS
+            string sessionCharacteristicKey = null;
+            var payload = new KS.KSData(udid, createDate, regionId, userSegments, userRoles, sessionCharacteristicKey);
+            return payload;
         }
 
         private static KalturaLoginSession GenerateSessionByApiToken(ApiToken token, Group group)
@@ -318,7 +341,14 @@ namespace WebAPI.Managers
 
         #region AppToken
 
-        internal static KalturaSessionInfo StartSessionWithAppToken(int groupId, string id, string tokenHash, string userId, string udid, KalturaSessionType? type, int? expiry, int domainId)
+        internal static KalturaSessionInfo StartSessionWithAppToken(int groupId, 
+                                                                    string id, 
+                                                                    string tokenHash, 
+                                                                    string userId, 
+                                                                    string udid, 
+                                                                    KalturaSessionType? type, 
+                                                                    int? expiry, 
+                                                                    int domainId)
         {
             KalturaSessionInfo response = null;
 
@@ -460,19 +490,16 @@ namespace WebAPI.Managers
             }
 
             // set payload data
-            var regionId = Core.Catalog.CatalogLogic.GetRegionIdOfDomain(groupId, domainId, userId);
-            var userSegments = Core.Api.Module.GetUserAndHouseholdSegmentIds(groupId, userId, domainId);
-
-            log.Debug($"StartSessionWithAppToken - regionId: {regionId} for id: {id}");
-            var ksData = new KS.KSData(udid, (int)DateUtils.GetUtcUnixTimestampNow(), regionId, userSegments, userRoles);
-            if (!UpdateUsersSessionsRevocationTime(groupId, group, userId, udid, ksData.CreateDate, sessionDuration))
+            var payload = CreateKsPayload(groupId, userId, domainId, udid, userRoles, (int)DateUtils.GetUtcUnixTimestampNow());
+            log.Debug($"StartSessionWithAppToken - regionId: {payload.RegionId} for id: {id}");
+            if (!UpdateUsersSessionsRevocationTime(groupId, group, userId, udid, payload.CreateDate, sessionDuration))
             {
                 log.ErrorFormat("GenerateSession: Failed to store updated users sessions, userId = {0}", userId);
                 throw new InternalServerErrorException();
             }
 
             // 11. build the ks:
-            KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, ksData, privilegesList, KS.KSVersion.V2);
+            KS ks = new KS(secret, groupId.ToString(), userId, (int)sessionDuration, sessionType, payload, privilegesList, KS.KSVersion.V2);
 
             // 12. update last login date
             usersClient.UpdateLastLoginDate(groupId, userId);
@@ -695,17 +722,7 @@ namespace WebAPI.Managers
                 string revokedKsKeyFormat = GetRevokedKsKeyFormat(group);
                 var payload = KSUtils.ExtractKSPayload();
 
-                var revokedToken = new ApiToken()
-                {
-                    GroupID = ks.GroupId,
-                    AccessTokenExpiration = DateUtils.DateTimeToUtcUnixTimestampSeconds(ks.Expiration),
-                    KS = ks.ToString(),
-                    Udid = payload.UDID,
-                    UserId = ks.UserId,
-                    RegionId = payload.RegionId,
-                    UserSegments = payload.UserSegments,
-                    UserRoles = payload.UserRoles
-                };
+                var revokedToken = new ApiToken(ks, payload);
 
                 string revokedKsCbKey = string.Format(revokedKsKeyFormat, EncryptionUtils.HashMD5(ks.ToString()));
 
@@ -1072,7 +1089,7 @@ namespace WebAPI.Managers
                 string.Empty,
                 (int)(DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow.AddSeconds(expiration)) - DateUtils.DateTimeToUtcUnixTimestampSeconds(DateTime.UtcNow)),
                 KalturaSessionType.ADMIN,
-                new KS.KSData(),
+                KS.KSData.Empty,
                 null,
                 Models.KS.KSVersion.V2);
 

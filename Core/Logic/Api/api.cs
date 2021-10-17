@@ -3,7 +3,6 @@ using ApiLogic;
 using ApiLogic.Api.Managers;
 using APILogic;
 using APILogic.Api.Managers;
-using APILogic.ConditionalAccess;
 using ApiObjects;
 using ApiObjects.AssetLifeCycleRules;
 using ApiObjects.BulkExport;
@@ -66,17 +65,23 @@ namespace Core.Api
 
     public interface IDeviceFamilyManager
     {
-        DeviceFamilyResponse GetDeviceFamilyList();
+        List<DeviceFamily> GetAllDeviceFamilyList();
         int GetDeviceFamilyIdByUdid(int domainId, int groupId, string udid);
         Dictionary<string, int> GetDomainDevices(int domainId, int groupId);
     }
-    
+
+    public interface IDeviceBrandManager
+    {
+        List<DeviceBrand> GetAllDeviceBrands();
+    }
+
     public interface ICountryManager
     {
+        List<Country> GetCountryListByIds(List<int> countryIds, int groupId);
         Dictionary<int, Country> GetCountryMapById(int groupId);
     }
-    
-    public class api : IVirtualAssetManager, IDeviceFamilyManager, ICountryManager
+
+    public class api : IVirtualAssetManager, IDeviceFamilyManager, IDeviceBrandManager, ICountryManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -1829,7 +1834,7 @@ namespace Core.Api
 
         internal static GenericResponse<AssetRule> GetAssetRule(int groupId, long assetRuleId)
         {
-            return AssetRuleManager.GetAssetRule(groupId, assetRuleId);
+            return AssetRuleManager.Instance.GetAssetRule(groupId, assetRuleId);
         }
 
         static private Dictionary<string, List<EPGDictionary>> GetAllEPGMetaProgram(int nGroupID, DataTable ProgramID)
@@ -9712,13 +9717,28 @@ namespace Core.Api
             return deviceFamilyId;
         }
 
-        public DeviceFamilyResponse GetDeviceFamilyList()
+        public static DeviceFamilyResponse GetDeviceFamilyList()
         {
             DeviceFamilyResponse result = new DeviceFamilyResponse();
 
-            DataTable dt = ApiDAL.GetDeviceFamilies();
+            var deviceFamilies = Instance.GetAllDeviceFamilyList();
+            if (deviceFamilies != null)
+            {
+                result.DeviceFamilies = deviceFamilies;
+                result.Status = Status.Ok;
+                result.TotalItems = deviceFamilies.Count;
+            }
+
+            return result;
+        }
+
+        public List<DeviceFamily> GetAllDeviceFamilyList()
+        {
+            List<DeviceFamily> deviceFamilies = null;
+            DataTable dt = DAL.ApiDAL.GetDeviceBrands();
             if (dt != null && dt.Rows != null)
             {
+                deviceFamilies = new List<DeviceFamily>(dt.Rows.Count);
                 foreach (DataRow dr in dt.Rows)
                 {
                     int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID", 0);
@@ -9726,23 +9746,34 @@ namespace Core.Api
                     if (id > 0 && !string.IsNullOrEmpty(name))
                     {
                         DeviceFamily deviceFamily = new DeviceFamily(id, name);
-                        result.DeviceFamilies.Add(deviceFamily);
+                        deviceFamilies.Add(deviceFamily);
                     }
                 }
-
-                result.Status.Set((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                result.TotalItems = dt.Rows.Count;
             }
-
-            return result;
+            return deviceFamilies;
         }
 
         public static DeviceBrandResponse GetDeviceBrandList()
         {
             DeviceBrandResponse result = new DeviceBrandResponse();
+            var deviceBrands = Instance.GetAllDeviceBrands();
+            if (deviceBrands != null)
+            {
+                result.DeviceBrands = deviceBrands;
+                result.Status = Status.Ok;
+                result.TotalItems = deviceBrands.Count;
+            }
+
+            return result;
+        }
+
+        public List<DeviceBrand> GetAllDeviceBrands()
+        {
+            List<DeviceBrand> deviceBrands = null;
             DataTable dt = DAL.ApiDAL.GetDeviceBrands();
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
+                deviceBrands = new List<DeviceBrand>(dt.Rows.Count);
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     DataRow dr = dt.Rows[i];
@@ -9754,19 +9785,15 @@ namespace Core.Api
                         if (id > 0 && !string.IsNullOrEmpty(name))
                         {
                             DeviceBrand deviceFamily = new DeviceBrand(id, name, deviceFamilyId);
-                            result.DeviceBrands.Add(deviceFamily);
+                            deviceBrands.Add(deviceFamily);
                         }
                     }
                 }
-
-                result.Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
-                result.TotalItems = dt.Rows.Count;
             }
-
-            return result;
+            return deviceBrands;
         }
 
-        public static List<Country> GetCountryListByIds(int groupId, List<int> countryIds = null)
+        public List<Country> GetCountryListByIds(List<int> countryIds, int groupId)
         {
             List<Country> countries = null;
             try
@@ -9799,7 +9826,7 @@ namespace Core.Api
         public Dictionary<int, Country> GetCountryMapById(int groupId)
         {
             var countryMap = new Dictionary<int, Country>();
-            List<Country> allCountries = GetCountryListByIds(groupId);
+            List<Country> allCountries = GetCountryListByIds(null, groupId);
             if (allCountries == null)
             {
                 log.Warn($"could not get Country list for groupId:{groupId}");
@@ -9812,7 +9839,7 @@ namespace Core.Api
         public static CountryLocaleResponse GetCountryLocaleList(List<int> countryIds, int groupId = 0)
         {
             CountryLocaleResponse result = new CountryLocaleResponse();
-            List<Country> countries = GetCountryListByIds(groupId, countryIds);
+            List<Country> countries = Instance.GetCountryListByIds(countryIds, groupId);
 
             Dictionary<int, CountryLocale> countriesLocaleMap = null;
             if (groupId > 0)
@@ -10789,22 +10816,22 @@ namespace Core.Api
 
         internal static GenericResponse<AssetRule> AddAssetRule(int groupId, AssetRule assetRule)
         {
-            return AssetRuleManager.AddAssetRule(groupId, assetRule);
+            return AssetRuleManager.Instance.AddAssetRule(groupId, assetRule);
         }
 
         internal static Status DeleteAssetRule(int groupId, long assetRuleId)
         {
-            return AssetRuleManager.DeleteAssetRule(groupId, assetRuleId);
+            return AssetRuleManager.Instance.DeleteAssetRule(groupId, assetRuleId);
         }
 
         internal static GenericListResponse<AssetRule> GetAssetRules(RuleConditionType assetRuleConditionType, int groupId = 0, SlimAsset slimAsset = null, RuleActionType? ruleActionType = null)
         {
-            return AssetRuleManager.GetAssetRules(assetRuleConditionType, groupId, slimAsset, ruleActionType);
+            return AssetRuleManager.Instance.GetAssetRules(assetRuleConditionType, groupId, slimAsset, ruleActionType);
         }
 
         internal static GenericResponse<AssetRule> UpdateAssetRule(int groupId, AssetRule assetRule)
         {
-            return AssetRuleManager.UpdateAssetRule(groupId, assetRule);
+            return AssetRuleManager.Instance.UpdateAssetRule(groupId, assetRule);
         }
 
         internal static bool DoActionAssetRules(bool isSingleRun)
@@ -10817,7 +10844,7 @@ namespace Core.Api
 
                 if (isSingleRun)
                 {
-                    impactedItems = AssetRuleManager.DoActionRules();
+                    impactedItems = AssetRuleManager.Instance.DoActionRules();
 
                     if (impactedItems > 0)
                     {
@@ -10859,7 +10886,7 @@ namespace Core.Api
                     assetRuleScheduledTaskIntervalSec = HANDLE_ASSET_RULE_SCHEDULED_TASKS_INTERVAL_SEC;
                 }
 
-                impactedItems = AssetRuleManager.DoActionRules();
+                impactedItems = AssetRuleManager.Instance.DoActionRules();
 
                 if (impactedItems > 0)
                 {
@@ -11055,7 +11082,7 @@ namespace Core.Api
                 if (deviceConcurrencyPriorityToUpdate.DeviceFamilyIds?.Count > 0)
                 {
                     // validate deviceFamilyIds
-                    var deviceFamilyList = api.Instance.GetDeviceFamilyList();
+                    var deviceFamilyList = api.GetDeviceFamilyList();
                     if (deviceFamilyList == null ||
                         deviceFamilyList.Status.Code != (int)eResponseStatus.OK ||
                         deviceFamilyList.DeviceFamilies.Count == 0)
@@ -11169,7 +11196,7 @@ namespace Core.Api
             return APILogic.Api.Managers.BusinessModuleRuleManager.AddBusinessModuleRule(groupId, businessModuleRuleToAdd);
         }
 
-        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, ConditionScope filter, RuleActionType? ruleActionType)
+        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, BusinessModuleRuleConditionScope filter, RuleActionType? ruleActionType)
         {
             return APILogic.Api.Managers.BusinessModuleRuleManager.GetBusinessModuleRules(groupId, filter, ruleActionType);
         }

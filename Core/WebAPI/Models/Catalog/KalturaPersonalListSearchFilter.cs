@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using ApiLogic.Api.Managers.Rule;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using ApiObjects.Base;
@@ -29,8 +30,9 @@ namespace WebAPI.Models.Catalog
         internal override KalturaAssetListResponse GetAssets(ContextData contextData, KalturaBaseResponseProfile responseProfile, KalturaFilterPager pager)
         {
             int domainId = (int)(contextData.DomainId ?? 0);
+            var ksqlFilter = FilterAsset.Instance.UpdateKsql(Ksql, contextData.GroupId, contextData.SessionCharacteristicKey);
 
-            var response = ClientsManager.CatalogClient().GetPersonalListAssets(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid, contextData.Language, this.Ksql, 
+            var response = ClientsManager.CatalogClient().GetPersonalListAssets(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid, contextData.Language, ksqlFilter, 
                 this.OrderBy, this.DynamicOrderBy, this.getGroupByValue(), pager.getPageIndex(), pager.getPageSize(), this.GetPartnerListTypeIn(), responseProfile, this.TrendingDaysEqual);
 
             return response;

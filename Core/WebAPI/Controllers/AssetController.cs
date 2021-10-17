@@ -1,5 +1,12 @@
-﻿using ApiLogic.Catalog;
+﻿using ApiLogic.Api.Managers.Rule;
+using ApiLogic.Catalog;
+using ApiLogic.Users.Managers;
+using ApiObjects;
+using ApiObjects.Base;
 using ApiObjects.Response;
+using ApiObjects.Rules;
+using AutoMapper;
+using Core.Catalog.CatalogManagement;
 using KLogMonitor;
 using System;
 using System.Collections.Generic;
@@ -25,6 +32,7 @@ namespace WebAPI.Controllers
     public class AssetController : IKalturaController 
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly IFilterFileRule _filterFileRule = FilterFileRule.Instance;
 
         /// <summary>
         /// Returns media or EPG assets. Filters by media identifiers or by EPG internal or external identifier.
@@ -173,6 +181,19 @@ namespace WebAPI.Controllers
             try
             {
                 response = filter.GetAssets(contextData, responseProfile, pager);
+                
+                if (response != null && response.Objects != null && response.Objects.Count > 0)
+                {
+                    var discoveryRules = FilterRuleStorage.Instance.GetFilterFileRulesForDiscovery(GetUserCondition(contextData));
+                    var playbackRules = FilterRuleStorage.Instance.GetFilterFileRulesForPlayback(GetUserCondition(contextData));
+                    var fileTypes = new FileManager.FileTypes(contextData.GroupId, FileManager.Instance);
+                    response.Objects?.ForEach(asset =>
+                        asset.MediaFiles = MarkPlaybackable(
+                                FilterAssetFilesForUser(asset.MediaFiles, discoveryRules, ToEAssetType(asset.Type), fileTypes),
+                                playbackRules, ToEAssetType(asset.Type), fileTypes)
+                            ?.ToList());
+                }
+                
                 CatalogUtils.HandleResponseProfile(responseProfile, response.Objects);
             }
             catch (ClientException ex)
@@ -202,16 +223,16 @@ namespace WebAPI.Controllers
         [Throws(StatusCode.EnumValueNotSupported)]
         static public KalturaAsset Get(string id, KalturaAssetReferenceType assetReferenceType)
         {
-            KalturaAsset response = null;
+            KalturaAsset asset = null;
 
             if (string.IsNullOrEmpty(id))
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "id");
             }
 
+            KS ks = KS.GetFromRequest();
             try
             {
-                KS ks = KS.GetFromRequest();
                 int groupId = ks.GroupId;
                 string userID = ks.UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
@@ -267,7 +288,7 @@ namespace WebAPI.Controllers
                             }
                         }
 
-                        response = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets, true);
+                        asset = ClientsManager.CatalogClient().GetAsset(groupId, mediaId, assetReferenceType, userID, (int)HouseholdUtils.GetHouseholdIDByKS(groupId), udid, language, isAllowedToViewInactiveAssets, true);
                         break;
                     case KalturaAssetReferenceType.epg_internal:
                         int epgId;
@@ -278,7 +299,7 @@ namespace WebAPI.Controllers
 
                         if (Utils.Utils.DoesGroupUsesTemplates(groupId))
                         {
-                            response = ClientsManager.CatalogClient().GetEpgAsset(groupId, epgId, isAllowedToViewInactiveAssets);
+                            asset = ClientsManager.CatalogClient().GetEpgAsset(groupId, epgId, isAllowedToViewInactiveAssets);
                         }
                         else
                         {
@@ -291,7 +312,7 @@ namespace WebAPI.Controllers
                                 throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
                             }
 
-                            response = epgRes.Objects.First();
+                            asset = epgRes.Objects.First();
                         }
                         break;
 
@@ -305,11 +326,11 @@ namespace WebAPI.Controllers
                             throw new NotFoundException(NotFoundException.OBJECT_NOT_FOUND, "Asset");
                         }
 
-                        response = epgExRes.Objects.First();
+                        asset = epgExRes.Objects.First();
                         break;
 
                     case KalturaAssetReferenceType.npvr:
-                        response = GetRecordingAsset(long.Parse(id), groupId, userID, udid, language, isAllowedToViewInactiveAssets);
+                        asset = GetRecordingAsset(long.Parse(id), groupId, userID, udid, language, isAllowedToViewInactiveAssets);
                         break;
 
                     default:
@@ -322,7 +343,19 @@ namespace WebAPI.Controllers
                 ErrorUtils.HandleClientException(ex);
             }
 
-            return response;
+            if (asset != null)
+            {
+                var discoveryRules = FilterRuleStorage.Instance.GetFilterFileRulesForDiscovery(GetUserCondition(ks));
+                var playbackRules = FilterRuleStorage.Instance.GetFilterFileRulesForPlayback(GetUserCondition(ks));
+                var fileTypes = new FileManager.FileTypes(ks.GroupId, FileManager.Instance);
+                asset.MediaFiles = MarkPlaybackable(
+                        FilterAssetFilesForUser(asset.MediaFiles, discoveryRules, ToEAssetType(asset.Type), fileTypes),
+                        playbackRules, ToEAssetType(asset.Type), fileTypes
+                    )
+                    ?.ToList();
+            }
+
+            return asset;
         }
 
         private static KalturaRecordingAsset GetRecordingAsset(long id, int groupId, string userId, string udid, string language, bool isAllowedToViewInactiveAssets)
@@ -885,6 +918,8 @@ namespace WebAPI.Controllers
 
                 if (response.Sources != null && response.Sources.Count > 0)
                 {
+                    response.Sources = FilterAssetFilesForUserInPlayback(response.Sources, assetType, ks);
+                    
                     DrmUtils.BuildSourcesDrmData(assetId, assetType, contextDataParams, ks, ref response);
 
                     // Check and get PlaybackAdapter in case asset set rule and action.
@@ -1381,6 +1416,8 @@ namespace WebAPI.Controllers
 
                 if (response.Sources != null && response.Sources.Count > 0)
                 {
+                    response.Sources = FilterAssetFilesForUserInPlayback(response.Sources, assetType, ks);
+
                     KalturaPlaybackContext adapterResponse = PlaybackAdapterManager.GetPlaybackAdapterManifest(ks.GroupId, assetId, assetType, response, contextDataParams, ks.UserId, udid, Utils.Utils.GetClientIP());
                     if (adapterResponse != null)
                     {
@@ -1409,5 +1446,67 @@ namespace WebAPI.Controllers
 
             return response;
         }
+
+        private static FilterRuleCondition GetUserCondition(KS ks) =>
+            GetUserCondition(ks.GroupId, KSUtils.ExtractKSPayload(ks).SessionCharacteristicKey);
+
+        private static FilterRuleCondition GetUserCondition(ContextData contextData) =>
+            GetUserCondition(contextData.GroupId, contextData.SessionCharacteristicKey);
+
+        private static FilterRuleCondition GetUserCondition(int groupId, string sessionCharacteristicKey)
+        {
+            var sessionCharacteristic = SessionCharacteristicManager.Instance.GetFromCache(groupId, sessionCharacteristicKey);
+            return new FilterRuleCondition(sessionCharacteristic?.UserSessionProfileIds, groupId);
+        }
+
+        private static List<KalturaPlaybackSource> FilterAssetFilesForUserInPlayback(IEnumerable<KalturaPlaybackSource> files,
+            KalturaAssetType assetType, KS ks)
+        {
+            var rules = FilterRuleStorage.Instance.GetFilterFileRulesForPlayback(GetUserCondition(ks));
+            var fileTypes = new FileManager.FileTypes(ks.GroupId, FileManager.Instance);
+            return FilterAssetFilesForUser(files, rules, ToEAssetType(assetType), fileTypes).ToList();
+        }
+
+        private static IEnumerable<T> FilterAssetFilesForUser<T>(IEnumerable<T> mediaFiles,
+            IReadOnlyCollection<AssetRuleAction> rules, eAssetTypes assetType, FileManager.FileTypes fileTypes)
+            where T : KalturaMediaFile
+        {
+            if (rules.Count == 0) return mediaFiles;
+
+            return mediaFiles?.Where(mediaFile => FileMatchUser(rules, assetType, mediaFile, fileTypes));
+        }
+        
+        private static IEnumerable<KalturaMediaFile> MarkPlaybackable(IEnumerable<KalturaMediaFile> mediaFiles,
+            IReadOnlyCollection<AssetRuleAction> rules, eAssetTypes assetType, FileManager.FileTypes fileTypes)
+        {
+            if (rules.Count == 0) return mediaFiles;
+
+            return mediaFiles?.Select(mediaFile =>
+                {
+                    var discoveryMediaFile = Mapper.Map<KalturaDiscoveryMediaFile>(mediaFile);
+                    discoveryMediaFile.IsPlaybackable = FileMatchUser(rules, assetType, mediaFile, fileTypes);
+                    return discoveryMediaFile;
+                }
+            );
+        }
+
+        private static bool FileMatchUser(IEnumerable<AssetRuleAction> rules, eAssetTypes assetType, KalturaMediaFile mediaFile, FileManager.FileTypes fileTypes)
+        {
+            return _filterFileRule.MatchRules(
+                new FilterFileRule.Target(fileTypes.GetFileType(mediaFile.TypeId), assetType, mediaFile.Labels), rules);
+        }
+
+        private static eAssetTypes ToEAssetType(int? assetTypeId)
+        {
+            switch (assetTypeId)
+            {
+                case null : return eAssetTypes.UNKNOWN;
+                case 0 : return eAssetTypes.EPG;
+                case 1 : return eAssetTypes.NPVR;
+                default: return eAssetTypes.MEDIA;
+            }
+        }
+
+        private static eAssetTypes ToEAssetType(KalturaAssetType apiAssetType) => Mapper.Map<eAssetTypes>(apiAssetType);
     }
 }

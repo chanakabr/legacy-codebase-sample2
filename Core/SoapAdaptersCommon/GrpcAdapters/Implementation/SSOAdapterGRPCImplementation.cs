@@ -30,7 +30,7 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
             response.AdapterStatusCode = (AdapterStatusCode)result.Status;
 
             var implementedMethods = result.ImplementedMethods.Select(m => (SSOMethods)m).ToList();
-            var extendedImplementedMethods = result.ImplementedMethodsExtend.Select(m=> (SSOMethods)m).ToList();
+            var extendedImplementedMethods = result.ImplementedMethodsExtend.Select(m => (SSOMethods)m).ToList();
             var allMethods = implementedMethods.Concat(extendedImplementedMethods).Distinct();
             response.ImplementedMethods.AddRange(allMethods);
             response.SendWelcomeEmail = result.SendWelcomeEmail;
@@ -128,6 +128,19 @@ namespace SoapAdaptersCommon.GrpcAdapters.Implementation
                 foreach (var kv in result.Priviliges)
                 {
                     response.Priviliges.Add(kv.Key, kv.Value);
+                }
+            }
+
+            if (result.SessionCharacteristics != null)
+            {
+                foreach (var sc in result.SessionCharacteristics)
+                {
+                    var values = new ListOfString();
+                    foreach (var valuesPairs in result.SessionCharacteristics.Values)
+                    {
+                        values.Value.Add(valuesPairs);
+                    }
+                    response.SessionCharacteristics.Add(sc.Key, values);
                 }
             }
 

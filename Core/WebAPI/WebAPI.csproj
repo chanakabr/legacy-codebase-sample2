@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <Version>6.3.0.0</Version>
+    <Version>6.7.0.0</Version>
     <AssemblyTitle>2019-07-17 17:27:32 | Hostname:IL-ARTHURV-VIMB | Published by:Arthur Vaverko | Tag:5.2-4-130-g70b92f31-dirty</AssemblyTitle>
     <AssemblyName />
   </PropertyGroup>

@@ -105,7 +105,8 @@ namespace CampaignHandler
                             UserId = user
                         };
 
-                        if (_triggerCampaign.EvaluateTriggerConditions(serviceEvent.EventObject, _contextData))
+                        var scope = serviceEvent.EventObject.CreateTriggerCampaignConditionScope(contextData);
+                        if (_triggerCampaign.EvaluateConditions(scope))
                         {
                             Core.Notification.MessageInboxManger.AddCampaignMessage(_triggerCampaign, serviceEvent.GroupId, user, serviceEvent.EventObject.Udid);
                             _contextData.Udid = serviceEvent.EventObject?.Udid;

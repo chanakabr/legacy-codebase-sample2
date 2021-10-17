@@ -21,13 +21,19 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public class AssetManager
+    public interface IAssetManager
+    {
+        bool InvalidateAsset(eAssetTypes assetType, int groupId, long assetId, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "");
+    }
+
+    public class AssetManager : IAssetManager
     {
         #region Constants and Read-only
 
@@ -106,9 +112,17 @@ namespace Core.Catalog.CatalogManagement
 
         #endregion
 
+        private static readonly Lazy<AssetManager> lazy = new Lazy<AssetManager>(() => new AssetManager(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static AssetManager Instance { get { return lazy.Value; } }
+
+        private AssetManager()
+        {
+        }
+
         #region Internal Methods
 
-        public static bool InvalidateAsset(eAssetTypes assetType, int groupId, long assetId, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
+        public bool InvalidateAsset(eAssetTypes assetType, int groupId, long assetId, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "")
         {
             bool result = true;
             string invalidationKey = LayeredCacheKeys.GetAssetInvalidationKey(groupId, assetType.ToString(), assetId);
@@ -128,7 +142,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 foreach (DataRow dr in dt.Rows)
                 {
-                    InvalidateAsset(eAssetTypes.MEDIA, groupId, ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID"));
+                    Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, ODBCWrapper.Utils.GetLongSafeVal(dr, "MEDIA_ID"));
                 }
             }
         }
@@ -1636,7 +1650,7 @@ namespace Core.Catalog.CatalogManagement
                         }
                         else if (Core.Api.Managers.AssetRuleManager.IsGeoAssetRulesEnabled(groupId))
                         {
-                            Catalog.Module.UpdateIndex(new List<int>() { (int)result.Object.Id }, groupId, eAction.GeoUpdate);
+                            Catalog.Module.Instance.UpdateIndex(new List<int>() { (int)result.Object.Id }, groupId, eAction.GeoUpdate);
                         }
 
                         if (assetToUpdate.IsActive.HasValue && assetToUpdate.IsActive.Value)
@@ -3734,7 +3748,7 @@ namespace Core.Catalog.CatalogManagement
                 if (!isFromIngest && result.IsOkStatusCode())
                 {
                     // invalidate asset
-                    InvalidateAsset(assetToUpdate.AssetType, groupId, id);
+                    Instance.InvalidateAsset(assetToUpdate.AssetType, groupId, id);
                 }
 
                 //Retry if has failed recordings and start time is within 30 minutes
@@ -3800,7 +3814,7 @@ namespace Core.Catalog.CatalogManagement
                 if (result.IsOkStatusCode())
                 {
                     // invalidate asset
-                    InvalidateAsset(assetType, groupId, id);
+                    Instance.InvalidateAsset(assetType, groupId, id);
                 }
             }
             catch (Exception ex)
@@ -3819,7 +3833,7 @@ namespace Core.Catalog.CatalogManagement
                 if (CatalogDAL.DeleteMediaAsset(groupId, id, userId, true))
                 {
                     result = true;
-                    InvalidateAsset(assetType, groupId, id);
+                    Instance.InvalidateAsset(assetType, groupId, id);
                 }
                 else
                 {
@@ -3931,7 +3945,7 @@ namespace Core.Catalog.CatalogManagement
                         }
 
                         // invalidate asset
-                        InvalidateAsset(eAssetTypes.MEDIA, groupId, id);
+                        Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, id);
 
                         //Get updated Asset
                         var assetResponse = AssetManager.GetAsset(groupId, mediaAsset.Id, eAssetTypes.MEDIA, true);

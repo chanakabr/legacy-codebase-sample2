@@ -22,7 +22,7 @@ namespace GeoRuleUpdateHandler
 
                 GeoRuleUpdateRequest request = JsonConvert.DeserializeObject<GeoRuleUpdateRequest>(data);
 
-                bool success = AssetRuleManager.HandleRuleUpdate(request.GroupId, request.AssetRuleId, request.CountriesToRemove, request.RemoveBlocked, request.RemoveAllowed, request.UpdateKsql);
+                bool success = AssetRuleManager.Instance.HandleRuleUpdate(request.GroupId, request.AssetRuleId, request.CountriesToRemove, request.RemoveBlocked, request.RemoveAllowed, request.UpdateKsql);
 
                 if (!success)
                 {

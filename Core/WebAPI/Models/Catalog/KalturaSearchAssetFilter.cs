@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using ApiLogic.Api.Managers.Rule;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
@@ -87,6 +88,8 @@ namespace WebAPI.Models.Catalog
             var userId = contextData.UserId.ToString();
             int domainId = (int)(contextData.DomainId ?? 0);
             bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
+            
+            var ksqlFilter = FilterAsset.Instance.UpdateKsql(Ksql, contextData.GroupId, contextData.SessionCharacteristicKey);
 
             var searchAssetFilter = new ApiLogic.Catalog.SearchAssetsFilter
             {
@@ -97,7 +100,7 @@ namespace WebAPI.Models.Catalog
                 Language = contextData.Language,
                 PageIndex = pager.getPageIndex(),
                 PageSize = pager.PageSize,
-                Filter = Ksql,
+                Filter = ksqlFilter,
                 AssetTypes = getTypeIn(),
                 EpgChannelIds = getEpgChannelIdIn(),
                 ManagementData = contextData.ManagementData,

@@ -32,6 +32,7 @@ namespace WebAPI.Utils
         private const string OPC_MERGE_VERSION = "5.0.0.0";
         private static readonly Version opcMergeVersion = new Version(OPC_MERGE_VERSION);
 
+        // TODO remove shouldSupportFailOverCaching and cacheKey because not used
         public static bool GetBaseResponse<T>(BaseRequest request, out T response, bool shouldSupportFailOverCaching = false, string cacheKey = null) where T : BaseResponse
         {
             bool passed = false;

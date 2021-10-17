@@ -1,5 +1,5 @@
 using ApiLogic.IndexManager.QueryBuilders;
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -2934,11 +2934,26 @@ namespace WebAPI.Clients
         {
             return GetBundleAssets(searchAssetsFilter.GroupId, searchAssetsFilter.SiteGuid, searchAssetsFilter.DomainId, searchAssetsFilter.Udid, searchAssetsFilter.Language,
                 searchAssetsFilter.PageIndex, searchAssetsFilter.PageSize, id, orderBy, searchAssetsFilter.AssetTypes, bundleType, searchAssetsFilter.IsAllowedToViewInactiveAssets,
-                assetOrder, searchAssetsFilter.TrendingDays, searchAssetsFilter.GroupByType == GroupingOption.Include);
+                assetOrder, searchAssetsFilter.TrendingDays, searchAssetsFilter.GroupByType == GroupingOption.Include, searchAssetsFilter.Filter);
         }
 
-        private KalturaAssetListResponse GetBundleAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
-            KalturaAssetOrderBy? orderBy, List<int> mediaTypes, KalturaBundleType bundleType, bool isAllowedToViewInactiveAssets, KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null, bool isGroupingOptionInclude = false)
+        private KalturaAssetListResponse GetBundleAssets(
+            int groupId,
+            string userID,
+            int domainId,
+            string udid,
+            string language,
+            int pageIndex,
+            int? pageSize,
+            int id,
+            KalturaAssetOrderBy? orderBy,
+            List<int> mediaTypes,
+            KalturaBundleType bundleType,
+            bool isAllowedToViewInactiveAssets,
+            KalturaDynamicOrderBy assetOrder = null,
+            int? trendingDays = null,
+            bool isGroupingOptionInclude = false,
+            string assetFilterKsql = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2983,7 +2998,8 @@ namespace WebAPI.Clients
                 m_eBundleType = bundleType == KalturaBundleType.collection ? eBundleType.COLLECTION : eBundleType.SUBSCRIPTION,
                 m_nBundleID = id,
                 isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
-                isGroupingOptionInclude = isGroupingOptionInclude
+                isGroupingOptionInclude = isGroupingOptionInclude,
+                AssetFilterKsql =  assetFilterKsql
             };
 
             // build failover cache key

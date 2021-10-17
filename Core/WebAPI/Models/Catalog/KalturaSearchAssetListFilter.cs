@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using ApiLogic.Api.Managers.Rule;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
@@ -48,6 +49,7 @@ namespace WebAPI.Models.Catalog
             }
 
             int domainId = (int)(contextData.DomainId ?? 0);
+            var ksqlFilter = FilterAsset.Instance.UpdateKsql(Ksql, contextData.GroupId, contextData.SessionCharacteristicKey);
 
             var filter = new ApiLogic.Catalog.SearchAssetsFilter
             {
@@ -58,7 +60,7 @@ namespace WebAPI.Models.Catalog
                 Language = contextData.Language,
                 PageIndex = pager.getPageIndex(),
                 PageSize = pager.PageSize,
-                Filter = this.Ksql,
+                Filter = ksqlFilter,
                 AssetTypes = this.getTypeIn(),
                 EpgChannelIds = this.getEpgChannelIdIn(),
                 TrendingDays = TrendingDaysEqual,

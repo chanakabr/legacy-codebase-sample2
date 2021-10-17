@@ -14,14 +14,28 @@ using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Core.Catalog
 {
-    public class Module
+    public interface ICatalogIndexManager
+    {
+        bool UpdateIndex(List<int> objectIds, int groupId, eAction action);
+    }
+
+    public class Module : ICatalogIndexManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         internal static int LOG_THRESHOLD = Utils.DEFAULT_CATALOG_LOG_THRESHOLD_MILLISEC;
+
+        private static readonly Lazy<Module> lazy = new Lazy<Module>(() => new Module(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static Module Instance { get { return lazy.Value; } }
+
+        private Module()
+        {
+        }
 
         public static IngestResponse IngestTvinciData(IngestRequest request)
         {
@@ -137,7 +151,7 @@ namespace Core.Catalog
             return isChannelUpdatingSucceeded;
         }
 
-        public static bool UpdateIndex(List<int> objectIds, int groupId, eAction action)
+        public bool UpdateIndex(List<int> objectIds, int groupId, eAction action)
         {
             return UpdateIndex(objectIds.ConvertAll<long>(i => (long)i), groupId, action);
         }

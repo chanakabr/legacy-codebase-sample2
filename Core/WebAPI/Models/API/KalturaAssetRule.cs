@@ -11,18 +11,32 @@ using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
 {
+    using ConditionsMap = ILookup<KalturaRuleConditionType, KalturaCondition>;
     /// <summary>
     /// Asset rule
     /// </summary>
     [Serializable]
     public partial class KalturaAssetRule : KalturaAssetRuleBase
     {
+        private static readonly Dictionary<KalturaRuleConditionType, Func<ConditionsMap, HashSet<KalturaRuleActionType>>> 
+            AllowedConditionsToRelationValidationsFunc = new Dictionary<KalturaRuleConditionType, Func<ConditionsMap, HashSet<KalturaRuleActionType>>>()
+            {
+                { KalturaRuleConditionType.COUNTRY, ValidateCountryConditionRelations },
+                { KalturaRuleConditionType.CONCURRENCY, ValidateConcurrencyConditionRelations },
+                { KalturaRuleConditionType.ASSET, ValidateAssetConditionRelations },
+                { KalturaRuleConditionType.IP_RANGE, ValidateIpRangeConditionRelations },
+                { KalturaRuleConditionType.OR, NoValidation },
+                { KalturaRuleConditionType.HEADER, NoValidation },
+                { KalturaRuleConditionType.USER_SESSION_PROFILE, ValidateUserSessionProfileConditionRelations },
+            };
+
         /// <summary>
         /// List of conditions for the rule
         /// </summary>
         [DataMember(Name = "conditions")]
         [JsonProperty("conditions")]
         [XmlElement(ElementName = "conditions")]
+        [SchemeProperty(MinItems = 1)]
         public List<KalturaCondition> Conditions { get; set; }
 
         /// <summary>
@@ -31,6 +45,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "actions")]
         [JsonProperty("actions")]
         [XmlElement(ElementName = "actions")]
+        [SchemeProperty(MinItems = 1)]
         public List<KalturaAssetRuleAction> Actions { get; set; }
 
         /// <summary>
@@ -44,144 +59,138 @@ namespace WebAPI.Models.API
 
         internal void Validate()
         {
-            if (this.Conditions == null || this.Conditions.Count == 0)
+            if (Conditions == null || Conditions.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
             }
 
-            bool countryConditionExist = false;
-            bool concurrencyConditionExist = false;
-            bool assetConditionExist = false;
-            bool ipRangeConditionExist = false;
-            bool orConditionExist = false;
-            bool headerConditionExist = false;
-
+            var existConditions = Conditions.ToLookup(x => x.Type);
+            HashSet<KalturaRuleActionType> allowedActions = null;
             foreach (var condition in Conditions)
             {
-                switch (condition.Type)
+                if (!AllowedConditionsToRelationValidationsFunc.TryGetValue(condition.Type, out var validationFunc))
                 {
-                    case KalturaRuleConditionType.COUNTRY:
-                        {
-                            if (concurrencyConditionExist)
-                            {
-                                throw new BadRequestException
-                                (BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
-                                 "conditions=" + KalturaRuleConditionType.COUNTRY.ToString(), "conditions= " + KalturaRuleConditionType.CONCURRENCY.ToString());
-                            }
-
-                            countryConditionExist = true;
-                        }
-                        break;
-                    case KalturaRuleConditionType.CONCURRENCY:
-                        {
-                            if (concurrencyConditionExist)
-                            {
-                                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "conditions");
-                            }
-
-                            if (countryConditionExist || assetConditionExist)
-                            {
-                                throw new BadRequestException
-                                (BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
-                                 "conditions=" + KalturaRuleConditionType.CONCURRENCY.ToString(),
-                                 "conditions= " + KalturaRuleConditionType.COUNTRY.ToString() + "/" + KalturaRuleConditionType.ASSET.ToString());
-                            }
-
-                            concurrencyConditionExist = true;
-                        }
-                        break;
-                    case KalturaRuleConditionType.ASSET:
-                        {
-                            if (concurrencyConditionExist)
-                            {
-                                throw new BadRequestException
-                                (BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
-                                 "conditions=" + KalturaRuleConditionType.ASSET.ToString(), "conditions= " + KalturaRuleConditionType.CONCURRENCY.ToString());
-                            }
-
-                            assetConditionExist = true;
-                        }
-                        break;
-                    case KalturaRuleConditionType.IP_RANGE:
-                        {
-                            ipRangeConditionExist = true;
-                        }
-                        break;
-                    case KalturaRuleConditionType.OR:
-                        {
-                            orConditionExist = true;
-                        }
-                        break;
-                    case KalturaRuleConditionType.HEADER:
-                        {
-                            headerConditionExist = true;
-                        }
-                        break;
-                    default:
-                        break;
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, $"{condition.objectType}");
                 }
 
+                // validate the relation of current condition to other existing conditions + get allowed actions of this condition
+                var allowed = validationFunc(existConditions);
+
                 condition.Validate();
+
+                if (allowedActions == null)
+                {
+                    allowedActions = allowed;
+                }
             }
 
-            if (!orConditionExist && !countryConditionExist && !concurrencyConditionExist && !ipRangeConditionExist && !headerConditionExist && !assetConditionExist)
+            ValidateActions(allowedActions);
+        }
+        
+        private static HashSet<KalturaRuleActionType> NoValidation(ConditionsMap existConditions) => null;
+
+        private static HashSet<KalturaRuleActionType> ValidateCountryConditionRelations(ConditionsMap existConditions)
+        {
+            if (existConditions.Contains(KalturaRuleConditionType.CONCURRENCY))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                    "conditions=" + KalturaRuleConditionType.COUNTRY.ToString(),
+                    "conditions= " + KalturaRuleConditionType.CONCURRENCY.ToString());
             }
-
-            ValidateActions();
-
-            if (ipRangeConditionExist)
-            {
-                ValidateIpRangeActions();
-            }
-            else
-            {
-                ValidateActions(concurrencyConditionExist);
-
-            }
+            return null;
         }
 
-        private void ValidateIpRangeActions()
+        private static HashSet<KalturaRuleActionType> ValidateConcurrencyConditionRelations(ConditionsMap existConditions)
         {
-            var ruleAction = Actions.Count(x => x.Type == KalturaRuleActionType.ALLOW_PLAYBACK || x.Type == KalturaRuleActionType.BLOCK_PLAYBACK);
+            if (existConditions[KalturaRuleConditionType.CONCURRENCY].Count() > 1)
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "conditions");
 
-            if (ruleAction == 0)
+            if (existConditions.Contains(KalturaRuleConditionType.COUNTRY) || existConditions.Contains(KalturaRuleConditionType.ASSET))
             {
-                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "actions");
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                    "conditions=" + KalturaRuleConditionType.CONCURRENCY.ToString(),
+                    "conditions= " + KalturaRuleConditionType.COUNTRY.ToString() + "/" + KalturaRuleConditionType.ASSET.ToString());
             }
+            var allowedActions = new HashSet<KalturaRuleActionType>() { KalturaRuleActionType.BLOCK };
+            return allowedActions;
         }
 
-        private void ValidateActions()
+        private static HashSet<KalturaRuleActionType> ValidateAssetConditionRelations(ConditionsMap existConditions)
         {
-            if (this.Actions == null || this.Actions.Count == 0)
+            if (existConditions.Contains(KalturaRuleConditionType.CONCURRENCY))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                    "conditions=" + KalturaRuleConditionType.ASSET.ToString(),
+                    "conditions= " + KalturaRuleConditionType.CONCURRENCY.ToString());
+            }
+            return null;
+        }
+
+        private static HashSet<KalturaRuleActionType> ValidateIpRangeConditionRelations(ConditionsMap existConditions)
+        {
+            var allowedActions = new HashSet<KalturaRuleActionType>() { KalturaRuleActionType.ALLOW_PLAYBACK, KalturaRuleActionType.BLOCK_PLAYBACK };
+            return allowedActions;
+        }
+
+        private static HashSet<KalturaRuleActionType> ValidateUserSessionProfileConditionRelations(ConditionsMap existConditions)
+        {
+            if (existConditions.Count > 1)
+            {
+                var otherConditionTypes = existConditions.Select(_ => _.Key).Except(new[]{KalturaRuleConditionType.USER_SESSION_PROFILE});
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
+                    $"conditions.{KalturaRuleConditionType.USER_SESSION_PROFILE}", $"conditions.{string.Join(",", otherConditionTypes)}");
+            }
+            var allowedActions = new HashSet<KalturaRuleActionType>()
+                        {
+                            KalturaRuleActionType.FilterAssetByKsql,
+                            KalturaRuleActionType.FilterFileByQualityInDiscovery,
+                            KalturaRuleActionType.FilterFileByQualityInPlayback,
+                            KalturaRuleActionType.FilterFileByFileTypeIdForAssetTypeInDiscovery,
+                            KalturaRuleActionType.FilterFileByFileTypeIdForAssetTypeInPlayback,
+                            KalturaRuleActionType.FilterFileByFileTypeIdInDiscovery,
+                            KalturaRuleActionType.FilterFileByFileTypeIdInPlayback,
+                            KalturaRuleActionType.FilterFileByAudioCodecInDiscovery,
+                            KalturaRuleActionType.FilterFileByAudioCodecInPlayback,
+                            KalturaRuleActionType.FilterFileByVideoCodecInDiscovery,
+                            KalturaRuleActionType.FilterFileByVideoCodecInPlayback,
+                            KalturaRuleActionType.FilterFileByStreamerTypeInDiscovery,
+                            KalturaRuleActionType.FilterFileByStreamerTypeInPlayback,
+                            KalturaRuleActionType.FilterFileByLabelInDiscovery,
+                            KalturaRuleActionType.FilterFileByLabelInPlayback,
+                        };
+
+            return allowedActions;
+        }
+
+        private void ValidateActions(HashSet<KalturaRuleActionType> allowedActions)
+        {
+            if (Actions == null)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "actions");
             }
 
             var duplicates = this.Actions.GroupBy(x => x.Type).Count(t => t.Count() >= 2);
-
             if (duplicates > 1)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "actions");
             }
-        }
 
-        private void ValidateActions(bool concurrencyConditionExist)
-        {
-            var ruleActionBlock = Actions.Count(x => x.Type == KalturaRuleActionType.BLOCK);
-
-            if (concurrencyConditionExist && ruleActionBlock == 0)
+            if (allowedActions != null)
             {
-                throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "actions", KalturaRuleActionType.BLOCK.ToString());
+                if (!Actions.Any(x => allowedActions.Contains(x.Type)))
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "actions", string.Join(",", allowedActions));
+                }
             }
 
-            if (ruleActionBlock > 0 && Actions.Count > 1)
+            if (Actions.Any(x => x.Type == KalturaRuleActionType.BLOCK) && Actions.Count > 1)
             {
-                throw new BadRequestException
-                    (BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER,
-                    "actions=" + KalturaRuleActionType.BLOCK.ToString(),
-                    "actions= " + KalturaRuleActionType.END_DATE_OFFSET.ToString() + "/" + KalturaRuleActionType.START_DATE_OFFSET.ToString());
+                throw new BadRequestException(BadRequestException.ARGUMENTS_CONFLICTS_EACH_OTHER, $"actions.{Actions[0].objectType}", $"actions.{Actions[1].objectType}");
+            }
+
+            foreach (var action in Actions)
+            {
+                action.Validate();
             }
         }
 

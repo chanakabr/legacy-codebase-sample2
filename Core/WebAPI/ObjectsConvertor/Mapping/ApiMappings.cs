@@ -1,12 +1,16 @@
-﻿using ApiObjects;
+﻿using APILogic.Api.Managers;
+using APILogic.ConditionalAccess;
+using ApiObjects;
 using ApiObjects.Base;
 using ApiObjects.BulkExport;
 using ApiObjects.CDNAdapter;
 using ApiObjects.Notification;
 using ApiObjects.Roles;
 using ApiObjects.Rules;
+using ApiObjects.Rules.FilterActions;
 using ApiObjects.SearchObjects;
 using ApiObjects.TimeShiftedTv;
+using ApiObjects.User.SessionProfile;
 using AutoMapper.Configuration;
 using Core.Api.Modules;
 using System;
@@ -17,7 +21,11 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.ConditionalAccess;
+using WebAPI.Models.ConditionalAccess.FilterActions.Files;
+using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
 using WebAPI.Models.General;
+using WebAPI.Models.Users;
+using WebAPI.Models.Users.UserSessionProfile;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 using KeyValuePair = ApiObjects.KeyValuePair;
 
@@ -71,8 +79,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.epgTagTypeId, opt => opt.MapFrom(src => src.epgTagTypeId))
                 .ForMember(dest => dest.blockAnonymousAccess, opt => opt.MapFrom(src => src.blockAnonymousAccess))
                 .ForMember(dest => dest.ruleType, opt => opt.ResolveUsing(src => ConvertParentalRuleType(src.ruleType.Value)))
-                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
-                .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
+                .ForMember(dest => dest.mediaTagValues, opt => opt.MapFrom(src => src.mediaTagValues.Select(x => new KalturaStringValue(null, false) { value = x }).ToList()))
+                .ForMember(dest => dest.epgTagValues, opt => opt.MapFrom(src => src.epgTagValues.Select(x => new KalturaStringValue(null, false) { value = x }).ToList()))
                 .ForMember(dest => dest.isDefault, opt => opt.MapFrom(src => src.isDefault))
                 .ForMember(dest => dest.Origin, opt => opt.ResolveUsing(src => ConvertRuleLevel(src.level)))
                 .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.isActive))
@@ -629,6 +637,50 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
 
+            cfg.CreateMap<KalturaCondition, RuleCondition>()
+                .Include(typeof(KalturaOrCondition), typeof(OrCondition))
+                .Include(typeof(KalturaBusinessModuleCondition), typeof(BusinessModuleCondition))
+                .Include(typeof(KalturaAssetCondition), typeof(AssetCondition))
+                .Include(typeof(KalturaConcurrencyCondition), typeof(ConcurrencyCondition))
+                .Include(typeof(KalturaDateCondition), typeof(DateCondition))
+                .Include(typeof(KalturaIpRangeCondition), typeof(IpRangeCondition))
+                .Include(typeof(KalturaCountryCondition), typeof(CountryCondition))
+                .Include(typeof(KalturaHeaderCondition), typeof(HeaderCondition))
+                .Include(typeof(KalturaUserSubscriptionCondition), typeof(UserSubscriptionCondition))
+                .Include(typeof(KalturaAssetSubscriptionCondition), typeof(AssetSubscriptionCondition))
+                .Include(typeof(KalturaUdidDynamicListCondition), typeof(UdidDynamicListCondition))
+                .Include(typeof(KalturaUserRoleCondition), typeof(UserRoleCondition))
+                .Include(typeof(KalturaUserSessionProfileCondition), typeof(UserSessionProfileCondition))
+                .Include(typeof(KalturaSegmentsCondition), typeof(SegmentsCondition))
+                .Include(typeof(KalturaDeviceBrandCondition), typeof(DeviceBrandCondition))
+                .Include(typeof(KalturaDeviceFamilyCondition), typeof(DeviceFamilyCondition))
+                .Include(typeof(KalturaDeviceManufacturerCondition), typeof(DeviceManufacturerCondition))
+                .Include(typeof(KalturaDeviceModelCondition), typeof(DeviceModelCondition))
+                .Include(typeof(KalturaDynamicKeysCondition), typeof(DynamicKeysCondition))
+                .Include(typeof(KalturaDeviceDynamicDataCondition), typeof(DeviceDynamicDataCondition));
+
+            cfg.CreateMap<RuleCondition, KalturaCondition>()
+                .Include(typeof(OrCondition), typeof(KalturaOrCondition))
+                .Include(typeof(BusinessModuleCondition), typeof(KalturaBusinessModuleCondition))
+                .Include(typeof(AssetCondition), typeof(KalturaAssetCondition))
+                .Include(typeof(ConcurrencyCondition), typeof(KalturaConcurrencyCondition))
+                .Include(typeof(DateCondition), typeof(KalturaDateCondition))
+                .Include(typeof(IpRangeCondition), typeof(KalturaIpRangeCondition))
+                .Include(typeof(CountryCondition), typeof(KalturaCountryCondition))
+                .Include(typeof(HeaderCondition), typeof(KalturaHeaderCondition))
+                .Include(typeof(UserSubscriptionCondition), typeof(KalturaUserSubscriptionCondition))
+                .Include(typeof(AssetSubscriptionCondition), typeof(KalturaAssetSubscriptionCondition))
+                .Include(typeof(UdidDynamicListCondition), typeof(KalturaUdidDynamicListCondition))
+                .Include(typeof(UserRoleCondition), typeof(KalturaUserRoleCondition))
+                .Include(typeof(UserSessionProfileCondition), typeof(KalturaUserSessionProfileCondition))
+                .Include(typeof(SegmentsCondition), typeof(KalturaSegmentsCondition))
+                .Include(typeof(DeviceBrandCondition), typeof(KalturaDeviceBrandCondition))
+                .Include(typeof(DeviceFamilyCondition), typeof(KalturaDeviceFamilyCondition))
+                .Include(typeof(DeviceManufacturerCondition), typeof(KalturaDeviceManufacturerCondition))
+                .Include(typeof(DeviceModelCondition), typeof(KalturaDeviceModelCondition))
+                .Include(typeof(DynamicKeysCondition), typeof(KalturaDynamicKeysCondition))
+                .Include(typeof(DeviceDynamicDataCondition), typeof(KalturaDeviceDynamicDataCondition));
+
             cfg.CreateMap<WebAPI.Models.Catalog.KalturaSlimAsset, SlimAsset>()
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type));
@@ -638,42 +690,29 @@ namespace WebAPI.ObjectsConvertor.Mapping
                {
                    switch (kalturaRuleConditionType)
                    {
-                       case KalturaRuleConditionType.ASSET:
-                           return RuleConditionType.Asset;
-                       case KalturaRuleConditionType.COUNTRY:
-                           return RuleConditionType.Country;
-                       case KalturaRuleConditionType.CONCURRENCY:
-                           return RuleConditionType.Concurrency;
-                       case KalturaRuleConditionType.IP_RANGE:
-                           return RuleConditionType.IP_RANGE;
-                       case KalturaRuleConditionType.BUSINESS_MODULE:
-                           return RuleConditionType.BusinessModule;
-                       case KalturaRuleConditionType.SEGMENTS:
-                           return RuleConditionType.Segments;
-                       case KalturaRuleConditionType.DATE:
-                           return RuleConditionType.Date;
-                       case KalturaRuleConditionType.OR:
-                           return RuleConditionType.Or;
-                       case KalturaRuleConditionType.HEADER:
-                           return RuleConditionType.Header;
-                       case KalturaRuleConditionType.USER_SUBSCRIPTION:
-                           return RuleConditionType.UserSubscription;
-                       case KalturaRuleConditionType.ASSET_SUBSCRIPTION:
-                           return RuleConditionType.AssetSubscription;
-                       case KalturaRuleConditionType.USER_ROLE:
-                           return RuleConditionType.UserRole;
-                       case KalturaRuleConditionType.DEVICE_BRAND:
-                           return RuleConditionType.DeviceBrand;
-                       case KalturaRuleConditionType.DEVICE_FAMILY:
-                           return RuleConditionType.DeviceFamily;
-                       case KalturaRuleConditionType.DEVICE_MANUFACTURER:
-                           return RuleConditionType.DeviceManufacturer;
-                       case KalturaRuleConditionType.DEVICE_MODEL:
-                           return RuleConditionType.DeviceModel;
-                       case KalturaRuleConditionType.DEVICE_UDID_DYNAMIC_LIST:
-                           return RuleConditionType.DeviceUdidDynamicList;
+                       case KalturaRuleConditionType.ASSET: return RuleConditionType.Asset;
+                       case KalturaRuleConditionType.COUNTRY: return RuleConditionType.Country;
+                       case KalturaRuleConditionType.CONCURRENCY: return RuleConditionType.Concurrency;
+                       case KalturaRuleConditionType.IP_RANGE: return RuleConditionType.IP_RANGE;
+                       case KalturaRuleConditionType.BUSINESS_MODULE: return RuleConditionType.BusinessModule;
+                       case KalturaRuleConditionType.SEGMENTS: return RuleConditionType.Segments;
+                       case KalturaRuleConditionType.DATE: return RuleConditionType.Date;
+                       case KalturaRuleConditionType.OR: return RuleConditionType.Or;
+                       case KalturaRuleConditionType.HEADER: return RuleConditionType.Header;
+                       case KalturaRuleConditionType.USER_SUBSCRIPTION: return RuleConditionType.UserSubscription;
+                       case KalturaRuleConditionType.ASSET_SUBSCRIPTION: return RuleConditionType.AssetSubscription;
+                       case KalturaRuleConditionType.USER_ROLE: return RuleConditionType.UserRole;
+                       case KalturaRuleConditionType.DEVICE_BRAND: return RuleConditionType.DeviceBrand;
+                       case KalturaRuleConditionType.DEVICE_FAMILY: return RuleConditionType.DeviceFamily;
+                       case KalturaRuleConditionType.DEVICE_MANUFACTURER: return RuleConditionType.DeviceManufacturer;
+                       case KalturaRuleConditionType.DEVICE_MODEL: return RuleConditionType.DeviceModel;
+                       case KalturaRuleConditionType.DEVICE_UDID_DYNAMIC_LIST: return RuleConditionType.DeviceUdidDynamicList;
+                       case KalturaRuleConditionType.DYNAMIC_KEYS: return RuleConditionType.DynamicKeys;
+                       case KalturaRuleConditionType.USER_SESSION_PROFILE: return RuleConditionType.UserSessionProfile;
+                       case KalturaRuleConditionType.DEVICE_DYNAMIC_DATA: return RuleConditionType.DeviceDynamicData;
                        default:
-                           throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", kalturaRuleConditionType.ToString()));
+                           throw new ClientException((int)StatusCode.UnknownEnumValue,
+                               string.Format("Unknown conditionType value : {0}", kalturaRuleConditionType.ToString()));
                    }
                });
 
@@ -682,171 +721,74 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 {
                     switch (ruleConditionType)
                     {
-                        case RuleConditionType.Asset:
-                            return KalturaRuleConditionType.ASSET;
-                        case RuleConditionType.Country:
-                            return KalturaRuleConditionType.COUNTRY;
-                        case RuleConditionType.Concurrency:
-                            return KalturaRuleConditionType.CONCURRENCY;
-                        case RuleConditionType.IP_RANGE:
-                            return KalturaRuleConditionType.IP_RANGE;
-                        case RuleConditionType.BusinessModule:
-                            return KalturaRuleConditionType.BUSINESS_MODULE;
-                        case RuleConditionType.Segments:
-                            return KalturaRuleConditionType.SEGMENTS;
-                        case RuleConditionType.Date:
-                            return KalturaRuleConditionType.DATE;
-                        case RuleConditionType.Or:
-                            return KalturaRuleConditionType.OR;
-                        case RuleConditionType.Header:
-                            return KalturaRuleConditionType.HEADER;
-                        case RuleConditionType.UserSubscription:
-                            return KalturaRuleConditionType.USER_SUBSCRIPTION;
-                        case RuleConditionType.AssetSubscription:
-                            return KalturaRuleConditionType.ASSET_SUBSCRIPTION;
-                        case RuleConditionType.UserRole:
-                            return KalturaRuleConditionType.USER_ROLE;
-                        case RuleConditionType.DeviceBrand:
-                            return KalturaRuleConditionType.DEVICE_BRAND;
-                        case RuleConditionType.DeviceFamily:
-                            return KalturaRuleConditionType.DEVICE_FAMILY;
-                        case RuleConditionType.DeviceManufacturer:
-                            return KalturaRuleConditionType.DEVICE_MANUFACTURER;
-                        case RuleConditionType.DeviceModel:
-                            return KalturaRuleConditionType.DEVICE_MODEL;
-                        case RuleConditionType.DeviceUdidDynamicList:
-                            return KalturaRuleConditionType.DEVICE_UDID_DYNAMIC_LIST;
+                        case RuleConditionType.Asset: return KalturaRuleConditionType.ASSET;
+                        case RuleConditionType.Country: return KalturaRuleConditionType.COUNTRY;
+                        case RuleConditionType.Concurrency: return KalturaRuleConditionType.CONCURRENCY;
+                        case RuleConditionType.IP_RANGE: return KalturaRuleConditionType.IP_RANGE;
+                        case RuleConditionType.BusinessModule: return KalturaRuleConditionType.BUSINESS_MODULE;
+                        case RuleConditionType.Segments: return KalturaRuleConditionType.SEGMENTS;
+                        case RuleConditionType.Date: return KalturaRuleConditionType.DATE;
+                        case RuleConditionType.Or: return KalturaRuleConditionType.OR;
+                        case RuleConditionType.Header: return KalturaRuleConditionType.HEADER;
+                        case RuleConditionType.UserSubscription: return KalturaRuleConditionType.USER_SUBSCRIPTION;
+                        case RuleConditionType.AssetSubscription: return KalturaRuleConditionType.ASSET_SUBSCRIPTION;
+                        case RuleConditionType.UserRole: return KalturaRuleConditionType.USER_ROLE;
+                        case RuleConditionType.DeviceBrand: return KalturaRuleConditionType.DEVICE_BRAND;
+                        case RuleConditionType.DeviceFamily: return KalturaRuleConditionType.DEVICE_FAMILY;
+                        case RuleConditionType.DeviceManufacturer: return KalturaRuleConditionType.DEVICE_MANUFACTURER;
+                        case RuleConditionType.DeviceModel: return KalturaRuleConditionType.DEVICE_MODEL;
+                        case RuleConditionType.DeviceUdidDynamicList: return KalturaRuleConditionType.DEVICE_UDID_DYNAMIC_LIST;
+                        case RuleConditionType.DynamicKeys: return KalturaRuleConditionType.DYNAMIC_KEYS;
+                        case RuleConditionType.UserSessionProfile: return KalturaRuleConditionType.USER_SESSION_PROFILE;
+                        case RuleConditionType.DeviceDynamicData: return KalturaRuleConditionType.DEVICE_DYNAMIC_DATA;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown conditionType value : {0}", ruleConditionType.ToString()));
-                            break;
                     }
                 });
 
-            cfg.CreateMap<KalturaCondition, RuleCondition>()
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
-
-            cfg.CreateMap<RuleCondition, KalturaCondition>()
-                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
-
-            cfg.CreateMap<KalturaCondition, RuleBaseCondition<IConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleCondition>();
-
-            cfg.CreateMap<RuleBaseCondition<IConditionScope>, KalturaCondition>()
-                 .IncludeBase<RuleCondition, KalturaCondition>();
-
-            cfg.CreateMap<KalturaCondition, RuleBaseCondition<IBusinessModuleConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleCondition>();
-
-            cfg.CreateMap<RuleBaseCondition<IBusinessModuleConditionScope>, KalturaCondition>()
-                .IncludeBase<RuleCondition, KalturaCondition>();
-
-            cfg.CreateMap<KalturaCondition, RuleBaseCondition<ISegmentsConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleCondition>();
-
-            cfg.CreateMap<RuleBaseCondition<ISegmentsConditionScope>, KalturaCondition>()
-                .IncludeBase<RuleCondition, KalturaCondition>();
-
-            cfg.CreateMap<KalturaCondition, RuleBaseCondition<IDateConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleCondition>();
-
-            cfg.CreateMap<RuleBaseCondition<IDateConditionScope>, KalturaCondition>()
-                .IncludeBase<RuleCondition, KalturaCondition>();
-
-            cfg.CreateMap<KalturaCondition, RuleBaseCondition<IIpRangeConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleCondition>();
-
-            cfg.CreateMap<RuleBaseCondition<IIpRangeConditionScope>, KalturaCondition>()
-                .IncludeBase<RuleCondition, KalturaCondition>();
-
-            cfg.CreateMap<KalturaCondition, RuleBaseCondition<IHeaderConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleCondition>();
-
-            cfg.CreateMap<RuleBaseCondition<IHeaderConditionScope>, KalturaCondition>()
-                .IncludeBase<RuleCondition, KalturaCondition>();
-
-            cfg.CreateMap<KalturaCondition, RuleBaseCondition<IAssetConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleCondition>();
-
-            cfg.CreateMap<RuleBaseCondition<IAssetConditionScope>, KalturaCondition>()
-                .IncludeBase<RuleCondition, KalturaCondition>();
-
-            cfg.CreateMap<KalturaCondition, AssetRuleCondition<IConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<IConditionScope>>();
-
-            cfg.CreateMap<AssetRuleCondition<IConditionScope>, KalturaCondition>()
-                .IncludeBase<RuleBaseCondition<IConditionScope>, KalturaCondition>();
-
-            cfg.CreateMap<KalturaCondition, AssetRuleCondition<IIpRangeConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<IIpRangeConditionScope>>();
-
-            cfg.CreateMap<AssetRuleCondition<IIpRangeConditionScope>, KalturaCondition>()
-               .IncludeBase<RuleBaseCondition<IIpRangeConditionScope>, KalturaCondition>();
-
-            cfg.CreateMap<KalturaCondition, AssetRuleCondition<IHeaderConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<IHeaderConditionScope>>();
-
-            cfg.CreateMap<AssetRuleCondition<IHeaderConditionScope>, KalturaCondition>()
-               .IncludeBase<RuleBaseCondition<IHeaderConditionScope>, KalturaCondition>();
-
-            cfg.CreateMap<KalturaCondition, AssetRuleCondition<IAssetConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<IAssetConditionScope>>();
-
-            cfg.CreateMap<AssetRuleCondition<IAssetConditionScope>, KalturaCondition>()
-               .IncludeBase<RuleBaseCondition<IAssetConditionScope>, KalturaCondition>();
-
             cfg.CreateMap<KalturaOrCondition, OrCondition>()
-                .IncludeBase<KalturaCondition, AssetRuleCondition<IConditionScope>>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
-                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not.HasValue ? src.Not.Value : false));
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not ?? false));
 
             cfg.CreateMap<OrCondition, KalturaOrCondition>()
-                .IncludeBase<RuleBaseCondition<IConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Conditions, opt => opt.MapFrom(src => src.Conditions))
                 .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not));
 
             cfg.CreateMap<KalturaBusinessModuleCondition, BusinessModuleCondition>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<IBusinessModuleConditionScope>>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId.HasValue ? src.BusinessModuleId.Value : 0))
                 .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleType));
 
             cfg.CreateMap<BusinessModuleCondition, KalturaBusinessModuleCondition>()
-                .IncludeBase<RuleBaseCondition<IBusinessModuleConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleId))
                 .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleType));
 
             cfg.CreateMap<KalturaSegmentsCondition, SegmentsCondition>()
-               .IncludeBase<KalturaCondition, RuleBaseCondition<ISegmentsConditionScope>>()
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                .ForMember(dest => dest.SegmentIds, opt => opt.MapFrom(src => src.getSegmentsIds()));
 
             cfg.CreateMap<SegmentsCondition, KalturaSegmentsCondition>()
-                .IncludeBase<RuleBaseCondition<ISegmentsConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.SegmentsIds, opt => opt.MapFrom(src => src.SegmentIds != null ? string.Join(",", src.SegmentIds) : null));
 
             cfg.CreateMap<KalturaAssetCondition, AssetCondition>()
-               .IncludeBase<KalturaCondition, AssetRuleCondition<IAssetConditionScope>>()
-               .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
-
-            cfg.CreateMap<AssetCondition, KalturaAssetCondition>()
-                .IncludeBase<AssetRuleCondition<IAssetConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
 
-            cfg.CreateMap<KalturaNotCondition, NotRuleCondition<IConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<IConditionScope>>()
-                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not.HasValue ? src.Not.Value : false));
-
-            cfg.CreateMap<NotRuleCondition<IConditionScope>, KalturaNotCondition>()
-                .IncludeBase<RuleBaseCondition<IConditionScope>, KalturaCondition>()
-                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not));
-
-            cfg.CreateMap<KalturaNotCondition, NotRuleCondition<IDateConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<IDateConditionScope>>()
-                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not.HasValue ? src.Not.Value : false));
-
-            cfg.CreateMap<NotRuleCondition<IDateConditionScope>, KalturaNotCondition>()
-                .IncludeBase<RuleBaseCondition<IDateConditionScope>, KalturaCondition>()
-                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not));
+            cfg.CreateMap<AssetCondition, KalturaAssetCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
 
             cfg.CreateMap<KalturaConcurrencyCondition, ConcurrencyCondition>()
                 .IncludeBase<KalturaAssetCondition, AssetCondition>()
@@ -893,227 +835,243 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 });
 
             cfg.CreateMap<KalturaDateCondition, DateCondition>()
-                .IncludeBase<KalturaNotCondition, NotRuleCondition<IDateConditionScope>>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not ?? false))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate));
 
             cfg.CreateMap<DateCondition, KalturaDateCondition>()
-                .IncludeBase<NotRuleCondition<IDateConditionScope>, KalturaNotCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not))
                 .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate.HasValue ? src.StartDate.Value : 0))
                 .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate.HasValue ? src.EndDate.Value : 0));
 
             cfg.CreateMap<KalturaIpRangeCondition, IpRangeCondition>()
-                .IncludeBase<KalturaCondition, AssetRuleCondition<IIpRangeConditionScope>>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.FromIp, opt => opt.MapFrom(src => src.FromIP))
                 .ForMember(dest => dest.ToIp, opt => opt.MapFrom(src => src.ToIP))
                 .ForMember(dest => dest.IpFrom, opt => opt.ResolveUsing(src => GetConvertedIp(src.FromIP)))
                 .ForMember(dest => dest.IpTo, opt => opt.ResolveUsing(src => GetConvertedIp(src.ToIP)));
 
             cfg.CreateMap<IpRangeCondition, KalturaIpRangeCondition>()
-                .IncludeBase<AssetRuleCondition<IIpRangeConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.FromIP, opt => opt.MapFrom(src => src.FromIp))
                 .ForMember(dest => dest.ToIP, opt => opt.MapFrom(src => src.ToIp));
 
             cfg.CreateMap<KalturaCountryCondition, CountryCondition>()
-               .IncludeBase<KalturaCondition, AssetRuleCondition<IConditionScope>>()
-               .ForMember(dest => dest.Countries, opt => opt.MapFrom(src => src.getCountries()))
-               .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not.HasValue ? src.Not.Value : false));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not ?? false))
+                .ForMember(dest => dest.Countries, opt => opt.MapFrom(src => src.getCountries()));
 
             cfg.CreateMap<CountryCondition, KalturaCountryCondition>()
-                .IncludeBase<AssetRuleCondition<IConditionScope>, KalturaCondition>()
-                .ForMember(dest => dest.Countries, opt => opt.MapFrom(src => src.Countries != null ? string.Join(",", src.Countries) : null))
-                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not));
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not))
+                .ForMember(dest => dest.Countries, opt => opt.MapFrom(src => src.Countries != null ? string.Join(",", src.Countries) : null));
 
             cfg.CreateMap<KalturaHeaderCondition, HeaderCondition>()
-                .IncludeBase<KalturaCondition, AssetRuleCondition<IHeaderConditionScope>>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not ?? false))
                 .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
-                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
-                 .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not.HasValue ? src.Not.Value : false));
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
 
             cfg.CreateMap<HeaderCondition, KalturaHeaderCondition>()
-                .IncludeBase<AssetRuleCondition<IHeaderConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not))
                 .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
-                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
-                .ForMember(dest => dest.Not, opt => opt.MapFrom(src => src.Not));
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
 
             // UserSubscriptionCondition
-            cfg.CreateMap<KalturaCondition, RuleBaseCondition<IUserSubscriptionConditionScope>>()
-               .IncludeBase<KalturaCondition, RuleCondition>();
-
-            cfg.CreateMap<RuleBaseCondition<IUserSubscriptionConditionScope>, KalturaCondition>()
-              .IncludeBase<RuleCondition, KalturaCondition>();
-
-            cfg.CreateMap<KalturaSubscriptionCondition, SubscriptionCondition<IUserSubscriptionConditionScope>>()
-               .IncludeBase<KalturaCondition, RuleBaseCondition<IUserSubscriptionConditionScope>>()
-               .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<long>, long>(src.IdIn, "KalturaUserSubscriptionCondition.idIn", true, true)));
-
-            cfg.CreateMap<SubscriptionCondition<IUserSubscriptionConditionScope>, KalturaSubscriptionCondition>()
-               .IncludeBase<RuleBaseCondition<IUserSubscriptionConditionScope>, KalturaCondition>()
-               .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.SubscriptionIds)));
-
             cfg.CreateMap<KalturaUserSubscriptionCondition, UserSubscriptionCondition>()
-               .IncludeBase<KalturaSubscriptionCondition, SubscriptionCondition<IUserSubscriptionConditionScope>>();
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<long>, long>(src.IdIn, "KalturaUserSubscriptionCondition.idIn", true, true)));
 
             cfg.CreateMap<UserSubscriptionCondition, KalturaUserSubscriptionCondition>()
-               .IncludeBase<SubscriptionCondition<IUserSubscriptionConditionScope>, KalturaSubscriptionCondition>();
-
-            // AssetSubscriptionCondition
-            cfg.CreateMap<KalturaCondition, RuleBaseCondition<IAssetSubscriptionConditionScope>>()
-               .IncludeBase<KalturaCondition, RuleCondition>();
-
-            cfg.CreateMap<RuleBaseCondition<IAssetSubscriptionConditionScope>, KalturaCondition>()
-               .IncludeBase<RuleCondition, KalturaCondition>();
-
-            cfg.CreateMap<KalturaSubscriptionCondition, SubscriptionCondition<IAssetSubscriptionConditionScope>>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<IAssetSubscriptionConditionScope>>()
-                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<long>, long>(src.IdIn, "KalturaAssetSubscriptionCondition.idIn", true, true)));
-
-            cfg.CreateMap<SubscriptionCondition<IAssetSubscriptionConditionScope>, KalturaSubscriptionCondition>()
-                .IncludeBase<RuleBaseCondition<IAssetSubscriptionConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.SubscriptionIds)));
 
+            // AssetSubscriptionCondition
             cfg.CreateMap<KalturaAssetSubscriptionCondition, AssetSubscriptionCondition>()
-               .IncludeBase<KalturaSubscriptionCondition, SubscriptionCondition<IAssetSubscriptionConditionScope>>();
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.SubscriptionIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<long>, long>(src.IdIn, "KalturaUserSubscriptionCondition.idIn", true, true)));
 
             cfg.CreateMap<AssetSubscriptionCondition, KalturaAssetSubscriptionCondition>()
-               .IncludeBase<SubscriptionCondition<IAssetSubscriptionConditionScope>, KalturaSubscriptionCondition>();
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.SubscriptionIds)));
 
             //Campaign conditions
-            cfg.CreateMap<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
-               .IncludeBase<KalturaCondition, RuleCondition>();
-
-            cfg.CreateMap<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
-               .IncludeBase<RuleCondition, KalturaCondition>();
-
             cfg.CreateMap<KalturaDeviceBrandCondition, DeviceBrandCondition>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
-                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn)
-                ? src.GetItemsIn<List<int>, int>(src.IdIn, "KalturaDeviceBrandCondition.IdIn", true) : null));
-            ;
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => src.GetDeviceBrandIds()));;
 
             cfg.CreateMap<DeviceBrandCondition, KalturaDeviceBrandCondition>()
-                .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
-                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdIn)))
-                ;
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdIn)));
 
             cfg.CreateMap<KalturaDeviceFamilyCondition, DeviceFamilyCondition>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
-                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn)
-                ? src.GetItemsIn<List<int>, int>(src.IdIn, "KalturaDeviceFamilyCondition.IdIn", true) : null));
-            ;
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => src.GetDeviceFamilyIds()));
 
             cfg.CreateMap<DeviceFamilyCondition, KalturaDeviceFamilyCondition>()
-                .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
-                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdIn)))
-                ;
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdIn)));
 
             cfg.CreateMap<KalturaDeviceManufacturerCondition, DeviceManufacturerCondition>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
-                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.IdIn)
-                ? src.GetItemsIn<List<int>, int>(src.IdIn, "KalturaDeviceManufacturerCondition.IdIn", true) : null));
-            ;
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IdIn, opt => opt.ResolveUsing(src => src.GetDeviceManufacturerIds()));
 
             cfg.CreateMap<DeviceManufacturerCondition, KalturaDeviceManufacturerCondition>()
-                .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
-                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdIn)))
-                ;
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.IdIn)));
 
             cfg.CreateMap<KalturaDeviceModelCondition, DeviceModelCondition>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
-                .ForMember(dest => dest.RegexEqual, opt => opt.MapFrom(src => src.RegexEqual))
-                ;
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.RegexEqual, opt => opt.MapFrom(src => src.RegexEqual));
 
             cfg.CreateMap<DeviceModelCondition, KalturaDeviceModelCondition>()
-                .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
-                .ForMember(dest => dest.RegexEqual, opt => opt.MapFrom(src => src.RegexEqual))
-                ;
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.RegexEqual, opt => opt.MapFrom(src => src.RegexEqual));
 
             cfg.CreateMap<KalturaUdidDynamicListCondition, UdidDynamicListCondition>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<ITriggerCampaignConditionScope>>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                ;
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
             cfg.CreateMap<UdidDynamicListCondition, KalturaUdidDynamicListCondition>()
-                .IncludeBase<RuleBaseCondition<ITriggerCampaignConditionScope>, KalturaCondition>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                ;
-
-            cfg.CreateMap<KalturaCondition, RuleBaseCondition<IUserRoleConditionScope>>()
-               .IncludeBase<KalturaCondition, RuleCondition>();
-
-            cfg.CreateMap<RuleBaseCondition<IUserRoleConditionScope>, KalturaCondition>()
-               .IncludeBase<RuleCondition, KalturaCondition>();
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
             cfg.CreateMap<KalturaUserRoleCondition, UserRoleCondition>()
-                .IncludeBase<KalturaCondition, RuleBaseCondition<IUserRoleConditionScope>>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.RoleIds, opt => opt.MapFrom(src => src.GetItemsIn<HashSet<long>, long>(src.IdIn, "KalturaUserRoleCondition.idIn", true, true)));
 
             cfg.CreateMap<UserRoleCondition, KalturaUserRoleCondition>()
-                .IncludeBase<RuleBaseCondition<IUserRoleConditionScope>, KalturaCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.IdIn, opt => opt.MapFrom(src => string.Join(",", src.RoleIds)));
+
+            cfg.CreateMap<KalturaDynamicKeysCondition, DynamicKeysCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
+                .ForMember(dest => dest.Values, opt => opt.ResolveUsing(src => src.GetValues()));
+
+            cfg.CreateMap<DynamicKeysCondition, KalturaDynamicKeysCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
+                .ForMember(dest => dest.Values, opt => opt.ResolveUsing(src => ToCSV(src.Values)));
+            
+            cfg.CreateMap<KalturaDeviceDynamicDataCondition, DeviceDynamicDataCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
+            cfg.CreateMap<DeviceDynamicDataCondition, KalturaDeviceDynamicDataCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
+                .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value));
+
+            cfg.CreateMap<KalturaUserSessionProfileCondition, UserSessionProfileCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
+
+            cfg.CreateMap<UserSessionProfileCondition, KalturaUserSessionProfileCondition>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id));
 
             cfg.CreateMap<KalturaRuleActionType, RuleActionType>()
            .ConvertUsing(kalturaRuleActionType =>
            {
+               
                switch (kalturaRuleActionType)
                {
-                   case KalturaRuleActionType.BLOCK:
-                       return RuleActionType.Block;
-                   case KalturaRuleActionType.START_DATE_OFFSET:
-                       return RuleActionType.StartDateOffset;
-                   case KalturaRuleActionType.END_DATE_OFFSET:
-                       return RuleActionType.EndDateOffset;
-                   case KalturaRuleActionType.USER_BLOCK:
-                       return RuleActionType.UserBlock;
-                   case KalturaRuleActionType.ALLOW_PLAYBACK:
-                       return RuleActionType.AllowPlayback;
-                   case KalturaRuleActionType.BLOCK_PLAYBACK:
-                       return RuleActionType.BlockPlayback;
-                   case KalturaRuleActionType.APPLY_DISCOUNT_MODULE:
-                       return RuleActionType.ApplyDiscountModuleRule;
-                   case KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER:
-                       return RuleActionType.ApplyPlaybackAdapter;
-                   case KalturaRuleActionType.FILTER:
-                       return RuleActionType.UserFilter;
-                   case KalturaRuleActionType.ASSET_LIFE_CYCLE_TRANSITION:
-                       return RuleActionType.AssetLifeCycleTransition;
-                   case KalturaRuleActionType.APPLY_FREE_PLAYBACK:
-                       return RuleActionType.ApplyFreePlayback;
-                   default:
-                       throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown RuleAction value : {0}", kalturaRuleActionType.ToString()));
+                   case KalturaRuleActionType.BLOCK: return RuleActionType.Block;
+                   case KalturaRuleActionType.START_DATE_OFFSET: return RuleActionType.StartDateOffset;
+                   case KalturaRuleActionType.END_DATE_OFFSET: return RuleActionType.EndDateOffset;
+                   case KalturaRuleActionType.USER_BLOCK: return RuleActionType.UserBlock;
+                   case KalturaRuleActionType.ALLOW_PLAYBACK: return RuleActionType.AllowPlayback;
+                   case KalturaRuleActionType.BLOCK_PLAYBACK: return RuleActionType.BlockPlayback;
+                   case KalturaRuleActionType.APPLY_DISCOUNT_MODULE:return RuleActionType.ApplyDiscountModuleRule;
+                   case KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER: return RuleActionType.ApplyPlaybackAdapter;
+                   case KalturaRuleActionType.FILTER: return RuleActionType.UserFilter;
+                   case KalturaRuleActionType.ASSET_LIFE_CYCLE_TRANSITION: return RuleActionType.AssetLifeCycleTransition;
+                   case KalturaRuleActionType.APPLY_FREE_PLAYBACK: return RuleActionType.ApplyFreePlayback;
+                   case KalturaRuleActionType.FilterAssetByKsql: return RuleActionType.FilterAssetByKsql;
+                   case KalturaRuleActionType.FilterFileByQualityInDiscovery: return RuleActionType.FilterFileByQualityInDiscovery;
+                   case KalturaRuleActionType.FilterFileByQualityInPlayback: return RuleActionType.FilterFileByQualityInPlayback;
+                   case KalturaRuleActionType.FilterFileByFileTypeIdForAssetTypeInDiscovery: return RuleActionType.FilterFileByAssetTypeInDiscovery;
+                   case KalturaRuleActionType.FilterFileByFileTypeIdForAssetTypeInPlayback: return RuleActionType.FilterFileByAssetTypeInPlayback;
+                   case KalturaRuleActionType.FilterFileByFileTypeIdInDiscovery: return RuleActionType.FilterFileByFileTypeIdInDiscovery;
+                   case KalturaRuleActionType.FilterFileByFileTypeIdInPlayback: return RuleActionType.FilterFileByFileTypeIdInPlayback;
+                   case KalturaRuleActionType.FilterFileByAudioCodecInDiscovery: return RuleActionType.FilterFileByAudioCodecInDiscovery;
+                   case KalturaRuleActionType.FilterFileByAudioCodecInPlayback: return RuleActionType.FilterFileByAudioCodecInPlayback;
+                   case KalturaRuleActionType.FilterFileByVideoCodecInDiscovery: return RuleActionType.FilterFileByVideoCodecInDiscovery;
+                   case KalturaRuleActionType.FilterFileByVideoCodecInPlayback: return RuleActionType.FilterFileByVideoCodecInPlayback;
+                   case KalturaRuleActionType.FilterFileByStreamerTypeInDiscovery: return RuleActionType.FilterFileByStreamerTypeInDiscovery;
+                   case KalturaRuleActionType.FilterFileByStreamerTypeInPlayback: return RuleActionType.FilterFileByStreamerTypeInPlayback;
+                   case KalturaRuleActionType.FilterFileByLabelInDiscovery: return RuleActionType.FilterFileByLabelInDiscovery;
+                   case KalturaRuleActionType.FilterFileByLabelInPlayback: return RuleActionType.FilterFileByLabelInPlayback;
+                   default: throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown RuleAction value : {0}", kalturaRuleActionType.ToString()));
                }
            });
 
             cfg.CreateMap<RuleActionType, KalturaRuleActionType>()
                 .ConvertUsing(ruleActionType =>
                 {
-
                     switch (ruleActionType)
                     {
-                        case RuleActionType.Block:
-                            return KalturaRuleActionType.BLOCK;
-                        case RuleActionType.StartDateOffset:
-                            return KalturaRuleActionType.START_DATE_OFFSET;
-                        case RuleActionType.EndDateOffset:
-                            return KalturaRuleActionType.END_DATE_OFFSET;
-                        case RuleActionType.UserBlock:
-                            return KalturaRuleActionType.USER_BLOCK;
-                        case RuleActionType.AllowPlayback:
-                            return KalturaRuleActionType.ALLOW_PLAYBACK;
-                        case RuleActionType.BlockPlayback:
-                            return KalturaRuleActionType.BLOCK_PLAYBACK;
-                        case RuleActionType.ApplyDiscountModuleRule:
-                            return KalturaRuleActionType.APPLY_DISCOUNT_MODULE;
-                        case RuleActionType.ApplyPlaybackAdapter:
-                            return KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER;
-                        case RuleActionType.UserFilter:
-                            return KalturaRuleActionType.FILTER;
-                        case RuleActionType.AssetLifeCycleTransition:
-                            return KalturaRuleActionType.ASSET_LIFE_CYCLE_TRANSITION;
-                        case RuleActionType.ApplyFreePlayback:
-                            return KalturaRuleActionType.APPLY_FREE_PLAYBACK;
-                        default:
-                            throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown ruleActionType value : {0}", ruleActionType.ToString()));
+                        case RuleActionType.Block: return KalturaRuleActionType.BLOCK;
+                        case RuleActionType.StartDateOffset: return KalturaRuleActionType.START_DATE_OFFSET;
+                        case RuleActionType.EndDateOffset: return KalturaRuleActionType.END_DATE_OFFSET;
+                        case RuleActionType.UserBlock: return KalturaRuleActionType.USER_BLOCK;
+                        case RuleActionType.AllowPlayback: return KalturaRuleActionType.ALLOW_PLAYBACK;
+                        case RuleActionType.BlockPlayback: return KalturaRuleActionType.BLOCK_PLAYBACK;
+                        case RuleActionType.ApplyDiscountModuleRule: return KalturaRuleActionType.APPLY_DISCOUNT_MODULE;
+                        case RuleActionType.ApplyPlaybackAdapter: return KalturaRuleActionType.APPLY_PLAYBACK_ADAPTER;
+                        case RuleActionType.UserFilter: return KalturaRuleActionType.FILTER;
+                        case RuleActionType.AssetLifeCycleTransition: return KalturaRuleActionType.ASSET_LIFE_CYCLE_TRANSITION;
+                        case RuleActionType.ApplyFreePlayback: return KalturaRuleActionType.APPLY_FREE_PLAYBACK;
+                        case RuleActionType.FilterAssetByKsql: return KalturaRuleActionType.FilterAssetByKsql;
+                        case RuleActionType.FilterFileByQualityInDiscovery: return KalturaRuleActionType.FilterFileByQualityInDiscovery;
+                        case RuleActionType.FilterFileByQualityInPlayback: return KalturaRuleActionType.FilterFileByQualityInPlayback;
+                        case RuleActionType.FilterFileByAssetTypeInDiscovery: return KalturaRuleActionType.FilterFileByFileTypeIdForAssetTypeInDiscovery;
+                        case RuleActionType.FilterFileByAssetTypeInPlayback: return KalturaRuleActionType.FilterFileByFileTypeIdForAssetTypeInPlayback;
+                        case RuleActionType.FilterFileByFileTypeIdInDiscovery: return KalturaRuleActionType.FilterFileByFileTypeIdInDiscovery;
+                        case RuleActionType.FilterFileByFileTypeIdInPlayback: return KalturaRuleActionType.FilterFileByFileTypeIdInPlayback;
+                        case RuleActionType.FilterFileByAudioCodecInDiscovery: return KalturaRuleActionType.FilterFileByAudioCodecInDiscovery;
+                        case RuleActionType.FilterFileByAudioCodecInPlayback: return KalturaRuleActionType.FilterFileByAudioCodecInPlayback;
+                        case RuleActionType.FilterFileByVideoCodecInDiscovery: return KalturaRuleActionType.FilterFileByVideoCodecInDiscovery;
+                        case RuleActionType.FilterFileByVideoCodecInPlayback: return KalturaRuleActionType.FilterFileByVideoCodecInPlayback;
+                        case RuleActionType.FilterFileByStreamerTypeInDiscovery: return KalturaRuleActionType.FilterFileByStreamerTypeInDiscovery;
+                        case RuleActionType.FilterFileByStreamerTypeInPlayback: return KalturaRuleActionType.FilterFileByStreamerTypeInPlayback;
+                        case RuleActionType.FilterFileByLabelInDiscovery: return KalturaRuleActionType.FilterFileByLabelInDiscovery;
+                        case RuleActionType.FilterFileByLabelInPlayback: return KalturaRuleActionType.FilterFileByLabelInPlayback;
+                        default: throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown ruleActionType value : {0}", ruleActionType.ToString()));
                     }
                 });
 
@@ -1122,6 +1080,22 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
             cfg.CreateMap<RuleAction, KalturaRuleAction>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<KalturaRuleAction, AssetRuleAction>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<AssetRuleAction, KalturaRuleAction>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<KalturaRuleAction, AssetUserRuleAction>()
+               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
+
+            cfg.CreateMap<AssetUserRuleAction, KalturaRuleAction>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description));
 
@@ -1274,6 +1248,154 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<AssetLifeCycleTransitionAction, KalturaAssetLifeCycleTransitionAction>()
                 .ForMember(dest => dest.FileTypeIds, opt => opt.MapFrom(src => string.Join(",", src.Transitions.FileTypeIds)))
                 .ForMember(dest => dest.PpvIds, opt => opt.MapFrom(src => string.Join(",", src.Transitions.PpvIds)));
+
+            cfg.CreateMap<KalturaFilterFileByVideoCodecAction, FilterFileByVideoCodec>()
+                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .ForMember(dest => dest.VideoCodecs, opt => opt.ResolveUsing(src => src.GetVideoCodecs()));
+
+            cfg.CreateMap<FilterFileByVideoCodec, KalturaFilterFileByVideoCodecAction>()
+                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .ForMember(dest => dest.VideoCodecIn, opt => opt.MapFrom(src => string.Join(",", src.VideoCodecs)));
+
+            cfg.CreateMap<KalturaFilterFileByVideoCodecInDiscoveryAction, FilterFileByVideoCodecInDiscovery>()
+                .IncludeBase<KalturaFilterFileByVideoCodecAction, FilterFileByVideoCodec>();
+
+            cfg.CreateMap<KalturaFilterFileByVideoCodecInPlayback, FilterFileByVideoCodecInPlayback>()
+                .IncludeBase<KalturaFilterFileByVideoCodecAction, FilterFileByVideoCodec>();
+
+          cfg.CreateMap<FilterFileByVideoCodecInDiscovery, KalturaFilterFileByVideoCodecInDiscoveryAction>()
+                .IncludeBase<FilterFileByVideoCodec, KalturaFilterFileByVideoCodecAction>();
+
+            cfg.CreateMap<FilterFileByVideoCodecInPlayback, KalturaFilterFileByVideoCodecInPlayback>()
+                .IncludeBase<FilterFileByVideoCodec, KalturaFilterFileByVideoCodecAction>();
+
+            cfg.CreateMap<KalturaFilterFileByStreamerTypeAction, FilterFileByStreamerType>()
+                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .ForMember(dest => dest.StreamerTypes, opt => opt.ResolveUsing(src => src.GetStreamerTypes()));
+
+            cfg.CreateMap<FilterFileByStreamerType, KalturaFilterFileByStreamerTypeAction>()
+                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .ForMember(dest => dest.StreamerTypeIn, opt => opt.ResolveUsing(src => GetStreamerTypes(src.StreamerTypes)));
+
+            cfg.CreateMap<KalturaFilterFileByStreamerTypeInDiscovery, FilterFileByStreamerTypeInDiscovery>()
+                .IncludeBase<KalturaFilterFileByStreamerTypeAction, FilterFileByStreamerType>();
+
+            cfg.CreateMap<KalturaFilterFileByStreamerTypeInPlayback, FilterFileByStreamerTypeInPlayback>()
+                .IncludeBase<KalturaFilterFileByStreamerTypeAction, FilterFileByStreamerType>();
+
+            cfg.CreateMap<FilterFileByStreamerTypeInDiscovery, KalturaFilterFileByStreamerTypeInDiscovery>()
+                .IncludeBase<FilterFileByStreamerType, KalturaFilterFileByStreamerTypeAction>();
+
+            cfg.CreateMap<FilterFileByStreamerTypeInPlayback, KalturaFilterFileByStreamerTypeInPlayback>()
+                .IncludeBase<FilterFileByStreamerType, KalturaFilterFileByStreamerTypeAction>();
+
+            cfg.CreateMap<KalturaFilterFileByQualityAction, FilterFileByQuality>()
+                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .ForMember(dest => dest.Qualities, opt => opt.ResolveUsing(src => src.GetQualities()));
+
+            cfg.CreateMap<FilterFileByQuality, KalturaFilterFileByQualityAction>()
+                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .ForMember(dest => dest.QualityIn, opt => opt.ResolveUsing(src => GetQualities(src.Qualities)));
+
+            cfg.CreateMap<KalturaFilterFileByQualityInDiscoveryAction, FilterFileByQualityInDiscovery>()
+                .IncludeBase<KalturaFilterFileByQualityAction, FilterFileByQuality>();
+
+            cfg.CreateMap<KalturaFilterFileByQualityInPlaybackAction, FilterFileByQualityInPlayback>()
+                .IncludeBase<KalturaFilterFileByQualityAction, FilterFileByQuality>();
+
+            cfg.CreateMap<FilterFileByQualityInDiscovery, KalturaFilterFileByQualityInDiscoveryAction>()
+                .IncludeBase<FilterFileByQuality, KalturaFilterFileByQualityAction>();
+
+            cfg.CreateMap<FilterFileByQualityInPlayback, KalturaFilterFileByQualityInPlaybackAction>()
+                .IncludeBase<FilterFileByQuality, KalturaFilterFileByQualityAction>();
+
+            cfg.CreateMap<KalturaFilterFileByLabelAction, FilterFileByLabel>()
+                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .ForMember(dest => dest.Labels, opt => opt.ResolveUsing(src => src.GetLabels()));
+
+            cfg.CreateMap<FilterFileByLabel, KalturaFilterFileByLabelAction>()
+                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .ForMember(dest => dest.LabelIn, opt => opt.MapFrom(src => string.Join(",", src.Labels)));
+
+            cfg.CreateMap<KalturaFilterFileByLabelInDiscoveryAction, FilterFileByLabelInDiscovery>()
+                .IncludeBase<KalturaFilterFileByLabelAction, FilterFileByLabel>();
+
+            cfg.CreateMap<KalturaFilterFileByLabelInPlaybackAction, FilterFileByLabelInPlayback>()
+                .IncludeBase<KalturaFilterFileByLabelAction, FilterFileByLabel>();
+
+            cfg.CreateMap<FilterFileByLabelInDiscovery, KalturaFilterFileByLabelInDiscoveryAction>()
+                .IncludeBase<FilterFileByLabel, KalturaFilterFileByLabelAction>();
+
+            cfg.CreateMap<FilterFileByLabelInPlayback, KalturaFilterFileByLabelInPlaybackAction>()
+                .IncludeBase<FilterFileByLabel, KalturaFilterFileByLabelAction>();
+
+            cfg.CreateMap<KalturaFilterFileByFileTypeIdForAssetTypeAction, FilterFileByFileTypeForAssetType>()
+                .IncludeBase<KalturaFilterFileByFileTypeIdAction, FilterFileByFileType>()
+                .ForMember(dest => dest.AssetTypes, opt => opt.ResolveUsing(src => src.GetAssetTypes()));
+
+            cfg.CreateMap<FilterFileByFileTypeForAssetType, KalturaFilterFileByFileTypeIdForAssetTypeAction>()
+                .IncludeBase<FilterFileByFileType, KalturaFilterFileByFileTypeIdAction>()
+                .ForMember(dest => dest.AssetTypeIn, opt => opt.ResolveUsing(src => GetAssetTypes(src.AssetTypes)));
+
+            cfg.CreateMap<KalturaFilterFileByFileTypeIdForAssetTypeInDiscoveryAction, FilterFileByFileTypeForAssetTypeInDiscovery>()
+                .IncludeBase<KalturaFilterFileByFileTypeIdForAssetTypeAction, FilterFileByFileTypeForAssetType>();
+
+            cfg.CreateMap<KalturaFilterFileByFileTypeIdForAssetTypeInPlaybackAction, FilterFileByFileTypeForAssetTypenPlayback>()
+                .IncludeBase<KalturaFilterFileByFileTypeIdForAssetTypeAction, FilterFileByFileTypeForAssetType>();
+
+            cfg.CreateMap<FilterFileByFileTypeForAssetTypeInDiscovery, KalturaFilterFileByFileTypeIdForAssetTypeInDiscoveryAction>()
+                .IncludeBase<FilterFileByFileTypeForAssetType, KalturaFilterFileByFileTypeIdForAssetTypeAction>();
+
+            cfg.CreateMap<FilterFileByFileTypeForAssetTypenPlayback, KalturaFilterFileByFileTypeIdForAssetTypeInPlaybackAction>()
+                .IncludeBase<FilterFileByFileTypeForAssetType, KalturaFilterFileByFileTypeIdForAssetTypeAction>();
+
+            cfg.CreateMap<KalturaFilterFileByFileTypeIdAction, FilterFileByFileType>()
+                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .ForMember(dest => dest.FileTypeIds, opt => opt.ResolveUsing(src => src.GetFileTypesIds()));
+
+            cfg.CreateMap<FilterFileByFileType, KalturaFilterFileByFileTypeIdAction>()
+                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .ForMember(dest => dest.FileTypeIdIn, opt => opt.MapFrom(src => string.Join(",", src.FileTypeIds)));
+
+            cfg.CreateMap<KalturaFilterFileByFileTypeIdInDiscoveryAction, FilterFileByFileTypeInDiscovery>()
+                .IncludeBase<KalturaFilterFileByFileTypeIdAction, FilterFileByFileType>();
+
+            cfg.CreateMap<KalturaFilterFileByFileTypeIdInPlaybackAction, FilterFileByFileTypeInPlayback>()
+                .IncludeBase<KalturaFilterFileByFileTypeIdAction, FilterFileByFileType>();
+
+            cfg.CreateMap<FilterFileByFileTypeInDiscovery, KalturaFilterFileByFileTypeIdInDiscoveryAction>()
+                .IncludeBase<FilterFileByFileType, KalturaFilterFileByFileTypeIdAction>();
+
+            cfg.CreateMap<FilterFileByFileTypeInPlayback, KalturaFilterFileByFileTypeIdInPlaybackAction>()
+                .IncludeBase<FilterFileByFileType, KalturaFilterFileByFileTypeIdAction>();
+
+            cfg.CreateMap<KalturaFilterFileByAudioCodecAction, FilterFileByAudioCodec>()
+                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .ForMember(dest => dest.AudioCodecs, opt => opt.ResolveUsing(src => src.GetAudioCodecs()));
+
+            cfg.CreateMap<FilterFileByAudioCodec, KalturaFilterFileByAudioCodecAction>()
+                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .ForMember(dest => dest.AudioCodecIn, opt => opt.MapFrom(src => string.Join(",", src.AudioCodecs)));
+
+            cfg.CreateMap<KalturaFilterFileByAudioCodecInDiscoveryAction, FilterFileByAudioCodecInDiscovery>()
+                .IncludeBase<KalturaFilterFileByAudioCodecAction, FilterFileByAudioCodec>();
+
+            cfg.CreateMap<KalturaFilterFileByAudioCodecInPlaybackAction, FilterFileByAudioCodecInPlayback>()
+                .IncludeBase<KalturaFilterFileByAudioCodecAction, FilterFileByAudioCodec>();
+
+            cfg.CreateMap<FilterFileByAudioCodecInDiscovery, KalturaFilterFileByAudioCodecInDiscoveryAction>()
+                .IncludeBase<FilterFileByAudioCodec, KalturaFilterFileByAudioCodecAction>();
+
+            cfg.CreateMap<FilterFileByAudioCodecInPlayback, KalturaFilterFileByAudioCodecInPlaybackAction>()
+                .IncludeBase<FilterFileByAudioCodec, KalturaFilterFileByAudioCodecAction>();
+
+            cfg.CreateMap<KalturaFilterAssetByKsqlAction, FilterAssetByKsql>()
+                .IncludeBase<KalturaAssetRuleAction, AssetRuleAction>()
+                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
+
+            cfg.CreateMap<FilterAssetByKsql, KalturaFilterAssetByKsqlAction>()
+                .IncludeBase<AssetRuleAction, KalturaAssetRuleAction>()
+                .ForMember(dest => dest.Ksql, opt => opt.MapFrom(src => src.Ksql));
 
             cfg.CreateMap<KalturaRuleType?, RuleType?>()
                 .ConvertUsing(kalturaRuleType =>
@@ -1602,7 +1724,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name));
 
-            cfg.CreateMap<KalturaBusinessModuleRuleFilter, APILogic.ConditionalAccess.ConditionScope>()
+            cfg.CreateMap<KalturaBusinessModuleRuleFilter, BusinessModuleRuleConditionScope>()
                 .ForMember(dest => dest.BusinessModuleId, opt => opt.MapFrom(src => src.BusinessModuleIdApplied.HasValue ? src.BusinessModuleIdApplied.Value : 0))
                 .ForMember(dest => dest.BusinessModuleType, opt => opt.MapFrom(src => src.BusinessModuleTypeApplied))
                 .ForMember(dest => dest.SegmentIds, opt => opt.ResolveUsing(src => !string.IsNullOrEmpty(src.SegmentIdsApplied) ? src.GetItemsIn<List<long>, long>(src.SegmentIdsApplied, "filter.segmentIdsApplied") : null))
@@ -2104,6 +2226,74 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<KalturaDynamicListFilter, DynamicListFilter>()
                 .ForMember(dest => dest.IdEqual, opt => opt.MapFrom(src => src.IdEqual))
                 .ForMember(dest => dest.ValueEqual, opt => opt.MapFrom(src => src.ValueEqual));
+            
+            cfg.CreateMap<KalturaStringValueArray, List<string>>().ConvertUsing(v => v.Objects.Select(_ => _.value).ToList());
+            cfg.CreateMap<List<string>, KalturaStringValueArray>().ConvertUsing(v => new KalturaStringValueArray
+                { Objects = v.Select(_ => new KalturaStringValue { value = _ }).ToList() });
+
+            cfg.CreateMap<KalturaUserSessionProfile, UserSessionProfile>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Expression, opt => opt.MapFrom(src => src.Expression));
+
+            cfg.CreateMap<UserSessionProfile, KalturaUserSessionProfile>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(dest => dest.Expression, opt => opt.MapFrom(src => src.Expression));
+
+            cfg.CreateMap<KalturaUserSessionProfileExpression, IUserSessionProfileExpression>()
+                .Include(typeof(KalturaExpressionAnd), typeof(ExpressionAnd))
+                .Include(typeof(KalturaExpressionOr), typeof(ExpressionOr))
+                .Include(typeof(KalturaExpressionNot), typeof(ExpressionNot))
+                .Include(typeof(KalturaUserSessionCondition), typeof(UserSessionCondition));
+
+            cfg.CreateMap<IUserSessionProfileExpression, KalturaUserSessionProfileExpression>()
+                .Include(typeof(ExpressionAnd), typeof(KalturaExpressionAnd))
+                .Include(typeof(ExpressionOr), typeof(KalturaExpressionOr))
+                .Include(typeof(ExpressionNot), typeof(KalturaExpressionNot))
+                .Include(typeof(UserSessionCondition), typeof(KalturaUserSessionCondition));
+
+            cfg.CreateMap<KalturaExpressionAnd, ExpressionAnd>()
+                .ForMember(dest => dest.Expressions, opt => opt.MapFrom(src => src.Expressions));
+
+            cfg.CreateMap<ExpressionAnd, KalturaExpressionAnd>()
+                .ForMember(dest => dest.Expressions, opt => opt.MapFrom(src => src.Expressions));
+
+            cfg.CreateMap<KalturaExpressionOr, ExpressionOr>()
+                .ForMember(dest => dest.Expressions, opt => opt.MapFrom(src => src.Expressions));
+
+            cfg.CreateMap<ExpressionOr, KalturaExpressionOr>()
+                .ForMember(dest => dest.Expressions, opt => opt.MapFrom(src => src.Expressions));
+
+            cfg.CreateMap<KalturaExpressionNot, ExpressionNot>()
+                .ForMember(dest => dest.Expression, opt => opt.MapFrom(src => src.Expression));
+
+            cfg.CreateMap<ExpressionNot, KalturaExpressionNot>()
+                .ForMember(dest => dest.Expression, opt => opt.MapFrom(src => src.Expression));
+
+            cfg.CreateMap<KalturaUserSessionCondition, UserSessionCondition>()
+               .ForMember(dest => dest.Condition, opt => opt.MapFrom(src => src.Condition));
+
+            cfg.CreateMap<UserSessionCondition, KalturaUserSessionCondition>()
+                .ForMember(dest => dest.Condition, opt => opt.MapFrom(src => src.Condition));
+        }
+
+        private static string GetStreamerTypes(List<StreamerType> types)
+        {
+            var mapped = AutoMapper.Mapper.Map<List<KalturaMediaFileStreamerType>>(types);
+            return string.Join(",", mapped);
+        }
+
+        private static string GetQualities(List<MediaFileTypeQuality> types)
+        {
+            var mapped = AutoMapper.Mapper.Map<List<KalturaMediaFileTypeQuality>>(types);
+            return string.Join(",", mapped);
+        }
+
+        private static string GetAssetTypes(List<eAssetTypes> types)
+        {
+            var mapped = AutoMapper.Mapper.Map<List<KalturaAssetType>>(types);
+            return string.Join(",", mapped);
         }
 
         #region Private Convertors
@@ -3480,6 +3670,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             return res;
         }
+
+        private static string ToCSV<T>(IEnumerable<T> v) => string.Join(",", v);
 
         #endregion
     }

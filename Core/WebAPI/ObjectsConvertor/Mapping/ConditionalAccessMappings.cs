@@ -635,6 +635,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
               .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
               .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
+              .ForMember(dest => dest.TypeId, opt => opt.MapFrom(src => (int?)src.TypeId))
               .ForMember(dest => dest.Url, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.DirectUrl) ? src.DirectUrl : src.Url))
               .ForMember(dest => dest.AltUrl, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.AltDirectUrl) ? src.AltDirectUrl : src.AltUrl))
               .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmId))

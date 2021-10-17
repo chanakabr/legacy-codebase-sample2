@@ -2560,15 +2560,15 @@ namespace Core.Users
             var response = new GenericResponse<LimitationsManager>();
             response.SetStatus(eResponseStatus.OK);
 
-            var deviceFamiliesRes = _deviceFamilyManager.GetDeviceFamilyList();
+            var deviceFamilies = _deviceFamilyManager.GetAllDeviceFamilyList();
 
-            if (!deviceFamiliesRes.Status.IsOkStatusCode() || deviceFamiliesRes.DeviceFamilies == null)
+            if (deviceFamilies == null)
             {
-                response.SetStatus(new ApiObjects.Response.Status(deviceFamiliesRes.Status.Code, $"DLM is not valid, {deviceFamiliesRes.Status.ToString()}"));
+                response.SetStatus(new ApiObjects.Response.Status(eResponseStatus.Error, "DLM is not valid, can't retrieve device family"));
                 return response;
             }
 
-            var deviceFamiliesIdsDoesntExist = limitationsManager.lDeviceFamilyLimitations.Where(x => !deviceFamiliesRes.DeviceFamilies.Exists(y => y.Id == x.deviceFamily)).Select(dfl => dfl.deviceFamily.ToString());
+            var deviceFamiliesIdsDoesntExist = limitationsManager.lDeviceFamilyLimitations.Where(x => !deviceFamilies.Exists(y => y.Id == x.deviceFamily)).Select(dfl => dfl.deviceFamily.ToString());
 
             if (deviceFamiliesIdsDoesntExist.Any())
             {

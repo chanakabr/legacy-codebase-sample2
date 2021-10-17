@@ -69,7 +69,7 @@ namespace WebAPI.Models.API
         {
             if (PopulationConditions.Count > 50)
             {
-                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "populationConditions", 50);
+                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "populationConditions", 50);
             }
 
             foreach (var condition in this.PopulationConditions)

@@ -6942,7 +6942,7 @@ namespace Core.ConditionalAccess
                         if (!isDownloadPlayContext && BusinessModuleRuleManager.IsActionTypeRuleExists(m_nGroupID, RuleActionType.ApplyFreePlayback))
                         {
                             // check if there are any Seasonal promotion rules (free item)
-                            var filter = new ConditionScope()
+                            var filter = new BusinessModuleRuleConditionScope()
                             {
                                 GroupId = m_nGroupID,
                                 UserId = userId,

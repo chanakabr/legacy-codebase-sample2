@@ -539,7 +539,7 @@ namespace Core.Catalog.CatalogManagement
                     List<EpgCB> epgsToUpdate = RemoveTopicsFromProgramEpgCBs(groupId, epgAsset.Id, metasToRemoveByName, tagsToRemoveByName);
 
                     // invalidate asset
-                    AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
+                    AssetManager.Instance.InvalidateAsset(eAssetTypes.EPG, groupId, epgAsset.Id);
                     var linearChannelSettingsForEpgCb = Cache.CatalogCache.Instance().GetLinearChannelSettings(groupId, new List<string>() { epgsToUpdate?.First().ChannelID.ToString() });
 
                     // UpdateIndex

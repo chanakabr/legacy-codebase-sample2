@@ -218,6 +218,10 @@ namespace Reflector
                                     file.WriteLine("            " + schemePropertyProperty.Name + " = " + val.ToString().ToLower() + ",");
                                 }
                             }
+                            else if (schemePropertyProperty.PropertyType == typeof(string))
+                            {
+                                file.WriteLine("            " + schemePropertyProperty.Name + " = @\"" + val + "\",");
+                            }
                             else if (schemePropertyProperty.PropertyType == typeof(Type))
                             {
                                 file.WriteLine("            " + schemePropertyProperty.Name + " = typeof(" + ((Type)val).Name + "),");
@@ -268,6 +272,21 @@ namespace Reflector
             if (!hasProperties)
             {
                 return;
+            }
+
+            var schemeClass = type.GetCustomAttribute<SchemeClassAttribute>();
+            if (schemeClass != null && schemeClass.Required?.Length > 0)
+            {
+                file.WriteLine("            if (fromRequest)");
+                file.WriteLine("            {");
+                file.WriteLine("                if (parameters == null)");
+                file.WriteLine("                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, \"" + string.Join(",", schemeClass.Required) + "\");");
+                foreach (var required in schemeClass.Required)
+                {
+                    file.WriteLine($"               if (!parameters.ContainsKey(\"{required}\") || parameters[\"{required}\"] == null)");
+                    file.WriteLine($"                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, \"{ required}\");");
+                }
+                file.WriteLine("            }");
             }
 
             file.WriteLine("            if (parameters != null)");
@@ -352,7 +371,7 @@ namespace Reflector
             file.WriteLine("    public partial class " + GetTypeName(type, true));
             file.WriteLine("    {");
             wrtieDeserializeTypeSchemaProperties(type);
-            file.WriteLine("        public " + GetTypeName(type) + "(Dictionary<string, object> parameters = null) : base(parameters)");
+            file.WriteLine("        public " + GetTypeName(type) + "(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)");
             file.WriteLine("        {");
             wrtieDeserializeTypeProperties(type);
             file.WriteLine("        }");
@@ -396,7 +415,7 @@ namespace Reflector
             file.WriteLine("{");
             file.WriteLine("    public class Deserializer");
             file.WriteLine("    {");
-            file.WriteLine("        public static KalturaOTTObject deserialize(Type type, Dictionary<string, object> parameters)");
+            file.WriteLine("        public static IKalturaOTTObject deserialize(Type type, Dictionary<string, object> parameters)");
             file.WriteLine("        {");
             file.WriteLine("            string objectType = type.Name;");
             file.WriteLine("            if (parameters.ContainsKey(\"objectType\"))");
@@ -416,7 +435,7 @@ namespace Reflector
                 NewObjectTypeAttribute newObjectTypeAttribue = type.GetCustomAttribute<NewObjectTypeAttribute>(false);
                 if (newObjectTypeAttribue != null)
                 {
-                    file.WriteLine("                    return new " + GetTypeName(newObjectTypeAttribue.type) + "(parameters);");
+                    file.WriteLine("                    return new " + GetTypeName(newObjectTypeAttribue.type) + "(parameters, true);");
                 }
                 else if (type.IsAbstract)
                 {
@@ -424,7 +443,7 @@ namespace Reflector
                 }
                 else
                 {
-                    file.WriteLine("                    return new " + typeName + "(parameters);");
+                    file.WriteLine("                    return new " + typeName + "(parameters, true);");
                 }
                 file.WriteLine("                    ");
             }

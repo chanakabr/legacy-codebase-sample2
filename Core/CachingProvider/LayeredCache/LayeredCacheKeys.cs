@@ -148,7 +148,7 @@ namespace CachingProvider.LayeredCache
 
         public static string GetMediaFilesKey(long mediaId, string assetType)
         {
-            return string.Format("mediaFiles_mediaId_{0}_assetType_{1}_V2", mediaId, assetType);
+            return string.Format("mediaFiles_mediaId_{0}_assetType_{1}_V3", mediaId, assetType);
         }
 
         public static string GetGroupParentalRulesKey(int groupId)
@@ -839,6 +839,14 @@ namespace CachingProvider.LayeredCache
         {
             return $"Labels_{groupId}";
         }
+
+        public static string GetUserSessionProfiles(int groupId)
+        {
+            return $"user_session_profiles_{groupId}";
+        }
+
+        public static string GetSessionCharacteristic(int groupId, string sessionCharacteristic) =>
+            $"session_characteristic_{groupId}_{sessionCharacteristic}";
 
         #endregion
 
@@ -1564,6 +1572,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupPremiumServicesInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_GroupPremiumServices_groupId_{0}", groupId);
+        }
+
+        public static string GetUserSessionProfilesInvalidationKey(int groupId)
+        {
+            return $"invalidationKey_{GetUserSessionProfiles(groupId)}";
         }
 
         #endregion

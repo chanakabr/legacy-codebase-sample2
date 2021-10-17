@@ -58,8 +58,10 @@ namespace WebAPI.Exceptions
         public static ApiExceptionType HTTP_METHOD_NOT_SUPPORTED = new ApiExceptionType(StatusCode.HttpMethodNotSupported, StatusCode.BadRequest, "HTTP [@argument@] method not supported", "argument" );
         public static ApiExceptionType PROPERTY_IS_OPC_SUPPORTED = new ApiExceptionType(StatusCode.PropertyIsOpcSupported, StatusCode.InvalidActionParameters, "Property [@property@] is supported only for OPC accounts", "property");
         public static ApiExceptionType KEY_CANNOT_BE_EMPTY_OR_NULL = new ApiExceptionType(StatusCode.KeyCannotBeEmptyOrNull, StatusCode.BadRequest, "Key of [@property@] cannot be empty or null", "property");
-        public static ApiExceptionType MISSING_MANDATORY_ARGUMENT_IN_PROPERTY = new ApiExceptionType(StatusCode.MissingMandatoryArgumentInProperty, StatusCode.BadRequest, "[@property@] must contain one argument from type [@property@]", "property", "type");
-        public static ApiExceptionType MAX_ARGUMENTS = new ApiExceptionType(StatusCode.MaxArguments, StatusCode.BadRequest, "[@property@] could not contain more than [@count@] arguments", "property", "count");
+        public static ApiExceptionType MISSING_MANDATORY_ARGUMENT_IN_PROPERTY = new ApiExceptionType(StatusCode.MissingMandatoryArgumentInProperty, StatusCode.BadRequest, "[@property@] must contain one argument from type [@type@]", "property", "type");
+        public static ApiExceptionType ARGUMENT_MAX_ITEMS_CROSSED = new ApiExceptionType(StatusCode.ArgumentMaxItemsCrossed, StatusCode.BadRequest, "Argument [@argument@] maximum items is [@value@]", "argument", "value");
+        public static ApiExceptionType ARGUMENT_MATCH_PATTERN_CROSSED = new ApiExceptionType(StatusCode.ArgumentMatchPatternCrossed, StatusCode.BadRequest, "Argument [@argument@] value must be match with in pattern [@pattern@]", "argument", "pattern");
+        public static ApiExceptionType ARGUMENT_MIN_ITEMS_CROSSED = new ApiExceptionType(StatusCode.ArgumentMinItemsCrossed, StatusCode.InvalidActionParameters, "Argument [@argument@] minimum items is [@value@]", "argument", "value");
 
         public BadRequestException()
             : this(BAD_REQUEST)

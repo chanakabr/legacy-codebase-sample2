@@ -475,7 +475,7 @@ namespace Core.Catalog.CatalogManagement
                 // if asset is exists
                 if (asset.Value)
                 {
-                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, asset.Key);
+                    AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, asset.Key);
                 }
             }
         }

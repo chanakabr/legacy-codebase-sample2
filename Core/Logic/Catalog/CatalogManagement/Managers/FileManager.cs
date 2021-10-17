@@ -15,18 +15,22 @@ using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public interface IFileManager
+    public interface IMediaFileTypeManager
     {
         GenericListResponse<MediaFileType> GetMediaFileTypes(int groupId);
     }
-
-    public class FileManager : IFileManager
+    public class FileManager : IMediaFileTypeManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly ILabelRepository _labelRepository = new LabelRepository();
 
         private static readonly Lazy<FileManager> lazy = new Lazy<FileManager>(() => new FileManager(), LazyThreadSafetyMode.PublicationOnly);
+
         public static FileManager Instance { get { return lazy.Value; } }
+
+        private FileManager()
+        {
+        }
 
         #region Private Methods
 
@@ -465,6 +469,22 @@ namespace Core.Catalog.CatalogManagement
         #endregion
 
         #region Public Methods
+        
+        public class FileTypes
+        {
+            private readonly Lazy<Dictionary<int, MediaFileType>> _fileTypeMap;
+            
+            public FileTypes(int groupId, IMediaFileTypeManager fileManager)
+            {
+                _fileTypeMap = new Lazy<Dictionary<int, MediaFileType>>(() =>
+                    fileManager.GetMediaFileTypes(groupId).GetOrThrow().ToDictionary(k => (int) k.Id, v => v));
+            }
+
+            public MediaFileType GetFileType(int? fileTypeId)
+            {
+                return fileTypeId == null ? null : _fileTypeMap.Value.GetValueOrDefault(fileTypeId.Value);
+            }
+        }
 
         public GenericListResponse<MediaFileType> GetMediaFileTypes(int groupId)
         {
@@ -679,7 +699,7 @@ namespace Core.Catalog.CatalogManagement
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetFileToAdd.AssetId));
                         
                         // invalidate asset
-                        AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileToAdd.AssetId);
+                        AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileToAdd.AssetId);
                     }
 
                     // free item index update 
@@ -724,7 +744,7 @@ namespace Core.Catalog.CatalogManagement
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetFileResponse.Object.AssetId));
                     
                     // invalidate asset
-                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileResponse.Object.AssetId);
+                    AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileResponse.Object.AssetId);
                 }
             }
             catch (Exception ex)
@@ -849,7 +869,7 @@ namespace Core.Catalog.CatalogManagement
                         LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, assetFileToUpdate.AssetId));
                         
                         // invalidate asset
-                        AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileToUpdate.AssetId);
+                        AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, assetFileToUpdate.AssetId);
                     }
 
                     // free item index update 

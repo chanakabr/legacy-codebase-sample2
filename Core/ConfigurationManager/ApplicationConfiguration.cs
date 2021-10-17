@@ -13,6 +13,8 @@ namespace ConfigurationManager
         ElasticSearchHandlerConfiguration ElasticSearchHandlerConfiguration { get; }
         ElasticSearchConfiguration ElasticSearchConfiguration { get; }
         ElasticSearchHttpClientConfiguration ElasticSearchHttpClientConfiguration { get; }
+        BaseValue<int> RecordingsMaxDegreeOfParallelism { get; }
+        BaseValue<string> CatalogSignatureKey { get; }
     }
 
     [SuppressMessage("ReSharper", "MemberCanBePrivate.Global")]
@@ -47,7 +49,10 @@ namespace ConfigurationManager
         public BaseValue<string> GraceNoteXSLTPath = new BaseValue<string>("GraceNote_XSLT_PATH", TcmObjectKeys.Stub, true, "Remote tasks configuration for EPG XDTV Transformation.");
         public BaseValue<string> GraceNoteALUIdConvertion = new BaseValue<string>("GraceNote_ALU_IDConvertion", TcmObjectKeys.Stub, true, "Remote tasks configuration for EPG XDTV Transformation.");
         public BaseValue<string> DMSUrl = new BaseValue<string>("dms_url", TcmObjectKeys.Stub, true, "Address of DMS server.");
-        public BaseValue<string> CatalogSignatureKey = new BaseValue<string>("CatalogSignatureKey", "liat regev", false, "liat regev");
+        
+        private BaseValue<string> _catalogSignatureKey = new BaseValue<string>("CatalogSignatureKey", "liat regev", false, "liat regev");
+        public BaseValue<string> CatalogSignatureKey => _catalogSignatureKey;
+
         public BaseValue<string> ExcludePsDllImplementation = new BaseValue<string>("EXCLUDE_PS_DLL_IMPLEMENTATION", TcmObjectKeys.Stub, true);
         public BaseValue<string> FriendsActivityViewStaleState = new BaseValue<string>("FRIENDS_ACTIVITY_VIEW_STALE_STATE", "None", false, "Corresponding to ViewStaleState enum. Possible values: None, False, Ok, UpdateAfter");
         public BaseValue<string> EncryptorService = new BaseValue<string>("EncryptorService", TcmObjectKeys.Stub, true);
@@ -61,7 +66,10 @@ namespace ConfigurationManager
         public BaseValue<int> EPGDocumentExpiry = new BaseValue<int>("epg_doc_expiry", 7);
         public BaseValue<int> UserInterestsTTLDays = new BaseValue<int>("ttl_user_interest_days", 30);
         public BaseValue<int> PersonalizedFeedTTLDays = new BaseValue<int>("PersonalizedFeedTTLDays", 365);
-        public BaseValue<int> RecordingsMaxDegreeOfParallelism = new BaseValue<int>("recordings_max_degree_of_parallelism", 5);
+        
+        private BaseValue<int> _recordingsMaxDegreeOfParallelism = new BaseValue<int>("recordings_max_degree_of_parallelism", 5);
+        public BaseValue<int> RecordingsMaxDegreeOfParallelism => _recordingsMaxDegreeOfParallelism;
+
         public BaseValue<int> QueueFailLimit = new BaseValue<int>("queue_fail_limit", 3, false, "Retry limit for RabbitMQ actions like enqueue.");
         public BaseValue<int> PendingThresholdDays = new BaseValue<int>("pending_threshold_days", 180);
         public BaseValue<int> UserSegmentTTL = new BaseValue<int>("user_segment_ttl_hours", 36, false, "How long do we keep information about the users' segments");

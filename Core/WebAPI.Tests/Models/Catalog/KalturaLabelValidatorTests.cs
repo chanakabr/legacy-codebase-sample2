@@ -69,7 +69,7 @@ namespace WebAPI.Tests.Models.Catalog
 
             var exception = Assert.Throws<BadRequestException>(() => validator.ValidateToAdd(commaSeparatedLabelValues, KalturaEntityAttribute.MEDIA_FILE_LABELS, "label"));
 
-            exception.Message.Should().Be("[label] could not contain more than [25] arguments");
+            exception.Message.Should().Be("Argument [label] maximum items is [25]");
         }
 
         [Test]

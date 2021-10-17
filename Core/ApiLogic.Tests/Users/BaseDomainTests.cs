@@ -45,7 +45,7 @@ namespace ApiLogic.Tests.Users
                 .Setup(x => x.Add(1, 7, It.IsAny<LimitationsManager>()))
                 .Returns(outLimitationManager);
 
-            _deviceFamilyManagerMock.Setup(x => x.GetDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
+            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
             var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
 
             var result = baseDomain.AddDLM(1, inLimitationManager, 7);
@@ -61,7 +61,7 @@ namespace ApiLogic.Tests.Users
             _dlmRepositoryMock
                 .Setup(x => x.Add(1, 7, It.IsAny<LimitationsManager>()))
                 .Returns((LimitationsManager)null);
-            _deviceFamilyManagerMock.Setup(x => x.GetDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
+            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
 
             var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
 
@@ -81,7 +81,7 @@ namespace ApiLogic.Tests.Users
                 .Throws(exception);
             _logMock
                 .Setup(x => x.Error("AddDLM - failed groupId=1, userId=7, exception: Message", exception));
-            _deviceFamilyManagerMock.Setup(x => x.GetDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
+            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
 
             var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
 
@@ -133,7 +133,7 @@ namespace ApiLogic.Tests.Users
                 .Setup(x => x.Update(1, 7, It.IsAny<LimitationsManager>()))
                 .Returns(outLimitationManager);
 
-            _deviceFamilyManagerMock.Setup(x => x.GetDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
+            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
             var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
 
             var result = baseDomain.UpdateDLM(1, 1, 7, inLimitationManager);
@@ -150,7 +150,7 @@ namespace ApiLogic.Tests.Users
                 .Setup(x => x.Update(1, 7, It.IsAny<LimitationsManager>()))
                 .Returns((LimitationsManager)null);
 
-            _deviceFamilyManagerMock.Setup(x => x.GetDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
+            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(FakeDeviceFamilyResponse());
             var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
 
             var result = baseDomain.UpdateDLM(1, 1, 7, FakeLimitationsManager());
@@ -163,13 +163,12 @@ namespace ApiLogic.Tests.Users
         [Test]
         public void UpdateDLM_DlmNotUpdated_ReturnsErrorGenericResponseDeviceFamilies()
         {
-            _deviceFamilyManagerMock.Setup(x => x.GetDeviceFamilyList()).Returns(new DeviceFamilyResponse());
+            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns((List<DeviceFamily>)null);
             var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
 
             var result = baseDomain.UpdateDLM(123, 1, 7, FakeLimitationsManager());
-            var errorMessage = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()).ToString();
             result.Should().NotBeNull();
-            result.resp.Should().Match<Status>(x => x.Code == (int)eResponseStatus.Error && x.Message == $"DLM is not valid, {errorMessage}");
+            result.resp.Should().Match<Status>(x => x.Code == (int)eResponseStatus.Error && x.Message == $"DLM is not valid, can't retrieve device family");
             result.dlm.Should().BeNull();
         }
 
@@ -178,7 +177,7 @@ namespace ApiLogic.Tests.Users
         {
             var baseDomain = new FakeBaseDomain(1, _dlmRepositoryMock.Object, _logMock.Object, _deviceFamilyManagerMock.Object);
 
-            _deviceFamilyManagerMock.Setup(x => x.GetDeviceFamilyList()).Returns(FakeDeviceFamilyResponseDiffIds);
+            _deviceFamilyManagerMock.Setup(x => x.GetAllDeviceFamilyList()).Returns(FakeDeviceFamilyResponseDiffIds);
 
             var result = baseDomain.UpdateDLM(123, 1, 7, FakeLimitationsManager());
             var errorMessage = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString()).ToString();
@@ -243,29 +242,21 @@ namespace ApiLogic.Tests.Users
                 Description = "description"
             };
         }
-        private DeviceFamilyResponse FakeDeviceFamilyResponse()
+        private List<DeviceFamily>  FakeDeviceFamilyResponse()
         {
-            return new DeviceFamilyResponse
+            return new List<DeviceFamily>
             {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.OK),
-                DeviceFamilies = new List<DeviceFamily> 
-                {
-                    new DeviceFamily{ Id = 1 },
-                    new DeviceFamily{ Id = 2 }
-                }
+                new DeviceFamily { Id = 1 },
+                new DeviceFamily { Id = 2 }
             };
         }
 
-        private DeviceFamilyResponse FakeDeviceFamilyResponseDiffIds()
+        private List<DeviceFamily> FakeDeviceFamilyResponseDiffIds()
         {
-            return new DeviceFamilyResponse
+            return new List<DeviceFamily>
             {
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.OK),
-                DeviceFamilies = new List<DeviceFamily>
-                {
-                    new DeviceFamily{ Id = 3 },
-                    new DeviceFamily{ Id = 4 }
-                }
+                new DeviceFamily { Id = 3 },
+                new DeviceFamily { Id = 4 }
             };
         }
     }

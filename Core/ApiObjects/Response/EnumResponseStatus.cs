@@ -318,7 +318,8 @@ namespace ApiObjects.Response
         LabelAlreadyInUse = 4112,
         LabelDoesNotExist = 4113,
         PremiumServiceDoesNotExist = 4114,
-
+        VideoCodecsDoesNotExist = 4115,
+        AudioCodecsDoesNotExist = 4116,
 
         #endregion
 
@@ -394,6 +395,11 @@ namespace ApiObjects.Response
         InputFormatIsInvalid = 5078,
         CanModifyOnlyNormalPermission = 5079,
         CannotAddPermissionTypeGroup = 5080,
+        DeviceBrandIdsDoesNotExist = 5081,
+        SegmentsIdsDoesNotExist = 5082,
+        DeviceManufacturerIdsDoesNotExist = 5083,
+        UserSessionProfileDoesNotExist = 5084,
+        CannotDeleteUserSessionProfile = 5085,
 
         #endregion
 

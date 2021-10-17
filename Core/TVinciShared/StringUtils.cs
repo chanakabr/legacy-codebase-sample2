@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace TVinciShared
 {
@@ -157,5 +159,19 @@ namespace TVinciShared
         }
 
         public static List<T> ThrowIfFailed<T>(this List<T> list, bool failed, Func<Exception> getter) => failed ? throw getter() : list;
+
+        public static bool IsValidRegex(string pattern)
+        {
+            try
+            {
+                new Regex(pattern);
+            }
+            catch (ArgumentException)
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }

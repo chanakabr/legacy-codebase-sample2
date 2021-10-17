@@ -185,7 +185,9 @@ namespace WebAPI.Managers.Models
         GroupMissMatch = 500085,
         KeyCannotBeEmptyOrNull = 500086,
         MissingMandatoryArgumentInProperty = 500087,
-        MaxArguments = 500088,
-        StartDateShouldBeLessThanEndDate = 500089
+        ArgumentMaxItemsCrossed = 500088,
+        StartDateShouldBeLessThanEndDate = 500089,
+        ArgumentMatchPatternCrossed = 500090,
+        ArgumentMinItemsCrossed = 500091,
     }
 }

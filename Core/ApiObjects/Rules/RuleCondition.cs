@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace ApiObjects.Rules
 {
@@ -17,25 +13,11 @@ namespace ApiObjects.Rules
 
         [JsonProperty("Description")]
         public string Description { get; set; }
-
-        public abstract bool Evaluate(IConditionScope scope);
     }
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public abstract class RuleBaseCondition<T> : RuleCondition where T : IConditionScope
-    {
-        public override bool Evaluate(IConditionScope scope)
-        {
-            return DoEvaluate((T)scope);
-        }
-
-        protected abstract bool DoEvaluate(T scope);
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public abstract class NotRuleCondition<T> : RuleBaseCondition<T> where T : IConditionScope
+    public abstract class NotRuleCondition : RuleCondition
     {
         [JsonProperty("Not")]
         public bool Not { get; set; }
@@ -43,13 +25,13 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public abstract class AssetRuleCondition<T> : RuleBaseCondition<T> where T : IConditionScope
+    public abstract class AssetRuleCondition : RuleCondition
     {
     }
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class OrCondition : AssetRuleCondition<IConditionScope>
+    public class OrCondition : AssetRuleCondition
     {
         [JsonProperty("Conditions", ItemTypeNameHandling = TypeNameHandling.All)]
         public List<RuleCondition> Conditions { get; set; }
@@ -61,31 +43,11 @@ namespace ApiObjects.Rules
         {
             Type = RuleConditionType.Or;
         }
-
-        protected override bool DoEvaluate(IConditionScope scope)
-        {
-            bool isOneConditionEvaluate = false;
-            foreach (var condition in Conditions)
-            {
-                if (condition.Evaluate(scope))
-                {
-                    isOneConditionEvaluate = true;
-                    break;
-                }
-            }
-
-            if (Not)
-            {
-                isOneConditionEvaluate = !isOneConditionEvaluate;
-            }
-
-            return isOneConditionEvaluate;
-        }
     }
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class AssetCondition : AssetRuleCondition<IAssetConditionScope>
+    public class AssetCondition : AssetRuleCondition
     {
         [JsonProperty("Ksql")]
         public string Ksql { get; set; }
@@ -94,27 +56,11 @@ namespace ApiObjects.Rules
         {
             Type = RuleConditionType.Asset;
         }
-
-        protected override bool DoEvaluate(IAssetConditionScope scope)
-        {
-            if (scope.MediaId == 0)
-            {
-                return true;
-            }
-
-            var rules = scope.GetBusinessModuleRulesByMediaId(scope.GroupId, scope.MediaId);
-            if (rules != null && rules.FirstOrDefault(r => r.Id == scope.RuleId) != null)
-            {
-                return true;
-            }
-
-            return false;
-        }
     }
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class CountryCondition : AssetRuleCondition<IConditionScope>
+    public class CountryCondition : AssetRuleCondition
     {
         [JsonProperty("Not")]
         public bool Not { get; set; }
@@ -125,11 +71,6 @@ namespace ApiObjects.Rules
         public CountryCondition()
         {
             this.Type = RuleConditionType.Country;
-        }
-
-        protected override bool DoEvaluate(IConditionScope scope)
-        {
-            throw new NotImplementedException();
         }
     }
 
@@ -151,7 +92,7 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class IpRangeCondition : AssetRuleCondition<IIpRangeConditionScope>
+    public class IpRangeCondition : AssetRuleCondition
     {
         [JsonProperty("fromIp")]
         public string FromIp { get; set; }
@@ -169,21 +110,11 @@ namespace ApiObjects.Rules
         {
             this.Type = RuleConditionType.IP_RANGE;
         }
-
-        protected override bool DoEvaluate(IIpRangeConditionScope scope)
-        {
-            if (IpFrom <= scope.Ip && scope.Ip <= IpTo)
-            {
-                return true;
-            }
-
-            return false;
-        }
     }
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class BusinessModuleCondition : RuleBaseCondition<IBusinessModuleConditionScope>
+    public class BusinessModuleCondition : RuleCondition
     {
         [JsonProperty("BusinessModuleId")]
         public long BusinessModuleId { get; set; }
@@ -195,18 +126,11 @@ namespace ApiObjects.Rules
         {
             this.Type = RuleConditionType.BusinessModule;
         }
-
-        protected override bool DoEvaluate(IBusinessModuleConditionScope scope)
-        {
-            return !scope.BusinessModuleType.HasValue ||
-                    (BusinessModuleType == scope.BusinessModuleType.Value && (scope.BusinessModuleId == 0 || BusinessModuleId == 0 || BusinessModuleId == scope.BusinessModuleId));
-
-        }
     }
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class DateCondition : NotRuleCondition<IDateConditionScope>
+    public class DateCondition : NotRuleCondition
     {
         [JsonProperty("StartDate")]
         public long? StartDate { get; set; }
@@ -218,56 +142,11 @@ namespace ApiObjects.Rules
         {
             this.Type = RuleConditionType.Date;
         }
-
-        protected override bool DoEvaluate(IDateConditionScope scope)
-        {
-            if (!scope.FilterByDate)
-            {
-                return true;
-            }
-
-            long now = ODBCWrapper.Utils.GetUtcUnixTimestampNow();
-            bool res = (!StartDate.HasValue || StartDate.Value < now) && (!EndDate.HasValue || now < EndDate.Value);
-            if (Not)
-            {
-                res = !res;
-            }
-
-            return res;
-        }
     }
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class SegmentsCondition : RuleBaseCondition<ISegmentsConditionScope>
-    {
-        [JsonProperty("SegmentIds")]
-        public List<long> SegmentIds { get; set; }
-
-        public SegmentsCondition()
-        {
-            this.Type = RuleConditionType.Segments;
-        }
-
-        protected override bool DoEvaluate(ISegmentsConditionScope scope)
-        {
-            if (!scope.FilterBySegments)
-            {
-                return true;
-            }
-
-            if (scope.SegmentIds != null)
-            {
-                var intersected = SegmentIds.Intersect(scope.SegmentIds);
-                return intersected.Count() == SegmentIds.Count;
-            }
-            return false;
-        }
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class HeaderCondition : AssetRuleCondition<IHeaderConditionScope>
+    public class HeaderCondition : AssetRuleCondition
     {
         [JsonProperty("Not")]
         public bool Not { get; set; }
@@ -282,27 +161,11 @@ namespace ApiObjects.Rules
         {
             this.Type = RuleConditionType.Header;
         }
-
-        protected override bool DoEvaluate(IHeaderConditionScope scope)
-        {
-            bool isInHeaders = false;
-            if (scope.Headers.ContainsKey(Key) && scope.Headers[Key].Equals(Value))
-            {
-                isInHeaders = true;
-            }
-
-            if (Not)
-            {
-                isInHeaders = !isInHeaders;
-            }
-
-            return isInHeaders;
-        }
     }
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public abstract class SubscriptionCondition<T> : RuleBaseCondition<T> where T : IConditionScope
+    public abstract class SubscriptionCondition : RuleCondition
     {
         [JsonProperty("SubscriptionIds")]
         public HashSet<long> SubscriptionIds { get; set; }
@@ -310,41 +173,27 @@ namespace ApiObjects.Rules
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class UserSubscriptionCondition : SubscriptionCondition<IUserSubscriptionConditionScope>
+    public class UserSubscriptionCondition : SubscriptionCondition
     {
         public UserSubscriptionCondition()
         {
             this.Type = RuleConditionType.UserSubscription;
         }
-
-        protected override bool DoEvaluate(IUserSubscriptionConditionScope scope)
-        {
-            if (scope.UserSubscriptions == null) { return true; }
-
-            return scope.UserSubscriptions.Any(x => this.SubscriptionIds.Contains(x));
-        }
     }
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class AssetSubscriptionCondition : SubscriptionCondition<IAssetSubscriptionConditionScope>
+    public class AssetSubscriptionCondition : SubscriptionCondition
     {
         public AssetSubscriptionCondition()
         {
             this.Type = RuleConditionType.AssetSubscription;
         }
-
-        protected override bool DoEvaluate(IAssetSubscriptionConditionScope scope)
-        {
-            if (scope.MediaId == 0) { return true; }
-
-            return scope.IsMediaIncludedInSubscription(scope.GroupId, scope.MediaId, this.SubscriptionIds);
-        }
     }
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class UserRoleCondition : RuleBaseCondition<IUserRoleConditionScope>
+    public class UserRoleCondition : RuleCondition
     {
         [JsonProperty("RoleIds")]
         public HashSet<long> RoleIds { get; set; }
@@ -353,105 +202,17 @@ namespace ApiObjects.Rules
         {
             this.Type = RuleConditionType.UserRole;
         }
-
-        protected override bool DoEvaluate(IUserRoleConditionScope scope)
-        {
-            if (string.IsNullOrEmpty(scope.UserId)) { return true; }
-
-            var userRoleIds = scope.GetUserRoleIds(scope.GroupId, scope.UserId);
-            return userRoleIds != null && userRoleIds.Any(x => RoleIds.Contains(x));
-        }
     }
 
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class DeviceBrandCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    public interface IUdidDynamicListConditionScope : IConditionScope
     {
-        public List<int> IdIn { get; set; }
-
-        public DeviceBrandCondition()
-        {
-            Type = RuleConditionType.DeviceBrand;
-        }
-
-        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
-        {
-            if (!scope.BrandId.HasValue) { return true; }
-
-            var isExist = this.IdIn.Contains(scope.BrandId.Value);
-            return isExist;
-        }
+        string Udid { get; set; }
+        bool CheckDynamicList(long id);
     }
 
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class DeviceFamilyCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
-    {
-        public List<int> IdIn { get; set; }
-
-        public DeviceFamilyCondition()
-        {
-            Type = RuleConditionType.DeviceFamily;
-        }
-
-        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
-        {
-            if (!scope.FamilyId.HasValue) { return true; }
-
-            var isExist = this.IdIn.Contains(scope.FamilyId.Value);
-            return isExist;
-        }
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class DeviceManufacturerCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
-    {
-        public List<long> IdIn { get; set; }
-
-        public DeviceManufacturerCondition()
-        {
-            Type = RuleConditionType.DeviceManufacturer;
-        }
-
-        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
-        {
-            if (!scope.ManufacturerId.HasValue) { return true; }
-
-            var isExist = this.IdIn.Contains(scope.ManufacturerId.Value);
-            return isExist;
-        }
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class DeviceModelCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
-    {
-        public string RegexEqual { get; set; }
-
-        public DeviceModelCondition()
-        {
-            Type = RuleConditionType.DeviceModel;
-        }
-
-        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
-        {
-            if (string.IsNullOrEmpty(scope.Model)) { return true; }
-
-            try
-            {
-                return Regex.IsMatch(scope.Model, RegexEqual, RegexOptions.IgnoreCase);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-    }
-
-    [Serializable]
-    [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
-    public class UdidDynamicListCondition : RuleBaseCondition<ITriggerCampaignConditionScope>
+    public class UdidDynamicListCondition : RuleCondition
     {
         public long Id { get; set; }
 
@@ -459,13 +220,21 @@ namespace ApiObjects.Rules
         {
             Type = RuleConditionType.DeviceUdidDynamicList;
         }
+    }
+    
+    [Serializable]
+    public class UserSessionProfileCondition : RuleCondition
+    {
+        public long Id { get; set; }
 
-        protected override bool DoEvaluate(ITriggerCampaignConditionScope scope)
+        public UserSessionProfileCondition()
         {
-            if (string.IsNullOrEmpty(scope.Udid)) { return true; }
-            
-            var isExist = scope.CheckDynamicList(this.Id);
-            return isExist;
+            Type = RuleConditionType.UserSessionProfile;
         }
+    }
+    
+    public interface IUserSessionProfileConditionScope : IConditionScope
+    {
+        IReadOnlyCollection<long> UserSessionProfileIds { get; }
     }
 }

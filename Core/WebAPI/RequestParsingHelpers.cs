@@ -96,7 +96,7 @@ namespace WebAPI
                             }
                         }
 
-                        KalturaOTTObject res = Deserializer.deserialize(methodArg.Type, param);
+                        var res = Deserializer.deserialize(methodArg.Type, param);
 
                         string service = Convert.ToString(HttpContext.Current.Items[RequestContextConstants.REQUEST_SERVICE]);
                         string action = Convert.ToString(HttpContext.Current.Items[RequestContextConstants.REQUEST_ACTION]);

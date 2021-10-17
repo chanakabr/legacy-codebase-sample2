@@ -153,7 +153,7 @@ namespace APILogic.Api.Managers
             return response;
         }
 
-        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, ConditionScope filter, RuleActionType? ruleActionType = null, int pageIndex = 0, int pageSize = 0)
+        internal static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, BusinessModuleRuleConditionScope filter, RuleActionType? ruleActionType = null, int pageIndex = 0, int pageSize = 0)
         {
             GenericListResponse<BusinessModuleRule> response = new GenericListResponse<BusinessModuleRule>();
 
@@ -163,14 +163,7 @@ namespace APILogic.Api.Managers
 
                 if (allBusinessModuleRules != null && allBusinessModuleRules.Count > 0)
                 {
-                    log.DebugFormat("GetBusinessModuleRules filter properties - BusinessModuleId: {0}, BusinessModuleType: {1}, FilterByDate: {2}, FilterBySegments: {3}, SegmentIds: {4}, MediaId: {5}, GroupId: {6}",
-                                    filter.BusinessModuleId,
-                                    filter.BusinessModuleType.HasValue ? filter.BusinessModuleType.Value.ToString() : "null",
-                                    filter.FilterByDate,
-                                    filter.FilterBySegments,
-                                    filter.SegmentIds != null ? string.Join(", ", filter.SegmentIds) : "null",
-                                    filter.MediaId,
-                                    filter.GroupId);
+                    log.DebugFormat("GetBusinessModuleRules filter properties - ", filter.ToString());
 
                     foreach (var rule in allBusinessModuleRules)
                     {

@@ -1,9 +1,10 @@
-﻿using System;
-using ApiLogic.Users.Services;
+﻿using ApiLogic.Users.Services;
 using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.User;
 using KalturaRequestContext;
+using ObjectsConvertor.Mapping;
+using System;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -467,6 +468,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">pin code</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <param name="udid">Device UDID</param>
+        /// <param name="extraParams">extra params</param>
         [Action("loginWithPin")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [Throws(eResponseStatus.UserNotInDomain)]
@@ -483,7 +485,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotInDomain)]
         [Throws(eResponseStatus.DomainNotExists)]
         [Throws(eResponseStatus.MasterUserNotFound)]
-        static public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null)
+        static public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null, SerializableDictionary<string, KalturaStringValue> extraParams = null)
         {
             KalturaOTTUser response = null;
 
@@ -499,7 +501,8 @@ namespace WebAPI.Controllers
 
             return new KalturaLoginResponse()
             {
-                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, response.getHouseholdID(), udid, response.GetRoleIds()),
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, response.getHouseholdID(), 
+                    udid, response.GetRoleIds()),
                 User = response
             };
         }

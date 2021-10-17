@@ -4,6 +4,7 @@ using ApiObjects.Base;
 using ApiObjects.Response;
 using ApiObjects.Rules;
 using AutoFixture;
+using AutoFixture.Kernel;
 using CachingProvider.LayeredCache;
 using Core.Catalog.CatalogManagement;
 using Core.Pricing;
@@ -66,8 +67,9 @@ namespace ApiLogic.Tests.Users.Managers
         private static IEnumerable SetStateTriggerTestCases()
         {
             var fixture = new Fixture();
+            fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
+
             var date = DateUtils.GetUtcUnixTimestampNow() + 900000;
-            fixture.Register<RuleCondition>(() => null);
             var contextData = fixture.Create<ContextData>();
 
             TriggerCampaign campaign = fixture.Create<TriggerCampaign>();
@@ -105,8 +107,9 @@ namespace ApiLogic.Tests.Users.Managers
         private static IEnumerable SetStateBatchTestCases()
         {
             var fixture = new Fixture();
+            fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
+
             var date = DateUtils.GetUtcUnixTimestampNow() + 900000;
-            fixture.Register<RuleCondition>(() => null);
             var contextData = fixture.Create<ContextData>();
 
             BatchCampaign campaign = fixture.Create<BatchCampaign>();
@@ -144,8 +147,9 @@ namespace ApiLogic.Tests.Users.Managers
         private static IEnumerable SetStateTriggerErrorsTestCases()
         {
             var fixture = new Fixture();
+            fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
+
             var date = DateUtils.GetUtcUnixTimestampNow() + 900000;
-            fixture.Register<RuleCondition>(() => null);
             var contextData = fixture.Create<ContextData>();
 
             long id = 777;
@@ -276,8 +280,9 @@ namespace ApiLogic.Tests.Users.Managers
         private static IEnumerable SetStateBatchErrorsTestCases()
         {
             var fixture = new Fixture();
+            fixture.Customizations.Add(new TypeRelay(typeof(RuleCondition), typeof(SegmentsCondition)));
+
             var date = DateUtils.GetUtcUnixTimestampNow() + 900000;
-            fixture.Register<RuleCondition>(() => null);
             var contextData = fixture.Create<ContextData>();
 
             BatchCampaign campaign2 = fixture.Create<BatchCampaign>();

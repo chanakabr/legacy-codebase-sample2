@@ -3872,7 +3872,7 @@ namespace WebAPI.Clients
             KalturaSegmentationTypeListResponse result = new KalturaSegmentationTypeListResponse();
 
             Func<GenericListResponse<SegmentationType>> getListSegmentationTypesFunc = () =>
-               Core.Api.Module.ListSegmentationTypes(groupId, ids, pageIndex, pageSize, assetSearchDefinition);
+               Core.Api.Module.Instance.ListSegmentationTypes(groupId, ids, pageIndex, pageSize, assetSearchDefinition);
 
             KalturaGenericListResponse<KalturaSegmentationType> response =
                 ClientUtils.GetResponseListFromWS<KalturaSegmentationType, SegmentationType>(getListSegmentationTypesFunc);
@@ -3937,7 +3937,7 @@ namespace WebAPI.Clients
             KalturaBusinessModuleRuleListResponse result = new KalturaBusinessModuleRuleListResponse();
 
             var ruleActionType = filter.ActionsContainType.HasValue ? Mapper.Map<RuleActionType?>(filter.ActionsContainType.Value) : null;
-            var conditionScopeFilter = AutoMapper.Mapper.Map<APILogic.ConditionalAccess.ConditionScope>(filter);
+            var conditionScopeFilter = Mapper.Map<BusinessModuleRuleConditionScope>(filter);
 
             Func<GenericListResponse<BusinessModuleRule>> getBusinessModuleRulesFunc = () =>
                Core.Api.Module.GetBusinessModuleRules(groupId, conditionScopeFilter, ruleActionType);

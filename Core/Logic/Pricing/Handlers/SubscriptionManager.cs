@@ -43,7 +43,7 @@ namespace ApiLogic.Pricing.Handlers
         private readonly IModuleManagerRepository _moduleManagerRepository;
         private readonly IChannelRepository _channelRepository;
         private readonly IPricingModule _pricingModule;
-        private readonly IFileManager _fileManager;
+        private readonly IMediaFileTypeManager _fileManager;
         private readonly IDomainModule _domainModule;
         private readonly IPricePlanManager _pricePlanManager;
         private readonly IVirtualAssetManager _virtualAssetManager;
@@ -54,7 +54,7 @@ namespace ApiLogic.Pricing.Handlers
                                 IModuleManagerRepository moduleManagerRepository,
                                 IChannelRepository channelRepository,
                                 IPricingModule pricingModule,
-                                IFileManager fileManager,
+                                IMediaFileTypeManager fileManager,
                                 IDomainModule domainModule,
                                 IPricePlanManager pricePlanManager,
                                 IVirtualAssetManager virtualAssetManager,

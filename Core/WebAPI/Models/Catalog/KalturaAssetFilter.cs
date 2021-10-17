@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using ApiLogic.Api.Managers.Rule;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
@@ -54,7 +55,7 @@ namespace WebAPI.Models.Catalog
                 Language = contextData.Language,
                 PageIndex = pager.getPageIndex(),
                 PageSize = pager.PageSize,
-                Filter = null,
+                Filter = FilterAsset.Instance.UpdateKsql(null, contextData.GroupId, contextData.SessionCharacteristicKey),
                 AssetTypes = null,
                 EpgChannelIds = null,
                 ManagementData = contextData.ManagementData,

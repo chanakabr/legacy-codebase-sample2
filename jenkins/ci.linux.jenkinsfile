@@ -29,9 +29,21 @@ pipeline {
                     currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}" }
             }
         }
-        stage('Test'){
-            steps{
+        stage('Test')
+        {
+            steps
+            {
                 runTests()
+            }
+            post
+            {
+                failure
+                {
+                    script
+                    {
+                        sh "exit 1"
+                    }
+                }
             }
         }
         stage ('ECR Login') {
@@ -45,7 +57,7 @@ pipeline {
                 buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
                 buildDockerAndPushToEcr("wsingest","WSIngest.Dockerfile")
                 buildDockerAndPushToEcr("ingesthandlers","IngestHandlers.Dockerfile")
-				buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
+		buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
             }
         }
         stage("Trigger Release Candidate"){
@@ -105,11 +117,16 @@ def runTestInDocker(testProjects){
     testProjects.each { project -> 
         // ott-lib-jenkins
         withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "mcr.microsoft.com/dotnet/core/sdk:3.1-alpine", project) {
-            sh("dotnet test ${project} --logger \"junit;LogFilePath=./test-results.xml\" || true")
-
-            junit "**/test-results.xml"
-            if (currentBuild.result == 'UNSTABLE') {
-                error "Tests are failed, check tab Tests/Test Result..."
+            def buildStatus = sh ( script: "dotnet build ${project}", returnStatus: true)
+            if(buildStatus != 0) {
+                echo "Project ${project} failed to build"
+                currentBuild.result = 'FAILURE'
+            } else {
+                sh("dotnet test ${project} --no-build --logger \"junit;LogFilePath=./test-results.xml\" || true")
+                junit "**/test-results.xml"
+                if (currentBuild.result == 'UNSTABLE') {
+                    error "Tests are failed, check tab Tests/Test Result..."
+                }
             }
         }
     }

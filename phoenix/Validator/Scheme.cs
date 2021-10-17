@@ -324,6 +324,7 @@ namespace Validator.Managers.Scheme
                         LoadType(subClass);
 
                     LoadTypeProperties(type);
+                    return;
                 }
                 return;
             }
@@ -485,8 +486,11 @@ namespace Validator.Managers.Scheme
             foreach (Type type in types)
             {
                 if (!SchemeManager.Validate(type, true, assemblyXml) || type.Name == "KalturaListResponseT" || type.Name == "KalturaFilterT")
+                {
+                    Console.WriteLine($"Info: type {type.Name} is not valid and will not consider as class");
                     continue;
-                
+                }
+                    
                 WriteClass(GetClassDetails(type));
             }
             writer.WriteEndElement(); // classes
@@ -808,6 +812,12 @@ namespace Validator.Managers.Scheme
                 else if (propertyDetails.SchemeProperty.MinFloat < float.MinValue)
                     writer.WriteAttributeString("minValue", propertyDetails.SchemeProperty.MinFloat.ToString());
 
+                if (propertyDetails.SchemeProperty.Pattern != null)
+                    writer.WriteAttributeString("pattern", propertyDetails.SchemeProperty.Pattern);
+                if (propertyDetails.SchemeProperty.MinItems >= 0)
+                    writer.WriteAttributeString("minItems", propertyDetails.SchemeProperty.MinItems.ToString());
+                if (propertyDetails.SchemeProperty.MaxItems >= 0)
+                    writer.WriteAttributeString("maxItems", propertyDetails.SchemeProperty.MaxItems.ToString());
             }
             writer.WriteEndElement(); // property
         }

@@ -43,99 +43,103 @@ namespace SoapAdaptersCommon.GrpcAdapters {
             "ASgIEjkKDEN1c3RvbVBhcmFtcxgMIAMoCzIjLlByZVNpZ25JblJlcXVlc3Qu",
             "Q3VzdG9tUGFyYW1zRW50cnkSEQoJU2lnbmF0dXJlGA0gASgJGjMKEUN1c3Rv",
             "bVBhcmFtc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEi",
-            "kAIKEVByZVNpZ25JblJlc3BvbnNlEi0KEUFkYXB0ZXJTdGF0dXNDb2RlGAEg",
-            "ASgOMhIuQWRhcHRlclN0YXR1c0NvZGUSDgoGVXNlcklkGAIgASgFEhAKCFVz",
-            "ZXJuYW1lGAMgASgJEhAKCFBhc3N3b3JkGAQgASgJEjYKClByaXZpbGlnZXMY",
-            "BSADKAsyIi5QcmVTaWduSW5SZXNwb25zZS5Qcml2aWxpZ2VzRW50cnkSLQoR",
-            "U1NPUmVzcG9uc2VTdGF0dXMYCSABKAsyEi5TU09SZXNwb25zZVN0YXR1cxox",
-            "Cg9Qcml2aWxpZ2VzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJ",
-            "OgI4ASK/AQoRUG9zdFNpZ25JblJlcXVlc3QSEQoJQWRhcHRlcklkGAEgASgF",
-            "EhMKBFVzZXIYAiABKAsyBS5Vc2VyEjoKDEN1c3RvbVBhcmFtcxgDIAMoCzIk",
-            "LlBvc3RTaWduSW5SZXF1ZXN0LkN1c3RvbVBhcmFtc0VudHJ5EhEKCVNpZ25h",
-            "dHVyZRgEIAEoCRozChFDdXN0b21QYXJhbXNFbnRyeRILCgNrZXkYASABKAkS",
-            "DQoFdmFsdWUYAiABKAk6AjgBIoEBCgxVc2VyUmVzcG9uc2USLQoRQWRhcHRl",
-            "clN0YXR1c0NvZGUYASABKA4yEi5BZGFwdGVyU3RhdHVzQ29kZRITCgRVc2Vy",
-            "GAIgASgLMgUuVXNlchItChFTU09SZXNwb25zZVN0YXR1cxgDIAEoCzISLlNT",
-            "T1Jlc3BvbnNlU3RhdHVzIuABChFQcmVTaWduT3V0UmVxdWVzdBIRCglBZGFw",
-            "dGVySWQYASABKAUSEgoKRGV2aWNlVWRpZBgCIAEoCRITCgtIb3VzZWhvbGRJ",
-            "ZBgDIAEoBRIOCgZVc2VySWQYBCABKAUSEQoJU2lnbmF0dXJlGAUgASgJEjgK",
-            "C0FkYXB0ZXJEYXRhGAYgAygLMiMuUHJlU2lnbk91dFJlcXVlc3QuQWRhcHRl",
+            "HQoMTGlzdE9mU3RyaW5nEg0KBXZhbHVlGAEgAygJIq4DChFQcmVTaWduSW5S",
+            "ZXNwb25zZRItChFBZGFwdGVyU3RhdHVzQ29kZRgBIAEoDjISLkFkYXB0ZXJT",
+            "dGF0dXNDb2RlEg4KBlVzZXJJZBgCIAEoBRIQCghVc2VybmFtZRgDIAEoCRIQ",
+            "CghQYXNzd29yZBgEIAEoCRI2CgpQcml2aWxpZ2VzGAUgAygLMiIuUHJlU2ln",
+            "bkluUmVzcG9uc2UuUHJpdmlsaWdlc0VudHJ5Ei0KEVNTT1Jlc3BvbnNlU3Rh",
+            "dHVzGAkgASgLMhIuU1NPUmVzcG9uc2VTdGF0dXMSTgoWU2Vzc2lvbkNoYXJh",
+            "Y3RlcmlzdGljcxgKIAMoCzIuLlByZVNpZ25JblJlc3BvbnNlLlNlc3Npb25D",
+            "aGFyYWN0ZXJpc3RpY3NFbnRyeRoxCg9Qcml2aWxpZ2VzRW50cnkSCwoDa2V5",
+            "GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ARpMChtTZXNzaW9uQ2hhcmFjdGVy",
+            "aXN0aWNzRW50cnkSCwoDa2V5GAEgASgJEhwKBXZhbHVlGAIgASgLMg0uTGlz",
+            "dE9mU3RyaW5nOgI4ASK/AQoRUG9zdFNpZ25JblJlcXVlc3QSEQoJQWRhcHRl",
+            "cklkGAEgASgFEhMKBFVzZXIYAiABKAsyBS5Vc2VyEjoKDEN1c3RvbVBhcmFt",
+            "cxgDIAMoCzIkLlBvc3RTaWduSW5SZXF1ZXN0LkN1c3RvbVBhcmFtc0VudHJ5",
+            "EhEKCVNpZ25hdHVyZRgEIAEoCRozChFDdXN0b21QYXJhbXNFbnRyeRILCgNr",
+            "ZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIoEBCgxVc2VyUmVzcG9uc2US",
+            "LQoRQWRhcHRlclN0YXR1c0NvZGUYASABKA4yEi5BZGFwdGVyU3RhdHVzQ29k",
+            "ZRITCgRVc2VyGAIgASgLMgUuVXNlchItChFTU09SZXNwb25zZVN0YXR1cxgD",
+            "IAEoCzISLlNTT1Jlc3BvbnNlU3RhdHVzIuABChFQcmVTaWduT3V0UmVxdWVz",
+            "dBIRCglBZGFwdGVySWQYASABKAUSEgoKRGV2aWNlVWRpZBgCIAEoCRITCgtI",
+            "b3VzZWhvbGRJZBgDIAEoBRIOCgZVc2VySWQYBCABKAUSEQoJU2lnbmF0dXJl",
+            "GAUgASgJEjgKC0FkYXB0ZXJEYXRhGAYgAygLMiMuUHJlU2lnbk91dFJlcXVl",
+            "c3QuQWRhcHRlckRhdGFFbnRyeRoyChBBZGFwdGVyRGF0YUVudHJ5EgsKA2tl",
+            "eRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEihAIKElBvc3RTaWduT3V0UmVx",
+            "dWVzdBIRCglBZGFwdGVySWQYASABKAUSIAoRQXV0aGVudGljYXRlZFVzZXIY",
+            "AiABKAsyBS5Vc2VyEhIKCkRldmljZVVkaWQYAyABKAkSEwoLSG91c2Vob2xk",
+            "SWQYBCABKAUSDgoGVXNlcklkGAUgASgFEhEKCVNpZ25hdHVyZRgGIAEoCRI5",
+            "CgtBZGFwdGVyRGF0YRgHIAMoCzIkLlBvc3RTaWduT3V0UmVxdWVzdC5BZGFw",
+            "dGVyRGF0YUVudHJ5GjIKEEFkYXB0ZXJEYXRhRW50cnkSCwoDa2V5GAEgASgJ",
+            "Eg0KBXZhbHVlGAIgASgJOgI4ASLNAQoWUG9zdEdldFVzZXJEYXRhUmVxdWVz",
+            "dBIRCglBZGFwdGVySWQYASABKAUSFwoIVXNlckRhdGEYAiABKAsyBS5Vc2Vy",
+            "Ej8KDEN1c3RvbVBhcmFtcxgDIAMoCzIpLlBvc3RHZXRVc2VyRGF0YVJlcXVl",
+            "c3QuQ3VzdG9tUGFyYW1zRW50cnkSEQoJU2lnbmF0dXJlGAQgASgJGjMKEUN1",
+            "c3RvbVBhcmFtc0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToC",
+            "OAEi1QEKFVByZUdldFVzZXJEYXRhUmVxdWVzdBIRCglBZGFwdGVySWQYASAB",
+            "KAUSDgoGVXNlcklkGAIgASgFEhEKCUlwQWRkcmVzcxgDIAEoCRI+CgxDdXN0",
+            "b21QYXJhbXMYBCADKAsyKC5QcmVHZXRVc2VyRGF0YVJlcXVlc3QuQ3VzdG9t",
+            "UGFyYW1zRW50cnkSEQoJU2lnbmF0dXJlGAUgASgJGjMKEUN1c3RvbVBhcmFt",
+            "c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEinAEKDUlu",
+            "dm9rZVJlcXVlc3QSEQoJQWRhcHRlcklkGAEgASgFEg4KBkludGVudBgCIAEo",
+            "CRI0CgtBZGFwdGVyRGF0YRgDIAMoCzIfLkludm9rZVJlcXVlc3QuQWRhcHRl",
             "ckRhdGFFbnRyeRoyChBBZGFwdGVyRGF0YUVudHJ5EgsKA2tleRgBIAEoCRIN",
-            "CgV2YWx1ZRgCIAEoCToCOAEihAIKElBvc3RTaWduT3V0UmVxdWVzdBIRCglB",
-            "ZGFwdGVySWQYASABKAUSIAoRQXV0aGVudGljYXRlZFVzZXIYAiABKAsyBS5V",
-            "c2VyEhIKCkRldmljZVVkaWQYAyABKAkSEwoLSG91c2Vob2xkSWQYBCABKAUS",
-            "DgoGVXNlcklkGAUgASgFEhEKCVNpZ25hdHVyZRgGIAEoCRI5CgtBZGFwdGVy",
-            "RGF0YRgHIAMoCzIkLlBvc3RTaWduT3V0UmVxdWVzdC5BZGFwdGVyRGF0YUVu",
-            "dHJ5GjIKEEFkYXB0ZXJEYXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVl",
-            "GAIgASgJOgI4ASLNAQoWUG9zdEdldFVzZXJEYXRhUmVxdWVzdBIRCglBZGFw",
-            "dGVySWQYASABKAUSFwoIVXNlckRhdGEYAiABKAsyBS5Vc2VyEj8KDEN1c3Rv",
-            "bVBhcmFtcxgDIAMoCzIpLlBvc3RHZXRVc2VyRGF0YVJlcXVlc3QuQ3VzdG9t",
-            "UGFyYW1zRW50cnkSEQoJU2lnbmF0dXJlGAQgASgJGjMKEUN1c3RvbVBhcmFt",
-            "c0VudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEi1QEKFVBy",
-            "ZUdldFVzZXJEYXRhUmVxdWVzdBIRCglBZGFwdGVySWQYASABKAUSDgoGVXNl",
-            "cklkGAIgASgFEhEKCUlwQWRkcmVzcxgDIAEoCRI+CgxDdXN0b21QYXJhbXMY",
-            "BCADKAsyKC5QcmVHZXRVc2VyRGF0YVJlcXVlc3QuQ3VzdG9tUGFyYW1zRW50",
-            "cnkSEQoJU2lnbmF0dXJlGAUgASgJGjMKEUN1c3RvbVBhcmFtc0VudHJ5EgsK",
-            "A2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEinAEKDUludm9rZVJlcXVl",
-            "c3QSEQoJQWRhcHRlcklkGAEgASgFEg4KBkludGVudBgCIAEoCRI0CgtBZGFw",
-            "dGVyRGF0YRgDIAMoCzIfLkludm9rZVJlcXVlc3QuQWRhcHRlckRhdGFFbnRy",
-            "eRoyChBBZGFwdGVyRGF0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgC",
-            "IAEoCToCOAEi4AEKDkludm9rZVJlc3BvbnNlEhUKDUFkYXB0ZXJTdGF0dXMY",
-            "ASABKAUSLQoRU1NPUmVzcG9uc2VTdGF0dXMYAiABKAsyEi5TU09SZXNwb25z",
-            "ZVN0YXR1cxI1CgtBZGFwdGVyRGF0YRgDIAMoCzIgLkludm9rZVJlc3BvbnNl",
-            "LkFkYXB0ZXJEYXRhRW50cnkSDAoEQ29kZRgEIAEoCRIPCgdNZXNzYWdlGAUg",
-            "ASgJGjIKEEFkYXB0ZXJEYXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVl",
-            "GAIgASgJOgI4ASKnBAoEVXNlchItCgxDdXN0b21QYXJhbXMYASADKAsyFy5V",
-            "c2VyLkN1c3RvbVBhcmFtc0VudHJ5EigKEUlzSG91c2Vob2xkTWFzdGVyGAIg",
-            "ASgLMg0uTnVsbGFibGVCb29sEisKC0R5bmFtaWNEYXRhGAMgAygLMhYuVXNl",
-            "ci5EeW5hbWljRGF0YUVudHJ5EhsKCFVzZXJUeXBlGAQgASgLMgkuVXNlclR5",
-            "cGUSEgoKRXh0ZXJuYWxJZBgFIAEoCRINCgVQaG9uZRgGIAEoCRILCgNaaXAY",
-            "ByABKAkSIQoJQ291bnRyeUlkGAggASgLMg4uTnVsbGFibGVJbnQzMhIMCgRD",
-            "aXR5GAkgASgJEg8KB0FkZHJlc3MYCiABKAkSDQoFRW1haWwYCyABKAkSIwoL",
-            "SG91c2Vob2xkSUQYDCABKAsyDi5OdWxsYWJsZUludDMyEhAKCExhc3ROYW1l",
-            "GA0gASgJEhEKCUZpcnN0TmFtZRgOIAEoCRIQCghVc2VybmFtZRgPIAEoCRIK",
-            "CgJJZBgQIAEoBRIXCg9TdXNwZW5zaW9uU3RhdGUYESABKAUSEQoJVXNlclN0",
-            "YXRlGBIgASgFGjMKEUN1c3RvbVBhcmFtc0VudHJ5EgsKA2tleRgBIAEoCRIN",
-            "CgV2YWx1ZRgCIAEoCToCOAEaMgoQRHluYW1pY0RhdGFFbnRyeRILCgNrZXkY",
-            "ASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIisKCFVzZXJUeXBlEgoKAklkGAEg",
-            "ASgFEhMKC0Rlc2NyaXB0aW9uGAIgASgJIpQGChFTU09SZXNwb25zZVN0YXR1",
-            "cxI8CgpTdGF0dXNDb2RlGAEgASgOMiguU1NPUmVzcG9uc2VTdGF0dXMuU1NP",
-            "VXNlclJlc3BvbnNlU3RhdHVzEhQKDEV4dGVybmFsQ29kZRgCIAEoBRIXCg9F",
-            "eHRlcm5hbE1lc3NhZ2UYAyABKAkikQUKFVNTT1VzZXJSZXNwb25zZVN0YXR1",
-            "cxIGCgJPSxAAEg4KClVzZXJFeGlzdHMQARIUChBVc2VyRG9lc05vdEV4aXN0",
-            "EAISGwoXV3JvbmdQYXNzd29yZE9yVXNlck5hbWUQAxISCg5JbnNpZGVMb2Nr",
-            "VGltZRAEEhUKEU5vdEltcGxlbWVudGVkWWV0EAUSFAoQVXNlck5vdEFjdGl2",
-            "YXRlZBAGEhcKE1VzZXJBbHJlYWR5TG9nZ2VkSW4QBxITCg9Vc2VyRG91Ymxl",
-            "TG9nSW4QCBIUChBTZXNzaW9uTG9nZ2VkT3V0EAkSFwoTRGV2aWNlTm90UmVn",
-            "aXN0ZXJlZBAKEhYKEkVycm9yT25TZW5kaW5nTWFpbBALEhoKFlVzZXJFbWFp",
-            "bEFscmVhZHlFeGlzdHMQDBIbChdFcnJvck9uVXBkYXRpbmdVc2VyVHlwZRAN",
-            "EhQKEFVzZXJUeXBlTm90RXhpc3QQDhIZChVVc2VyTm90TWFzdGVyQXBwcm92",
-            "ZWQQDxITCg9FcnJvck9uSW5pdFVzZXIQEBITCg9FcnJvck9uU2F2ZVVzZXIQ",
-            "ERIUChBVc2VyTm90SW5kRG9tYWluEBISEQoNVG9rZW5Ob3RGb3VuZBATEh0K",
-            "GVVzZXJBbHJlYWR5TWFzdGVyQXBwcm92ZWQQFBIUChBVc2VyV2l0aE5vRG9t",
-            "YWluEBUSEwoPTG9naW5TZXJ2ZXJEb3duEBYSEQoNVXNlclN1c3BlbmRlZBAX",
-            "EhkKFVVzZXJDcmVhdGVkV2l0aE5vUm9sZRAYEhsKF0V4dGVybmFsSWRBbHJl",
-            "YWR5RXhpc3RzEBkSEQoNRXh0ZXJuYWxFcnJvchAaEhIKDUludGVybmFsRXJy",
-            "b3IQ5wciHQoMTnVsbGFibGVCb29sEg0KBVZhbHVlGAEgASgIIh4KDU51bGxh",
-            "YmxlSW50MzISDQoFVmFsdWUYASABKAUqVwoRQWRhcHRlclN0YXR1c0NvZGUS",
-            "BgoCT0sQABIJCgVFcnJvchABEhUKEVNpZ25hdHVyZU1pc21hdGNoEAISGAoU",
-            "Tm9Db25maWd1cmF0aW9uRm91bmQQAyqBAQoKU1NPTWV0aG9kcxINCglQcmVT",
-            "aWduSW4QABIOCgpQb3N0U2lnbkluEAESEgoOUHJlR2V0VXNlckRhdGEQAhIT",
-            "Cg9Qb3N0R2V0VXNlckRhdGEQAxIOCgpQcmVTaWduT3V0EAQSDwoLUG9zdFNp",
-            "Z25PdXQQBRIKCgZJbnZva2UQBjKKBAoOU1NPQWRhcHRlckdSUEMSRwoQU2V0",
-            "Q29uZmlndXJhdGlvbhIYLlNldENvbmZpZ3VyYXRpb25SZXF1ZXN0GhkuU2V0",
-            "Q29uZmlndXJhdGlvblJlc3BvbnNlEkcKEEdldENvbmZpZ3VyYXRpb24SGC5H",
-            "ZXRDb25maWd1cmF0aW9uUmVxdWVzdBoZLkdldENvbmZpZ3VyYXRpb25SZXNw",
-            "b25zZRIyCglQcmVTaWduSW4SES5QcmVTaWduSW5SZXF1ZXN0GhIuUHJlU2ln",
-            "bkluUmVzcG9uc2USLwoKUG9zdFNpZ25JbhISLlBvc3RTaWduSW5SZXF1ZXN0",
-            "Gg0uVXNlclJlc3BvbnNlEi8KClByZVNpZ25PdXQSEi5QcmVTaWduT3V0UmVx",
-            "dWVzdBoNLlVzZXJSZXNwb25zZRIxCgtQb3N0U2lnbk91dBITLlBvc3RTaWdu",
-            "T3V0UmVxdWVzdBoNLlVzZXJSZXNwb25zZRI3Cg5QcmVHZXRVc2VyRGF0YRIW",
-            "LlByZUdldFVzZXJEYXRhUmVxdWVzdBoNLlVzZXJSZXNwb25zZRI5Cg9Qb3N0",
-            "R2V0VXNlckRhdGESFy5Qb3N0R2V0VXNlckRhdGFSZXF1ZXN0Gg0uVXNlclJl",
-            "c3BvbnNlEikKBkludm9rZRIOLkludm9rZVJlcXVlc3QaDy5JbnZva2VSZXNw",
-            "b25zZUIiqgIfU29hcEFkYXB0ZXJzQ29tbW9uLkdycGNBZGFwdGVyc2IGcHJv",
-            "dG8z"));
+            "CgV2YWx1ZRgCIAEoCToCOAEi4AEKDkludm9rZVJlc3BvbnNlEhUKDUFkYXB0",
+            "ZXJTdGF0dXMYASABKAUSLQoRU1NPUmVzcG9uc2VTdGF0dXMYAiABKAsyEi5T",
+            "U09SZXNwb25zZVN0YXR1cxI1CgtBZGFwdGVyRGF0YRgDIAMoCzIgLkludm9r",
+            "ZVJlc3BvbnNlLkFkYXB0ZXJEYXRhRW50cnkSDAoEQ29kZRgEIAEoCRIPCgdN",
+            "ZXNzYWdlGAUgASgJGjIKEEFkYXB0ZXJEYXRhRW50cnkSCwoDa2V5GAEgASgJ",
+            "Eg0KBXZhbHVlGAIgASgJOgI4ASKnBAoEVXNlchItCgxDdXN0b21QYXJhbXMY",
+            "ASADKAsyFy5Vc2VyLkN1c3RvbVBhcmFtc0VudHJ5EigKEUlzSG91c2Vob2xk",
+            "TWFzdGVyGAIgASgLMg0uTnVsbGFibGVCb29sEisKC0R5bmFtaWNEYXRhGAMg",
+            "AygLMhYuVXNlci5EeW5hbWljRGF0YUVudHJ5EhsKCFVzZXJUeXBlGAQgASgL",
+            "MgkuVXNlclR5cGUSEgoKRXh0ZXJuYWxJZBgFIAEoCRINCgVQaG9uZRgGIAEo",
+            "CRILCgNaaXAYByABKAkSIQoJQ291bnRyeUlkGAggASgLMg4uTnVsbGFibGVJ",
+            "bnQzMhIMCgRDaXR5GAkgASgJEg8KB0FkZHJlc3MYCiABKAkSDQoFRW1haWwY",
+            "CyABKAkSIwoLSG91c2Vob2xkSUQYDCABKAsyDi5OdWxsYWJsZUludDMyEhAK",
+            "CExhc3ROYW1lGA0gASgJEhEKCUZpcnN0TmFtZRgOIAEoCRIQCghVc2VybmFt",
+            "ZRgPIAEoCRIKCgJJZBgQIAEoBRIXCg9TdXNwZW5zaW9uU3RhdGUYESABKAUS",
+            "EQoJVXNlclN0YXRlGBIgASgFGjMKEUN1c3RvbVBhcmFtc0VudHJ5EgsKA2tl",
+            "eRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEaMgoQRHluYW1pY0RhdGFFbnRy",
+            "eRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIisKCFVzZXJUeXBl",
+            "EgoKAklkGAEgASgFEhMKC0Rlc2NyaXB0aW9uGAIgASgJIpQGChFTU09SZXNw",
+            "b25zZVN0YXR1cxI8CgpTdGF0dXNDb2RlGAEgASgOMiguU1NPUmVzcG9uc2VT",
+            "dGF0dXMuU1NPVXNlclJlc3BvbnNlU3RhdHVzEhQKDEV4dGVybmFsQ29kZRgC",
+            "IAEoBRIXCg9FeHRlcm5hbE1lc3NhZ2UYAyABKAkikQUKFVNTT1VzZXJSZXNw",
+            "b25zZVN0YXR1cxIGCgJPSxAAEg4KClVzZXJFeGlzdHMQARIUChBVc2VyRG9l",
+            "c05vdEV4aXN0EAISGwoXV3JvbmdQYXNzd29yZE9yVXNlck5hbWUQAxISCg5J",
+            "bnNpZGVMb2NrVGltZRAEEhUKEU5vdEltcGxlbWVudGVkWWV0EAUSFAoQVXNl",
+            "ck5vdEFjdGl2YXRlZBAGEhcKE1VzZXJBbHJlYWR5TG9nZ2VkSW4QBxITCg9V",
+            "c2VyRG91YmxlTG9nSW4QCBIUChBTZXNzaW9uTG9nZ2VkT3V0EAkSFwoTRGV2",
+            "aWNlTm90UmVnaXN0ZXJlZBAKEhYKEkVycm9yT25TZW5kaW5nTWFpbBALEhoK",
+            "FlVzZXJFbWFpbEFscmVhZHlFeGlzdHMQDBIbChdFcnJvck9uVXBkYXRpbmdV",
+            "c2VyVHlwZRANEhQKEFVzZXJUeXBlTm90RXhpc3QQDhIZChVVc2VyTm90TWFz",
+            "dGVyQXBwcm92ZWQQDxITCg9FcnJvck9uSW5pdFVzZXIQEBITCg9FcnJvck9u",
+            "U2F2ZVVzZXIQERIUChBVc2VyTm90SW5kRG9tYWluEBISEQoNVG9rZW5Ob3RG",
+            "b3VuZBATEh0KGVVzZXJBbHJlYWR5TWFzdGVyQXBwcm92ZWQQFBIUChBVc2Vy",
+            "V2l0aE5vRG9tYWluEBUSEwoPTG9naW5TZXJ2ZXJEb3duEBYSEQoNVXNlclN1",
+            "c3BlbmRlZBAXEhkKFVVzZXJDcmVhdGVkV2l0aE5vUm9sZRAYEhsKF0V4dGVy",
+            "bmFsSWRBbHJlYWR5RXhpc3RzEBkSEQoNRXh0ZXJuYWxFcnJvchAaEhIKDUlu",
+            "dGVybmFsRXJyb3IQ5wciHQoMTnVsbGFibGVCb29sEg0KBVZhbHVlGAEgASgI",
+            "Ih4KDU51bGxhYmxlSW50MzISDQoFVmFsdWUYASABKAUqVwoRQWRhcHRlclN0",
+            "YXR1c0NvZGUSBgoCT0sQABIJCgVFcnJvchABEhUKEVNpZ25hdHVyZU1pc21h",
+            "dGNoEAISGAoUTm9Db25maWd1cmF0aW9uRm91bmQQAyqBAQoKU1NPTWV0aG9k",
+            "cxINCglQcmVTaWduSW4QABIOCgpQb3N0U2lnbkluEAESEgoOUHJlR2V0VXNl",
+            "ckRhdGEQAhITCg9Qb3N0R2V0VXNlckRhdGEQAxIOCgpQcmVTaWduT3V0EAQS",
+            "DwoLUG9zdFNpZ25PdXQQBRIKCgZJbnZva2UQBjKKBAoOU1NPQWRhcHRlckdS",
+            "UEMSRwoQU2V0Q29uZmlndXJhdGlvbhIYLlNldENvbmZpZ3VyYXRpb25SZXF1",
+            "ZXN0GhkuU2V0Q29uZmlndXJhdGlvblJlc3BvbnNlEkcKEEdldENvbmZpZ3Vy",
+            "YXRpb24SGC5HZXRDb25maWd1cmF0aW9uUmVxdWVzdBoZLkdldENvbmZpZ3Vy",
+            "YXRpb25SZXNwb25zZRIyCglQcmVTaWduSW4SES5QcmVTaWduSW5SZXF1ZXN0",
+            "GhIuUHJlU2lnbkluUmVzcG9uc2USLwoKUG9zdFNpZ25JbhISLlBvc3RTaWdu",
+            "SW5SZXF1ZXN0Gg0uVXNlclJlc3BvbnNlEi8KClByZVNpZ25PdXQSEi5QcmVT",
+            "aWduT3V0UmVxdWVzdBoNLlVzZXJSZXNwb25zZRIxCgtQb3N0U2lnbk91dBIT",
+            "LlBvc3RTaWduT3V0UmVxdWVzdBoNLlVzZXJSZXNwb25zZRI3Cg5QcmVHZXRV",
+            "c2VyRGF0YRIWLlByZUdldFVzZXJEYXRhUmVxdWVzdBoNLlVzZXJSZXNwb25z",
+            "ZRI5Cg9Qb3N0R2V0VXNlckRhdGESFy5Qb3N0R2V0VXNlckRhdGFSZXF1ZXN0",
+            "Gg0uVXNlclJlc3BvbnNlEikKBkludm9rZRIOLkludm9rZVJlcXVlc3QaDy5J",
+            "bnZva2VSZXNwb25zZUIiqgIfU29hcEFkYXB0ZXJzQ29tbW9uLkdycGNBZGFw",
+            "dGVyc2IGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::SoapAdaptersCommon.GrpcAdapters.AdapterStatusCode), typeof(global::SoapAdaptersCommon.GrpcAdapters.SSOMethods), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -144,7 +148,8 @@ namespace SoapAdaptersCommon.GrpcAdapters {
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationRequest), global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationRequest.Parser, new[]{ "AdapterId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationResponse), global::SoapAdaptersCommon.GrpcAdapters.GetConfigurationResponse.Parser, new[]{ "AdapterStatusCode", "ImplementedMethods", "SendWelcomeEmail" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PreSignInRequest), global::SoapAdaptersCommon.GrpcAdapters.PreSignInRequest.Parser, new[]{ "AdapterId", "UserId", "UserName", "Password", "MaxFailCount", "LockMin", "PartnerId", "SessionId", "IPAddress", "DeviceId", "PreventDoubleLogin", "CustomParams", "Signature" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
-            new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse), global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse.Parser, new[]{ "AdapterStatusCode", "UserId", "Username", "Password", "Priviliges", "SSOResponseStatus" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.ListOfString), global::SoapAdaptersCommon.GrpcAdapters.ListOfString.Parser, new[]{ "Value" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse), global::SoapAdaptersCommon.GrpcAdapters.PreSignInResponse.Parser, new[]{ "AdapterStatusCode", "UserId", "Username", "Password", "Priviliges", "SSOResponseStatus", "SessionCharacteristics" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PostSignInRequest), global::SoapAdaptersCommon.GrpcAdapters.PostSignInRequest.Parser, new[]{ "AdapterId", "User", "CustomParams", "Signature" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.UserResponse), global::SoapAdaptersCommon.GrpcAdapters.UserResponse.Parser, new[]{ "AdapterStatusCode", "User", "SSOResponseStatus" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::SoapAdaptersCommon.GrpcAdapters.PreSignOutRequest), global::SoapAdaptersCommon.GrpcAdapters.PreSignOutRequest.Parser, new[]{ "AdapterId", "DeviceUdid", "HouseholdId", "UserId", "Signature", "AdapterData" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { null, }),
@@ -1625,6 +1630,167 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
   }
 
+  public sealed partial class ListOfString : pb::IMessage<ListOfString>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<ListOfString> _parser = new pb::MessageParser<ListOfString>(() => new ListOfString());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<ListOfString> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[5]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ListOfString() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ListOfString(ListOfString other) : this() {
+      value_ = other.value_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ListOfString Clone() {
+      return new ListOfString(this);
+    }
+
+    /// <summary>Field number for the "value" field.</summary>
+    public const int ValueFieldNumber = 1;
+    private static readonly pb::FieldCodec<string> _repeated_value_codec
+        = pb::FieldCodec.ForString(10);
+    private readonly pbc::RepeatedField<string> value_ = new pbc::RepeatedField<string>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<string> Value {
+      get { return value_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as ListOfString);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(ListOfString other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if(!value_.Equals(other.value_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= value_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      value_.WriteTo(output, _repeated_value_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      value_.WriteTo(ref output, _repeated_value_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      size += value_.CalculateSize(_repeated_value_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(ListOfString other) {
+      if (other == null) {
+        return;
+      }
+      value_.Add(other.value_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            value_.AddEntriesFrom(input, _repeated_value_codec);
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 10: {
+            value_.AddEntriesFrom(ref input, _repeated_value_codec);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
   public sealed partial class PreSignInResponse : pb::IMessage<PreSignInResponse>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -1637,7 +1803,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[5]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1660,6 +1826,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       password_ = other.password_;
       priviliges_ = other.priviliges_.Clone();
       sSOResponseStatus_ = other.sSOResponseStatus_ != null ? other.sSOResponseStatus_.Clone() : null;
+      sessionCharacteristics_ = other.sessionCharacteristics_.Clone();
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1733,6 +1900,16 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       }
     }
 
+    /// <summary>Field number for the "SessionCharacteristics" field.</summary>
+    public const int SessionCharacteristicsFieldNumber = 10;
+    private static readonly pbc::MapField<string, global::SoapAdaptersCommon.GrpcAdapters.ListOfString>.Codec _map_sessionCharacteristics_codec
+        = new pbc::MapField<string, global::SoapAdaptersCommon.GrpcAdapters.ListOfString>.Codec(pb::FieldCodec.ForString(10, ""), pb::FieldCodec.ForMessage(18, global::SoapAdaptersCommon.GrpcAdapters.ListOfString.Parser), 82);
+    private readonly pbc::MapField<string, global::SoapAdaptersCommon.GrpcAdapters.ListOfString> sessionCharacteristics_ = new pbc::MapField<string, global::SoapAdaptersCommon.GrpcAdapters.ListOfString>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::MapField<string, global::SoapAdaptersCommon.GrpcAdapters.ListOfString> SessionCharacteristics {
+      get { return sessionCharacteristics_; }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as PreSignInResponse);
@@ -1752,6 +1929,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       if (Password != other.Password) return false;
       if (!Priviliges.Equals(other.Priviliges)) return false;
       if (!object.Equals(SSOResponseStatus, other.SSOResponseStatus)) return false;
+      if (!SessionCharacteristics.Equals(other.SessionCharacteristics)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1764,6 +1942,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       if (Password.Length != 0) hash ^= Password.GetHashCode();
       hash ^= Priviliges.GetHashCode();
       if (sSOResponseStatus_ != null) hash ^= SSOResponseStatus.GetHashCode();
+      hash ^= SessionCharacteristics.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1801,6 +1980,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         output.WriteRawTag(74);
         output.WriteMessage(SSOResponseStatus);
       }
+      sessionCharacteristics_.WriteTo(output, _map_sessionCharacteristics_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1831,6 +2011,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         output.WriteRawTag(74);
         output.WriteMessage(SSOResponseStatus);
       }
+      sessionCharacteristics_.WriteTo(ref output, _map_sessionCharacteristics_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -1856,6 +2037,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
       if (sSOResponseStatus_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(SSOResponseStatus);
       }
+      size += sessionCharacteristics_.CalculateSize(_map_sessionCharacteristics_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -1886,6 +2068,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
         }
         SSOResponseStatus.MergeFrom(other.SSOResponseStatus);
       }
+      sessionCharacteristics_.Add(other.sessionCharacteristics_);
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1925,6 +2108,10 @@ namespace SoapAdaptersCommon.GrpcAdapters {
               SSOResponseStatus = new global::SoapAdaptersCommon.GrpcAdapters.SSOResponseStatus();
             }
             input.ReadMessage(SSOResponseStatus);
+            break;
+          }
+          case 82: {
+            sessionCharacteristics_.AddEntriesFrom(input, _map_sessionCharacteristics_codec);
             break;
           }
         }
@@ -1968,6 +2155,10 @@ namespace SoapAdaptersCommon.GrpcAdapters {
             input.ReadMessage(SSOResponseStatus);
             break;
           }
+          case 82: {
+            sessionCharacteristics_.AddEntriesFrom(ref input, _map_sessionCharacteristics_codec);
+            break;
+          }
         }
       }
     }
@@ -1987,7 +2178,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[6]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2265,7 +2456,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[7]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2527,7 +2718,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[8]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2868,7 +3059,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[9]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3254,7 +3445,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[10]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3532,7 +3723,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[11]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3837,7 +4028,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[12]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4070,7 +4261,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[13]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4384,7 +4575,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[14]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5182,7 +5373,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[15]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5390,7 +5581,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[16]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5672,7 +5863,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[17]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5844,7 +6035,7 @@ namespace SoapAdaptersCommon.GrpcAdapters {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[18]; }
+      get { return global::SoapAdaptersCommon.GrpcAdapters.SsoadapterReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

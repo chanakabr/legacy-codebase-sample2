@@ -97,7 +97,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<SegmentAssetOrderAction, KalturaAssetOrderSegmentAction>()
                 .IncludeBase<SegmentAction, KalturaBaseSegmentAction>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values.Select(x => new KalturaStringValue(null) { value = x }).ToList()));
+                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values.Select(x => new KalturaStringValue(null, false) { value = x }).ToList()));
 
             // segment ksql action
             cfg.CreateMap<KalturaKsqlSegmentAction, SegmentActionObjectVirtualAsset>()
@@ -195,7 +195,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.MinScore, opt => opt.MapFrom(src => src.MinScore))
                 .ForMember(dest => dest.MaxScore, opt => opt.MapFrom(src => src.MaxScore))
                 .ForMember(dest => dest.Field, opt => opt.MapFrom(src => src.Field))
-                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values.Select(x => new KalturaStringValue(null) { value = x }).ToList()))
+                .ForMember(dest => dest.Values, opt => opt.MapFrom(src => src.Values.Select(x => new KalturaStringValue(null, false) { value = x }).ToList()))
                 ;
 
             // content action condition

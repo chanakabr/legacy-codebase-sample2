@@ -25,9 +25,21 @@ using System.Xml;
 
 namespace Core.Api
 {
-    public class Module
+    public interface ISegmentsManager
+    {
+        GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, HashSet<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition);
+    }
+
+    public class Module : ISegmentsManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly Lazy<Module> lazy = new Lazy<Module>(() => new Module());
+
+        public static Module Instance { get { return lazy.Value; } }
+
+        private Module()
+        {
+        }
 
         public static UserIMRequestObject TVAPI_GetTvinciGUID(int groupId, InitializationObject oInitObj)
         {
@@ -1655,7 +1667,7 @@ namespace Core.Api
 
         public static DeviceFamilyResponse GetDeviceFamilyList(int groupId)
         {
-            return api.Instance.GetDeviceFamilyList();
+            return api.GetDeviceFamilyList();
         }
 
         public static DeviceBrandResponse GetDeviceBrandList(int groupId)
@@ -2201,7 +2213,7 @@ namespace Core.Api
             return result;
         }
 
-        public static GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, HashSet<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
+        public GenericListResponse<SegmentationType> ListSegmentationTypes(int groupId, HashSet<long> ids, int pageIndex, int pageSize, AssetSearchDefinition assetSearchDefinition)
         {
             GenericListResponse<SegmentationType> result = new GenericListResponse<SegmentationType>();
 
@@ -2450,7 +2462,7 @@ namespace Core.Api
             return Core.Api.api.AddBusinessModuleRule(groupId, businessModuleRuleToAdd);
         }
 
-        public static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, APILogic.ConditionalAccess.ConditionScope filter, RuleActionType? ruleActionType)
+        public static GenericListResponse<BusinessModuleRule> GetBusinessModuleRules(int groupId, BusinessModuleRuleConditionScope filter, RuleActionType? ruleActionType)
         {
             return Core.Api.api.GetBusinessModuleRules(groupId, filter, ruleActionType);
         }
@@ -2677,7 +2689,7 @@ namespace Core.Api
 
                 if (segmentTypeIds?.Count > 0)
                 {
-                    result = ListSegmentationTypes(groupId, new HashSet<long>(segmentTypeIds.Values.ToList()), pageIndex, pageSize, assetSearchDefinition);
+                    result = Instance.ListSegmentationTypes(groupId, new HashSet<long>(segmentTypeIds.Values.ToList()), pageIndex, pageSize, assetSearchDefinition);
                 }
                 else
                 {

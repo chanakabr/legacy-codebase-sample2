@@ -618,7 +618,7 @@ namespace APILogic.Api.Managers
             }
 
             // check if assetRule exist
-            GenericListResponse<AssetRule> assetRulesResponse = AssetRuleManager.GetAssetRules(RuleConditionType.IP_RANGE, groupId);
+            GenericListResponse<AssetRule> assetRulesResponse = AssetRuleManager.Instance.GetAssetRules(RuleConditionType.IP_RANGE, groupId);
             if (assetRulesResponse == null || !assetRulesResponse.HasObjects())
                 return assetRules;
 

@@ -299,6 +299,8 @@ namespace APILogic.SSOAdapaterService
         
         private System.Collections.Generic.Dictionary<string, string> PriviligesField;
         
+        private System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> SessionCharacteristicsField;
+        
         private APILogic.SSOAdapaterService.SSOResponseStatus SSOResponseStatusField;
         
         private int UserIdField;
@@ -343,7 +345,20 @@ namespace APILogic.SSOAdapaterService
                 this.PriviligesField = value;
             }
         }
-        
+
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<string>> SessionCharacteristics
+        {
+            get
+            {
+                return this.SessionCharacteristicsField;
+            }
+            set
+            {
+                this.SessionCharacteristicsField = value;
+            }
+        }
+
         [System.Runtime.Serialization.DataMemberAttribute()]
         public APILogic.SSOAdapaterService.SSOResponseStatus SSOResponseStatus
         {

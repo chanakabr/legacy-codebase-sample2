@@ -166,11 +166,9 @@ namespace Core.Api.Managers
             try
             {
                 // add asset user rule in DB
-                DataTable dt = ApiDAL.AddAssetRule(groupId, assetUserRuleToAdd.Name, assetUserRuleToAdd.Description, (int)AssetRuleType.AssetUserRule);
-                if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
+                assetUserRuleToAdd.Id = ApiDAL.AddAssetUserRule(groupId, assetUserRuleToAdd);
+                if (assetUserRuleToAdd.Id > 0)
                 {
-                    assetUserRuleToAdd.Id = ODBCWrapper.Utils.GetLongSafeVal(dt.Rows[0], "ID");
-
                     // add asset user rule in CB
                     if (!ApiDAL.SaveAssetUserRuleCB(assetUserRuleToAdd))
                     {
@@ -234,7 +232,7 @@ namespace Core.Api.Managers
                 assetUserRuleToUpdate.FillEmpty(oldAssetUserRule);
 
                 //update asset user rule in DB
-                if (!ApiDAL.UpdateAssetRule(groupId, assetUserRuleToUpdate.Id, assetUserRuleToUpdate.Name, assetUserRuleToUpdate.Description))
+                if (!ApiDAL.UpdateAssetUserRule(groupId, assetUserRuleToUpdate))
                 {
                     response.SetStatus(eResponseStatus.Error, ASSET_USER_RULE_FAILED_UPDATE);
                     return response;

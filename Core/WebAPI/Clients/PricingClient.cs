@@ -1001,7 +1001,7 @@ namespace WebAPI.Clients
             KalturaPpvListResponse result = new KalturaPpvListResponse();
 
             Func<GenericListResponse<PPVModule>> getPPVModulesDataFunc = () =>
-                Core.Pricing.Module.GetPPVModuleList(groupId, couponGroupIdEqual);
+                Core.Pricing.Module.Instance.GetPPVModuleList(groupId, couponGroupIdEqual);
 
             KalturaGenericListResponse<KalturaPpv> response =
                 ClientUtils.GetResponseListFromWS<KalturaPpv, PPVModule>(getPPVModulesDataFunc);

@@ -13,7 +13,12 @@ using Newtonsoft.Json;
 
 namespace ApiLogic.Users.Managers
 {
-    public class DeviceReferenceDataManager : ICrudHandler<DeviceReferenceData, long>
+    public interface IDeviceReferenceDataManager
+    {
+        GenericListResponse<DeviceReferenceData> ListByManufacturer(ContextData contextData, DeviceManufacturersReferenceDataFilter filter, CorePager pager = null);
+    }
+
+    public class DeviceReferenceDataManager : ICrudHandler<DeviceReferenceData, long>, IDeviceReferenceDataManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly Lazy<DeviceReferenceDataManager> lazy = new Lazy<DeviceReferenceDataManager>(() => new DeviceReferenceDataManager());
@@ -50,7 +55,7 @@ namespace ApiLogic.Users.Managers
         {
             var response = new GenericResponse<DeviceReferenceData>();
             var all = GetReferenceData(contextData.GroupId);
-            response.Object = all?.Where(d => d.Id == id).FirstOrDefault();
+            response.Object = all.FirstOrDefault(d => d.Id == id);
             if (response.Object != null)
             {
                 response.SetStatus(eResponseStatus.OK);
@@ -91,8 +96,9 @@ namespace ApiLogic.Users.Managers
 
             try
             {
-                var _list = List(contextData, new DeviceReferenceDataFilter() { IdsIn = new List<int> { (int)coreObject.Id } }, null);
-                if (_list == null || !_list.IsOkStatusCode() || _list.TotalItems == 0)
+                var filter = new DeviceReferenceDataFilter() { IdsIn = new List<int> { (int)coreObject.Id } };
+                var _list = List(contextData, filter);
+                if (_list.TotalItems == 0)
                 {
                     response.SetStatus(eResponseStatus.Error, $"DeviceReferenceData Id: {coreObject.Id} not found");
                     return response;
@@ -103,8 +109,7 @@ namespace ApiLogic.Users.Managers
                 if (_response.IsOkStatusCode())
                 {
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(contextData.GroupId));
-                    response.Object = List(contextData, new DeviceReferenceDataFilter()
-                    { IdsIn = new List<int> { (int)coreObject.Id } }, null)?.Objects?.FirstOrDefault();
+                    response.Object = List(contextData, filter).Objects.FirstOrDefault();
                     response.SetStatus(eResponseStatus.OK);
                 }
                 else
@@ -126,76 +131,79 @@ namespace ApiLogic.Users.Managers
         public List<DeviceReferenceData> GetReferenceData(int groupId)
         {
             var response = new List<DeviceReferenceData>();
-            try
-            {
-                IEnumerable<DeviceReferenceData> _response = null;
-                var key = LayeredCacheKeys.GetDeviceReferenceDataByGroupKey(groupId);
-                var cacheResult = LayeredCache.Instance.Get(
-                    key,
-                    ref _response,
-                    GetReferenceDataByGroupId,
-                    new Dictionary<string, object>() { { "groupId", groupId } },
-                    groupId,
-                    LayeredCacheConfigNames.GET_DEVICE_REFERENCE_DATA,
-                    new List<string>() { LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(groupId) });
+            var key = LayeredCacheKeys.GetDeviceReferenceDataByGroupKey(groupId);
+            var cacheResult = LayeredCache.Instance.Get(
+                key,
+                ref response,
+                arg => Tuple.Create(UsersDal.GetDeviceReferenceData(groupId), true),
+                null,
+                groupId,
+                LayeredCacheConfigNames.GET_DEVICE_REFERENCE_DATA,
+                new List<string>() { LayeredCacheKeys.GetDeviceReferenceDataInvalidationKey(groupId) });
 
-
-                response = _response?.ToList();
-            }
-            catch (Exception ex)
+            if (!cacheResult)
             {
-                log.Error($"Failed groupID={groupId}, ex:{ex}");
+                log.Warn($"could not get {key} from LayeredCache");
             }
 
             return response;
         }
 
-        private static Tuple<IEnumerable<DeviceReferenceData>, bool> GetReferenceDataByGroupId(Dictionary<string, object> arg)
+        public DeviceReferenceData GetByManufacturerId(int groupId, long manufacturerId)
         {
-            try
-            {
-                var groupId = (int)arg["groupId"];
-                var models = DAL.UsersDal.GetDeviceReferenceData(groupId);
-                return new Tuple<IEnumerable<DeviceReferenceData>, bool>(models, true);
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Failed to get ReferenceData from DB group:[{arg["groupId"]}], ex: {ex}");
-                return new Tuple<IEnumerable<DeviceReferenceData>, bool>(Enumerable.Empty<DeviceReferenceData>(), false);
-            }
+            var allReferenceData = GetReferenceData(groupId);
+            var response = allReferenceData.FirstOrDefault(x => x.Id == manufacturerId && x.Type == (int)DeviceInformationType.Manufacturer);
+            return response;
         }
 
-        public GenericListResponse<DeviceReferenceData> List(ContextData contextData, DeviceReferenceDataFilter filter, CorePager pager)
+        public GenericListResponse<DeviceReferenceData> ListByManufacturer(ContextData contextData, DeviceManufacturersReferenceDataFilter filter, CorePager pager = null)
+        {
+            var response = new GenericListResponse<DeviceReferenceData>(Status.Ok, GetReferenceData(contextData.GroupId));
+            response.Objects = response.Objects.Where(rd => rd.Type == (int)DeviceInformationType.Manufacturer).ToList();
+            if (filter != null)
+            {
+                if (!string.IsNullOrEmpty(filter.NameEqual))
+                {
+                    response.Objects = response.Objects.Where(rd => rd.Name.ToUpper() == filter.NameEqual.Trim().ToUpper()).ToList();
+                }
+                response.Objects = FilterByIds(response.Objects, filter);
+            }
+            response.TotalItems = response.Objects.Count;
+            response.Objects = Page(response.Objects, pager);
+            response.SetStatus(eResponseStatus.OK);
+            return response;
+        }
+
+        public GenericListResponse<DeviceReferenceData> List(ContextData contextData, DeviceReferenceDataFilter filter, CorePager pager = null)
         {
             var response = new GenericListResponse<DeviceReferenceData>();
-
             response.Objects = GetReferenceData(contextData.GroupId);
-
-            if (filter is DeviceManufacturersReferenceDataFilter)
-            {
-                response.Objects = response.Objects?.Where(rd => rd.Type == (int)DeviceInformationType.Manufacturer).ToList();
-                var _filter = (DeviceManufacturersReferenceDataFilter)filter;
-                if (!string.IsNullOrEmpty(_filter.NameEqual))
-                {
-                    response.Objects = response.Objects?.Where(rd => rd.Name.ToUpper() == _filter.NameEqual.Trim().ToUpper()).ToList();
-                }
-            }
-
-            if (filter.IdsIn != null && filter.IdsIn.Count > 0)
-            {
-                response.Objects = response.Objects?.Where(rd => filter.IdsIn.Contains((int)rd.Id)).ToList();
-            }
-
-            response.TotalItems = response.Objects == null ? 0 : response.Objects.Count;
-
-            if (pager != null && pager.PageSize > 0)
-            {
-                response.Objects = response.Objects?.Skip(pager.PageIndex * pager.PageSize)?.Take(pager.PageSize).ToList();
-            }
-
+            response.Objects = FilterByIds(response.Objects, filter);
+            response.TotalItems = response.Objects.Count;
+            response.Objects = Page(response.Objects, pager);
             response.SetStatus(eResponseStatus.OK);
 
             return response;
+        }
+
+        private List<DeviceReferenceData> FilterByIds(List<DeviceReferenceData> objects, DeviceReferenceDataFilter filter)
+        {
+            if (filter.IdsIn != null && filter.IdsIn.Count > 0)
+            {
+                objects = objects.Where(rd => filter.IdsIn.Contains((int)rd.Id)).ToList();
+            }
+
+            return objects;
+        }
+
+        private List<DeviceReferenceData> Page(List<DeviceReferenceData> objects, CorePager pager)
+        {
+            if (pager != null && pager.PageSize > 0)
+            {
+                objects = objects.Skip(pager.PageIndex * pager.PageSize)?.Take(pager.PageSize).ToList();
+            }
+
+            return objects;
         }
     }
 }

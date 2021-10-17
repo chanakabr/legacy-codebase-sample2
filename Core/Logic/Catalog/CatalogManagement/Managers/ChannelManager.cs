@@ -1428,7 +1428,7 @@ namespace Core.Catalog.CatalogManagement
         private static void RemoveRelatedEntitiesData(int groupId, long userId, long channelId)
         {
             var affectedAssets = CatalogDAL.GetAssociatedAsset(groupId, (int)userId, channelId);
-            affectedAssets.ForEach(x => AssetManager.InvalidateAsset((eAssetTypes)x.Value, groupId, x.Key));
+            affectedAssets.ForEach(x => AssetManager.Instance.InvalidateAsset((eAssetTypes)x.Value, groupId, x.Key));
         }
 
         public GenericListResponse<Channel> GetChannelsContainingMedia(int groupId, long mediaId, int pageIndex, int pageSize,

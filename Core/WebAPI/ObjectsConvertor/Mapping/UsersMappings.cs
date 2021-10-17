@@ -12,6 +12,8 @@ using System.Linq;
 using AutoMapper.Configuration;
 using TVinciShared;
 using ApiLogic.Users;
+using System.Collections.Specialized;
+using System.Web;
 
 namespace ObjectsConvertor.Mapping
 {
@@ -604,5 +606,31 @@ namespace ObjectsConvertor.Mapping
             KalturaOTTUserDynamicData result = new KalturaOTTUserDynamicData() { UserId = userId, Key = key, Value = value };
             return result;
         }
+
+        public static Dictionary<string, string> GetExtraParamsWithHeaders(Dictionary<string, KalturaStringValue> extraParams)
+        {
+            var result = new Dictionary<string, string>();
+
+            if (extraParams != null && extraParams.Count > 0)
+            {
+                result = extraParams.ToDictionary(x => x.Key, y => y.Value.value);
+            }
+
+            // add header. if key exists use extraParams
+            var httpHeaders = HttpContext.Current.Request.GetHeaders();
+            if (httpHeaders != null && httpHeaders.Count > 0)
+            {
+                foreach (var key in httpHeaders.AllKeys)
+                {
+                    if (!string.IsNullOrEmpty(key) && !result.ContainsKey(key))
+                    {
+                        result.Add(key, httpHeaders[key]);
+                    }
+                }
+            }
+
+            return result;
+        }
+
     }
 }

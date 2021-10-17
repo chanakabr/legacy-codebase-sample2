@@ -472,8 +472,8 @@ namespace WebAPI.Clients
             long? response = null;
             var searchManufacturer = manufacturer.Trim().ToUpper();
             var filter = new DeviceManufacturersReferenceDataFilter { NameEqual = searchManufacturer };
-            var referenceData = DeviceReferenceDataManager.Instance.List(contextData, filter, null);
-            if (referenceData == null || !referenceData.HasObjects())
+            var referenceData = DeviceReferenceDataManager.Instance.ListByManufacturer(contextData, filter);
+            if (!referenceData.HasObjects())
             {
                 var request = new DeviceManufacturerInformation { Name = searchManufacturer };
                 var newManufacturer = DeviceReferenceDataManager.Instance.Add(contextData, request);
@@ -485,7 +485,7 @@ namespace WebAPI.Clients
             }
             else
             {
-                response = referenceData.Objects?.FirstOrDefault()?.Id;
+                response = referenceData.Objects[0].Id;
             }
             return response;
         }

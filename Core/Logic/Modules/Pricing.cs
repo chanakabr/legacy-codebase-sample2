@@ -32,7 +32,12 @@ namespace Core.Pricing
         void InvalidateSubscription(int groupId, int subId = 0);
     }
 
-    public class Module : IPricingModule
+    public interface IPPVModuleManager
+    {
+        GenericListResponse<PPVModule> GetPPVModuleList(int groupId, int? couponGroupIdEqual = null);
+    }
+
+    public class Module : IPricingModule, IPPVModuleManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -1878,7 +1883,7 @@ namespace Core.Pricing
             return response;
         }
 
-        public static GenericListResponse<PPVModule> GetPPVModuleList(int groupId, int? couponGroupIdEqual = null)
+        public GenericListResponse<PPVModule> GetPPVModuleList(int groupId, int? couponGroupIdEqual = null)
         {
             GenericListResponse<PPVModule> response = new GenericListResponse<PPVModule>();
 

@@ -142,6 +142,36 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal static KalturaGenericListResponse<U> ListFromLogic<U, T>(Func<IEnumerable<T>> funcInWS)
+            where U : KalturaOTTObject where T : class
+        {
+            KalturaGenericListResponse<U> result = new KalturaGenericListResponse<U>();
+            IEnumerable<T> response = null;
+
+            try
+            {
+                using (KMonitor km = new KMonitor(Events.eEvent.EVENT_WS))
+                {
+                    response = funcInWS();
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Exception received while calling catalog service.", ex);
+                ErrorUtils.HandleWSException(ex);
+            }
+
+            if (response == null)
+            {
+                throw new ClientException(StatusCode.Error);
+            }
+
+            result.Objects = AutoMapper.Mapper.Map<List<U>>(response);
+            result.TotalCount = result.Objects.Count;
+
+            return result;
+        }
+
         internal static bool GetResponseStatusFromWS(Func<Status> funcInWS)
         {
             Status status = null;

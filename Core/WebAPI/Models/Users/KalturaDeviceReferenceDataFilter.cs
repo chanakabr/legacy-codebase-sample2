@@ -56,7 +56,8 @@ namespace WebAPI.Models.Users
         public override GenericListResponse<DeviceReferenceData> List(ContextData contextData, CorePager pager)
         {
             var coreFilter = AutoMapper.Mapper.Map<DeviceManufacturersReferenceDataFilter>(this);
-            return DeviceReferenceDataManager.Instance.List(contextData, coreFilter, pager);
+            var deviceReferenceDatas = DeviceReferenceDataManager.Instance.ListByManufacturer(contextData, coreFilter, pager);
+            return deviceReferenceDatas;
         }
     }
 

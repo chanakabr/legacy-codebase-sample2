@@ -7,6 +7,7 @@ using ApiObjects.Base;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using System.Collections.Generic;
+using ApiLogic.Api.Managers.Rule;
 using WebAPI.Managers.Models;
 using static WebAPI.Exceptions.ApiException;
 using Core.Catalog;
@@ -79,6 +80,7 @@ namespace WebAPI.Models.Catalog
             KalturaAssetListResponse response = null;
 
             int domainId = (int)(contextData.DomainId ?? 0);
+            var ksqlFilter = FilterAsset.Instance.UpdateKsql(Ksql, contextData.GroupId, contextData.SessionCharacteristicKey);
             if (this.ExcludeWatched)
             {
                 if (pager.getPageIndex() > 0)
@@ -93,7 +95,7 @@ namespace WebAPI.Models.Catalog
                 int userId = (int)contextData.UserId.Value;
 
                 response = ClientsManager.CatalogClient().GetChannelAssetsExcludeWatched(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(),
-                pager.PageSize, this.IdEqual, this.OrderBy, this.Ksql, this.GetShouldUseChannelDefault(), this.DynamicOrderBy, this.TrendingDaysEqual);
+                    pager.PageSize, this.IdEqual, this.OrderBy, ksqlFilter, this.GetShouldUseChannelDefault(), this.DynamicOrderBy, this.TrendingDaysEqual);
             }
             else
             {
@@ -113,7 +115,7 @@ namespace WebAPI.Models.Catalog
                 bool isAllowedToViewInactiveAssets = Utils.Utils.IsAllowedToViewInactiveAssets(contextData.GroupId, userId, true);
 
                 response = ClientsManager.CatalogClient().GetChannelAssets(contextData.GroupId, userId, domainId, contextData.Udid, contextData.Language, pager.getPageIndex(), 
-                    pager.PageSize, this.IdEqual, this.OrderBy, this.Ksql, this.GetShouldUseChannelDefault(), this.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets, groupByList, allowIncludedGroupBy, this.TrendingDaysEqual);
+                    pager.PageSize, this.IdEqual, this.OrderBy, ksqlFilter, this.GetShouldUseChannelDefault(), this.DynamicOrderBy, responseProfile, isAllowedToViewInactiveAssets, groupByList, allowIncludedGroupBy, this.TrendingDaysEqual);
             }
 
             return response;

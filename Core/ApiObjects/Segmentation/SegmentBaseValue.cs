@@ -74,7 +74,7 @@ namespace ApiObjects.Segmentation
             return true;
         }
 
-        internal virtual bool HasSegmentId(long segmentId)
+        public virtual bool HasSegmentId(long segmentId)
         {
             return false;
         }
@@ -125,7 +125,7 @@ namespace ApiObjects.Segmentation
             return result;
         }
 
-        internal override bool HasSegmentId(long segmentId)
+        public override bool HasSegmentId(long segmentId)
         {
             return this.Id == segmentId;
         }

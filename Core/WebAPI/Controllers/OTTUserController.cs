@@ -17,6 +17,7 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
+using ObjectsConvertor.Mapping;
 
 namespace WebAPI.Controllers
 {
@@ -46,6 +47,7 @@ namespace WebAPI.Controllers
         /// <param name="pin">pin code</param>
         /// <param name="secret">Additional security parameter to validate the login</param>
         /// <param name="udid">Device UDID</param>
+        /// <param name="extraParams">extra params</param>
         /// <remarks>Possible status codes: 
         /// UserNotInDomain = 1005, Wrong username or password = 1011, PinNotExists = 2003, PinExpired = 2004, NoValidPin = 2006, SecretIsWrong = 2008, 
         /// LoginViaPinNotAllowed = 2009, User suspended = 2001, InsideLockTime = 2015, UserNotActivated = 2016, 
@@ -71,7 +73,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserNotMasterApproved)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.UserDoesNotExist)]
-        static public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null, string secret = null)
+        static public KalturaLoginResponse LoginWithPin(int partnerId, string pin, string udid = null, string secret = null, 
+            SerializableDictionary<string, KalturaStringValue> extraParams = null)
         {
             KalturaOTTUser response = null;
 
@@ -100,7 +103,8 @@ namespace WebAPI.Controllers
 
             return new KalturaLoginResponse()
             {
-                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, response.getHouseholdID(), udid, response.GetRoleIds(), priviliges),
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, true, response.getHouseholdID(), 
+                    udid, response.GetRoleIds(), priviliges),
                 User = response
             };
         }
@@ -133,7 +137,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.UserNotMasterApproved)]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserExternalError)]
-        static public KalturaLoginResponse Login(int partnerId, string username = null, string password = null, SerializableDictionary<string, KalturaStringValue> extraParams = null, string udid = null)
+        static public KalturaLoginResponse Login(int partnerId, string username = null, string password = null, 
+            SerializableDictionary<string, KalturaStringValue> extraParams = null, string udid = null)
         {
             KalturaOTTUser response = null;
 
@@ -143,12 +148,12 @@ namespace WebAPI.Controllers
             }
 
             Group group = GroupsManager.Instance.GetGroup(partnerId);
+            var extraParamsWithHeaders = UsersMappings.GetExtraParamsWithHeaders(extraParams);
+
             try
             {
-                // call client
-                // add header. if key exists use extraParams
-                var httpHeaders = HttpContext.Current.Request.GetHeaders();
-                response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extraParams, httpHeaders, group.ShouldSupportSingleLogin);
+                // call client    
+                response = ClientsManager.UsersClient().Login(partnerId, username, password, udid, extraParamsWithHeaders, group.ShouldSupportSingleLogin);
             }
             catch (ClientExternalException ex)
             {
@@ -174,7 +179,8 @@ namespace WebAPI.Controllers
 
             return new KalturaLoginResponse()
             {
-                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid, response.GetRoleIds(), priviliges),
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), 
+                    udid, response.GetRoleIds(), priviliges),
                 User = response
             };
         }
@@ -256,7 +262,8 @@ namespace WebAPI.Controllers
 
             return new KalturaLoginResponse()
             {
-                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid, response.GetRoleIds()),
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), 
+                    udid, response.GetRoleIds()),
                 User = response
             };
         }

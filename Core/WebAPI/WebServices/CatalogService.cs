@@ -110,7 +110,7 @@ namespace WebAPI.WebServices
 
         public bool UpdateIndex(List<int> lMediaIds, int nGroupId, eAction eAction)
         {
-            return Core.Catalog.Module.UpdateIndex(lMediaIds, nGroupId, eAction);
+            return Core.Catalog.Module.Instance.UpdateIndex(lMediaIds, nGroupId, eAction);
         }
 
         /// <summary>

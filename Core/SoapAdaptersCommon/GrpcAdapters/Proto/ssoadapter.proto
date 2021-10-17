@@ -59,6 +59,10 @@ message PreSignInRequest{
 	string Signature=13;
 }
 
+message ListOfString{
+    repeated string value = 1;
+}
+
 message PreSignInResponse{
 	AdapterStatusCode AdapterStatusCode=1;
 	int32 UserId=2;
@@ -66,6 +70,7 @@ message PreSignInResponse{
 	string Password=4;
 	map<string, string> Priviliges=5;
 	SSOResponseStatus SSOResponseStatus=9;
+	map<string, ListOfString> SessionCharacteristics=10;
 }
 
 

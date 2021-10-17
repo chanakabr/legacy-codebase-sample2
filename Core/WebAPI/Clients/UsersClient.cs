@@ -31,7 +31,7 @@ namespace WebAPI.Clients
         {
         }
 
-        public KalturaOTTUser Login(int groupId, string userName, string password, string deviceId, Dictionary<string, KalturaStringValue> extraParams, bool shouldSupportSingleLogin)
+        public KalturaOTTUser Login(int groupId, string userName, string password, string deviceId, Dictionary<string, string> extraParams, bool shouldSupportSingleLogin)
         {
             GenericResponse<UserResponseObject> userResponse = null;
 
@@ -42,7 +42,7 @@ namespace WebAPI.Clients
                     List<KeyValuePair> keyValueList = new List<KeyValuePair>();
                     if (extraParams != null)
                     {
-                        keyValueList = extraParams.Select(p => new KeyValuePair { key = p.Key, value = p.Value.value }).ToList();
+                        keyValueList = extraParams.Select(p => new KeyValuePair { key = p.Key, value = p.Value }).ToList();
                     }
 
                     userResponse = Core.Users.Module.LogIn(groupId,
@@ -97,34 +97,6 @@ namespace WebAPI.Clients
             {
                 throw new ClientException((int)eResponseStatus.InvalidParameters, "Invalid Parameter value: [pinDuration]");
             }
-        }
-
-        internal KalturaOTTUser Login(int partnerId, string userName, string password,
-            string udid, SerializableDictionary<string, KalturaStringValue> extraParams, NameValueCollection nameValueCollection, bool shouldSupportSingleLogin)
-        {
-            return Login(partnerId, userName, password, udid, GetMergedExtraParams(extraParams, nameValueCollection), shouldSupportSingleLogin);
-        }
-
-        private Dictionary<string, KalturaStringValue> GetMergedExtraParams(Dictionary<string, KalturaStringValue> extraParams, NameValueCollection nameValueCollection)
-        {
-            Dictionary<string, KalturaStringValue> result = new Dictionary<string, KalturaStringValue>();
-
-            if (extraParams != null && extraParams.Count > 0)
-            {
-                result = extraParams;
-            }
-
-            if (nameValueCollection != null && nameValueCollection.Count > 0)
-            {
-                foreach (var key in nameValueCollection.AllKeys)
-                {
-                    if (!string.IsNullOrEmpty(key) && !result.ContainsKey(key))
-                    {
-                        result.Add(key, new KalturaStringValue() { value = nameValueCollection[key] });
-                    }
-                }
-            }
-            return result;
         }
 
         public KalturaOTTUser SignUp(int groupId, KalturaOTTUser userData, string password)

@@ -1,5 +1,6 @@
 ﻿using ApiObjects;
 using ApiObjects.Response;
+using ObjectsConvertor.Mapping;
 using System;
 using System.Collections.Generic;
 using WebAPI.ClientManagers.Client;
@@ -7,6 +8,7 @@ using WebAPI.Exceptions;
 using WebAPI.Managers;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
+using WebAPI.Models.General;
 using WebAPI.Models.Social;
 using WebAPI.Models.Users;
 using WebAPI.Utils;
@@ -165,10 +167,11 @@ namespace WebAPI.Controllers
             {
                 throw new InternalServerErrorException();
             }
-            
+
             return new KalturaLoginResponse()
             {
-                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), udid, response.GetRoleIds()),
+                LoginSession = AuthorizationManager.GenerateSession(response.Id.ToString(), partnerId, false, false, response.getHouseholdID(), 
+                    udid, response.GetRoleIds()),
                 User = response
             };
         }

@@ -26,12 +26,7 @@ namespace WebAPI.Managers.Models
         private const string REPLACE_UNDERSCORE = "^^^";
 
         private string encryptedValue;
-        private int groupId;
         private string userId;
-        private KalturaSessionType sessionType;
-        private DateTime expiration;
-        private Dictionary<string, string> privileges;
-        private string data;
 
         public bool IsKsFormat => HasKsFormat(encryptedValue);
 
@@ -48,56 +43,54 @@ namespace WebAPI.Managers.Models
             public int RegionId { get; set; }
             public List<long> UserSegments { get; set; }
             public List<long> UserRoles { get; set; }
+            public string SessionCharacteristicKey { get; }
             public string Signature { get; set; }
 
-            public KSData()
-            {
-            }
+            public static KSData Empty { get; } = new KSData();
+            
+            private KSData(){}
 
-            public KSData(string udid, int createDate, int regionId, List<long> userSegments, List<long> userRoles, string signature = "")
+            public KSData(string udid, int createDate, int regionId, List<long> userSegments, List<long> userRoles, string sessionCharacteristicKey, string signature = "")
             {
-                this.UDID = udid;
-                this.CreateDate = createDate;
-                this.RegionId = regionId;
-                this.UserSegments = userSegments;
-                this.UserRoles = userRoles;
-                this.Signature = signature;
+                UDID = udid;
+                CreateDate = createDate;
+                RegionId = regionId;
+                UserSegments = userSegments;
+                UserRoles = userRoles;
+                SessionCharacteristicKey = sessionCharacteristicKey;
+                Signature = signature;
             }
 
             public KSData(KSData payload, int createDate)
             {
-                this.CreateDate = createDate;
-                this.UDID = payload.UDID;
-                this.RegionId = payload.RegionId;
-                this.UserSegments = payload.UserSegments;
-                this.UserRoles = payload.UserRoles;
+                CreateDate = createDate;
+                UDID = payload.UDID;
+                RegionId = payload.RegionId;
+                UserSegments = payload.UserSegments;
+                UserRoles = payload.UserRoles;
+                SessionCharacteristicKey = payload.SessionCharacteristicKey;
             }
 
             public KSData(ApiToken token, int createDate, string udid)
             {
-                this.CreateDate = createDate;
-                this.UDID = udid;
-                this.RegionId = token.RegionId;
-                this.UserSegments = token.UserSegments;
-                this.UserRoles = token.UserRoles;
+                CreateDate = createDate;
+                UDID = udid;
+                RegionId = token.RegionId;
+                UserSegments = token.UserSegments;
+                UserRoles = token.UserRoles;
+                SessionCharacteristicKey = token.SessionCharacteristicKey;
             }
         }
 
         public KSVersion ksVersion { get; private set; }
 
-        public bool IsValid
-        {
-            get { return AuthorizationManager.IsKsValid(this); }
-        }
+        public bool IsValid => AuthorizationManager.IsKsValid(this);
 
-        public int GroupId
-        {
-            get { return groupId; }
-        }
+        public int GroupId { get; private set; }
 
         public string UserId
         {
-            get { return userId; }
+            get => userId;
             set
             {
                 userId = value;
@@ -112,25 +105,13 @@ namespace WebAPI.Managers.Models
 
         public string OriginalUserId { get; set; }
 
-        public KalturaSessionType SessionType
-        {
-            get { return sessionType; }
-        }
+        public KalturaSessionType SessionType { get; private set; }
 
-        public Dictionary<string, string> Privileges
-        {
-            get { return privileges; }
-        }
+        public Dictionary<string, string> Privileges { get; private set; }
 
-        public DateTime Expiration
-        {
-            get { return expiration; }
-        }
+        public DateTime Expiration { get; private set; }
 
-        public string Data
-        {
-            get { return data; }
-        }
+        public string Data { get; private set; }
 
         private KS()
         {
@@ -187,11 +168,11 @@ namespace WebAPI.Managers.Models
 
             this.encryptedValue = encodedKs.ToString();
             this.ksVersion = ksType;
-            this.data = payload;
-            this.expiration = DateTime.UtcNow.AddSeconds(expiration);
-            this.groupId = int.Parse(groupID);
-            this.privileges = privilegesList;
-            this.sessionType = userType;
+            this.Data = payload;
+            this.Expiration = DateTime.UtcNow.AddSeconds(expiration);
+            this.GroupId = int.Parse(groupID);
+            this.Privileges = privilegesList;
+            this.SessionType = userType;
             this.userId = userID;
         }
 
@@ -207,7 +188,7 @@ namespace WebAPI.Managers.Models
         {
             KS ks = new KS();
             ks.encryptedValue = ksVal;
-            ks.groupId = groupId;
+            ks.GroupId = groupId;
 
             // get string
             string encryptedDataStr = Encoding.ASCII.GetString(encryptedData);
@@ -258,40 +239,40 @@ namespace WebAPI.Managers.Models
                 throw new UnauthorizedException(UnauthorizedException.INVALID_KS_FORMAT);
             }
 
-            ks.privileges = new Dictionary<string, string>();
+            ks.Privileges = new Dictionary<string, string>();
 
             for (int i = 0; i < fields.Length; i++)
             {
                 string[] pair = fields[i].Split('=');
                 if (pair.Length != 2)
                 {
-                    ks.privileges.Add(pair[0], null);
+                    ks.Privileges.Add(pair[0], null);
                 }
                 else
                 {
                     switch (pair[0])
                     {
                         case "t":
-                            ks.sessionType = (KalturaSessionType)Enum.Parse(typeof(KalturaSessionType), pair[1]);
+                            ks.SessionType = (KalturaSessionType)Enum.Parse(typeof(KalturaSessionType), pair[1]);
                             break;
                         case "e":
                             long expiration;
                             long.TryParse(pair[1], out expiration);
-                            ks.expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(expiration);
+                            ks.Expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(expiration);
                             break;
                         case "u":
                             ks.userId = pair[1];
                             break;
                         case "d":
-                            ks.data = string.Empty;
+                            ks.Data = string.Empty;
                             if (!string.IsNullOrEmpty(pair[1]))
                             {
-                                ks.data = HttpUtility.UrlDecode(pair[1]);
-                                ks.data = ks.data.Replace(REPLACE_UNDERSCORE, "_");
+                                ks.Data = HttpUtility.UrlDecode(pair[1]);
+                                ks.Data = ks.Data.Replace(REPLACE_UNDERSCORE, "_");
                             }
                             break;
                         default:
-                            ks.privileges.Add(pair[0], pair[1]);
+                            ks.Privileges.Add(pair[0], pair[1]);
                             break;
                     }
                 }
@@ -357,8 +338,8 @@ namespace WebAPI.Managers.Models
 
         internal void SaveOnRequest()
         {
-            HttpContext.Current.Items[Constants.GROUP_ID] = groupId;
-            HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_GROUP_ID, groupId);
+            HttpContext.Current.Items[Constants.GROUP_ID] = GroupId;
+            HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_GROUP_ID, GroupId);
             HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_KS, this);
         }
 
@@ -376,9 +357,9 @@ namespace WebAPI.Managers.Models
                 HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_KS, ks);
 
             if (HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_GROUP_ID))
-                HttpContext.Current.Items[RequestContextConstants.REQUEST_GROUP_ID] = ks.groupId;
+                HttpContext.Current.Items[RequestContextConstants.REQUEST_GROUP_ID] = ks.GroupId;
             else
-                HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_GROUP_ID, ks.groupId);
+                HttpContext.Current.Items.Add(RequestContextConstants.REQUEST_GROUP_ID, ks.GroupId);
             
             if (!string.IsNullOrEmpty(ks.OriginalUserId) && ks.OriginalUserId != ks.userId && long.TryParse(ks.OriginalUserId, out long originalUserId))
             {
@@ -403,11 +384,11 @@ namespace WebAPI.Managers.Models
         {
             var ks = new KS
             {
-                groupId = token.GroupID,
+                GroupId = token.GroupID,
                 userId = token.UserId,
-                expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(token.AccessTokenExpiration),
-                sessionType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
-                data = KSUtils.PrepareKSPayload(new KSData(token, 0, token.Udid)),
+                Expiration = DateUtils.UtcUnixTimestampSecondsToDateTime(token.AccessTokenExpiration),
+                SessionType = token.IsAdmin ? KalturaSessionType.ADMIN : KalturaSessionType.USER,
+                Data = KSUtils.PrepareKSPayload(new KSData(token, 0, token.Udid)),
                 encryptedValue = tokenVal
             };
 
@@ -459,9 +440,6 @@ namespace WebAPI.Managers.Models
             }
 
             long? domainId = null;
-            string udid = null;
-            long originalUserId = 0;
-
 
             if (!skipDomain)
             {
@@ -472,22 +450,25 @@ namespace WebAPI.Managers.Models
                 catch (Exception) { }
             }
 
+            KSData payload = null;
             try
             {
-                udid = KSUtils.ExtractKSPayload().UDID;
-                long.TryParse(ks.OriginalUserId, out originalUserId);
+                payload = KSUtils.ExtractKSPayload();
             }
             catch (Exception) { }
+            
+            long.TryParse(ks.OriginalUserId, out var originalUserId);
 
             var contextData = new ContextData(ks.GroupId)
             {
                 DomainId = domainId,
                 UserId = Utils.Utils.GetUserIdFromKs(ks),
-                Udid = udid,
+                Udid = payload?.UDID,
                 UserIp = Utils.Utils.GetClientIP(),
                 Language = Utils.Utils.GetLanguageFromRequest(),
                 Format = Utils.Utils.GetFormatFromRequest(),
-                OriginalUserId = originalUserId
+                OriginalUserId = originalUserId,
+                SessionCharacteristicKey = payload?.SessionCharacteristicKey
             };
 
             return contextData;

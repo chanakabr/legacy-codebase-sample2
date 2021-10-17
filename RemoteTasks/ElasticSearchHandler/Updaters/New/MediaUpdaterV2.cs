@@ -92,7 +92,7 @@ namespace ElasticSearchHandler.Updaters
 
                 if (res)
                 {
-                    Core.Api.Managers.AssetRuleManager.UpdateMedia(groupID, mediaId, true);
+                    Core.Api.Managers.AssetRuleManager.Instance.UpdateMedia(groupID, mediaId, true);
                 }
 
                 result &= res;

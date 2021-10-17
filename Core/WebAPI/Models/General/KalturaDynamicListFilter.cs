@@ -64,7 +64,7 @@ namespace WebAPI.Models.General
             var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
             if (items.Count > 500)
             {
-                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaDynamicListIdInFilter.idIn", 500);
+                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "KalturaDynamicListIdInFilter.idIn", 500);
             }
         }
 

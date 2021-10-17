@@ -11,14 +11,12 @@ using System.Reflection;
 
 namespace ApiObjects.Segmentation
 {
-
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.Auto)]
     public class SegmentationType : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         public static readonly int USER_SEGMENT_TTL_HOURS = ApplicationConfiguration.Current.UserSegmentTTL.Value;
-
 
         [JsonProperty()]
         public string Name;

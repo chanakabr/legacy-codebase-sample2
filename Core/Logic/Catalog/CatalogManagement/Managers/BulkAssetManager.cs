@@ -95,7 +95,7 @@ namespace Core.Catalog.CatalogManagement
                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, mediaAsset.Id));
 
                     // invalidate asset
-                    AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, (int)mediaAsset.Id);
+                    AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, (int)mediaAsset.Id);
                 }
 
                 response.SetStatus(eResponseStatus.OK);

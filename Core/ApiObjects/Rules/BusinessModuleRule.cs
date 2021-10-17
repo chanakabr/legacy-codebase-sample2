@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
 
 namespace ApiObjects.Rules
 {
@@ -35,7 +33,7 @@ namespace ApiObjects.Rules
                 {
                     scope.RuleId = this.Id;
                     
-                    if (!condition.Evaluate(scope))
+                    if (!scope.Evaluate(condition))
                     {
                         return false;
                     }

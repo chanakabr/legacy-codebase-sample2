@@ -28,6 +28,10 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Controllers;
 using WebAPI.Models;
+using WebAPI.Models.Users.UserSessionProfile;
+using WebAPI.Models.ConditionalAccess.FilterActions;
+using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
+using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
@@ -36,7 +40,7 @@ namespace WebAPI.Reflection
 {
     public class Deserializer
     {
-        public static KalturaOTTObject deserialize(Type type, Dictionary<string, object> parameters)
+        public static IKalturaOTTObject deserialize(Type type, Dictionary<string, object> parameters)
         {
             string objectType = type.Name;
             if (parameters.ContainsKey("objectType"))
@@ -47,175 +51,175 @@ namespace WebAPI.Reflection
             switch (objectType)
             {
                 case "KalturaAccessControlBlockAction":
-                    return new KalturaAccessControlBlockAction(parameters);
+                    return new KalturaAccessControlBlockAction(parameters, true);
                     
                 case "KalturaAccessControlMessage":
-                    return new KalturaAccessControlMessage(parameters);
+                    return new KalturaAccessControlMessage(parameters, true);
                     
                 case "KalturaActionPermissionItem":
-                    return new KalturaActionPermissionItem(parameters);
+                    return new KalturaActionPermissionItem(parameters, true);
                     
                 case "KalturaActionResult":
-                    return new KalturaActionResult(parameters);
+                    return new KalturaActionResult(parameters, true);
                     
                 case "KalturaAddDefaultIfEmptyResponseProfile":
-                    return new KalturaAddDefaultIfEmptyResponseProfile(parameters);
+                    return new KalturaAddDefaultIfEmptyResponseProfile(parameters, true);
                     
                 case "KalturaAdsContext":
-                    return new KalturaAdsContext(parameters);
+                    return new KalturaAdsContext(parameters, true);
                     
                 case "KalturaAdsSource":
-                    return new KalturaAdsSource(parameters);
+                    return new KalturaAdsSource(parameters, true);
                     
                 case "KalturaAggregatedPropertySkipCondition":
-                    return new KalturaAggregatedPropertySkipCondition(parameters);
+                    return new KalturaAggregatedPropertySkipCondition(parameters, true);
                     
                 case "KalturaAggregationCountFilter":
-                    return new KalturaAggregationCountFilter(parameters);
+                    return new KalturaAggregationCountFilter(parameters, true);
                     
                 case "KalturaAllowPlaybackAction":
-                    return new KalturaAllowPlaybackAction(parameters);
+                    return new KalturaAllowPlaybackAction(parameters, true);
                     
                 case "KalturaAnnouncement":
-                    return new KalturaAnnouncement(parameters);
+                    return new KalturaAnnouncement(parameters, true);
                     
                 case "KalturaAnnouncementFilter":
-                    return new KalturaAnnouncementFilter(parameters);
+                    return new KalturaAnnouncementFilter(parameters, true);
                     
                 case "KalturaAnnouncementListResponse":
-                    return new KalturaAnnouncementListResponse(parameters);
+                    return new KalturaAnnouncementListResponse(parameters, true);
                     
                 case "KalturaApiActionPermissionItem":
-                    return new KalturaApiActionPermissionItem(parameters);
+                    return new KalturaApiActionPermissionItem(parameters, true);
                     
                 case "KalturaApiArgumentPermissionItem":
-                    return new KalturaApiArgumentPermissionItem(parameters);
+                    return new KalturaApiArgumentPermissionItem(parameters, true);
                     
                 case "KalturaApiParameterPermissionItem":
-                    return new KalturaApiParameterPermissionItem(parameters);
+                    return new KalturaApiParameterPermissionItem(parameters, true);
                     
                 case "KalturaApiPriviligesPermissionItem":
-                    return new KalturaApiPriviligesPermissionItem(parameters);
+                    return new KalturaApiPriviligesPermissionItem(parameters, true);
                     
                 case "KalturaApplyDiscountModuleAction":
-                    return new KalturaApplyDiscountModuleAction(parameters);
+                    return new KalturaApplyDiscountModuleAction(parameters, true);
                     
                 case "KalturaApplyFreePlaybackAction":
-                    return new KalturaApplyFreePlaybackAction(parameters);
+                    return new KalturaApplyFreePlaybackAction(parameters, true);
                     
                 case "KalturaApplyPlaybackAdapterAction":
-                    return new KalturaApplyPlaybackAdapterAction(parameters);
+                    return new KalturaApplyPlaybackAdapterAction(parameters, true);
                     
                 case "KalturaAppToken":
-                    return new KalturaAppToken(parameters);
+                    return new KalturaAppToken(parameters, true);
                     
                 case "KalturaAsset":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaAssetBookmark":
-                    return new KalturaAssetBookmark(parameters);
+                    return new KalturaAssetBookmark(parameters, true);
                     
                 case "KalturaAssetBookmarks":
-                    return new KalturaAssetBookmarks(parameters);
+                    return new KalturaAssetBookmarks(parameters, true);
                     
                 case "KalturaAssetComment":
-                    return new KalturaAssetComment(parameters);
+                    return new KalturaAssetComment(parameters, true);
                     
                 case "KalturaAssetCommentFilter":
-                    return new KalturaAssetCommentFilter(parameters);
+                    return new KalturaAssetCommentFilter(parameters, true);
                     
                 case "KalturaAssetCommentListResponse":
-                    return new KalturaAssetCommentListResponse(parameters);
+                    return new KalturaAssetCommentListResponse(parameters, true);
                     
                 case "KalturaAssetCondition":
-                    return new KalturaAssetCondition(parameters);
+                    return new KalturaAssetCondition(parameters, true);
                     
                 case "KalturaAssetCount":
-                    return new KalturaAssetCount(parameters);
+                    return new KalturaAssetCount(parameters, true);
                     
                 case "KalturaAssetCountListResponse":
-                    return new KalturaAssetCountListResponse(parameters);
+                    return new KalturaAssetCountListResponse(parameters, true);
                     
                 case "KalturaAssetEvent":
-                    return new KalturaAssetEvent(parameters);
+                    return new KalturaAssetEvent(parameters, true);
                     
                 case "KalturaAssetFieldGroupBy":
-                    return new KalturaAssetFieldGroupBy(parameters);
+                    return new KalturaAssetFieldGroupBy(parameters, true);
                     
                 case "KalturaAssetFile":
-                    return new KalturaAssetFile(parameters);
+                    return new KalturaAssetFile(parameters, true);
                     
                 case "KalturaAssetFileContext":
-                    return new KalturaAssetFileContext(parameters);
+                    return new KalturaAssetFileContext(parameters, true);
                     
                 case "KalturaAssetFilePpv":
-                    return new KalturaAssetFilePpv(parameters);
+                    return new KalturaAssetFilePpv(parameters, true);
                     
                 case "KalturaAssetFilePpvFilter":
-                    return new KalturaAssetFilePpvFilter(parameters);
+                    return new KalturaAssetFilePpvFilter(parameters, true);
                     
                 case "KalturaAssetFilePpvListResponse":
-                    return new KalturaAssetFilePpvListResponse(parameters);
+                    return new KalturaAssetFilePpvListResponse(parameters, true);
                     
                 case "KalturaAssetFilter":
-                    return new KalturaAssetFilter(parameters);
+                    return new KalturaAssetFilter(parameters, true);
                     
                 case "KalturaAssetGroupBy":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaAssetHistory":
-                    return new KalturaAssetHistory(parameters);
+                    return new KalturaAssetHistory(parameters, true);
                     
                 case "KalturaAssetHistoryFilter":
-                    return new KalturaAssetHistoryFilter(parameters);
+                    return new KalturaAssetHistoryFilter(parameters, true);
                     
                 case "KalturaAssetHistoryListResponse":
-                    return new KalturaAssetHistoryListResponse(parameters);
+                    return new KalturaAssetHistoryListResponse(parameters, true);
                     
                 case "KalturaAssetHistorySuppressFilter":
-                    return new KalturaAssetHistorySuppressFilter(parameters);
+                    return new KalturaAssetHistorySuppressFilter(parameters, true);
                     
                 case "KalturaAssetImagePerRatioFilter":
-                    return new KalturaAssetImagePerRatioFilter(parameters);
+                    return new KalturaAssetImagePerRatioFilter(parameters, true);
                     
                 case "KalturaAssetInfo":
-                    return new KalturaAssetInfo(parameters);
+                    return new KalturaAssetInfo(parameters, true);
                     
                 case "KalturaAssetInfoFilter":
-                    return new KalturaAssetInfoFilter(parameters);
+                    return new KalturaAssetInfoFilter(parameters, true);
                     
                 case "KalturaAssetInfoListResponse":
-                    return new KalturaAssetInfoListResponse(parameters);
+                    return new KalturaAssetInfoListResponse(parameters, true);
                     
                 case "KalturaAssetLifeCycleBuisnessModuleTransitionAction":
-                    return new KalturaAssetLifeCycleBuisnessModuleTransitionAction(parameters);
+                    return new KalturaAssetLifeCycleBuisnessModuleTransitionAction(parameters, true);
                     
                 case "KalturaAssetLifeCycleTagTransitionAction":
-                    return new KalturaAssetLifeCycleTagTransitionAction(parameters);
+                    return new KalturaAssetLifeCycleTagTransitionAction(parameters, true);
                     
                 case "KalturaAssetLifeCycleTransitionAction":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaAssetListResponse":
-                    return new KalturaAssetListResponse(parameters);
+                    return new KalturaAssetListResponse(parameters, true);
                     
                 case "KalturaAssetMetaOrTagGroupBy":
-                    return new KalturaAssetMetaOrTagGroupBy(parameters);
+                    return new KalturaAssetMetaOrTagGroupBy(parameters, true);
                     
                 case "KalturaAssetOrderSegmentAction":
-                    return new KalturaAssetOrderSegmentAction(parameters);
+                    return new KalturaAssetOrderSegmentAction(parameters, true);
                     
                 case "KalturaAssetPrice":
-                    return new KalturaAssetPrice(parameters);
+                    return new KalturaAssetPrice(parameters, true);
                     
                 case "KalturaAssetReminder":
-                    return new KalturaAssetReminder(parameters);
+                    return new KalturaAssetReminder(parameters, true);
                     
                 case "KalturaAssetReminderFilter":
-                    return new KalturaAssetReminderFilter(parameters);
+                    return new KalturaAssetReminderFilter(parameters, true);
                     
                 case "KalturaAssetRule":
-                    return new KalturaAssetRule(parameters);
+                    return new KalturaAssetRule(parameters, true);
                     
                 case "KalturaAssetRuleAction":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -224,85 +228,85 @@ namespace WebAPI.Reflection
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaAssetRuleFilter":
-                    return new KalturaAssetRuleFilter(parameters);
+                    return new KalturaAssetRuleFilter(parameters, true);
                     
                 case "KalturaAssetRuleListResponse":
-                    return new KalturaAssetRuleListResponse(parameters);
+                    return new KalturaAssetRuleListResponse(parameters, true);
                     
                 case "KalturaAssetsBookmarksResponse":
-                    return new KalturaAssetsBookmarksResponse(parameters);
+                    return new KalturaAssetsBookmarksResponse(parameters, true);
                     
                 case "KalturaAssetsCount":
-                    return new KalturaAssetsCount(parameters);
+                    return new KalturaAssetsCount(parameters, true);
                     
                 case "KalturaAssetsFilter":
-                    return new KalturaAssetsFilter(parameters);
+                    return new KalturaAssetsFilter(parameters, true);
                     
                 case "KalturaAssetStatistics":
-                    return new KalturaAssetStatistics(parameters);
+                    return new KalturaAssetStatistics(parameters, true);
                     
                 case "KalturaAssetStatisticsListResponse":
-                    return new KalturaAssetStatisticsListResponse(parameters);
+                    return new KalturaAssetStatisticsListResponse(parameters, true);
                     
                 case "KalturaAssetStatisticsQuery":
-                    return new KalturaAssetStatisticsQuery(parameters);
+                    return new KalturaAssetStatisticsQuery(parameters, true);
                     
                 case "KalturaAssetStruct":
-                    return new KalturaAssetStruct(parameters);
+                    return new KalturaAssetStruct(parameters, true);
                     
                 case "KalturaAssetStructFilter":
-                    return new KalturaAssetStructFilter(parameters);
+                    return new KalturaAssetStructFilter(parameters, true);
                     
                 case "KalturaAssetStructListResponse":
-                    return new KalturaAssetStructListResponse(parameters);
+                    return new KalturaAssetStructListResponse(parameters, true);
                     
                 case "KalturaAssetStructMeta":
-                    return new KalturaAssetStructMeta(parameters);
+                    return new KalturaAssetStructMeta(parameters, true);
                     
                 case "KalturaAssetStructMetaFilter":
-                    return new KalturaAssetStructMetaFilter(parameters);
+                    return new KalturaAssetStructMetaFilter(parameters, true);
                     
                 case "KalturaAssetStructMetaListResponse":
-                    return new KalturaAssetStructMetaListResponse(parameters);
+                    return new KalturaAssetStructMetaListResponse(parameters, true);
                     
                 case "KalturaAssetSubscriptionCondition":
-                    return new KalturaAssetSubscriptionCondition(parameters);
+                    return new KalturaAssetSubscriptionCondition(parameters, true);
                     
                 case "KalturaAssetUserRule":
-                    return new KalturaAssetUserRule(parameters);
+                    return new KalturaAssetUserRule(parameters, true);
                     
                 case "KalturaAssetUserRuleAction":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaAssetUserRuleBlockAction":
-                    return new KalturaAssetUserRuleBlockAction(parameters);
+                    return new KalturaAssetUserRuleBlockAction(parameters, true);
                     
                 case "KalturaAssetUserRuleFilter":
-                    return new KalturaAssetUserRuleFilter(parameters);
+                    return new KalturaAssetUserRuleFilter(parameters, true);
                     
                 case "KalturaAssetUserRuleFilterAction":
-                    return new KalturaAssetUserRuleFilterAction(parameters);
+                    return new KalturaAssetUserRuleFilterAction(parameters, true);
                     
                 case "KalturaAssetUserRuleListResponse":
-                    return new KalturaAssetUserRuleListResponse(parameters);
+                    return new KalturaAssetUserRuleListResponse(parameters, true);
                     
                 case "KalturaBaseAssetInfo":
-                    return new KalturaBaseAssetInfo(parameters);
+                    return new KalturaBaseAssetInfo(parameters, true);
                     
                 case "KalturaBaseAssetStructFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBaseChannel":
-                    return new KalturaBaseChannel(parameters);
+                    return new KalturaBaseChannel(parameters, true);
                     
                 case "KalturaBaseOTTUser":
-                    return new KalturaBaseOTTUser(parameters);
+                    return new KalturaBaseOTTUser(parameters, true);
                     
                 case "KalturaBasePartnerConfiguration":
-                    return new KalturaBasePartnerConfiguration(parameters);
+                    return new KalturaBasePartnerConfiguration(parameters, true);
                     
                 case "KalturaBasePermissionFilter":
-                    return new KalturaBasePermissionFilter(parameters);
+                    return new KalturaBasePermissionFilter(parameters, true);
                     
                 case "KalturaBaseRegionFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -314,67 +318,67 @@ namespace WebAPI.Reflection
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBaseSegmentAction":
-                    return new KalturaBaseSegmentAction(parameters);
+                    return new KalturaBaseSegmentAction(parameters, true);
                     
                 case "KalturaBaseSegmentationTypeFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBaseSegmentCondition":
-                    return new KalturaBaseSegmentCondition(parameters);
+                    return new KalturaBaseSegmentCondition(parameters, true);
                     
                 case "KalturaBaseSegmentValue":
-                    return new KalturaBaseSegmentValue(parameters);
+                    return new KalturaBaseSegmentValue(parameters, true);
                     
                 case "KalturaBatchCampaign":
-                    return new KalturaBatchCampaign(parameters);
+                    return new KalturaBatchCampaign(parameters, true);
                     
                 case "KalturaBatchCampaignSearchFilter":
-                    return new KalturaBatchCampaignSearchFilter(parameters);
+                    return new KalturaBatchCampaignSearchFilter(parameters, true);
                     
                 case "KalturaBillingPartnerConfig":
-                    return new KalturaBillingPartnerConfig(parameters);
+                    return new KalturaBillingPartnerConfig(parameters, true);
                     
                 case "KalturaBillingResponse":
-                    return new KalturaBillingResponse(parameters);
+                    return new KalturaBillingResponse(parameters, true);
                     
                 case "KalturaBillingTransaction":
-                    return new KalturaBillingTransaction(parameters);
+                    return new KalturaBillingTransaction(parameters, true);
                     
                 case "KalturaBillingTransactionListResponse":
-                    return new KalturaBillingTransactionListResponse(parameters);
+                    return new KalturaBillingTransactionListResponse(parameters, true);
                     
                 case "KalturaBlockPlaybackAction":
-                    return new KalturaBlockPlaybackAction(parameters);
+                    return new KalturaBlockPlaybackAction(parameters, true);
                     
                 case "KalturaBlockSubscriptionSegmentAction":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBookmark":
-                    return new KalturaBookmark(parameters);
+                    return new KalturaBookmark(parameters, true);
                     
                 case "KalturaBookmarkEvent":
-                    return new KalturaBookmarkEvent(parameters);
+                    return new KalturaBookmarkEvent(parameters, true);
                     
                 case "KalturaBookmarkEventThreshold":
-                    return new KalturaBookmarkEventThreshold(parameters);
+                    return new KalturaBookmarkEventThreshold(parameters, true);
                     
                 case "KalturaBookmarkFilter":
-                    return new KalturaBookmarkFilter(parameters);
+                    return new KalturaBookmarkFilter(parameters, true);
                     
                 case "KalturaBookmarkListResponse":
-                    return new KalturaBookmarkListResponse(parameters);
+                    return new KalturaBookmarkListResponse(parameters, true);
                     
                 case "KalturaBookmarkPlayerData":
-                    return new KalturaBookmarkPlayerData(parameters);
+                    return new KalturaBookmarkPlayerData(parameters, true);
                     
                 case "KalturaBooleanValue":
-                    return new KalturaBooleanValue(parameters);
+                    return new KalturaBooleanValue(parameters, true);
                     
                 case "KalturaBulkUpload":
-                    return new KalturaBulkUpload(parameters);
+                    return new KalturaBulkUpload(parameters, true);
                     
                 case "KalturaBulkUploadAssetData":
-                    return new KalturaBulkUploadMediaAssetData(parameters);
+                    return new KalturaBulkUploadMediaAssetData(parameters, true);
                     
                 case "KalturaBulkUploadAssetResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -386,1480 +390,1567 @@ namespace WebAPI.Reflection
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBulkUploadExcelJobData":
-                    return new KalturaBulkUploadExcelJobData(parameters);
+                    return new KalturaBulkUploadExcelJobData(parameters, true);
                     
                 case "KalturaBulkUploadFilter":
-                    return new KalturaBulkUploadFilter(parameters);
+                    return new KalturaBulkUploadFilter(parameters, true);
                     
                 case "KalturaBulkUploadIngestJobData":
-                    return new KalturaBulkUploadIngestJobData(parameters);
+                    return new KalturaBulkUploadIngestJobData(parameters, true);
                     
                 case "KalturaBulkUploadJobData":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBulkUploadListResponse":
-                    return new KalturaBulkUploadListResponse(parameters);
+                    return new KalturaBulkUploadListResponse(parameters, true);
                     
                 case "KalturaBulkUploadLiveAssetData":
-                    return new KalturaBulkUploadLiveAssetData(parameters);
+                    return new KalturaBulkUploadLiveAssetData(parameters, true);
                     
                 case "KalturaBulkUploadLiveAssetResult":
-                    return new KalturaBulkUploadLiveAssetResult(parameters);
+                    return new KalturaBulkUploadLiveAssetResult(parameters, true);
                     
                 case "KalturaBulkUploadMediaAssetData":
-                    return new KalturaBulkUploadMediaAssetData(parameters);
+                    return new KalturaBulkUploadMediaAssetData(parameters, true);
                     
                 case "KalturaBulkUploadMediaAssetResult":
-                    return new KalturaBulkUploadMediaAssetResult(parameters);
+                    return new KalturaBulkUploadMediaAssetResult(parameters, true);
                     
                 case "KalturaBulkUploadObjectData":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBulkUploadProgramAssetData":
-                    return new KalturaBulkUploadProgramAssetData(parameters);
+                    return new KalturaBulkUploadProgramAssetData(parameters, true);
                     
                 case "KalturaBulkUploadProgramAssetResult":
-                    return new KalturaBulkUploadProgramAssetResult(parameters);
+                    return new KalturaBulkUploadProgramAssetResult(parameters, true);
                     
                 case "KalturaBulkUploadResult":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBulkUploadUdidDynamicListData":
-                    return new KalturaBulkUploadUdidDynamicListData(parameters);
+                    return new KalturaBulkUploadUdidDynamicListData(parameters, true);
                     
                 case "KalturaBulkUploadUdidDynamicListResult":
-                    return new KalturaBulkUploadUdidDynamicListResult(parameters);
+                    return new KalturaBulkUploadUdidDynamicListResult(parameters, true);
                     
                 case "KalturaBumpersPlaybackPluginData":
-                    return new KalturaBumpersPlaybackPluginData(parameters);
+                    return new KalturaBumpersPlaybackPluginData(parameters, true);
                     
                 case "KalturaBundleFilter":
-                    return new KalturaBundleFilter(parameters);
+                    return new KalturaBundleFilter(parameters, true);
                     
                 case "KalturaBusinessModuleCondition":
-                    return new KalturaBusinessModuleCondition(parameters);
+                    return new KalturaBusinessModuleCondition(parameters, true);
                     
                 case "KalturaBusinessModuleDetails":
-                    return new KalturaBusinessModuleDetails(parameters);
+                    return new KalturaBusinessModuleDetails(parameters, true);
                     
                 case "KalturaBusinessModuleRule":
-                    return new KalturaBusinessModuleRule(parameters);
+                    return new KalturaBusinessModuleRule(parameters, true);
                     
                 case "KalturaBusinessModuleRuleAction":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaBusinessModuleRuleFilter":
-                    return new KalturaBusinessModuleRuleFilter(parameters);
+                    return new KalturaBusinessModuleRuleFilter(parameters, true);
                     
                 case "KalturaBusinessModuleRuleListResponse":
-                    return new KalturaBusinessModuleRuleListResponse(parameters);
+                    return new KalturaBusinessModuleRuleListResponse(parameters, true);
                     
                 case "KalturaBuzzScore":
-                    return new KalturaBuzzScore(parameters);
+                    return new KalturaBuzzScore(parameters, true);
                     
                 case "KalturaCampaign":
-                    return new KalturaCampaign(parameters);
+                    return new KalturaCampaign(parameters, true);
                     
                 case "KalturaCampaignEntitlementDiscountDetails":
-                    return new KalturaCampaignEntitlementDiscountDetails(parameters);
+                    return new KalturaCampaignEntitlementDiscountDetails(parameters, true);
                     
                 case "KalturaCampaignFilter":
-                    return new KalturaCampaignFilter(parameters);
+                    return new KalturaCampaignFilter(parameters, true);
                     
                 case "KalturaCampaignIdInFilter":
-                    return new KalturaCampaignIdInFilter(parameters);
+                    return new KalturaCampaignIdInFilter(parameters, true);
                     
                 case "KalturaCampaignListResponse":
-                    return new KalturaCampaignListResponse(parameters);
+                    return new KalturaCampaignListResponse(parameters, true);
                     
                 case "KalturaCampaignSearchFilter":
-                    return new KalturaCampaignSearchFilter(parameters);
+                    return new KalturaCampaignSearchFilter(parameters, true);
                     
                 case "KalturaCanaryDeploymentAuthenticationMsOwnerShip":
-                    return new KalturaCanaryDeploymentAuthenticationMsOwnerShip(parameters);
+                    return new KalturaCanaryDeploymentAuthenticationMsOwnerShip(parameters, true);
                     
                 case "KalturaCaptionPlaybackPluginData":
-                    return new KalturaCaptionPlaybackPluginData(parameters);
+                    return new KalturaCaptionPlaybackPluginData(parameters, true);
                     
                 case "KalturaCatalogPartnerConfig":
-                    return new KalturaCatalogPartnerConfig(parameters);
+                    return new KalturaCatalogPartnerConfig(parameters, true);
                     
                 case "KalturaCatalogWithHolder":
-                    return new KalturaCatalogWithHolder(parameters);
+                    return new KalturaCatalogWithHolder(parameters, true);
                     
                 case "KalturaCategoryItem":
-                    return new KalturaCategoryItem(parameters);
+                    return new KalturaCategoryItem(parameters, true);
                     
                 case "KalturaCategoryItemAncestorsFilter":
-                    return new KalturaCategoryItemAncestorsFilter(parameters);
+                    return new KalturaCategoryItemAncestorsFilter(parameters, true);
                     
                 case "KalturaCategoryItemByIdInFilter":
-                    return new KalturaCategoryItemByIdInFilter(parameters);
+                    return new KalturaCategoryItemByIdInFilter(parameters, true);
                     
                 case "KalturaCategoryItemFilter":
-                    return new KalturaCategoryItemFilter(parameters);
+                    return new KalturaCategoryItemFilter(parameters, true);
                     
                 case "KalturaCategoryItemListResponse":
-                    return new KalturaCategoryItemListResponse(parameters);
+                    return new KalturaCategoryItemListResponse(parameters, true);
                     
                 case "KalturaCategoryItemSearchFilter":
-                    return new KalturaCategoryItemSearchFilter(parameters);
+                    return new KalturaCategoryItemSearchFilter(parameters, true);
                     
                 case "KalturaCategoryManagement":
-                    return new KalturaCategoryManagement(parameters);
+                    return new KalturaCategoryManagement(parameters, true);
                     
                 case "KalturaCategoryTree":
-                    return new KalturaCategoryTree(parameters);
+                    return new KalturaCategoryTree(parameters, true);
                     
                 case "KalturaCategoryVersion":
-                    return new KalturaCategoryVersion(parameters);
+                    return new KalturaCategoryVersion(parameters, true);
                     
                 case "KalturaCategoryVersionFilter":
-                    return new KalturaCategoryVersionFilter(parameters);
+                    return new KalturaCategoryVersionFilter(parameters, true);
                     
                 case "KalturaCategoryVersionFilterByTree":
-                    return new KalturaCategoryVersionFilterByTree(parameters);
+                    return new KalturaCategoryVersionFilterByTree(parameters, true);
                     
                 case "KalturaCategoryVersionListResponse":
-                    return new KalturaCategoryVersionListResponse(parameters);
+                    return new KalturaCategoryVersionListResponse(parameters, true);
                     
                 case "KalturaCDNAdapterProfile":
-                    return new KalturaCDNAdapterProfile(parameters);
+                    return new KalturaCDNAdapterProfile(parameters, true);
                     
                 case "KalturaCDNAdapterProfileListResponse":
-                    return new KalturaCDNAdapterProfileListResponse(parameters);
+                    return new KalturaCDNAdapterProfileListResponse(parameters, true);
                     
                 case "KalturaCDNPartnerSettings":
-                    return new KalturaCDNPartnerSettings(parameters);
+                    return new KalturaCDNPartnerSettings(parameters, true);
                     
                 case "KalturaCDVRAdapterProfile":
-                    return new KalturaCDVRAdapterProfile(parameters);
+                    return new KalturaCDVRAdapterProfile(parameters, true);
                     
                 case "KalturaCDVRAdapterProfileListResponse":
-                    return new KalturaCDVRAdapterProfileListResponse(parameters);
+                    return new KalturaCDVRAdapterProfileListResponse(parameters, true);
                     
                 case "KalturaChannel":
-                    return new KalturaChannel(parameters);
+                    return new KalturaChannel(parameters, true);
                     
                 case "KalturaChannelEnrichmentHolder":
-                    return new KalturaChannelEnrichmentHolder(parameters);
+                    return new KalturaChannelEnrichmentHolder(parameters, true);
                     
                 case "KalturaChannelExternalFilter":
-                    return new KalturaChannelExternalFilter(parameters);
+                    return new KalturaChannelExternalFilter(parameters, true);
                     
                 case "KalturaChannelFilter":
-                    return new KalturaChannelFilter(parameters);
+                    return new KalturaChannelFilter(parameters, true);
                     
                 case "KalturaChannelListResponse":
-                    return new KalturaChannelListResponse(parameters);
+                    return new KalturaChannelListResponse(parameters, true);
                     
                 case "KalturaChannelOrder":
-                    return new KalturaChannelOrder(parameters);
+                    return new KalturaChannelOrder(parameters, true);
                     
                 case "KalturaChannelProfile":
-                    return new KalturaChannelProfile(parameters);
+                    return new KalturaChannelProfile(parameters, true);
                     
                 case "KalturaChannelsBaseFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaChannelSearchByKsqlFilter":
-                    return new KalturaChannelSearchByKsqlFilter(parameters);
+                    return new KalturaChannelSearchByKsqlFilter(parameters, true);
                     
                 case "KalturaChannelsFilter":
-                    return new KalturaChannelsFilter(parameters);
+                    return new KalturaChannelsFilter(parameters, true);
                     
                 case "KalturaClientConfiguration":
-                    return new KalturaClientConfiguration(parameters);
+                    return new KalturaClientConfiguration(parameters, true);
                     
                 case "KalturaCloudRecordingFilter":
-                    return new KalturaCloudRecordingFilter(parameters);
+                    return new KalturaCloudRecordingFilter(parameters, true);
                     
                 case "KalturaCloudSeriesRecordingFilter":
-                    return new KalturaCloudSeriesRecordingFilter(parameters);
+                    return new KalturaCloudSeriesRecordingFilter(parameters, true);
                     
                 case "KalturaCognitoIdentity":
-                    return new KalturaCognitoIdentity(parameters);
+                    return new KalturaCognitoIdentity(parameters, true);
                     
                 case "KalturaCognitoUserPool":
-                    return new KalturaCognitoUserPool(parameters);
+                    return new KalturaCognitoUserPool(parameters, true);
                     
                 case "KalturaCollection":
-                    return new KalturaCollection(parameters);
+                    return new KalturaCollection(parameters, true);
                     
                 case "KalturaCollectionEntitlement":
-                    return new KalturaCollectionEntitlement(parameters);
+                    return new KalturaCollectionEntitlement(parameters, true);
                     
                 case "KalturaCollectionFilter":
-                    return new KalturaCollectionFilter(parameters);
+                    return new KalturaCollectionFilter(parameters, true);
                     
                 case "KalturaCollectionListResponse":
-                    return new KalturaCollectionListResponse(parameters);
+                    return new KalturaCollectionListResponse(parameters, true);
                     
                 case "KalturaCollectionPrice":
-                    return new KalturaCollectionPrice(parameters);
+                    return new KalturaCollectionPrice(parameters, true);
                     
                 case "KalturaCommercePartnerConfig":
-                    return new KalturaCommercePartnerConfig(parameters);
+                    return new KalturaCommercePartnerConfig(parameters, true);
                     
                 case "KalturaCompensation":
-                    return new KalturaCompensation(parameters);
+                    return new KalturaCompensation(parameters, true);
                     
                 case "KalturaCompensationEntitlementDiscountDetails":
-                    return new KalturaCompensationEntitlementDiscountDetails(parameters);
+                    return new KalturaCompensationEntitlementDiscountDetails(parameters, true);
                     
                 case "KalturaConcurrencyCondition":
-                    return new KalturaConcurrencyCondition(parameters);
+                    return new KalturaConcurrencyCondition(parameters, true);
                     
                 case "KalturaConcurrencyPartnerConfig":
-                    return new KalturaConcurrencyPartnerConfig(parameters);
+                    return new KalturaConcurrencyPartnerConfig(parameters, true);
                     
                 case "KalturaConcurrencyViolation":
-                    return new KalturaConcurrencyViolation(parameters);
+                    return new KalturaConcurrencyViolation(parameters, true);
                     
                 case "KalturaCondition":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaConfigurationGroup":
-                    return new KalturaConfigurationGroup(parameters);
+                    return new KalturaConfigurationGroup(parameters, true);
                     
                 case "KalturaConfigurationGroupDevice":
-                    return new KalturaConfigurationGroupDevice(parameters);
+                    return new KalturaConfigurationGroupDevice(parameters, true);
                     
                 case "KalturaConfigurationGroupDeviceFilter":
-                    return new KalturaConfigurationGroupDeviceFilter(parameters);
+                    return new KalturaConfigurationGroupDeviceFilter(parameters, true);
                     
                 case "KalturaConfigurationGroupDeviceListResponse":
-                    return new KalturaConfigurationGroupDeviceListResponse(parameters);
+                    return new KalturaConfigurationGroupDeviceListResponse(parameters, true);
                     
                 case "KalturaConfigurationGroupListResponse":
-                    return new KalturaConfigurationGroupListResponse(parameters);
+                    return new KalturaConfigurationGroupListResponse(parameters, true);
                     
                 case "KalturaConfigurationGroupTag":
-                    return new KalturaConfigurationGroupTag(parameters);
+                    return new KalturaConfigurationGroupTag(parameters, true);
                     
                 case "KalturaConfigurationGroupTagFilter":
-                    return new KalturaConfigurationGroupTagFilter(parameters);
+                    return new KalturaConfigurationGroupTagFilter(parameters, true);
                     
                 case "KalturaConfigurationGroupTagListResponse":
-                    return new KalturaConfigurationGroupTagListResponse(parameters);
+                    return new KalturaConfigurationGroupTagListResponse(parameters, true);
                     
                 case "KalturaConfigurationIdentifier":
-                    return new KalturaConfigurationIdentifier(parameters);
+                    return new KalturaConfigurationIdentifier(parameters, true);
                     
                 case "KalturaConfigurations":
-                    return new KalturaConfigurations(parameters);
+                    return new KalturaConfigurations(parameters, true);
                     
                 case "KalturaConfigurationsFilter":
-                    return new KalturaConfigurationsFilter(parameters);
+                    return new KalturaConfigurationsFilter(parameters, true);
                     
                 case "KalturaConfigurationsListResponse":
-                    return new KalturaConfigurationsListResponse(parameters);
+                    return new KalturaConfigurationsListResponse(parameters, true);
                     
                 case "KalturaContentActionCondition":
-                    return new KalturaContentActionCondition(parameters);
+                    return new KalturaContentActionCondition(parameters, true);
                     
                 case "KalturaContentResource":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaContentScoreCondition":
-                    return new KalturaContentScoreCondition(parameters);
+                    return new KalturaContentScoreCondition(parameters, true);
                     
                 case "KalturaContentSource":
-                    return new KalturaContentSource(parameters);
+                    return new KalturaContentSource(parameters, true);
                     
                 case "KalturaCountry":
-                    return new KalturaCountry(parameters);
+                    return new KalturaCountry(parameters, true);
                     
                 case "KalturaCountryCondition":
-                    return new KalturaCountryCondition(parameters);
+                    return new KalturaCountryCondition(parameters, true);
                     
                 case "KalturaCountryFilter":
-                    return new KalturaCountryFilter(parameters);
+                    return new KalturaCountryFilter(parameters, true);
                     
                 case "KalturaCountryListResponse":
-                    return new KalturaCountryListResponse(parameters);
+                    return new KalturaCountryListResponse(parameters, true);
                     
                 case "KalturaCoupon":
-                    return new KalturaCoupon(parameters);
+                    return new KalturaCoupon(parameters, true);
                     
                 case "KalturaCouponEntitlementDiscountDetails":
-                    return new KalturaCouponEntitlementDiscountDetails(parameters);
+                    return new KalturaCouponEntitlementDiscountDetails(parameters, true);
                     
                 case "KalturaCouponFilter":
-                    return new KalturaCouponFilter(parameters);
+                    return new KalturaCouponFilter(parameters, true);
                     
                 case "KalturaCouponGenerationOptions":
-                    return new KalturaCouponGenerationOptions(parameters);
+                    return new KalturaCouponGenerationOptions(parameters, true);
                     
                 case "KalturaCouponListResponse":
-                    return new KalturaCouponListResponse(parameters);
+                    return new KalturaCouponListResponse(parameters, true);
                     
                 case "KalturaCouponsGroup":
-                    return new KalturaCouponsGroup(parameters);
+                    return new KalturaCouponsGroup(parameters, true);
                     
                 case "KalturaCouponsGroupListResponse":
-                    return new KalturaCouponsGroupListResponse(parameters);
+                    return new KalturaCouponsGroupListResponse(parameters, true);
                     
                 case "KalturaCredentialsProvider":
-                    return new KalturaCredentialsProvider(parameters);
+                    return new KalturaCredentialsProvider(parameters, true);
                     
                 case "KalturaCrudObject":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaCurrency":
-                    return new KalturaCurrency(parameters);
+                    return new KalturaCurrency(parameters, true);
                     
                 case "KalturaCurrencyFilter":
-                    return new KalturaCurrencyFilter(parameters);
+                    return new KalturaCurrencyFilter(parameters, true);
                     
                 case "KalturaCurrencyListResponse":
-                    return new KalturaCurrencyListResponse(parameters);
+                    return new KalturaCurrencyListResponse(parameters, true);
                     
                 case "KalturaCustomDrmPlaybackPluginData":
-                    return new KalturaCustomDrmPlaybackPluginData(parameters);
+                    return new KalturaCustomDrmPlaybackPluginData(parameters, true);
                     
                 case "KalturaDataEncryption":
-                    return new KalturaDataEncryption(parameters);
+                    return new KalturaDataEncryption(parameters, true);
                     
                 case "KalturaDateCondition":
-                    return new KalturaDateCondition(parameters);
+                    return new KalturaDateCondition(parameters, true);
                     
                 case "KalturaDateTrigger":
-                    return new KalturaDateTrigger(parameters);
+                    return new KalturaDateTrigger(parameters, true);
                     
                 case "KalturaDefaultPlaybackAdapters":
-                    return new KalturaDefaultPlaybackAdapters(parameters);
+                    return new KalturaDefaultPlaybackAdapters(parameters, true);
                     
                 case "KalturaDefaultRegionFilter":
-                    return new KalturaDefaultRegionFilter(parameters);
+                    return new KalturaDefaultRegionFilter(parameters, true);
                     
                 case "KalturaDetachedResponseProfile":
-                    return new KalturaDetachedResponseProfile(parameters);
+                    return new KalturaDetachedResponseProfile(parameters, true);
                     
                 case "KalturaDevice":
-                    return new KalturaDevice(parameters);
+                    return new KalturaDevice(parameters, true);
                     
                 case "KalturaDeviceBrand":
-                    return new KalturaDeviceBrand(parameters);
+                    return new KalturaDeviceBrand(parameters, true);
                     
                 case "KalturaDeviceBrandCondition":
-                    return new KalturaDeviceBrandCondition(parameters);
+                    return new KalturaDeviceBrandCondition(parameters, true);
                     
                 case "KalturaDeviceBrandListResponse":
-                    return new KalturaDeviceBrandListResponse(parameters);
+                    return new KalturaDeviceBrandListResponse(parameters, true);
+                    
+                case "KalturaDeviceDynamicDataCondition":
+                    return new KalturaDeviceDynamicDataCondition(parameters, true);
                     
                 case "KalturaDeviceFamily":
-                    return new KalturaDeviceFamily(parameters);
+                    return new KalturaDeviceFamily(parameters, true);
                     
                 case "KalturaDeviceFamilyBase":
-                    return new KalturaDeviceFamilyBase(parameters);
+                    return new KalturaDeviceFamilyBase(parameters, true);
                     
                 case "KalturaDeviceFamilyCondition":
-                    return new KalturaDeviceFamilyCondition(parameters);
+                    return new KalturaDeviceFamilyCondition(parameters, true);
                     
                 case "KalturaDeviceFamilyListResponse":
-                    return new KalturaDeviceFamilyListResponse(parameters);
+                    return new KalturaDeviceFamilyListResponse(parameters, true);
                     
                 case "KalturaDeviceManufacturerCondition":
-                    return new KalturaDeviceManufacturerCondition(parameters);
+                    return new KalturaDeviceManufacturerCondition(parameters, true);
                     
                 case "KalturaDeviceManufacturerInformation":
-                    return new KalturaDeviceManufacturerInformation(parameters);
+                    return new KalturaDeviceManufacturerInformation(parameters, true);
                     
                 case "KalturaDeviceManufacturersReferenceDataFilter":
-                    return new KalturaDeviceManufacturersReferenceDataFilter(parameters);
+                    return new KalturaDeviceManufacturersReferenceDataFilter(parameters, true);
                     
                 case "KalturaDeviceModelCondition":
-                    return new KalturaDeviceModelCondition(parameters);
+                    return new KalturaDeviceModelCondition(parameters, true);
                     
                 case "KalturaDevicePin":
-                    return new KalturaDevicePin(parameters);
+                    return new KalturaDevicePin(parameters, true);
                     
                 case "KalturaDeviceReferenceData":
-                    return new KalturaDeviceReferenceData(parameters);
+                    return new KalturaDeviceReferenceData(parameters, true);
                     
                 case "KalturaDeviceReferenceDataFilter":
-                    return new KalturaDeviceReferenceDataFilter(parameters);
+                    return new KalturaDeviceReferenceDataFilter(parameters, true);
                     
                 case "KalturaDeviceReferenceDataListResponse":
-                    return new KalturaDeviceReferenceDataListResponse(parameters);
+                    return new KalturaDeviceReferenceDataListResponse(parameters, true);
                     
                 case "KalturaDeviceRegistrationStatusHolder":
-                    return new KalturaDeviceRegistrationStatusHolder(parameters);
+                    return new KalturaDeviceRegistrationStatusHolder(parameters, true);
                     
                 case "KalturaDeviceReport":
-                    return new KalturaDeviceReport(parameters);
+                    return new KalturaDeviceReport(parameters, true);
                     
                 case "KalturaDeviceReportFilter":
-                    return new KalturaDeviceReportFilter(parameters);
+                    return new KalturaDeviceReportFilter(parameters, true);
                     
                 case "KalturaDiscount":
-                    return new KalturaDiscount(parameters);
+                    return new KalturaDiscount(parameters, true);
                     
                 case "KalturaDiscountDetails":
-                    return new KalturaDiscountDetails(parameters);
+                    return new KalturaDiscountDetails(parameters, true);
                     
                 case "KalturaDiscountDetailsFilter":
-                    return new KalturaDiscountDetailsFilter(parameters);
+                    return new KalturaDiscountDetailsFilter(parameters, true);
                     
                 case "KalturaDiscountDetailsListResponse":
-                    return new KalturaDiscountDetailsListResponse(parameters);
+                    return new KalturaDiscountDetailsListResponse(parameters, true);
                     
                 case "KalturaDiscountEntitlementDiscountDetails":
-                    return new KalturaDiscountEntitlementDiscountDetails(parameters);
+                    return new KalturaDiscountEntitlementDiscountDetails(parameters, true);
                     
                 case "KalturaDiscountModule":
-                    return new KalturaDiscountModule(parameters);
+                    return new KalturaDiscountModule(parameters, true);
+                    
+                case "KalturaDiscoveryMediaFile":
+                    return new KalturaDiscoveryMediaFile(parameters, true);
                     
                 case "KalturaDispatcher":
-                    return new KalturaDispatcher(parameters);
+                    return new KalturaDispatcher(parameters, true);
                     
                 case "KalturaDoubleValue":
-                    return new KalturaDoubleValue(parameters);
+                    return new KalturaDoubleValue(parameters, true);
                     
                 case "KalturaDrmPlaybackPluginData":
-                    return new KalturaDrmPlaybackPluginData(parameters);
+                    return new KalturaDrmPlaybackPluginData(parameters, true);
                     
                 case "KalturaDrmProfile":
-                    return new KalturaDrmProfile(parameters);
+                    return new KalturaDrmProfile(parameters, true);
                     
                 case "KalturaDrmProfileListResponse":
-                    return new KalturaDrmProfileListResponse(parameters);
+                    return new KalturaDrmProfileListResponse(parameters, true);
                     
                 case "KalturaDuration":
-                    return new KalturaDuration(parameters);
+                    return new KalturaDuration(parameters, true);
                     
                 case "KalturaDurationListResponse":
-                    return new KalturaDurationListResponse(parameters);
+                    return new KalturaDurationListResponse(parameters, true);
                     
                 case "KalturaDynamicChannel":
-                    return new KalturaDynamicChannel(parameters);
+                    return new KalturaDynamicChannel(parameters, true);
                     
                 case "KalturaDynamicData":
-                    return new KalturaDynamicData(parameters);
+                    return new KalturaDynamicData(parameters, true);
+                    
+                case "KalturaDynamicKeysCondition":
+                    return new KalturaDynamicKeysCondition(parameters, true);
                     
                 case "KalturaDynamicList":
-                    return new KalturaDynamicList(parameters);
+                    return new KalturaDynamicList(parameters, true);
                     
                 case "KalturaDynamicListFilter":
-                    return new KalturaDynamicListFilter(parameters);
+                    return new KalturaDynamicListFilter(parameters, true);
                     
                 case "KalturaDynamicListIdInFilter":
-                    return new KalturaDynamicListIdInFilter(parameters);
+                    return new KalturaDynamicListIdInFilter(parameters, true);
                     
                 case "KalturaDynamicListListResponse":
-                    return new KalturaDynamicListListResponse(parameters);
+                    return new KalturaDynamicListListResponse(parameters, true);
                     
                 case "KalturaDynamicListSearchFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaDynamicOrderBy":
-                    return new KalturaDynamicOrderBy(parameters);
+                    return new KalturaDynamicOrderBy(parameters, true);
                     
                 case "KalturaElasticsearchCanaryDeploymentConfiguration":
-                    return new KalturaElasticsearchCanaryDeploymentConfiguration(parameters);
+                    return new KalturaElasticsearchCanaryDeploymentConfiguration(parameters, true);
                     
                 case "KalturaEmailMessage":
-                    return new KalturaEmailMessage(parameters);
+                    return new KalturaEmailMessage(parameters, true);
                     
                 case "KalturaEncryption":
-                    return new KalturaEncryption(parameters);
+                    return new KalturaEncryption(parameters, true);
                     
                 case "KalturaEndDateOffsetRuleAction":
-                    return new KalturaEndDateOffsetRuleAction(parameters);
+                    return new KalturaEndDateOffsetRuleAction(parameters, true);
                     
                 case "KalturaEngagement":
-                    return new KalturaEngagement(parameters);
+                    return new KalturaEngagement(parameters, true);
                     
                 case "KalturaEngagementAdapter":
-                    return new KalturaEngagementAdapter(parameters);
+                    return new KalturaEngagementAdapter(parameters, true);
                     
                 case "KalturaEngagementAdapterBase":
-                    return new KalturaEngagementAdapterBase(parameters);
+                    return new KalturaEngagementAdapterBase(parameters, true);
                     
                 case "KalturaEngagementAdapterListResponse":
-                    return new KalturaEngagementAdapterListResponse(parameters);
+                    return new KalturaEngagementAdapterListResponse(parameters, true);
                     
                 case "KalturaEngagementFilter":
-                    return new KalturaEngagementFilter(parameters);
+                    return new KalturaEngagementFilter(parameters, true);
                     
                 case "KalturaEngagementListResponse":
-                    return new KalturaEngagementListResponse(parameters);
+                    return new KalturaEngagementListResponse(parameters, true);
                     
                 case "KalturaEntitlement":
-                    return new KalturaEntitlement(parameters);
+                    return new KalturaEntitlement(parameters, true);
                     
                 case "KalturaEntitlementCancellation":
-                    return new KalturaEntitlementCancellation(parameters);
+                    return new KalturaEntitlementCancellation(parameters, true);
                     
                 case "KalturaEntitlementDiscountDetails":
-                    return new KalturaEntitlementDiscountDetails(parameters);
+                    return new KalturaEntitlementDiscountDetails(parameters, true);
                     
                 case "KalturaEntitlementDiscountDetailsIdentifier":
-                    return new KalturaEntitlementDiscountDetailsIdentifier(parameters);
+                    return new KalturaEntitlementDiscountDetailsIdentifier(parameters, true);
                     
                 case "KalturaEntitlementFilter":
-                    return new KalturaEntitlementFilter(parameters);
+                    return new KalturaEntitlementFilter(parameters, true);
                     
                 case "KalturaEntitlementListResponse":
-                    return new KalturaEntitlementListResponse(parameters);
+                    return new KalturaEntitlementListResponse(parameters, true);
                     
                 case "KalturaEntitlementPriceDetails":
-                    return new KalturaEntitlementPriceDetails(parameters);
+                    return new KalturaEntitlementPriceDetails(parameters, true);
                     
                 case "KalturaEntitlementRenewal":
-                    return new KalturaEntitlementRenewal(parameters);
+                    return new KalturaEntitlementRenewal(parameters, true);
                     
                 case "KalturaEntitlementRenewalBase":
-                    return new KalturaEntitlementRenewalBase(parameters);
+                    return new KalturaEntitlementRenewalBase(parameters, true);
                     
                 case "KalturaEntitlementsFilter":
-                    return new KalturaEntitlementsFilter(parameters);
+                    return new KalturaEntitlementsFilter(parameters, true);
                     
                 case "KalturaEpg":
-                    return new KalturaEpg(parameters);
+                    return new KalturaEpg(parameters, true);
                     
                 case "KalturaEPGChannelAssets":
-                    return new KalturaEPGChannelAssets(parameters);
+                    return new KalturaEPGChannelAssets(parameters, true);
                     
                 case "KalturaEPGChannelAssetsListResponse":
-                    return new KalturaEPGChannelAssetsListResponse(parameters);
+                    return new KalturaEPGChannelAssetsListResponse(parameters, true);
                     
                 case "KalturaEpgChannelFilter":
-                    return new KalturaEpgChannelFilter(parameters);
+                    return new KalturaEpgChannelFilter(parameters, true);
                     
                 case "KalturaEpgFilter":
-                    return new KalturaEpgFilter(parameters);
+                    return new KalturaEpgFilter(parameters, true);
                     
                 case "KalturaEpgListResponse":
-                    return new KalturaEpgListResponse(parameters);
+                    return new KalturaEpgListResponse(parameters, true);
                     
                 case "KalturaEpgNotificationSettings":
-                    return new KalturaEpgNotificationSettings(parameters);
+                    return new KalturaEpgNotificationSettings(parameters, true);
                     
                 case "KalturaEpgServicePartnerConfiguration":
-                    return new KalturaEpgServicePartnerConfiguration(parameters);
+                    return new KalturaEpgServicePartnerConfiguration(parameters, true);
                     
                 case "KalturaEventContext":
-                    return new KalturaEventContext(parameters);
+                    return new KalturaEventContext(parameters, true);
                     
                 case "KalturaEventContextAction":
-                    return new KalturaEventContextAction(parameters);
+                    return new KalturaEventContextAction(parameters, true);
                     
                 case "KalturaEventNotification":
-                    return new KalturaEventNotification(parameters);
+                    return new KalturaEventNotification(parameters, true);
                     
                 case "KalturaEventNotificationFilter":
-                    return new KalturaEventNotificationFilter(parameters);
+                    return new KalturaEventNotificationFilter(parameters, true);
                     
                 case "KalturaEventNotificationListResponse":
-                    return new KalturaEventNotificationListResponse(parameters);
+                    return new KalturaEventNotificationListResponse(parameters, true);
                     
                 case "KalturaEventNotificationObjectScope":
-                    return new KalturaEventNotificationObjectScope(parameters);
+                    return new KalturaEventNotificationObjectScope(parameters, true);
                     
                 case "KalturaEventNotificationScope":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaEventObject":
-                    return new KalturaEventObject(parameters);
+                    return new KalturaEventObject(parameters, true);
                     
                 case "KalturaExportFilter":
-                    return new KalturaExportFilter(parameters);
+                    return new KalturaExportFilter(parameters, true);
                     
                 case "KalturaExportTask":
-                    return new KalturaExportTask(parameters);
+                    return new KalturaExportTask(parameters, true);
                     
                 case "KalturaExportTaskFilter":
-                    return new KalturaExportTaskFilter(parameters);
+                    return new KalturaExportTaskFilter(parameters, true);
                     
                 case "KalturaExportTaskListResponse":
-                    return new KalturaExportTaskListResponse(parameters);
+                    return new KalturaExportTaskListResponse(parameters, true);
+                    
+                case "KalturaExpressionAnd":
+                    return new KalturaExpressionAnd(parameters, true);
+                    
+                case "KalturaExpressionNot":
+                    return new KalturaExpressionNot(parameters, true);
+                    
+                case "KalturaExpressionOr":
+                    return new KalturaExpressionOr(parameters, true);
                     
                 case "KalturaExternalChannelProfile":
-                    return new KalturaExternalChannelProfile(parameters);
+                    return new KalturaExternalChannelProfile(parameters, true);
                     
                 case "KalturaExternalChannelProfileByIdInFilter":
-                    return new KalturaExternalChannelProfileByIdInFilter(parameters);
+                    return new KalturaExternalChannelProfileByIdInFilter(parameters, true);
                     
                 case "KalturaExternalChannelProfileFilter":
-                    return new KalturaExternalChannelProfileFilter(parameters);
+                    return new KalturaExternalChannelProfileFilter(parameters, true);
                     
                 case "KalturaExternalChannelProfileListResponse":
-                    return new KalturaExternalChannelProfileListResponse(parameters);
+                    return new KalturaExternalChannelProfileListResponse(parameters, true);
                     
                 case "KalturaExternalReceipt":
-                    return new KalturaExternalReceipt(parameters);
+                    return new KalturaExternalReceipt(parameters, true);
                     
                 case "KalturaExternalRecording":
-                    return new KalturaExternalRecording(parameters);
+                    return new KalturaExternalRecording(parameters, true);
                     
                 case "KalturaExternalRecordingFilter":
-                    return new KalturaExternalRecordingFilter(parameters);
+                    return new KalturaExternalRecordingFilter(parameters, true);
                     
                 case "KalturaExternalRecordingResponseProfileFilter":
-                    return new KalturaExternalRecordingResponseProfileFilter(parameters);
+                    return new KalturaExternalRecordingResponseProfileFilter(parameters, true);
                     
                 case "KalturaExternalSeriesRecording":
-                    return new KalturaExternalSeriesRecording(parameters);
+                    return new KalturaExternalSeriesRecording(parameters, true);
                     
                 case "KalturaFacebookPost":
-                    return new KalturaFacebookPost(parameters);
+                    return new KalturaFacebookPost(parameters, true);
                     
                 case "KalturaFacebookSocial":
-                    return new KalturaFacebookSocial(parameters);
+                    return new KalturaFacebookSocial(parameters, true);
                     
                 case "KalturaFairPlayPlaybackPluginData":
-                    return new KalturaFairPlayPlaybackPluginData(parameters);
+                    return new KalturaFairPlayPlaybackPluginData(parameters, true);
                     
                 case "KalturaFavorite":
-                    return new KalturaFavorite(parameters);
+                    return new KalturaFavorite(parameters, true);
                     
                 case "KalturaFavoriteFilter":
-                    return new KalturaFavoriteFilter(parameters);
+                    return new KalturaFavoriteFilter(parameters, true);
                     
                 case "KalturaFavoriteListResponse":
-                    return new KalturaFavoriteListResponse(parameters);
+                    return new KalturaFavoriteListResponse(parameters, true);
                     
                 case "KalturaFeed":
-                    return new KalturaFeed(parameters);
+                    return new KalturaFeed(parameters, true);
+                    
+                case "KalturaFilterAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaFilterAssetByKsqlAction":
+                    return new KalturaFilterAssetByKsqlAction(parameters, true);
+                    
+                case "KalturaFilterFileByAudioCodecAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaFilterFileByAudioCodecInDiscoveryAction":
+                    return new KalturaFilterFileByAudioCodecInDiscoveryAction(parameters, true);
+                    
+                case "KalturaFilterFileByAudioCodecInPlaybackAction":
+                    return new KalturaFilterFileByAudioCodecInPlaybackAction(parameters, true);
+                    
+                case "KalturaFilterFileByFileTypeIdAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaFilterFileByFileTypeIdForAssetTypeAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaFilterFileByFileTypeIdForAssetTypeInDiscoveryAction":
+                    return new KalturaFilterFileByFileTypeIdForAssetTypeInDiscoveryAction(parameters, true);
+                    
+                case "KalturaFilterFileByFileTypeIdForAssetTypeInPlaybackAction":
+                    return new KalturaFilterFileByFileTypeIdForAssetTypeInPlaybackAction(parameters, true);
+                    
+                case "KalturaFilterFileByFileTypeIdInDiscoveryAction":
+                    return new KalturaFilterFileByFileTypeIdInDiscoveryAction(parameters, true);
+                    
+                case "KalturaFilterFileByFileTypeIdInPlaybackAction":
+                    return new KalturaFilterFileByFileTypeIdInPlaybackAction(parameters, true);
+                    
+                case "KalturaFilterFileByLabelAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaFilterFileByLabelInDiscoveryAction":
+                    return new KalturaFilterFileByLabelInDiscoveryAction(parameters, true);
+                    
+                case "KalturaFilterFileByLabelInPlaybackAction":
+                    return new KalturaFilterFileByLabelInPlaybackAction(parameters, true);
+                    
+                case "KalturaFilterFileByQualityAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaFilterFileByQualityInDiscoveryAction":
+                    return new KalturaFilterFileByQualityInDiscoveryAction(parameters, true);
+                    
+                case "KalturaFilterFileByQualityInPlaybackAction":
+                    return new KalturaFilterFileByQualityInPlaybackAction(parameters, true);
+                    
+                case "KalturaFilterFileByStreamerTypeAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaFilterFileByStreamerTypeInDiscovery":
+                    return new KalturaFilterFileByStreamerTypeInDiscovery(parameters, true);
+                    
+                case "KalturaFilterFileByStreamerTypeInPlayback":
+                    return new KalturaFilterFileByStreamerTypeInPlayback(parameters, true);
+                    
+                case "KalturaFilterFileByVideoCodecAction":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaFilterFileByVideoCodecInDiscoveryAction":
+                    return new KalturaFilterFileByVideoCodecInDiscoveryAction(parameters, true);
+                    
+                case "KalturaFilterFileByVideoCodecInPlayback":
+                    return new KalturaFilterFileByVideoCodecInPlayback(parameters, true);
                     
                 case "KalturaFilterPager":
-                    return new KalturaFilterPager(parameters);
+                    return new KalturaFilterPager(parameters, true);
                     
                 case "KalturaFollowDataBase":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaFollowDataTvSeries":
-                    return new KalturaFollowDataTvSeries(parameters);
+                    return new KalturaFollowDataTvSeries(parameters, true);
                     
                 case "KalturaFollowTvSeries":
-                    return new KalturaFollowTvSeries(parameters);
+                    return new KalturaFollowTvSeries(parameters, true);
                     
                 case "KalturaFollowTvSeriesFilter":
-                    return new KalturaFollowTvSeriesFilter(parameters);
+                    return new KalturaFollowTvSeriesFilter(parameters, true);
                     
                 case "KalturaFollowTvSeriesListResponse":
-                    return new KalturaFollowTvSeriesListResponse(parameters);
+                    return new KalturaFollowTvSeriesListResponse(parameters, true);
                     
                 case "KalturaGeneralPartnerConfig":
-                    return new KalturaGeneralPartnerConfig(parameters);
+                    return new KalturaGeneralPartnerConfig(parameters, true);
                     
                 case "KalturaGenericRule":
-                    return new KalturaGenericRule(parameters);
+                    return new KalturaGenericRule(parameters, true);
                     
                 case "KalturaGenericRuleFilter":
-                    return new KalturaGenericRuleFilter(parameters);
+                    return new KalturaGenericRuleFilter(parameters, true);
                     
                 case "KalturaGenericRuleListResponse":
-                    return new KalturaGenericRuleListResponse(parameters);
+                    return new KalturaGenericRuleListResponse(parameters, true);
                     
                 case "KalturaGroupPermission":
-                    return new KalturaGroupPermission(parameters);
+                    return new KalturaGroupPermission(parameters, true);
                     
                 case "KalturaHeaderCondition":
-                    return new KalturaHeaderCondition(parameters);
+                    return new KalturaHeaderCondition(parameters, true);
                     
                 case "KalturaHomeNetwork":
-                    return new KalturaHomeNetwork(parameters);
+                    return new KalturaHomeNetwork(parameters, true);
                     
                 case "KalturaHomeNetworkListResponse":
-                    return new KalturaHomeNetworkListResponse(parameters);
+                    return new KalturaHomeNetworkListResponse(parameters, true);
                     
                 case "KalturaHousehold":
-                    return new KalturaHousehold(parameters);
+                    return new KalturaHousehold(parameters, true);
                     
                 case "KalturaHouseholdCoupon":
-                    return new KalturaHouseholdCoupon(parameters);
+                    return new KalturaHouseholdCoupon(parameters, true);
                     
                 case "KalturaHouseholdCouponCodeFilter":
-                    return new KalturaHouseholdCouponCodeFilter(parameters);
+                    return new KalturaHouseholdCouponCodeFilter(parameters, true);
                     
                 case "KalturaHouseholdCouponFilter":
-                    return new KalturaHouseholdCouponFilter(parameters);
+                    return new KalturaHouseholdCouponFilter(parameters, true);
                     
                 case "KalturaHouseholdCouponListResponse":
-                    return new KalturaHouseholdCouponListResponse(parameters);
+                    return new KalturaHouseholdCouponListResponse(parameters, true);
                     
                 case "KalturaHouseholdDevice":
-                    return new KalturaHouseholdDevice(parameters);
+                    return new KalturaHouseholdDevice(parameters, true);
                     
                 case "KalturaHouseholdDeviceFamilyLimitations":
-                    return new KalturaHouseholdDeviceFamilyLimitations(parameters);
+                    return new KalturaHouseholdDeviceFamilyLimitations(parameters, true);
                     
                 case "KalturaHouseholdDeviceFilter":
-                    return new KalturaHouseholdDeviceFilter(parameters);
+                    return new KalturaHouseholdDeviceFilter(parameters, true);
                     
                 case "KalturaHouseholdDeviceListResponse":
-                    return new KalturaHouseholdDeviceListResponse(parameters);
+                    return new KalturaHouseholdDeviceListResponse(parameters, true);
                     
                 case "KalturaHouseholdFilter":
-                    return new KalturaHouseholdFilter(parameters);
+                    return new KalturaHouseholdFilter(parameters, true);
                     
                 case "KalturaHouseholdLimitations":
-                    return new KalturaHouseholdLimitations(parameters);
+                    return new KalturaHouseholdLimitations(parameters, true);
                     
                 case "KalturaHouseholdLimitationsListResponse":
-                    return new KalturaHouseholdLimitationsListResponse(parameters);
+                    return new KalturaHouseholdLimitationsListResponse(parameters, true);
                     
                 case "KalturaHouseholdListResponse":
-                    return new KalturaHouseholdListResponse(parameters);
+                    return new KalturaHouseholdListResponse(parameters, true);
                     
                 case "KalturaHouseholdPaymentGateway":
-                    return new KalturaHouseholdPaymentGateway(parameters);
+                    return new KalturaHouseholdPaymentGateway(parameters, true);
                     
                 case "KalturaHouseholdPaymentGatewayListResponse":
-                    return new KalturaHouseholdPaymentGatewayListResponse(parameters);
+                    return new KalturaHouseholdPaymentGatewayListResponse(parameters, true);
                     
                 case "KalturaHouseholdPaymentMethod":
-                    return new KalturaHouseholdPaymentMethod(parameters);
+                    return new KalturaHouseholdPaymentMethod(parameters, true);
                     
                 case "KalturaHouseholdPaymentMethodListResponse":
-                    return new KalturaHouseholdPaymentMethodListResponse(parameters);
+                    return new KalturaHouseholdPaymentMethodListResponse(parameters, true);
                     
                 case "KalturaHouseholdPremiumService":
-                    return new KalturaHouseholdPremiumService(parameters);
+                    return new KalturaHouseholdPremiumService(parameters, true);
                     
                 case "KalturaHouseholdPremiumServiceListResponse":
-                    return new KalturaHouseholdPremiumServiceListResponse(parameters);
+                    return new KalturaHouseholdPremiumServiceListResponse(parameters, true);
                     
                 case "KalturaHouseholdQuota":
-                    return new KalturaHouseholdQuota(parameters);
+                    return new KalturaHouseholdQuota(parameters, true);
                     
                 case "KalturaHouseholdSegment":
-                    return new KalturaHouseholdSegment(parameters);
+                    return new KalturaHouseholdSegment(parameters, true);
                     
                 case "KalturaHouseholdSegmentFilter":
-                    return new KalturaHouseholdSegmentFilter(parameters);
+                    return new KalturaHouseholdSegmentFilter(parameters, true);
                     
                 case "KalturaHouseholdSegmentListResponse":
-                    return new KalturaHouseholdSegmentListResponse(parameters);
+                    return new KalturaHouseholdSegmentListResponse(parameters, true);
                     
                 case "KalturaHouseholdUser":
-                    return new KalturaHouseholdUser(parameters);
+                    return new KalturaHouseholdUser(parameters, true);
                     
                 case "KalturaHouseholdUserFilter":
-                    return new KalturaHouseholdUserFilter(parameters);
+                    return new KalturaHouseholdUserFilter(parameters, true);
                     
                 case "KalturaHouseholdUserListResponse":
-                    return new KalturaHouseholdUserListResponse(parameters);
+                    return new KalturaHouseholdUserListResponse(parameters, true);
                     
                 case "KalturaHouseholdWithHolder":
-                    return new KalturaHouseholdWithHolder(parameters);
+                    return new KalturaHouseholdWithHolder(parameters, true);
                     
                 case "KalturaHttpNotification":
-                    return new KalturaHttpNotification(parameters);
+                    return new KalturaHttpNotification(parameters, true);
                     
                 case "KalturaIdentifierTypeFilter":
-                    return new KalturaIdentifierTypeFilter(parameters);
+                    return new KalturaIdentifierTypeFilter(parameters, true);
                     
                 case "KalturaImage":
-                    return new KalturaImage(parameters);
+                    return new KalturaImage(parameters, true);
                     
                 case "KalturaImageFilter":
-                    return new KalturaImageFilter(parameters);
+                    return new KalturaImageFilter(parameters, true);
                     
                 case "KalturaImageListResponse":
-                    return new KalturaImageListResponse(parameters);
+                    return new KalturaImageListResponse(parameters, true);
                     
                 case "KalturaImageType":
-                    return new KalturaImageType(parameters);
+                    return new KalturaImageType(parameters, true);
                     
                 case "KalturaImageTypeFilter":
-                    return new KalturaImageTypeFilter(parameters);
+                    return new KalturaImageTypeFilter(parameters, true);
                     
                 case "KalturaImageTypeListResponse":
-                    return new KalturaImageTypeListResponse(parameters);
+                    return new KalturaImageTypeListResponse(parameters, true);
                     
                 case "KalturaInboxMessage":
-                    return new KalturaInboxMessage(parameters);
+                    return new KalturaInboxMessage(parameters, true);
                     
                 case "KalturaInboxMessageFilter":
-                    return new KalturaInboxMessageFilter(parameters);
+                    return new KalturaInboxMessageFilter(parameters, true);
                     
                 case "KalturaInboxMessageListResponse":
-                    return new KalturaInboxMessageListResponse(parameters);
+                    return new KalturaInboxMessageListResponse(parameters, true);
                     
                 case "KalturaInboxMessageResponse":
-                    return new KalturaInboxMessageResponse(parameters);
+                    return new KalturaInboxMessageResponse(parameters, true);
                     
                 case "KalturaInboxMessageTypeHolder":
-                    return new KalturaInboxMessageTypeHolder(parameters);
+                    return new KalturaInboxMessageTypeHolder(parameters, true);
                     
                 case "KalturaIngestProfile":
-                    return new KalturaIngestProfile(parameters);
+                    return new KalturaIngestProfile(parameters, true);
                     
                 case "KalturaIngestProfileListResponse":
-                    return new KalturaIngestProfileListResponse(parameters);
+                    return new KalturaIngestProfileListResponse(parameters, true);
                     
                 case "KalturaIntegerValue":
-                    return new KalturaIntegerValue(parameters);
+                    return new KalturaIntegerValue(parameters, true);
                     
                 case "KalturaIntegerValueListResponse":
-                    return new KalturaIntegerValueListResponse(parameters);
+                    return new KalturaIntegerValueListResponse(parameters, true);
                     
                 case "KalturaIot":
-                    return new KalturaIot(parameters);
+                    return new KalturaIot(parameters, true);
                     
                 case "KalturaIotClientConfiguration":
-                    return new KalturaIotClientConfiguration(parameters);
+                    return new KalturaIotClientConfiguration(parameters, true);
                     
                 case "KalturaIotDefault":
-                    return new KalturaIotDefault(parameters);
+                    return new KalturaIotDefault(parameters, true);
                     
                 case "KalturaIotFilter":
-                    return new KalturaIotFilter(parameters);
+                    return new KalturaIotFilter(parameters, true);
                     
                 case "KalturaIotListResponse":
-                    return new KalturaIotListResponse(parameters);
+                    return new KalturaIotListResponse(parameters, true);
                     
                 case "KalturaIotProfile":
-                    return new KalturaIotProfile(parameters);
+                    return new KalturaIotProfile(parameters, true);
                     
                 case "KalturaIotProfileAws":
-                    return new KalturaIotProfileAws(parameters);
+                    return new KalturaIotProfileAws(parameters, true);
                     
                 case "KalturaIotProfileFilter":
-                    return new KalturaIotProfileFilter(parameters);
+                    return new KalturaIotProfileFilter(parameters, true);
                     
                 case "KalturaIotProfileListResponse":
-                    return new KalturaIotProfileListResponse(parameters);
+                    return new KalturaIotProfileListResponse(parameters, true);
                     
                 case "KalturaIpRangeCondition":
-                    return new KalturaIpRangeCondition(parameters);
+                    return new KalturaIpRangeCondition(parameters, true);
                     
                 case "KalturaItemPrice":
-                    return new KalturaItemPrice(parameters);
+                    return new KalturaItemPrice(parameters, true);
                     
                 case "KalturaItemPriceListResponse":
-                    return new KalturaItemPriceListResponse(parameters);
+                    return new KalturaItemPriceListResponse(parameters, true);
                     
                 case "KalturaKeyValue":
-                    return new KalturaKeyValue(parameters);
+                    return new KalturaKeyValue(parameters, true);
                     
                 case "KalturaKsqlSegmentAction":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaLabel":
-                    return new KalturaLabel(parameters);
+                    return new KalturaLabel(parameters, true);
                     
                 case "KalturaLabelFilter":
-                    return new KalturaLabelFilter(parameters);
+                    return new KalturaLabelFilter(parameters, true);
                     
                 case "KalturaLabelListResponse":
-                    return new KalturaLabelListResponse(parameters);
+                    return new KalturaLabelListResponse(parameters, true);
                     
                 case "KalturaLanguage":
-                    return new KalturaLanguage(parameters);
+                    return new KalturaLanguage(parameters, true);
                     
                 case "KalturaLanguageFilter":
-                    return new KalturaLanguageFilter(parameters);
+                    return new KalturaLanguageFilter(parameters, true);
                     
                 case "KalturaLanguageListResponse":
-                    return new KalturaLanguageListResponse(parameters);
+                    return new KalturaLanguageListResponse(parameters, true);
                     
                 case "KalturaLastPosition":
-                    return new KalturaLastPosition(parameters);
+                    return new KalturaLastPosition(parameters, true);
                     
                 case "KalturaLastPositionFilter":
-                    return new KalturaLastPositionFilter(parameters);
+                    return new KalturaLastPositionFilter(parameters, true);
                     
                 case "KalturaLastPositionListResponse":
-                    return new KalturaLastPositionListResponse(parameters);
+                    return new KalturaLastPositionListResponse(parameters, true);
                     
                 case "KalturaLicensedUrl":
-                    return new KalturaLicensedUrl(parameters);
+                    return new KalturaLicensedUrl(parameters, true);
                     
                 case "KalturaLicensedUrlBaseRequest":
-                    return new KalturaLicensedUrlBaseRequest(parameters);
+                    return new KalturaLicensedUrlBaseRequest(parameters, true);
                     
                 case "KalturaLicensedUrlEpgRequest":
-                    return new KalturaLicensedUrlEpgRequest(parameters);
+                    return new KalturaLicensedUrlEpgRequest(parameters, true);
                     
                 case "KalturaLicensedUrlMediaRequest":
-                    return new KalturaLicensedUrlMediaRequest(parameters);
+                    return new KalturaLicensedUrlMediaRequest(parameters, true);
                     
                 case "KalturaLicensedUrlRecordingRequest":
-                    return new KalturaLicensedUrlRecordingRequest(parameters);
+                    return new KalturaLicensedUrlRecordingRequest(parameters, true);
                     
                 case "KalturaLinearAssetStructFilter":
-                    return new KalturaLinearAssetStructFilter(parameters);
+                    return new KalturaLinearAssetStructFilter(parameters, true);
                     
                 case "KalturaLineupNotificationSettings":
-                    return new KalturaLineupNotificationSettings(parameters);
+                    return new KalturaLineupNotificationSettings(parameters, true);
                     
                 case "KalturaListFollowDataTvSeriesResponse":
-                    return new KalturaListFollowDataTvSeriesResponse(parameters);
+                    return new KalturaListFollowDataTvSeriesResponse(parameters, true);
                     
                 case "KalturaListResponse":
-                    return new KalturaListResponse(parameters);
+                    return new KalturaListResponse(parameters, true);
                     
                 case "KalturaLiveAsset":
-                    return new KalturaLiveAsset(parameters);
+                    return new KalturaLiveAsset(parameters, true);
                     
                 case "KalturaLoginResponse":
-                    return new KalturaLoginResponse(parameters);
+                    return new KalturaLoginResponse(parameters, true);
                     
                 case "KalturaLoginSession":
-                    return new KalturaLoginSession(parameters);
+                    return new KalturaLoginSession(parameters, true);
                     
                 case "KalturaLongValue":
-                    return new KalturaLongValue(parameters);
+                    return new KalturaLongValue(parameters, true);
                     
                 case "KalturaMailDispatcher":
-                    return new KalturaMailDispatcher(parameters);
+                    return new KalturaMailDispatcher(parameters, true);
                     
                 case "KalturaManualChannel":
-                    return new KalturaManualChannel(parameters);
+                    return new KalturaManualChannel(parameters, true);
                     
                 case "KalturaManualCollectionAsset":
-                    return new KalturaManualCollectionAsset(parameters);
+                    return new KalturaManualCollectionAsset(parameters, true);
                     
                 case "KalturaMediaAsset":
-                    return new KalturaMediaAsset(parameters);
+                    return new KalturaMediaAsset(parameters, true);
                     
                 case "KalturaMediaConcurrencyRule":
-                    return new KalturaMediaConcurrencyRule(parameters);
+                    return new KalturaMediaConcurrencyRule(parameters, true);
                     
                 case "KalturaMediaConcurrencyRuleListResponse":
-                    return new KalturaMediaConcurrencyRuleListResponse(parameters);
+                    return new KalturaMediaConcurrencyRuleListResponse(parameters, true);
                     
                 case "KalturaMediaFile":
-                    return new KalturaMediaFile(parameters);
+                    return new KalturaMediaFile(parameters, true);
                     
                 case "KalturaMediaFileFilter":
-                    return new KalturaMediaFileFilter(parameters);
+                    return new KalturaMediaFileFilter(parameters, true);
                     
                 case "KalturaMediaFileListResponse":
-                    return new KalturaMediaFileListResponse(parameters);
+                    return new KalturaMediaFileListResponse(parameters, true);
                     
                 case "KalturaMediaFileType":
-                    return new KalturaMediaFileType(parameters);
+                    return new KalturaMediaFileType(parameters, true);
                     
                 case "KalturaMediaFileTypeListResponse":
-                    return new KalturaMediaFileTypeListResponse(parameters);
+                    return new KalturaMediaFileTypeListResponse(parameters, true);
                     
                 case "KalturaMediaImage":
-                    return new KalturaMediaImage(parameters);
+                    return new KalturaMediaImage(parameters, true);
                     
                 case "KalturaMessage":
-                    return new KalturaMessage(parameters);
+                    return new KalturaMessage(parameters, true);
                     
                 case "KalturaMessageAnnouncementListResponse":
-                    return new KalturaMessageAnnouncementListResponse(parameters);
+                    return new KalturaMessageAnnouncementListResponse(parameters, true);
                     
                 case "KalturaMessageTemplate":
-                    return new KalturaMessageTemplate(parameters);
+                    return new KalturaMessageTemplate(parameters, true);
                     
                 case "KalturaMeta":
-                    return new KalturaMeta(parameters);
+                    return new KalturaMeta(parameters, true);
                     
                 case "KalturaMetaFilter":
-                    return new KalturaMetaFilter(parameters);
+                    return new KalturaMetaFilter(parameters, true);
                     
                 case "KalturaMetaListResponse":
-                    return new KalturaMetaListResponse(parameters);
+                    return new KalturaMetaListResponse(parameters, true);
                     
                 case "KalturaMicroservicesCanaryDeploymentConfiguration":
-                    return new KalturaMicroservicesCanaryDeploymentConfiguration(parameters);
+                    return new KalturaMicroservicesCanaryDeploymentConfiguration(parameters, true);
                     
                 case "KalturaMicroservicesCanaryDeploymentDataOwnerShip":
-                    return new KalturaMicroservicesCanaryDeploymentDataOwnerShip(parameters);
+                    return new KalturaMicroservicesCanaryDeploymentDataOwnerShip(parameters, true);
                     
                 case "KalturaMicroservicesCanaryDeploymentMigrationEvents":
-                    return new KalturaMicroservicesCanaryDeploymentMigrationEvents(parameters);
+                    return new KalturaMicroservicesCanaryDeploymentMigrationEvents(parameters, true);
                     
                 case "KalturaMonetizationCondition":
-                    return new KalturaMonetizationCondition(parameters);
+                    return new KalturaMonetizationCondition(parameters, true);
                     
                 case "KalturaMonetizationSource":
-                    return new KalturaMonetizationSource(parameters);
+                    return new KalturaMonetizationSource(parameters, true);
                     
                 case "KalturaMultilingualString":
-                    return new KalturaMultilingualString(parameters);
+                    return new KalturaMultilingualString(parameters, true);
                     
                 case "KalturaMultilingualStringValue":
-                    return new KalturaMultilingualStringValue(parameters);
+                    return new KalturaMultilingualStringValue(parameters, true);
                     
                 case "KalturaMultilingualStringValueArray":
-                    return new KalturaMultilingualStringValueArray(parameters);
+                    return new KalturaMultilingualStringValueArray(parameters, true);
                     
                 case "KalturaNetworkActionStatus":
-                    return new KalturaNetworkActionStatus(parameters);
+                    return new KalturaNetworkActionStatus(parameters, true);
                     
                 case "KalturaNotCondition":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaNotification":
-                    return new KalturaNotification(parameters);
+                    return new KalturaNotification(parameters, true);
                     
                 case "KalturaNotificationSettings":
-                    return new KalturaNotificationSettings(parameters);
+                    return new KalturaNotificationSettings(parameters, true);
                     
                 case "KalturaNotificationsPartnerSettings":
-                    return new KalturaNotificationsPartnerSettings(parameters);
+                    return new KalturaNotificationsPartnerSettings(parameters, true);
                     
                 case "KalturaNotificationsSettings":
-                    return new KalturaNotificationsSettings(parameters);
+                    return new KalturaNotificationsSettings(parameters, true);
                     
                 case "KalturaNpvrPremiumService":
-                    return new KalturaNpvrPremiumService(parameters);
+                    return new KalturaNpvrPremiumService(parameters, true);
                     
                 case "KalturaObjectVirtualAssetInfo":
-                    return new KalturaObjectVirtualAssetInfo(parameters);
+                    return new KalturaObjectVirtualAssetInfo(parameters, true);
                     
                 case "KalturaObjectVirtualAssetPartnerConfig":
-                    return new KalturaObjectVirtualAssetPartnerConfig(parameters);
+                    return new KalturaObjectVirtualAssetPartnerConfig(parameters, true);
                     
                 case "KalturaOnDemandResponseProfile":
-                    return new KalturaOnDemandResponseProfile(parameters);
+                    return new KalturaOnDemandResponseProfile(parameters, true);
                     
                 case "KalturaOpcPartnerConfiguration":
-                    return new KalturaOpcPartnerConfiguration(parameters);
+                    return new KalturaOpcPartnerConfiguration(parameters, true);
                     
                 case "KalturaOrCondition":
-                    return new KalturaOrCondition(parameters);
+                    return new KalturaOrCondition(parameters, true);
                     
                 case "KalturaOSSAdapterBaseProfile":
-                    return new KalturaOSSAdapterBaseProfile(parameters);
+                    return new KalturaOSSAdapterBaseProfile(parameters, true);
                     
                 case "KalturaOSSAdapterProfile":
-                    return new KalturaOSSAdapterProfile(parameters);
+                    return new KalturaOSSAdapterProfile(parameters, true);
                     
                 case "KalturaOSSAdapterProfileListResponse":
-                    return new KalturaOSSAdapterProfileListResponse(parameters);
+                    return new KalturaOSSAdapterProfileListResponse(parameters, true);
                     
                 case "KalturaOTTCategory":
-                    return new KalturaOTTCategory(parameters);
+                    return new KalturaOTTCategory(parameters, true);
                     
                 case "KalturaOTTObjectSupportNullable":
-                    return new KalturaOTTObjectSupportNullable(parameters);
+                    return new KalturaOTTObjectSupportNullable(parameters, true);
                     
                 case "KalturaOTTUser":
-                    return new KalturaOTTUser(parameters);
+                    return new KalturaOTTUser(parameters, true);
                     
                 case "KalturaOTTUserDynamicData":
-                    return new KalturaOTTUserDynamicData(parameters);
+                    return new KalturaOTTUserDynamicData(parameters, true);
                     
                 case "KalturaOTTUserDynamicDataList":
-                    return new KalturaOTTUserDynamicDataList(parameters);
+                    return new KalturaOTTUserDynamicDataList(parameters, true);
                     
                 case "KalturaOTTUserFilter":
-                    return new KalturaOTTUserFilter(parameters);
+                    return new KalturaOTTUserFilter(parameters, true);
                     
                 case "KalturaOTTUserListResponse":
-                    return new KalturaOTTUserListResponse(parameters);
+                    return new KalturaOTTUserListResponse(parameters, true);
                     
                 case "KalturaOTTUserType":
-                    return new KalturaOTTUserType(parameters);
+                    return new KalturaOTTUserType(parameters, true);
                     
                 case "KalturaParentalRule":
-                    return new KalturaParentalRule(parameters);
+                    return new KalturaParentalRule(parameters, true);
                     
                 case "KalturaParentalRuleFilter":
-                    return new KalturaParentalRuleFilter(parameters);
+                    return new KalturaParentalRuleFilter(parameters, true);
                     
                 case "KalturaParentalRuleListResponse":
-                    return new KalturaParentalRuleListResponse(parameters);
+                    return new KalturaParentalRuleListResponse(parameters, true);
                     
                 case "KalturaPartner":
-                    return new KalturaPartner(parameters);
+                    return new KalturaPartner(parameters, true);
                     
                 case "KalturaPartnerConfiguration":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaPartnerConfigurationFilter":
-                    return new KalturaPartnerConfigurationFilter(parameters);
+                    return new KalturaPartnerConfigurationFilter(parameters, true);
                     
                 case "KalturaPartnerConfigurationHolder":
-                    return new KalturaPartnerConfigurationHolder(parameters);
+                    return new KalturaPartnerConfigurationHolder(parameters, true);
                     
                 case "KalturaPartnerConfigurationListResponse":
-                    return new KalturaPartnerConfigurationListResponse(parameters);
+                    return new KalturaPartnerConfigurationListResponse(parameters, true);
                     
                 case "KalturaPartnerFilter":
-                    return new KalturaPartnerFilter(parameters);
+                    return new KalturaPartnerFilter(parameters, true);
                     
                 case "KalturaPartnerListResponse":
-                    return new KalturaPartnerListResponse(parameters);
+                    return new KalturaPartnerListResponse(parameters, true);
                     
                 case "KalturaPartnerNotificationSettings":
-                    return new KalturaPartnerNotificationSettings(parameters);
+                    return new KalturaPartnerNotificationSettings(parameters, true);
                     
                 case "KalturaPartnerPremiumService":
-                    return new KalturaPartnerPremiumService(parameters);
+                    return new KalturaPartnerPremiumService(parameters, true);
                     
                 case "KalturaPartnerPremiumServices":
-                    return new KalturaPartnerPremiumServices(parameters);
+                    return new KalturaPartnerPremiumServices(parameters, true);
                     
                 case "KalturaPartnerSetup":
-                    return new KalturaPartnerSetup(parameters);
+                    return new KalturaPartnerSetup(parameters, true);
                     
                 case "KalturaPasswordPolicy":
-                    return new KalturaPasswordPolicy(parameters);
+                    return new KalturaPasswordPolicy(parameters, true);
                     
                 case "KalturaPasswordPolicyFilter":
-                    return new KalturaPasswordPolicyFilter(parameters);
+                    return new KalturaPasswordPolicyFilter(parameters, true);
                     
                 case "KalturaPasswordPolicyListResponse":
-                    return new KalturaPasswordPolicyListResponse(parameters);
+                    return new KalturaPasswordPolicyListResponse(parameters, true);
                     
                 case "KalturaPaymentGateway":
-                    return new KalturaPaymentGateway(parameters);
+                    return new KalturaPaymentGateway(parameters, true);
                     
                 case "KalturaPaymentGatewayBaseProfile":
-                    return new KalturaPaymentGatewayBaseProfile(parameters);
+                    return new KalturaPaymentGatewayBaseProfile(parameters, true);
                     
                 case "KalturaPaymentGatewayConfiguration":
-                    return new KalturaPaymentGatewayConfiguration(parameters);
+                    return new KalturaPaymentGatewayConfiguration(parameters, true);
                     
                 case "KalturaPaymentGatewayProfile":
-                    return new KalturaPaymentGatewayProfile(parameters);
+                    return new KalturaPaymentGatewayProfile(parameters, true);
                     
                 case "KalturaPaymentGatewayProfileListResponse":
-                    return new KalturaPaymentGatewayProfileListResponse(parameters);
+                    return new KalturaPaymentGatewayProfileListResponse(parameters, true);
                     
                 case "KalturaPaymentMethod":
-                    return new KalturaPaymentMethod(parameters);
+                    return new KalturaPaymentMethod(parameters, true);
                     
                 case "KalturaPaymentMethodProfile":
-                    return new KalturaPaymentMethodProfile(parameters);
+                    return new KalturaPaymentMethodProfile(parameters, true);
                     
                 case "KalturaPaymentMethodProfileFilter":
-                    return new KalturaPaymentMethodProfileFilter(parameters);
+                    return new KalturaPaymentMethodProfileFilter(parameters, true);
                     
                 case "KalturaPaymentMethodProfileListResponse":
-                    return new KalturaPaymentMethodProfileListResponse(parameters);
+                    return new KalturaPaymentMethodProfileListResponse(parameters, true);
                     
                 case "KalturaPaymentPartnerConfig":
-                    return new KalturaPaymentPartnerConfig(parameters);
+                    return new KalturaPaymentPartnerConfig(parameters, true);
                     
                 case "KalturaPermission":
-                    return new KalturaPermission(parameters);
+                    return new KalturaPermission(parameters, true);
                     
                 case "KalturaPermissionByIdInFilter":
-                    return new KalturaPermissionByIdInFilter(parameters);
+                    return new KalturaPermissionByIdInFilter(parameters, true);
                     
                 case "KalturaPermissionFilter":
-                    return new KalturaPermissionFilter(parameters);
+                    return new KalturaPermissionFilter(parameters, true);
                     
                 case "KalturaPermissionItem":
-                    return new KalturaPermissionItem(parameters);
+                    return new KalturaPermissionItem(parameters, true);
                     
                 case "KalturaPermissionItemByApiActionFilter":
-                    return new KalturaPermissionItemByApiActionFilter(parameters);
+                    return new KalturaPermissionItemByApiActionFilter(parameters, true);
                     
                 case "KalturaPermissionItemByArgumentFilter":
-                    return new KalturaPermissionItemByArgumentFilter(parameters);
+                    return new KalturaPermissionItemByArgumentFilter(parameters, true);
                     
                 case "KalturaPermissionItemByIdInFilter":
-                    return new KalturaPermissionItemByIdInFilter(parameters);
+                    return new KalturaPermissionItemByIdInFilter(parameters, true);
                     
                 case "KalturaPermissionItemByParameterFilter":
-                    return new KalturaPermissionItemByParameterFilter(parameters);
+                    return new KalturaPermissionItemByParameterFilter(parameters, true);
                     
                 case "KalturaPermissionItemFilter":
-                    return new KalturaPermissionItemFilter(parameters);
+                    return new KalturaPermissionItemFilter(parameters, true);
                     
                 case "KalturaPermissionItemListResponse":
-                    return new KalturaPermissionItemListResponse(parameters);
+                    return new KalturaPermissionItemListResponse(parameters, true);
                     
                 case "KalturaPermissionListResponse":
-                    return new KalturaPermissionListResponse(parameters);
+                    return new KalturaPermissionListResponse(parameters, true);
                     
                 case "KalturaPersistedFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaPersonalAsset":
-                    return new KalturaPersonalAsset(parameters);
+                    return new KalturaPersonalAsset(parameters, true);
                     
                 case "KalturaPersonalAssetListResponse":
-                    return new KalturaPersonalAssetListResponse(parameters);
+                    return new KalturaPersonalAssetListResponse(parameters, true);
                     
                 case "KalturaPersonalAssetRequest":
-                    return new KalturaPersonalAssetRequest(parameters);
+                    return new KalturaPersonalAssetRequest(parameters, true);
                     
                 case "KalturaPersonalAssetWithHolder":
-                    return new KalturaPersonalAssetWithHolder(parameters);
+                    return new KalturaPersonalAssetWithHolder(parameters, true);
                     
                 case "KalturaPersonalFeed":
-                    return new KalturaPersonalFeed(parameters);
+                    return new KalturaPersonalFeed(parameters, true);
                     
                 case "KalturaPersonalFeedFilter":
-                    return new KalturaPersonalFeedFilter(parameters);
+                    return new KalturaPersonalFeedFilter(parameters, true);
                     
                 case "KalturaPersonalFeedListResponse":
-                    return new KalturaPersonalFeedListResponse(parameters);
+                    return new KalturaPersonalFeedListResponse(parameters, true);
                     
                 case "KalturaPersonalFile":
-                    return new KalturaPersonalFile(parameters);
+                    return new KalturaPersonalFile(parameters, true);
                     
                 case "KalturaPersonalFollowFeed":
-                    return new KalturaPersonalFollowFeed(parameters);
+                    return new KalturaPersonalFollowFeed(parameters, true);
                     
                 case "KalturaPersonalFollowFeedResponse":
-                    return new KalturaPersonalFollowFeedResponse(parameters);
+                    return new KalturaPersonalFollowFeedResponse(parameters, true);
                     
                 case "KalturaPersonalList":
-                    return new KalturaPersonalList(parameters);
+                    return new KalturaPersonalList(parameters, true);
                     
                 case "KalturaPersonalListFilter":
-                    return new KalturaPersonalListFilter(parameters);
+                    return new KalturaPersonalListFilter(parameters, true);
                     
                 case "KalturaPersonalListListResponse":
-                    return new KalturaPersonalListListResponse(parameters);
+                    return new KalturaPersonalListListResponse(parameters, true);
                     
                 case "KalturaPersonalListSearchFilter":
-                    return new KalturaPersonalListSearchFilter(parameters);
+                    return new KalturaPersonalListSearchFilter(parameters, true);
                     
                 case "KalturaPin":
-                    return new KalturaPin(parameters);
+                    return new KalturaPin(parameters, true);
                     
                 case "KalturaPinResponse":
-                    return new KalturaPinResponse(parameters);
+                    return new KalturaPinResponse(parameters, true);
                     
                 case "KalturaPlaybackContext":
-                    return new KalturaPlaybackContext(parameters);
+                    return new KalturaPlaybackContext(parameters, true);
                     
                 case "KalturaPlaybackContextOptions":
-                    return new KalturaPlaybackContextOptions(parameters);
+                    return new KalturaPlaybackContextOptions(parameters, true);
                     
                 case "KalturaPlaybackPartnerConfig":
-                    return new KalturaPlaybackPartnerConfig(parameters);
+                    return new KalturaPlaybackPartnerConfig(parameters, true);
                     
                 case "KalturaPlaybackPluginData":
-                    return new KalturaPlaybackPluginData(parameters);
+                    return new KalturaPlaybackPluginData(parameters, true);
                     
                 case "KalturaPlaybackProfile":
-                    return new KalturaPlaybackProfile(parameters);
+                    return new KalturaPlaybackProfile(parameters, true);
                     
                 case "KalturaPlaybackProfileFilter":
-                    return new KalturaPlaybackProfileFilter(parameters);
+                    return new KalturaPlaybackProfileFilter(parameters, true);
                     
                 case "KalturaPlaybackProfileListResponse":
-                    return new KalturaPlaybackProfileListResponse(parameters);
+                    return new KalturaPlaybackProfileListResponse(parameters, true);
                     
                 case "KalturaPlaybackSource":
-                    return new KalturaPlaybackSource(parameters);
+                    return new KalturaPlaybackSource(parameters, true);
                     
                 case "KalturaPlayerAssetData":
-                    return new KalturaPlayerAssetData(parameters);
+                    return new KalturaPlayerAssetData(parameters, true);
                     
                 case "KalturaPluginData":
-                    return new KalturaPluginData(parameters);
+                    return new KalturaPluginData(parameters, true);
                     
                 case "KalturaPpv":
-                    return new KalturaPpv(parameters);
+                    return new KalturaPpv(parameters, true);
                     
                 case "KalturaPpvEntitlement":
-                    return new KalturaPpvEntitlement(parameters);
+                    return new KalturaPpvEntitlement(parameters, true);
                     
                 case "KalturaPpvFilter":
-                    return new KalturaPpvFilter(parameters);
+                    return new KalturaPpvFilter(parameters, true);
                     
                 case "KalturaPPVItemPriceDetails":
-                    return new KalturaPPVItemPriceDetails(parameters);
+                    return new KalturaPPVItemPriceDetails(parameters, true);
                     
                 case "KalturaPpvListResponse":
-                    return new KalturaPpvListResponse(parameters);
+                    return new KalturaPpvListResponse(parameters, true);
                     
                 case "KalturaPpvPrice":
-                    return new KalturaPpvPrice(parameters);
+                    return new KalturaPpvPrice(parameters, true);
                     
                 case "KalturaPremiumService":
-                    return new KalturaPremiumService(parameters);
+                    return new KalturaPremiumService(parameters, true);
                     
                 case "KalturaPreviewModule":
-                    return new KalturaPreviewModule(parameters);
+                    return new KalturaPreviewModule(parameters, true);
                     
                 case "KalturaPreviewModuleFilter":
-                    return new KalturaPreviewModuleFilter(parameters);
+                    return new KalturaPreviewModuleFilter(parameters, true);
                     
                 case "KalturaPreviewModuleListResponse":
-                    return new KalturaPreviewModuleListResponse(parameters);
+                    return new KalturaPreviewModuleListResponse(parameters, true);
                     
                 case "KalturaPrice":
-                    return new KalturaPrice(parameters);
+                    return new KalturaPrice(parameters, true);
                     
                 case "KalturaPriceDetails":
-                    return new KalturaPriceDetails(parameters);
+                    return new KalturaPriceDetails(parameters, true);
                     
                 case "KalturaPriceDetailsFilter":
-                    return new KalturaPriceDetailsFilter(parameters);
+                    return new KalturaPriceDetailsFilter(parameters, true);
                     
                 case "KalturaPriceDetailsListResponse":
-                    return new KalturaPriceDetailsListResponse(parameters);
+                    return new KalturaPriceDetailsListResponse(parameters, true);
                     
                 case "KalturaPricePlan":
-                    return new KalturaPricePlan(parameters);
+                    return new KalturaPricePlan(parameters, true);
                     
                 case "KalturaPricePlanFilter":
-                    return new KalturaPricePlanFilter(parameters);
+                    return new KalturaPricePlanFilter(parameters, true);
                     
                 case "KalturaPricePlanListResponse":
-                    return new KalturaPricePlanListResponse(parameters);
+                    return new KalturaPricePlanListResponse(parameters, true);
                     
                 case "KalturaPricesFilter":
-                    return new KalturaPricesFilter(parameters);
+                    return new KalturaPricesFilter(parameters, true);
                     
                 case "KalturaProductCode":
-                    return new KalturaProductCode(parameters);
+                    return new KalturaProductCode(parameters, true);
                     
                 case "KalturaProductPrice":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaProductPriceFilter":
-                    return new KalturaProductPriceFilter(parameters);
+                    return new KalturaProductPriceFilter(parameters, true);
                     
                 case "KalturaProductPriceListResponse":
-                    return new KalturaProductPriceListResponse(parameters);
+                    return new KalturaProductPriceListResponse(parameters, true);
                     
                 case "KalturaProductsPriceListResponse":
-                    return new KalturaProductsPriceListResponse(parameters);
+                    return new KalturaProductsPriceListResponse(parameters, true);
                     
                 case "KalturaProgramAsset":
-                    return new KalturaProgramAsset(parameters);
+                    return new KalturaProgramAsset(parameters, true);
                     
                 case "KalturaProgramAssetEvent":
-                    return new KalturaProgramAssetEvent(parameters);
+                    return new KalturaProgramAssetEvent(parameters, true);
                     
                 case "KalturaPromotion":
-                    return new KalturaPromotion(parameters);
+                    return new KalturaPromotion(parameters, true);
                     
                 case "KalturaPromotionInfo":
-                    return new KalturaPromotionInfo(parameters);
+                    return new KalturaPromotionInfo(parameters, true);
                     
                 case "KalturaPropertySkipCondition":
-                    return new KalturaPropertySkipCondition(parameters);
+                    return new KalturaPropertySkipCondition(parameters, true);
                     
                 case "KalturaPublicCouponGenerationOptions":
-                    return new KalturaPublicCouponGenerationOptions(parameters);
+                    return new KalturaPublicCouponGenerationOptions(parameters, true);
                     
                 case "KalturaPurchase":
-                    return new KalturaPurchase(parameters);
+                    return new KalturaPurchase(parameters, true);
                     
                 case "KalturaPurchaseBase":
-                    return new KalturaPurchaseBase(parameters);
+                    return new KalturaPurchaseBase(parameters, true);
                     
                 case "KalturaPurchaseSession":
-                    return new KalturaPurchaseSession(parameters);
+                    return new KalturaPurchaseSession(parameters, true);
                     
                 case "KalturaPurchaseSettings":
-                    return new KalturaPurchaseSettings(parameters);
+                    return new KalturaPurchaseSettings(parameters, true);
                     
                 case "KalturaPurchaseSettingsResponse":
-                    return new KalturaPurchaseSettingsResponse(parameters);
+                    return new KalturaPurchaseSettingsResponse(parameters, true);
                     
                 case "KalturaPushMessage":
-                    return new KalturaPushMessage(parameters);
+                    return new KalturaPushMessage(parameters, true);
                     
                 case "KalturaPushParams":
-                    return new KalturaPushParams(parameters);
+                    return new KalturaPushParams(parameters, true);
                     
                 case "KalturaRandomCouponGenerationOptions":
-                    return new KalturaRandomCouponGenerationOptions(parameters);
+                    return new KalturaRandomCouponGenerationOptions(parameters, true);
                     
                 case "KalturaRatio":
-                    return new KalturaRatio(parameters);
+                    return new KalturaRatio(parameters, true);
                     
                 case "KalturaRatioListResponse":
-                    return new KalturaRatioListResponse(parameters);
+                    return new KalturaRatioListResponse(parameters, true);
                     
                 case "KalturaRecommendationProfile":
-                    return new KalturaRecommendationProfile(parameters);
+                    return new KalturaRecommendationProfile(parameters, true);
                     
                 case "KalturaRecommendationProfileListResponse":
-                    return new KalturaRecommendationProfileListResponse(parameters);
+                    return new KalturaRecommendationProfileListResponse(parameters, true);
                     
                 case "KalturaRecording":
-                    return new KalturaRecording(parameters);
+                    return new KalturaRecording(parameters, true);
                     
                 case "KalturaRecordingAsset":
-                    return new KalturaRecordingAsset(parameters);
+                    return new KalturaRecordingAsset(parameters, true);
                     
                 case "KalturaRecordingContext":
-                    return new KalturaRecordingContext(parameters);
+                    return new KalturaRecordingContext(parameters, true);
                     
                 case "KalturaRecordingContextFilter":
-                    return new KalturaRecordingContextFilter(parameters);
+                    return new KalturaRecordingContextFilter(parameters, true);
                     
                 case "KalturaRecordingContextListResponse":
-                    return new KalturaRecordingContextListResponse(parameters);
+                    return new KalturaRecordingContextListResponse(parameters, true);
                     
                 case "KalturaRecordingFilter":
-                    return new KalturaRecordingFilter(parameters);
+                    return new KalturaRecordingFilter(parameters, true);
                     
                 case "KalturaRecordingListResponse":
-                    return new KalturaRecordingListResponse(parameters);
+                    return new KalturaRecordingListResponse(parameters, true);
                     
                 case "KalturaRegexExpression":
-                    return new KalturaRegexExpression(parameters);
+                    return new KalturaRegexExpression(parameters, true);
                     
                 case "KalturaRegion":
-                    return new KalturaRegion(parameters);
+                    return new KalturaRegion(parameters, true);
                     
                 case "KalturaRegionalChannel":
-                    return new KalturaRegionalChannel(parameters);
+                    return new KalturaRegionalChannel(parameters, true);
                     
                 case "KalturaRegionChannelNumber":
-                    return new KalturaRegionChannelNumber(parameters);
+                    return new KalturaRegionChannelNumber(parameters, true);
                     
                 case "KalturaRegionFilter":
-                    return new KalturaRegionFilter(parameters);
+                    return new KalturaRegionFilter(parameters, true);
                     
                 case "KalturaRegionListResponse":
-                    return new KalturaRegionListResponse(parameters);
+                    return new KalturaRegionListResponse(parameters, true);
                     
                 case "KalturaRegistryResponse":
-                    return new KalturaRegistryResponse(parameters);
+                    return new KalturaRegistryResponse(parameters, true);
                     
                 case "KalturaRegistrySettings":
-                    return new KalturaRegistrySettings(parameters);
+                    return new KalturaRegistrySettings(parameters, true);
                     
                 case "KalturaRegistrySettingsListResponse":
-                    return new KalturaRegistrySettingsListResponse(parameters);
+                    return new KalturaRegistrySettingsListResponse(parameters, true);
                     
                 case "KalturaRelatedEntity":
-                    return new KalturaRelatedEntity(parameters);
+                    return new KalturaRelatedEntity(parameters, true);
                     
                 case "KalturaRelatedEntityArray":
-                    return new KalturaRelatedEntityArray(parameters);
+                    return new KalturaRelatedEntityArray(parameters, true);
                     
                 case "KalturaRelatedExternalFilter":
-                    return new KalturaRelatedExternalFilter(parameters);
+                    return new KalturaRelatedExternalFilter(parameters, true);
                     
                 case "KalturaRelatedFilter":
-                    return new KalturaRelatedFilter(parameters);
+                    return new KalturaRelatedFilter(parameters, true);
                     
                 case "KalturaReminder":
-                    return new KalturaReminder(parameters);
+                    return new KalturaReminder(parameters, true);
                     
                 case "KalturaReminderFilter":
-                    return new KalturaAssetReminderFilter(parameters);
+                    return new KalturaAssetReminderFilter(parameters, true);
                     
                 case "KalturaReminderListResponse":
-                    return new KalturaReminderListResponse(parameters);
+                    return new KalturaReminderListResponse(parameters, true);
                     
                 case "KalturaReport":
-                    return new KalturaReport(parameters);
+                    return new KalturaReport(parameters, true);
                     
                 case "KalturaReportFilter":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaReportListResponse":
-                    return new KalturaReportListResponse(parameters);
+                    return new KalturaReportListResponse(parameters, true);
                     
                 case "KalturaRequestConfiguration":
-                    return new KalturaRequestConfiguration(parameters);
+                    return new KalturaRequestConfiguration(parameters, true);
                     
                 case "KalturaResetPasswordPartnerConfig":
-                    return new KalturaResetPasswordPartnerConfig(parameters);
+                    return new KalturaResetPasswordPartnerConfig(parameters, true);
                     
                 case "KalturaResetPasswordPartnerConfigTemplate":
-                    return new KalturaResetPasswordPartnerConfigTemplate(parameters);
+                    return new KalturaResetPasswordPartnerConfigTemplate(parameters, true);
                     
                 case "KalturaRollingDeviceRemovalData":
-                    return new KalturaRollingDeviceRemovalData(parameters);
+                    return new KalturaRollingDeviceRemovalData(parameters, true);
                     
                 case "KalturaRule":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
@@ -1868,472 +1959,493 @@ namespace WebAPI.Reflection
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaRuleFilter":
-                    return new KalturaRuleFilter(parameters);
+                    return new KalturaRuleFilter(parameters, true);
                     
                 case "KalturaScheduledRecordingProgramFilter":
-                    return new KalturaScheduledRecordingProgramFilter(parameters);
+                    return new KalturaScheduledRecordingProgramFilter(parameters, true);
                     
                 case "KalturaSearchAssetFilter":
-                    return new KalturaSearchAssetFilter(parameters);
+                    return new KalturaSearchAssetFilter(parameters, true);
                     
                 case "KalturaSearchAssetListFilter":
-                    return new KalturaSearchAssetListFilter(parameters);
+                    return new KalturaSearchAssetListFilter(parameters, true);
                     
                 case "KalturaSearchExternalFilter":
-                    return new KalturaSearchExternalFilter(parameters);
+                    return new KalturaSearchExternalFilter(parameters, true);
                     
                 case "KalturaSearchHistory":
-                    return new KalturaSearchHistory(parameters);
+                    return new KalturaSearchHistory(parameters, true);
                     
                 case "KalturaSearchHistoryFilter":
-                    return new KalturaSearchHistoryFilter(parameters);
+                    return new KalturaSearchHistoryFilter(parameters, true);
                     
                 case "KalturaSearchHistoryListResponse":
-                    return new KalturaSearchHistoryListResponse(parameters);
+                    return new KalturaSearchHistoryListResponse(parameters, true);
                     
                 case "KalturaSeasonsReminderFilter":
-                    return new KalturaSeasonsReminderFilter(parameters);
+                    return new KalturaSeasonsReminderFilter(parameters, true);
                     
                 case "KalturaSecurityPartnerConfig":
-                    return new KalturaSecurityPartnerConfig(parameters);
+                    return new KalturaSecurityPartnerConfig(parameters, true);
                     
                 case "KalturaSegmentAllValues":
-                    return new KalturaSegmentAllValues(parameters);
+                    return new KalturaSegmentAllValues(parameters, true);
                     
                 case "KalturaSegmentAssetFilterAction":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaSegmentAssetFilterSegmentAction":
-                    return new KalturaSegmentAssetFilterSegmentAction(parameters);
+                    return new KalturaSegmentAssetFilterSegmentAction(parameters, true);
                     
                 case "KalturaSegmentAssetFilterSubscriptionAction":
-                    return new KalturaSegmentAssetFilterSubscriptionAction(parameters);
+                    return new KalturaSegmentAssetFilterSubscriptionAction(parameters, true);
                     
                 case "KalturaSegmentationType":
-                    return new KalturaSegmentationType(parameters);
+                    return new KalturaSegmentationType(parameters, true);
                     
                 case "KalturaSegmentationTypeFilter":
-                    return new KalturaSegmentationTypeFilter(parameters);
+                    return new KalturaSegmentationTypeFilter(parameters, true);
                     
                 case "KalturaSegmentationTypeListResponse":
-                    return new KalturaSegmentationTypeListResponse(parameters);
+                    return new KalturaSegmentationTypeListResponse(parameters, true);
                     
                 case "KalturaSegmentBlockCancelSubscriptionAction":
-                    return new KalturaSegmentBlockCancelSubscriptionAction(parameters);
+                    return new KalturaSegmentBlockCancelSubscriptionAction(parameters, true);
                     
                 case "KalturaSegmentBlockPlaybackSubscriptionAction":
-                    return new KalturaSegmentBlockPlaybackSubscriptionAction(parameters);
+                    return new KalturaSegmentBlockPlaybackSubscriptionAction(parameters, true);
                     
                 case "KalturaSegmentBlockPurchaseSubscriptionAction":
-                    return new KalturaSegmentBlockPurchaseSubscriptionAction(parameters);
+                    return new KalturaSegmentBlockPurchaseSubscriptionAction(parameters, true);
                     
                 case "KalturaSegmentRange":
-                    return new KalturaSegmentRange(parameters);
+                    return new KalturaSegmentRange(parameters, true);
                     
                 case "KalturaSegmentRanges":
-                    return new KalturaSegmentRanges(parameters);
+                    return new KalturaSegmentRanges(parameters, true);
                     
                 case "KalturaSegmentsCondition":
-                    return new KalturaSegmentsCondition(parameters);
+                    return new KalturaSegmentsCondition(parameters, true);
                     
                 case "KalturaSegmentSource":
-                    return new KalturaSegmentSource(parameters);
+                    return new KalturaSegmentSource(parameters, true);
                     
                 case "KalturaSegmentValue":
-                    return new KalturaSegmentValue(parameters);
+                    return new KalturaSegmentValue(parameters, true);
                     
                 case "KalturaSegmentValueFilter":
-                    return new KalturaSegmentValueFilter(parameters);
+                    return new KalturaSegmentValueFilter(parameters, true);
                     
                 case "KalturaSegmentValues":
-                    return new KalturaSegmentValues(parameters);
+                    return new KalturaSegmentValues(parameters, true);
                     
                 case "KalturaSeriesRecording":
-                    return new KalturaSeriesRecording(parameters);
+                    return new KalturaSeriesRecording(parameters, true);
                     
                 case "KalturaSeriesRecordingFilter":
-                    return new KalturaSeriesRecordingFilter(parameters);
+                    return new KalturaSeriesRecordingFilter(parameters, true);
                     
                 case "KalturaSeriesRecordingListResponse":
-                    return new KalturaSeriesRecordingListResponse(parameters);
+                    return new KalturaSeriesRecordingListResponse(parameters, true);
                     
                 case "KalturaSeriesRecordingOption":
-                    return new KalturaSeriesRecordingOption(parameters);
+                    return new KalturaSeriesRecordingOption(parameters, true);
                     
                 case "KalturaSeriesReminder":
-                    return new KalturaSeriesReminder(parameters);
+                    return new KalturaSeriesReminder(parameters, true);
                     
                 case "KalturaSeriesReminderFilter":
-                    return new KalturaSeriesReminderFilter(parameters);
+                    return new KalturaSeriesReminderFilter(parameters, true);
                     
                 case "KalturaSession":
-                    return new KalturaSession(parameters);
+                    return new KalturaSession(parameters, true);
+                    
+                case "KalturaSessionCharacteristic":
+                    return new KalturaSessionCharacteristic(parameters, true);
                     
                 case "KalturaSessionInfo":
-                    return new KalturaSessionInfo(parameters);
+                    return new KalturaSessionInfo(parameters, true);
                     
                 case "KalturaSingleSegmentValue":
-                    return new KalturaSingleSegmentValue(parameters);
+                    return new KalturaSingleSegmentValue(parameters, true);
                     
                 case "KalturaSkipCondition":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaSkipOnErrorCondition":
-                    return new KalturaSkipOnErrorCondition(parameters);
+                    return new KalturaSkipOnErrorCondition(parameters, true);
                     
                 case "KalturaSlimAsset":
-                    return new KalturaSlimAsset(parameters);
+                    return new KalturaSlimAsset(parameters, true);
                     
                 case "KalturaSlimAssetInfoWrapper":
-                    return new KalturaSlimAssetInfoWrapper(parameters);
+                    return new KalturaSlimAssetInfoWrapper(parameters, true);
                     
                 case "KalturaSmsAdapterProfile":
-                    return new KalturaSmsAdapterProfile(parameters);
+                    return new KalturaSmsAdapterProfile(parameters, true);
                     
                 case "KalturaSmsAdapterProfileFilter":
-                    return new KalturaSmsAdapterProfileFilter(parameters);
+                    return new KalturaSmsAdapterProfileFilter(parameters, true);
                     
                 case "KalturaSmsAdapterProfileListResponse":
-                    return new KalturaSmsAdapterProfileListResponse(parameters);
+                    return new KalturaSmsAdapterProfileListResponse(parameters, true);
                     
                 case "KalturaSmsDispatcher":
-                    return new KalturaSmsDispatcher(parameters);
+                    return new KalturaSmsDispatcher(parameters, true);
                     
                 case "KalturaSocial":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaSocialAction":
-                    return new KalturaSocialAction(parameters);
+                    return new KalturaSocialAction(parameters, true);
                     
                 case "KalturaSocialActionFilter":
-                    return new KalturaSocialActionFilter(parameters);
+                    return new KalturaSocialActionFilter(parameters, true);
                     
                 case "KalturaSocialActionListResponse":
-                    return new KalturaSocialActionListResponse(parameters);
+                    return new KalturaSocialActionListResponse(parameters, true);
                     
                 case "KalturaSocialActionRate":
-                    return new KalturaSocialActionRate(parameters);
+                    return new KalturaSocialActionRate(parameters, true);
                     
                 case "KalturaSocialComment":
-                    return new KalturaSocialComment(parameters);
+                    return new KalturaSocialComment(parameters, true);
                     
                 case "KalturaSocialCommentFilter":
-                    return new KalturaSocialCommentFilter(parameters);
+                    return new KalturaSocialCommentFilter(parameters, true);
                     
                 case "KalturaSocialCommentListResponse":
-                    return new KalturaSocialCommentListResponse(parameters);
+                    return new KalturaSocialCommentListResponse(parameters, true);
                     
                 case "KalturaSocialConfig":
-                    return new KalturaSocialConfig(parameters);
+                    return new KalturaSocialConfig(parameters, true);
                     
                 case "KalturaSocialFacebookConfig":
-                    return new KalturaSocialFacebookConfig(parameters);
+                    return new KalturaSocialFacebookConfig(parameters, true);
                     
                 case "KalturaSocialFriendActivity":
-                    return new KalturaSocialFriendActivity(parameters);
+                    return new KalturaSocialFriendActivity(parameters, true);
                     
                 case "KalturaSocialFriendActivityFilter":
-                    return new KalturaSocialFriendActivityFilter(parameters);
+                    return new KalturaSocialFriendActivityFilter(parameters, true);
                     
                 case "KalturaSocialFriendActivityListResponse":
-                    return new KalturaSocialFriendActivityListResponse(parameters);
+                    return new KalturaSocialFriendActivityListResponse(parameters, true);
                     
                 case "KalturaSocialNetworkComment":
-                    return new KalturaSocialNetworkComment(parameters);
+                    return new KalturaSocialNetworkComment(parameters, true);
                     
                 case "KalturaSocialResponse":
-                    return new KalturaSocialResponse(parameters);
+                    return new KalturaSocialResponse(parameters, true);
                     
                 case "KalturaSocialUser":
-                    return new KalturaSocialUser(parameters);
+                    return new KalturaSocialUser(parameters, true);
                     
                 case "KalturaSocialUserConfig":
-                    return new KalturaSocialUserConfig(parameters);
+                    return new KalturaSocialUserConfig(parameters, true);
                     
                 case "KalturaSSOAdapterProfile":
-                    return new KalturaSSOAdapterProfile(parameters);
+                    return new KalturaSSOAdapterProfile(parameters, true);
                     
                 case "KalturaSSOAdapterProfileInvoke":
-                    return new KalturaSSOAdapterProfileInvoke(parameters);
+                    return new KalturaSSOAdapterProfileInvoke(parameters, true);
                     
                 case "KalturaSSOAdapterProfileListResponse":
-                    return new KalturaSSOAdapterProfileListResponse(parameters);
+                    return new KalturaSSOAdapterProfileListResponse(parameters, true);
                     
                 case "KalturaStartDateOffsetRuleAction":
-                    return new KalturaStartDateOffsetRuleAction(parameters);
+                    return new KalturaStartDateOffsetRuleAction(parameters, true);
                     
                 case "KalturaStreamingDevice":
-                    return new KalturaStreamingDevice(parameters);
+                    return new KalturaStreamingDevice(parameters, true);
                     
                 case "KalturaStreamingDeviceFilter":
-                    return new KalturaStreamingDeviceFilter(parameters);
+                    return new KalturaStreamingDeviceFilter(parameters, true);
                     
                 case "KalturaStreamingDeviceListResponse":
-                    return new KalturaStreamingDeviceListResponse(parameters);
+                    return new KalturaStreamingDeviceListResponse(parameters, true);
                     
                 case "KalturaStringValue":
-                    return new KalturaStringValue(parameters);
+                    return new KalturaStringValue(parameters, true);
                     
                 case "KalturaStringValueArray":
-                    return new KalturaStringValueArray(parameters);
+                    return new KalturaStringValueArray(parameters, true);
                     
                 case "KalturaSubscribeReference":
-                    return new KalturaSubscribeReference(parameters);
+                    return new KalturaSubscribeReference(parameters, true);
                     
                 case "KalturaSubscription":
-                    return new KalturaSubscription(parameters);
+                    return new KalturaSubscription(parameters, true);
                     
                 case "KalturaSubscriptionCondition":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaSubscriptionCouponGroup":
-                    return new KalturaSubscriptionCouponGroup(parameters);
+                    return new KalturaSubscriptionCouponGroup(parameters, true);
                     
                 case "KalturaSubscriptionDependencySet":
-                    return new KalturaSubscriptionDependencySet(parameters);
+                    return new KalturaSubscriptionDependencySet(parameters, true);
                     
                 case "KalturaSubscriptionDependencySetFilter":
-                    return new KalturaSubscriptionDependencySetFilter(parameters);
+                    return new KalturaSubscriptionDependencySetFilter(parameters, true);
                     
                 case "KalturaSubscriptionEntitlement":
-                    return new KalturaSubscriptionEntitlement(parameters);
+                    return new KalturaSubscriptionEntitlement(parameters, true);
                     
                 case "KalturaSubscriptionFilter":
-                    return new KalturaSubscriptionFilter(parameters);
+                    return new KalturaSubscriptionFilter(parameters, true);
                     
                 case "KalturaSubscriptionListResponse":
-                    return new KalturaSubscriptionListResponse(parameters);
+                    return new KalturaSubscriptionListResponse(parameters, true);
                     
                 case "KalturaSubscriptionPrice":
-                    return new KalturaSubscriptionPrice(parameters);
+                    return new KalturaSubscriptionPrice(parameters, true);
                     
                 case "KalturaSubscriptionSet":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaSubscriptionSetFilter":
-                    return new KalturaSubscriptionSetFilter(parameters);
+                    return new KalturaSubscriptionSetFilter(parameters, true);
                     
                 case "KalturaSubscriptionSetListResponse":
-                    return new KalturaSubscriptionSetListResponse(parameters);
+                    return new KalturaSubscriptionSetListResponse(parameters, true);
                     
                 case "KalturaSubscriptionsFilter":
-                    return new KalturaSubscriptionsFilter(parameters);
+                    return new KalturaSubscriptionsFilter(parameters, true);
                     
                 case "KalturaSubscriptionSubscribeReference":
-                    return new KalturaSubscriptionSubscribeReference(parameters);
+                    return new KalturaSubscriptionSubscribeReference(parameters, true);
                     
                 case "KalturaSubscriptionSwitchSet":
-                    return new KalturaSubscriptionSwitchSet(parameters);
+                    return new KalturaSubscriptionSwitchSet(parameters, true);
                     
                 case "KalturaSubscriptionTrigger":
-                    return new KalturaSubscriptionTrigger(parameters);
+                    return new KalturaSubscriptionTrigger(parameters, true);
                     
                 case "KalturaSuspendSettings":
-                    return new KalturaSuspendSettings(parameters);
+                    return new KalturaSuspendSettings(parameters, true);
                     
                 case "KalturaTag":
-                    return new KalturaTag(parameters);
+                    return new KalturaTag(parameters, true);
                     
                 case "KalturaTagFilter":
-                    return new KalturaTagFilter(parameters);
+                    return new KalturaTagFilter(parameters, true);
                     
                 case "KalturaTagListResponse":
-                    return new KalturaTagListResponse(parameters);
+                    return new KalturaTagListResponse(parameters, true);
                     
                 case "KalturaTimeOffsetRuleAction":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaTimeShiftedTvPartnerSettings":
-                    return new KalturaTimeShiftedTvPartnerSettings(parameters);
+                    return new KalturaTimeShiftedTvPartnerSettings(parameters, true);
                     
                 case "KalturaTopic":
-                    return new KalturaTopic(parameters);
+                    return new KalturaTopic(parameters, true);
                     
                 case "KalturaTopicFilter":
-                    return new KalturaTopicFilter(parameters);
+                    return new KalturaTopicFilter(parameters, true);
                     
                 case "KalturaTopicListResponse":
-                    return new KalturaTopicListResponse(parameters);
+                    return new KalturaTopicListResponse(parameters, true);
                     
                 case "KalturaTopicNotification":
-                    return new KalturaTopicNotification(parameters);
+                    return new KalturaTopicNotification(parameters, true);
                     
                 case "KalturaTopicNotificationFilter":
-                    return new KalturaTopicNotificationFilter(parameters);
+                    return new KalturaTopicNotificationFilter(parameters, true);
                     
                 case "KalturaTopicNotificationListResponse":
-                    return new KalturaTopicNotificationListResponse(parameters);
+                    return new KalturaTopicNotificationListResponse(parameters, true);
                     
                 case "KalturaTopicNotificationMessage":
-                    return new KalturaTopicNotificationMessage(parameters);
+                    return new KalturaTopicNotificationMessage(parameters, true);
                     
                 case "KalturaTopicNotificationMessageFilter":
-                    return new KalturaTopicNotificationMessageFilter(parameters);
+                    return new KalturaTopicNotificationMessageFilter(parameters, true);
                     
                 case "KalturaTopicNotificationMessageListResponse":
-                    return new KalturaTopicNotificationMessageListResponse(parameters);
+                    return new KalturaTopicNotificationMessageListResponse(parameters, true);
                     
                 case "KalturaTopicResponse":
-                    return new KalturaTopicResponse(parameters);
+                    return new KalturaTopicResponse(parameters, true);
                     
                 case "KalturaTrailEntitlementDiscountDetails":
-                    return new KalturaTrailEntitlementDiscountDetails(parameters);
+                    return new KalturaTrailEntitlementDiscountDetails(parameters, true);
                     
                 case "KalturaTransaction":
-                    return new KalturaTransaction(parameters);
+                    return new KalturaTransaction(parameters, true);
                     
                 case "KalturaTransactionHistoryFilter":
-                    return new KalturaTransactionHistoryFilter(parameters);
+                    return new KalturaTransactionHistoryFilter(parameters, true);
                     
                 case "KalturaTransactionsFilter":
-                    return new KalturaTransactionsFilter(parameters);
+                    return new KalturaTransactionsFilter(parameters, true);
                     
                 case "KalturaTransactionStatus":
-                    return new KalturaTransactionStatus(parameters);
+                    return new KalturaTransactionStatus(parameters, true);
                     
                 case "KalturaTranslationToken":
-                    return new KalturaTranslationToken(parameters);
+                    return new KalturaTranslationToken(parameters, true);
                     
                 case "KalturaTrigger":
-                    return new KalturaTrigger(parameters);
+                    return new KalturaTrigger(parameters, true);
                     
                 case "KalturaTriggerCampaign":
-                    return new KalturaTriggerCampaign(parameters);
+                    return new KalturaTriggerCampaign(parameters, true);
                     
                 case "KalturaTriggerCampaignEvent":
-                    return new KalturaTriggerCampaignEvent(parameters);
+                    return new KalturaTriggerCampaignEvent(parameters, true);
                     
                 case "KalturaTriggerCampaignSearchFilter":
-                    return new KalturaTriggerCampaignSearchFilter(parameters);
+                    return new KalturaTriggerCampaignSearchFilter(parameters, true);
                     
                 case "KalturaTvmDeviceRule":
-                    return new KalturaTvmDeviceRule(parameters);
+                    return new KalturaTvmDeviceRule(parameters, true);
                     
                 case "KalturaTvmGeoRule":
-                    return new KalturaTvmGeoRule(parameters);
+                    return new KalturaTvmGeoRule(parameters, true);
                     
                 case "KalturaTvmRule":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaTvmRuleFilter":
-                    return new KalturaTvmRuleFilter(parameters);
+                    return new KalturaTvmRuleFilter(parameters, true);
                     
                 case "KalturaTvmRuleListResponse":
-                    return new KalturaTvmRuleListResponse(parameters);
+                    return new KalturaTvmRuleListResponse(parameters, true);
                     
                 case "KalturaTwitterTwit":
-                    return new KalturaTwitterTwit(parameters);
+                    return new KalturaTwitterTwit(parameters, true);
                     
                 case "KalturaUdidDynamicList":
-                    return new KalturaUdidDynamicList(parameters);
+                    return new KalturaUdidDynamicList(parameters, true);
                     
                 case "KalturaUdidDynamicListCondition":
-                    return new KalturaUdidDynamicListCondition(parameters);
+                    return new KalturaUdidDynamicListCondition(parameters, true);
                     
                 case "KalturaUdidDynamicListSearchFilter":
-                    return new KalturaUdidDynamicListSearchFilter(parameters);
+                    return new KalturaUdidDynamicListSearchFilter(parameters, true);
                     
                 case "KalturaUnifiedBillingCycle":
-                    return new KalturaUnifiedBillingCycle(parameters);
+                    return new KalturaUnifiedBillingCycle(parameters, true);
                     
                 case "KalturaUnifiedChannel":
-                    return new KalturaUnifiedChannel(parameters);
+                    return new KalturaUnifiedChannel(parameters, true);
                     
                 case "KalturaUnifiedChannelInfo":
-                    return new KalturaUnifiedChannelInfo(parameters);
+                    return new KalturaUnifiedChannelInfo(parameters, true);
                     
                 case "KalturaUnifiedPaymentRenewal":
-                    return new KalturaUnifiedPaymentRenewal(parameters);
+                    return new KalturaUnifiedPaymentRenewal(parameters, true);
                     
                 case "KalturaUploadedFileTokenResource":
-                    return new KalturaUploadedFileTokenResource(parameters);
+                    return new KalturaUploadedFileTokenResource(parameters, true);
                     
                 case "KalturaUploadToken":
-                    return new KalturaUploadToken(parameters);
+                    return new KalturaUploadToken(parameters, true);
                     
                 case "KalturaUrlResource":
-                    return new KalturaUrlResource(parameters);
+                    return new KalturaUrlResource(parameters, true);
                     
                 case "KalturaUsageModule":
-                    return new KalturaUsageModule(parameters);
+                    return new KalturaUsageModule(parameters, true);
                     
                 case "KalturaUsageModuleListResponse":
-                    return new KalturaUsageModuleListResponse(parameters);
+                    return new KalturaUsageModuleListResponse(parameters, true);
                     
                 case "KalturaUserAssetRule":
-                    return new KalturaUserAssetRule(parameters);
+                    return new KalturaUserAssetRule(parameters, true);
                     
                 case "KalturaUserAssetRuleFilter":
-                    return new KalturaUserAssetRuleFilter(parameters);
+                    return new KalturaUserAssetRuleFilter(parameters, true);
                     
                 case "KalturaUserAssetRuleListResponse":
-                    return new KalturaUserAssetRuleListResponse(parameters);
+                    return new KalturaUserAssetRuleListResponse(parameters, true);
                     
                 case "KalturaUserAssetsList":
-                    return new KalturaUserAssetsList(parameters);
+                    return new KalturaUserAssetsList(parameters, true);
                     
                 case "KalturaUserAssetsListFilter":
-                    return new KalturaUserAssetsListFilter(parameters);
+                    return new KalturaUserAssetsListFilter(parameters, true);
                     
                 case "KalturaUserAssetsListItem":
-                    return new KalturaUserAssetsListItem(parameters);
+                    return new KalturaUserAssetsListItem(parameters, true);
                     
                 case "KalturaUserBillingTransaction":
-                    return new KalturaUserBillingTransaction(parameters);
+                    return new KalturaUserBillingTransaction(parameters, true);
                     
                 case "KalturaUserDataCondition":
-                    return new KalturaUserDataCondition(parameters);
+                    return new KalturaUserDataCondition(parameters, true);
                     
                 case "KalturaUserDynamicDataSource":
-                    return new KalturaUserDynamicDataSource(parameters);
+                    return new KalturaUserDynamicDataSource(parameters, true);
                     
                 case "KalturaUserInterest":
-                    return new KalturaUserInterest(parameters);
+                    return new KalturaUserInterest(parameters, true);
                     
                 case "KalturaUserInterestListResponse":
-                    return new KalturaUserInterestListResponse(parameters);
+                    return new KalturaUserInterestListResponse(parameters, true);
                     
                 case "KalturaUserInterestTopic":
-                    return new KalturaUserInterestTopic(parameters);
+                    return new KalturaUserInterestTopic(parameters, true);
                     
                 case "KalturaUserLoginPin":
-                    return new KalturaUserLoginPin(parameters);
+                    return new KalturaUserLoginPin(parameters, true);
                     
                 case "KalturaUserRole":
-                    return new KalturaUserRole(parameters);
+                    return new KalturaUserRole(parameters, true);
                     
                 case "KalturaUserRoleCondition":
-                    return new KalturaUserRoleCondition(parameters);
+                    return new KalturaUserRoleCondition(parameters, true);
                     
                 case "KalturaUserRoleFilter":
-                    return new KalturaUserRoleFilter(parameters);
+                    return new KalturaUserRoleFilter(parameters, true);
                     
                 case "KalturaUserRoleListResponse":
-                    return new KalturaUserRoleListResponse(parameters);
+                    return new KalturaUserRoleListResponse(parameters, true);
                     
                 case "KalturaUserSegment":
-                    return new KalturaUserSegment(parameters);
+                    return new KalturaUserSegment(parameters, true);
                     
                 case "KalturaUserSegmentFilter":
-                    return new KalturaUserSegmentFilter(parameters);
+                    return new KalturaUserSegmentFilter(parameters, true);
                     
                 case "KalturaUserSegmentListResponse":
-                    return new KalturaUserSegmentListResponse(parameters);
+                    return new KalturaUserSegmentListResponse(parameters, true);
+                    
+                case "KalturaUserSessionCondition":
+                    return new KalturaUserSessionCondition(parameters, true);
+                    
+                case "KalturaUserSessionProfile":
+                    return new KalturaUserSessionProfile(parameters, true);
+                    
+                case "KalturaUserSessionProfileCondition":
+                    return new KalturaUserSessionProfileCondition(parameters, true);
+                    
+                case "KalturaUserSessionProfileExpression":
+                    throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
+                    
+                case "KalturaUserSessionProfileFilter":
+                    return new KalturaUserSessionProfileFilter(parameters, true);
+                    
+                case "KalturaUserSessionProfileListResponse":
+                    return new KalturaUserSessionProfileListResponse(parameters, true);
                     
                 case "KalturaUserSocialActionResponse":
-                    return new KalturaUserSocialActionResponse(parameters);
+                    return new KalturaUserSocialActionResponse(parameters, true);
                     
                 case "KalturaUserSubscriptionCondition":
-                    return new KalturaUserSubscriptionCondition(parameters);
+                    return new KalturaUserSubscriptionCondition(parameters, true);
                     
                 case "KalturaValue":
                     throw new RequestParserException(RequestParserException.ABSTRACT_PARAMETER, objectType);
                     
                 case "KalturaWatchHistoryAsset":
-                    return new KalturaWatchHistoryAsset(parameters);
+                    return new KalturaWatchHistoryAsset(parameters, true);
                     
                 case "KalturaWatchHistoryAssetWrapper":
-                    return new KalturaWatchHistoryAssetWrapper(parameters);
+                    return new KalturaWatchHistoryAssetWrapper(parameters, true);
                     
             }
             
@@ -2346,13 +2458,13 @@ namespace WebAPI.Models.ConditionalAccess
 {
     public partial class KalturaAccessControlBlockAction
     {
-        public KalturaAccessControlBlockAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAccessControlBlockAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaAccessControlMessage
     {
-        public KalturaAccessControlMessage(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAccessControlMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -2369,7 +2481,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaAdsContext
     {
-        public KalturaAdsContext(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAdsContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -2398,8 +2510,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAdsSource(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAdsSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -2440,13 +2554,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaAllowPlaybackAction
     {
-        public KalturaAllowPlaybackAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAllowPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaApplyDiscountModuleAction
     {
-        public KalturaApplyDiscountModuleAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaApplyDiscountModuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -2459,13 +2573,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaApplyFreePlaybackAction
     {
-        public KalturaApplyFreePlaybackAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaApplyFreePlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaApplyPlaybackAdapterAction
     {
-        public KalturaApplyPlaybackAdapterAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaApplyPlaybackAdapterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -2487,6 +2601,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FullLifeCycleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFileContext")
         {
@@ -2497,6 +2613,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsOfflinePlayBackSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFileContext")
         {
@@ -2507,6 +2625,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsLivePlayBackSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFileContext")
         {
@@ -2517,8 +2637,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetFileContext(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetFileContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -2561,7 +2683,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaAssetLifeCycleBuisnessModuleTransitionAction
     {
-        public KalturaAssetLifeCycleBuisnessModuleTransitionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetLifeCycleBuisnessModuleTransitionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -2578,7 +2700,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaAssetLifeCycleTagTransitionAction
     {
-        public KalturaAssetLifeCycleTagTransitionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetLifeCycleTagTransitionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -2600,8 +2722,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetLifeCycleTransitionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetLifeCycleTransitionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -2644,25 +2768,25 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaAssetRuleAction
     {
-        public KalturaAssetRuleAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaAssetUserRuleAction
     {
-        public KalturaAssetUserRuleAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetUserRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaAssetUserRuleBlockAction
     {
-        public KalturaAssetUserRuleBlockAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetUserRuleBlockAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaAssetUserRuleFilterAction
     {
-        public KalturaAssetUserRuleFilterAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetUserRuleFilterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -2675,7 +2799,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaBillingResponse
     {
-        public KalturaBillingResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBillingResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -2711,6 +2835,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute purchasedItemNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2721,6 +2847,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute purchasedItemCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2731,6 +2859,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute itemTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2741,6 +2871,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute billingActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2751,6 +2883,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute priceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2761,6 +2895,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute actionDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2771,6 +2907,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute startDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2781,6 +2919,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute endDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2791,6 +2931,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute paymentMethodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2801,6 +2943,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute paymentMethodExtraDetailsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2811,6 +2955,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute isRecurringSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2821,6 +2967,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute billingProviderRefSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2831,6 +2979,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute purchaseIDSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2841,6 +2991,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute remarksSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2851,6 +3003,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute billingPriceTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2861,6 +3015,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalTransactionIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBillingTransaction")
         {
@@ -2871,8 +3027,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBillingTransaction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBillingTransaction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -3200,7 +3358,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaBillingTransactionListResponse
     {
-        public KalturaBillingTransactionListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBillingTransactionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -3220,13 +3378,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaBlockPlaybackAction
     {
-        public KalturaBlockPlaybackAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBlockPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBumpersPlaybackPluginData
     {
-        public KalturaBumpersPlaybackPluginData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBumpersPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -3243,19 +3401,19 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaBusinessModuleRuleAction
     {
-        public KalturaBusinessModuleRuleAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBusinessModuleRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaCampaignEntitlementDiscountDetails
     {
-        public KalturaCampaignEntitlementDiscountDetails(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCampaignEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaCaptionPlaybackPluginData
     {
-        public KalturaCaptionPlaybackPluginData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCaptionPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -3289,6 +3447,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDVRAdapterProfile")
         {
@@ -3299,8 +3459,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCDVRAdapterProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCDVRAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -3378,7 +3540,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaCDVRAdapterProfileListResponse
     {
-        public KalturaCDVRAdapterProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCDVRAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -3398,7 +3560,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaCloudRecordingFilter
     {
-        public KalturaCloudRecordingFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCloudRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -3414,7 +3576,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaCloudSeriesRecordingFilter
     {
-        public KalturaCloudSeriesRecordingFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCloudSeriesRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -3430,7 +3592,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaCollectionEntitlement
     {
-        public KalturaCollectionEntitlement(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCollectionEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -3445,6 +3607,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SubscriptionIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCompensation")
         {
@@ -3455,6 +3619,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AmountSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCompensation")
         {
@@ -3466,6 +3632,8 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
             MinFloat = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TotalRenewalIterationsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCompensation")
         {
@@ -3477,6 +3645,8 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
             MinFloat = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AppliedRenewalIterationsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCompensation")
         {
@@ -3487,8 +3657,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCompensation(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCompensation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -3557,7 +3729,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaCompensationEntitlementDiscountDetails
     {
-        public KalturaCompensationEntitlementDiscountDetails(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCompensationEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -3572,6 +3744,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndlessCouponSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponEntitlementDiscountDetails")
         {
@@ -3582,8 +3756,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCouponEntitlementDiscountDetails(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCouponEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -3610,7 +3786,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaCustomDrmPlaybackPluginData
     {
-        public KalturaCustomDrmPlaybackPluginData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCustomDrmPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -3623,13 +3799,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaDiscountEntitlementDiscountDetails
     {
-        public KalturaDiscountEntitlementDiscountDetails(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDiscountEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaDrmPlaybackPluginData
     {
-        public KalturaDrmPlaybackPluginData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDrmPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -3663,7 +3839,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEndDateOffsetRuleAction
     {
-        public KalturaEndDateOffsetRuleAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEndDateOffsetRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -3678,6 +3854,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3688,6 +3866,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EntitlementIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3698,6 +3878,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ProductIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3708,6 +3890,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CurrentUsesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3718,6 +3902,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3728,6 +3914,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CurrentDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3738,6 +3926,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LastViewDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3748,6 +3938,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PurchaseDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3758,6 +3950,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PurchaseIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3768,6 +3962,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PaymentMethodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3778,6 +3974,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceUDIDSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3788,6 +3986,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3798,6 +3998,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsCancelationWindowEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3808,6 +4010,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MaxUsesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3818,6 +4022,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NextRenewalDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3828,6 +4034,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsRenewableForPurchaseSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3838,6 +4046,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsRenewableSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3848,6 +4058,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MediaFileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3858,6 +4070,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MediaIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3868,6 +4082,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsInGracePeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3878,6 +4094,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3888,6 +4106,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute HouseholdIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlement")
         {
@@ -3898,8 +4118,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaEntitlement(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4281,6 +4503,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlementCancellation")
         {
@@ -4291,6 +4515,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ProductIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlementCancellation")
         {
@@ -4301,6 +4527,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlementCancellation")
         {
@@ -4311,6 +4539,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute HouseholdIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlementCancellation")
         {
@@ -4321,8 +4551,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaEntitlementCancellation(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEntitlementCancellation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4392,6 +4624,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlementDiscountDetails")
         {
@@ -4402,6 +4636,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlementDiscountDetails")
         {
@@ -4412,8 +4648,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaEntitlementDiscountDetails(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4457,8 +4695,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaEntitlementDiscountDetailsIdentifier(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEntitlementDiscountDetailsIdentifier(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4477,7 +4717,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEntitlementFilter
     {
-        public KalturaEntitlementFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEntitlementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4548,7 +4788,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEntitlementListResponse
     {
-        public KalturaEntitlementListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEntitlementListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4577,6 +4817,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DiscountDetailsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEntitlementPriceDetails")
         {
@@ -4587,8 +4829,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaEntitlementPriceDetails(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEntitlementPriceDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4629,7 +4873,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEntitlementRenewal
     {
-        public KalturaEntitlementRenewal(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEntitlementRenewal(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4665,7 +4909,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEntitlementRenewalBase
     {
-        public KalturaEntitlementRenewalBase(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEntitlementRenewalBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4686,7 +4930,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaEntitlementsFilter
     {
-        public KalturaEntitlementsFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEntitlementsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4739,7 +4983,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaExternalReceipt
     {
-        public KalturaExternalReceipt(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaExternalReceipt(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4765,6 +5009,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = 255,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MetaDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExternalRecording")
         {
@@ -4775,6 +5021,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExpiryDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExternalRecording")
         {
@@ -4785,8 +5033,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaExternalRecording(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaExternalRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4824,7 +5074,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaExternalRecordingFilter
     {
-        public KalturaExternalRecordingFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaExternalRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4840,13 +5090,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaExternalRecordingResponseProfileFilter
     {
-        public KalturaExternalRecordingResponseProfileFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaExternalRecordingResponseProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaExternalSeriesRecording
     {
-        public KalturaExternalSeriesRecording(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaExternalSeriesRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4862,7 +5112,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaFairPlayPlaybackPluginData
     {
-        public KalturaFairPlayPlaybackPluginData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFairPlayPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4875,13 +5125,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaHouseholdPremiumService
     {
-        public KalturaHouseholdPremiumService(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdPremiumService(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaHouseholdPremiumServiceListResponse
     {
-        public KalturaHouseholdPremiumServiceListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdPremiumServiceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4910,6 +5160,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TotalQuotaSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdQuota")
         {
@@ -4920,6 +5172,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AvailableQuotaSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdQuota")
         {
@@ -4930,8 +5184,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaHouseholdQuota(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdQuota(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4966,7 +5222,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaLicensedUrl
     {
-        public KalturaLicensedUrl(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLicensedUrl(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -4993,7 +5249,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaLicensedUrlBaseRequest
     {
-        public KalturaLicensedUrlBaseRequest(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLicensedUrlBaseRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5006,7 +5262,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaLicensedUrlEpgRequest
     {
-        public KalturaLicensedUrlEpgRequest(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLicensedUrlEpgRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5033,7 +5289,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaLicensedUrlMediaRequest
     {
-        public KalturaLicensedUrlMediaRequest(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLicensedUrlMediaRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5050,7 +5306,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaLicensedUrlRecordingRequest
     {
-        public KalturaLicensedUrlRecordingRequest(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLicensedUrlRecordingRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5063,7 +5319,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaNpvrPremiumService
     {
-        public KalturaNpvrPremiumService(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaNpvrPremiumService(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5085,8 +5341,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPartnerPremiumService(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPartnerPremiumService(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5113,7 +5371,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPartnerPremiumServices
     {
-        public KalturaPartnerPremiumServices(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPartnerPremiumServices(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5133,7 +5391,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPlaybackContext
     {
-        public KalturaPlaybackContext(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPlaybackContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5207,8 +5465,10 @@ namespace WebAPI.Models.ConditionalAccess
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPlaybackContextOptions(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPlaybackContextOptions(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5270,7 +5530,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPlaybackPluginData
     {
-        public KalturaPlaybackPluginData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPlaybackPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -5285,6 +5545,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute BusinessModuleTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPlaybackSource")
         {
@@ -5295,8 +5557,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPlaybackSource(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPlaybackSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5374,7 +5638,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPluginData
     {
-        public KalturaPluginData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPluginData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -5389,6 +5653,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MediaIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpvEntitlement")
         {
@@ -5399,8 +5665,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPpvEntitlement(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPpvEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5452,8 +5720,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPremiumService(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPremiumService(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5476,7 +5746,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPricesFilter
     {
-        public KalturaPricesFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPricesFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5539,7 +5809,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaProductPriceFilter
     {
-        public KalturaProductPriceFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaProductPriceFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5578,6 +5848,8 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
             MinFloat = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PaymentMethodIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPurchase")
         {
@@ -5589,8 +5861,10 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPurchase(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPurchase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5639,6 +5913,8 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AdapterDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPurchaseBase")
         {
@@ -5649,8 +5925,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = 1024,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPurchaseBase(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPurchaseBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5695,7 +5973,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaPurchaseSession
     {
-        public KalturaPurchaseSession(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPurchaseSession(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5717,6 +5995,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
         {
@@ -5727,6 +6007,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
         {
@@ -5737,6 +6019,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
         {
@@ -5747,6 +6031,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
         {
@@ -5757,6 +6043,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecording")
         {
@@ -5767,8 +6055,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaRecording(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5855,7 +6145,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaRecordingContext
     {
-        public KalturaRecordingContext(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRecordingContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5887,7 +6177,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaRecordingContextFilter
     {
-        public KalturaRecordingContextFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRecordingContextFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5900,7 +6190,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaRecordingContextListResponse
     {
-        public KalturaRecordingContextListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRecordingContextListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5930,6 +6220,8 @@ namespace WebAPI.Models.ConditionalAccess
             DynamicType = typeof(KalturaRecordingStatus),
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FilterExpressionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecordingFilter")
         {
@@ -5940,6 +6232,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = 4096,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute KsqlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecordingFilter")
         {
@@ -5950,8 +6244,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = 4096,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaRecordingFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -5990,7 +6286,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaRecordingListResponse
     {
-        public KalturaRecordingListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRecordingListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6019,8 +6315,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaRuleAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6062,6 +6360,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesRecording")
         {
@@ -6072,6 +6372,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesRecording")
         {
@@ -6082,6 +6384,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExcludedSeasonsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesRecording")
         {
@@ -6092,8 +6396,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSeriesRecording(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSeriesRecording(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6184,13 +6490,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaSeriesRecordingFilter
     {
-        public KalturaSeriesRecordingFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSeriesRecordingFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaSeriesRecordingListResponse
     {
-        public KalturaSeriesRecordingListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSeriesRecordingListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6220,6 +6526,8 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MinEpisodeNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesRecordingOption")
         {
@@ -6231,8 +6539,10 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSeriesRecordingOption(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSeriesRecordingOption(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6259,7 +6569,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaStartDateOffsetRuleAction
     {
-        public KalturaStartDateOffsetRuleAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaStartDateOffsetRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -6274,6 +6584,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsRenewableForPurchaseSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionEntitlement")
         {
@@ -6284,6 +6596,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsRenewableSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionEntitlement")
         {
@@ -6294,6 +6608,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsInGracePeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionEntitlement")
         {
@@ -6304,6 +6620,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PaymentGatewayIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionEntitlement")
         {
@@ -6315,6 +6633,8 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PaymentMethodIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionEntitlement")
         {
@@ -6326,6 +6646,8 @@ namespace WebAPI.Models.ConditionalAccess
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ScheduledSubscriptionIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionEntitlement")
         {
@@ -6336,6 +6658,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UnifiedPaymentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionEntitlement")
         {
@@ -6346,6 +6670,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsSuspendedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionEntitlement")
         {
@@ -6356,6 +6682,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PriceDetailsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionEntitlement")
         {
@@ -6366,8 +6694,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSubscriptionEntitlement(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionEntitlement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6497,7 +6827,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaTimeOffsetRuleAction
     {
-        public KalturaTimeOffsetRuleAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTimeOffsetRuleAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6514,13 +6844,13 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaTrailEntitlementDiscountDetails
     {
-        public KalturaTrailEntitlementDiscountDetails(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTrailEntitlementDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaTransaction
     {
-        public KalturaTransaction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTransaction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6571,7 +6901,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaTransactionHistoryFilter
     {
-        public KalturaTransactionHistoryFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTransactionHistoryFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6638,7 +6968,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaTransactionsFilter
     {
-        public KalturaTransactionsFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTransactionsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6679,7 +7009,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaTransactionStatus
     {
-        public KalturaTransactionStatus(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTransactionStatus(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6718,7 +7048,7 @@ namespace WebAPI.Models.ConditionalAccess
     }
     public partial class KalturaUnifiedPaymentRenewal
     {
-        public KalturaUnifiedPaymentRenewal(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUnifiedPaymentRenewal(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6770,6 +7100,8 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UserFullNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserBillingTransaction")
         {
@@ -6780,8 +7112,10 @@ namespace WebAPI.Models.ConditionalAccess
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUserBillingTransaction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserBillingTransaction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6837,6 +7171,8 @@ namespace WebAPI.Models.Social
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ActionPrivacySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaActionPermissionItem")
         {
@@ -6847,6 +7183,8 @@ namespace WebAPI.Models.Social
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PrivacySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaActionPermissionItem")
         {
@@ -6857,6 +7195,8 @@ namespace WebAPI.Models.Social
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaActionPermissionItem")
         {
@@ -6868,8 +7208,10 @@ namespace WebAPI.Models.Social
             DynamicType = typeof(KalturaSocialActionType),
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaActionPermissionItem(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaActionPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6942,7 +7284,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaFacebookPost
     {
-        public KalturaFacebookPost(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFacebookPost(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -6966,13 +7308,13 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaFacebookSocial
     {
-        public KalturaFacebookSocial(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFacebookSocial(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaNetworkActionStatus
     {
-        public KalturaNetworkActionStatus(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaNetworkActionStatus(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7018,6 +7360,8 @@ namespace WebAPI.Models.Social
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSocial")
         {
@@ -7028,6 +7372,8 @@ namespace WebAPI.Models.Social
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSocial")
         {
@@ -7038,8 +7384,10 @@ namespace WebAPI.Models.Social
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSocial(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocial(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7111,6 +7459,8 @@ namespace WebAPI.Models.Social
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UrlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSocialAction")
         {
@@ -7121,8 +7471,10 @@ namespace WebAPI.Models.Social
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSocialAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7185,7 +7537,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialActionFilter
     {
-        public KalturaSocialActionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialActionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7216,7 +7568,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialActionListResponse
     {
-        public KalturaSocialActionListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialActionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7236,7 +7588,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialActionRate
     {
-        public KalturaSocialActionRate(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialActionRate(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7249,7 +7601,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialComment
     {
-        public KalturaSocialComment(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialComment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7274,7 +7626,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialCommentFilter
     {
-        public KalturaSocialCommentFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialCommentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7319,7 +7671,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialCommentListResponse
     {
-        public KalturaSocialCommentListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialCommentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7339,13 +7691,13 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialConfig
     {
-        public KalturaSocialConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaSocialFacebookConfig
     {
-        public KalturaSocialFacebookConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialFacebookConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7368,7 +7720,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialFriendActivity
     {
-        public KalturaSocialFriendActivity(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialFriendActivity(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7396,7 +7748,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialFriendActivityFilter
     {
-        public KalturaSocialFriendActivityFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialFriendActivityFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7427,7 +7779,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialFriendActivityListResponse
     {
-        public KalturaSocialFriendActivityListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialFriendActivityListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7447,7 +7799,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialNetworkComment
     {
-        public KalturaSocialNetworkComment(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialNetworkComment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7464,7 +7816,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialResponse
     {
-        public KalturaSocialResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7545,7 +7897,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialUser
     {
-        public KalturaSocialUser(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialUser(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7600,7 +7952,7 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaSocialUserConfig
     {
-        public KalturaSocialUserConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSocialUserConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7620,13 +7972,13 @@ namespace WebAPI.Models.Social
     }
     public partial class KalturaTwitterTwit
     {
-        public KalturaTwitterTwit(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTwitterTwit(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaUserSocialActionResponse
     {
-        public KalturaUserSocialActionResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserSocialActionResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7670,6 +8022,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ResultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaActionResult")
         {
@@ -7680,8 +8034,10 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaActionResult(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaActionResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7715,13 +8071,13 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaAggregationCountFilter
     {
-        public KalturaAggregationCountFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAggregationCountFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaApiActionPermissionItem
     {
-        public KalturaApiActionPermissionItem(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaApiActionPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7738,7 +8094,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaApiArgumentPermissionItem
     {
-        public KalturaApiArgumentPermissionItem(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaApiArgumentPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7759,7 +8115,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaApiParameterPermissionItem
     {
-        public KalturaApiParameterPermissionItem(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaApiParameterPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7790,7 +8146,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaApiPriviligesPermissionItem
     {
-        public KalturaApiPriviligesPermissionItem(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaApiPriviligesPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -7816,6 +8172,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAppToken")
         {
@@ -7826,6 +8184,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SessionPrivilegesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAppToken")
         {
@@ -7836,6 +8196,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SessionTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAppToken")
         {
@@ -7846,6 +8208,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAppToken")
         {
@@ -7856,6 +8220,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TokenSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAppToken")
         {
@@ -7866,6 +8232,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SessionUserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAppToken")
         {
@@ -7876,6 +8244,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAppToken")
         {
@@ -7886,6 +8256,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAppToken")
         {
@@ -7896,8 +8268,10 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAppToken(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAppToken(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8022,13 +8396,13 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaBaseResponseProfile
     {
-        public KalturaBaseResponseProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBaseResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBooleanValue
     {
-        public KalturaBooleanValue(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBooleanValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8041,7 +8415,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaClientConfiguration
     {
-        public KalturaClientConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaClientConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8058,13 +8432,13 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaCrudObject<ICrudHandeledObject, IdentifierT>
     {
-        public KalturaCrudObject(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCrudObject(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaDetachedResponseProfile
     {
-        public KalturaDetachedResponseProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDetachedResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8099,7 +8473,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaDoubleValue
     {
-        public KalturaDoubleValue(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDoubleValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8122,6 +8496,8 @@ namespace WebAPI.Models.General
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDuration")
         {
@@ -8132,8 +8508,10 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDuration(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDuration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8174,7 +8552,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaDurationListResponse
     {
-        public KalturaDurationListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDurationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8203,6 +8581,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDynamicList")
         {
@@ -8213,6 +8593,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDynamicList")
         {
@@ -8223,8 +8605,10 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDynamicList(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDynamicList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8263,7 +8647,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaDynamicListFilter
     {
-        public KalturaDynamicListFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDynamicListFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -8278,8 +8662,10 @@ namespace WebAPI.Models.General
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDynamicListIdInFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDynamicListIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8298,7 +8684,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaDynamicListListResponse
     {
-        public KalturaDynamicListListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDynamicListListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -8314,6 +8700,8 @@ namespace WebAPI.Models.General
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ValueEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDynamicListSearchFilter")
         {
@@ -8324,8 +8712,10 @@ namespace WebAPI.Models.General
             IsNullable = true,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDynamicListSearchFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDynamicListSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8352,13 +8742,13 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaEventContext
     {
-        public KalturaEventContext(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEventContext(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaEventContextAction
     {
-        public KalturaEventContextAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEventContextAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8375,7 +8765,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaFilterPager
     {
-        public KalturaFilterPager(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFilterPager(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8401,8 +8791,10 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaGroupPermission(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaGroupPermission(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8421,7 +8813,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaIdentifierTypeFilter
     {
-        public KalturaIdentifierTypeFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIdentifierTypeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8448,7 +8840,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaIntegerValue
     {
-        public KalturaIntegerValue(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIntegerValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8461,7 +8853,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaIntegerValueListResponse
     {
-        public KalturaIntegerValueListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIntegerValueListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8481,7 +8873,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaKeyValue
     {
-        public KalturaKeyValue(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaKeyValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8498,7 +8890,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaListResponse
     {
-        public KalturaListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8511,7 +8903,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaListResponse<KalturaT>
     {
-        public KalturaListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8535,7 +8927,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaLongValue
     {
-        public KalturaLongValue(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLongValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8548,7 +8940,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaMessage
     {
-        public KalturaMessage(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8572,7 +8964,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaMultilingualString
     {
-        public KalturaMultilingualString(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMultilingualString(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8592,7 +8984,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaMultilingualStringValue
     {
-        public KalturaMultilingualStringValue(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMultilingualStringValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8612,7 +9004,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaMultilingualStringValueArray
     {
-        public KalturaMultilingualStringValueArray(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMultilingualStringValueArray(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8641,6 +9033,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SequenceIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
         {
@@ -8651,6 +9045,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
         {
@@ -8661,6 +9057,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
         {
@@ -8671,6 +9069,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UdidSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
         {
@@ -8681,6 +9081,8 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ContextSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
         {
@@ -8691,6 +9093,8 @@ namespace WebAPI.Models.General
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotification")
         {
@@ -8701,8 +9105,10 @@ namespace WebAPI.Models.General
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaNotification(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8813,7 +9219,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaOnDemandResponseProfile
     {
-        public KalturaOnDemandResponseProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaOnDemandResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8826,13 +9232,13 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaOTTObjectSupportNullable
     {
-        public KalturaOTTObjectSupportNullable(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaOTTObjectSupportNullable(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaPersistedFilter<KalturaT>
     {
-        public KalturaPersistedFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersistedFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8845,7 +9251,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaRegexExpression
     {
-        public KalturaRegexExpression(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRegexExpression(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8862,19 +9268,19 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaReport
     {
-        public KalturaReport(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaReport(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaReportFilter
     {
-        public KalturaReportFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaReportFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaReportListResponse
     {
-        public KalturaReportListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaReportListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8894,7 +9300,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaRequestConfiguration
     {
-        public KalturaRequestConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRequestConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8953,7 +9359,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaStringValue
     {
-        public KalturaStringValue(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaStringValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8966,7 +9372,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaStringValueArray
     {
-        public KalturaStringValueArray(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaStringValueArray(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -8986,7 +9392,7 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaTranslationToken
     {
-        public KalturaTranslationToken(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTranslationToken(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9003,19 +9409,19 @@ namespace WebAPI.Models.General
     }
     public partial class KalturaUdidDynamicList
     {
-        public KalturaUdidDynamicList(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUdidDynamicList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaUdidDynamicListSearchFilter
     {
-        public KalturaUdidDynamicListSearchFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUdidDynamicListSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaValue
     {
-        public KalturaValue(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9032,13 +9438,13 @@ namespace WebAPI.Models.API
 {
     public partial class KalturaAddDefaultIfEmptyResponseProfile
     {
-        public KalturaAddDefaultIfEmptyResponseProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAddDefaultIfEmptyResponseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaAssetCondition
     {
-        public KalturaAssetCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9051,6 +9457,30 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetRule
     {
+        private static RuntimeSchemePropertyAttribute ConditionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetRule")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = 1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ActionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetRule")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = 1,
+            MaxItems = -1,
+        };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetRule")
         {
             ReadOnly = true,
@@ -9060,8 +9490,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetRule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9069,6 +9501,10 @@ namespace WebAPI.Models.API
                 bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("conditions") && parameters["conditions"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        ConditionsSchemaProperty.Validate("conditions", parameters["conditions"]);
+                    }
                     if (parameters["conditions"] is JArray)
                     {
                         Conditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
@@ -9080,6 +9516,10 @@ namespace WebAPI.Models.API
                 }
                 if (parameters.ContainsKey("actions") && parameters["actions"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        ActionsSchemaProperty.Validate("actions", parameters["actions"]);
+                    }
                     if (parameters["actions"] is JArray)
                     {
                         Actions = buildList<KalturaAssetRuleAction>(typeof(KalturaAssetRuleAction), (JArray) parameters["actions"]);
@@ -9112,7 +9552,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetRuleBase
     {
-        public KalturaAssetRuleBase(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetRuleBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -9128,8 +9568,10 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetRuleFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9187,7 +9629,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetRuleListResponse
     {
-        public KalturaAssetRuleListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9207,13 +9649,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetSubscriptionCondition
     {
-        public KalturaAssetSubscriptionCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetSubscriptionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaAssetUserRule
     {
-        public KalturaAssetUserRule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetUserRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9244,7 +9686,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetUserRuleFilter
     {
-        public KalturaAssetUserRuleFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetUserRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9271,7 +9713,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaAssetUserRuleListResponse
     {
-        public KalturaAssetUserRuleListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetUserRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9291,13 +9733,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaBasePermissionFilter
     {
-        public KalturaBasePermissionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBasePermissionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBaseRegionFilter
     {
-        public KalturaBaseRegionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBaseRegionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -9312,8 +9754,10 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBatchCampaign(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBatchCampaign(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9343,13 +9787,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaBatchCampaignSearchFilter
     {
-        public KalturaBatchCampaignSearchFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBatchCampaignSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBusinessModuleCondition
     {
-        public KalturaBusinessModuleCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBusinessModuleCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9385,6 +9829,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBusinessModuleRule")
         {
@@ -9395,8 +9841,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBusinessModuleRule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBusinessModuleRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9445,7 +9893,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaBusinessModuleRuleFilter
     {
-        public KalturaBusinessModuleRuleFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBusinessModuleRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9490,7 +9938,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaBusinessModuleRuleListResponse
     {
-        public KalturaBusinessModuleRuleListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBusinessModuleRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9519,6 +9967,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
         {
@@ -9529,6 +9979,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
         {
@@ -9539,6 +9991,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
         {
@@ -9550,6 +10004,8 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
         {
@@ -9561,6 +10017,8 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinLong = 2,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SystemNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
         {
@@ -9571,6 +10029,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
         {
@@ -9581,6 +10041,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = 1024,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
         {
@@ -9591,6 +10053,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PromotionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
         {
@@ -9601,6 +10065,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MessageSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
         {
@@ -9611,6 +10077,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = 1024,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CollectionIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCampaign")
         {
@@ -9621,8 +10089,10 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCampaign(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCampaign(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9754,13 +10224,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCampaignFilter
     {
-        public KalturaCampaignFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCampaignFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaCampaignIdInFilter
     {
-        public KalturaCampaignIdInFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCampaignIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9773,13 +10243,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCampaignListResponse
     {
-        public KalturaCampaignListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCampaignListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaCampaignSearchFilter
     {
-        public KalturaCampaignSearchFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCampaignSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9823,6 +10293,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDNAdapterProfile")
         {
@@ -9833,8 +10305,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCDNAdapterProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCDNAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9888,7 +10362,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCDNAdapterProfileListResponse
     {
-        public KalturaCDNAdapterProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCDNAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9918,6 +10392,8 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DefaultRecordingAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCDNPartnerSettings")
         {
@@ -9929,8 +10405,10 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCDNPartnerSettings(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCDNPartnerSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9957,7 +10435,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaChannelEnrichmentHolder
     {
-        public KalturaChannelEnrichmentHolder(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaChannelEnrichmentHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -9980,7 +10458,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaChannelProfile
     {
-        public KalturaChannelProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaChannelProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10055,7 +10533,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCognitoIdentity
     {
-        public KalturaCognitoIdentity(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCognitoIdentity(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10075,7 +10553,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCognitoUserPool
     {
-        public KalturaCognitoUserPool(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCognitoUserPool(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10095,7 +10573,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaConcurrencyCondition
     {
-        public KalturaConcurrencyCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConcurrencyCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10131,8 +10609,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10175,8 +10655,10 @@ namespace WebAPI.Models.API
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCountryCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCountryCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10195,7 +10677,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCountryFilter
     {
-        public KalturaCountryFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCountryFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10216,7 +10698,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCountryListResponse
     {
-        public KalturaCountryListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCountryListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10236,7 +10718,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCredentialsProvider
     {
-        public KalturaCredentialsProvider(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCredentialsProvider(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10256,7 +10738,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCurrency
     {
-        public KalturaCurrency(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCurrency(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10285,7 +10767,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCurrencyFilter
     {
-        public KalturaCurrencyFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCurrencyFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10302,7 +10784,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaCurrencyListResponse
     {
-        public KalturaCurrencyListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCurrencyListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10322,7 +10804,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDateCondition
     {
-        public KalturaDateCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDateCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10339,7 +10821,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDefaultRegionFilter
     {
-        public KalturaDefaultRegionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDefaultRegionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -10355,8 +10837,10 @@ namespace WebAPI.Models.API
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDeviceBrandCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceBrandCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10375,7 +10859,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDeviceBrandListResponse
     {
-        public KalturaDeviceBrandListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceBrandListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10393,6 +10877,59 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaDeviceDynamicDataCondition
+    {
+        private static RuntimeSchemePropertyAttribute KeySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceDynamicDataCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            Pattern = @"^(?!\s*$).+",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceDynamicDataCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            Pattern = @"^(?!\s*$).+",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaDeviceDynamicDataCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("key") && parameters["key"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        KeySchemaProperty.Validate("key", parameters["key"]);
+                    }
+                    Key = (String) Convert.ChangeType(parameters["key"], typeof(String));
+                }
+                if (parameters.ContainsKey("value") && parameters["value"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ValueSchemaProperty.Validate("value", parameters["value"]);
+                    }
+                    Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaDeviceFamilyCondition
     {
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceFamilyCondition")
@@ -10405,8 +10942,10 @@ namespace WebAPI.Models.API
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDeviceFamilyCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceFamilyCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10425,7 +10964,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDeviceFamilyListResponse
     {
-        public KalturaDeviceFamilyListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceFamilyListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10455,8 +10994,10 @@ namespace WebAPI.Models.API
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDeviceManufacturerCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceManufacturerCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10475,7 +11016,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDeviceModelCondition
     {
-        public KalturaDeviceModelCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceModelCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10497,6 +11038,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsActiveSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDrmProfile")
         {
@@ -10507,6 +11050,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SettingsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDrmProfile")
         {
@@ -10517,6 +11062,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDrmProfile")
         {
@@ -10527,8 +11074,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDrmProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDrmProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10583,7 +11132,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaDrmProfileListResponse
     {
-        public KalturaDrmProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDrmProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10601,6 +11150,58 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaDynamicKeysCondition
+    {
+        private static RuntimeSchemePropertyAttribute KeySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDynamicKeysCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 1,
+            Pattern = @"[\x00-\x7F]",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDynamicKeysCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaDynamicKeysCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("key") && parameters["key"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        KeySchemaProperty.Validate("key", parameters["key"]);
+                    }
+                    Key = (String) Convert.ChangeType(parameters["key"], typeof(String));
+                }
+                if (parameters.ContainsKey("values") && parameters["values"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ValuesSchemaProperty.Validate("values", parameters["values"]);
+                    }
+                    Values = (String) Convert.ChangeType(parameters["values"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaEventNotification
     {
         private static RuntimeSchemePropertyAttribute ObjectIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEventNotification")
@@ -10613,6 +11214,8 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEventNotification")
         {
@@ -10623,6 +11226,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEventNotification")
         {
@@ -10633,8 +11238,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaEventNotification(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEventNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10709,8 +11316,10 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaEventNotificationFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEventNotificationFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10737,13 +11346,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaEventNotificationListResponse
     {
-        public KalturaEventNotificationListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEventNotificationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaEventNotificationObjectScope
     {
-        public KalturaEventNotificationObjectScope(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEventNotificationObjectScope(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10763,19 +11372,19 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaEventNotificationScope
     {
-        public KalturaEventNotificationScope(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEventNotificationScope(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaEventObject
     {
-        public KalturaEventObject(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEventObject(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaExportFilter
     {
-        public KalturaExportFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaExportFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10805,8 +11414,10 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaExportTask(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaExportTask(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10935,7 +11546,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaExportTaskFilter
     {
-        public KalturaExportTaskFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaExportTaskFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10948,7 +11559,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaExportTaskListResponse
     {
-        public KalturaExportTaskListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaExportTaskListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -10977,6 +11588,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AssetUserRuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExternalChannelProfile")
         {
@@ -10987,8 +11600,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaExternalChannelProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaExternalChannelProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11069,7 +11684,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaExternalChannelProfileByIdInFilter
     {
-        public KalturaExternalChannelProfileByIdInFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaExternalChannelProfileByIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11082,13 +11697,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaExternalChannelProfileFilter
     {
-        public KalturaExternalChannelProfileFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaExternalChannelProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaExternalChannelProfileListResponse
     {
-        public KalturaExternalChannelProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaExternalChannelProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11108,7 +11723,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaGenericRule
     {
-        public KalturaGenericRule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaGenericRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11159,7 +11774,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaGenericRuleFilter
     {
-        public KalturaGenericRuleFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaGenericRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11186,7 +11801,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaGenericRuleListResponse
     {
-        public KalturaGenericRuleListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaGenericRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11206,7 +11821,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaHeaderCondition
     {
-        public KalturaHeaderCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHeaderCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11232,6 +11847,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SettingsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaIngestProfile")
         {
@@ -11242,8 +11859,10 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaIngestProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIngestProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11325,7 +11944,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIngestProfileListResponse
     {
-        public KalturaIngestProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIngestProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11345,7 +11964,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIot
     {
-        public KalturaIot(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIot(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11402,7 +12021,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIotClientConfiguration
     {
-        public KalturaIotClientConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIotClientConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11445,7 +12064,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIotDefault
     {
-        public KalturaIotDefault(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIotDefault(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11466,19 +12085,19 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIotFilter
     {
-        public KalturaIotFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIotFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaIotListResponse
     {
-        public KalturaIotListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIotListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaIotProfile
     {
-        public KalturaIotProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIotProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11502,7 +12121,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIotProfileAws
     {
-        public KalturaIotProfileAws(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIotProfileAws(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11543,19 +12162,19 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaIotProfileFilter
     {
-        public KalturaIotProfileFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIotProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaIotProfileListResponse
     {
-        public KalturaIotProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIotProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaIpRangeCondition
     {
-        public KalturaIpRangeCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaIpRangeCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11572,7 +12191,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaLanguage
     {
-        public KalturaLanguage(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLanguage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11605,7 +12224,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaLanguageFilter
     {
-        public KalturaLanguageFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLanguageFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11622,7 +12241,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaLanguageListResponse
     {
-        public KalturaLanguageListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLanguageListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11642,7 +12261,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaMediaConcurrencyRule
     {
-        public KalturaMediaConcurrencyRule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMediaConcurrencyRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11677,7 +12296,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaMediaConcurrencyRuleListResponse
     {
-        public KalturaMediaConcurrencyRuleListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMediaConcurrencyRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11706,6 +12325,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SystemNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
@@ -11716,6 +12337,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DataTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
@@ -11726,6 +12349,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MultipleValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
@@ -11736,6 +12361,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsProtectedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
@@ -11746,6 +12373,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute HelpTextSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
@@ -11756,6 +12385,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = 800,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FeaturesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
@@ -11766,6 +12397,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ParentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
@@ -11777,6 +12410,8 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
@@ -11787,6 +12422,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
@@ -11797,6 +12434,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DynamicDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMeta")
         {
@@ -11807,8 +12446,10 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaMeta(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMeta(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -11987,6 +12628,8 @@ namespace WebAPI.Models.API
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AssetStructIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMetaFilter")
         {
@@ -11998,8 +12641,10 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaMetaFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMetaFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12104,7 +12749,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaMetaListResponse
     {
-        public KalturaMetaListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMetaListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12124,7 +12769,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaNotCondition
     {
-        public KalturaNotCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaNotCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12137,12 +12782,37 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaOrCondition
     {
-        public KalturaOrCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        private static RuntimeSchemePropertyAttribute ConditionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOrCondition")
         {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = 1,
+            MaxItems = -1,
+        };
+        public KalturaOrCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
+               if (!parameters.ContainsKey("conditions") || parameters["conditions"] == null)
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "conditions");
+            }
             if (parameters != null)
             {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
                 if (parameters.ContainsKey("conditions") && parameters["conditions"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        ConditionsSchemaProperty.Validate("conditions", parameters["conditions"]);
+                    }
                     if (parameters["conditions"] is JArray)
                     {
                         Conditions = buildList<KalturaCondition>(typeof(KalturaCondition), (JArray) parameters["conditions"]);
@@ -12166,8 +12836,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaOSSAdapterBaseProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaOSSAdapterBaseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12199,8 +12871,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaOSSAdapterProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaOSSAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12265,7 +12939,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaOSSAdapterProfileListResponse
     {
-        public KalturaOSSAdapterProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaOSSAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12294,6 +12968,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute nameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12304,6 +12980,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = 100,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute descriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12314,6 +12992,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = 1024,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute orderSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12324,6 +13004,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute mediaTagTypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12334,6 +13016,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute epgTagTypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12344,6 +13028,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute blockAnonymousAccessSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12354,6 +13040,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ruleTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12364,6 +13052,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute mediaTagValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12374,6 +13064,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute epgTagValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12384,6 +13076,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute isDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12394,6 +13088,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute OriginSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12404,6 +13100,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsActiveSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12414,6 +13112,8 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12424,6 +13124,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaParentalRule")
         {
@@ -12434,8 +13136,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaParentalRule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaParentalRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12680,7 +13384,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaParentalRuleFilter
     {
-        public KalturaParentalRuleFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaParentalRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12703,7 +13407,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaParentalRuleListResponse
     {
-        public KalturaParentalRuleListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaParentalRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12732,6 +13436,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DependsOnPermissionNamesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPermission")
         {
@@ -12742,8 +13448,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPermission(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPermission(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12796,7 +13504,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionByIdInFilter
     {
-        public KalturaPermissionByIdInFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPermissionByIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12818,8 +13526,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPermissionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPermissionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12851,8 +13561,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPermissionItem(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPermissionItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12879,7 +13591,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionItemByApiActionFilter
     {
-        public KalturaPermissionItemByApiActionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPermissionItemByApiActionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12896,7 +13608,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionItemByArgumentFilter
     {
-        public KalturaPermissionItemByArgumentFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPermissionItemByArgumentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12909,7 +13621,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionItemByIdInFilter
     {
-        public KalturaPermissionItemByIdInFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPermissionItemByIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12922,7 +13634,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionItemByParameterFilter
     {
-        public KalturaPermissionItemByParameterFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPermissionItemByParameterFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12939,19 +13651,19 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPermissionItemFilter
     {
-        public KalturaPermissionItemFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPermissionItemFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaPermissionItemListResponse
     {
-        public KalturaPermissionItemListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPermissionItemListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaPermissionListResponse
     {
-        public KalturaPermissionListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPermissionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -12971,7 +13683,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPin
     {
-        public KalturaPin(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPin(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13012,7 +13724,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPinResponse
     {
-        public KalturaPinResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPinResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13062,6 +13774,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPlaybackProfile")
         {
@@ -13072,8 +13786,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPlaybackProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPlaybackProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13120,7 +13836,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPlaybackProfileFilter
     {
-        public KalturaPlaybackProfileFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPlaybackProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13133,7 +13849,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPlaybackProfileListResponse
     {
-        public KalturaPlaybackProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPlaybackProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13163,8 +13879,10 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPromotion(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPromotion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13198,7 +13916,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPurchaseSettings
     {
-        public KalturaPurchaseSettings(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPurchaseSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13221,7 +13939,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaPurchaseSettingsResponse
     {
-        public KalturaPurchaseSettingsResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPurchaseSettingsResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13269,6 +13987,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRecommendationProfile")
         {
@@ -13279,8 +13999,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaRecommendationProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRecommendationProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13357,7 +14079,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRecommendationProfileListResponse
     {
-        public KalturaRecommendationProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRecommendationProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13386,6 +14108,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRegion")
         {
@@ -13396,6 +14120,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRegion")
         {
@@ -13406,6 +14132,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ParentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRegion")
         {
@@ -13417,8 +14145,10 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaRegion(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRegion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13476,7 +14206,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegionalChannel
     {
-        public KalturaRegionalChannel(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRegionalChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13493,7 +14223,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegionChannelNumber
     {
-        public KalturaRegionChannelNumber(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRegionChannelNumber(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13510,7 +14240,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegionFilter
     {
-        public KalturaRegionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRegionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13543,7 +14273,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegionListResponse
     {
-        public KalturaRegionListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRegionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13563,7 +14293,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegistrySettings
     {
-        public KalturaRegistrySettings(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRegistrySettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13580,7 +14310,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRegistrySettingsListResponse
     {
-        public KalturaRegistrySettingsListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRegistrySettingsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13609,6 +14339,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRule")
         {
@@ -13619,8 +14351,10 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaRule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13659,7 +14393,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaRuleFilter
     {
-        public KalturaRuleFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13691,6 +14425,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
@@ -13701,6 +14437,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FilterSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
@@ -13711,6 +14449,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LanguageSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
@@ -13721,6 +14461,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreatedAtSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
@@ -13731,6 +14473,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ServiceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
@@ -13741,6 +14485,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
@@ -13751,6 +14497,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchHistory")
         {
@@ -13761,8 +14509,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSearchHistory(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSearchHistory(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13837,13 +14587,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaSearchHistoryFilter
     {
-        public KalturaSearchHistoryFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSearchHistoryFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaSearchHistoryListResponse
     {
-        public KalturaSearchHistoryListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSearchHistoryListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13873,8 +14623,10 @@ namespace WebAPI.Models.API
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSegmentsCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentsCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13903,8 +14655,10 @@ namespace WebAPI.Models.API
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSubscriptionCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -13933,6 +14687,8 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PaddingAfterProgramEndsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
@@ -13944,6 +14700,8 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ProtectionPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
@@ -13955,6 +14713,8 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ProtectionQuotaPercentageSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
@@ -13967,6 +14727,8 @@ namespace WebAPI.Models.API
             MinLength = -1,
             MaxInteger = 100,
             MinInteger = 10,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RecordingLifetimePeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
@@ -13978,6 +14740,8 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CleanupNoticePeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
@@ -13989,6 +14753,8 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RecoveryGracePeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTimeShiftedTvPartnerSettings")
         {
@@ -14000,8 +14766,10 @@ namespace WebAPI.Models.API
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaTimeShiftedTvPartnerSettings(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTimeShiftedTvPartnerSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14189,8 +14957,10 @@ namespace WebAPI.Models.API
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaTriggerCampaign(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTriggerCampaign(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14248,13 +15018,13 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaTriggerCampaignSearchFilter
     {
-        public KalturaTriggerCampaignSearchFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTriggerCampaignSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaTvmDeviceRule
     {
-        public KalturaTvmDeviceRule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTvmDeviceRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14267,7 +15037,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaTvmGeoRule
     {
-        public KalturaTvmGeoRule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTvmGeoRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14309,6 +15079,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RuleTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTvmRule")
         {
@@ -14319,8 +15091,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaTvmRule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTvmRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14357,7 +15131,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaTvmRuleFilter
     {
-        public KalturaTvmRuleFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTvmRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14384,7 +15158,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaTvmRuleListResponse
     {
-        public KalturaTvmRuleListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTvmRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14414,8 +15188,10 @@ namespace WebAPI.Models.API
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUdidDynamicListCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUdidDynamicListCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14443,8 +15219,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUserAssetRule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserAssetRule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14485,7 +15263,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaUserAssetRuleFilter
     {
-        public KalturaUserAssetRuleFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserAssetRuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14502,7 +15280,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaUserAssetRuleListResponse
     {
-        public KalturaUserAssetRuleListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserAssetRuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14531,6 +15309,8 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserRole")
         {
@@ -14541,8 +15321,10 @@ namespace WebAPI.Models.API
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUserRole(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserRole(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14626,8 +15408,10 @@ namespace WebAPI.Models.API
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUserRoleCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserRoleCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14646,7 +15430,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaUserRoleFilter
     {
-        public KalturaUserRoleFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserRoleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14702,7 +15486,7 @@ namespace WebAPI.Models.API
     }
     public partial class KalturaUserRoleListResponse
     {
-        public KalturaUserRoleListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserRoleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14720,9 +15504,41 @@ namespace WebAPI.Models.API
             }
         }
     }
+    public partial class KalturaUserSessionProfileCondition
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSessionProfileCondition")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaUserSessionProfileCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+            }
+        }
+    }
     public partial class KalturaUserSubscriptionCondition
     {
-        public KalturaUserSubscriptionCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserSubscriptionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -14732,7 +15548,7 @@ namespace WebAPI.Models.MultiRequest
 {
     public partial class KalturaAggregatedPropertySkipCondition
     {
-        public KalturaAggregatedPropertySkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAggregatedPropertySkipCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14755,7 +15571,7 @@ namespace WebAPI.Models.MultiRequest
     }
     public partial class KalturaPropertySkipCondition
     {
-        public KalturaPropertySkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPropertySkipCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14786,13 +15602,13 @@ namespace WebAPI.Models.MultiRequest
     }
     public partial class KalturaSkipCondition
     {
-        public KalturaSkipCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSkipCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaSkipOnErrorCondition
     {
-        public KalturaSkipOnErrorCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSkipOnErrorCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14828,6 +15644,8 @@ namespace WebAPI.Models.Notifications
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAnnouncement")
         {
@@ -14838,8 +15656,10 @@ namespace WebAPI.Models.Notifications
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAnnouncement(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAnnouncement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14938,7 +15758,7 @@ namespace WebAPI.Models.Notifications
     }
     public partial class KalturaAssetReminder
     {
-        public KalturaAssetReminder(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetReminder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14951,7 +15771,7 @@ namespace WebAPI.Models.Notifications
     }
     public partial class KalturaDateTrigger
     {
-        public KalturaDateTrigger(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDateTrigger(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14964,13 +15784,13 @@ namespace WebAPI.Models.Notifications
     }
     public partial class KalturaDispatcher
     {
-        public KalturaDispatcher(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDispatcher(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaMailDispatcher
     {
-        public KalturaMailDispatcher(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMailDispatcher(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -14996,6 +15816,8 @@ namespace WebAPI.Models.Notifications
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaReminder")
         {
@@ -15006,8 +15828,10 @@ namespace WebAPI.Models.Notifications
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaReminder(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaReminder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15057,6 +15881,8 @@ namespace WebAPI.Models.Notifications
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EpgChannelIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesReminder")
         {
@@ -15068,8 +15894,10 @@ namespace WebAPI.Models.Notifications
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSeriesReminder(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSeriesReminder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15100,13 +15928,13 @@ namespace WebAPI.Models.Notifications
     }
     public partial class KalturaSmsDispatcher
     {
-        public KalturaSmsDispatcher(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSmsDispatcher(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaSubscribeReference
     {
-        public KalturaSubscribeReference(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscribeReference(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -15122,8 +15950,10 @@ namespace WebAPI.Models.Notifications
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSubscriptionSubscribeReference(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionSubscribeReference(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15142,7 +15972,7 @@ namespace WebAPI.Models.Notifications
     }
     public partial class KalturaSubscriptionTrigger
     {
-        public KalturaSubscriptionTrigger(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionTrigger(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15178,6 +16008,8 @@ namespace WebAPI.Models.Notifications
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTopicNotification")
         {
@@ -15188,8 +16020,10 @@ namespace WebAPI.Models.Notifications
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaTopicNotification(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTopicNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15231,7 +16065,7 @@ namespace WebAPI.Models.Notifications
     }
     public partial class KalturaTopicNotificationFilter
     {
-        public KalturaTopicNotificationFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTopicNotificationFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15251,7 +16085,7 @@ namespace WebAPI.Models.Notifications
     }
     public partial class KalturaTopicNotificationListResponse
     {
-        public KalturaTopicNotificationListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTopicNotificationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15280,6 +16114,8 @@ namespace WebAPI.Models.Notifications
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TopicNotificationIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTopicNotificationMessage")
         {
@@ -15291,6 +16127,8 @@ namespace WebAPI.Models.Notifications
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTopicNotificationMessage")
         {
@@ -15301,8 +16139,10 @@ namespace WebAPI.Models.Notifications
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaTopicNotificationMessage(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTopicNotificationMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15377,7 +16217,7 @@ namespace WebAPI.Models.Notifications
     }
     public partial class KalturaTopicNotificationMessageFilter
     {
-        public KalturaTopicNotificationMessageFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTopicNotificationMessageFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15390,7 +16230,7 @@ namespace WebAPI.Models.Notifications
     }
     public partial class KalturaTopicNotificationMessageListResponse
     {
-        public KalturaTopicNotificationMessageListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTopicNotificationMessageListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15410,7 +16250,7 @@ namespace WebAPI.Models.Notifications
     }
     public partial class KalturaTrigger
     {
-        public KalturaTrigger(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTrigger(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -15420,7 +16260,7 @@ namespace WebAPI.Models.Notification
 {
     public partial class KalturaAnnouncementFilter
     {
-        public KalturaAnnouncementFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAnnouncementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15433,7 +16273,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaAnnouncementListResponse
     {
-        public KalturaAnnouncementListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAnnouncementListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15462,6 +16302,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetEvent")
         {
@@ -15472,6 +16314,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetEvent")
         {
@@ -15482,6 +16326,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetEvent")
         {
@@ -15492,8 +16338,10 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetEvent(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetEvent(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15536,7 +16384,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaAssetReminderFilter
     {
-        public KalturaAssetReminderFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetReminderFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -15552,6 +16400,8 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute HouseholdIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmarkEvent")
         {
@@ -15563,6 +16413,8 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmarkEvent")
         {
@@ -15574,6 +16426,8 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmarkEvent")
         {
@@ -15585,6 +16439,8 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PositionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmarkEvent")
         {
@@ -15596,6 +16452,8 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ProductIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmarkEvent")
         {
@@ -15607,8 +16465,10 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBookmarkEvent(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBookmarkEvent(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15695,7 +16555,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaConcurrencyViolation
     {
-        public KalturaConcurrencyViolation(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConcurrencyViolation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15728,7 +16588,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaEmailMessage
     {
-        public KalturaEmailMessage(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEmailMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15789,6 +16649,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TotalNumberOfRecipientsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEngagement")
         {
@@ -15799,8 +16661,10 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaEngagement(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEngagement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15874,8 +16738,10 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaEngagementAdapter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEngagementAdapter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15922,8 +16788,10 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaEngagementAdapterBase(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEngagementAdapterBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15946,7 +16814,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaEngagementAdapterListResponse
     {
-        public KalturaEngagementAdapterListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEngagementAdapterListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15966,7 +16834,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaEngagementFilter
     {
-        public KalturaEngagementFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEngagementFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -15983,7 +16851,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaEngagementListResponse
     {
-        public KalturaEngagementListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEngagementListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16014,6 +16882,8 @@ namespace WebAPI.Models.Notification
             MinLength = -1,
             MaxInteger = 72,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ForwardTimeRangeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEpgNotificationSettings")
         {
@@ -16026,8 +16896,10 @@ namespace WebAPI.Models.Notification
             MinLength = -1,
             MaxInteger = 72,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaEpgNotificationSettings(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEpgNotificationSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16075,8 +16947,10 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaFeed(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFeed(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16112,6 +16986,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFollowDataBase")
         {
@@ -16122,6 +16998,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TitleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFollowDataBase")
         {
@@ -16132,6 +17010,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TimestampSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFollowDataBase")
         {
@@ -16142,6 +17022,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FollowPhraseSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFollowDataBase")
         {
@@ -16152,8 +17034,10 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaFollowDataBase(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFollowDataBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16220,7 +17104,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaFollowDataTvSeries
     {
-        public KalturaFollowDataTvSeries(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFollowDataTvSeries(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16249,8 +17133,10 @@ namespace WebAPI.Models.Notification
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaFollowTvSeries(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFollowTvSeries(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16269,13 +17155,13 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaFollowTvSeriesFilter
     {
-        public KalturaFollowTvSeriesFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFollowTvSeriesFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaFollowTvSeriesListResponse
     {
-        public KalturaFollowTvSeriesListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFollowTvSeriesListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16304,6 +17190,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaInboxMessage")
         {
@@ -16314,6 +17202,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreatedAtSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaInboxMessage")
         {
@@ -16324,6 +17214,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CampaignIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaInboxMessage")
         {
@@ -16334,8 +17226,10 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaInboxMessage(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaInboxMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16410,7 +17304,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaInboxMessageFilter
     {
-        public KalturaInboxMessageFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaInboxMessageFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16431,7 +17325,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaInboxMessageListResponse
     {
-        public KalturaInboxMessageListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaInboxMessageListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16451,7 +17345,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaInboxMessageResponse
     {
-        public KalturaInboxMessageResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaInboxMessageResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16471,7 +17365,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaInboxMessageTypeHolder
     {
-        public KalturaInboxMessageTypeHolder(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaInboxMessageTypeHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16494,7 +17388,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaLineupNotificationSettings
     {
-        public KalturaLineupNotificationSettings(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLineupNotificationSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16507,7 +17401,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaListFollowDataTvSeriesResponse
     {
-        public KalturaListFollowDataTvSeriesResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaListFollowDataTvSeriesResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16527,7 +17421,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaMessageAnnouncementListResponse
     {
-        public KalturaMessageAnnouncementListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMessageAnnouncementListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16547,7 +17441,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaMessageTemplate
     {
-        public KalturaMessageTemplate(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMessageTemplate(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16636,7 +17530,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaNotificationSettings
     {
-        public KalturaNotificationSettings(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaNotificationSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -16653,6 +17547,8 @@ namespace WebAPI.Models.Notification
             MinLength = -1,
             MaxInteger = 24,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PushEndHourSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotificationsPartnerSettings")
         {
@@ -16665,6 +17561,8 @@ namespace WebAPI.Models.Notification
             MinLength = -1,
             MaxInteger = 24,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MessageTTLDaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotificationsPartnerSettings")
         {
@@ -16677,6 +17575,8 @@ namespace WebAPI.Models.Notification
             MinLength = -1,
             MaxInteger = 90,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ReminderOffsetSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaNotificationsPartnerSettings")
         {
@@ -16689,8 +17589,10 @@ namespace WebAPI.Models.Notification
             MinLength = -1,
             MaxInteger = 3600,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaNotificationsPartnerSettings(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaNotificationsPartnerSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16835,7 +17737,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaNotificationsSettings
     {
-        public KalturaNotificationsSettings(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaNotificationsSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16870,25 +17772,25 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaPartnerNotificationSettings
     {
-        public KalturaPartnerNotificationSettings(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPartnerNotificationSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaPersonalFeed
     {
-        public KalturaPersonalFeed(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalFeed(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaPersonalFeedFilter
     {
-        public KalturaPersonalFeedFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalFeedFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaPersonalFeedListResponse
     {
-        public KalturaPersonalFeedListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalFeedListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16908,13 +17810,13 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaPersonalFollowFeed
     {
-        public KalturaPersonalFollowFeed(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalFollowFeed(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaPersonalFollowFeedResponse
     {
-        public KalturaPersonalFollowFeedResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalFollowFeedResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16943,8 +17845,10 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaProgramAssetEvent(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaProgramAssetEvent(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -16972,6 +17876,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PushChannelsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPushMessage")
         {
@@ -16983,8 +17889,10 @@ namespace WebAPI.Models.Notification
             DynamicType = typeof(KalturaPushChannel),
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPushMessage(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPushMessage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17027,7 +17935,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaRegistryResponse
     {
-        public KalturaRegistryResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRegistryResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17048,7 +17956,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaReminderFilter<KalturaT>
     {
-        public KalturaReminderFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaReminderFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17061,7 +17969,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaReminderListResponse
     {
-        public KalturaReminderListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaReminderListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17081,7 +17989,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaSeasonsReminderFilter
     {
-        public KalturaSeasonsReminderFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSeasonsReminderFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17102,7 +18010,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaSeriesReminderFilter
     {
-        public KalturaSeriesReminderFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSeriesReminderFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17128,6 +18036,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AdapterUrlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSmsAdapterProfile")
         {
@@ -17138,6 +18048,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = 256,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SharedSecretSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSmsAdapterProfile")
         {
@@ -17148,8 +18060,10 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = 256,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSmsAdapterProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSmsAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17203,13 +18117,13 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaSmsAdapterProfileFilter
     {
-        public KalturaSmsAdapterProfileFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSmsAdapterProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaSmsAdapterProfileListResponse
     {
-        public KalturaSmsAdapterProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSmsAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -17224,8 +18138,10 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaTopic(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTopic(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17270,13 +18186,13 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaTopicFilter
     {
-        public KalturaTopicFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTopicFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaTopicListResponse
     {
-        public KalturaTopicListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTopicListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17296,7 +18212,7 @@ namespace WebAPI.Models.Notification
     }
     public partial class KalturaTopicResponse
     {
-        public KalturaTopicResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTopicResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17325,6 +18241,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CampaignIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTriggerCampaignEvent")
         {
@@ -17335,6 +18253,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UdidSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTriggerCampaignEvent")
         {
@@ -17345,6 +18265,8 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute HouseholdIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTriggerCampaignEvent")
         {
@@ -17355,8 +18277,10 @@ namespace WebAPI.Models.Notification
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaTriggerCampaignEvent(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTriggerCampaignEvent(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17412,6 +18336,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAsset")
         {
@@ -17422,6 +18348,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ImagesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAsset")
         {
@@ -17432,6 +18360,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MediaFilesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAsset")
         {
@@ -17442,6 +18372,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MetasSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAsset")
         {
@@ -17452,6 +18384,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TagsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAsset")
         {
@@ -17462,6 +18396,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RelatedEntitiesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAsset")
         {
@@ -17472,6 +18408,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAsset")
         {
@@ -17482,6 +18420,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAsset")
         {
@@ -17492,6 +18432,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAsset")
         {
@@ -17502,6 +18444,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAsset")
         {
@@ -17512,6 +18456,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IndexStatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAsset")
         {
@@ -17522,8 +18468,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAsset(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17716,7 +18664,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetBookmark
     {
-        public KalturaAssetBookmark(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetBookmark(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17778,7 +18726,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetBookmarks
     {
-        public KalturaAssetBookmarks(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetBookmarks(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17808,8 +18756,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetComment(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetComment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17860,8 +18810,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetCommentFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetCommentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17894,7 +18846,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetCommentListResponse
     {
-        public KalturaAssetCommentListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetCommentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17914,7 +18866,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetCount
     {
-        public KalturaAssetCount(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetCount(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17942,7 +18894,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetCountListResponse
     {
-        public KalturaAssetCountListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetCountListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17966,7 +18918,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetFieldGroupBy
     {
-        public KalturaAssetFieldGroupBy(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetFieldGroupBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -17989,7 +18941,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetFile
     {
-        public KalturaAssetFile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetFile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18013,8 +18965,10 @@ namespace WebAPI.Models.Catalog
             MinLength = -1,
             MaxInteger = 366,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18044,7 +18998,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetGroupBy
     {
-        public KalturaAssetGroupBy(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetGroupBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -18059,6 +19013,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AssetTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetHistory")
         {
@@ -18069,6 +19025,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PositionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetHistory")
         {
@@ -18079,6 +19037,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DurationSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetHistory")
         {
@@ -18089,6 +19049,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LastWatchedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetHistory")
         {
@@ -18099,6 +19061,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsFinishedWatchingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetHistory")
         {
@@ -18109,8 +19073,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetHistory(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetHistory(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18179,7 +19145,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetHistoryFilter
     {
-        public KalturaAssetHistoryFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetHistoryFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18271,7 +19237,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetHistoryListResponse
     {
-        public KalturaAssetHistoryListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetHistoryListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18291,19 +19257,19 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetHistorySuppressFilter
     {
-        public KalturaAssetHistorySuppressFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetHistorySuppressFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaAssetImagePerRatioFilter
     {
-        public KalturaAssetImagePerRatioFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetImagePerRatioFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaAssetInfo
     {
-        public KalturaAssetInfo(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18358,7 +19324,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetInfoFilter
     {
-        public KalturaAssetInfoFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetInfoFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18429,7 +19395,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetInfoListResponse
     {
-        public KalturaAssetInfoListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetInfoListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18459,7 +19425,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetListResponse
     {
-        public KalturaAssetListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18479,7 +19445,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetMetaOrTagGroupBy
     {
-        public KalturaAssetMetaOrTagGroupBy(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetMetaOrTagGroupBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18492,7 +19458,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetsBookmarksResponse
     {
-        public KalturaAssetsBookmarksResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetsBookmarksResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18512,7 +19478,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetsCount
     {
-        public KalturaAssetsCount(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetsCount(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18536,7 +19502,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetsFilter
     {
-        public KalturaAssetsFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18569,7 +19535,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetStatistics
     {
-        public KalturaAssetStatistics(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetStatistics(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18630,7 +19596,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetStatisticsListResponse
     {
-        public KalturaAssetStatisticsListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetStatisticsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18650,7 +19616,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetStatisticsQuery
     {
-        public KalturaAssetStatisticsQuery(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetStatisticsQuery(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18694,6 +19660,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsProtectedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStruct")
         {
@@ -18704,6 +19672,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStruct")
         {
@@ -18714,6 +19684,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStruct")
         {
@@ -18724,6 +19696,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PluralNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStruct")
         {
@@ -18734,6 +19708,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ParentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStruct")
         {
@@ -18745,6 +19721,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ConnectingMetaIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStruct")
         {
@@ -18755,6 +19733,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ConnectedParentMetaIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStruct")
         {
@@ -18765,6 +19745,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DynamicDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStruct")
         {
@@ -18775,8 +19757,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetStruct(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetStruct(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18895,6 +19879,8 @@ namespace WebAPI.Models.Catalog
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MetaIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructFilter")
         {
@@ -18906,8 +19892,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetStructFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetStructFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18952,7 +19940,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetStructListResponse
     {
-        public KalturaAssetStructListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetStructListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -18981,6 +19969,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MetaIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
@@ -18991,6 +19981,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IngestReferencePathSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
@@ -19001,6 +19993,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = 255,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ProtectFromIngestSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
@@ -19011,6 +20005,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DefaultIngestValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
@@ -19021,6 +20017,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = 4000,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
@@ -19031,6 +20029,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
@@ -19041,6 +20041,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsInheritedSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
@@ -19051,6 +20053,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsLocationTagSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
@@ -19061,6 +20065,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SuppressedOrderSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
         {
@@ -19072,8 +20078,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetStructMeta(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetStructMeta(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19174,6 +20182,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MetaIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMetaFilter")
         {
@@ -19185,8 +20195,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetStructMetaFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetStructMetaFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19213,7 +20225,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaAssetStructMetaListResponse
     {
-        public KalturaAssetStructMetaListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetStructMetaListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19242,8 +20254,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBaseAssetInfo(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBaseAssetInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19318,7 +20332,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBaseAssetStructFilter
     {
-        public KalturaBaseAssetStructFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBaseAssetStructFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -19333,8 +20347,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBaseChannel(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBaseChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19353,7 +20369,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBaseSearchAssetFilter
     {
-        public KalturaBaseSearchAssetFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBaseSearchAssetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19414,6 +20430,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PositionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmark")
         {
@@ -19424,6 +20442,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PositionOwnerSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmark")
         {
@@ -19434,6 +20454,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsFinishedWatchingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBookmark")
         {
@@ -19444,8 +20466,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBookmark(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBookmark(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19528,7 +20552,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBookmarkFilter
     {
-        public KalturaBookmarkFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBookmarkFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19566,7 +20590,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBookmarkListResponse
     {
-        public KalturaBookmarkListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBookmarkListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19586,7 +20610,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBookmarkPlayerData
     {
-        public KalturaBookmarkPlayerData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBookmarkPlayerData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19635,8 +20659,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBundleFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBundleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19673,7 +20699,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBusinessModuleDetails
     {
-        public KalturaBusinessModuleDetails(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBusinessModuleDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19700,7 +20726,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaBuzzScore
     {
-        public KalturaBuzzScore(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBuzzScore(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19735,7 +20761,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaCatalogWithHolder
     {
-        public KalturaCatalogWithHolder(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCatalogWithHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -19767,6 +20793,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ParentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
@@ -19777,6 +20805,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UnifiedChannelsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
@@ -19787,6 +20817,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DynamicDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
@@ -19797,6 +20829,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
@@ -19807,6 +20841,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsActiveSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
@@ -19817,6 +20853,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
@@ -19827,6 +20865,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
@@ -19837,6 +20877,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
@@ -19847,6 +20889,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute VersionIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
@@ -19857,6 +20901,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute VirtualAssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
@@ -19867,6 +20913,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ReferenceIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryItem")
         {
@@ -19877,8 +20925,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCategoryItem(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -20044,8 +21094,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCategoryItemAncestorsFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryItemAncestorsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -20064,7 +21116,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaCategoryItemByIdInFilter
     {
-        public KalturaCategoryItemByIdInFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryItemByIdInFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -20077,19 +21129,19 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaCategoryItemFilter
     {
-        public KalturaCategoryItemFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryItemFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaCategoryItemListResponse
     {
-        public KalturaCategoryItemListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryItemListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaCategoryItemSearchFilter
     {
-        public KalturaCategoryItemSearchFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryItemSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -20119,6 +21171,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ChildrenSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
@@ -20129,6 +21183,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UnifiedChannelsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
@@ -20139,6 +21195,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DynamicDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
@@ -20149,6 +21207,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsActiveSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
@@ -20159,6 +21219,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
@@ -20170,6 +21232,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
@@ -20181,6 +21245,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
@@ -20191,6 +21257,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute VersionIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
@@ -20201,6 +21269,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute VirtualAssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
@@ -20211,6 +21281,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ReferenceIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryTree")
         {
@@ -20221,8 +21293,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCategoryTree(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryTree(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -20369,6 +21443,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryVersion")
         {
@@ -20379,6 +21455,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = 255,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TreeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryVersion")
         {
@@ -20389,6 +21467,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryVersion")
         {
@@ -20399,6 +21479,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute BaseVersionIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryVersion")
         {
@@ -20410,6 +21492,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CategoryRootIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryVersion")
         {
@@ -20420,6 +21504,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DefaultDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryVersion")
         {
@@ -20430,6 +21516,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdaterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryVersion")
         {
@@ -20440,6 +21528,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CommentSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryVersion")
         {
@@ -20450,6 +21540,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = 255,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryVersion")
         {
@@ -20460,6 +21552,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryVersion")
         {
@@ -20470,8 +21564,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCategoryVersion(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryVersion(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -20580,7 +21676,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaCategoryVersionFilter
     {
-        public KalturaCategoryVersionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryVersionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -20596,8 +21692,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCategoryVersionFilterByTree(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryVersionFilterByTree(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -20630,7 +21728,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaCategoryVersionListResponse
     {
-        public KalturaCategoryVersionListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryVersionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -20645,6 +21743,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ImagesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
@@ -20655,6 +21755,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsActiveSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
@@ -20665,6 +21767,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute OrderBySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
@@ -20675,6 +21779,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
@@ -20685,6 +21791,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
@@ -20695,6 +21803,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SupportSegmentBasedOrderingSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
@@ -20705,6 +21815,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AssetUserRuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
@@ -20715,6 +21827,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MetaDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
@@ -20725,6 +21839,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute VirtualAssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannel")
         {
@@ -20735,8 +21851,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaChannel(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -20978,6 +22096,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UtcOffsetEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelExternalFilter")
         {
@@ -20990,8 +22110,10 @@ namespace WebAPI.Models.Catalog
             MinLength = -1,
             MaxFloat = 12,
             MinFloat = -12,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaChannelExternalFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaChannelExternalFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21032,8 +22154,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaChannelFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaChannelFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21070,7 +22194,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaChannelListResponse
     {
-        public KalturaChannelListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaChannelListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21099,6 +22223,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute orderBySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelOrder")
         {
@@ -21109,6 +22235,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SlidingWindowPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelOrder")
         {
@@ -21120,8 +22248,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaChannelOrder(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaChannelOrder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21173,13 +22303,13 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaChannelsBaseFilter
     {
-        public KalturaChannelsBaseFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaChannelsBaseFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaChannelSearchByKsqlFilter
     {
-        public KalturaChannelSearchByKsqlFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaChannelSearchByKsqlFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21216,6 +22346,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MediaIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaChannelsFilter")
         {
@@ -21227,8 +22359,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaChannelsFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaChannelsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21267,8 +22401,21 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaContentResource
     {
-        public KalturaContentResource(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaContentResource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+        }
+    }
+    public partial class KalturaDiscoveryMediaFile
+    {
+        public KalturaDiscoveryMediaFile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("isPlaybackable") && parameters["isPlaybackable"] != null)
+                {
+                    IsPlaybackable = (Boolean) Convert.ChangeType(parameters["isPlaybackable"], typeof(Boolean));
+                }
+            }
         }
     }
     public partial class KalturaDynamicChannel
@@ -21282,6 +22429,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AssetTypesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDynamicChannel")
         {
@@ -21292,6 +22441,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute GroupBySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDynamicChannel")
         {
@@ -21302,8 +22453,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDynamicChannel(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDynamicChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21373,6 +22526,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute OrderBySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDynamicOrderBy")
         {
@@ -21383,8 +22538,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDynamicOrderBy(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDynamicOrderBy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21421,7 +22578,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaEPGChannelAssets
     {
-        public KalturaEPGChannelAssets(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEPGChannelAssets(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21451,7 +22608,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaEPGChannelAssetsListResponse
     {
-        public KalturaEPGChannelAssetsListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEPGChannelAssetsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21484,7 +22641,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaEpgChannelFilter
     {
-        public KalturaEpgChannelFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEpgChannelFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21531,6 +22688,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute VersionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
@@ -21541,6 +22700,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ImageTypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
@@ -21552,6 +22713,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ImageObjectIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
@@ -21563,6 +22726,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
@@ -21573,6 +22738,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UrlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
@@ -21583,6 +22750,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ContentIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
@@ -21593,6 +22762,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImage")
         {
@@ -21603,8 +22774,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaImage(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaImage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21717,8 +22890,10 @@ namespace WebAPI.Models.Catalog
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaImageFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaImageFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21763,7 +22938,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaImageListResponse
     {
-        public KalturaImageListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaImageListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21792,6 +22967,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
@@ -21802,6 +22979,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = 128,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SystemNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
@@ -21812,6 +22991,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = 512,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RatioIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
@@ -21823,6 +23004,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute HelpTextSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
@@ -21833,6 +23016,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = 600,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DefaultImageIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageType")
         {
@@ -21844,8 +23029,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaImageType(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaImageType(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21922,6 +23109,8 @@ namespace WebAPI.Models.Catalog
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RatioIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaImageTypeFilter")
         {
@@ -21933,8 +23122,10 @@ namespace WebAPI.Models.Catalog
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaImageTypeFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaImageTypeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21961,7 +23152,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaImageTypeListResponse
     {
-        public KalturaImageTypeListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaImageTypeListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -21990,6 +23181,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EntityAttributeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLabel")
         {
@@ -22000,8 +23193,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaLabel(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLabel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -22042,7 +23237,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLabelFilter
     {
-        public KalturaLabelFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLabelFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -22077,7 +23272,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLabelListResponse
     {
-        public KalturaLabelListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLabelListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -22097,7 +23292,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLastPosition
     {
-        public KalturaLastPosition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLastPosition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -22128,7 +23323,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLastPositionFilter
     {
-        public KalturaLastPositionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLastPositionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -22176,7 +23371,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLastPositionListResponse
     {
-        public KalturaLastPositionListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLastPositionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -22196,7 +23391,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaLinearAssetStructFilter
     {
-        public KalturaLinearAssetStructFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLinearAssetStructFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -22211,6 +23406,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EnableCatchUpStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22221,6 +23418,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EnableStartOverStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22231,6 +23430,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute BufferCatchUpSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22242,6 +23443,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute BufferTrickPlaySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22253,6 +23456,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EnableRecordingPlaybackNonEntitledChannelStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22263,6 +23468,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EnableTrickPlayStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22273,6 +23480,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalEpgIngestIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22283,6 +23492,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = 255,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalCdvrIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22293,6 +23504,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = 255,
             MinLength = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CdvrEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22303,6 +23516,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CatchUpEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22313,6 +23528,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StartOverEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22323,6 +23540,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SummedCatchUpBufferSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22333,6 +23552,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SummedTrickPlayBufferSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22343,6 +23564,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RecordingPlaybackNonEntitledChannelEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22353,6 +23576,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TrickPlayEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLiveAsset")
         {
@@ -22363,8 +23588,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaLiveAsset(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLiveAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -22576,8 +23803,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaManualChannel(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaManualChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -22607,7 +23836,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaManualCollectionAsset
     {
-        public KalturaManualCollectionAsset(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaManualCollectionAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -22643,6 +23872,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeDescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaAsset")
         {
@@ -22653,6 +23884,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceRuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaAsset")
         {
@@ -22663,6 +23896,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceRuleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaAsset")
         {
@@ -22673,6 +23908,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute GeoBlockRuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaAsset")
         {
@@ -22683,6 +23920,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute GeoBlockRuleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaAsset")
         {
@@ -22693,6 +23932,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute WatchPermissionRuleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaAsset")
         {
@@ -22703,6 +23944,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaAsset")
         {
@@ -22713,6 +23956,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute InheritancePolicySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaAsset")
         {
@@ -22723,8 +23968,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaMediaAsset(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMediaAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -22842,6 +24089,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFile")
         {
@@ -22852,6 +24101,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CdnAdapaterProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFile")
         {
@@ -22863,8 +24114,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaMediaFile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMediaFile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23045,7 +24298,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaMediaFileFilter
     {
-        public KalturaMediaFileFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMediaFileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23062,7 +24315,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaMediaFileListResponse
     {
-        public KalturaMediaFileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMediaFileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23091,6 +24344,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
@@ -23101,6 +24356,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = 50,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
@@ -23111,6 +24368,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = 50,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
@@ -23121,6 +24380,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
@@ -23131,6 +24392,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
@@ -23141,6 +24404,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsTrailerSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
@@ -23151,6 +24416,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StreamerTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
@@ -23161,6 +24428,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DrmProfileIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
@@ -23172,6 +24441,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute QualitySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
@@ -23182,6 +24453,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute VideoCodecsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
@@ -23192,6 +24465,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = 100,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AudioCodecsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMediaFileType")
         {
@@ -23202,8 +24477,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = 100,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaMediaFileType(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMediaFileType(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23330,7 +24607,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaMediaFileTypeListResponse
     {
-        public KalturaMediaFileTypeListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMediaFileTypeListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23359,8 +24636,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaMediaImage(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMediaImage(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23424,8 +24703,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaOTTCategory(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaOTTCategory(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23500,7 +24781,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPersonalAsset
     {
-        public KalturaPersonalAsset(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23553,7 +24834,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPersonalAssetListResponse
     {
-        public KalturaPersonalAssetListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalAssetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23573,7 +24854,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPersonalAssetRequest
     {
-        public KalturaPersonalAssetRequest(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalAssetRequest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23624,7 +24905,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPersonalAssetWithHolder
     {
-        public KalturaPersonalAssetWithHolder(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalAssetWithHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23647,7 +24928,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPersonalFile
     {
-        public KalturaPersonalFile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalFile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23682,8 +24963,10 @@ namespace WebAPI.Models.Catalog
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPersonalListSearchFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalListSearchFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23702,7 +24985,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaPlayerAssetData
     {
-        public KalturaPlayerAssetData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPlayerAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23754,6 +25037,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EpgIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAsset")
         {
@@ -23764,6 +25049,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LinearAssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProgramAsset")
         {
@@ -23774,8 +25061,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaProgramAsset(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaProgramAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23843,6 +25132,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRatio")
         {
@@ -23853,6 +25144,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute HeightSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRatio")
         {
@@ -23864,6 +25157,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute WidthSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRatio")
         {
@@ -23875,6 +25170,8 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PrecisionPrecentageSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaRatio")
         {
@@ -23887,8 +25184,10 @@ namespace WebAPI.Models.Catalog
             MinLength = -1,
             MaxInteger = 100,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaRatio(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRatio(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23939,7 +25238,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaRatioListResponse
     {
-        public KalturaRatioListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRatioListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23959,7 +25258,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaRecordingAsset
     {
-        public KalturaRecordingAsset(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRecordingAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -23986,7 +25285,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaRelatedEntity
     {
-        public KalturaRelatedEntity(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRelatedEntity(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24013,7 +25312,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaRelatedEntityArray
     {
-        public KalturaRelatedEntityArray(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRelatedEntityArray(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24043,8 +25342,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaRelatedExternalFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRelatedExternalFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24085,8 +25386,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaRelatedFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRelatedFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24123,8 +25426,10 @@ namespace WebAPI.Models.Catalog
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaScheduledRecordingProgramFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaScheduledRecordingProgramFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24165,7 +25470,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaSearchAssetFilter
     {
-        public KalturaSearchAssetFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSearchAssetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24182,7 +25487,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaSearchAssetListFilter
     {
-        public KalturaSearchAssetListFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSearchAssetListFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24195,7 +25500,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaSearchExternalFilter
     {
-        public KalturaSearchExternalFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSearchExternalFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24225,6 +25530,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSlimAsset")
         {
@@ -24235,8 +25542,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSlimAsset(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSlimAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24273,7 +25582,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaSlimAssetInfoWrapper
     {
-        public KalturaSlimAssetInfoWrapper(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSlimAssetInfoWrapper(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24302,6 +25611,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaStreamingDevice")
         {
@@ -24312,6 +25623,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UdidSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaStreamingDevice")
         {
@@ -24322,8 +25635,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaStreamingDevice(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaStreamingDevice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24365,7 +25680,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaStreamingDeviceFilter
     {
-        public KalturaStreamingDeviceFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaStreamingDeviceFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24388,7 +25703,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaStreamingDeviceListResponse
     {
-        public KalturaStreamingDeviceListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaStreamingDeviceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24417,6 +25732,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TagTypeIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaTag")
         {
@@ -24428,8 +25745,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaTag(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTag(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24477,8 +25796,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaTagFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTagFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24513,7 +25834,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaTagListResponse
     {
-        public KalturaTagListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaTagListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24543,8 +25864,10 @@ namespace WebAPI.Models.Catalog
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUnifiedChannel(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUnifiedChannel(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24586,6 +25909,8 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndDateInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUnifiedChannelInfo")
         {
@@ -24596,8 +25921,10 @@ namespace WebAPI.Models.Catalog
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUnifiedChannelInfo(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUnifiedChannelInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24636,7 +25963,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaUploadedFileTokenResource
     {
-        public KalturaUploadedFileTokenResource(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUploadedFileTokenResource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24649,7 +25976,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaUrlResource
     {
-        public KalturaUrlResource(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUrlResource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24662,7 +25989,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaWatchHistoryAsset
     {
-        public KalturaWatchHistoryAsset(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaWatchHistoryAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24708,7 +26035,7 @@ namespace WebAPI.Models.Catalog
     }
     public partial class KalturaWatchHistoryAssetWrapper
     {
-        public KalturaWatchHistoryAssetWrapper(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaWatchHistoryAssetWrapper(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24741,6 +26068,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpv")
         {
@@ -24751,8 +26080,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetFilePpv(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetFilePpv(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24805,6 +26136,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AssetFileIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetFilePpvFilter")
         {
@@ -24816,8 +26149,10 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaAssetFilePpvFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetFilePpvFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24844,7 +26179,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaAssetFilePpvListResponse
     {
-        public KalturaAssetFilePpvListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetFilePpvListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24864,7 +26199,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaAssetPrice
     {
-        public KalturaAssetPrice(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -24912,8 +26247,10 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCollection(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCollection(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25045,6 +26382,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CouponGroupIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCollectionFilter")
         {
@@ -25056,8 +26395,10 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCollectionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCollectionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25088,7 +26429,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaCollectionListResponse
     {
-        public KalturaCollectionListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCollectionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25108,7 +26449,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaCollectionPrice
     {
-        public KalturaCollectionPrice(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCollectionPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -25123,6 +26464,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCoupon")
         {
@@ -25133,6 +26476,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TotalUsesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCoupon")
         {
@@ -25143,6 +26488,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LeftUsesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCoupon")
         {
@@ -25153,6 +26500,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CouponCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCoupon")
         {
@@ -25163,8 +26512,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCoupon(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCoupon(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25247,7 +26598,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaCouponFilter
     {
-        public KalturaCouponFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCouponFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25260,13 +26611,13 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaCouponGenerationOptions
     {
-        public KalturaCouponGenerationOptions(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCouponGenerationOptions(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaCouponListResponse
     {
-        public KalturaCouponListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCouponListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -25281,6 +26632,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
@@ -25291,6 +26644,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
@@ -25301,6 +26656,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MaxUsesNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
@@ -25312,6 +26669,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MaxUsesNumberOnRenewableSubSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
@@ -25323,6 +26682,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CouponGroupTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
@@ -25333,6 +26694,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MaxHouseholdUsesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
@@ -25344,6 +26707,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DiscountCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
@@ -25355,6 +26720,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DiscountIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCouponsGroup")
         {
@@ -25366,8 +26733,10 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCouponsGroup(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCouponsGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25507,7 +26876,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaCouponsGroupListResponse
     {
-        public KalturaCouponsGroupListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCouponsGroupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25527,7 +26896,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaDiscount
     {
-        public KalturaDiscount(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDiscount(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25549,6 +26918,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute nameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDiscountDetails")
         {
@@ -25559,6 +26930,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MultiCurrencyDiscountSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDiscountDetails")
         {
@@ -25569,6 +26942,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDiscountDetails")
         {
@@ -25580,6 +26955,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndtDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDiscountDetails")
         {
@@ -25591,6 +26968,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute WhenAlgoTimesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDiscountDetails")
         {
@@ -25602,6 +26981,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute WhenAlgoTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDiscountDetails")
         {
@@ -25613,8 +26994,10 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDiscountDetails(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDiscountDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25698,8 +27081,10 @@ namespace WebAPI.Models.Pricing
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDiscountDetailsFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDiscountDetailsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25718,7 +27103,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaDiscountDetailsListResponse
     {
-        public KalturaDiscountDetailsListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDiscountDetailsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25747,6 +27132,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PercentSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDiscountModule")
         {
@@ -25757,6 +27144,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDiscountModule")
         {
@@ -25767,6 +27156,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDiscountModule")
         {
@@ -25777,8 +27168,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDiscountModule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDiscountModule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25837,7 +27230,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaItemPrice
     {
-        public KalturaItemPrice(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaItemPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25878,7 +27271,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaItemPriceListResponse
     {
-        public KalturaItemPriceListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaItemPriceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -25907,6 +27300,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FileTypesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpv")
         {
@@ -25917,6 +27312,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DiscountModuleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpv")
         {
@@ -25927,6 +27324,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CouponsGroupSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpv")
         {
@@ -25937,6 +27336,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DescriptionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpv")
         {
@@ -25947,6 +27348,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsSubscriptionOnlySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpv")
         {
@@ -25957,6 +27360,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FirstDeviceLimitationSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpv")
         {
@@ -25967,6 +27372,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UsageModuleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpv")
         {
@@ -25977,8 +27384,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPpv(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPpv(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26107,7 +27516,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPpvFilter
     {
-        public KalturaPpvFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPpvFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26124,7 +27533,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPPVItemPriceDetails
     {
-        public KalturaPPVItemPriceDetails(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPPVItemPriceDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26344,7 +27753,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPpvListResponse
     {
-        public KalturaPpvListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPpvListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26364,7 +27773,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPpvPrice
     {
-        public KalturaPpvPrice(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPpvPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26460,6 +27869,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPreviewModule")
         {
@@ -26470,6 +27881,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LifeCycleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPreviewModule")
         {
@@ -26481,6 +27894,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NonRenewablePeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPreviewModule")
         {
@@ -26492,8 +27907,10 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPreviewModule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPreviewModule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26562,8 +27979,10 @@ namespace WebAPI.Models.Pricing
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPreviewModuleFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPreviewModuleFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26582,7 +28001,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPreviewModuleListResponse
     {
-        public KalturaPreviewModuleListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPreviewModuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26611,6 +28030,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CountryIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPrice")
         {
@@ -26621,8 +28042,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPrice(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26670,6 +28093,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPriceDetails")
         {
@@ -26680,6 +28105,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PriceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPriceDetails")
         {
@@ -26690,6 +28117,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MultiCurrencyPriceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPriceDetails")
         {
@@ -26700,8 +28129,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPriceDetails(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPriceDetails(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26779,8 +28210,10 @@ namespace WebAPI.Models.Pricing
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPriceDetailsFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPriceDetailsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26799,7 +28232,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPriceDetailsListResponse
     {
-        public KalturaPriceDetailsListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPriceDetailsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26828,6 +28261,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RenewalsNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPricePlan")
         {
@@ -26839,6 +28274,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PriceIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPricePlan")
         {
@@ -26849,6 +28286,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DiscountIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPricePlan")
         {
@@ -26860,6 +28299,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PriceDetailsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPricePlan")
         {
@@ -26871,8 +28312,10 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPricePlan(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPricePlan(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26965,8 +28408,10 @@ namespace WebAPI.Models.Pricing
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPricePlanFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPricePlanFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -26985,7 +28430,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPricePlanListResponse
     {
-        public KalturaPricePlanListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPricePlanListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -27014,6 +28459,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProductCode")
         {
@@ -27024,8 +28471,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaProductCode(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaProductCode(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -27061,6 +28510,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PromotionInfoSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaProductPrice")
         {
@@ -27071,8 +28522,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaProductPrice(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaProductPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -27174,7 +28627,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaProductPriceListResponse
     {
-        public KalturaProductPriceListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaProductPriceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -27194,7 +28647,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaProductsPriceListResponse
     {
-        public KalturaProductsPriceListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaProductsPriceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -27214,7 +28667,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPromotionInfo
     {
-        public KalturaPromotionInfo(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPromotionInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -27227,7 +28680,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPublicCouponGenerationOptions
     {
-        public KalturaPublicCouponGenerationOptions(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPublicCouponGenerationOptions(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -27240,7 +28693,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaRandomCouponGenerationOptions
     {
-        public KalturaRandomCouponGenerationOptions(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRandomCouponGenerationOptions(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -27274,6 +28727,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ChannelsIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27284,6 +28739,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27294,6 +28751,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27304,6 +28763,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FileTypesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27314,6 +28775,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FileTypesIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27324,6 +28787,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsRenewableSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27334,6 +28799,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RenewalsNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27344,6 +28811,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsInfiniteRenewalSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27354,6 +28823,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PriceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27364,6 +28835,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DiscountModuleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27374,6 +28847,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute InternalDiscountModuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27385,6 +28860,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27395,6 +28872,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MediaIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27405,6 +28884,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ProrityInOrderSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27415,6 +28896,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PricePlanIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27425,6 +28908,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PreviewModuleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27435,6 +28920,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PreviewModuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27446,6 +28933,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute HouseholdLimitationsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27456,6 +28945,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute GracePeriodMinutesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27466,6 +28957,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PremiumServicesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27476,6 +28969,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MaxViewsNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27486,6 +28981,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ViewLifeCycleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27496,6 +28993,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute WaiverPeriodSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27506,6 +29005,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsWaiverEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27516,6 +29017,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UserTypesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27526,6 +29029,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CouponGroupsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27536,6 +29041,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SubscriptionCouponGroupSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27546,6 +29053,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ProductCodesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27556,6 +29065,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PreSaleDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27567,6 +29078,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27577,6 +29090,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscription")
         {
@@ -27587,8 +29102,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSubscription(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscription(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -28374,6 +29891,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StartDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionCouponGroup")
         {
@@ -28384,6 +29903,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EndDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionCouponGroup")
         {
@@ -28394,8 +29915,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSubscriptionCouponGroup(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionCouponGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -28430,7 +29953,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionDependencySet
     {
-        public KalturaSubscriptionDependencySet(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionDependencySet(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -28453,8 +29976,10 @@ namespace WebAPI.Models.Pricing
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSubscriptionDependencySetFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionDependencySetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -28483,6 +30008,8 @@ namespace WebAPI.Models.Pricing
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AlsoInactiveSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionFilter")
         {
@@ -28493,8 +30020,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSubscriptionFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -28549,7 +30078,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionListResponse
     {
-        public KalturaSubscriptionListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -28569,7 +30098,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionPrice
     {
-        public KalturaSubscriptionPrice(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionPrice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -28632,6 +30161,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSubscriptionSet")
         {
@@ -28642,8 +30173,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSubscriptionSet(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionSet(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -28688,7 +30221,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionSetFilter
     {
-        public KalturaSubscriptionSetFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionSetFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -28719,7 +30252,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionSetListResponse
     {
-        public KalturaSubscriptionSetListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionSetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -28739,7 +30272,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionsFilter
     {
-        public KalturaSubscriptionsFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -28773,7 +30306,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaSubscriptionSwitchSet
     {
-        public KalturaSubscriptionSwitchSet(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSubscriptionSwitchSet(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -28788,6 +30321,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
         {
@@ -28798,6 +30333,8 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MaxViewsNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
         {
@@ -28809,6 +30346,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ViewLifeCycleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
         {
@@ -28820,6 +30359,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FullLifeCycleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
         {
@@ -28831,6 +30372,8 @@ namespace WebAPI.Models.Pricing
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CouponIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUsageModule")
         {
@@ -28841,8 +30384,10 @@ namespace WebAPI.Models.Pricing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUsageModule(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUsageModule(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -28957,7 +30502,7 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaUsageModuleListResponse
     {
-        public KalturaUsageModuleListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUsageModuleListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -28981,7 +30526,7 @@ namespace WebAPI.Models.Segmentation
 {
     public partial class KalturaAssetOrderSegmentAction
     {
-        public KalturaAssetOrderSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaAssetOrderSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29005,31 +30550,31 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaBaseSegmentAction
     {
-        public KalturaBaseSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBaseSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBaseSegmentationTypeFilter
     {
-        public KalturaBaseSegmentationTypeFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBaseSegmentationTypeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBaseSegmentCondition
     {
-        public KalturaBaseSegmentCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBaseSegmentCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBaseSegmentValue
     {
-        public KalturaBaseSegmentValue(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBaseSegmentValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBlockSubscriptionSegmentAction
     {
-        public KalturaBlockSubscriptionSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBlockSubscriptionSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -29044,6 +30589,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LengthSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
@@ -29054,6 +30601,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LengthTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
@@ -29064,6 +30613,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MultiplierSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentActionCondition")
         {
@@ -29074,8 +30625,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaContentActionCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaContentActionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29147,6 +30700,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MaxScoreSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
@@ -29157,6 +30712,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
@@ -29167,6 +30724,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FieldSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
@@ -29177,6 +30736,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
@@ -29187,6 +30748,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ActionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaContentScoreCondition")
         {
@@ -29197,8 +30760,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaContentScoreCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaContentScoreCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29280,8 +30845,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaContentSource(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaContentSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29310,8 +30877,10 @@ namespace WebAPI.Models.Segmentation
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaHouseholdSegment(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdSegment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29334,7 +30903,7 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaHouseholdSegmentFilter
     {
-        public KalturaHouseholdSegmentFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdSegmentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29347,13 +30916,13 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaHouseholdSegmentListResponse
     {
-        public KalturaHouseholdSegmentListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdSegmentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaKsqlSegmentAction
     {
-        public KalturaKsqlSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaKsqlSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29375,6 +30944,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MaxValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
@@ -29385,6 +30956,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
@@ -29395,6 +30968,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
@@ -29405,6 +30980,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute OperatorSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
@@ -29415,6 +30992,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute BusinessModuleIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationCondition")
         {
@@ -29425,8 +31004,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaMonetizationCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMonetizationCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29514,6 +31095,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute OperatorSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationSource")
         {
@@ -29524,6 +31107,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DaysSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaMonetizationSource")
         {
@@ -29534,8 +31119,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaMonetizationSource(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMonetizationSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29599,8 +31186,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSegmentAllValues(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentAllValues(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29619,19 +31208,19 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaSegmentAssetFilterAction
     {
-        public KalturaSegmentAssetFilterAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentAssetFilterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaSegmentAssetFilterSegmentAction
     {
-        public KalturaSegmentAssetFilterSegmentAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentAssetFilterSegmentAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaSegmentAssetFilterSubscriptionAction
     {
-        public KalturaSegmentAssetFilterSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentAssetFilterSubscriptionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -29646,6 +31235,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
@@ -29656,6 +31247,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute VersionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentationType")
         {
@@ -29666,8 +31259,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSegmentationType(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentationType(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29743,7 +31338,7 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaSegmentationTypeFilter
     {
-        public KalturaSegmentationTypeFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentationTypeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29769,8 +31364,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSegmentationTypeListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentationTypeListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29796,19 +31393,19 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaSegmentBlockCancelSubscriptionAction
     {
-        public KalturaSegmentBlockCancelSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentBlockCancelSubscriptionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaSegmentBlockPlaybackSubscriptionAction
     {
-        public KalturaSegmentBlockPlaybackSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentBlockPlaybackSubscriptionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaSegmentBlockPurchaseSubscriptionAction
     {
-        public KalturaSegmentBlockPurchaseSubscriptionAction(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentBlockPurchaseSubscriptionAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -29823,6 +31420,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SystematicNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
@@ -29833,6 +31432,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
@@ -29843,6 +31444,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute GreaterThanOrEqualsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
@@ -29853,6 +31456,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute GreaterThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
@@ -29863,6 +31468,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LessThanOrEqualsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
@@ -29873,6 +31480,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LessThanSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
@@ -29883,6 +31492,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EqualsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRange")
         {
@@ -29893,8 +31504,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSegmentRange(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentRange(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -29978,6 +31591,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RangesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentRanges")
         {
@@ -29988,8 +31603,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSegmentRanges(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentRanges(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30030,7 +31647,7 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaSegmentSource
     {
-        public KalturaSegmentSource(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -30045,6 +31662,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SystematicNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
@@ -30055,6 +31674,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
@@ -30065,6 +31686,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValue")
         {
@@ -30075,8 +31698,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSegmentValue(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30119,7 +31744,7 @@ namespace WebAPI.Models.Segmentation
     }
     public partial class KalturaSegmentValueFilter
     {
-        public KalturaSegmentValueFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentValueFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30141,6 +31766,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ValuesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSegmentValues")
         {
@@ -30151,8 +31778,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSegmentValues(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSegmentValues(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30202,6 +31831,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AffectedUsersSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSingleSegmentValue")
         {
@@ -30212,8 +31843,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSingleSegmentValue(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSingleSegmentValue(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30249,6 +31882,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ValueSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserDataCondition")
         {
@@ -30259,8 +31894,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUserDataCondition(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserDataCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30296,8 +31933,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUserDynamicDataSource(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserDynamicDataSource(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30325,6 +31964,8 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSegment")
         {
@@ -30335,8 +31976,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUserSegment(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserSegment(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30372,8 +32015,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUserSegmentFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserSegmentFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30405,8 +32050,10 @@ namespace WebAPI.Models.Segmentation
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUserSegmentListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserSegmentListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30445,6 +32092,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UsernameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBaseOTTUser")
         {
@@ -30455,6 +32104,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = 256,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FirstNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBaseOTTUser")
         {
@@ -30465,6 +32116,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = 128,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LastNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBaseOTTUser")
         {
@@ -30475,8 +32128,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = 128,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBaseOTTUser(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBaseOTTUser(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30544,8 +32199,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCountry(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCountry(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30596,13 +32253,13 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaDeviceManufacturerInformation
     {
-        public KalturaDeviceManufacturerInformation(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceManufacturerInformation(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaDeviceManufacturersReferenceDataFilter
     {
-        public KalturaDeviceManufacturersReferenceDataFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceManufacturersReferenceDataFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30624,6 +32281,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceReferenceData")
         {
@@ -30634,8 +32293,10 @@ namespace WebAPI.Models.Users
             IsNullable = true,
             MaxLength = 128,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDeviceReferenceData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceReferenceData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30679,8 +32340,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDeviceReferenceDataFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceReferenceDataFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30699,13 +32362,13 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaDeviceReferenceDataListResponse
     {
-        public KalturaDeviceReferenceDataListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceReferenceDataListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaDynamicData
     {
-        public KalturaDynamicData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDynamicData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30738,8 +32401,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaFavorite(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFavorite(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30781,7 +32446,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaFavoriteFilter
     {
-        public KalturaFavoriteFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFavoriteFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30827,7 +32492,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaFavoriteListResponse
     {
-        public KalturaFavoriteListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaFavoriteListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30847,7 +32512,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaLoginResponse
     {
-        public KalturaLoginResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLoginResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30891,7 +32556,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaLoginSession
     {
-        public KalturaLoginSession(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaLoginSession(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -30927,6 +32592,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AffiliateCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
@@ -30937,6 +32604,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
@@ -30947,6 +32616,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsHouseholdMasterSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
@@ -30957,6 +32628,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SuspentionStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
@@ -30967,6 +32640,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SuspensionStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
@@ -30977,6 +32652,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UserStateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
@@ -30987,6 +32664,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RoleIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
@@ -30997,6 +32676,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
@@ -31007,6 +32688,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
@@ -31017,6 +32700,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LastLoginDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
@@ -31027,6 +32712,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FailedLoginCountSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUser")
         {
@@ -31037,8 +32724,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaOTTUser(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaOTTUser(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31347,8 +33036,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaOTTUserDynamicData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaOTTUserDynamicData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31391,8 +33082,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaOTTUserDynamicDataList(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaOTTUserDynamicDataList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31427,6 +33120,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
@@ -31437,6 +33132,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
@@ -31447,6 +33144,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RoleIdsInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
@@ -31458,6 +33157,8 @@ namespace WebAPI.Models.Users
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EmailEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaOTTUserFilter")
         {
@@ -31468,8 +33169,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaOTTUserFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaOTTUserFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31520,7 +33223,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaOTTUserListResponse
     {
-        public KalturaOTTUserListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaOTTUserListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31549,8 +33252,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaOTTUserType(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaOTTUserType(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31582,6 +33287,8 @@ namespace WebAPI.Models.Users
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPartner")
         {
@@ -31592,8 +33299,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPartner(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPartner(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31638,8 +33347,10 @@ namespace WebAPI.Models.Users
             DynamicMinInt = 1,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPartnerFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPartnerFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31658,7 +33369,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaPartnerListResponse
     {
-        public KalturaPartnerListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPartnerListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31687,6 +33398,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = 256,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AdminPasswordSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPartnerSetup")
         {
@@ -31697,8 +33410,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = 128,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPartnerSetup(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPartnerSetup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31745,6 +33460,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicy")
         {
@@ -31755,6 +33472,8 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UserRoleIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPasswordPolicy")
         {
@@ -31766,8 +33485,10 @@ namespace WebAPI.Models.Users
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPasswordPolicy(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPasswordPolicy(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31835,8 +33556,10 @@ namespace WebAPI.Models.Users
             DynamicMinInt = 0,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPasswordPolicyFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPasswordPolicyFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31855,7 +33578,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaPasswordPolicyListResponse
     {
-        public KalturaPasswordPolicyListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPasswordPolicyListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -31870,8 +33593,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSession(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSession(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31926,9 +33651,120 @@ namespace WebAPI.Models.Users
             }
         }
     }
+    public partial class KalturaSessionCharacteristic
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSessionCharacteristic")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute RegionIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSessionCharacteristic")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute UserSegmentsIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSessionCharacteristic")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute UserRolesIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSessionCharacteristic")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute UserSessionProfilesIdsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSessionCharacteristic")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaSessionCharacteristic(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (String) Convert.ChangeType(parameters["id"], typeof(String));
+                }
+                if (parameters.ContainsKey("regionId") && parameters["regionId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        RegionIdSchemaProperty.Validate("regionId", parameters["regionId"]);
+                    }
+                    RegionId = (Int32) Convert.ChangeType(parameters["regionId"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("userSegmentsIds") && parameters["userSegmentsIds"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UserSegmentsIdsSchemaProperty.Validate("userSegmentsIds", parameters["userSegmentsIds"]);
+                    }
+                    UserSegmentsIds = (String) Convert.ChangeType(parameters["userSegmentsIds"], typeof(String));
+                }
+                if (parameters.ContainsKey("userRolesIds") && parameters["userRolesIds"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UserRolesIdsSchemaProperty.Validate("userRolesIds", parameters["userRolesIds"]);
+                    }
+                    UserRolesIds = (String) Convert.ChangeType(parameters["userRolesIds"], typeof(String));
+                }
+                if (parameters.ContainsKey("userSessionProfilesIds") && parameters["userSessionProfilesIds"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        UserSessionProfilesIdsSchemaProperty.Validate("userSessionProfilesIds", parameters["userSessionProfilesIds"]);
+                    }
+                    UserSessionProfilesIds = (String) Convert.ChangeType(parameters["userSessionProfilesIds"], typeof(String));
+                }
+            }
+        }
+    }
     public partial class KalturaSessionInfo
     {
-        public KalturaSessionInfo(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSessionInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -31943,8 +33779,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaSSOAdapterProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSSOAdapterProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -31990,7 +33828,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaSSOAdapterProfileInvoke
     {
-        public KalturaSSOAdapterProfileInvoke(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSSOAdapterProfileInvoke(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32014,7 +33852,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaSSOAdapterProfileListResponse
     {
-        public KalturaSSOAdapterProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSSOAdapterProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32034,7 +33872,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaUserAssetsList
     {
-        public KalturaUserAssetsList(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserAssetsList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32084,7 +33922,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaUserAssetsListFilter
     {
-        public KalturaUserAssetsListFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserAssetsListFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32174,8 +34012,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUserAssetsListItem(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserAssetsListItem(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32265,8 +34105,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUserInterest(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserInterest(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32296,7 +34138,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaUserInterestListResponse
     {
-        public KalturaUserInterestListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserInterestListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32316,7 +34158,7 @@ namespace WebAPI.Models.Users
     }
     public partial class KalturaUserInterestTopic
     {
-        public KalturaUserInterestTopic(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserInterestTopic(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32353,8 +34195,10 @@ namespace WebAPI.Models.Users
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUserLoginPin(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUserLoginPin(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32411,6 +34255,8 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AppTokenSessionMaxDurationSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBasePartnerConfiguration")
         {
@@ -32422,6 +34268,8 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AnonymousKSExpirationSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBasePartnerConfiguration")
         {
@@ -32433,6 +34281,8 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RefreshExpirationForPinLoginSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBasePartnerConfiguration")
         {
@@ -32444,6 +34294,8 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AppTokenMaxExpirySecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBasePartnerConfiguration")
         {
@@ -32455,6 +34307,8 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UploadTokenExpirySecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBasePartnerConfiguration")
         {
@@ -32466,8 +34320,10 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBasePartnerConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBasePartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32534,7 +34390,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaBillingPartnerConfig
     {
-        public KalturaBillingPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBillingPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32595,8 +34451,10 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBookmarkEventThreshold(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBookmarkEventThreshold(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32638,6 +34496,8 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CategoryManagementSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCatalogPartnerConfig")
         {
@@ -32648,6 +34508,8 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EpgMultilingualFallbackSupportSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCatalogPartnerConfig")
         {
@@ -32658,6 +34520,8 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UploadExportDatalakeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCatalogPartnerConfig")
         {
@@ -32668,8 +34532,10 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCatalogPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCatalogPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32728,6 +34594,8 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceFamilyToCategoryTreeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCategoryManagement")
         {
@@ -32738,8 +34606,10 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCategoryManagement(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCategoryManagement(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32778,8 +34648,10 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaCommercePartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCommercePartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32820,8 +34692,10 @@ namespace WebAPI.Models.Partner
             MinLength = -1,
             MaxInteger = 1200,
             MinInteger = 30,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaConcurrencyPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConcurrencyPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32862,7 +34736,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaDataEncryption
     {
-        public KalturaDataEncryption(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDataEncryption(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32892,6 +34766,8 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EpgAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
         {
@@ -32903,6 +34779,8 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RecordingAdapterIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultPlaybackAdapters")
         {
@@ -32914,8 +34792,10 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDefaultPlaybackAdapters(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDefaultPlaybackAdapters(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32950,7 +34830,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaEncryption
     {
-        public KalturaEncryption(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEncryption(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -32982,6 +34862,8 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeleteMediaPolicySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
@@ -32992,6 +34874,8 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MainCurrencySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
@@ -33002,6 +34886,8 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DowngradePolicySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
@@ -33012,6 +34898,8 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute HouseholdLimitationModuleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
@@ -33022,6 +34910,8 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute EnableRegionFilteringSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
@@ -33032,6 +34922,8 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DefaultRegionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
@@ -33042,6 +34934,8 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RollingDeviceRemovalDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
@@ -33052,6 +34946,8 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FinishedPercentThresholdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
@@ -33064,6 +34960,8 @@ namespace WebAPI.Models.Partner
             MinLength = -1,
             MaxInteger = 99,
             MinInteger = 90,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SuspensionProfileInheritanceTypeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
@@ -33074,6 +34972,8 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AllowDeviceMobilitySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaGeneralPartnerConfig")
         {
@@ -33084,8 +34984,10 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaGeneralPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaGeneralPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33245,7 +35147,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaObjectVirtualAssetInfo
     {
-        public KalturaObjectVirtualAssetInfo(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaObjectVirtualAssetInfo(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33283,7 +35185,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaObjectVirtualAssetPartnerConfig
     {
-        public KalturaObjectVirtualAssetPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaObjectVirtualAssetPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33303,7 +35205,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaOpcPartnerConfiguration
     {
-        public KalturaOpcPartnerConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaOpcPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33323,13 +35225,13 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaPartnerConfiguration
     {
-        public KalturaPartnerConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaPartnerConfigurationFilter
     {
-        public KalturaPartnerConfigurationFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPartnerConfigurationFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33352,7 +35254,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaPartnerConfigurationHolder
     {
-        public KalturaPartnerConfigurationHolder(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPartnerConfigurationHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33375,7 +35277,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaPartnerConfigurationListResponse
     {
-        public KalturaPartnerConfigurationListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPartnerConfigurationListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33395,7 +35297,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaPaymentPartnerConfig
     {
-        public KalturaPaymentPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPaymentPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33415,7 +35317,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaPlaybackPartnerConfig
     {
-        public KalturaPlaybackPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPlaybackPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33435,7 +35337,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaResetPasswordPartnerConfig
     {
-        public KalturaResetPasswordPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaResetPasswordPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33468,6 +35370,8 @@ namespace WebAPI.Models.Partner
             IsNullable = false,
             MaxLength = 255,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LabelSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaResetPasswordPartnerConfigTemplate")
         {
@@ -33478,8 +35382,10 @@ namespace WebAPI.Models.Partner
             IsNullable = false,
             MaxLength = 255,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaResetPasswordPartnerConfigTemplate(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaResetPasswordPartnerConfigTemplate(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33519,8 +35425,10 @@ namespace WebAPI.Models.Partner
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaRollingDeviceRemovalData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaRollingDeviceRemovalData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33553,7 +35461,7 @@ namespace WebAPI.Models.Partner
     }
     public partial class KalturaSecurityPartnerConfig
     {
-        public KalturaSecurityPartnerConfig(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSecurityPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33583,8 +35491,10 @@ namespace WebAPI.Models.Partner
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUnifiedBillingCycle(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUnifiedBillingCycle(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33635,6 +35545,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FileNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
@@ -33645,6 +35557,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
@@ -33655,6 +35569,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
@@ -33665,6 +35581,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NumOfObjectsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
@@ -33675,6 +35593,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
@@ -33685,6 +35605,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
@@ -33695,6 +35617,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UploadedByUserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
@@ -33705,6 +35629,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ResultsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
@@ -33715,6 +35641,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ErrorsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUpload")
         {
@@ -33725,8 +35653,10 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBulkUpload(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUpload(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33861,8 +35791,10 @@ namespace WebAPI.Models.Upload
             MaxLength = -1,
             MinLength = -1,
             MinLong = 0,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBulkUploadAssetData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33890,6 +35822,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadAssetResult")
         {
@@ -33900,8 +35834,10 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBulkUploadAssetResult(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadAssetResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33938,8 +35874,10 @@ namespace WebAPI.Models.Upload
             MaxLength = -1,
             MinLength = -1,
             MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBulkUploadDynamicListData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadDynamicListData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -33958,13 +35896,13 @@ namespace WebAPI.Models.Upload
     }
     public partial class KalturaBulkUploadDynamicListResult
     {
-        public KalturaBulkUploadDynamicListResult(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadDynamicListResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBulkUploadExcelJobData
     {
-        public KalturaBulkUploadExcelJobData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadExcelJobData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -33980,8 +35918,10 @@ namespace WebAPI.Models.Upload
             DynamicType = typeof(KalturaBulkUploadJobStatus),
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBulkUploadFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34022,8 +35962,10 @@ namespace WebAPI.Models.Upload
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBulkUploadIngestJobData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadIngestJobData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34046,13 +35988,13 @@ namespace WebAPI.Models.Upload
     }
     public partial class KalturaBulkUploadJobData
     {
-        public KalturaBulkUploadJobData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadJobData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBulkUploadListResponse
     {
-        public KalturaBulkUploadListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34072,37 +36014,37 @@ namespace WebAPI.Models.Upload
     }
     public partial class KalturaBulkUploadLiveAssetData
     {
-        public KalturaBulkUploadLiveAssetData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadLiveAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBulkUploadLiveAssetResult
     {
-        public KalturaBulkUploadLiveAssetResult(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadLiveAssetResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBulkUploadMediaAssetData
     {
-        public KalturaBulkUploadMediaAssetData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadMediaAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBulkUploadMediaAssetResult
     {
-        public KalturaBulkUploadMediaAssetResult(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadMediaAssetResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBulkUploadObjectData
     {
-        public KalturaBulkUploadObjectData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadObjectData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaBulkUploadProgramAssetData
     {
-        public KalturaBulkUploadProgramAssetData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadProgramAssetData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -34117,6 +36059,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ProgramExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
         {
@@ -34127,6 +36071,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LiveAssetIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadProgramAssetResult")
         {
@@ -34137,8 +36083,10 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBulkUploadProgramAssetResult(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadProgramAssetResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34182,6 +36130,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IndexSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
@@ -34192,6 +36142,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute BulkUploadIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
@@ -34202,6 +36154,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
@@ -34212,6 +36166,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ErrorsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
@@ -34222,6 +36178,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute WarningsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaBulkUploadResult")
         {
@@ -34232,8 +36190,10 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBulkUploadResult(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34316,7 +36276,7 @@ namespace WebAPI.Models.Upload
     }
     public partial class KalturaBulkUploadUdidDynamicListData
     {
-        public KalturaBulkUploadUdidDynamicListData(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadUdidDynamicListData(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -34331,8 +36291,10 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaBulkUploadUdidDynamicListResult(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaBulkUploadUdidDynamicListResult(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34360,6 +36322,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
@@ -34370,6 +36334,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FileSizeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
@@ -34380,6 +36346,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
@@ -34390,6 +36358,8 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUploadToken")
         {
@@ -34400,8 +36370,10 @@ namespace WebAPI.Models.Upload
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaUploadToken(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaUploadToken(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34466,7 +36438,7 @@ namespace WebAPI.Models.CanaryDeployment.Microservices
 {
     public partial class KalturaCanaryDeploymentAuthenticationMsOwnerShip
     {
-        public KalturaCanaryDeploymentAuthenticationMsOwnerShip(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaCanaryDeploymentAuthenticationMsOwnerShip(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34499,7 +36471,7 @@ namespace WebAPI.Models.CanaryDeployment.Microservices
     }
     public partial class KalturaMicroservicesCanaryDeploymentConfiguration
     {
-        public KalturaMicroservicesCanaryDeploymentConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMicroservicesCanaryDeploymentConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34537,7 +36509,7 @@ namespace WebAPI.Models.CanaryDeployment.Microservices
     }
     public partial class KalturaMicroservicesCanaryDeploymentDataOwnerShip
     {
-        public KalturaMicroservicesCanaryDeploymentDataOwnerShip(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMicroservicesCanaryDeploymentDataOwnerShip(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34557,7 +36529,7 @@ namespace WebAPI.Models.CanaryDeployment.Microservices
     }
     public partial class KalturaMicroservicesCanaryDeploymentMigrationEvents
     {
-        public KalturaMicroservicesCanaryDeploymentMigrationEvents(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaMicroservicesCanaryDeploymentMigrationEvents(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34607,6 +36579,8 @@ namespace WebAPI.Models.DMS
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
@@ -34617,6 +36591,8 @@ namespace WebAPI.Models.DMS
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
@@ -34627,6 +36603,8 @@ namespace WebAPI.Models.DMS
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute TagsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
@@ -34637,6 +36615,8 @@ namespace WebAPI.Models.DMS
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NumberOfDevicesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
@@ -34647,6 +36627,8 @@ namespace WebAPI.Models.DMS
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ConfigurationIdentifiersSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurationGroup")
         {
@@ -34657,8 +36639,10 @@ namespace WebAPI.Models.DMS
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaConfigurationGroup(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConfigurationGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34744,8 +36728,10 @@ namespace WebAPI.Models.DMS
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaConfigurationGroupDevice(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConfigurationGroupDevice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34772,7 +36758,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationGroupDeviceFilter
     {
-        public KalturaConfigurationGroupDeviceFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConfigurationGroupDeviceFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34785,7 +36771,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationGroupDeviceListResponse
     {
-        public KalturaConfigurationGroupDeviceListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConfigurationGroupDeviceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34805,7 +36791,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationGroupListResponse
     {
-        public KalturaConfigurationGroupListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConfigurationGroupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34834,8 +36820,10 @@ namespace WebAPI.Models.DMS
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaConfigurationGroupTag(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConfigurationGroupTag(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34862,7 +36850,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationGroupTagFilter
     {
-        public KalturaConfigurationGroupTagFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConfigurationGroupTagFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34875,7 +36863,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationGroupTagListResponse
     {
-        public KalturaConfigurationGroupTagListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConfigurationGroupTagListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34895,7 +36883,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationIdentifier
     {
-        public KalturaConfigurationIdentifier(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConfigurationIdentifier(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34921,6 +36909,8 @@ namespace WebAPI.Models.DMS
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PartnerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaConfigurations")
         {
@@ -34931,8 +36921,10 @@ namespace WebAPI.Models.DMS
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaConfigurations(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConfigurations(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -34997,7 +36989,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationsFilter
     {
-        public KalturaConfigurationsFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConfigurationsFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35010,7 +37002,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaConfigurationsListResponse
     {
-        public KalturaConfigurationsListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaConfigurationsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35030,7 +37022,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaDeviceReport
     {
-        public KalturaDeviceReport(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceReport(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35100,7 +37092,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaDeviceReportFilter
     {
-        public KalturaDeviceReportFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceReportFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35113,7 +37105,7 @@ namespace WebAPI.Models.DMS
     }
     public partial class KalturaPushParams
     {
-        public KalturaPushParams(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPushParams(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35134,7 +37126,7 @@ namespace WebAPI.Models.Domains
 {
     public partial class KalturaDevice
     {
-        public KalturaDevice(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDevice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -35149,6 +37141,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceFamilyIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceBrand")
         {
@@ -35159,8 +37153,10 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDeviceBrand(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceBrand(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35191,7 +37187,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaDeviceFamily
     {
-        public KalturaDeviceFamily(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceFamily(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35220,6 +37216,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDeviceFamilyBase")
         {
@@ -35230,8 +37228,10 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaDeviceFamilyBase(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceFamilyBase(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35274,7 +37274,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaDevicePin
     {
-        public KalturaDevicePin(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDevicePin(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35287,7 +37287,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaDeviceRegistrationStatusHolder
     {
-        public KalturaDeviceRegistrationStatusHolder(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaDeviceRegistrationStatusHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35319,8 +37319,10 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaHomeNetwork(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHomeNetwork(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35363,7 +37365,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHomeNetworkListResponse
     {
-        public KalturaHomeNetworkListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHomeNetworkListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35392,6 +37394,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35402,6 +37406,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute HouseholdLimitationsIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35412,6 +37418,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DevicesLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35422,6 +37430,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UsersLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35432,6 +37442,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ConcurrentLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35442,6 +37454,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RegionIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35452,6 +37466,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35462,6 +37478,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsFrequencyEnabledSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35472,6 +37490,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FrequencyNextDeviceActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35482,6 +37502,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FrequencyNextUserActionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35492,6 +37514,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RestrictionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35502,6 +37526,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RoleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35512,6 +37538,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35522,6 +37550,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UpdateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHousehold")
         {
@@ -35532,8 +37562,10 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaHousehold(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHousehold(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35863,7 +37895,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdCoupon
     {
-        public KalturaHouseholdCoupon(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdCoupon(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35880,7 +37912,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdCouponCodeFilter
     {
-        public KalturaHouseholdCouponCodeFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdCouponCodeFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -35896,6 +37928,8 @@ namespace WebAPI.Models.Domains
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CouponCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdCouponFilter")
         {
@@ -35906,8 +37940,10 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaHouseholdCouponFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdCouponFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -35962,7 +37998,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdCouponListResponse
     {
-        public KalturaHouseholdCouponListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdCouponListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -35977,6 +38013,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UdidSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
@@ -35987,6 +38025,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
@@ -35997,6 +38037,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
@@ -36007,6 +38049,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceFamilyIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
@@ -36017,6 +38061,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DrmSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
@@ -36027,6 +38073,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
@@ -36037,6 +38085,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = 255,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute MacAddressSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
@@ -36047,6 +38097,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = 255,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DynamicDataSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
@@ -36057,6 +38109,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ModelSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
@@ -36067,6 +38121,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = 255,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ManufacturerSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
@@ -36077,6 +38133,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = 128,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ManufacturerIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
@@ -36087,6 +38145,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute LastActivityTimeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDevice")
         {
@@ -36097,8 +38157,10 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaHouseholdDevice(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdDevice(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -36304,6 +38366,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDeviceFamilyLimitations")
         {
@@ -36314,6 +38378,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ConcurrentLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDeviceFamilyLimitations")
         {
@@ -36324,8 +38390,10 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaHouseholdDeviceFamilyLimitations(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdDeviceFamilyLimitations(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -36385,8 +38453,10 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaHouseholdDeviceFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdDeviceFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -36413,7 +38483,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdDeviceListResponse
     {
-        public KalturaHouseholdDeviceListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdDeviceListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -36433,7 +38503,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdFilter
     {
-        public KalturaHouseholdFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -36455,6 +38525,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ConcurrentLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
@@ -36465,6 +38537,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
@@ -36475,6 +38549,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceFrequencySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
@@ -36485,6 +38561,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceFrequencyDescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
@@ -36495,6 +38573,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UserFrequencySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
@@ -36505,6 +38585,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UserFrequencyDescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
@@ -36515,6 +38597,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NpvrQuotaInSecondsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
@@ -36525,6 +38609,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UsersLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
@@ -36535,6 +38621,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DeviceFamiliesLimitationsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
@@ -36545,6 +38633,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute DescriptionSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
@@ -36555,6 +38645,8 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute AssociatedDeviceFamiliesIdsInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdLimitations")
         {
@@ -36565,8 +38657,10 @@ namespace WebAPI.Models.Domains
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaHouseholdLimitations(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdLimitations(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -36779,7 +38873,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdLimitationsListResponse
     {
-        public KalturaHouseholdLimitationsListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdLimitationsListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -36799,7 +38893,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdListResponse
     {
-        public KalturaHouseholdListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -36814,6 +38908,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute UserIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdUser")
         {
@@ -36824,6 +38920,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute HouseholdMasterUsernameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdUser")
         {
@@ -36834,6 +38932,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute StatusSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdUser")
         {
@@ -36844,6 +38944,8 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdUser")
         {
@@ -36854,8 +38956,10 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaHouseholdUser(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdUser(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -36929,8 +39033,10 @@ namespace WebAPI.Models.Domains
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaHouseholdUserFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdUserFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -36949,7 +39055,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdUserListResponse
     {
-        public KalturaHouseholdUserListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdUserListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -36969,7 +39075,7 @@ namespace WebAPI.Models.Domains
     }
     public partial class KalturaHouseholdWithHolder
     {
-        public KalturaHouseholdWithHolder(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdWithHolder(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -36996,7 +39102,7 @@ namespace WebAPI.Models.CanaryDeployment.Elasticsearch
 {
     public partial class KalturaElasticsearchCanaryDeploymentConfiguration
     {
-        public KalturaElasticsearchCanaryDeploymentConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaElasticsearchCanaryDeploymentConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37027,13 +39133,13 @@ namespace WebAPI.Controllers
 {
     public partial class KalturaEpg
     {
-        public KalturaEpg(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEpg(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
     public partial class KalturaEpgFilter
     {
-        public KalturaEpgFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEpgFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37050,7 +39156,7 @@ namespace WebAPI.Controllers
     }
     public partial class KalturaEpgListResponse
     {
-        public KalturaEpgListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEpgListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37083,6 +39189,8 @@ namespace WebAPI.Models
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FirstSlotOffsetSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaEpgServicePartnerConfiguration")
         {
@@ -37093,8 +39201,10 @@ namespace WebAPI.Models
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaEpgServicePartnerConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaEpgServicePartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37121,6 +39231,661 @@ namespace WebAPI.Models
     }
 }
 
+namespace WebAPI.Models.Users.UserSessionProfile
+{
+    public partial class KalturaExpressionAnd
+    {
+        private static RuntimeSchemePropertyAttribute ExpressionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExpressionAnd")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = 1,
+            MaxItems = -1,
+        };
+        public KalturaExpressionAnd(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("expressions") && parameters["expressions"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ExpressionsSchemaProperty.Validate("expressions", parameters["expressions"]);
+                    }
+                    if (parameters["expressions"] is JArray)
+                    {
+                        Expressions = buildList<KalturaUserSessionProfileExpression>(typeof(KalturaUserSessionProfileExpression), (JArray) parameters["expressions"]);
+                    }
+                    else if (parameters["expressions"] is IList)
+                    {
+                        Expressions = buildList(typeof(KalturaUserSessionProfileExpression), parameters["expressions"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaExpressionNot
+    {
+        public KalturaExpressionNot(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("expression") && parameters["expression"] != null)
+                {
+                    if (parameters["expression"] is JObject)
+                    {
+                        Expression = (KalturaUserSessionProfileExpression) Deserializer.deserialize(typeof(KalturaUserSessionProfileExpression), ((JObject) parameters["expression"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["expression"] is IDictionary)
+                    {
+                        Expression = (KalturaUserSessionProfileExpression) Deserializer.deserialize(typeof(KalturaUserSessionProfileExpression), (Dictionary<string, object>) parameters["expression"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaExpressionOr
+    {
+        private static RuntimeSchemePropertyAttribute ExpressionsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaExpressionOr")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = 2,
+            MaxItems = -1,
+        };
+        public KalturaExpressionOr(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("expressions") && parameters["expressions"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ExpressionsSchemaProperty.Validate("expressions", parameters["expressions"]);
+                    }
+                    if (parameters["expressions"] is JArray)
+                    {
+                        Expressions = buildList<KalturaUserSessionProfileExpression>(typeof(KalturaUserSessionProfileExpression), (JArray) parameters["expressions"]);
+                    }
+                    else if (parameters["expressions"] is IList)
+                    {
+                        Expressions = buildList(typeof(KalturaUserSessionProfileExpression), parameters["expressions"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaUserSessionCondition
+    {
+        public KalturaUserSessionCondition(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("condition") && parameters["condition"] != null)
+                {
+                    if (parameters["condition"] is JObject)
+                    {
+                        Condition = (KalturaCondition) Deserializer.deserialize(typeof(KalturaCondition), ((JObject) parameters["condition"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["condition"] is IDictionary)
+                    {
+                        Condition = (KalturaCondition) Deserializer.deserialize(typeof(KalturaCondition), (Dictionary<string, object>) parameters["condition"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaUserSessionProfile
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSessionProfile")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSessionProfile")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            Pattern = @"[\x00-\x7F]",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaUserSessionProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("name") && parameters["name"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        NameSchemaProperty.Validate("name", parameters["name"]);
+                    }
+                    Name = (String) Convert.ChangeType(parameters["name"], typeof(String));
+                }
+                if (parameters.ContainsKey("expression") && parameters["expression"] != null)
+                {
+                    if (parameters["expression"] is JObject)
+                    {
+                        Expression = (KalturaUserSessionProfileExpression) Deserializer.deserialize(typeof(KalturaUserSessionProfileExpression), ((JObject) parameters["expression"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["expression"] is IDictionary)
+                    {
+                        Expression = (KalturaUserSessionProfileExpression) Deserializer.deserialize(typeof(KalturaUserSessionProfileExpression), (Dictionary<string, object>) parameters["expression"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaUserSessionProfileExpression
+    {
+        public KalturaUserSessionProfileExpression(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaUserSessionProfileFilter
+    {
+        private static RuntimeSchemePropertyAttribute IdEqualSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaUserSessionProfileFilter")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinLong = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaUserSessionProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdEqualSchemaProperty.Validate("idEqual", parameters["idEqual"]);
+                    }
+                    IdEqual = (Int64) Convert.ChangeType(parameters["idEqual"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaUserSessionProfileListResponse
+    {
+        public KalturaUserSessionProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaUserSessionProfile>(typeof(KalturaUserSessionProfile), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaUserSessionProfile), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+}
+
+namespace WebAPI.Models.ConditionalAccess.FilterActions
+{
+    public partial class KalturaFilterAction
+    {
+        public KalturaFilterAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+}
+
+namespace WebAPI.Models.ConditionalAccess.FilterActions.Assets
+{
+    public partial class KalturaFilterAssetByKsqlAction
+    {
+        private static RuntimeSchemePropertyAttribute KsqlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFilterAssetByKsqlAction")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 1,
+            Pattern = @"^((?!entitled_assets).)*$",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaFilterAssetByKsqlAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
+               if (!parameters.ContainsKey("ksql") || parameters["ksql"] == null)
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("ksql") && parameters["ksql"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        KsqlSchemaProperty.Validate("ksql", parameters["ksql"]);
+                    }
+                    Ksql = (String) Convert.ChangeType(parameters["ksql"], typeof(String));
+                }
+            }
+        }
+    }
+}
+
+namespace WebAPI.Models.ConditionalAccess.FilterActions.Files
+{
+    public partial class KalturaFilterFileByAudioCodecAction
+    {
+        private static RuntimeSchemePropertyAttribute AudioCodecInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFilterFileByAudioCodecAction")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 1,
+            Pattern = @"^(?!\s*$).+",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaFilterFileByAudioCodecAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "audioCodecIn");
+               if (!parameters.ContainsKey("audioCodecIn") || parameters["audioCodecIn"] == null)
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "audioCodecIn");
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("audioCodecIn") && parameters["audioCodecIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AudioCodecInSchemaProperty.Validate("audioCodecIn", parameters["audioCodecIn"]);
+                    }
+                    AudioCodecIn = (String) Convert.ChangeType(parameters["audioCodecIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaFilterFileByAudioCodecInDiscoveryAction
+    {
+        public KalturaFilterFileByAudioCodecInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByAudioCodecInPlaybackAction
+    {
+        public KalturaFilterFileByAudioCodecInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByFileTypeIdAction
+    {
+        private static RuntimeSchemePropertyAttribute FileTypeIdInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFilterFileByFileTypeIdAction")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 1,
+            Pattern = @"^(?!\s*$).+",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaFilterFileByFileTypeIdAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "fileTypeIdIn");
+               if (!parameters.ContainsKey("fileTypeIdIn") || parameters["fileTypeIdIn"] == null)
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "fileTypeIdIn");
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("fileTypeIdIn") && parameters["fileTypeIdIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        FileTypeIdInSchemaProperty.Validate("fileTypeIdIn", parameters["fileTypeIdIn"]);
+                    }
+                    FileTypeIdIn = (String) Convert.ChangeType(parameters["fileTypeIdIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaFilterFileByFileTypeIdForAssetTypeAction
+    {
+        private static RuntimeSchemePropertyAttribute AssetTypeInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFilterFileByFileTypeIdForAssetTypeAction")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            DynamicType = typeof(KalturaAssetType),
+            MaxLength = -1,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaFilterFileByFileTypeIdForAssetTypeAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetTypeIn");
+               if (!parameters.ContainsKey("assetTypeIn") || parameters["assetTypeIn"] == null)
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "assetTypeIn");
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("assetTypeIn") && parameters["assetTypeIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AssetTypeInSchemaProperty.Validate("assetTypeIn", parameters["assetTypeIn"]);
+                    }
+                    AssetTypeIn = (String) Convert.ChangeType(parameters["assetTypeIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaFilterFileByFileTypeIdForAssetTypeInDiscoveryAction
+    {
+        public KalturaFilterFileByFileTypeIdForAssetTypeInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByFileTypeIdForAssetTypeInPlaybackAction
+    {
+        public KalturaFilterFileByFileTypeIdForAssetTypeInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByFileTypeIdInDiscoveryAction
+    {
+        public KalturaFilterFileByFileTypeIdInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByFileTypeIdInPlaybackAction
+    {
+        public KalturaFilterFileByFileTypeIdInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByLabelAction
+    {
+        private static RuntimeSchemePropertyAttribute LabelInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFilterFileByLabelAction")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 1,
+            Pattern = @"^(?!\s*$).+",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaFilterFileByLabelAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "labelIn");
+               if (!parameters.ContainsKey("labelIn") || parameters["labelIn"] == null)
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "labelIn");
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("labelIn") && parameters["labelIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        LabelInSchemaProperty.Validate("labelIn", parameters["labelIn"]);
+                    }
+                    LabelIn = (String) Convert.ChangeType(parameters["labelIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaFilterFileByLabelInDiscoveryAction
+    {
+        public KalturaFilterFileByLabelInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByLabelInPlaybackAction
+    {
+        public KalturaFilterFileByLabelInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByQualityAction
+    {
+        private static RuntimeSchemePropertyAttribute QualityInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFilterFileByQualityAction")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            DynamicType = typeof(KalturaMediaFileTypeQuality),
+            MaxLength = -1,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaFilterFileByQualityAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "qualityIn");
+               if (!parameters.ContainsKey("qualityIn") || parameters["qualityIn"] == null)
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "qualityIn");
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("qualityIn") && parameters["qualityIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        QualityInSchemaProperty.Validate("qualityIn", parameters["qualityIn"]);
+                    }
+                    QualityIn = (String) Convert.ChangeType(parameters["qualityIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaFilterFileByQualityInDiscoveryAction
+    {
+        public KalturaFilterFileByQualityInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByQualityInPlaybackAction
+    {
+        public KalturaFilterFileByQualityInPlaybackAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByStreamerTypeAction
+    {
+        private static RuntimeSchemePropertyAttribute StreamerTypeInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFilterFileByStreamerTypeAction")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            DynamicType = typeof(KalturaMediaFileStreamerType),
+            MaxLength = -1,
+            MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaFilterFileByStreamerTypeAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "streamerTypeIn");
+               if (!parameters.ContainsKey("streamerTypeIn") || parameters["streamerTypeIn"] == null)
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "streamerTypeIn");
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("streamerTypeIn") && parameters["streamerTypeIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        StreamerTypeInSchemaProperty.Validate("streamerTypeIn", parameters["streamerTypeIn"]);
+                    }
+                    StreamerTypeIn = (String) Convert.ChangeType(parameters["streamerTypeIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaFilterFileByStreamerTypeInDiscovery
+    {
+        public KalturaFilterFileByStreamerTypeInDiscovery(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByStreamerTypeInPlayback
+    {
+        public KalturaFilterFileByStreamerTypeInPlayback(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByVideoCodecAction
+    {
+        private static RuntimeSchemePropertyAttribute VideoCodecInSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaFilterFileByVideoCodecAction")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = 1,
+            Pattern = @"^(?!\s*$).+",
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaFilterFileByVideoCodecAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (fromRequest)
+            {
+                if (parameters == null)
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "videoCodecIn");
+               if (!parameters.ContainsKey("videoCodecIn") || parameters["videoCodecIn"] == null)
+                   throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "videoCodecIn");
+            }
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("videoCodecIn") && parameters["videoCodecIn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        VideoCodecInSchemaProperty.Validate("videoCodecIn", parameters["videoCodecIn"]);
+                    }
+                    VideoCodecIn = (String) Convert.ChangeType(parameters["videoCodecIn"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaFilterFileByVideoCodecInDiscoveryAction
+    {
+        public KalturaFilterFileByVideoCodecInDiscoveryAction(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaFilterFileByVideoCodecInPlayback
+    {
+        public KalturaFilterFileByVideoCodecInPlayback(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+}
+
 namespace WebAPI.Models.Billing
 {
     public partial class KalturaHouseholdPaymentGateway
@@ -37134,6 +39899,8 @@ namespace WebAPI.Models.Billing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SuspendSettingsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdPaymentGateway")
         {
@@ -37144,8 +39911,10 @@ namespace WebAPI.Models.Billing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaHouseholdPaymentGateway(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdPaymentGateway(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37201,7 +39970,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaHouseholdPaymentGatewayListResponse
     {
-        public KalturaHouseholdPaymentGatewayListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdPaymentGatewayListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37230,6 +39999,8 @@ namespace WebAPI.Models.Billing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute ExternalIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdPaymentMethod")
         {
@@ -37240,6 +40011,8 @@ namespace WebAPI.Models.Billing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdPaymentMethod")
         {
@@ -37250,8 +40023,10 @@ namespace WebAPI.Models.Billing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaHouseholdPaymentMethod(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdPaymentMethod(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37310,7 +40085,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaHouseholdPaymentMethodListResponse
     {
-        public KalturaHouseholdPaymentMethodListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHouseholdPaymentMethodListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37330,7 +40105,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaPaymentGateway
     {
-        public KalturaPaymentGateway(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPaymentGateway(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37373,6 +40148,8 @@ namespace WebAPI.Models.Billing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute IsDefaultSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaymentGatewayBaseProfile")
         {
@@ -37383,6 +40160,8 @@ namespace WebAPI.Models.Billing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute selectedBySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaymentGatewayBaseProfile")
         {
@@ -37393,8 +40172,10 @@ namespace WebAPI.Models.Billing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPaymentGatewayBaseProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPaymentGatewayBaseProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37491,7 +40272,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaPaymentGatewayConfiguration
     {
-        public KalturaPaymentGatewayConfiguration(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPaymentGatewayConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37533,6 +40314,8 @@ namespace WebAPI.Models.Billing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute SettingsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaymentGatewayProfile")
         {
@@ -37543,6 +40326,8 @@ namespace WebAPI.Models.Billing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PendingIntervalSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaymentGatewayProfile")
         {
@@ -37553,6 +40338,8 @@ namespace WebAPI.Models.Billing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute PendingRetriesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaymentGatewayProfile")
         {
@@ -37563,6 +40350,8 @@ namespace WebAPI.Models.Billing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RenewIntervalMinutesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaymentGatewayProfile")
         {
@@ -37573,6 +40362,8 @@ namespace WebAPI.Models.Billing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute RenewStartMinutesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPaymentGatewayProfile")
         {
@@ -37583,8 +40374,10 @@ namespace WebAPI.Models.Billing
             IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPaymentGatewayProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPaymentGatewayProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37753,7 +40546,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaPaymentGatewayProfileListResponse
     {
-        public KalturaPaymentGatewayProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPaymentGatewayProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37773,7 +40566,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaPaymentMethod
     {
-        public KalturaPaymentMethod(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPaymentMethod(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37831,8 +40624,10 @@ namespace WebAPI.Models.Billing
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPaymentMethodProfile(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPaymentMethodProfile(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37867,7 +40662,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaPaymentMethodProfileFilter
     {
-        public KalturaPaymentMethodProfileFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPaymentMethodProfileFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37880,7 +40675,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaPaymentMethodProfileListResponse
     {
-        public KalturaPaymentMethodProfileListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPaymentMethodProfileListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37900,7 +40695,7 @@ namespace WebAPI.Models.Billing
     }
     public partial class KalturaSuspendSettings
     {
-        public KalturaSuspendSettings(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaSuspendSettings(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -37921,7 +40716,7 @@ namespace WebAPI.EventNotifications
 {
     public partial class KalturaHttpNotification
     {
-        public KalturaHttpNotification(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaHttpNotification(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -37940,6 +40735,8 @@ namespace WebAPI.Models.Api
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute NameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
         {
@@ -37950,6 +40747,8 @@ namespace WebAPI.Models.Api
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute CreateDateSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
         {
@@ -37960,6 +40759,8 @@ namespace WebAPI.Models.Api
             IsNullable = false,
             MaxLength = -1,
             MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute KsqlSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPersonalList")
         {
@@ -37970,8 +40771,10 @@ namespace WebAPI.Models.Api
             IsNullable = false,
             MaxLength = -1,
             MinLength = 1,
+            MinItems = -1,
+            MaxItems = -1,
         };
-        public KalturaPersonalList(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalList(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -38018,7 +40821,7 @@ namespace WebAPI.Models.Api
     }
     public partial class KalturaPersonalListFilter
     {
-        public KalturaPersonalListFilter(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalListFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {
@@ -38031,7 +40834,7 @@ namespace WebAPI.Models.Api
     }
     public partial class KalturaPersonalListListResponse
     {
-        public KalturaPersonalListListResponse(Dictionary<string, object> parameters = null) : base(parameters)
+        public KalturaPersonalListListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
             {

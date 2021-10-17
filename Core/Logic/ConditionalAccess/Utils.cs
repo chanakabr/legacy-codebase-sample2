@@ -43,6 +43,7 @@ using System.Xml;
 using TVinciShared;
 using Tvinic.GoogleAPI;
 using ApiLogic;
+using ApiLogic.ConditionalAccess;
 
 namespace Core.ConditionalAccess
 {
@@ -1825,7 +1826,7 @@ namespace Core.ConditionalAccess
                 List<long> segmentIds = GetDomainSegments(groupId, domainId, allUserIdsInDomain);
 
                 // calc lowest price
-                ConditionScope filter = new ConditionScope()
+                var filter = new BusinessModuleRuleConditionScope()
                 {
                     BusinessModuleId = businessModuleId,
                     BusinessModuleType = transactionType,
@@ -1942,7 +1943,7 @@ namespace Core.ConditionalAccess
 
             if (campaigns.HasObjects())
             {
-                ConditionScope filter = new ConditionScope()
+                var filter = new BusinessModuleRuleConditionScope()
                 {
                     BusinessModuleId = businessModuleId,
                     BusinessModuleType = transactionType,
@@ -1965,10 +1966,8 @@ namespace Core.ConditionalAccess
                     var userCampaigns = NotificationDal.GetCampaignInboxMessageMapCB(contextData.GroupId, userId);
                     var segmentids = GetDomainSegments(contextData.GroupId, contextData.DomainId.Value, allUserIdsInDomain);
 
-                    var scope = new ConditionScope()
+                    var scope = new BatchCampaignConditionScope()
                     {
-                        GroupId = contextData.GroupId,
-                        UserId = userId.ToString(),
                         FilterBySegments = true,
                         SegmentIds = segmentids
                     };
@@ -2008,8 +2007,7 @@ namespace Core.ConditionalAccess
                             }
                         }
 
-                        if (contains || 
-                            (promotedCampaign.CampaignType == eCampaignType.Batch && promotedCampaign.EvaluateConditions(scope)))
+                        if (contains || (promotedCampaign.CampaignType == eCampaignType.Batch && promotedCampaign.EvaluateConditions(scope)))
                         {
                             var discountModule = Pricing.Module.GetDiscountCodeDataByCountryAndCurrency(groupId, (int)(promotedCampaign.Promotion.DiscountModuleId), countryCode, currencyCode);
                             if (discountModule != null)
@@ -9747,7 +9745,7 @@ namespace Core.ConditionalAccess
             List<long> assetMediaRuleIds = new List<long>();
 
             GenericListResponse<AssetRule> assetRulesMediaResponse =
-                AssetRuleManager.GetAssetRules(RuleConditionType.Concurrency, groupId, new SlimAsset(mediaId, eAssetTypes.MEDIA));
+                AssetRuleManager.Instance.GetAssetRules(RuleConditionType.Concurrency, groupId, new SlimAsset(mediaId, eAssetTypes.MEDIA));
 
             if (assetRulesMediaResponse != null && assetRulesMediaResponse.HasObjects())
             {
@@ -9769,7 +9767,7 @@ namespace Core.ConditionalAccess
             if (programId > 0)
             {
                 GenericListResponse<AssetRule> assetRulesEpgResponse =
-                    AssetRuleManager.GetAssetRules(RuleConditionType.Concurrency, groupId, new SlimAsset(programId, eAssetTypes.EPG));
+                    AssetRuleManager.Instance.GetAssetRules(RuleConditionType.Concurrency, groupId, new SlimAsset(programId, eAssetTypes.EPG));
                 if (assetRulesEpgResponse != null && assetRulesEpgResponse.HasObjects())
                 {
                     assetEpgRuleIds.AddRange(assetRulesEpgResponse.Objects.Select(x => x.Id));

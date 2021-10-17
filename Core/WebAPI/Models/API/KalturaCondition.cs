@@ -5,10 +5,10 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
+using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.ConditionalAccess;
-using WebAPI.Models.Domains;
 using WebAPI.Models.General;
 
 namespace WebAPI.Models.API
@@ -31,7 +31,10 @@ namespace WebAPI.Models.API
         DEVICE_FAMILY,
         DEVICE_MANUFACTURER,
         DEVICE_MODEL,
-        DEVICE_UDID_DYNAMIC_LIST
+        DEVICE_UDID_DYNAMIC_LIST,
+        DYNAMIC_KEYS,
+        USER_SESSION_PROFILE,
+        DEVICE_DYNAMIC_DATA,
     }
 
     /// <summary>
@@ -57,7 +60,9 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "description")]
         public string Description { get; set; }
 
-        internal abstract void Validate(HashSet<KalturaRuleConditionType> types = null);
+        public abstract void Validate(HashSet<KalturaRuleConditionType> types = null);
+
+        public virtual int ConditionsCount() { return 1; }
     }
 
     /// <summary>
@@ -79,6 +84,7 @@ namespace WebAPI.Models.API
         private bool not;
     }
 
+    [SchemeClass(Required = new string[] { "conditions" })]
     public partial class KalturaOrCondition : KalturaNotCondition
     {
         /// <summary>
@@ -87,6 +93,7 @@ namespace WebAPI.Models.API
         [DataMember(Name = "conditions")]
         [JsonProperty("conditions")]
         [XmlElement(ElementName = "conditions")]
+        [SchemeProperty(MinItems = 1)]
         public List<KalturaCondition> Conditions { get; set; }
 
         protected override void Init()
@@ -95,22 +102,22 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.OR;
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
-            if (this.Conditions == null || this.Conditions.Count == 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "condition.conditions");
-            }
-
             foreach (var condition in this.Conditions)
             {
                 if (types != null && !types.Contains(condition.Type))
                 {
-                    throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "conditions", condition.objectType);
+                    throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "KalturaOrCondition.conditions", condition.objectType);
                 }
 
-                condition.Validate(types);
+                condition.Validate();
             }
+        }
+ 
+        public override int ConditionsCount()
+        {
+            return this.Conditions.Sum(_ => _.ConditionsCount());
         }
     }
 
@@ -139,7 +146,7 @@ namespace WebAPI.Models.API
             return this.GetItemsIn<List<int>, int>(Countries, "KalturaCountryCondition.countries");
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(Countries))
             {
@@ -168,7 +175,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.ASSET;
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(Ksql) || string.IsNullOrWhiteSpace(Ksql))
             {
@@ -205,7 +212,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.CONCURRENCY;
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             base.Validate();
 
@@ -250,7 +257,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.IP_RANGE;
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             string ipRegex = @"^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$";
 
@@ -305,7 +312,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.BUSINESS_MODULE;
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if ((!this.BusinessModuleId.HasValue || this.BusinessModuleId == 0) && !this.BusinessModuleType.HasValue)
             {
@@ -328,7 +335,6 @@ namespace WebAPI.Models.API
         [SchemeProperty(DynamicMinInt = 0)]
         public string SegmentsIds { get; set; }
 
-
         protected override void Init()
         {
             base.Init();
@@ -337,26 +343,10 @@ namespace WebAPI.Models.API
 
         public List<int> getSegmentsIds()
         {
-            List<int> segments = new List<int>();
-
-            if (!string.IsNullOrEmpty(SegmentsIds))
-            {
-                string[] splitted = SegmentsIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                int segmentId = 0;
-
-                foreach (var segment in splitted)
-                {
-                    if (int.TryParse(segment, out segmentId) && segmentId > 0)
-                    {
-                        segments.Add(segmentId);
-                    }
-                }
-            }
-
-            return segments;
+            return this.GetItemsIn<List<int>, int>(SegmentsIds, "segmentsIds", true);
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.SegmentsIds))
             {
@@ -392,7 +382,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.DATE;
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (this.StartDate == 0 && this.EndDate == 0)
             {
@@ -428,7 +418,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.HEADER;
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(Key))
             {
@@ -453,7 +443,7 @@ namespace WebAPI.Models.API
         [SchemeProperty(DynamicMinInt = 0)]
         public string IdIn { get; set; }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.IdIn))
             {
@@ -506,7 +496,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.USER_ROLE;
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.IdIn))
             {
@@ -532,7 +522,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.DEVICE_BRAND;
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.IdIn))
             {
@@ -542,8 +532,14 @@ namespace WebAPI.Models.API
             var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
             if (items.Count > 10)
             {
-                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaDeviceBrandCondition.idIn", 10);
+                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "KalturaDeviceBrandCondition.idIn", 10);
             }
+        }
+
+        internal List<int>  GetDeviceBrandIds()
+        {
+            return !string.IsNullOrEmpty(this.IdIn)
+                ? this.GetItemsIn<List<int>, int>(this.IdIn, "KalturaDeviceBrandCondition.IdIn", true) : null;
         }
     }
 
@@ -564,7 +560,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.DEVICE_FAMILY;
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.IdIn))
             {
@@ -574,8 +570,14 @@ namespace WebAPI.Models.API
             var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
             if (items.Count > 10)
             {
-                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaDeviceFamilyCondition.idIn", 10);
+                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "KalturaDeviceFamilyCondition.idIn", 10);
             }
+        }
+
+        internal List<int> GetDeviceFamilyIds()
+        {
+            return !string.IsNullOrEmpty(this.IdIn)
+                ? this.GetItemsIn<List<int>, int>(this.IdIn, "KalturaDeviceFamilyCondition.IdIn", true) : null;
         }
     }
 
@@ -596,7 +598,7 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.DEVICE_MANUFACTURER;
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.IdIn))
             {
@@ -606,8 +608,14 @@ namespace WebAPI.Models.API
             var items = GetItemsIn<List<long>, long>(this.IdIn, "idIn", true);
             if (items.Count > 10)
             {
-                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "KalturaDeviceManufacturerCondition.idIn", 10);
+                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "KalturaDeviceManufacturerCondition.idIn", 10);
             }
+        }
+
+        internal List<int> GetDeviceManufacturerIds()
+        {
+            return !string.IsNullOrEmpty(this.IdIn)
+                ? this.GetItemsIn<List<int>, int>(this.IdIn, "KalturaDeviceManufacturerCondition.IdIn", true) : null;
         }
     }
 
@@ -627,11 +635,16 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.DEVICE_MODEL;
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (string.IsNullOrEmpty(this.RegexEqual))
             {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceModelCondition.idIn");
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaDeviceModelCondition.regexEqual");
+            }
+
+            if (!StringUtils.IsValidRegex(this.RegexEqual))
+            {
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "KalturaDeviceModelCondition.regexEqual");
             }
         }
     }
@@ -653,12 +666,140 @@ namespace WebAPI.Models.API
             this.Type = KalturaRuleConditionType.DEVICE_UDID_DYNAMIC_LIST;
         }
 
-        internal override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
         {
             if (Id < 1)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "KalturaUdidDynamicListCondition.id");
             }
+        }
+    }
+
+    public partial class KalturaDynamicKeysCondition : KalturaCondition
+    {
+        private const int VALUES_ARRAY_LIMIT = 16;
+
+        /// <summary>
+        /// key
+        /// </summary>
+        [DataMember(Name = "key")]
+        [JsonProperty("key")]
+        [XmlElement(ElementName = "key")]
+        [SchemeProperty(MinLength = 1, Pattern = SchemeInputAttribute.ASCII_ONLY_PATTERN)]
+        public string Key { get; set; }
+
+        /// <summary>
+        /// comma-separated values
+        /// </summary>
+        [DataMember(Name = "values")]
+        [JsonProperty("values")]
+        [XmlElement(ElementName = "values")]
+        [SchemeProperty(MinLength = 1)]
+        public string Values { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            Type = KalturaRuleConditionType.DYNAMIC_KEYS;
+        }
+
+        internal List<string> GetValues()
+        {
+            return !string.IsNullOrWhiteSpace(Values)
+                ? GetItemsIn<List<string>, string>(Values, "KalturaDynamicKeysCondition.values", true)
+                : null;
+        }
+
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        {
+            if (string.IsNullOrWhiteSpace(Key))
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY,
+                    "KalturaDynamicKeysCondition.key");
+            }
+
+            var values = GetValues();
+
+            if (values == null || values.Count == 0)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY,
+                    $"KalturaDynamicKeysCondition.values");
+            }
+
+            if (values.Count > VALUES_ARRAY_LIMIT)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED,
+                    $"KalturaDynamicKeysCondition.values", VALUES_ARRAY_LIMIT);
+            }
+
+            for (int i = 0; i < values.Count; i++)
+            {
+                var value = values[i];
+                if (value == null || string.IsNullOrWhiteSpace(value))
+                {
+                    throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY,
+                        $"KalturaDynamicKeysCondition.values[{i}]");
+                }
+
+                SchemeInputAttribute.ValidatePattern(SchemeInputAttribute.ASCII_ONLY_PATTERN,
+                    $"KalturaDynamicKeysCondition.values[{i}]", value);
+            }
+        }
+    }
+    
+    public partial class KalturaDeviceDynamicDataCondition : KalturaCondition
+    {
+        /// <summary>
+        /// key
+        /// </summary>
+        [DataMember(Name = "key")]
+        [JsonProperty("key")]
+        [XmlElement(ElementName = "key")]
+        [SchemeProperty(Pattern = SchemeInputAttribute.NOT_EMPTY_PATTERN)]
+        public string Key { get; set; }
+
+        /// <summary>
+        /// value
+        /// </summary>
+        [DataMember(Name = "value")]
+        [JsonProperty("value")]
+        [XmlElement(ElementName = "value")]
+        [SchemeProperty(Pattern = SchemeInputAttribute.NOT_EMPTY_PATTERN)]
+        public string Value { get; set; }
+
+        protected override void Init()
+        {
+            base.Init();
+            Type = KalturaRuleConditionType.DEVICE_DYNAMIC_DATA;
+        }
+
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        {
+        }
+    }
+
+    /// <summary>
+    /// UserSessionProfile Condition
+    /// </summary>
+    public partial class KalturaUserSessionProfileCondition : KalturaCondition
+    {
+        /// <summary>
+        /// UserSessionProfile id
+        /// </summary>
+        [DataMember(Name = "id")]
+        [JsonProperty("id")]
+        [XmlElement(ElementName = "id")]
+        [SchemeProperty(MinLong = 1)]
+        public long Id { get; set; }
+
+        public override void Validate(HashSet<KalturaRuleConditionType> types = null)
+        {
+        }
+
+        protected override void Init()
+        {
+            base.Init();
+            this.Type = KalturaRuleConditionType.USER_SESSION_PROFILE;
         }
     }
 }

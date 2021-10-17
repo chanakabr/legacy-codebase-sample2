@@ -289,9 +289,8 @@ namespace Core.Users
                 ManufacturerId = ODBCWrapper.Utils.GetIntSafeVal(dr["manufacturer_id"]);
                 if (this.ManufacturerId.HasValue && this.ManufacturerId.Value > 0)
                 {
-                    var _filter = new DeviceManufacturersReferenceDataFilter() { IdsIn = new List<int>() { (int)ManufacturerId.Value } };
-                    var cd = new ApiObjects.Base.ContextData(m_groupID);
-                    Manufacturer = ApiLogic.Users.Managers.DeviceReferenceDataManager.Instance.List(cd, _filter, null)?.Objects?.FirstOrDefault()?.Name;
+                    var deviceReferenceData = ApiLogic.Users.Managers.DeviceReferenceDataManager.Instance.GetByManufacturerId(m_groupID, ManufacturerId.Value);
+                    Manufacturer = deviceReferenceData?.Name;
                 }
 
                 PopulateDeviceStreamTypeAndProfile();
@@ -429,6 +428,7 @@ namespace Core.Users
                 { "UnActivated", DeviceState.UnActivated }
             };
 
+        // method doesn't fill all fields(externalId, dynamicData), TryGet is better, but not tested
         public static Device Get(string udid, int domainId, int groupId)
         {
             var device = new Device(groupId);
@@ -473,9 +473,9 @@ namespace Core.Users
 
         private static bool TryGet(string sID, bool isUDID, int m_groupID, out Device device)
         {
+            device = null;
             if (string.IsNullOrEmpty(sID))
             {
-                device = null;
                 return false;
             }
 
@@ -511,6 +511,8 @@ namespace Core.Users
                 ref m_domainID,
                 ref m_activationDate);
 
+            if (!success) return false;
+
             var m_state = stateDict[dbState];
 
             if (success && m_deviceBrandID > 0)
@@ -522,10 +524,8 @@ namespace Core.Users
             string manufacturer = null;
             if (manufacturerId.HasValue && manufacturerId.Value > 0)
             {
-                var filter = new DeviceManufacturersReferenceDataFilter { IdsIn = new List<int> { (int)manufacturerId.Value } };
-                var cd = new ApiObjects.Base.ContextData(m_groupID);
-                
-                manufacturer = ApiLogic.Users.Managers.DeviceReferenceDataManager.Instance.List(cd, filter, null)?.Objects?.FirstOrDefault()?.Name;
+                var deviceReferenceData = ApiLogic.Users.Managers.DeviceReferenceDataManager.Instance.GetByManufacturerId(m_groupID, manufacturerId.Value);
+                manufacturer = deviceReferenceData?.Name;
             }
 
             device = new Device(m_deviceUDID, m_deviceBrandID, m_groupID, m_deviceName, m_domainID, m_id,

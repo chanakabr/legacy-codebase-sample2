@@ -19,7 +19,22 @@ namespace WebAPI.Models.ConditionalAccess
         APPLY_PLAYBACK_ADAPTER,
         FILTER,
         ASSET_LIFE_CYCLE_TRANSITION,
-        APPLY_FREE_PLAYBACK
+        APPLY_FREE_PLAYBACK,
+        FilterAssetByKsql,
+        FilterFileByQualityInDiscovery,
+        FilterFileByQualityInPlayback,
+        FilterFileByFileTypeIdForAssetTypeInDiscovery,
+        FilterFileByFileTypeIdForAssetTypeInPlayback,
+        FilterFileByFileTypeIdInDiscovery,
+        FilterFileByFileTypeIdInPlayback,
+        FilterFileByAudioCodecInDiscovery,
+        FilterFileByAudioCodecInPlayback,
+        FilterFileByVideoCodecInDiscovery,
+        FilterFileByVideoCodecInPlayback,
+        FilterFileByStreamerTypeInDiscovery,
+        FilterFileByStreamerTypeInPlayback,
+        FilterFileByLabelInDiscovery,
+        FilterFileByLabelInPlayback
     }
     
     [Serializable]
@@ -41,6 +56,8 @@ namespace WebAPI.Models.ConditionalAccess
         [JsonProperty("description")]
         [XmlElement(ElementName = "description")]
         public string Description { get; set; }
+
+        public virtual void Validate() { }
     }
 
     [Serializable]

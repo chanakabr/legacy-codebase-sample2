@@ -1,11 +1,15 @@
 ﻿using ApiObjects;
 using ApiObjects.Base;
-using ApiObjects.CanaryDeployment;
+using ApiObjects.CanaryDeployment.Microservices;
 using ApiObjects.SSOAdapter;
+using ApiObjects.User;
+using ApiObjects.User.SessionProfile;
 using AuthenticationGrpcClientWrapper;
+using CanaryDeploymentManager;
 using ConfigurationManager;
 using CouchbaseManager;
 using KLogMonitor;
+using Newtonsoft.Json;
 using ODBCWrapper;
 using System;
 using System.Collections.Generic;
@@ -13,10 +17,6 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using ApiObjects.CanaryDeployment;
-using ApiObjects.CanaryDeployment.Microservices;
-using ApiObjects.User;
-using CanaryDeploymentManager;
 using Tvinci.Core.DAL;
 
 namespace DAL
@@ -25,7 +25,6 @@ namespace DAL
     {
         bool SetupPartnerInDb(long partnerId, long updaterId);
         bool DeletePartnerDb(long partnerId, long updaterId);
-
     }
 
     public class UsersDal : BaseDal, IUserPartnerRepository
@@ -35,7 +34,6 @@ namespace DAL
 
         private UsersDal()
         {
-
         }
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());

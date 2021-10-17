@@ -30,7 +30,7 @@ namespace WebAPI.Models.Catalog
 
             if (labelValues.Length > MAX_MEDIA_FILE_LABELS_COUNT)
             {
-                throw new BadRequestException(MAX_ARGUMENTS, argumentName, MAX_MEDIA_FILE_LABELS_COUNT);
+                throw new BadRequestException(ARGUMENT_MAX_ITEMS_CROSSED, argumentName, MAX_MEDIA_FILE_LABELS_COUNT);
             }
 
             if (labelValues.Length != labelValues.Distinct().Count())

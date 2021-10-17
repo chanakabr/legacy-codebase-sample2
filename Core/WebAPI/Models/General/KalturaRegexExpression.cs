@@ -2,6 +2,7 @@
 using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
+using TVinciShared;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Scheme;
 
@@ -42,13 +43,9 @@ namespace WebAPI.Models.General
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "description");
             }
 
-            try
+            if (!StringUtils.IsValidRegex(this.Expression))
             {
-                Regex.Match("", this.Expression);
-            }
-            catch (System.ArgumentException)
-            {
-                throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "expression");
+                throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, "expression");
             }
         }
     }

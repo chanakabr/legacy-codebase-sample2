@@ -207,15 +207,15 @@ namespace ApiLogic.Api.Managers
             if (categoryManagement.DeviceFamilyToCategoryTree != null)
             {
                 // validate deviceFamilyIds
-                var deviceFamilyList = _deviceFamilyManager.GetDeviceFamilyList();
-                HashSet<int> deviceFamilies = deviceFamilyList.DeviceFamilies.Select(x => x.Id).ToHashSet();
-                if (deviceFamilyList.Status.Code != (int)eResponseStatus.OK || deviceFamilies.Count == 0)
+                var deviceFamilyList = _deviceFamilyManager.GetAllDeviceFamilyList();
+                if (deviceFamilyList == null || deviceFamilyList.Count == 0)
                 {
                     validateStatus.Set(eResponseStatus.NonExistingDeviceFamilyIds, 
                                        $"DeviceFamilyIds {string.Join(", ", categoryManagement.DeviceFamilyToCategoryTree.Keys)} do not exist");
                     return validateStatus;
                 }
 
+                HashSet<int> deviceFamilies = deviceFamilyList.Select(x => x.Id).ToHashSet();
                 var notExistDeviceFamilies = categoryManagement.DeviceFamilyToCategoryTree.Keys.Where(x => !deviceFamilies.Contains(x)).ToList();
                 if (notExistDeviceFamilies.Count > 0)
                 {

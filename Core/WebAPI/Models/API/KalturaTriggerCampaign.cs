@@ -88,7 +88,7 @@ namespace WebAPI.Models.API
         {
             if (TriggerConditions.Count > 50)
             {
-                throw new BadRequestException(BadRequestException.MAX_ARGUMENTS, "triggerConditions", 50);
+                throw new BadRequestException(BadRequestException.ARGUMENT_MAX_ITEMS_CROSSED, "triggerConditions", 50);
             }
 
             foreach (var condition in this.TriggerConditions)

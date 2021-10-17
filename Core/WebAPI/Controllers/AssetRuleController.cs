@@ -70,6 +70,9 @@ namespace WebAPI.Controllers
         /// <param name="assetRule">Asset rule</param>              
         [Action("add")]
         [ApiAuthorize]
+        [Throws(eResponseStatus.VideoCodecsDoesNotExist)]
+        [Throws(eResponseStatus.AudioCodecsDoesNotExist)]
+        [Throws(eResponseStatus.LabelDoesNotExist)]
         static public KalturaAssetRule Add(KalturaAssetRule assetRule)
         {
             KalturaAssetRule response = null;
@@ -103,6 +106,9 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.AssetRuleNotExists)]
         [Throws(eResponseStatus.AssetRuleStatusNotWritable)]
+        [Throws(eResponseStatus.VideoCodecsDoesNotExist)]
+        [Throws(eResponseStatus.AudioCodecsDoesNotExist)]
+        [Throws(eResponseStatus.LabelDoesNotExist)]
         static public KalturaAssetRule Update(long id, KalturaAssetRule assetRule)
         {
             KalturaAssetRule response = null;

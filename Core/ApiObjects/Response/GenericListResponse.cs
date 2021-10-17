@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace ApiObjects.Response
 {
@@ -44,6 +45,12 @@ namespace ApiObjects.Response
         public bool IsOkStatusCode()
         {
             return (Status != null && Status.IsOkStatusCode());
+        }
+
+        public List<T> GetOrThrow(Exception customException = null)
+        {
+            if (IsOkStatusCode()) return Objects;
+            throw customException ?? new KalturaException(Status.Message, Status.Code);
         }
     }
 }

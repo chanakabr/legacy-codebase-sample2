@@ -360,4 +360,19 @@ namespace WebAPI.Models.Catalog
         [XmlArrayItem("item")]
         public List<KalturaMediaFile> Files { get; set; }
     }
+
+    /// <summary>
+    /// Media file in discovery context
+    /// </summary>
+    [Serializable]
+    public partial class KalturaDiscoveryMediaFile : KalturaMediaFile
+    {
+        /// <summary>
+        /// show, if file could be played 
+        /// </summary>
+        [DataMember(Name = "isPlaybackable")]
+        [JsonProperty("isPlaybackable")]
+        [XmlArray(ElementName = "isPlaybackable")]
+        public bool IsPlaybackable { get; set; }
+    }
 }

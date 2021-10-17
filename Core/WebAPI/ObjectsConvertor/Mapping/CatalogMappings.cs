@@ -761,11 +761,42 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.IsTrailer, opt => opt.MapFrom(src => src.IsTrailer))
-                .ForMember(dest => dest.StreamerType, opt => opt.ResolveUsing(src => ConvertStreamerType(src.StreamerType)))
+                .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => src.StreamerType))
                 .ForMember(dest => dest.DrmProfileId, opt => opt.MapFrom(src => src.DrmId))
-                .ForMember(dest => dest.Quality, opt => opt.ResolveUsing(src => ConvertToKalturaAssetFileTypeQuality(src.Quality)))
+                .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => src.Quality))
                 .ForMember(dest => dest.VideoCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForKalturaMediaFileType(src.VideoCodecs)))
                 .ForMember(dest => dest.AudioCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForKalturaMediaFileType(src.AudioCodecs)));
+
+            cfg.CreateMap<MediaFileTypeQuality, KalturaMediaFileTypeQuality?>()
+                .ConvertUsing(type =>
+                {
+                    switch (type)
+                    {
+                        case MediaFileTypeQuality.None: return null;
+                        case MediaFileTypeQuality.Adaptive: return KalturaMediaFileTypeQuality.ADAPTIVE;
+                        case MediaFileTypeQuality.SD: return KalturaMediaFileTypeQuality.SD;
+                        case MediaFileTypeQuality.HD_720: return KalturaMediaFileTypeQuality.HD_720;
+                        case MediaFileTypeQuality.HD_1080: return KalturaMediaFileTypeQuality.HD_1080;
+                        case MediaFileTypeQuality.UHD_4K: return KalturaMediaFileTypeQuality.UHD_4K;
+                        default: throw new ClientException((int)StatusCode.Error, "Unknown asset file type quality");
+                    }
+                });
+
+            cfg.CreateMap<StreamerType?, KalturaMediaFileStreamerType?>()
+                .ConvertUsing(type =>
+                {
+                    if (!type.HasValue) { return null; }
+                    switch (type)
+                    {
+                        case StreamerType.none: return KalturaMediaFileStreamerType.NONE;
+                        case StreamerType.applehttp: return KalturaMediaFileStreamerType.APPLE_HTTP;
+                        case StreamerType.mpegdash: return KalturaMediaFileStreamerType.MPEG_DASH;
+                        case StreamerType.smothstreaming: return KalturaMediaFileStreamerType.SMOOTH_STREAMING;
+                        case StreamerType.url: return KalturaMediaFileStreamerType.URL;
+                        case StreamerType.multicast: return KalturaMediaFileStreamerType.MULTICAST;
+                        default: throw new ClientException((int)StatusCode.Error, "Unknown streamer type");
+                    }
+                });
 
             // KalturaMediaFileType to MediaFileType
             cfg.CreateMap<KalturaMediaFileType, MediaFileType>()
@@ -776,11 +807,35 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
                 .ForMember(dest => dest.UpdateDate, opt => opt.MapFrom(src => src.UpdateDate))
                 .ForMember(dest => dest.IsTrailer, opt => opt.MapFrom(src => src.IsTrailer))
-                .ForMember(dest => dest.StreamerType, opt => opt.ResolveUsing(src => ConvertStreamerType(src.StreamerType)))
+                .ForMember(dest => dest.StreamerType, opt => opt.MapFrom(src => src.StreamerType))
                 .ForMember(dest => dest.DrmId, opt => opt.MapFrom(src => src.DrmProfileId))
-                .ForMember(dest => dest.Quality, opt => opt.ResolveUsing(src => ConvertToAssetFileTypeQuality(src.Quality)))
+                .ForMember(dest => dest.Quality, opt => opt.MapFrom(src => src.Quality))
                 .ForMember(dest => dest.VideoCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForMediaFileType(src.VideoCodecs)))
                 .ForMember(dest => dest.AudioCodecs, opt => opt.MapFrom(src => src.CreateMappedHashSetForMediaFileType(src.AudioCodecs)));
+
+            cfg.CreateMap<KalturaMediaFileTypeQuality?, MediaFileTypeQuality>()
+                .ConvertUsing(type =>
+                {
+                    if (!type.HasValue) { return MediaFileTypeQuality.None; }
+                    return ToMediaFileTypeQuality(type.Value);
+                });
+            cfg.CreateMap<KalturaMediaFileTypeQuality, MediaFileTypeQuality>().ConvertUsing(ToMediaFileTypeQuality);
+
+            cfg.CreateMap<KalturaMediaFileStreamerType?, StreamerType?>()
+                .ConvertUsing(type =>
+                {
+                    if (!type.HasValue) { return null; }
+                    switch (type)
+                    {
+                        case KalturaMediaFileStreamerType.NONE: return StreamerType.none;
+                        case KalturaMediaFileStreamerType.APPLE_HTTP: return StreamerType.applehttp;
+                        case KalturaMediaFileStreamerType.MPEG_DASH: return StreamerType.mpegdash;
+                        case KalturaMediaFileStreamerType.SMOOTH_STREAMING: return StreamerType.smothstreaming;
+                        case KalturaMediaFileStreamerType.URL: return StreamerType.url;
+                        case KalturaMediaFileStreamerType.MULTICAST: return StreamerType.multicast;
+                        default: throw new ClientException((int)StatusCode.Error, "Unknown streamer type");
+                    }
+                });
 
             // Topic to KalturaMeta
             cfg.CreateMap<Topic, Models.API.KalturaMeta>()
@@ -992,6 +1047,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Opl, opt => opt.MapFrom(src => src.Opl))
                 .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels))
                 ;
+            cfg.CreateMap<KalturaMediaFile, KalturaDiscoveryMediaFile>();
 
             #endregion
 
@@ -1519,6 +1575,19 @@ namespace WebAPI.ObjectsConvertor.Mapping
             #endregion
         }
 
+        private static MediaFileTypeQuality ToMediaFileTypeQuality(KalturaMediaFileTypeQuality t)
+        {
+            switch (t)
+            {
+                case KalturaMediaFileTypeQuality.ADAPTIVE: return MediaFileTypeQuality.Adaptive;
+                case KalturaMediaFileTypeQuality.SD: return MediaFileTypeQuality.SD;
+                case KalturaMediaFileTypeQuality.HD_720: return MediaFileTypeQuality.HD_720;
+                case KalturaMediaFileTypeQuality.HD_1080: return MediaFileTypeQuality.HD_1080;
+                case KalturaMediaFileTypeQuality.UHD_4K: return MediaFileTypeQuality.UHD_4K;
+                default: throw new ClientException((int)StatusCode.Error, "Unknown asset file type quality");
+            }
+        }
+
         private static int? ConvertToNullableInt(bool? value)
         {
             if (!value.HasValue)
@@ -1614,135 +1683,6 @@ namespace WebAPI.ObjectsConvertor.Mapping
         }
 
         #region New Catalog Management
-
-        private static KalturaMediaFileStreamerType? ConvertStreamerType(StreamerType? type)
-        {
-            if (!type.HasValue)
-            {
-                return null;
-            }
-
-            switch (type)
-            {
-                case StreamerType.none:
-                    return KalturaMediaFileStreamerType.NONE;
-
-                case StreamerType.applehttp:
-                    return KalturaMediaFileStreamerType.APPLE_HTTP;
-
-                case StreamerType.mpegdash:
-                    return KalturaMediaFileStreamerType.MPEG_DASH;
-
-                case StreamerType.smothstreaming:
-                    return KalturaMediaFileStreamerType.SMOOTH_STREAMING;
-
-                case StreamerType.url:
-                    return KalturaMediaFileStreamerType.URL;
-
-                case StreamerType.multicast:
-                    return KalturaMediaFileStreamerType.MULTICAST;
-
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown streamer type");
-            }
-        }
-
-        private static StreamerType? ConvertStreamerType(KalturaMediaFileStreamerType? type)
-        {
-            if (!type.HasValue)
-            {
-                return null;
-            }
-
-            switch (type)
-            {
-                case KalturaMediaFileStreamerType.NONE:
-                    return StreamerType.none;
-
-                case KalturaMediaFileStreamerType.APPLE_HTTP:
-                    return StreamerType.applehttp;
-
-                case KalturaMediaFileStreamerType.MPEG_DASH:
-                    return StreamerType.mpegdash;
-
-                case KalturaMediaFileStreamerType.SMOOTH_STREAMING:
-                    return StreamerType.smothstreaming;
-
-                case KalturaMediaFileStreamerType.URL:
-                    return StreamerType.url;
-
-                case KalturaMediaFileStreamerType.MULTICAST:
-                    return StreamerType.multicast;
-
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown streamer type");
-            }
-        }
-
-        private static KalturaMediaFileTypeQuality? ConvertToKalturaAssetFileTypeQuality(MediaFileTypeQuality qualityType)
-        {
-            KalturaMediaFileTypeQuality? response = null;
-            switch (qualityType)
-            {
-                case MediaFileTypeQuality.None:
-                    break;
-                case MediaFileTypeQuality.Adaptive:
-                    response = KalturaMediaFileTypeQuality.ADAPTIVE;
-                    break;
-                case MediaFileTypeQuality.SD:
-                    response = KalturaMediaFileTypeQuality.SD;
-                    break;
-                case MediaFileTypeQuality.HD_720:
-                    response = KalturaMediaFileTypeQuality.HD_720;
-                    break;
-                case MediaFileTypeQuality.HD_1080:
-                    response = KalturaMediaFileTypeQuality.HD_1080;
-                    break;
-                case MediaFileTypeQuality.UHD_4K:
-                    response = KalturaMediaFileTypeQuality.UHD_4K;
-                    break;
-                default:
-                    throw new ClientException((int)StatusCode.Error, "Unknown asset file type quality");
-                    break;
-            }
-
-            return response;
-        }
-
-        private static MediaFileTypeQuality ConvertToAssetFileTypeQuality(KalturaMediaFileTypeQuality? qualityType)
-        {
-            MediaFileTypeQuality response;
-            if (qualityType.HasValue)
-            {
-                switch (qualityType.Value)
-                {
-                    case KalturaMediaFileTypeQuality.ADAPTIVE:
-                        response = MediaFileTypeQuality.Adaptive;
-                        break;
-                    case KalturaMediaFileTypeQuality.SD:
-                        response = MediaFileTypeQuality.SD;
-                        break;
-                    case KalturaMediaFileTypeQuality.HD_720:
-                        response = MediaFileTypeQuality.HD_720;
-                        break;
-                    case KalturaMediaFileTypeQuality.HD_1080:
-                        response = MediaFileTypeQuality.HD_1080;
-                        break;
-                    case KalturaMediaFileTypeQuality.UHD_4K:
-                        response = MediaFileTypeQuality.UHD_4K;
-                        break;
-                    default:
-                        throw new ClientException((int)StatusCode.Error, "Unknown asset file type quality");
-                        break;
-                }
-            }
-            else
-            {
-                response = MediaFileTypeQuality.None;
-            }
-
-            return response;
-        }
 
         private static KalturaMetaDataType? ConvertToKalturaMetaDataType(ApiObjects.MetaType metaType)
         {

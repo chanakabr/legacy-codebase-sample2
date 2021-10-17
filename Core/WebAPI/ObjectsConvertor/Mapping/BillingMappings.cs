@@ -75,7 +75,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
 
             //from local object to WS object            
             cfg.CreateMap<PaymentGatewayConfigurationResponse, WebAPI.Models.Billing.KalturaPaymentGatewayConfiguration>()
-                .ForMember(dest => dest.Configuration, opt => opt.MapFrom(src => src.Configuration.Select(x => new KalturaKeyValue(null) { key = x.key, value = x.value }).ToList()));
+                .ForMember(dest => dest.Configuration, opt => opt.MapFrom(src => src.Configuration.Select(x => new KalturaKeyValue(null, false) { key = x.key, value = x.value }).ToList()));
 
             //from local object to WS object            
             cfg.CreateMap<KalturaKeyValue, ApiObjects.KeyValuePair>()

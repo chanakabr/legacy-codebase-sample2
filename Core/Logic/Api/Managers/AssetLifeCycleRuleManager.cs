@@ -8,6 +8,7 @@ using Core.Catalog.Request;
 using Core.Catalog.Response;
 using Core.GroupManagers;
 using DAL;
+using DAL.Api;
 using KLogMonitor;
 using KlogMonitorHelper;
 using System;
@@ -40,7 +41,7 @@ namespace Core.Api.Managers
                     groupIdToRulesMap = BuildAssetLifeCycleRuleFromDataSet(ds);
                 }
 
-                var assetLifeCycleTransitionRules = AssetRuleManager.GetAssetRules(RuleConditionType.Asset, 0, null, RuleActionType.AssetLifeCycleTransition);
+                var assetLifeCycleTransitionRules = AssetRuleManager.Instance.GetAssetRules(RuleConditionType.Asset, 0, null, RuleActionType.AssetLifeCycleTransition);
                 if (assetLifeCycleTransitionRules.HasObjects())
                 {
                     foreach (var assetLifeCycleTransitionRule in assetLifeCycleTransitionRules.Objects)
@@ -90,7 +91,7 @@ namespace Core.Api.Managers
                     res = ApplyLifeCycleRuleTagTransitionsOnAssets(isOpc, assetIds, ruleToApply.Actions.TagIdsToAdd, ruleToApply.Actions.TagIdsToRemove) &&
                           ApplyLifeCycleRuleFileTypeAndPpvTransitionsOnAssets(assetIds, ruleToApply.Actions.FileTypesAndPpvsToAdd, ruleToApply.Actions.FileTypesAndPpvsToRemove) &&
                           (!ruleToApply.Actions.GeoBlockRuleToSet.HasValue || ApplyLifeCycleRuleGeoBlockTransitionOnAssets(assetIds, ruleToApply.Actions.GeoBlockRuleToSet.Value));
-                    if (!Catalog.Module.UpdateIndex(assetIds, groupId, eAction.Update))
+                    if (!Catalog.Module.Instance.UpdateIndex(assetIds, groupId, eAction.Update))
                     {
                         log.WarnFormat("failed to update index of assetIds: {0} after applying rule: {1} for groupId: {2}",string.Join(",", assetIds), ruleToApply, groupId);
                     }
@@ -251,7 +252,7 @@ namespace Core.Api.Managers
                     {
                         // init result for DoActionByRuleIds
                         result = 0;
-                        if ((rule.IsAssetRule && !ApiDAL.UpdateAssetRulesLastRunDate(groupId, new List<long>() { rule.Id })) ||
+                        if ((rule.IsAssetRule && !AssetRuleRepository.Instance.UpdateAssetRulesLastRunDate(groupId, new List<long>() { rule.Id })) ||
                             (!rule.IsAssetRule && !ApiDAL.UpdateAssetLifeCycleLastRunDate(rule.Id)))
                         {
                             log.WarnFormat("failed to update asset life cycle last run date for groupId: {0}, rule: {1}", groupId, rule);

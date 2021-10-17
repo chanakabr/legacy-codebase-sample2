@@ -387,12 +387,12 @@ namespace Core.Catalog.CatalogManagement
             // invalidate media
             if (assetImageType == eAssetImageType.Media)
             {
-                AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, id, callingMethod);
+                AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, id, callingMethod);
             }
             // invalidate program
             if (assetImageType == eAssetImageType.Program)
             {
-                AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, id, callingMethod);
+                AssetManager.Instance.InvalidateAsset(eAssetTypes.EPG, groupId, id, callingMethod);
             }
             // invalidate channel
             else if (assetImageType == eAssetImageType.Channel)

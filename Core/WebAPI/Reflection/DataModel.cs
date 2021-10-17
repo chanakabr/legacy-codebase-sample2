@@ -33,6 +33,10 @@ using WebAPI.Models.Domains;
 using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Controllers;
 using WebAPI.Models;
+using WebAPI.Models.Users.UserSessionProfile;
+using WebAPI.Models.ConditionalAccess.FilterActions;
+using WebAPI.Models.ConditionalAccess.FilterActions.Assets;
+using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
@@ -2323,6 +2327,16 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDeviceDynamicDataCondition":
+                    switch(property.Name)
+                    {
+                        case "Key":
+                            return "key";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
                 case "KalturaDeviceFamily":
                     switch(property.Name)
                     {
@@ -2513,6 +2527,14 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDiscoveryMediaFile":
+                    switch(property.Name)
+                    {
+                        case "IsPlaybackable":
+                            return "isPlaybackable";
+                    }
+                    break;
+                    
                 case "KalturaDrmPlaybackPluginData":
                     switch(property.Name)
                     {
@@ -2592,6 +2614,16 @@ namespace WebAPI.Reflection
                             return "key";
                         case "Value":
                             return "value";
+                    }
+                    break;
+                    
+                case "KalturaDynamicKeysCondition":
+                    switch(property.Name)
+                    {
+                        case "Key":
+                            return "key";
+                        case "Values":
+                            return "values";
                     }
                     break;
                     
@@ -3083,6 +3115,30 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaExpressionAnd":
+                    switch(property.Name)
+                    {
+                        case "Expressions":
+                            return "expressions";
+                    }
+                    break;
+                    
+                case "KalturaExpressionNot":
+                    switch(property.Name)
+                    {
+                        case "Expression":
+                            return "expression";
+                    }
+                    break;
+                    
+                case "KalturaExpressionOr":
+                    switch(property.Name)
+                    {
+                        case "Expressions":
+                            return "expressions";
+                    }
+                    break;
+                    
                 case "KalturaExternalChannelProfile":
                     switch(property.Name)
                     {
@@ -3232,6 +3288,70 @@ namespace WebAPI.Reflection
                     {
                         case "OrderBy":
                             return "orderBy";
+                    }
+                    break;
+                    
+                case "KalturaFilterAssetByKsqlAction":
+                    switch(property.Name)
+                    {
+                        case "Ksql":
+                            return "ksql";
+                    }
+                    break;
+                    
+                case "KalturaFilterFileByAudioCodecAction":
+                    switch(property.Name)
+                    {
+                        case "AudioCodecIn":
+                            return "audioCodecIn";
+                    }
+                    break;
+                    
+                case "KalturaFilterFileByFileTypeIdAction":
+                    switch(property.Name)
+                    {
+                        case "FileTypeIdIn":
+                            return "fileTypeIdIn";
+                    }
+                    break;
+                    
+                case "KalturaFilterFileByFileTypeIdForAssetTypeAction":
+                    switch(property.Name)
+                    {
+                        case "AssetTypeIn":
+                            return "assetTypeIn";
+                    }
+                    break;
+                    
+                case "KalturaFilterFileByLabelAction":
+                    switch(property.Name)
+                    {
+                        case "LabelIn":
+                            return "labelIn";
+                    }
+                    break;
+                    
+                case "KalturaFilterFileByQualityAction":
+                    switch(property.Name)
+                    {
+                        case "QualityIn":
+                            return "qualityIn";
+                    }
+                    break;
+                    
+                case "KalturaFilterFileByStreamerTypeAction":
+                    switch(property.Name)
+                    {
+                        case "StreamerTypeIn":
+                            return "streamerTypeIn";
+                    }
+                    break;
+                    
+                case "KalturaFilterFileByVideoCodecAction":
+                    switch(property.Name)
+                    {
+                        case "VideoCodecIn":
+                            return "videoCodecIn";
                     }
                     break;
                     
@@ -6821,6 +6941,22 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSessionCharacteristic":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                        case "RegionId":
+                            return "regionId";
+                        case "UserRolesIds":
+                            return "userRolesIds";
+                        case "UserSegmentsIds":
+                            return "userSegmentsIds";
+                        case "UserSessionProfilesIds":
+                            return "userSessionProfilesIds";
+                    }
+                    break;
+                    
                 case "KalturaSingleSegmentValue":
                     switch(property.Name)
                     {
@@ -8131,6 +8267,50 @@ namespace WebAPI.Reflection
                     switch(property.Name)
                     {
                         case "Segments":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaUserSessionCondition":
+                    switch(property.Name)
+                    {
+                        case "Condition":
+                            return "condition";
+                    }
+                    break;
+                    
+                case "KalturaUserSessionProfile":
+                    switch(property.Name)
+                    {
+                        case "Expression":
+                            return "expression";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
+                case "KalturaUserSessionProfileCondition":
+                    switch(property.Name)
+                    {
+                        case "Id":
+                            return "id";
+                    }
+                    break;
+                    
+                case "KalturaUserSessionProfileFilter":
+                    switch(property.Name)
+                    {
+                        case "IdEqual":
+                            return "idEqual";
+                    }
+                    break;
+                    
+                case "KalturaUserSessionProfileListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
                             return "objects";
                     }
                     break;
@@ -9767,7 +9947,7 @@ namespace WebAPI.Reflection
                             return HouseholdDeviceController.List((KalturaHouseholdDeviceFilter) methodParams[0]);
                             
                         case "loginwithpin":
-                            return HouseholdDeviceController.LoginWithPin((int) methodParams[0], (string) methodParams[1], (string) methodParams[2]);
+                            return HouseholdDeviceController.LoginWithPin((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (SerializableDictionary<string, KalturaStringValue>) methodParams[3]);
                             
                         case "update":
                             if(isOldVersion)
@@ -10547,7 +10727,7 @@ namespace WebAPI.Reflection
                             {
                                 throw new BadRequestException(BadRequestException.HTTP_METHOD_NOT_SUPPORTED, HttpContext.Current.Request.GetHttpMethod().ToUpper());
                             }
-                            return OttUserController.LoginWithPin((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3]);
+                            return OttUserController.LoginWithPin((int) methodParams[0], (string) methodParams[1], (string) methodParams[2], (string) methodParams[3], (SerializableDictionary<string, KalturaStringValue>) methodParams[4]);
                             
                         case "logout":
                             RolesManager.ValidateActionPermitted("ottUser", "logout", false);
@@ -11547,6 +11727,10 @@ namespace WebAPI.Reflection
                 case "session":
                     switch(action)
                     {
+                        case "createsessioncharacteristic":
+                            RolesManager.ValidateActionPermitted("session", "createSessionCharacteristic", false);
+                            return SessionController.CreateSessionCharacteristic((string) methodParams[0], (long) methodParams[1], (string) methodParams[2], (long) methodParams[3], (Nullable<int>) methodParams[4], (SerializableDictionary<string, KalturaStringValueArray>) methodParams[5]);
+                            
                         case "get":
                             if(isOldVersion)
                             {
@@ -12307,6 +12491,29 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("userSegment", "list", false);
                             return UserSegment.List((KalturaUserSegmentFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "usersessionprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("userSessionProfile", "add", false);
+                            return UserSessionProfileController.Add((KalturaUserSessionProfile) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("userSessionProfile", "delete", false);
+                            UserSessionProfileController.Delete((long) methodParams[0]);
+                            return null;
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("userSessionProfile", "list", false);
+                            return UserSessionProfileController.List((KalturaUserSessionProfileFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("userSessionProfile", "update", false);
+                            return UserSessionProfileController.Update((long) methodParams[0], (KalturaUserSessionProfile) methodParams[1]);
                             
                     }
                     break;
@@ -13170,6 +13377,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("with", new MethodParam(){
@@ -13222,6 +13431,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("assetReferenceType", new MethodParam(){
@@ -13240,6 +13451,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("with", new MethodParam(){
@@ -13277,6 +13490,8 @@ namespace WebAPI.Reflection
                                     MinLength = -1,
                                     MaxFloat = 12,
                                     MinFloat = -12,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("free_param", new MethodParam(){
@@ -13475,6 +13690,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("pager", new MethodParam(){
@@ -13523,6 +13740,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("assetReferenceType", new MethodParam(){
@@ -13538,6 +13757,8 @@ namespace WebAPI.Reflection
                                     DynamicMinInt = 1,
                                     MaxLength = -1,
                                     MinLength = -1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -13566,6 +13787,8 @@ namespace WebAPI.Reflection
                                     RequiresPermission = false,
                                     MaxLength = 4096,
                                     MinLength = -1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("with", new MethodParam(){
@@ -13636,6 +13859,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("asset", new MethodParam(){
@@ -13672,6 +13897,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("assetId", new MethodParam(){
@@ -13691,6 +13918,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("contextType", new MethodParam(){
@@ -13802,6 +14031,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -13920,6 +14151,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 0,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -13950,6 +14183,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 0,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("assetStruct", new MethodParam(){
@@ -13982,6 +14217,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 0,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("metaId", new MethodParam(){
@@ -13992,6 +14229,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("assetStructMeta", new MethodParam(){
@@ -14024,6 +14263,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -14037,6 +14278,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -14050,6 +14293,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -14073,6 +14318,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("assetUserRule", new MethodParam(){
@@ -14637,6 +14884,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -14650,6 +14899,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -15032,6 +15283,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -15533,6 +15786,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             paramName = "productType";
@@ -15577,6 +15832,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -15600,6 +15857,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             paramName = "productType";
@@ -15644,6 +15903,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             paramName = "productType";
@@ -15894,6 +16155,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("task", new MethodParam(){
@@ -16099,6 +16362,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -16254,6 +16519,8 @@ namespace WebAPI.Reflection
                                     RequiresPermission = true,
                                     MaxLength = -1,
                                     MinLength = -1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -16277,6 +16544,8 @@ namespace WebAPI.Reflection
                                     RequiresPermission = true,
                                     MaxLength = -1,
                                     MinLength = -1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -16538,6 +16807,8 @@ namespace WebAPI.Reflection
                                     RequiresPermission = true,
                                     MaxLength = -1,
                                     MinLength = -1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -16575,6 +16846,14 @@ namespace WebAPI.Reflection
                                 IsOptional = true,
                                 DefaultValue = null,
                                 Type = typeof(string),
+                            });
+                            ret.Add("extraParams", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
                             });
                             return ret;
                             
@@ -16800,6 +17079,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -16820,6 +17101,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -16837,6 +17120,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -17003,6 +17288,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -17024,6 +17311,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("content", new MethodParam(){
@@ -17056,6 +17345,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -17079,6 +17370,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("imageType", new MethodParam(){
@@ -17412,6 +17705,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -17435,6 +17730,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("mediaFile", new MethodParam(){
@@ -17562,6 +17859,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -17595,6 +17894,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("meta", new MethodParam(){
@@ -18142,6 +18443,14 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 Type = typeof(string),
                             });
+                            ret.Add("extraParams", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValue),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValue>),
+                            });
                             return ret;
                             
                         case "logout":
@@ -18192,6 +18501,8 @@ namespace WebAPI.Reflection
                                     RequiresPermission = false,
                                     MaxLength = 128,
                                     MinLength = -1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -18225,6 +18536,8 @@ namespace WebAPI.Reflection
                                     RequiresPermission = true,
                                     MaxLength = -1,
                                     MinLength = -1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -18274,6 +18587,8 @@ namespace WebAPI.Reflection
                                     RequiresPermission = true,
                                     MaxLength = -1,
                                     MinLength = -1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -18376,6 +18691,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -18456,6 +18773,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -18485,6 +18804,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("parentalRule", new MethodParam(){
@@ -18656,6 +18977,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("payment_method_id", new MethodParam(){
@@ -18666,6 +18989,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -18682,6 +19007,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("payment_method_id", new MethodParam(){
@@ -18692,6 +19019,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -18712,6 +19041,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("payment_method_id", new MethodParam(){
@@ -18722,6 +19053,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -19069,6 +19402,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("permission", new MethodParam(){
@@ -19184,6 +19519,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -19432,6 +19769,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("previewModule", new MethodParam(){
@@ -19484,6 +19823,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -19507,6 +19848,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("priceDetails", new MethodParam(){
@@ -19539,6 +19882,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -20146,6 +20491,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -20163,6 +20510,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -20187,6 +20536,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -20210,6 +20561,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -20220,6 +20573,40 @@ namespace WebAPI.Reflection
                 case "session":
                     switch(action)
                     {
+                        case "createsessioncharacteristic":
+                            ret.Add("userId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("householdId", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("udid", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
+                            });
+                            ret.Add("expiration", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("regionId", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            ret.Add("sessionCharacteristicParams", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsMap = true,
+                                GenericType = typeof(KalturaStringValueArray),
+                                Type = typeof(SerializableDictionary<string, KalturaStringValueArray>),
+                            });
+                            return ret;
+                            
                         case "get":
                             ret.Add("session", new MethodParam(){
                                 NewName = newParamName,
@@ -20230,6 +20617,8 @@ namespace WebAPI.Reflection
                                     RequiresPermission = true,
                                     MaxLength = -1,
                                     MinLength = -1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -20734,6 +21123,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("subscription", new MethodParam(){
@@ -20777,6 +21168,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -20790,6 +21183,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -20813,6 +21208,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("subscriptionSet", new MethodParam(){
@@ -20939,6 +21336,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -21011,6 +21410,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             return ret;
@@ -21224,6 +21625,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinFloat = 0,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("currency", new MethodParam(){
@@ -21238,6 +21641,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("product_type", new MethodParam(){
@@ -21274,6 +21679,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("adapterData", new MethodParam(){
@@ -21338,6 +21745,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinInteger = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             paramName = "transactionType";
@@ -21798,6 +22207,8 @@ namespace WebAPI.Reflection
                                     MaxLength = -1,
                                     MinLength = -1,
                                     MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
                                 },
                             });
                             ret.Add("role", new MethodParam(){
@@ -21844,6 +22255,72 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "usersessionprofile":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("userSessionProfile", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserSessionProfile),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "userSessionProfile", "delete") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserSessionProfileFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                                SchemeArgument = new RuntimeSchemeArgumentAttribute("id", "userSessionProfile", "update") {
+                                    RequiresPermission = false,
+                                    MaxLength = -1,
+                                    MinLength = -1,
+                                    MinLong = 1,
+                                    MinItems = -1,
+                                    MaxItems = -1,
+                                },
+                            });
+                            ret.Add("userSessionProfile", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaUserSessionProfile),
                             });
                             return ret;
                             

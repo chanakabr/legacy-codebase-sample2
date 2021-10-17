@@ -1,4 +1,5 @@
 ﻿using ApiObjects.Response;
+using ObjectsConvertor.Mapping;
 using System;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
@@ -126,7 +127,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceNotInDomain)]
         [Throws(eResponseStatus.UserWithNoDomain)]
         [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
-        static public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, int? expiry = null, string udid = null)
+        static public KalturaSessionInfo StartSession(string id, string tokenHash, string userId = null, int? expiry = null, 
+            string udid = null)
         {
             KalturaSessionInfo response = null;
 
@@ -134,8 +136,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                response = AuthorizationManager.StartSessionWithAppToken(groupId, id, tokenHash, userId, udid, null, expiry, (int)HouseholdUtils.GetHouseholdIDByKS());
-                
+                response = AuthorizationManager.StartSessionWithAppToken(groupId, id, tokenHash, userId, udid, null, expiry, 
+                    (int)HouseholdUtils.GetHouseholdIDByKS());
             }
             catch (ClientException ex)
             {

@@ -30,7 +30,7 @@ namespace WebAPI.Mapping.ObjectsConvertor
                 .ForMember(dest => dest.State, opt => opt.ResolveUsing(src => ConvertDeviceState(src.m_state)))
                 .ForMember(dest => dest.HouseholdId, opt => opt.MapFrom(src => src.m_domainID))
                 .ForMember(dest => dest.Drm, opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.LicenseData) ?
-                    new KalturaCustomDrmPlaybackPluginData(null) { Data = src.LicenseData, Scheme = KalturaDrmSchemeName.CUSTOM_DRM } : null))
+                    new KalturaCustomDrmPlaybackPluginData(null, false) { Data = src.LicenseData, Scheme = KalturaDrmSchemeName.CUSTOM_DRM } : null))
                 .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                 .ForMember(dest => dest.MacAddress, opt => opt.MapFrom(src => src.MacAddress))
                 .ForMember(dest => dest.Model, opt => opt.MapFrom(src => src.Model))

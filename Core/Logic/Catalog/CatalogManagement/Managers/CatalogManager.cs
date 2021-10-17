@@ -28,6 +28,11 @@ using MetaType = ApiObjects.MetaType;
 
 namespace Core.Catalog.CatalogManagement
 {
+    public interface ITagManager
+    {
+        List<TagValue> GetTagValues(int groupId, List<long> idIn, int pageIndex, int pageSize, out int totalItemsCount);
+    }
+
     public interface ICatalogManager
     {
         bool TryGetCatalogGroupCacheFromCache(int groupId, out CatalogGroupCache catalogGroupCache);
@@ -39,7 +44,7 @@ namespace Core.Catalog.CatalogManagement
         HashSet<BooleanLeafFieldDefinitions> GetUnifiedSearchKey(int groupId, string originalKey);
     }
 
-    public class CatalogManager : ICatalogManager
+    public class CatalogManager : ICatalogManager, ITagManager
     {
         #region Constants and Readonly
 
@@ -598,7 +603,7 @@ namespace Core.Catalog.CatalogManagement
                 // invalidate medias
                 foreach (int mediaId in mediaIds)
                 {
-                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, mediaId) && result;
+                    result = AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, mediaId) && result;
                 }
             }
 
@@ -607,7 +612,7 @@ namespace Core.Catalog.CatalogManagement
                 // invalidate epgs
                 foreach (int epgId in epgIds)
                 {
-                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgId) && result;
+                    result = AssetManager.Instance.InvalidateAsset(eAssetTypes.EPG, groupId, epgId) && result;
                 }
             }
 
@@ -906,7 +911,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 eAction action = shouldDeleteAssets ? eAction.Delete : eAction.Update;
                 // update medias index
-                if (!Core.Catalog.Module.UpdateIndex(mediaIds, groupId, action))
+                if (!Core.Catalog.Module.Instance.UpdateIndex(mediaIds, groupId, action))
                 {
                     result = false;
                     log.ErrorFormat("Error while update Media index. groupId:{0}, mediaIds:{1}", groupId, string.Join(",", mediaIds));
@@ -915,7 +920,7 @@ namespace Core.Catalog.CatalogManagement
                 // invalidate medias
                 foreach (int mediaId in mediaIds)
                 {
-                    result = AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, mediaId) && result;
+                    result = AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, mediaId) && result;
                 }
             }
 
@@ -931,7 +936,7 @@ namespace Core.Catalog.CatalogManagement
                 // invalidate epgs
                 foreach (int epgId in epgIds)
                 {
-                    result = AssetManager.InvalidateAsset(eAssetTypes.EPG, groupId, epgId) && result;
+                    result = AssetManager.Instance.InvalidateAsset(eAssetTypes.EPG, groupId, epgId) && result;
                 }
             }
 
@@ -945,7 +950,7 @@ namespace Core.Catalog.CatalogManagement
             {
                 eAction action = shouldDeleteAssets ? eAction.Delete : eAction.Update;
                 // update medias index
-                if (!Core.Catalog.Module.UpdateIndex(mediaIds, groupId, action))
+                if (!Core.Catalog.Module.Instance.UpdateIndex(mediaIds, groupId, action))
                 {
                     result = false;
                     log.ErrorFormat("Error while update Media index. groupId:{0}, mediaIds:{1}", groupId, string.Join(",", mediaIds));
@@ -1039,7 +1044,7 @@ namespace Core.Catalog.CatalogManagement
 
                         if (topicsForAssetUpdate.Count > 0)
                         {
-                            AssetManager.InvalidateAsset(eAssetTypes.MEDIA, groupId, (int)newAsset.Id);
+                            AssetManager.Instance.InvalidateAsset(eAssetTypes.MEDIA, groupId, (int)newAsset.Id);
 
                             var data = new InheritanceParentUpdate()
                             {
@@ -2482,7 +2487,7 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        public List<ApiObjects.SearchObjects.TagValue> GetTagValues(int groupId, List<long> idIn, int pageIndex, int pageSize, out int totalItemsCount)
+        public List<TagValue> GetTagValues(int groupId, List<long> idIn, int pageIndex, int pageSize, out int totalItemsCount)
         {
             var result = new List<ApiObjects.SearchObjects.TagValue>();
             totalItemsCount = 0;

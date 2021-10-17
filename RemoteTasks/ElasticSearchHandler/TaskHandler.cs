@@ -73,7 +73,7 @@ namespace ElasticSearchHandler
                     #region GeoUpdate
                     if (request.DocumentIDs != null && request.DocumentIDs.Count > 0)
                     {
-                        if (Core.Api.Managers.AssetRuleManager.UpdateMedia(request.GroupID, request.DocumentIDs[0]))
+                        if (Core.Api.Managers.AssetRuleManager.Instance.UpdateMedia(request.GroupID, request.DocumentIDs[0]))
                         {
                             res = "success";
                         }

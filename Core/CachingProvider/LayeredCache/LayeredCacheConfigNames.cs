@@ -137,6 +137,8 @@
         public const string GET_DOMAIN_SUBSCRIPTION_PURCHASE = "GetDomainSubscriptionPurchase";
         public const string GET_GROUP_PREVIEW_MODULES = "GetGroupPreviewModules";
         public const string GET_LABELS_CACHE_CONFIG_NAME = "GetLabels";
+        public const string GET_USER_SESSION_PROFILES = "GetUserSessionProfiles";
+        public const string GET_SESSION_CHARACTERISTIC = "GetSessionCharacteristic";
         public const string GET_GROUP_SERVICES_LAYERED_CACHE_CONFIG_NAME = "GetGroupPremiumServices";
         public const string GET_SERVICES_LAYERED_CACHE_CONFIG_NAME = "GetAllPremiumServices";
         public const string GET_SUBSCRIPTIONS = "GetSubscriptions";

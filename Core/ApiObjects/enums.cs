@@ -1116,7 +1116,22 @@ namespace ApiObjects
         ApplyPlaybackAdapter,
         UserFilter,
         AssetLifeCycleTransition,
-        ApplyFreePlayback
+        ApplyFreePlayback,
+        FilterAssetByKsql,
+        FilterFileByQualityInDiscovery,
+        FilterFileByQualityInPlayback,
+        FilterFileByAssetTypeInDiscovery,
+        FilterFileByAssetTypeInPlayback,
+        FilterFileByFileTypeIdInDiscovery,
+        FilterFileByFileTypeIdInPlayback,
+        FilterFileByAudioCodecInDiscovery,
+        FilterFileByAudioCodecInPlayback,
+        FilterFileByVideoCodecInDiscovery,
+        FilterFileByVideoCodecInPlayback,
+        FilterFileByStreamerTypeInDiscovery,
+        FilterFileByStreamerTypeInPlayback,
+        FilterFileByLabelInDiscovery,
+        FilterFileByLabelInPlayback
     }
 
     public enum RuleConditionType
@@ -1137,7 +1152,10 @@ namespace ApiObjects
         DeviceFamily,
         DeviceManufacturer,
         DeviceModel,
-        DeviceUdidDynamicList
+        DeviceUdidDynamicList,
+        DynamicKeys,
+        UserSessionProfile,
+        DeviceDynamicData
     }
 
     public enum RuleActionTaskType

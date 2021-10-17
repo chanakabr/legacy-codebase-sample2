@@ -25,6 +25,9 @@ namespace SSOAdapter.Models
        
         [DataMember]
         public IDictionary<string, string> Priviliges { get; set; }
+		
+		[DataMember]
+        public IDictionary<string, string[]> SessionCharacteristics { get; set; }
 
         [DataMember]
         public SSOResponseStatus SSOResponseStatus { get; set; }

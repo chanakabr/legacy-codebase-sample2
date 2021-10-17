@@ -82,6 +82,7 @@ namespace WebAPI.Models.General
 
     public interface IKalturaOTTObject
     {
+        void AfterRequestParsed(string service, string action, string language, int groupId, string userId, string deviceId, JObject json = null);
     }
     
     /// <summary>
@@ -153,13 +154,14 @@ namespace WebAPI.Models.General
             return list;
         }
 
-        public List<T> buildList<T>(Type itemType, JArray array) where T : KalturaOTTObject
+        public List<T> buildList<T>(Type itemType, JArray array) where T : IKalturaOTTObject, IKalturaSerializable
         {
             List<T> list = new List<T>();
 
             foreach (JToken item in array)
             {
-                T itemObject = (T)Deserializer.deserialize(itemType, item.ToObject<Dictionary<string, object>>());
+                var deserialized = Deserializer.deserialize(itemType, item.ToObject<Dictionary<string, object>>());
+                T itemObject = (T)deserialized;
                 list.Add(itemObject);
             }
 

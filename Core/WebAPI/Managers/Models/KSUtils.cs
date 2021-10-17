@@ -1,8 +1,5 @@
-﻿using ConfigurationManager;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using TVinciShared;
 
 namespace WebAPI.Managers.Models
@@ -14,6 +11,7 @@ namespace WebAPI.Managers.Models
         public const string PAYLOAD_REGION = "r";
         public const string PAYLOAD_USER_SEGMENTS = "us";
         public const string PAYLOAD_USER_ROLES = "ur";
+        public const string PAYLOAD_SESSION_CHARACTERISTIC_KEY = "sck";
         public const string PAYLOAD_SIGNATURE = "sig";
 
         public static string PrepareKSPayload(KS.KSData pl)
@@ -34,6 +32,11 @@ namespace WebAPI.Managers.Models
             {
                 ksDataList.Add(new KeyValuePair<string, string>(PAYLOAD_USER_ROLES, string.Join(",", pl.UserRoles.OrderBy(x => x))));
             }
+            
+            if (!pl.SessionCharacteristicKey.IsNullOrEmpty())
+            {
+                ksDataList.Add(new KeyValuePair<string, string>(PAYLOAD_SESSION_CHARACTERISTIC_KEY, pl.SessionCharacteristicKey));
+            }
 
             if (!string.IsNullOrEmpty(pl.Signature))
             {
@@ -48,7 +51,7 @@ namespace WebAPI.Managers.Models
         {
             if (ks == null)
             {
-                return new KS.KSData();
+                return KS.KSData.Empty;
             }
 
             var pl = KS.ExtractPayloadData(ks.Data);
@@ -83,13 +86,15 @@ namespace WebAPI.Managers.Models
                 userRoles.AddRange(pl[PAYLOAD_USER_ROLES].GetItemsIn<long>(out _));
             }
 
+            pl.TryGetValue(PAYLOAD_SESSION_CHARACTERISTIC_KEY, out var sessionCharacteristicKey);
+
             var signature = string.Empty;
             if (pl.ContainsKey(PAYLOAD_SIGNATURE))
             {
                 signature = pl[PAYLOAD_SIGNATURE];
             }
 
-            return new KS.KSData(udid, createDate, regionId, userSegments, userRoles, signature);
+            return new KS.KSData(udid, createDate, regionId, userSegments, userRoles, sessionCharacteristicKey, signature);
         }
 
         internal static KS.KSData ExtractKSPayload()

@@ -19,11 +19,6 @@ namespace ApiObjects
         ARCHIVE = 2
     }
 
-    public interface ICampaignObject
-    {
-        IConditionScope ConvertToConditionScope(ContextData contextData);
-    }
-
     [Serializable]
     [JsonObject(ItemTypeNameHandling = TypeNameHandling.All)]
     public class CampaignDB
@@ -131,11 +126,23 @@ namespace ApiObjects
             }
         }
 
-        public virtual bool EvaluateConditions(IConditionScope scope)
-        {
-            throw new System.NotImplementedException();
-        }
+        public virtual List<RuleCondition> GetConditions() { return null; }
 
+        public bool EvaluateConditions(IConditionScope scope)
+        {
+            var conditions = GetConditions();
+            if (conditions != null && conditions.Count > 0)
+            {
+                foreach (var condition in conditions)
+                {
+                    if (!scope.Evaluate(condition))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
     }
 
     [Serializable]
@@ -146,32 +153,16 @@ namespace ApiObjects
                       TypeNameHandling = TypeNameHandling.Auto,
                       ItemTypeNameHandling = TypeNameHandling.Auto,
                       ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        public List<Rules.RuleCondition> TriggerConditions { get; set; }
+        public List<RuleCondition> TriggerConditions { get; set; }
 
         public ApiService Service { get; set; }
         public ApiAction Action { get; set; }
 
         public override eCampaignType CampaignType { get { return eCampaignType.Trigger; } }
 
-        public override bool EvaluateConditions(IConditionScope scope)
+        public override List<RuleCondition> GetConditions()
         {
-            throw new System.NotImplementedException();
-        }
-
-        public bool EvaluateTriggerConditions(ICampaignObject campaignObject, ContextData contextData)
-        {
-            if (TriggerConditions != null && TriggerConditions.Count > 0)
-            {
-                var scope = campaignObject.ConvertToConditionScope(contextData);
-                foreach (var condition in TriggerConditions)
-                {
-                    if (!condition.Evaluate(scope))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            return this.TriggerConditions;
         }
 
         /// <summary>
@@ -210,23 +201,13 @@ namespace ApiObjects
               TypeNameHandling = TypeNameHandling.Auto,
               ItemTypeNameHandling = TypeNameHandling.Auto,
               ItemReferenceLoopHandling = ReferenceLoopHandling.Serialize)]
-        public List<Rules.RuleCondition> PopulationConditions { get; set; }
+        public List<RuleCondition> PopulationConditions { get; set; }
 
         public override eCampaignType CampaignType { get { return eCampaignType.Batch; } }
 
-        public override bool EvaluateConditions(IConditionScope scope)
+        public override List<RuleCondition> GetConditions()
         {
-            if (PopulationConditions != null && PopulationConditions.Count > 0)
-            {
-                foreach (var condition in PopulationConditions)
-                {
-                    if (!condition.Evaluate(scope))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            return this.PopulationConditions;
         }
 
         /// <summary>

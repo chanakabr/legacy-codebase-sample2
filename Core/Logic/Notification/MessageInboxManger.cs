@@ -11,6 +11,7 @@ using System.Reflection;
 using TVinciShared;
 using APILogic.ConditionalAccess;
 using ApiObjects.Segmentation;
+using ApiLogic.ConditionalAccess;
 
 namespace Core.Notification
 {
@@ -275,10 +276,8 @@ namespace Core.Notification
                 if (missingBatchCampaigns.Count > 0)
                 {
                     var userSegments = UserSegment.List(groupId, userId.ToString(), out int totalCount);
-                    var scope = new ConditionScope()
+                    var scope = new BatchCampaignConditionScope()
                     {
-                        GroupId = groupId,
-                        UserId = contextData.UserId.ToString(),
                         FilterBySegments = true,
                         SegmentIds = userSegments != null ? userSegments.Select(x => x.SegmentId).ToList() : null
                     };

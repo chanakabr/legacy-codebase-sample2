@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using ApiLogic.Api.Managers.Rule;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
 using ApiObjects.Base;
@@ -61,7 +62,8 @@ namespace WebAPI.Models.Catalog
                 AssetTypes = this.getTypeIn(),
                 IsAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets,
                 TrendingDays = TrendingDaysEqual,
-                GroupByType = ApiObjects.SearchObjects.GroupingOption.Omit
+                GroupByType = ApiObjects.SearchObjects.GroupingOption.Omit,
+                Filter = FilterAsset.Instance.UpdateKsql(null, contextData.GroupId, contextData.SessionCharacteristicKey)
             };
 
             var response = ClientsManager.CatalogClient().GetBundleAssets(filter, this.IdEqual, this.OrderBy, this.BundleTypeEqual, this.DynamicOrderBy);

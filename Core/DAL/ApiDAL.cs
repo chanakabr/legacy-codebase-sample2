@@ -7,6 +7,7 @@ using ApiObjects.Roles;
 using ApiObjects.Rules;
 using ConfigurationManager;
 using CouchbaseManager;
+using DAL.Api;
 using KLogMonitor;
 using Newtonsoft.Json;
 using ODBCWrapper;
@@ -4263,6 +4264,7 @@ namespace DAL
                             ExternalId = Utils.GetSafeStr(dr, "co_guid"),
                             Id = Utils.GetLongSafeVal(dr, "id"),
                             Type = Utils.GetSafeStr(dr, "DESCRIPTION"),
+                            TypeId = Utils.GetLongSafeVal(dr, "MEDIA_TYPE_ID"),
                             IsTrailer = Utils.GetIntSafeVal(dr, "IS_TRAILER") == 1 ? true : false,
                             CdnId = Utils.GetIntSafeVal(dr, "STREAMING_SUPLIER_ID"),
                             Url = Utils.GetSafeStr(dr, "STREAMING_CODE"),
@@ -4663,28 +4665,6 @@ namespace DAL
             return rules;
         }
 
-        public static bool InsertMediaCountry(int groupId, List<int> assetIds, int countryId, bool isAllowed, long ruleId)
-        {
-            try
-            {
-                ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("InsertMediaCountry");
-                sp.AddIDListParameter("@mediaIds", assetIds, "ID");
-                sp.AddParameter("@countryId", countryId);
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@isAllowed", isAllowed);
-                sp.AddParameter("@ruleId", ruleId);
-
-                int rowCount = sp.ExecuteReturnValue<int>();
-                return rowCount > 0;
-            }
-            catch (Exception ex)
-            {
-                log.Error("Error while adding country to medias", ex);
-            }
-
-            return false;
-        }
-
         public static DataTable UpdateMediaCountries(int groupId, long ruleId)
         {
             try
@@ -4797,211 +4777,6 @@ namespace DAL
 
             return result;
         }
-
-
-        #region AssetRule
-
-        public static DataTable AddAssetRule(int groupId, string name, string description, int assetRuleType = 0)
-        {
-            DataTable ds = null;
-
-            try
-            {
-                StoredProcedure sp = new StoredProcedure("Insert_AssetRule");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@name", name);
-                sp.AddParameter("@description", description);
-                sp.AddParameter("@assetRuleType", assetRuleType);
-
-                ds = sp.Execute();
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while AddAssetRule in DB, groupId: {0}, name: {1}, description: {2} , ruleType: {3}, ex:{4} ", groupId, name, description, assetRuleType, ex);
-            }
-
-            return ds;
-        }
-
-        public static bool UpdateAssetRuleLastRunDate(int groupId, long id)
-        {
-            return UpdateAssetRule(groupId, id, null, null);
-        }
-
-        public static bool SaveAssetRuleCB(int groupId, AssetRule assetRule)
-        {
-            if (assetRule != null && assetRule.Id > 0 && assetRule.Conditions != null && assetRule.Conditions.Count > 0)
-            {
-                AssetRuleTypeMapping assetRuleTypeMapping = new AssetRuleTypeMapping()
-                {
-                    Id = assetRule.Id,
-                    TypeIdIn = new List<int>(assetRule.Conditions.Select(x => (int)x.Type)),
-                    ActionTypeIdIn = new HashSet<int>(assetRule.Actions.Select(x => (int)x.Type))
-                };
-
-                string assetRuleTypeKey = GetAssetRuleTypeKey(assetRule.Id);
-                if (UtilsDal.SaveObjectInCB<AssetRuleTypeMapping>(eCouchbaseBucket.OTT_APPS, assetRuleTypeKey, assetRuleTypeMapping, true))
-                {
-                    string assetRuleKey = GetAssetRuleKey(assetRule.Id);
-                    return UtilsDal.SaveObjectInCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKey, assetRule, true);
-                }
-            }
-
-            return false;
-        }
-
-        public static DataTable GetAssetRulesDB()
-        {
-            StoredProcedure sp = new StoredProcedure("Get_AssetRules");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            DataTable dt = sp.Execute();
-
-            return dt;
-        }
-
-        private static string GetAssetRuleKey(long assetRuleId)
-        {
-            return string.Format("asset_rule:{0}", assetRuleId);
-        }
-
-        private static string GetAssetRuleTypeKey(long assetRuleId)
-        {
-            return string.Format("asset_rule_type:{0}", assetRuleId);
-        }
-
-        public static AssetRule GetAssetRuleCB(long assetRuleId)
-        {
-            string key = GetAssetRuleKey(assetRuleId);
-            return UtilsDal.GetObjectFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, key);
-        }
-
-        public static List<AssetRuleTypeMapping> GetAssetRuleTypeCB(IEnumerable<long> assetRuleIds)
-        {
-            List<string> assetRuleKeys = new List<string>();
-            foreach (var assetRuleId in assetRuleIds)
-            {
-                assetRuleKeys.Add(GetAssetRuleTypeKey(assetRuleId));
-            }
-
-            return UtilsDal.GetObjectListFromCB<AssetRuleTypeMapping>(eCouchbaseBucket.OTT_APPS, assetRuleKeys, true);
-        }
-
-        public static List<AssetRule> GetAssetRulesCB(IEnumerable<long> assetRuleIds)
-        {
-            List<string> assetRuleKeys = new List<string>();
-            foreach (var assetRuleId in assetRuleIds)
-            {
-                assetRuleKeys.Add(GetAssetRuleKey(assetRuleId));
-            }
-
-            return UtilsDal.GetObjectListFromCB<AssetRule>(eCouchbaseBucket.OTT_APPS, assetRuleKeys, true);
-        }
-
-        public static bool DeleteAssetRule(int groupId, long id)
-        {
-            try
-            {
-                StoredProcedure sp = new StoredProcedure("Delete_AssetRule");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@id", id);
-                return sp.ExecuteReturnValue<int>() > 0;
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while DeleteAssetRule in DB, groupId: {0}, id: {1} , ex:{1} ", groupId, id, ex);
-            }
-
-            return false;
-        }
-
-        public static bool DeleteAssetRuleCB(int groupId, long assetRuleId)
-        {
-            string assetRuleKey = GetAssetRuleKey(assetRuleId);
-            string assetRuleTypeKey = GetAssetRuleTypeKey(assetRuleId);
-            return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleKey) &&
-                   UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.OTT_APPS, assetRuleTypeKey);
-        }
-
-        public static bool UpdateAssetRule(int groupId, long assetRuleId, string name, string description)
-        {
-            bool result = false;
-            try
-            {
-                StoredProcedure sp = new StoredProcedure("Update_AssetRule");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@id", assetRuleId);
-                sp.AddParameter("@name", name);
-                sp.AddParameter("@description", description);
-
-                result = sp.ExecuteReturnValue<int>() > 0;
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while UpdateAssetRule in DB, groupId: {0}, assetRuleId: {1}, ex:{2} ", groupId, assetRuleId, ex);
-            }
-
-            return result;
-        }
-
-        public static bool UpdateAssetRulesLastRunDate(int groupId, List<long> assetRuleIds)
-        {
-            bool result = false;
-            try
-            {
-                StoredProcedure sp = new StoredProcedure("UpdateAssetRulesLastRunDate");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddIDListParameter<long>("@assetRuleIds", assetRuleIds, "ID");
-
-                result = sp.ExecuteReturnValue<int>() > 0;
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while UpdateAssetRulesLastRunDate in DB, groupId: {0}, assetRuleIds: {1}, ex:{2} ", groupId, string.Join(", ", assetRuleIds), ex);
-            }
-
-            return result;
-        }
-
-        public static DataTable GetGeoAssetRulesAffectingMedia(int groupId, long mediaId)
-        {
-            DataTable dt = null;
-            try
-            {
-                StoredProcedure sp = new StoredProcedure("GetGeoAssetRulesAffectingMedia");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@mediaId", mediaId);
-
-                dt = sp.Execute();
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while GetGeoAssetRulesAffectingMedia in DB, groupId: {0}, mediaId: {1}, ex:{2} ", groupId, mediaId, ex);
-            }
-
-            return dt;
-        }
-
-        public static bool RemoveCountryRulesFromMedia(int groupId, long mediaId, List<long> assetRuleIdsToRemove)
-        {
-            bool result = false;
-            try
-            {
-                StoredProcedure sp = new StoredProcedure("RemoveCountryRulesFromMedia");
-                sp.AddIDListParameter<long>("@assetRuleIds", assetRuleIdsToRemove, "ID");
-                sp.AddParameter("@mediaId", mediaId);
-                sp.AddParameter("@groupId", groupId);
-
-                result = sp.ExecuteReturnValue<int>() > 0;
-            }
-            catch (Exception ex)
-            {
-                log.ErrorFormat("Error while RemoveCountryRulesFromMedia in DB, groupId: {0}, assetRuleIds: {1}, ex:{2} ", groupId, string.Join(", ", assetRuleIdsToRemove), ex);
-            }
-
-            return result;
-        }
-
-        #endregion
 
         #region Permissions Management
 
@@ -5257,6 +5032,18 @@ namespace DAL
         #endregion
 
         #region AssetUserRule
+
+        public static long AddAssetUserRule(int groupId, AssetUserRule assetUserRule)
+        {
+            var assetRule = new AssetRule() { Name = assetUserRule.Name, Description = assetUserRule.Description };
+            return AssetRuleRepository.Instance.AddAssetRule(groupId, assetRule, (int)AssetRuleType.AssetUserRule, false);
+        }
+
+        public static bool UpdateAssetUserRule(int groupId, AssetUserRule assetUserRule)
+        {
+            var assetRule = new AssetRule() { Id = assetUserRule.Id, Name = assetUserRule.Name, Description = assetUserRule.Description };
+            return AssetRuleRepository.Instance.UpdateAssetRule(groupId, assetRule, false);
+        }
 
         public static AssetUserRule GetAssetUserRuleCB(long assetUserRuleId)
         {

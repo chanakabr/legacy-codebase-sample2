@@ -22,7 +22,6 @@ namespace DAL
         private const int NUM_OF_TRIES = 3;
         private const string MAIN_CONNECTION_STRING = "MAIN_CONNECTION_STRING";
 
-
         #region Generic Methods
 
         public static bool SaveObjectWithVersionCheckInCB<T>(uint ttl, eCouchbaseBucket couchbaseBucket, string key, Action<T> updateObjectAction, bool updateObjectActionIfNotExist = false,
@@ -153,7 +152,6 @@ namespace DAL
 
             return responseT;
         }
-
 
         public static List<T> GetObjectListFromCB<T>(eCouchbaseBucket couchbaseBucket, List<string> keys, bool serializeToString = false)
         {

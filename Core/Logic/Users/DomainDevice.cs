@@ -13,7 +13,7 @@ using System.Reflection;
 
 namespace Core.Users
 {
-    public class DomainDevice : CoreObject, ICampaignObject
+    public class DomainDevice : CoreObject
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -165,7 +165,7 @@ namespace Core.Users
             LayeredCache.Instance.InvalidateKeys(invalidationKeys);
         }
 
-        public IConditionScope ConvertToConditionScope(ContextData contextData)
+        public TriggerCampaignConditionScope CreateTriggerCampaignConditionScope(ContextData contextData)
         {
             var userSegments = ApiObjects.Segmentation.UserSegment.List(contextData.GroupId, contextData.UserId.ToString(), out int totalCount);
 
