@@ -8786,6 +8786,76 @@ namespace WebAPI.Models.General
             return ret;
         }
     }
+    public partial class KalturaPriorityGroupFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
+    public partial class KalturaPriorityGroupListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Values != null && (retrievedProperties == null || retrievedProperties.Contains("objects")))
+            {
+                propertyValue = "[" + String.Join(", ", Values.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Values != null && (retrievedProperties == null || retrievedProperties.Contains("objects")))
+            {
+                propertyValue = Values.Count > 0 ? "<item>" + String.Join("</item><item>", Values.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaRegexExpression
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
@@ -22281,6 +22351,10 @@ namespace WebAPI.Models.Catalog
                 propertyValue = DynamicOrderBy.ToJson(currentVersion, omitObsolete);
                 ret.Add("dynamicOrderBy", "\"dynamicOrderBy\": " + propertyValue);
             }
+            if(ShouldApplyPriorityGroupsEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("shouldApplyPriorityGroupsEqual")))
+            {
+                ret.Add("shouldApplyPriorityGroupsEqual", "\"shouldApplyPriorityGroupsEqual\": " + ShouldApplyPriorityGroupsEqual.ToString().ToLower());
+            }
             if(TrendingDaysEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("trendingDaysEqual")))
             {
                 ret.Add("trendingDaysEqual", "\"trendingDaysEqual\": " + TrendingDaysEqual);
@@ -22303,6 +22377,10 @@ namespace WebAPI.Models.Catalog
             {
                 propertyValue = DynamicOrderBy.ToXml(currentVersion, omitObsolete);
                 ret.Add("dynamicOrderBy", "<dynamicOrderBy>" + propertyValue + "</dynamicOrderBy>");
+            }
+            if(ShouldApplyPriorityGroupsEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("shouldApplyPriorityGroupsEqual")))
+            {
+                ret.Add("shouldApplyPriorityGroupsEqual", "<shouldApplyPriorityGroupsEqual>" + ShouldApplyPriorityGroupsEqual.ToString().ToLower() + "</shouldApplyPriorityGroupsEqual>");
             }
             if(TrendingDaysEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("trendingDaysEqual")))
             {

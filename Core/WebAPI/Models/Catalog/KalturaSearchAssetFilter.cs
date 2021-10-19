@@ -111,7 +111,8 @@ namespace WebAPI.Models.Catalog
                                 (GroupingOptionEqual, GroupingOption.Omit).Value,
                 IsPersonalListSearch = false,
                 UseFinal = false,
-                TrendingDays = TrendingDaysEqual
+                TrendingDays = TrendingDaysEqual,
+                ShouldApplyPriorityGroups = ShouldApplyPriorityGroupsEqual.GetValueOrDefault()
             };
             
             var response = ClientsManager.CatalogClient().SearchAssets(searchAssetFilter, OrderBy, DynamicOrderBy, responseProfile, GroupByOrder);

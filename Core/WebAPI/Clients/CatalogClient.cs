@@ -14,6 +14,7 @@ using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
+using ApiObjects.SearchPriority;
 using ApiObjects.SearchPriorityGroups;
 using AutoMapper;
 using Catalog.Response;
@@ -35,6 +36,7 @@ using WebAPI.Models.Api;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
 using WebAPI.Models.Catalog.SearchPriorityGroup;
+using WebAPI.Models.Catalog.SearchPriority;
 using WebAPI.Models.General;
 using WebAPI.Models.Upload;
 using WebAPI.Models.Users;
@@ -387,7 +389,6 @@ namespace WebAPI.Clients
             }
 
             return result;
-
         }
 
         public bool RemoveTopicsFromAsset(int groupId, long id, KalturaAssetReferenceType assetReferenceType, HashSet<long> topicIds, long userId)
@@ -401,41 +402,50 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(removeTopicsFromAssetFunc);
         }
 
-        public KalturaAssetListResponse GetAssetsForOPCAccount(int groupId, long domainId, List<BaseObject> assetsBaseDataList, bool isAllowedToViewInactiveAssets)
+        public KalturaAssetListResponse GetAssetsForOPCAccount(int groupId, long domainId, List<BaseObject> assetsBaseDataList, bool isAllowedToViewInactiveAssets,
+            KalturaBaseResponseProfile responseProfile = null,
+            IReadOnlyDictionary<double, SearchPriorityGroup> priorityGroupsMapping = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
             if (assetsBaseDataList != null && assetsBaseDataList.Count > 0)
             {
                 Version requestVersion = OldStandardAttribute.getCurrentRequestVersion();
                 bool shouldReturnOldMediaObj = requestVersion.CompareTo(opcMergeVersion) < 0;
-                GenericListResponse<Asset> assetListResponse = AssetManager.GetOrderedAssets(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+                GenericListResponse<AssetPriority> assetListResponse = AssetManager.GetOrderedAssets(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets, priorityGroupsMapping);
                 if (assetListResponse != null && assetListResponse.Status != null && assetListResponse.Status.Code == (int)eResponseStatus.OK)
                 {
                     result.Objects = new List<KalturaAsset>();
+                    var assets = new List<KalturaAssetPriority>();
                     // convert assets
-                    foreach (Asset assetToConvert in assetListResponse.Objects)
+                    foreach (AssetPriority assetToConvert in assetListResponse.Objects)
                     {
                         KalturaAsset asset = null;
-                        if (assetToConvert.AssetType == eAssetTypes.MEDIA && shouldReturnOldMediaObj)
+                        if (assetToConvert.Asset.AssetType == eAssetTypes.MEDIA && shouldReturnOldMediaObj)
                         {
-                            MediaObj oldMediaObj = new MediaObj(groupId, assetToConvert as MediaAsset);
+                            MediaObj oldMediaObj = new MediaObj(groupId, assetToConvert.Asset as MediaAsset);
                             asset = Mapper.Map<KalturaMediaAsset>(oldMediaObj);
                         }
                         else
                         {
-                            if (assetToConvert.AssetType == eAssetTypes.NPVR)
+                            if (assetToConvert.Asset.AssetType == eAssetTypes.NPVR)
                             {
-                                long.TryParse((assetToConvert as RecordingAsset).RecordingId, out var domainRecordingId);
-                                (assetToConvert as RecordingAsset).ViewableUntilDate = Core.Recordings.RecordingsManager
+                                long.TryParse((assetToConvert.Asset as RecordingAsset).RecordingId, out var domainRecordingId);
+                                (assetToConvert.Asset as RecordingAsset).ViewableUntilDate = Core.Recordings.RecordingsManager
                                     .Instance.GetRecordingViewableUntilDate(groupId, domainId, domainRecordingId);
                             }
 
-                            asset = Mapper.Map<KalturaAsset>(assetToConvert);
-                            asset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(assetToConvert.Images, groupId);
+                            asset = Mapper.Map<KalturaAsset>(assetToConvert.Asset);
+                            asset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(assetToConvert.Asset.Images, groupId);
                         }
+                        
+                        assets.Add(new KalturaAssetPriority(asset, assetToConvert.PriorityGroupId));
 
-                        result.Objects.Add(asset);
+                        // result.Objects.Add(asset);
                     }
+
+                    result.Objects = assets.Select(x => x.Asset).ToList();
+                    
+                    SearchPriorityProfileProcessor.ProcessSearchPriorityResponseProfile(responseProfile, assets);
                 }
                 else if (assetListResponse != null && assetListResponse.Status != null)
                 {
@@ -447,7 +457,8 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse GetAssetFromUnifiedSearchResponse(int groupId, UnifiedSearchResponse searchResponse, BaseRequest request, bool isAllowedToViewInactiveAssets,
-                                                                            bool managementData = false, KalturaBaseResponseProfile responseProfile = null, bool isPersonalListSearch = false)
+                                                                            bool managementData = false, KalturaBaseResponseProfile responseProfile = null, bool isPersonalListSearch = false, 
+                                                                            IReadOnlyDictionary<double, SearchPriorityGroup> priorityGroupsMapping = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
             bool doesGroupUsesTemplates = Utils.Utils.DoesGroupUsesTemplates(groupId);
@@ -485,7 +496,7 @@ namespace WebAPI.Clients
                             .Skip(request.m_nPageIndex * request.m_nPageSize)?.Take(request.m_nPageSize).ToList();
                     }
 
-                    result = GetAssetsForOPCAccount(groupId, request.domainId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+                    result = GetAssetsForOPCAccount(groupId, request.domainId, assetsBaseDataList, isAllowedToViewInactiveAssets, responseProfile, priorityGroupsMapping);
 
                     var aggregationResults = searchResponse.aggregationResults[0].results;
                     List<KalturaAsset> tempAssets = result.Objects;
@@ -506,14 +517,13 @@ namespace WebAPI.Clients
                     List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
                     if (doesGroupUsesTemplates)
                     {
-                        result = GetAssetsForOPCAccount(groupId, request.domainId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+                        result = GetAssetsForOPCAccount(groupId, request.domainId, assetsBaseDataList, isAllowedToViewInactiveAssets, responseProfile, priorityGroupsMapping);
                     }
                     else
                     {
                         // get base objects list                    
                         result.Objects = CatalogUtils.GetAssets(assetsBaseDataList, request, managementData);
                     }
-
                 }
 
                 result.TotalCount = searchResponse.m_nTotalItems;
@@ -863,8 +873,37 @@ namespace WebAPI.Clients
                 domainId = searchAssetsFilter.DomainId,
                 isAllowedToViewInactiveAssets = searchAssetsFilter.IsAllowedToViewInactiveAssets,
                 shouldIgnoreEndDate = searchAssetsFilter.IgnoreEndDate && !searchAssetsFilter.UseFinal,
-                isGroupingOptionInclude = searchAssetsFilter.GroupByType == GroupingOption.Include
+                isGroupingOptionInclude = searchAssetsFilter.GroupByType == GroupingOption.Include,
             };
+            // for testing purposes
+            if (searchAssetsFilter.ShouldApplyPriorityGroups)
+            {
+                request.PriorityGroups = new Dictionary<double, SearchPriorityGroup>
+                {
+                    {
+                        3, new SearchPriorityGroup
+                        {
+                            Id = 456,
+                            Criteria = new Criteria
+                            {
+                                Type = CriteriaType.kSQL,
+                                Value = "asset_type = 'epg'"
+                            }
+                        }
+                    },
+                    {
+                        2, new SearchPriorityGroup
+                        {
+                            Id = 123,
+                            Criteria = new Criteria
+                            {
+                                Type = CriteriaType.kSQL,
+                                Value = "name ~ 'Asset'"
+                            }
+                        }
+                    }
+                };
+            }
 
             if (searchAssetsFilter.GroupBy != null && searchAssetsFilter.GroupBy.Count > 0)
             {
@@ -892,7 +931,7 @@ namespace WebAPI.Clients
             }
 
             result = GetAssetFromUnifiedSearchResponse(searchAssetsFilter.GroupId, searchResponse, request, searchAssetsFilter.IsAllowedToViewInactiveAssets,
-                searchAssetsFilter.ManagementData, responseProfile, searchAssetsFilter.IsPersonalListSearch);
+                searchAssetsFilter.ManagementData, responseProfile, searchAssetsFilter.IsPersonalListSearch, request.PriorityGroups);
 
             return result;
         }
@@ -4308,3 +4347,4 @@ namespace WebAPI.Clients
         }
     }
 }
+

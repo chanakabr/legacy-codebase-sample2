@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using ApiObjects.SearchPriority;
 
 namespace ApiObjects.SearchObjects
 {
@@ -387,6 +388,8 @@ namespace ApiObjects.SearchObjects
         public bool isAllowedToViewInactiveAssets { get; set; }
 
         public List<string> PersonalData { get; set; }
+
+        public IReadOnlyDictionary<double, SearchPriorityGroup> PriorityGroups { get; set; }
 
         /// <summary>
         /// The country Id of the calling user for geo availability 

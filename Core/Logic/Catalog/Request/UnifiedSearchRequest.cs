@@ -11,6 +11,7 @@ using System.Web;
 using Core.Catalog.Response;
 using KLogMonitor;
 using System.Reflection;
+using ApiObjects.SearchPriority;
 using Core.Catalog.Attributes;
 using Core.Catalog.Cache;
 using Catalog.Response;
@@ -100,6 +101,11 @@ namespace Core.Catalog.Request
 
         [DataMember]
         public bool isGroupingOptionInclude;
+        
+        /// <summary>
+        /// Key Value Pair. Key - Score. Value - Corresponding Priority Group.
+        /// </summary>
+        public IReadOnlyDictionary<double, SearchPriorityGroup> PriorityGroups { get; set; }
 
         #endregion
 

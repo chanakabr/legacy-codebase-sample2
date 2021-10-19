@@ -463,6 +463,12 @@ namespace Core.Catalog
                 }
 
                 #endregion
+
+                #region Priority Groups
+
+                definitions.PriorityGroups = request.PriorityGroups;
+
+                #endregion
             }
             catch(KalturaException ex)
             {

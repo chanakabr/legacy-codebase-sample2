@@ -12,6 +12,8 @@ using OrderDir = ApiObjects.SearchObjects.OrderDir;
 using ElasticSearch.Searcher;
 using Nest;
 using ApiLogic.IndexManager.Helpers;
+using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
+using ApiObjects.SearchPriority;
 
 namespace ApiLogic.IndexManager.QueryBuilders
 {
@@ -295,7 +297,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 filteredQueryBuilder.Append("], ");
             }
 
-            bool functionScoreSort = this.SearchDefinitions.boostScoreValues != null && this.SearchDefinitions.boostScoreValues.Count > 0;
+            var isBoostScoreValues = this.SearchDefinitions.boostScoreValues != null && this.SearchDefinitions.boostScoreValues.Count > 0;
+            var isPriorityGroupsDefined = this.SearchDefinitions.PriorityGroups != null && this.SearchDefinitions.PriorityGroups.Any();
+            bool functionScoreSort = isBoostScoreValues || isPriorityGroupsDefined;
             string sortString = SortUtils.GetSort(this.SearchDefinitions.order, this.ReturnFields, functionScoreSort);
 
             filteredQueryBuilder.AppendFormat("{0}, ", sortString);
@@ -462,7 +466,16 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 filteredQueryBuilder.Append("},");
             }
 
-            if (this.SearchDefinitions.boostScoreValues == null || this.SearchDefinitions.boostScoreValues.Count == 0)
+            if (this.SearchDefinitions.PriorityGroups != null)
+            {
+                var priorityQueryBuilder = new PriorityQueryBuilder(this, this.SearchDefinitions.PriorityGroups);
+                var functionScore = priorityQueryBuilder.Build(queryTerm, filterPart);
+
+                filteredQueryBuilder.Append(" \"query\" :");
+                filteredQueryBuilder.Append(functionScore);
+                filteredQueryBuilder.Append("}");
+            }
+            else if (this.SearchDefinitions.boostScoreValues == null || this.SearchDefinitions.boostScoreValues.Count == 0)
             {
                 filteredQueryBuilder.Append(" \"query\": { \"filtered\": {");
 
@@ -1794,7 +1807,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
         /// </summary>
         /// <param name="root"></param>
         /// <returns></returns>
-        protected IESTerm ConvertToQuery(BooleanPhraseNode root)
+        public IESTerm ConvertToQuery(BooleanPhraseNode root)
         {
             IESTerm term = null;
 
