@@ -554,11 +554,13 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaSeriesRecordingOption, SeriesRecordingOption>()
                 .ForMember(dest => dest.MinEpisodeNumber, opt => opt.MapFrom(src => src.MinEpisodeNumber))
                 .ForMember(dest => dest.MinSeasonNumber, opt => opt.MapFrom(src => src.MinSeasonNumber))
+                .ForMember(dest => dest.ChronologicalRecordStartTime, opt => opt.ResolveUsing(src => ConvertChronologicalRecordFrom(src.ChronologicalRecordStartTime)))
                 ;
 
             cfg.CreateMap<SeriesRecordingOption, KalturaSeriesRecordingOption>()
                 .ForMember(dest => dest.MinEpisodeNumber, opt => opt.MapFrom(src => src.MinEpisodeNumber))
                 .ForMember(dest => dest.MinSeasonNumber, opt => opt.MapFrom(src => src.MinSeasonNumber))
+                .ForMember(dest => dest.ChronologicalRecordStartTime, opt => opt.ResolveUsing(src => ConvertChronologicalRecordFrom(src.ChronologicalRecordStartTime)))
                 ;
 
             // KalturaSeriesRecording to SeriesRecording
@@ -704,6 +706,18 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.Result, opt => opt.MapFrom(src => src.Result))
                 .AfterMap((src, dest) => dest.Result.Args = dest.Result.Args.Any() ? dest.Result.Args : null);
+        }
+
+        private static ChronologicalRecordStartTime ConvertChronologicalRecordFrom(KalturaChronologicalRecordStartTime? chronologicalRecordFrom)
+        {
+            return GenericExtensionMethods.ConvertEnumsById<KalturaChronologicalRecordStartTime, ChronologicalRecordStartTime>
+                (chronologicalRecordFrom, ChronologicalRecordStartTime.None).Value;
+        }
+
+        private static KalturaChronologicalRecordStartTime ConvertChronologicalRecordFrom(ChronologicalRecordStartTime? chronologicalRecordFrom)
+        {
+            return GenericExtensionMethods.ConvertEnumsById<ChronologicalRecordStartTime, KalturaChronologicalRecordStartTime>
+                (chronologicalRecordFrom, KalturaChronologicalRecordStartTime.NONE).Value;
         }
 
         internal static eTransactionType? ConvertKalturaTransactionType(KalturaTransactionType? businessModuleTypeEqual)

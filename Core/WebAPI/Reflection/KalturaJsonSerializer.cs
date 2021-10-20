@@ -4778,6 +4778,10 @@ namespace WebAPI.Models.ConditionalAccess
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(ChronologicalRecordStartTime.HasValue && (retrievedProperties == null || retrievedProperties.Contains("chronologicalRecordStartTime")))
+            {
+                ret.Add("chronologicalRecordStartTime", "\"chronologicalRecordStartTime\": " + "\"" + Enum.GetName(typeof(KalturaChronologicalRecordStartTime), ChronologicalRecordStartTime) + "\"");
+            }
             if(MinEpisodeNumber.HasValue && (retrievedProperties == null || retrievedProperties.Contains("minEpisodeNumber")))
             {
                 ret.Add("minEpisodeNumber", "\"minEpisodeNumber\": " + MinEpisodeNumber);
@@ -4800,6 +4804,10 @@ namespace WebAPI.Models.ConditionalAccess
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(ChronologicalRecordStartTime.HasValue && (retrievedProperties == null || retrievedProperties.Contains("chronologicalRecordStartTime")))
+            {
+                ret.Add("chronologicalRecordStartTime", "<chronologicalRecordStartTime>" + "" + Enum.GetName(typeof(KalturaChronologicalRecordStartTime), ChronologicalRecordStartTime) + "" + "</chronologicalRecordStartTime>");
+            }
             if(MinEpisodeNumber.HasValue && (retrievedProperties == null || retrievedProperties.Contains("minEpisodeNumber")))
             {
                 ret.Add("minEpisodeNumber", "<minEpisodeNumber>" + MinEpisodeNumber + "</minEpisodeNumber>");
@@ -23561,6 +23569,10 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AliasName != null && (retrievedProperties == null || retrievedProperties.Contains("aliasName")))
+            {
+                ret.Add("aliasName", "\"aliasName\": " + "\"" + EscapeJson(AliasName) + "\"");
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("assetStructId")))
             {
                 ret.Add("assetStructId", "\"assetStructId\": " + AssetStructId);
@@ -23615,6 +23627,10 @@ namespace WebAPI.Models.Catalog
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AliasName != null && (retrievedProperties == null || retrievedProperties.Contains("aliasName")))
+            {
+                ret.Add("aliasName", "<aliasName>" + EscapeXml(AliasName) + "</aliasName>");
+            }
             if((retrievedProperties == null || retrievedProperties.Contains("assetStructId")))
             {
                 ret.Add("assetStructId", "<assetStructId>" + AssetStructId + "</assetStructId>");
@@ -26807,6 +26823,76 @@ namespace WebAPI.Models.Catalog
         }
     }
     public partial class KalturaLinearAssetStructFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            return ret;
+        }
+    }
+    public partial class KalturaLineupChannelAsset
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+
+            if(LinearChannelNumber.HasValue && (retrievedProperties == null || retrievedProperties.Contains("lcn")))
+            {
+                ret.Add("lcn", "\"lcn\": " + LinearChannelNumber);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
+
+            if(LinearChannelNumber.HasValue && (retrievedProperties == null || retrievedProperties.Contains("lcn")))
+            {
+                ret.Add("lcn", "<lcn>" + LinearChannelNumber + "</lcn>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaLineupChannelAssetListResponse
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
         {
@@ -38597,6 +38683,44 @@ namespace WebAPI.Models.Partner
             if(RevokeOnDeviceDelete.HasValue && (retrievedProperties == null || retrievedProperties.Contains("revokeOnDeviceDelete")))
             {
                 ret.Add("revokeOnDeviceDelete", "<revokeOnDeviceDelete>" + RevokeOnDeviceDelete.ToString().ToLower() + "</revokeOnDeviceDelete>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCustomFieldsPartnerConfiguration
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(MetaSystemNameInsteadOfAliasList != null && (retrievedProperties == null || retrievedProperties.Contains("metaSystemNameInsteadOfAliasList")))
+            {
+                ret.Add("metaSystemNameInsteadOfAliasList", "\"metaSystemNameInsteadOfAliasList\": " + "\"" + EscapeJson(MetaSystemNameInsteadOfAliasList) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(MetaSystemNameInsteadOfAliasList != null && (retrievedProperties == null || retrievedProperties.Contains("metaSystemNameInsteadOfAliasList")))
+            {
+                ret.Add("metaSystemNameInsteadOfAliasList", "<metaSystemNameInsteadOfAliasList>" + EscapeXml(MetaSystemNameInsteadOfAliasList) + "</metaSystemNameInsteadOfAliasList>");
             }
             return ret;
         }

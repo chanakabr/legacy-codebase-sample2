@@ -1,4 +1,5 @@
 ﻿using ApiObjects;
+using ApiObjects.Response;
 using ApiObjects.TimeShiftedTv;
 using KLogMonitor;
 using Newtonsoft.Json;
@@ -553,9 +554,10 @@ namespace DAL
         }
 
         //this is the save to domain series table
-        public static DataTable FollowSeries(int groupId, string userId, long domainID, long epgId, long epgChannelId, string seriesId, int seasonNumber,
-            int episodeNumber, int recordType, int? minSeasonNumber, int? minEpisodeNumber)
+        public static SeriesRecording FollowSeries(int groupId, string userId, long domainID, long epgId, long epgChannelId, string seriesId, int seasonNumber,
+            int episodeNumber, int recordType, SeriesRecordingOption seriesRecordingOption, long? startDateRecording)
         {
+            var seriesRecording = new SeriesRecording();
             ODBCWrapper.StoredProcedure spFollowSeries = new ODBCWrapper.StoredProcedure("FollowSeries");
             spFollowSeries.SetConnectionKey(RECORDING_CONNECTION);
             spFollowSeries.AddParameter("@GroupID", groupId);
@@ -567,11 +569,59 @@ namespace DAL
             spFollowSeries.AddParameter("@SeasonNumber", seasonNumber);
             spFollowSeries.AddParameter("@EpisodeNumber", episodeNumber);
             spFollowSeries.AddParameter("@RecordType", recordType);
-            spFollowSeries.AddParameter("@MinSeasonNumber", minSeasonNumber);
-            spFollowSeries.AddParameter("@MinEpisodeNumber", minEpisodeNumber);
+            spFollowSeries.AddParameter("@MinSeasonNumber", seriesRecordingOption?.MinSeasonNumber);
+            spFollowSeries.AddParameter("@MinEpisodeNumber", seriesRecordingOption?.MinEpisodeNumber);
+            if (startDateRecording.HasValue && startDateRecording.Value > 0)
+            {
+                spFollowSeries.AddParameter("@StartDateRecording", startDateRecording.Value);
+                spFollowSeries.AddParameter("@chronologicalRecordStartTime", (int?)seriesRecordingOption?.ChronologicalRecordStartTime);
+            }
+
             DataTable dt = spFollowSeries.Execute();
 
-            return dt;
+            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+            {
+                seriesRecording = BuildSeriesRecordingDetails(dt.Rows[0]);
+            }
+
+            return seriesRecording;
+        }
+
+        public static SeriesRecording BuildSeriesRecordingDetails(DataRow dr)
+        {
+            long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID");
+            long epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
+            long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
+            int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER");
+            string seriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID");
+            DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
+            DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
+            var type = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORD_TYPE");
+            int? minSeason = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_SEASON_NUMBER");
+            int? minEpisode = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_EPISODE_NUMBER");
+            long? startDateRecording = ODBCWrapper.Utils.GetLongSafeVal(dr, "START_DATE_RECORDING");
+            int? chronologicalRecordStartTime = ODBCWrapper.Utils.GetIntSafeVal(dr, "CHRONOLOGICAL_RECORD_STARTTIME");
+
+            return new SeriesRecording()
+            {
+                EpgChannelId = epgChannelId,
+                EpgId = epgId,
+                Id = domainSeriesRecordingId,
+                SeasonNumber = seasonNumber,
+                SeriesId = seriesId,
+                Type = type,
+                CreateDate = createDate,
+                UpdateDate = updateDate,
+                SeriesRecordingOption = new SeriesRecordingOption
+                {
+                    MinEpisodeNumber = minEpisode > 0 ? minEpisode : null,
+                    MinSeasonNumber = minSeason > 0 ? minSeason : null,
+                    StartDateRecording = startDateRecording > 0 ? startDateRecording : null,
+                    ChronologicalRecordStartTime = !chronologicalRecordStartTime.HasValue ? ChronologicalRecordStartTime.None: 
+                    (ChronologicalRecordStartTime)chronologicalRecordStartTime
+                },
+                Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
+            };
         }
 
         public static bool IsSeriesFollowed(int groupId, string seriesId, int seasonNumber, long channelId)

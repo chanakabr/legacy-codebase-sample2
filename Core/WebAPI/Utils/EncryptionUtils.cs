@@ -145,6 +145,28 @@ namespace WebAPI.Utils
             return response;
         }
 
+        public static string HashMD5(string payload, Encoding encoding)
+        {
+            string hash = null;
+            if (!string.IsNullOrEmpty(payload))
+            {
+                var bytes = encoding.GetBytes(payload);
+                using (var md5 = MD5.Create())
+                {
+                    var hashBytes = md5.ComputeHash(bytes);
+                    var sb = new StringBuilder();
+                    foreach (var byteData in hashBytes)
+                    {
+                        sb.Append(byteData.ToString("x2"));
+                    }
+
+                    hash = sb.ToString();
+                }
+            }
+
+            return hash;
+        }
+
         public static byte[] AesEncrypt(string secretForSigning, byte[] text, int blockSize)
         {
             // Key

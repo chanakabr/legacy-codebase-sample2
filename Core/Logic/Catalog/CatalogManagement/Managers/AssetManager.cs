@@ -4,7 +4,6 @@ using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
-using ApiObjects.TimeShiftedTv;
 using CachingProvider.LayeredCache;
 using Core.Api.Managers;
 using Core.Catalog.Response;
@@ -23,20 +22,17 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Xml;
+using ApiLogic.Catalog;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
 namespace Core.Catalog.CatalogManagement
 {
-    public interface IAssetManager
-    {
-        bool InvalidateAsset(eAssetTypes assetType, int groupId, long assetId, [System.Runtime.CompilerServices.CallerMemberName] string callingMethod = "");
-    }
-
     public class AssetManager : IAssetManager
     {
         #region Constants and Read-only
 
+        private static readonly Lazy<AssetManager> Lazy = new Lazy<AssetManager>(() => new AssetManager(), LazyThreadSafetyMode.PublicationOnly);
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
         private const string IS_NEW_TAG_COLUMN_NAME = "tag_id";
@@ -110,11 +106,10 @@ namespace Core.Catalog.CatalogManagement
             { CREATE_DATE_TIME_META_SYSTEM_NAME, MetaType.DateTime.ToString() }
         };
 
-        #endregion
-
+        private static readonly Lazy<MediaAssetService> MediaAssetServiceLazy = new Lazy<MediaAssetService>(() => MediaAssetService.Instance, LazyThreadSafetyMode.PublicationOnly);
         private static readonly Lazy<AssetManager> lazy = new Lazy<AssetManager>(() => new AssetManager(), LazyThreadSafetyMode.PublicationOnly);
-
-        public static AssetManager Instance { get { return lazy.Value; } }
+        public static AssetManager Instance => Lazy.Value;
+        #endregion
 
         private AssetManager()
         {
@@ -400,8 +395,7 @@ namespace Core.Catalog.CatalogManagement
 
         #region Private Methods
 
-        private static GenericResponse<Asset> CreateMediaAssetResponseFromDataSet(int groupId, Dictionary<string, DataTable> tables, LanguageObj defaultLanguage,
-                                                                                    List<LanguageObj> groupLanguages, bool isForMigration = false)
+        private static GenericResponse<Asset> CreateMediaAssetResponseFromDataSet(int groupId, Dictionary<string, DataTable> tables, bool isForMigration = false)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
 
@@ -413,7 +407,19 @@ namespace Core.Catalog.CatalogManagement
                 return result;
             }
 
-            result.Object = CreateMediaAsset(groupId, id, tables, defaultLanguage, groupLanguages, false, isForMigration);
+            result.Object = MediaAssetServiceLazy.Value.CreateMediaAsset(
+                groupId,
+                tables[TABLE_NAME_BASIC],
+                tables[TABLE_NAME_METAS],
+                tables[TABLE_NAME_TAGS],
+                tables[TABLE_NAME_NEW_TAGS],
+                tables[TABLE_NAME_FILES],
+                tables[TABLE_NAME_FILES_LABELS],
+                tables[TABLE_NAME_IMAGES],
+                null,
+                null,
+                tables[TABLE_NAME_RELATED_ENTITIES],
+                false, isForMigration);
 
             if (result.Object != null)
             {
@@ -421,280 +427,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
-        }
-
-        private static MediaAsset CreateMediaAsset(int groupId, long id, Dictionary<string, DataTable> tables, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages,
-                                                    bool isForIndex = false, bool isForMigration = false)
-        {
-            MediaAsset result = null;
-            CatalogGroupCache catalogGroupCache = null;
-
-            if (!tables.ContainsKey(TABLE_NAME_BASIC))
-            {
-                log.WarnFormat("CreateMediaAsset didn't basic table. assetId {0}", id);
-                return result;
-            }
-
-            DataRow basicDataRow = tables[TABLE_NAME_BASIC].Rows[0];
-            long assetStructId = ODBCWrapper.Utils.GetLongSafeVal(basicDataRow, "ASSET_STRUCT_ID", 0);
-            MediaType mediaType;
-            if (!TryGetMediaTypeFromAssetStructId(groupId, assetStructId, out mediaType))
-            {
-                log.WarnFormat("media type (assetStruct) is not valid for media with Id: {0}, assetStructId: {1}", id, assetStructId);
-                return result;
-            }
-
-            DateTime? createDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "CREATE_DATE");
-            DateTime? finalEndDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "FINAL_END_DATE");
-            DateTime? startDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "START_DATE");
-            DateTime? endDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "END_DATE");
-            DateTime? catalogStartDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "CATALOG_START_DATE");
-            DateTime? maxUpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(basicDataRow, "UPDATE_DATE");
-            string fallbackEpgIdentifier = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "EPG_IDENTIFIER");
-
-            int inheritancePolicy = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "INHERITANCE_POLICY");
-            AssetInheritancePolicy assetInheritancePolicy = (AssetInheritancePolicy)Enum.ToObject(typeof(AssetInheritancePolicy), inheritancePolicy);
-
-            // Metas and Tags table
-            List<Metas> metas = null;
-            List<Tags> tags = null;
-            List<RelatedEntities> RelatedEntitiesList = null;
-            DataTable metasTable = new DataTable();
-            DataTable tagsTable = new DataTable();
-            DataTable relatedEntitiesTable = new DataTable();
-
-            if (tables.ContainsKey(TABLE_NAME_METAS)) // was [1]
-            {
-                metasTable = tables[TABLE_NAME_METAS];
-            }
-
-            if (tables.ContainsKey(TABLE_NAME_TAGS)) // was [2]
-            {
-                tagsTable = tables[TABLE_NAME_TAGS];
-            }
-
-            if (!TryGetMetasAndTags(groupId, id, defaultLanguage.ID, groupLanguages, metasTable, tagsTable, ref metas, ref tags, ref maxUpdateDate))
-            {
-                log.WarnFormat("CreateMediaAssetFromDataSet - failed to get media metas and tags for Id: {0}", id);
-                return null;
-            }
-
-            // Files table
-            List<AssetFile> files = null;
-            if (!isForIndex && tables.ContainsKey(TABLE_NAME_FILES) && tables[TABLE_NAME_FILES]?.Rows.Count > 0)
-            {
-                files = FileManager.CreateAssetFileListResponseFromDataTable(groupId, tables[TABLE_NAME_FILES], tables[TABLE_NAME_FILES_LABELS]);
-                // get only active files
-                files = files.Where(x => x.IsActive.HasValue && x.IsActive.Value).ToList();
-
-                var maxFilesUpdateDate = files.Max(x => x.UpdateDate);
-
-                if (maxFilesUpdateDate.HasValue && (!maxUpdateDate.HasValue || maxFilesUpdateDate.Value > maxUpdateDate.Value))
-                {
-                    maxUpdateDate = maxFilesUpdateDate;
-                }
-            }
-
-            // Images table
-            List<Image> images = new List<Image>();
-            if (tables.ContainsKey(TABLE_NAME_IMAGES) && tables[TABLE_NAME_IMAGES]?.Rows.Count > 0)
-            {
-                GenericListResponse<Image> imageResponse = ImageManager.CreateImageListResponseFromDataTable(groupId, tables[TABLE_NAME_IMAGES], true);
-                if (!imageResponse.HasObjects())
-                {
-                    log.WarnFormat("CreateMediaAssetFromDataSet - failed to get images for Id: {0}", id);
-                    return null;
-                }
-
-                // get only active images
-                images = imageResponse.Objects.Any(x => x.Status == eTableStatus.OK) ? imageResponse.Objects.Where(x => x.Status == eTableStatus.OK).ToList() : new List<Image>();
-            }
-
-            List<Image> groupDefaultImages = ImageManager.GetGroupDefaultImages(groupId);
-            HashSet<long> assetImageTypes = new HashSet<long>(images.Select(x => x.ImageTypeId).ToList());
-            images.AddRange(groupDefaultImages.Where(x => !assetImageTypes.Contains(x.ImageTypeId)));
-
-            // new tags
-            if (!isForMigration && tables.ContainsKey(TABLE_NAME_NEW_TAGS) && tables[TABLE_NAME_NEW_TAGS]?.Rows.Count > 0)
-            {
-                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling CreateMediaAsset", groupId);
-                    return result;
-                }
-
-                foreach (DataRow dr in tables[TABLE_NAME_NEW_TAGS].Rows)
-                {
-                    int topicId = ODBCWrapper.Utils.GetIntSafeVal(dr, "topic_id");
-                    int tagId = ODBCWrapper.Utils.GetIntSafeVal(dr, "tag_id");
-                    int languageId = ODBCWrapper.Utils.GetIntSafeVal(dr, "language_id");
-                    string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
-                    DateTime tagCreateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "create_date");
-                    DateTime tagUpdateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "update_date");
-                    ApiObjects.SearchObjects.TagValue tag = new ApiObjects.SearchObjects.TagValue()
-                    {
-                        createDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(tagCreateDate),
-                        languageId = languageId,
-                        tagId = tagId,
-                        topicId = topicId,
-                        updateDate = DateUtils.DateTimeToUtcUnixTimestampSeconds(tagUpdateDate),
-                        value = translation
-                    };
-
-                    // Update Tag Index
-                    var indexManager = IndexManagerFactory.Instance.GetIndexManager(groupId);
-                    Status updateTagResponse = indexManager.UpdateTag(tag);
-                    if (updateTagResponse == null || updateTagResponse.Code != (int)eResponseStatus.OK)
-                    {
-                        log.WarnFormat("CreateMediaAsset - failed to update tag, tag : {0}, addTagResult: {1}", tag.ToString(),
-                                        updateTagResponse != null && updateTagResponse != null ? updateTagResponse.Message : "null");
-                    }
-                }
-            }
-
-            // update dates
-            if (tables.ContainsKey(TABLE_NAME_UPDATE_DATE) && tables[TABLE_NAME_UPDATE_DATE]?.Rows.Count > 0)
-            {
-                DateTime? assetUpdateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(tables[TABLE_NAME_UPDATE_DATE].Rows[0], "UPDATE_DATE");
-                // overide existing update with the max update date from all possible tables (from GetAssetUpdateDate stored procedure)
-                if (assetUpdateDate.HasValue)
-                {
-                    maxUpdateDate = assetUpdateDate;
-                }
-            }
-
-            // Handle new relatedEntities
-            if (tables.ContainsKey(TABLE_NAME_RELATED_ENTITIES) && tables[TABLE_NAME_RELATED_ENTITIES]?.Rows.Count > 0)
-            {
-                if (!TryGetRelatedEntitiesList(groupId, id, tables[TABLE_NAME_RELATED_ENTITIES], ref RelatedEntitiesList))
-                {
-                    log.WarnFormat("CreateMediaAsset - failed to get media RelatedEntities for Id: {0}", id);
-                    return null;
-                }
-            }
-
-            string name = string.Empty;
-            string description = null;
-            List<LanguageContainer> namesWithLanguages = null;
-            List<LanguageContainer> descriptionsWithLanguages = null;
-            if (!ExtractMediaAssetNamesAndDescriptionsFromMetas(metas, ref name, ref description, ref namesWithLanguages, ref descriptionsWithLanguages))
-            {
-                log.WarnFormat("Name is not valid for media with Id: {0}", id);
-                return result;
-            }
-
-            string entryId = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "ENTRY_ID");
-            string coGuid = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "CO_GUID");
-            bool isActive = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "IS_ACTIVE", 0) == 1;
-            int? deviceRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "DEVICE_RULE_ID", -1);
-            int? geoBlockRuleId = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "GEO_BLOCK_RULE_ID", -1);
-            string userTypes = ODBCWrapper.Utils.GetSafeStr(basicDataRow, "user_types");
-
-            result = new MediaAsset(id, eAssetTypes.MEDIA, name, namesWithLanguages, description, descriptionsWithLanguages, createDate, maxUpdateDate, startDate, endDate, metas, tags, images, coGuid,
-                                    isActive, catalogStartDate, finalEndDate, mediaType, entryId, deviceRuleId == -1 ? null : deviceRuleId, geoBlockRuleId == -1 ? null : geoBlockRuleId, files, userTypes,
-                                    assetInheritancePolicy, fallbackEpgIdentifier);
-
-            result.RelatedEntities = RelatedEntitiesList;
-
-            // if media is linear we also have the epg channel table returned
-            if (!isForIndex && tables.ContainsKey(TABLE_NAME_LINEAR) && tables[TABLE_NAME_LINEAR]?.Rows.Count > 0)
-            {
-                result = CreateLinearMediaAssetFromDataTable(groupId, tables[TABLE_NAME_LINEAR], result);
-            }
-
-            return result;
-        }
-
-        private static List<MediaAsset> CreateMediaAssets(int groupId, DataSet ds, LanguageObj defaultLanguage, List<LanguageObj> groupLanguages)
-        {
-            List<MediaAsset> result = null;
-            try
-            {
-                if (ds == null || ds.Tables == null || ds.Tables.Count < 6)
-                {
-                    log.WarnFormat("CreateMediaAssets didn't receive dataset with 7 or more tables");
-                    return result;
-                }
-
-                // Basic details table
-                if (ds.Tables[0] == null || ds.Tables[0].Rows == null || ds.Tables[0].Rows.Count <= 0)
-                {
-                    log.WarnFormat("CreateMediaAssets - basic details table is not valid");
-                    return result;
-                }
-
-                result = new List<MediaAsset>();
-
-                var metasTable = GetDataRows(ds, 1);
-                var tagsTable = GetDataRows(ds, 2);
-                var filesTable = GetDataRows(ds, 3);
-                var filesLabelsTable = GetDataRows(ds, 4);
-                var imagesTable = GetDataRows(ds, 5);
-                var linearMediasTable = GetDataRows(ds, 6);
-                var relatedEntitiesTable = GetDataRows(ds, 7);
-
-                foreach (DataRow basicDataRow in ds.Tables[0].Rows)
-                {
-                    int id = ODBCWrapper.Utils.GetIntSafeVal(basicDataRow, "ID", 0);
-                    if (id > 0)
-                    {
-                        Dictionary<string, DataTable> tables = new Dictionary<string, DataTable>();
-                        DataTable basicDataTable = ds.Tables[0].Clone();
-                        basicDataTable.ImportRow(basicDataRow);
-                        tables.Add(TABLE_NAME_BASIC, basicDataTable);
-                        tables.Add(TABLE_NAME_METAS, GetTableByAssetDataRows(metasTable, "ASSET_ID", id, ds, 1));
-                        tables.Add(TABLE_NAME_TAGS, GetTableByAssetDataRows(tagsTable, "ASSET_ID", id, ds, 2));
-                        tables.Add(TABLE_NAME_FILES, GetTableByAssetDataRows(filesTable, "MEDIA_ID", id, ds, 3));
-                        tables.Add(TABLE_NAME_FILES_LABELS, GetTableByAssetDataRows(filesLabelsTable, "MEDIA_ID", id, ds, 4));
-                        tables.Add(TABLE_NAME_IMAGES, GetTableByAssetDataRows(imagesTable, "ASSET_ID", id, ds, 5));
-                        //tables.Add(TABLE_NAME_UPDATE_DATE, GetTableByAssetDataRows(assetUpdateDateTable, "ID", id, ds, 5));
-                        tables.Add(TABLE_NAME_LINEAR, GetTableByAssetDataRows(linearMediasTable, "MEDIA_ID", id, ds, 7));
-                        tables.Add(TABLE_NAME_RELATED_ENTITIES, GetTableByAssetDataRows(relatedEntitiesTable, "ASSET_ID", id, ds, 8));
-
-                        MediaAsset mediaAsset = CreateMediaAsset(groupId, id, tables, defaultLanguage, groupLanguages);
-                        if (mediaAsset != null)
-                        {
-                            mediaAsset.IndexStatus = AssetIndexStatus.Ok;
-                            result.Add(mediaAsset);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error(string.Format("Failed CreateMediaAssets for groupId: {0}", groupId), ex);
-            }
-
-            return result;
-        }
-
-        private static EnumerableRowCollection<DataRow> GetDataRows(DataSet ds, int tableIndex)
-        {
-            var dataRows = new DataTable().AsEnumerable();
-            if (ds.Tables.Count > tableIndex && ds.Tables[tableIndex] != null && ds.Tables[tableIndex].Rows != null && ds.Tables[tableIndex].Rows.Count > 0)
-            {
-                dataRows = ds.Tables[tableIndex].AsEnumerable();
-            }
-
-            return dataRows;
-        }
-
-        private static DataTable GetTableByAssetDataRows(EnumerableRowCollection<DataRow> dataRows, string assetIdColumn, int assetId, DataSet ds, int tableIndex)
-        {
-            var dataRowsByAsset = (from row in dataRows
-                                   where (Int64)row[assetIdColumn] == assetId
-                                   select row);
-
-            if (dataRowsByAsset != null && dataRowsByAsset.Any())
-            {
-                return dataRowsByAsset.CopyToDataTable();
-            }
-            else if (ds.Tables.Count > tableIndex)
-            {
-                return ds.Tables[tableIndex].Clone();
-            }
-
-            return null;
         }
 
         private static Status ValidateMediaAssetForInsert(int groupId, CatalogGroupCache catalogGroupCache, ref AssetStruct assetStruct, MediaAsset asset, ref XmlDocument metasXmlDoc,
@@ -1030,7 +762,7 @@ namespace Core.Catalog.CatalogManagement
                         else
                         {
                             DataSet ds = CatalogDAL.GetMediaAssets(groupId.Value, ids, catalogGroupCache.GetDefaultLanguage().ID, isAllowedToViewInactiveAssets.Value);
-                            mediaAssets = CreateMediaAssets(groupId.Value, ds, catalogGroupCache.GetDefaultLanguage(), catalogGroupCache.LanguageMapById.Values.ToList());
+                            mediaAssets = MediaAssetServiceLazy.Value.CreateMediaAssets(groupId.Value, ds)?.ToList();
 
                             if (isAllowedToViewInactiveAssets.Value && mediaAssets?.Count != ids.Count)
                             {
@@ -1175,7 +907,7 @@ namespace Core.Catalog.CatalogManagement
                     result.SetStatus(status);
                     return result;
                 }
-                result = CreateMediaAssetResponseFromDataSet(groupId, tables, catalogGroupCache.GetDefaultLanguage(), catalogGroupCache.LanguageMapById.Values.ToList());
+                result = CreateMediaAssetResponseFromDataSet(groupId, tables);
 
                 if (result.HasObject() && result.Object.Id > 0 && !isLinear)
                 {
@@ -1356,47 +1088,6 @@ namespace Core.Catalog.CatalogManagement
                 orderNode.InnerText = order.ToString();
                 rowNode.AppendChild(orderNode);
                 rootNode.AppendChild(rowNode);
-            }
-        }
-
-        private static bool ExtractMediaAssetNamesAndDescriptionsFromMetas(List<Metas> metas, ref string name, ref string description, ref List<LanguageContainer> namesWithLanguages,
-                                                                           ref List<LanguageContainer> descriptionsWithLanguages)
-        {
-            if (metas != null && metas.Count > 0)
-            {
-                Metas nameMeta = metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower() == NAME_META_SYSTEM_NAME.ToLower());
-                if (nameMeta != null && !string.IsNullOrEmpty(nameMeta.m_sValue))
-                {
-                    name = nameMeta.m_sValue;
-                    if (nameMeta.Value != null && nameMeta.Value.Length > 0)
-                    {
-                        namesWithLanguages = new List<LanguageContainer>(nameMeta.Value);
-                    }
-
-                    metas.Remove(nameMeta);
-                }
-                else
-                {
-                    return false;
-                }
-
-                Metas descMeta = metas.FirstOrDefault(x => x.m_oTagMeta.m_sName.ToLower() == DESCRIPTION_META_SYSTEM_NAME.ToLower());
-                if (descMeta != null)
-                {
-                    description = descMeta.m_sValue;
-                    if (descMeta.Value != null && descMeta.Value.Length > 0)
-                    {
-                        descriptionsWithLanguages = new List<LanguageContainer>(descMeta.Value);
-                    }
-
-                    metas.Remove(descMeta);
-                }
-
-                return true;
-            }
-            else
-            {
-                return false;
             }
         }
 
@@ -1599,7 +1290,7 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                result = CreateMediaAssetResponseFromDataSet(groupId, tables, catalogGroupCache.GetDefaultLanguage(), catalogGroupCache.LanguageMapById.Values.ToList(), isForMigration);
+                result = CreateMediaAssetResponseFromDataSet(groupId, tables, isForMigration);
                 if (!isForMigration && result != null && result.HasObject() && result.Object.Id > 0 && !isLinear)
                 {
                     if (assetStruct.ParentId.HasValue && assetStruct.ParentId.Value > 0)
@@ -1614,7 +1305,7 @@ namespace Core.Catalog.CatalogManagement
                                 result.SetStatus(status);
                                 return result;
                             }
-                            result = CreateMediaAssetResponseFromDataSet(groupId, tables, catalogGroupCache.GetDefaultLanguage(), catalogGroupCache.LanguageMapById.Values.ToList());
+                            result = CreateMediaAssetResponseFromDataSet(groupId, tables);
                         }
                     }
 
@@ -1736,150 +1427,6 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return ds;
-        }
-
-        private static bool TryGetMediaTypeFromAssetStructId(int groupId, long assetStructId, out MediaType mediaType)
-        {
-            bool res = false;
-            mediaType = null;
-            CatalogGroupCache catalogGroupCache;
-            if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-            {
-                log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling GetAssetStructsByIds", groupId);
-                return res;
-            }
-
-            if (!catalogGroupCache.AssetStructsMapById.ContainsKey(assetStructId))
-            {
-                log.WarnFormat("assetStructId: {0} doesn't exist for groupId: {1}", assetStructId, groupId);
-                return res;
-            }
-
-            mediaType = new MediaType(catalogGroupCache.AssetStructsMapById[assetStructId].SystemName, (int)assetStructId);
-            return true;
-        }
-
-        private static bool TryGetMetasAndTags(int groupId, long mediaId, int defaultLanguageId, List<LanguageObj> groupLanguages, DataTable metasTable, DataTable tagsTable,
-                                                ref List<Metas> metas, ref List<Tags> tags, ref DateTime? maxUpdateDate)
-        {
-            bool res = false;
-            Dictionary<long, List<LanguageContainer>> topicIdToMeta = new Dictionary<long, List<LanguageContainer>>();
-            Dictionary<long, LanguageObj> languagesDictionary = new Dictionary<long, LanguageObj>();
-
-            foreach (var language in groupLanguages)
-            {
-                languagesDictionary[language.ID] = language;
-            }
-
-            foreach (DataRow dr in metasTable.Rows)
-            {
-                long topicId = ODBCWrapper.Utils.GetLongSafeVal(dr, "topic_id");
-                long languageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "language_id");
-                string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
-                DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
-
-                if (updateDate.HasValue && (!maxUpdateDate.HasValue || updateDate.Value > maxUpdateDate.Value))
-                {
-                    maxUpdateDate = updateDate;
-                }
-
-                if (languagesDictionary.ContainsKey(languageId))
-                {
-                    LanguageObj language = languagesDictionary[languageId];
-
-                    if (!topicIdToMeta.ContainsKey(topicId))
-                    {
-                        topicIdToMeta.Add(topicId, new List<LanguageContainer>() { new LanguageContainer(language.Code, translation, language.IsDefault) });
-                    }
-                    else
-                    {
-                        topicIdToMeta[topicId].Add(new LanguageContainer(language.Code, translation, language.IsDefault));
-                    }
-                }
-            }
-
-            // TODO Lior - Remove TagId, not needed
-            Dictionary<long, Dictionary<long, List<LanguageContainer>>> topicIdToTag = new Dictionary<long, Dictionary<long, List<LanguageContainer>>>();
-            foreach (DataRow dr in tagsTable.Rows)
-            {
-                long topicId = ODBCWrapper.Utils.GetLongSafeVal(dr, "topic_id");
-                long tagId = ODBCWrapper.Utils.GetLongSafeVal(dr, "tag_id");
-                long languageId = ODBCWrapper.Utils.GetLongSafeVal(dr, "language_id");
-                string translation = ODBCWrapper.Utils.GetSafeStr(dr, "translation");
-                DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
-
-                if (updateDate.HasValue && (!maxUpdateDate.HasValue || updateDate.Value > maxUpdateDate.Value))
-                {
-                    maxUpdateDate = updateDate;
-                }
-
-
-                if (languagesDictionary.ContainsKey(languageId))
-                {
-                    LanguageObj language = languagesDictionary[languageId];
-
-                    if (!topicIdToTag.ContainsKey(topicId))
-                    {
-                        topicIdToTag.Add(topicId, new Dictionary<long, List<LanguageContainer>>());
-                        topicIdToTag[topicId].Add(tagId, new List<LanguageContainer>() { new LanguageContainer(language.Code, translation, language.IsDefault) });
-                    }
-                    else if (!topicIdToTag[topicId].ContainsKey(tagId))
-                    {
-                        topicIdToTag[topicId].Add(tagId, new List<LanguageContainer>() { new LanguageContainer(language.Code, translation, language.IsDefault) });
-                    }
-                    else
-                    {
-                        topicIdToTag[topicId][tagId].Add(new LanguageContainer(language.Code, translation, language.IsDefault));
-                    }
-                }
-            }
-
-            List<long> topicIds = new List<long>();
-            topicIds.AddRange(topicIdToMeta.Keys.ToList());
-            topicIds.AddRange(topicIdToTag.Keys.ToList());
-            if (topicIds.Count > 0)
-            {
-                GenericListResponse<Topic> groupTopicsResponse = TopicManager.Instance.GetTopicsByIds(groupId, topicIds, MetaType.All);
-
-                if (groupTopicsResponse != null && groupTopicsResponse.Status != null && groupTopicsResponse.Status.Code == (int)eResponseStatus.OK
-                    && groupTopicsResponse.Objects != null && groupTopicsResponse.Objects.Count > 0)
-                {
-                    metas = new List<Metas>();
-                    tags = new List<Tags>();
-                    foreach (Topic topic in groupTopicsResponse.Objects)
-                    {
-                        if (topic.Type == MetaType.Tag)
-                        {
-                            if (topicIdToTag.ContainsKey(topic.Id))
-                            {
-                                Dictionary<long, List<LanguageContainer>> topicTags = topicIdToTag[topic.Id];
-                                List<LanguageContainer> defaultLanguageValues = topicTags.SelectMany(x => x.Value.Where(y => y.IsDefault)).ToList();
-                                List<string> defaultValues = defaultLanguageValues.Select(x => x.m_sValue).ToList();
-                                List<LanguageContainer[]> tagLanguages = topicIdToTag[topic.Id].Select(x => x.Value.Select(y => y).ToArray()).ToList();
-                                tags.Add(new Tags(new TagMeta(topic.SystemName, topic.Type.ToString()), defaultValues, tagLanguages));
-                            }
-                        }
-                        else
-                        {
-                            if (topicIdToMeta.ContainsKey(topic.Id))
-                            {
-                                IEnumerable<LanguageContainer> topicLanguages = null;
-                                string defaultValue = topicIdToMeta[topic.Id].FirstOrDefault(x => x.IsDefault).m_sValue;
-                                if (topic.Type == MetaType.MultilingualString)
-                                {
-                                    topicLanguages = topicIdToMeta[topic.Id].Where(x => !x.IsDefault).Select(x => x);
-                                }
-
-                                metas.Add(new Metas(new TagMeta(topic.SystemName, topic.Type.ToString()), defaultValue, topicLanguages));
-                            }
-                        }
-                    }
-
-                    res = true;
-                }
-            }
-
-            return res;
         }
 
         private static System.Collections.Concurrent.ConcurrentDictionary<int, Dictionary<int, ApiObjects.SearchObjects.Media>> CreateGroupMediaMapFromDataSet(int groupId, DataSet ds, CatalogGroupCache catalogGroupCache)
@@ -2015,7 +1562,19 @@ namespace Core.Catalog.CatalogManagement
                                 }
                             }
 
-                            MediaAsset mediaAsset = CreateMediaAsset(groupId, id, tables, catalogGroupCache.GetDefaultLanguage(), catalogGroupCache.LanguageMapById.Values.ToList(), true);
+                            var mediaAsset = MediaAssetServiceLazy.Value.CreateMediaAsset(
+                                groupId,
+                                tables[TABLE_NAME_BASIC],
+                                tables[TABLE_NAME_METAS],
+                                tables[TABLE_NAME_TAGS],
+                                null,
+                                null,
+                                null,
+                                null,
+                                tables[TABLE_NAME_UPDATE_DATE],
+                                null,
+                                null,
+                                true);
                             if (mediaAsset != null)
                             {
                                 EnumerableRowCollection<DataRow> assetFileTypes = null;
@@ -2255,45 +1814,6 @@ namespace Core.Catalog.CatalogManagement
             return result;
         }
 
-        private static LiveAsset CreateLinearMediaAssetFromDataTable(int groupId, DataTable dt, MediaAsset mediaAsset, long? epgChannelId = null)
-        {
-            LiveAsset result = null;
-            if (dt == null || dt.Rows == null || dt.Rows.Count != 1)
-            {
-                log.WarnFormat("CreateLinearMediaAssetResponseFromDataTable - returned table is not valid");
-                return result;
-            }
-
-            DataRow dr = dt.Rows[0];
-            TstvState enableCdvr = (TstvState)ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CDVR");
-            TstvState enableCatchUp = (TstvState)ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_CATCH_UP");
-            TstvState enableStartOver = (TstvState)ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_START_OVER");
-            TstvState enableTrickPlay = (TstvState)ODBCWrapper.Utils.GetIntSafeVal(dr, "ENABLE_TRICK_PLAY");
-            TstvState enableRecordingPlaybackNonEntitledChannel = (TstvState)ODBCWrapper.Utils.GetIntSafeVal(dr, "enable_recording_playback_non_entitled");
-            long catchUpBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "CATCH_UP_BUFFER", 0);
-            long trickPlayBuffer = ODBCWrapper.Utils.GetLongSafeVal(dr, "TRICK_PLAY_BUFFER", 0);
-            string externalIngestId = ODBCWrapper.Utils.GetSafeStr(dr, "CHANNEL_ID");
-            string externalCdvrId = ODBCWrapper.Utils.GetSafeStr(dr, "CDVR_ID");
-            LinearChannelType channelType = (LinearChannelType)ODBCWrapper.Utils.GetIntSafeVal(dr, "epg_channel_type");
-            TimeShiftedTvPartnerSettings accountTstvSettings = ConditionalAccess.Utils.GetTimeShiftedTvPartnerSettings(groupId);
-            if (!epgChannelId.HasValue)
-            {
-                epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-            }
-
-            DateTime? updateDate = ODBCWrapper.Utils.GetNullableDateSafeVal(dr, "UPDATE_DATE");
-
-            if (updateDate.HasValue && (!mediaAsset.UpdateDate.HasValue || updateDate.Value > mediaAsset.UpdateDate.Value))
-            {
-                mediaAsset.UpdateDate = updateDate;
-            }
-
-            result = new LiveAsset(epgChannelId.Value, enableCdvr, enableCatchUp, enableStartOver, enableTrickPlay, enableRecordingPlaybackNonEntitledChannel,
-                                   catchUpBuffer, trickPlayBuffer, externalIngestId, externalCdvrId, mediaAsset, accountTstvSettings, channelType);
-
-            return result;
-        }
-
         private static GenericResponse<Asset> AddLinearMediaAsset(int groupId, MediaAsset mediaAsset, LiveAsset linearMediaAssetToAdd, long userId)
         {
             GenericResponse<Asset> result = new GenericResponse<Asset>();
@@ -2302,7 +1822,7 @@ namespace Core.Catalog.CatalogManagement
                 DataTable dt = CatalogDAL.InsertLinearMediaAsset(groupId, linearMediaAssetToAdd.EnableCdvrState, linearMediaAssetToAdd.EnableCatchUpState, linearMediaAssetToAdd.EnableRecordingPlaybackNonEntitledChannelState,
                                                                 linearMediaAssetToAdd.EnableStartOverState, linearMediaAssetToAdd.EnableTrickPlayState, linearMediaAssetToAdd.BufferCatchUp, linearMediaAssetToAdd.BufferTrickPlay,
                                                                 linearMediaAssetToAdd.ExternalCdvrId, linearMediaAssetToAdd.ExternalEpgIngestId, mediaAsset.Id, linearMediaAssetToAdd.ChannelType, userId);
-                result.Object = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset);
+                result.Object = MediaAssetServiceLazy.Value.CreateLinearMediaAsset(groupId, mediaAsset, dt);
                 if (result.Object != null)
                 {
                     result.SetStatus(eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -2332,7 +1852,7 @@ namespace Core.Catalog.CatalogManagement
                                                                 linearMediaAssetToUpdate.EnableRecordingPlaybackNonEntitledChannelState, linearMediaAssetToUpdate.EnableStartOverState,
                                                                 linearMediaAssetToUpdate.EnableTrickPlayState, linearMediaAssetToUpdate.BufferCatchUp, linearMediaAssetToUpdate.BufferTrickPlay,
                                                                 linearMediaAssetToUpdate.ExternalCdvrId, linearMediaAssetToUpdate.ExternalEpgIngestId, linearMediaAssetToUpdate.ChannelType, userId);
-                result.Object = CreateLinearMediaAssetFromDataTable(groupId, dt, mediaAsset, linearMediaAssetToUpdate.EpgChannelId);
+                result.Object = MediaAssetServiceLazy.Value.CreateLinearMediaAsset(groupId, mediaAsset, dt, linearMediaAssetToUpdate.EpgChannelId);
 
                 if (result.Object != null)
                 {
@@ -2856,58 +2376,6 @@ namespace Core.Catalog.CatalogManagement
                 rowNode.AppendChild(valueNode);
                 rootNode.AppendChild(rowNode);
             }
-        }
-
-        private static bool TryGetRelatedEntitiesList(int groupId, long id, DataTable relatedEntitiesTable, ref List<RelatedEntities> relatedEntitiesList)
-        {
-            if (relatedEntitiesTable?.Rows.Count > 0)
-            {
-                relatedEntitiesList = new List<RelatedEntities>();
-                RelatedEntities relatedEntities = null;
-                List<RelatedEntity> relatedEntityList = null;
-                long topicId = 0;
-                string value = string.Empty;
-                Topic topic = null;
-
-                CatalogGroupCache catalogGroupCache;
-                if (!CatalogManager.Instance.TryGetCatalogGroupCacheFromCache(groupId, out catalogGroupCache))
-                {
-                    log.ErrorFormat("failed to get catalogGroupCache for groupId: {0} when calling TryGetRelatedEntitiesList", groupId);
-                    return false;
-                }
-
-                foreach (DataRow dr in relatedEntitiesTable.Rows)
-                {
-                    topicId = ODBCWrapper.Utils.GetLongSafeVal(dr, "topic_id");
-                    value = ODBCWrapper.Utils.GetSafeStr(dr, "value");
-
-                    try
-                    {
-                        relatedEntityList = JsonConvert.DeserializeObject<List<RelatedEntity>>(value);
-                    }
-                    catch (Exception exc)
-                    {
-                        log.ErrorFormat("Error while DeserializeObject<List<RelatedEntity> at TryGetRelatedEntitiesList. topicId {0}, groupId {1}, assetId {2}. exc {3}", topicId, groupId, id, exc.Message);
-                    }
-
-                    if (catalogGroupCache.TopicsMapById.ContainsKey(topicId))
-                    {
-                        topic = catalogGroupCache.TopicsMapById[topicId];
-                    }
-
-                    relatedEntities = new RelatedEntities()
-                    {
-                        TagMeta = new TagMeta() { m_sName = topic.SystemName, m_sType = topic.Type.ToString() },
-                        Items = relatedEntityList
-                    };
-
-                    relatedEntitiesList.Add(relatedEntities);
-                }
-
-                return true;
-            }
-
-            return false;
         }
 
         private static Status BuildTableDicAfterInsertMediaAsset(DataSet ds, out Dictionary<string, DataTable> tables)
@@ -3494,7 +2962,19 @@ namespace Core.Catalog.CatalogManagement
                     return result;
                 }
 
-                MediaAsset mediaAsset = CreateMediaAsset(groupId, mediaId, tables, catalogGroupCache.GetDefaultLanguage(), catalogGroupCache.LanguageMapById.Values.ToList(), true);
+                var mediaAsset = MediaAssetServiceLazy.Value.CreateMediaAsset(
+                    groupId,
+                    tables[TABLE_NAME_BASIC],
+                    tables[TABLE_NAME_METAS],
+                    tables[TABLE_NAME_TAGS],
+                    null,
+                    tables[TABLE_NAME_FILES],
+                    null,
+                    null,
+                    tables[TABLE_NAME_UPDATE_DATE],
+                    null,
+                    null,
+                    true);
                 if (mediaAsset != null)
                 {
                     EnumerableRowCollection<DataRow> assetFileTypes = null;
@@ -4069,6 +3549,41 @@ namespace Core.Catalog.CatalogManagement
             }
 
             return result;
+        }
+
+        public GenericListResponse<Asset> GetLinearChannels(long groupId, IEnumerable<long> linearChannelIds, UserSearchContext searchContext)
+        {
+            var ksqlBuilder = new StringBuilder("(and");
+
+            var linearAssetTypes = CatalogManager.Instance.GetLinearMediaTypes((int)groupId);
+            if (linearAssetTypes.Any())
+            {
+                ksqlBuilder.Append(" (or");
+                foreach (var linearAssetType in linearAssetTypes)
+                {
+                    ksqlBuilder.Append($" asset_type='{linearAssetType.Id}'");
+                }
+                ksqlBuilder.Append(")");
+            }
+            else
+            {
+                log.Error($"Linear asset structs were not found. {groupId}:{groupId}.");
+
+                return new GenericListResponse<Asset>(Status.Error, null);
+            }
+
+            if (linearChannelIds.Any())
+            {
+                ksqlBuilder.Append($" (or media_id:'{string.Join(",", linearChannelIds)}')");
+            }
+
+            ksqlBuilder.Append(")");
+
+            var searchResult = Utils.SearchAssets(groupId, searchContext, ksqlBuilder.ToString());
+            var assetsRequestQuery = searchResult.Select(x => new KeyValuePair<eAssetTypes, long>(eAssetTypes.MEDIA, long.Parse(x.AssetId)));
+            var assets = GetAssets((int)groupId, assetsRequestQuery.ToList(), searchContext.IsAllowedToViewInactiveAssets) ?? Enumerable.Empty<Asset>();
+
+            return new GenericListResponse<Asset>(Status.Ok, assets, assets.Count());
         }
 
         #endregion

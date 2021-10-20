@@ -33,6 +33,7 @@ namespace DAL
         CatalogPartnerConfig GetCatalogPartnerConfig(int groupId);
     }
 
+
     public interface IDrmAdapterRepository
     {
         bool IsDrmAdapterExists(int groupId, long id);
@@ -46,7 +47,8 @@ namespace DAL
         DataSet GetGeneralPartnerConfig(int groupId);
     }
 
-    public class ApiDAL : ICatalogPartnerRepository, IVirtualAssetPartnerConfigRepository, IDrmAdapterRepository, IGeneralPartnerConfigRepository
+    public class ApiDAL : ICatalogPartnerRepository, IVirtualAssetPartnerConfigRepository, IDrmAdapterRepository, 
+                          IGeneralPartnerConfigRepository
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
@@ -5975,8 +5977,7 @@ namespace DAL
                 sp.AddParameter("@name", region.name);
                 sp.AddParameter("@externalId", region.externalId);
                 sp.AddParameter("@linearChannelsExist", region.linearChannels?.Count > 0);
-                sp.AddKeyValueListParameter<string, string>("@linearChannels",
-                    region.linearChannels != null ? region.linearChannels.Select(lc => new KeyValuePair<string, string>(lc.key, lc.value)).ToList() : null, "KEY", "VALUE");
+                sp.AddKeyValueListParameter("@linearChannels", region.linearChannels, "KEY", "VALUE");
                 sp.AddParameter("@updaterId", userId);
                 return sp.ExecuteReturnValue<int>();
             }
@@ -5999,8 +6000,7 @@ namespace DAL
                 sp.AddParameter("@name", region.name);
                 sp.AddParameter("@externalId", region.externalId);
                 sp.AddParameter("@linearChannelsExist", region.linearChannels != null);
-                sp.AddKeyValueListParameter<string, string>("@linearChannels",
-                    region.linearChannels != null ? region.linearChannels.Select(lc => new KeyValuePair<string, string>(lc.key, lc.value)).ToList() : null, "KEY", "VALUE");
+                sp.AddKeyValueListParameter("@linearChannels", region.linearChannels, "KEY", "VALUE");
                 sp.AddParameter("@updaterId", userId);
 
                 return sp.ExecuteReturnValue<int>() > 0;

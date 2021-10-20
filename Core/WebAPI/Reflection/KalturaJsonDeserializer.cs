@@ -722,6 +722,9 @@ namespace WebAPI.Reflection
                 case "KalturaCustomDrmPlaybackPluginData":
                     return new KalturaCustomDrmPlaybackPluginData(parameters, true);
                     
+                case "KalturaCustomFieldsPartnerConfiguration":
+                    return new KalturaCustomFieldsPartnerConfiguration(parameters, true);
+                    
                 case "KalturaDataEncryption":
                     return new KalturaDataEncryption(parameters, true);
                     
@@ -1375,6 +1378,12 @@ namespace WebAPI.Reflection
                     
                 case "KalturaLinearAssetStructFilter":
                     return new KalturaLinearAssetStructFilter(parameters, true);
+                    
+                case "KalturaLineupChannelAsset":
+                    return new KalturaLineupChannelAsset(parameters, true);
+                    
+                case "KalturaLineupChannelAssetListResponse":
+                    return new KalturaLineupChannelAssetListResponse(parameters, true);
                     
                 case "KalturaLineupNotificationSettings":
                     return new KalturaLineupNotificationSettings(parameters, true);
@@ -6522,7 +6531,7 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
@@ -6535,10 +6544,22 @@ namespace WebAPI.Models.ConditionalAccess
             InsertOnly = false,
             WriteOnly = false,
             RequiresPermission = 0,
-            IsNullable = false,
+            IsNullable = true,
             MaxLength = -1,
             MinLength = -1,
             MinInteger = 0,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute ChronologicalRecordStartTimeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSeriesRecordingOption")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
             MinItems = -1,
             MaxItems = -1,
         };
@@ -6563,6 +6584,24 @@ namespace WebAPI.Models.ConditionalAccess
                         MinEpisodeNumberSchemaProperty.Validate("minEpisodeNumber", parameters["minEpisodeNumber"]);
                     }
                     MinEpisodeNumber = (Int32) Convert.ChangeType(parameters["minEpisodeNumber"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("chronologicalRecordStartTime") && parameters["chronologicalRecordStartTime"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        ChronologicalRecordStartTimeSchemaProperty.Validate("chronologicalRecordStartTime", parameters["chronologicalRecordStartTime"]);
+                    }
+                    if(string.IsNullOrEmpty(parameters["chronologicalRecordStartTime"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "chronologicalRecordStartTime");
+                    }
+
+                    ChronologicalRecordStartTime = (KalturaChronologicalRecordStartTime) Enum.Parse(typeof(KalturaChronologicalRecordStartTime), parameters["chronologicalRecordStartTime"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaChronologicalRecordStartTime), ChronologicalRecordStartTime))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", ChronologicalRecordStartTime, typeof(KalturaChronologicalRecordStartTime)));
+                    }
                 }
             }
         }
@@ -20081,6 +20120,18 @@ namespace WebAPI.Models.Catalog
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute AliasNameSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaAssetStructMeta")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = 50,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaAssetStructMeta(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -20166,6 +20217,14 @@ namespace WebAPI.Models.Catalog
                         SuppressedOrderSchemaProperty.Validate("suppressedOrder", parameters["suppressedOrder"]);
                     }
                     SuppressedOrder = (Int32) Convert.ChangeType(parameters["suppressedOrder"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("aliasName") && parameters["aliasName"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        AliasNameSchemaProperty.Validate("aliasName", parameters["aliasName"]);
+                    }
+                    AliasName = (String) Convert.ChangeType(parameters["aliasName"], typeof(String));
                 }
             }
         }
@@ -23392,6 +23451,43 @@ namespace WebAPI.Models.Catalog
     public partial class KalturaLinearAssetStructFilter
     {
         public KalturaLinearAssetStructFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+        }
+    }
+    public partial class KalturaLineupChannelAsset
+    {
+        private static RuntimeSchemePropertyAttribute LinearChannelNumberSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaLineupChannelAsset")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 7,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaLineupChannelAsset(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("lcn") && parameters["lcn"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        LinearChannelNumberSchemaProperty.Validate("lcn", parameters["lcn"]);
+                    }
+                    LinearChannelNumber = (Int32) Convert.ChangeType(parameters["lcn"], typeof(Int32));
+                }
+            }
+        }
+    }
+    public partial class KalturaLineupChannelAssetListResponse
+    {
+        public KalturaLineupChannelAssetListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
         }
     }
@@ -34730,6 +34826,37 @@ namespace WebAPI.Models.Partner
                 if (parameters.ContainsKey("revokeOnDeviceDelete") && parameters["revokeOnDeviceDelete"] != null)
                 {
                     RevokeOnDeviceDelete = (Boolean) Convert.ChangeType(parameters["revokeOnDeviceDelete"], typeof(Boolean));
+                }
+            }
+        }
+    }
+    public partial class KalturaCustomFieldsPartnerConfiguration
+    {
+        private static RuntimeSchemePropertyAttribute MetaSystemNameInsteadOfAliasListSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaCustomFieldsPartnerConfiguration")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaCustomFieldsPartnerConfiguration(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("metaSystemNameInsteadOfAliasList") && parameters["metaSystemNameInsteadOfAliasList"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        MetaSystemNameInsteadOfAliasListSchemaProperty.Validate("metaSystemNameInsteadOfAliasList", parameters["metaSystemNameInsteadOfAliasList"]);
+                    }
+                    MetaSystemNameInsteadOfAliasList = (String) Convert.ChangeType(parameters["metaSystemNameInsteadOfAliasList"], typeof(String));
                 }
             }
         }

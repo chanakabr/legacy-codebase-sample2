@@ -100,5 +100,14 @@ namespace WebAPI.Models.Catalog
         [XmlElement(ElementName = "suppressedOrder", IsNullable = true)]
         [SchemeProperty(MinInteger = 0, IsNullable = true)]
         public int? SuppressedOrder { get; set; }
+
+        /// <summary>
+        /// Case sensitive alias value
+        /// </summary>
+        [DataMember(Name = "aliasName")]
+        [JsonProperty("aliasName")]
+        [XmlElement(ElementName = "aliasName", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MaxLength = 50)]
+        public string AliasName { get; set; }
     }
 }

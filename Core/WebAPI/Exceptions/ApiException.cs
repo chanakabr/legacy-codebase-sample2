@@ -672,7 +672,7 @@ namespace WebAPI.Exceptions
         [XmlArrayItem("item")]
         new public KalturaApiExceptionArg[] Args { get; set; }
 
-        private HttpStatusCode FailureHttpCode;
+        public HttpStatusCode FailureHttpCode { get; }
 
         #region Classes
 
@@ -845,6 +845,7 @@ namespace WebAPI.Exceptions
             Code = code;
             Message = message;
             Args = args;
+            FailureHttpCode = httpStatusCode;
         }
 
         #endregion

@@ -51,7 +51,7 @@ namespace Core.ConditionalAccess
     {
         List<ApiObjects.Epg.FieldTypeEntity> GetAliasMappingFields(int groupId);
     }
-    public class Utils: IConditionalAccessUtils
+    public class Utils : IConditionalAccessUtils
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly KLogger offlinePpvLogger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString(), "OfflinePpvLogger");
@@ -1384,7 +1384,7 @@ namespace Core.ConditionalAccess
                 PriceReason theReason = fullPrice.PriceReason;
                 DiscountModule externalDiscount;
                 PriceCode priceCode = subscription.m_oSubscriptionPriceCode;
-                fullPrice.OriginalPrice = HandlePriceCodeAndExternalDiscount(ref theReason, groupId, ref currencyCode, ref countryCode, subscription.m_oExtDisountModule, 
+                fullPrice.OriginalPrice = HandlePriceCodeAndExternalDiscount(ref theReason, groupId, ref currencyCode, ref countryCode, subscription.m_oExtDisountModule,
                     out externalDiscount, ref priceCode, blockEntitlement == BlockEntitlementType.BLOCK_SUBSCRIPTION, ip, userId);
 
                 fullPrice.FinalPrice = CopyPrice(fullPrice.OriginalPrice);
@@ -1438,7 +1438,7 @@ namespace Core.ConditionalAccess
                         var subscriptionCycle = CalcSubscriptionCycle(groupId, subscription, domainId);
 
                         //BEO-9091
-                        if (subscriptionCycle != null && 
+                        if (subscriptionCycle != null &&
                             subscription.m_oPreviewModule.m_tsFullLifeCycle <= subscription.m_MultiSubscriptionUsageModule[0].m_tsMaxUsageModuleLifeCycle)
                         {
                             fullPrice.SubscriptionCycle = subscriptionCycle;
@@ -1740,7 +1740,7 @@ namespace Core.ConditionalAccess
         }
 
 
-        public static Price HandlePriceCodeAndExternalDiscount(ref PriceReason theReason, int groupId, ref string currencyCode, ref string countryCode, 
+        public static Price HandlePriceCodeAndExternalDiscount(ref PriceReason theReason, int groupId, ref string currencyCode, ref string countryCode,
             DiscountModule externalDiscountModule, out DiscountModule externalDiscount, ref PriceCode priceCode, bool isBlockEntitlementType = false,
             string ip = null, string userId = null)
         {
@@ -1959,7 +1959,7 @@ namespace Core.ConditionalAccess
 
                     var domainResponse = Domains.Module.GetDomainInfo(contextData.GroupId, (int)contextData.DomainId);
                     long userId = domainResponse.Domain.m_masterGUIDs.FirstOrDefault();
-                    
+
                     List<string> allUserIdsInDomain = Domains.Module.GetDomainUserList(contextData.GroupId, (int)contextData.DomainId);
 
                     //get user map
@@ -2222,7 +2222,7 @@ namespace Core.ConditionalAccess
 
             DiscountModule externalDiscount;
             PriceCode priceCode = collection.m_oCollectionPriceCode;
-            Price price = HandlePriceCodeAndExternalDiscount(ref theReason, groupId, ref currencyCode, ref countryCode, collection.m_oExtDisountModule, 
+            Price price = HandlePriceCodeAndExternalDiscount(ref theReason, groupId, ref currencyCode, ref countryCode, collection.m_oExtDisountModule,
                 out externalDiscount, ref priceCode, blockEntitlement == BlockEntitlementType.BLOCK_PPV, ip, sSiteGUID);
             collection.m_oCollectionPriceCode = priceCode;
             if (theReason != PriceReason.ForPurchase)
@@ -2233,7 +2233,7 @@ namespace Core.ConditionalAccess
             DomainEntitlements domainEntitlements = null;
             if (TryGetDomainEntitlementsFromCache(groupId, domainID, null, ref domainEntitlements))
             {
-                if (domainEntitlements.DomainBundleEntitlements != null && domainEntitlements.DomainBundleEntitlements.EntitledCollections != null 
+                if (domainEntitlements.DomainBundleEntitlements != null && domainEntitlements.DomainBundleEntitlements.EntitledCollections != null
                     && domainEntitlements.DomainBundleEntitlements.EntitledCollections.ContainsKey(sColCode))
                 {
                     bool isPending = domainEntitlements.DomainBundleEntitlements.EntitledCollections[sColCode].isPending;
@@ -2629,14 +2629,14 @@ namespace Core.ConditionalAccess
             }
 
             // check user status and validity
-            if (isUserValidRes && ((blockEntitlement == BlockEntitlementType.NONE && userSuspendStatus == DomainSuspentionStatus.Suspended) ||
+            if (isUserValidRes && ((blockEntitlement == BlockEntitlementType.NONE && (userSuspendStatus == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupID, long.Parse(sSiteGUID)))) ||
                                    (blockEntitlement == BlockEntitlementType.BLOCK_ALL)))
             {
                 theReason = PriceReason.UserSuspended;
                 return null;
             }
 
-            if (userSuspendStatus == DomainSuspentionStatus.Suspended)
+            if (userSuspendStatus == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupID, long.Parse(sSiteGUID)))
             {
                 userSuspendStatus = DomainSuspentionStatus.OK;
             }
@@ -2705,13 +2705,13 @@ namespace Core.ConditionalAccess
                         }
 
                         isEntitled = IsUserEntitled(isRelated, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode, ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid,
-                                                    ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary, 
+                                                    ref purchasedAsMediaFileID, ref p_dtStartDate, ref p_dtEndDate, domainEntitlements.DomainPpvEntitlements.EntitlementsDictionary,
                                                     nMediaFileID, mediaFiles, ref isPending);
                     }
                     else
                     {
                         isEntitled = ConditionalAccessDAL.Get_AllUsersPurchases(allUserIDsInDomain, lstFileIDs, nMediaFileID, ppvModule.m_sObjectCode, ref ppvID, ref sSubCode,
-                                                                            ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID, 
+                                                                            ref sPPCode, ref nWaiver, ref dPurchaseDate, ref purchasedBySiteGuid, ref purchasedAsMediaFileID,
                                                                             ref p_dtStartDate, ref p_dtEndDate, ref isPending, domainID);
                     }
 
@@ -5117,11 +5117,12 @@ namespace Core.ConditionalAccess
                                 break;
                             }
                         case ResponseStatus.UserSuspended:
-                            {
-                                status.Code = (int)eResponseStatus.UserSuspended;
-                                status.Message = eResponseStatus.UserSuspended.ToString();
-                                break;
-                            }
+                        {
+                            status = RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupId, long.Parse(siteGuid))
+                                ? ApiObjects.Response.Status.Ok
+                                : new ApiObjects.Response.Status(eResponseStatus.UserSuspended);
+                            break;
+                        }
                         // Most cases will return general error
                         default:
                             {
@@ -5780,13 +5781,14 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        internal static ApiObjects.Response.Status ValidateEpgForCatchUp(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, DateTime? epgStartDate = null) 
+        internal static ApiObjects.Response.Status ValidateEpgForCatchUp(TimeShiftedTvPartnerSettings accountSettings, EPGChannelProgrammeObject epg, DateTime? epgStartDate = null)
         {
             ApiObjects.Response.Status response = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
 
             DateTime newEpgStartDate;
 
-            if (epgStartDate.HasValue) {
+            if (epgStartDate.HasValue)
+            {
                 newEpgStartDate = epgStartDate.Value;
             }
             else if (!DateTime.TryParseExact(epg.START_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out newEpgStartDate))
@@ -6234,39 +6236,6 @@ namespace Core.ConditionalAccess
             return seriesRecording;
         }
 
-        public static SeriesRecording BuildSeriesRecordingDetails(DataRow dr)
-        {
-            long epgId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_ID");
-            long epgChannelId = ODBCWrapper.Utils.GetLongSafeVal(dr, "EPG_CHANNEL_ID");
-            long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(dr, "ID");
-            int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "SEASON_NUMBER");
-            string seriesId = ODBCWrapper.Utils.GetSafeStr(dr, "SERIES_ID");
-            DateTime createDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "CREATE_DATE");
-            DateTime updateDate = ODBCWrapper.Utils.GetDateSafeVal(dr, "UPDATE_DATE");
-            var type = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(dr, "RECORD_TYPE");
-            int? minSeason = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_SEASON_NUMBER");
-            int? minEpisode = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_EPISODE_NUMBER");
-
-            return new SeriesRecording()
-            {
-                EpgChannelId = epgChannelId,
-                EpgId = epgId,
-                Id = domainSeriesRecordingId,
-                SeasonNumber = seasonNumber,
-                SeriesId = seriesId,
-                Type = type,
-                CreateDate = createDate,
-                UpdateDate = updateDate,
-                SeriesRecordingOption = new SeriesRecordingOption
-                {
-                    MinEpisodeNumber = minEpisode > 0 ? minEpisode : null,
-                    MinSeasonNumber = minSeason > 0 ? minSeason : null
-                },
-                Status = new ApiObjects.Response.Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString())
-            };
-
-        }
-
         public static List<SeriesRecording> BuildSeriesRecordingDetails(DataSet ds)
         {
             Dictionary<long, SeriesRecording> result = new Dictionary<long, SeriesRecording>();
@@ -6280,6 +6249,8 @@ namespace Core.ConditionalAccess
                     {
                         int? minSeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_SEASON_NUMBER");
                         int? minEpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_EPISODE_NUMBER");
+                        long? startDateRecording = ODBCWrapper.Utils.GetLongSafeVal(dr, "START_DATE_RECORDING");
+                        var chronological_Record_StartTime = ODBCWrapper.Utils.GetIntSafeVal(dr, "CHRONOLOGICAL_RECORD_STARTTIME");
 
                         seriesRecording = new SeriesRecording()
                         {
@@ -6298,6 +6269,8 @@ namespace Core.ConditionalAccess
                             {
                                 MinSeasonNumber = minSeasonNumber > 0 ? minSeasonNumber : null,
                                 MinEpisodeNumber = minEpisodeNumber > 0 ? minEpisodeNumber : null,
+                                StartDateRecording = startDateRecording > 0 ? startDateRecording : null,
+                                ChronologicalRecordStartTime = (ChronologicalRecordStartTime)chronological_Record_StartTime
                             }
                         };
 
@@ -6666,8 +6639,8 @@ namespace Core.ConditionalAccess
             return recording;
         }
 
-        public SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed, ref List<long> futureSeriesRecordingIds, EPGChannelProgrammeObject epg = null, 
-            SeriesRecordingOption seriesRecordingOption = null)
+        public SeriesRecording FollowSeasonOrSeries(int groupId, string userId, long domainID, long epgId, RecordingType recordingType, ref bool isSeriesFollowed,
+            ref List<long> futureSeriesRecordingIds, EPGChannelProgrammeObject epg = null, SeriesRecordingOption seriesRecordingOption = null)
         {
             SeriesRecording seriesRecording = new SeriesRecording();
             if (epg == null)
@@ -6714,19 +6687,31 @@ namespace Core.ConditionalAccess
             }
 
             isSeriesFollowed = RecordingsDAL.IsSeriesFollowed(groupId, seriesId, seasonNumber, channelId);
-            // insert or update domain_series table
-            DataTable dt = RecordingsDAL.FollowSeries(groupId, userId, domainID, epgId, channelId, seriesId, seasonNumber, 
-                episodeNumber, (int)recordingType, seriesRecordingOption?.MinSeasonNumber, seriesRecordingOption?.MinEpisodeNumber);
-            
-            if (dt != null && dt.Rows != null && dt.Rows.Count == 1)
+
+            long? startDateRecording = null;
+            if (seriesRecordingOption != null && seriesRecordingOption.ChronologicalRecordStartTime != ChronologicalRecordStartTime.None)
             {
-                seriesRecording = BuildSeriesRecordingDetails(dt.Rows[0]);
+                if (seriesRecordingOption.ChronologicalRecordStartTime == ChronologicalRecordStartTime.Now)
+                {
+                    startDateRecording = DateUtils.GetUtcUnixTimestampNow();
+                }
+                else if (seriesRecordingOption.ChronologicalRecordStartTime == ChronologicalRecordStartTime.EpgStartTime && !string.IsNullOrEmpty(epg.START_DATE) &&
+                    DateTime.TryParseExact(epg.START_DATE, Notification.AnnouncementManager.EPG_DATETIME_FORMAT,
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None, out DateTime epgStartDate))
+                {
+                    startDateRecording = DateUtils.DateTimeToUtcUnixTimestampSeconds(epgStartDate);
+                }
             }
 
+            // insert or update domain_series table
+            seriesRecording = RecordingsDAL.FollowSeries(groupId, userId, domainID, epgId, channelId, seriesId, seasonNumber,
+                episodeNumber, (int)recordingType, seriesRecordingOption, startDateRecording);
+            
             // check if the user has future single episodes of the series/season and return them so we will cancel them and they will be recorded as part of series/season
             var domainSeriesRecording = (DomainSeriesRecording)seriesRecording;
             List<ExtendedSearchResult> futureRecordingsOfSeasonOrSeries = SearchSeriesRecordings(groupId, new List<string>(), new List<DomainSeriesRecording>() { domainSeriesRecording }, SearchSeriesRecordingsTimeOptions.future);
-            
+
             if (futureRecordingsOfSeasonOrSeries != null)
             {
                 foreach (ExtendedSearchResult futureRecordingSearchResult in futureRecordingsOfSeasonOrSeries)
@@ -6928,7 +6913,7 @@ namespace Core.ConditionalAccess
             StringBuilder ksql = new StringBuilder("(and (or ");
             StringBuilder seasonsToExclude = null;
             string season = null;
-            
+
             foreach (var serie in series)
             {
                 season = (serie.SeasonNumber > 0 && !string.IsNullOrEmpty(seasonNumber)) ? string.Format("{0} = '{1}' ", seasonNumber, serie.SeasonNumber) : string.Empty;
@@ -6942,12 +6927,29 @@ namespace Core.ConditionalAccess
                 }
 
                 var futureRecording = string.Empty;
-                if (serie.SeriesRecordingOption != null && serie.SeriesRecordingOption.MinSeasonNumber > 0 && serie.SeriesRecordingOption.MinEpisodeNumber > 0)
+
+                //(or (and seasonnumber = '{serie.SeriesRecordingOption.MinSeasonNumber}' episodenumber >= '{serie.SeriesRecordingOption.MinEpisodeNumber}') seasonnumber > '{serie.SeriesRecordingOption.MinSeasonNumber}' end_date >= '{minDate}' )
+                if (serie.SeriesRecordingOption != null && serie.SeriesRecordingOption.IsValid())
                 {
-                    //metas.X
-                    futureRecording = $"(or (and seasonnumber = '{serie.SeriesRecordingOption.MinSeasonNumber}" +
-                        $"' episodenumber >= '{serie.SeriesRecordingOption.MinEpisodeNumber}') seasonnumber > " +
-                        $"'{serie.SeriesRecordingOption.MinSeasonNumber}')";
+                    futureRecording = "(or ";
+                    if (serie.SeriesRecordingOption.MinSeasonNumber > 0 && serie.SeriesRecordingOption.MinEpisodeNumber > 0)
+                    {
+                        //metas.X
+                        futureRecording += $"(and seasonnumber = '{serie.SeriesRecordingOption.MinSeasonNumber}" +
+                            $"' episodenumber >= '{serie.SeriesRecordingOption.MinEpisodeNumber}') seasonnumber > " +
+                            $"'{serie.SeriesRecordingOption.MinSeasonNumber}'";
+                    }
+
+                    if (serie.SeriesRecordingOption.StartDateRecording.HasValue && serie.SeriesRecordingOption.StartDateRecording > 0)
+                    {
+                        var minDate = serie.SeriesRecordingOption.StartDateRecording.Value;
+                        var addPrefix = !futureRecording.Contains("and");
+                        var prefixAnd = addPrefix ? "(and" : "";
+                        var bracket = addPrefix ? ")" : string.Empty;
+                        futureRecording += $"{prefixAnd} end_date >= '{minDate}'{bracket}"; //future
+                    }
+                    futureRecording += ")";
+                    log.Debug($"**futureRecording: {futureRecording}");
                 }
 
                 ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4} {5})", seriesId, serie.SeriesId, serie.EpgChannelId, season, seasonsToExclude.ToString(), futureRecording);
@@ -7002,7 +7004,7 @@ namespace Core.ConditionalAccess
                                 m_eOrderBy = ApiObjects.SearchObjects.OrderBy.START_DATE,
                                 m_eOrderDir = ApiObjects.SearchObjects.OrderDir.DESC
                             };
-                        
+
                             pageSize = ApplicationConfiguration.Current.CatalogLogicConfiguration.SearchPastSeriesRecordingsPageSize.Value;
                         }
 
@@ -7459,7 +7461,9 @@ namespace Core.ConditionalAccess
                             SeriesRecordingOption = new SeriesRecordingOption
                             {
                                 MinSeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_SEASON_NUMBER", 0),
-                                MinEpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_EPISODE_NUMBER", 0)
+                                MinEpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(dr, "MIN_EPISODE_NUMBER", 0),
+                                StartDateRecording = ODBCWrapper.Utils.GetLongSafeVal(dr, "START_DATE_RECORDING", 0),
+                                ChronologicalRecordStartTime = (ChronologicalRecordStartTime)ODBCWrapper.Utils.GetIntSafeVal(dr, "CHRONOLOGICAL_RECORD_STARTTIME", 0)
                             }
                         });
                     }
@@ -7986,7 +7990,7 @@ namespace Core.ConditionalAccess
             allMediafiles = allMediafiles ?? new List<MediaFile>();
             // We're using check for IsOPC to apply security concerns, once we get rid of TVM parent/child groups, this logic will be moved to stored procedure.
             allMediafiles = ValidateMediaFilesUponSecurity(allMediafiles, groupId);
-            
+
             // filter
             if (allMediafiles != null && allMediafiles.Count > 0)
             {
@@ -8431,7 +8435,7 @@ namespace Core.ConditionalAccess
                             else if (usedQuota > 0 && usedQuota < npvrObject.Quota * 60) // recover recording from auto-delete by grace period recovery
                             {
                                 status = QuotaManager.Instance.HandleDomainRecoveringRecording(groupId, householdId, (int)(npvrObject.Quota * 60 - usedQuota));
-                                
+
                                 if (status.IsOkStatusCode())
                                 {
                                     LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetDomainRecordingsInvalidationKeys(groupId, householdId));
@@ -9633,7 +9637,7 @@ namespace Core.ConditionalAccess
                             subscriptionIds = domainBundles.EntitledSubscriptions.Keys.Select(long.Parse).ToList();
                         }
                     }
-                    
+
                     if (subscriptionIds.Count == 0 || dependencySet.Count(x => subscriptionIds.Contains(x.BaseSubscriptionId)) == 0)
                     {
                         status = new ApiObjects.Response.Status((int)eResponseStatus.MissingBasePackage, eResponseStatus.MissingBasePackage.ToString());

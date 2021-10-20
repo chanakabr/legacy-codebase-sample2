@@ -782,6 +782,8 @@ namespace WebAPI.Reflection
                 case "KalturaAssetStructMeta":
                     switch(property.Name)
                     {
+                        case "AliasName":
+                            return "aliasName";
                         case "AssetStructId":
                             return "assetStructId";
                         case "CreateDate":
@@ -2246,6 +2248,14 @@ namespace WebAPI.Reflection
                     {
                         case "Data":
                             return "data";
+                    }
+                    break;
+                    
+                case "KalturaCustomFieldsPartnerConfiguration":
+                    switch(property.Name)
+                    {
+                        case "MetaSystemNameInsteadOfAliasList":
+                            return "metaSystemNameInsteadOfAliasList";
                     }
                     break;
                     
@@ -4302,6 +4312,14 @@ namespace WebAPI.Reflection
                     {
                         case "FileType":
                             return "fileType";
+                    }
+                    break;
+                    
+                case "KalturaLineupChannelAsset":
+                    switch(property.Name)
+                    {
+                        case "LinearChannelNumber":
+                            return "lcn";
                     }
                     break;
                     
@@ -6912,6 +6930,8 @@ namespace WebAPI.Reflection
                 case "KalturaSeriesRecordingOption":
                     switch(property.Name)
                     {
+                        case "ChronologicalRecordStartTime":
+                            return "chronologicalRecordStartTime";
                         case "MinEpisodeNumber":
                             return "minEpisodeNumber";
                         case "MinSeasonNumber":
@@ -10342,6 +10362,15 @@ namespace WebAPI.Reflection
                         case "getoldstandard":
                             RolesManager.ValidateActionPermitted("licensedUrl", "getOldStandard", false);
                             return LicensedUrlController.GetOldStandard((KalturaAssetType) methodParams[0], (int) methodParams[1], (string) methodParams[2], (string) methodParams[3], (Nullable<long>) methodParams[4], (Nullable<KalturaStreamType>) methodParams[5]);
+                            
+                    }
+                    break;
+                    
+                case "lineup":
+                    switch(action)
+                    {
+                        case "get":
+                            return LineupController.Get((Nullable<int>) methodParams[0], (Nullable<int>) methodParams[1]);
                             
                     }
                     break;
@@ -17676,6 +17705,25 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "lineup":
+                    switch(action)
+                    {
+                        case "get":
+                            ret.Add("pageIndex", new MethodParam(){
+                                NewName = newParamName,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            ret.Add("pageSize", new MethodParam(){
+                                NewName = newParamName,
+                                IsNullable = true,
+                                Type = typeof(Int32),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
                 case "mediaconcurrencyrule":
                     switch(action)
                     {
@@ -22359,6 +22407,26 @@ namespace WebAPI.Reflection
             }
             
             return null;
+        }
+        
+        public static bool ContentNotModifiedResponseEnabled(string service, string action)
+        {
+            service = service.ToLower();
+            action = action.ToLower();
+            switch (service)
+            {
+                case "lineup":
+                    switch(action)
+                    {
+                        case "get":
+                            return true;
+                            
+                    }
+                    break;
+                    
+            }
+            
+            return false;
         }
         
     }

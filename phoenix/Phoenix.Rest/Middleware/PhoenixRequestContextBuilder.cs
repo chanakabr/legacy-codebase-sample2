@@ -62,6 +62,7 @@ namespace Phoenix.Rest.Middleware
 
             var parsedActionParams = await GetActionParams(context.Request.Method, request, phoenixContext);
             phoenixContext.RequestVersion = GetRequestVersion(parsedActionParams);
+            phoenixContext.RequestClientTag = GetRequestClientTag(parsedActionParams);
             SetCommonRequestContextItems(context, phoenixContext, parsedActionParams, service, action);
 
             var actionParams = GetDeserializedActionParams(parsedActionParams, phoenixContext.IsMultiRequest, service, action);
@@ -98,6 +99,11 @@ namespace Phoenix.Rest.Middleware
             {
                 _PhoenixContext.RequestVersion = version as Version;
             }
+
+            if (context.Items.TryGetValue(RequestContextConstants.REQUEST_CLIENT_TAG, out var clientTag))
+            {
+                _PhoenixContext.RequestClientTag = clientTag as string;
+            }
         }
 
         private Version GetRequestVersion(IDictionary<string, object> parsedActionParams)
@@ -116,6 +122,16 @@ namespace Phoenix.Rest.Middleware
             }
 
             return null;
+        }
+
+        public string GetRequestClientTag(IDictionary<string, object> parsedActionParams)
+        {
+            if (parsedActionParams.TryGetValue("clientTag", out var clientTag))
+            {
+                return clientTag?.ToString() ?? string.Empty;
+            }
+
+            return string.Empty;
         }
 
         private List<object> GetDeserializedActionParams(IDictionary<string, object> parsedActionParams, bool isMultiRequest, string service, string action)

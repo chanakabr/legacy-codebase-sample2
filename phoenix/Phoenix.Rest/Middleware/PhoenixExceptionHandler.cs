@@ -34,15 +34,16 @@ namespace Phoenix.Rest.Middleware
             var ctx = context.Items[PhoenixRequestContext.PHOENIX_REQUEST_CONTEXT_KEY] as PhoenixRequestContext;
             // for some reason klogger looses the reqId at this point
             KLogger.SetRequestId(ctx.SessionId);
+
             int code;
             string message;
             KalturaApiExceptionArg[] args;
-
-            if (ex is ApiException apiEx)
+            var apiException = ex as ApiException;
+            if (apiException != null)
             {
-                code = apiEx.Code;
-                message = apiEx.Message;
-                args = apiEx.Args;
+                code = apiException.Code;
+                message = apiException.Message;
+                args = apiException.Args;
             }
             else if (ex is ClientException clientEx)
             {
@@ -58,41 +59,44 @@ namespace Phoenix.Rest.Middleware
                 args = null;
             }
 
-            var content = KalturaApiExceptionHelpers.prepareExceptionResponse(code, message, args);
-            var errorResponse = new StatusWrapper
-            {
-                ExecutionTime = float.Parse(ctx.ApiMonitorLog.ExecutionTime),
-                Result = content,
-            };
-
             context.Items[INTERNAL_ERROR_CODE] = code;
+            context.Response.Headers.Add("X-Kaltura-App", $"exiting on error {code} - {message}");
+            context.Response.Headers.Add("X-Kaltura", $"error-{code}");
+
             // get proper response formatter but make sure errors should be only xml or json ...
             context.Request.Headers.TryGetValue("accept", out var acceptHeader);
-
             ctx.Format ??= context.Items[RequestContextConstants.REQUEST_FORMAT]?.ToString();
             var format = ctx.Format != "1" || ctx.Format != "2" ? "1" : ctx.Format;
             var formatter = _FormatterProvider.GetFormatter(acceptHeader.ToArray(), format);
 
-            context.Response.Headers.Add("X-Kaltura-App", $"exiting on error {code} - {message}");
-            context.Response.Headers.Add("X-Kaltura", $"error-{code}");
-
-            var stringResponse = await formatter.GetStringResponse(errorResponse);
-
-            string phoenixContextMasked = _Logger.MaskPersonalInformation(JsonConvert.SerializeObject(ctx));
-
-            _Logger.Error($"Error while calling api:[{ctx.RouteData}] response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{phoenixContextMasked}]{Environment.NewLine}", ex);
-            return new ApiExceptionHandlerResponse
+            var content = KalturaApiExceptionHelpers.prepareExceptionResponse(code, message, args);
+            var errorResponse = new StatusWrapper
             {
-                HttpStatusCode = ctx.Format == "31" ? (int)HttpStatusCode.InternalServerError : (int)HttpStatusCode.OK,
-                ContentType = formatter.AcceptContentTypes[0],
-                Reponse = stringResponse,
+                ExecutionTime = float.Parse(ctx.ApiMonitorLog.ExecutionTime),
+                Result = content
             };
+            var stringResponse = await formatter.GetStringResponse(errorResponse);
+            var phoenixContextMasked = _Logger.MaskPersonalInformation(JsonConvert.SerializeObject(ctx));
+            _Logger.Error($"Error while calling api:[{ctx.RouteData}] response:[{stringResponse}]{Environment.NewLine}PhoenixContext:[{phoenixContextMasked}]{Environment.NewLine}", ex);
+
+            var httpStatusCode = HttpStatusCode.OK;
+            if (ctx.Format == "31")
+            {
+                httpStatusCode = HttpStatusCode.InternalServerError;
+            }
+            else if (apiException != null && apiException.FailureHttpCode != 0)
+            {
+                httpStatusCode = apiException.FailureHttpCode;
+            }
+
+            var response = new ApiExceptionHandlerResponse
+            {
+                HttpStatusCode = (int)httpStatusCode,
+                ContentType = formatter.AcceptContentTypes[0],
+                Reponse = stringResponse
+            };
+
+            return response;
         }
     }
 }
-
-
-
-
-
-

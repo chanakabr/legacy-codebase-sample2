@@ -209,6 +209,11 @@ namespace WebAPI.Filters
 
                     HttpContext.Current.Items[RequestContextConstants.REQUEST_VERSION] = version;
                 }
+
+                if (formData.ContainsKey("clientTag"))
+                {
+                    HttpContext.Current.Items[RequestContextConstants.REQUEST_CLIENT_TAG] = formData["clientTag"].ToString();
+                }
             }
             else if (actionContext.Request.Method == HttpMethod.Get)
             {
@@ -306,6 +311,11 @@ namespace WebAPI.Filters
                                 throw new RequestParserException(RequestParserException.INVALID_VERSION, JObj["apiVersion"]);
 
                             HttpContext.Current.Items[RequestContextConstants.REQUEST_VERSION] = version;
+                        }
+                        
+                        if (JObj.ContainsKey("clientTag"))
+                        {
+                            HttpContext.Current.Items[RequestContextConstants.REQUEST_CLIENT_TAG] = JObj["clientTag"].ToString();
                         }
 
                         Dictionary<string, object> requestParams;

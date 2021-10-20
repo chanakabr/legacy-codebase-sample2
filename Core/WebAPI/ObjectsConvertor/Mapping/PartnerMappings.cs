@@ -38,6 +38,15 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ConcurrencyThresholdInSeconds, opt => opt.MapFrom(src => src.ConcurrencyThresholdInSeconds))
                 .ForMember(dest => dest.RevokeOnDeviceDelete, opt => opt.MapFrom(src => src.RevokeOnDeviceDelete));
 
+            cfg.CreateMap<CustomFieldsPartnerConfig, KalturaCustomFieldsPartnerConfiguration>()
+                .ForMember(dest => dest.MetaSystemNameInsteadOfAliasList, opt => opt.MapFrom(src => src.ClientTagsToIgnoreMetaAlias != null ?
+                    string.Join(",", src.ClientTagsToIgnoreMetaAlias) : string.Empty))
+            ;
+
+            cfg.CreateMap<KalturaCustomFieldsPartnerConfiguration, CustomFieldsPartnerConfig>()
+                .ForMember(dest => dest.ClientTagsToIgnoreMetaAlias, opt => opt.MapFrom(src => src.GetMetaSystemNameInsteadOfAliasList()))
+            ;
+
             // map RollingDeviceRemovalData to KalturaRollingDeviceRemovalData
             cfg.CreateMap<RollingDeviceRemovalData, KalturaRollingDeviceRemovalData>()
                 .ForMember(dest => dest.RollingDeviceRemovalFamilyIds, opt => opt.MapFrom(src => src.RollingDeviceRemovalFamilyIds != null ?

@@ -1,4 +1,5 @@
-﻿using ApiLogic.Api.Validators;
+﻿using ApiLogic.Api.Managers;
+using ApiLogic.Api.Validators;
 using APILogic.Api.Managers;
 using ApiObjects;
 using ApiObjects.Response;

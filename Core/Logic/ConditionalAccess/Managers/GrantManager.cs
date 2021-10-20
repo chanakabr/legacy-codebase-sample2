@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using APILogic.Api.Managers;
 
 namespace Core.ConditionalAccess
 {
@@ -529,7 +530,7 @@ namespace Core.ConditionalAccess
                     return response;
                 }
 
-                if (suspendStatus == DomainSuspentionStatus.Suspended)
+                if (suspendStatus == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupId, long.Parse(userId)))
                 {
                     log.Debug("SwapSubscription - User with siteGuid: " + userId + " Suspended. Subscription was not changed");
                     response = new ApiObjects.Response.Status((int)eResponseStatus.UserSuspended, eResponseStatus.UserSuspended.ToString());

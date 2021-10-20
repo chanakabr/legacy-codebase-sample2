@@ -13,6 +13,7 @@ using System.Web;
 using System.Xml;
 using ApiObjects.Billing;
 using System.Net;
+using APILogic.Api.Managers;
 using ApiObjects;
 using Core.Pricing;
 using Core.Users;
@@ -2211,11 +2212,13 @@ namespace Core.Billing
                                 break;
                             }
                         case ResponseStatus.UserSuspended:
-                            {
-                                status.Code = (int)eResponseStatus.UserSuspended;
-                                status.Message = eResponseStatus.UserSuspended.ToString();
-                                break;
-                            }
+                        {
+                            status = RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupId, long.Parse(siteGuid))
+                                ? ApiObjects.Response.Status.Ok
+                                : new ApiObjects.Response.Status(eResponseStatus.UserSuspended);
+
+                            break;
+                        }
                         // Most cases will return general error
                         default:
                             {
@@ -2278,7 +2281,9 @@ namespace Core.Billing
 
                             if (response.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
                             {
-                                status = ResponseStatus.UserSuspended;
+                                status = RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupId, response.m_user.Id)
+                                    ? ResponseStatus.OK
+                                    : ResponseStatus.UserSuspended;
                             }
                         }
                     }

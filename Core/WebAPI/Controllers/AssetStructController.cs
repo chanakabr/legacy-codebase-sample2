@@ -46,6 +46,7 @@ namespace WebAPI.Controllers
             KalturaAssetStruct response = null;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
+
             if (assetStruct.Name == null || assetStruct.Name.Values == null || assetStruct.Name.Values.Count == 0)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
@@ -94,6 +95,7 @@ namespace WebAPI.Controllers
             KalturaAssetStruct response = null;
             int groupId = KS.GetFromRequest().GroupId;
             long userId = Utils.Utils.GetUserIdFromKs();
+
             if (assetStruct.Name != null)
             {
                 if ((assetStruct.Name.Values == null || assetStruct.Name.Values.Count == 0))
@@ -105,7 +107,7 @@ namespace WebAPI.Controllers
                     assetStruct.Name.Validate("multilingualName");
                 }
             }
-             
+
             if (assetStruct.SystemName != null &&  assetStruct.SystemName.Trim() == string.Empty)
             {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");

@@ -67,6 +67,10 @@ namespace WebAPI.Controllers
                 {
                     response = GroupsManager.Instance.GetBaseConfiguration(groupId);
                 }
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.CustomFields)
+                {
+                    response = ClientsManager.ApiClient().GetCustomFieldsConfiguration(groupId);
+                }
                 else
                 {
                     throw new BadRequestException(BadRequestException.TYPE_NOT_SUPPORTED, "filter.partnerConfigurationTypeEqual", filter.PartnerConfigurationTypeEqual);

@@ -62,23 +62,47 @@ namespace ApiObjects.TimeShiftedTv
             sb.Append(string.Format("UpdateDate: {0}, ", UpdateDate != null ? UpdateDate.ToString() : ""));
             if (SeriesRecordingOption != null)
             {
-                if (SeriesRecordingOption.MinEpisodeNumber.HasValue)
-                    sb.Append(string.Format("MinEpisodeNumber: {0}, ", SeriesRecordingOption.MinEpisodeNumber));
-                if (SeriesRecordingOption.MinSeasonNumber.HasValue)
-                    sb.Append(string.Format("MinSeasonNumber: {0}, ", SeriesRecordingOption.MinSeasonNumber));
+                sb.Append(string.Format("SeriesRecordingOption: {0}, ", SeriesRecordingOption.ToString()));
             }
             return sb.ToString();
         }
     }
+
     public class SeriesRecordingOption
     {
         public int? MinSeasonNumber { get; set; }
-
         public int? MinEpisodeNumber { get; set; }
+        public ChronologicalRecordStartTime ChronologicalRecordStartTime { get; set; }
+        
+        //Inner prop to store calculated value
+        public long? StartDateRecording { get; set; }
 
         public bool IsValid()
         {
-            return this.MinEpisodeNumber.HasValue && this.MinSeasonNumber.HasValue;
+            return MinEpisodeNumber.HasValue && MinSeasonNumber.HasValue || StartDateRecording.HasValue;
         }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (MinEpisodeNumber.HasValue)
+                sb.Append($"MinEpisodeNumber: {MinEpisodeNumber}, ");
+            if (MinSeasonNumber.HasValue)
+                sb.Append($"MinSeasonNumber: {MinSeasonNumber}, ");
+            if (StartDateRecording.HasValue)
+                sb.Append($"StartDateRecording: {StartDateRecording}, ");
+
+            sb.Append($"ChronologicalRecordStartTime: {ChronologicalRecordStartTime}, ");
+
+            return sb.ToString();
+        }
+    }
+
+    public enum ChronologicalRecordStartTime
+    {
+        None = 0,
+        Now,
+        EpgStartTime
     }
 }

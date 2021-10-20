@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace RecordingTaskHandler
 {
-    public class RecordingTaskRequest 
+    public class RecordingTaskRequest
     {
         [JsonProperty("group_id")]
         public int GroupID

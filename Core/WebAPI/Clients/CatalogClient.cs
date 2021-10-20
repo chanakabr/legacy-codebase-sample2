@@ -519,7 +519,7 @@ namespace WebAPI.Clients
                         (assetStructId, MetaId, assetStructMetaToUpdate, groupId, userId);
 
             KalturaAssetStructMeta result =
-                ClientUtils.GetResponseFromWS<KalturaAssetStructMeta, AssetStructMeta>(assetStructMeta, updateAssetStructMetaFunc);
+                ClientUtils.GetResponseFromWS(assetStructMeta, updateAssetStructMetaFunc);
 
             return result;
         }
@@ -4225,6 +4225,16 @@ namespace WebAPI.Clients
                 Labels = labels.Objects,
                 TotalCount = labels.TotalCount
             };
+
+            return result;
+        }
+
+        internal KalturaLineupChannelAssetListResponse GetLineup(long groupId, long regionId, UserSearchContext searchContext, int pageIndex, int pageSize)
+        {
+            Func<GenericListResponse<LineupChannelAsset>> getLineupAssets = () => LineupService.Instance.GetLineupChannelAssets(groupId, regionId, searchContext, pageIndex, pageSize);
+            var assets = ClientUtils.GetResponseListFromWS<KalturaLineupChannelAsset, LineupChannelAsset>(getLineupAssets);
+
+            var result = new KalturaLineupChannelAssetListResponse(assets.Objects, assets.TotalCount);
 
             return result;
         }

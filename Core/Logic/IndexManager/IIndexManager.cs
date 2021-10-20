@@ -133,6 +133,8 @@ namespace Core.Catalog
 
         bool UpdateEpgsPartial(EpgPartialUpdate[] epgs);
 
+        // remark: Verify these methods should really be here ..
+
         SearchResultsObj SearchMedias(MediaSearchObj search, int langId, bool useStartDate);
         SearchResultsObj SearchSubscriptionMedias(List<MediaSearchObj> oSearch, int nLangID, bool shouldUseStartDate, string sMediaTypes, OrderObj orderObj, int nPageIndex, int nPageSize);
         SearchResultsObj SearchEpgs(EpgSearchObj epgSearch);

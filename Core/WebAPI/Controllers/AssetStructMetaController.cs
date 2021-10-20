@@ -58,6 +58,7 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.MetaDoesNotBelongToParentAssetStruct)]
         [Throws(eResponseStatus.TagAlreadyInUse)]
         [Throws(eResponseStatus.InvalidMediaType)]
+        [Throws(eResponseStatus.AliasMustBeUnique)]
         [SchemeArgument("assetStructId", MinLong = 0)]
         [SchemeArgument("metaId", MinLong = 1)]
         [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]

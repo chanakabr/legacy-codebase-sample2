@@ -274,16 +274,13 @@ namespace WebAPI.Controllers
         /// <param name="partnerId">Partner identifier</param>        
         /// <param name="password">password</param>
         /// <param name="user">The user model to add</param>
-        /// <remarks>        
-        /// Wrong username or password = 1011, User exists = 2014
+        /// <remarks>                
         /// </remarks>
         [Action("register")]
         [ValidationException(SchemeValidationType.ACTION_NAME)]
         [OldStandardAction("add")]
-        [Throws(eResponseStatus.WrongPasswordOrUserName)]
         [Throws(eResponseStatus.UserExists)]
         [Throws(eResponseStatus.ExternalIdAlreadyExists)]
-        [Throws(eResponseStatus.UserExternalError)]
         [Throws(eResponseStatus.RoleDoesNotExists)]
         [SchemeArgument("password", MaxLength = 128)]
         static public KalturaOTTUser Register(int partnerId, KalturaOTTUser user, string password)

@@ -245,28 +245,18 @@ namespace ApiLogic.Api.Validators
                 return true;
             }
 
-            var linearChannels = new HashSet<string>();
-            var linearChannelNumbers = new HashSet<string>();
+            var linearChannels = new HashSet<long>();
+            var linearChannelNumbers = new HashSet<int>();
             foreach (var item in regionToValidate.linearChannels)
             {
-                if (!int.TryParse(item.key, out _))
+                if (linearChannels.Contains(item.Key)
+                    || linearChannelNumbers.Contains(item.Value))
                 {
-                    validationStatus = new Status(eResponseStatus.InputFormatIsInvalid, $"The channel id {item.key} is invalid");
+                    validationStatus = new Status(eResponseStatus.DuplicateRegionChannel, $"Channel ID, {item.Key}: the channel or its LCN already appears in this bouquet or one of its subbouquets.");
                 }
 
-                if (!int.TryParse(item.value, out _))
-                {
-                    validationStatus = new Status(eResponseStatus.InputFormatIsInvalid, $"The channel number {item.value} is invalid");
-                }
-
-                if (linearChannels.Contains(item.key)
-                    || linearChannelNumbers.Contains(item.value))
-                {
-                    validationStatus = new Status(eResponseStatus.DuplicateRegionChannel, $"Channel ID, {item.key}: the channel or its LCN already appears in this bouquet or one of its subbouquets.");
-                }
-
-                linearChannels.Add(item.key);
-                linearChannelNumbers.Add(item.value);
+                linearChannels.Add(item.Key);
+                linearChannelNumbers.Add(item.Value);
             }
 
             return validationStatus.IsOkStatusCode();
@@ -281,8 +271,8 @@ namespace ApiLogic.Api.Validators
             }
 
             var duplicatedChannelIds = parentRegion.linearChannels
-                .Where(x => regionToValidate.linearChannels.Any(validatedLinearChannel => validatedLinearChannel.key == x.key || validatedLinearChannel.value == x.value))
-                .Select(x => x.key)
+                .Where(x => regionToValidate.linearChannels.Any(validatedLinearChannel => validatedLinearChannel.Key == x.Key || validatedLinearChannel.Value == x.Value))
+                .Select(x => x.Key)
                 .ToArray();
             if (duplicatedChannelIds.Any())
             {
@@ -310,8 +300,8 @@ namespace ApiLogic.Api.Validators
                 foreach (var subRegion in subRegionsResult.Objects)
                 {
                     var duplicatedChannelIds = subRegion.linearChannels
-                        .Where(x => regionToValidate.linearChannels.Any(validatedLinearChannel => validatedLinearChannel.key == x.key || validatedLinearChannel.value == x.value))
-                        .Select(x => x.key)
+                        .Where(x => regionToValidate.linearChannels.Any(validatedLinearChannel => validatedLinearChannel.Key == x.Key || validatedLinearChannel.Value == x.Value))
+                        .Select(x => x.Key)
                         .ToArray();
 
                     if (duplicatedChannelIds.Any())
@@ -328,7 +318,7 @@ namespace ApiLogic.Api.Validators
 
         private bool AreLinearChannelsFound(int groupId, Region regionToValidate)
         {
-            var linearChannelIds = regionToValidate.linearChannels?.Select(x => long.Parse(x.key)).ToList();
+            var linearChannelIds = regionToValidate.linearChannels?.Select(x => x.Key).ToList();
             if (linearChannelIds?.Count > 0 && !ValidateLinearChannelsExist(groupId, linearChannelIds))
             {
                 log.ErrorFormat("One or more of the assets in linear channel list does not exist. groupId:{0}, id:{1}", groupId, regionToValidate.id);
@@ -372,8 +362,8 @@ namespace ApiLogic.Api.Validators
         {
             var validationResults = new List<string>();
 
-            regionToUpdate.linearChannels.Add(new ApiObjects.KeyValuePair(linearChannelNumber.ToString(), regionChannelNumber.ChannelNumber.ToString()));
-            if (regionToUpdate.linearChannels.Any(x => x.key != linearChannelNumber.ToString() && x.value == regionChannelNumber.ChannelNumber.ToString()))
+            regionToUpdate.linearChannels.Add(new KeyValuePair<long, int>(linearChannelNumber, regionChannelNumber.ChannelNumber));
+            if (regionToUpdate.linearChannels.Any(x => x.Key != linearChannelNumber && x.Value == regionChannelNumber.ChannelNumber))
             {
                 validationResults.Add($"For the following channel, its LCN {regionChannelNumber.ChannelNumber} already appears in the region with id {regionToUpdate.id}.");
             }
@@ -418,7 +408,7 @@ namespace ApiLogic.Api.Validators
                     name = region.name,
                     externalId = region.name,
                     isDefault = region.isDefault,
-                    linearChannels = region.linearChannels.Select(x => new ApiObjects.KeyValuePair(x.key, x.value)).ToList(),
+                    linearChannels = region.linearChannels.Select(x => new KeyValuePair<long, int>(x.Key, x.Value)).ToList(),
                     groupId = region.groupId,
                     parentId = region.parentId,
                     createDate = region.createDate,

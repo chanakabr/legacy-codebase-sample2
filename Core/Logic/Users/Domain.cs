@@ -1200,7 +1200,7 @@ namespace Core.Users
         public DomainResponseStatus ResetDomain(int nFreqencyType = 0)
         {
             bool res = false;
-            if (m_DomainStatus != DomainStatus.DomainSuspended)
+            if (m_DomainStatus != DomainStatus.DomainSuspended || m_DomainStatus == DomainStatus.DomainSuspended && RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, m_masterGUIDs[0]))
             {
                 res = DomainDal.ResetDomain(m_nDomainID, m_nGroupID, nFreqencyType);
             }
@@ -1264,7 +1264,7 @@ namespace Core.Users
             }
 
             //BEO-4478
-            if (m_DomainStatus == DomainStatus.DomainSuspended)
+            if (m_DomainStatus == DomainStatus.DomainSuspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(nGroupID, m_masterGUIDs[0]))
             {
                 return DomainResponseStatus.DomainSuspended;
             }
@@ -2395,7 +2395,7 @@ namespace Core.Users
                 return new DomainResponseObject(this, DomainResponseStatus.UserNotAllowed);
             }
 
-            if (masterUser.m_eSuspendState == DomainSuspentionStatus.Suspended)
+            if (masterUser.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, masterUser.Id))
             {
                 return new DomainResponseObject(this, DomainResponseStatus.DomainSuspended);
             }

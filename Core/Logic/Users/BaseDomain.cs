@@ -523,7 +523,7 @@ namespace Core.Users
 
             Domain domain = DomainInitializer(nGroupID, nDomainID, false);
 
-            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(nGroupID, nUserID))
             {
                 oDomainResponseObject = new DomainResponseObject(domain, DomainResponseStatus.DomainSuspended);
                 return oDomainResponseObject;
@@ -567,7 +567,7 @@ namespace Core.Users
                 return resp;
             }
 
-            if (masterUser.m_eSuspendState == DomainSuspentionStatus.Suspended)
+            if (masterUser.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, masterUser.Id))
             {
                 resp.m_oDomain = null;
                 resp.m_oDomainResponseStatus = DomainResponseStatus.DomainSuspended;

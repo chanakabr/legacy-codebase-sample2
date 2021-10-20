@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ApiObjects.Response
 {
@@ -20,6 +21,13 @@ namespace ApiObjects.Response
         {
             Status = status;
             Objects = objs;
+        }
+
+        public GenericListResponse(Status status, IEnumerable<T> objs, int totalItems)
+        {
+            Status = status;
+            Objects = objs.ToList();
+            TotalItems = totalItems;
         }
 
         public void SetStatus(eResponseStatus responseStatus, string message = null, List<KeyValuePair> args = null)

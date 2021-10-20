@@ -24,7 +24,6 @@ namespace WebAPI.Controllers
         [ApiAuthorize]
         [Throws(eResponseStatus.UserDoesNotExist)]
         [Throws(eResponseStatus.UserSuspended)]
-        [Throws(eResponseStatus.WrongPasswordOrUserName)]
         static public KalturaFavorite Add(KalturaFavorite favorite)
         {
             KalturaFavorite response = null;

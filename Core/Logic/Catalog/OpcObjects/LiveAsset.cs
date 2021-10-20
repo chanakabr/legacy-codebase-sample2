@@ -79,6 +79,30 @@ namespace Core.Catalog
             this.ChannelType = null;
         }
 
+        public LiveAsset(LiveAsset liveAsset)
+            : base(liveAsset)
+        {
+            MediaAssetType = MediaAssetType.Linear;
+            EnableCdvrState = liveAsset.EnableCdvrState;
+            EnableCatchUpState = liveAsset.EnableCatchUpState;
+            EnableStartOverState = liveAsset.EnableStartOverState;
+            EnableTrickPlayState = liveAsset.EnableTrickPlayState;
+            EnableRecordingPlaybackNonEntitledChannelState = liveAsset.EnableRecordingPlaybackNonEntitledChannelState;
+            BufferCatchUp = liveAsset.BufferCatchUp;
+            BufferTrickPlay = liveAsset.BufferTrickPlay;
+            ExternalEpgIngestId = liveAsset.ExternalEpgIngestId;
+            ExternalCdvrId = liveAsset.ExternalCdvrId;
+            CdvrEnabled = liveAsset.CdvrEnabled;
+            CatchUpEnabled = liveAsset.CatchUpEnabled;
+            StartOverEnabled = liveAsset.StartOverEnabled;
+            TrickPlayEnabled = liveAsset.TrickPlayEnabled;
+            SummedCatchUpBuffer = liveAsset.SummedCatchUpBuffer;
+            SummedTrickPlayBuffer = liveAsset.SummedTrickPlayBuffer;
+            RecordingPlaybackNonEntitledChannelEnabled = liveAsset.RecordingPlaybackNonEntitledChannelEnabled;
+            ChannelType = liveAsset.ChannelType;
+            EpgChannelId = liveAsset.EpgChannelId;
+        }
+
         public LiveAsset(long epgChannelId, TstvState? enableCdvr, TstvState? enableCatchUp, TstvState? enableStartOver, TstvState? enableTrickPlay, TstvState? enableRecordingPlaybackNonEntitledChannel, long catchUpBuffer,
                                 long trickPlayBuffer, string externalIngestId, string externalCdvrId, MediaAsset mediaAsset, TimeShiftedTvPartnerSettings accountTstvSettings, LinearChannelType channelType)
             : base(mediaAsset)

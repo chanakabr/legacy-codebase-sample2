@@ -1837,17 +1837,6 @@ namespace Tvinci.Core.DAL
             return ds;
         }
 
-        public static bool UpdateEpgAssetStructMetas(int groupId, List<KeyValuePair<long, string>> epgMetaIdsToValue, long userId)
-        {
-            StoredProcedure sp = new StoredProcedure("UpdateEpgAssetStructMetas");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@groupId", groupId);
-            sp.AddKeyValueListParameter<long, string>("@epgMetaIdsToValue", epgMetaIdsToValue, "key", "value");
-            sp.AddParameter("@updaterId", userId);
-
-            return sp.ExecuteReturnValue<int>() > 0;
-        }
-
         public static bool UpdateEpgAssetStructTags(int groupId, List<KeyValuePair<long, string>> epgTagIdsToValue, long userId)
         {
             StoredProcedure sp = new StoredProcedure("UpdateEpgAssetStructTags");
@@ -5831,35 +5820,6 @@ namespace Tvinci.Core.DAL
             return sp.Execute();
         }
 
-        public static DataTable UpdateAssetStructMeta(long assetStructId, long metaId, string ingestReferencePath, bool? protectFromIngest, string defaultIngestValue, int groupId, long userId,
-                                                      bool? isInherited, bool? isLocationTag, int? suppressedOrder)
-        {
-            StoredProcedure sp = new StoredProcedure("UpdateAssetStructMeta");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@AssetStructId", assetStructId);
-            sp.AddParameter("@MetaId", metaId);
-            sp.AddParameter("@IngestReferencePath", ingestReferencePath);
-            sp.AddParameter("@ProtectFromIngest", protectFromIngest);
-            sp.AddParameter("@DefaultIngestValue", defaultIngestValue);
-            sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@UserId", userId);
-            sp.AddParameter("@IsInherited", isInherited);
-            sp.AddParameter("@isLocationTag", isLocationTag);
-            sp.AddParameter("@suppressedOrder", suppressedOrder);
-
-            return sp.Execute();
-        }
-
-        public static DataTable GetAssetStructMetaList(int groupId, long metaId)
-        {
-            StoredProcedure sp = new StoredProcedure("GetAssetStructMetaListByMetaId");
-            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
-            sp.AddParameter("@GroupId", groupId);
-            sp.AddParameter("@MetaId", metaId);
-
-            return sp.Execute();
-        }
-
         public static DataTable GetGroupLinearMediaIds(int groupId)
         {
             ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetGroupLinearMediaIds");
@@ -6598,7 +6558,7 @@ namespace Tvinci.Core.DAL
                 translations[item.mediaId] = item;
             }
         }
-
+        
         private static string GetMediaTagsTranslationsKey(long mediaId)
         {
             return $"media_tags_translations_{mediaId}";

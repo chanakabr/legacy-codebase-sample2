@@ -46,6 +46,13 @@ namespace WebAPI.Managers.Scheme
             return null;
         }
 
+        public static string getCurrentClientTag()
+        {
+            var clientTag = HttpContext.Current?.Items?[RequestContextConstants.REQUEST_CLIENT_TAG]?.ToString();
+
+            return clientTag ?? string.Empty;
+        }
+
         public static bool isCurrentRequestOldVersion(Version current = null)
         {
             if (current == null)

@@ -20,7 +20,8 @@ namespace WebAPI.Models.Partner
         Catalog,
         Security,
         Opc,
-        Base
+        Base,
+        CustomFields
     }
 
     /// <summary>

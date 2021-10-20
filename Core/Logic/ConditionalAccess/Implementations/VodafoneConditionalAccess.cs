@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Caching;
+using APILogic.Api.Managers;
 
 
 namespace Core.ConditionalAccess
@@ -75,7 +76,7 @@ namespace Core.ConditionalAccess
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
                     // validate user is not suspended
-                    if (suspendStatus != DomainSuspentionStatus.Suspended)
+                    if (suspendStatus != DomainSuspentionStatus.Suspended || RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(siteGuid)))
                     {
                         // validate that the service is allowed
                         if (IsServiceAllowed(domainID, eService.NPVR))
@@ -159,7 +160,7 @@ namespace Core.ConditionalAccess
                 if (Utils.IsUserValid(siteGuid, m_nGroupID, ref domainID, ref suspendStatus) && domainID > 0)
                 {
                     // validate user is not suspended
-                    if (suspendStatus != DomainSuspentionStatus.Suspended)
+                    if (suspendStatus != DomainSuspentionStatus.Suspended || RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(siteGuid)))
                     {
                         // validate that the service is allowed
                         if (IsServiceAllowed(domainID, eService.NPVR))

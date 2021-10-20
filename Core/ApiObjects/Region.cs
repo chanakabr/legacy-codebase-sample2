@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+
 namespace ApiObjects
 {
     [Serializable]
@@ -20,7 +18,7 @@ namespace ApiObjects
         [JsonProperty()]
         public bool isDefault;
         [JsonProperty()]
-        public List<KeyValuePair> linearChannels;
+        public List<KeyValuePair<long, int>> linearChannels;
         [JsonProperty()]
         public int groupId;
         [JsonProperty()]
@@ -39,7 +37,7 @@ namespace ApiObjects
             name = string.Empty;
             externalId = string.Empty;
             isDefault = false;
-            linearChannels = new List<KeyValuePair>();
+            linearChannels = new List<KeyValuePair<long, int>>();
         }
 
         #endregion

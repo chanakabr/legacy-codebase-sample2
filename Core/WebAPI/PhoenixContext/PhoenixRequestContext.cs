@@ -61,6 +61,7 @@ namespace Phoenix.Context
         public KalturaOTTObject ResponseProfile { get; set; }
         public string RequestContentType { get; set; }
         public Version RequestVersion { get; set; }
+        public string RequestClientTag { get; set; }
 
         /// <summary>
         /// This property is set by the SessionId middleware only to allow access to the elapes time from anywere in the

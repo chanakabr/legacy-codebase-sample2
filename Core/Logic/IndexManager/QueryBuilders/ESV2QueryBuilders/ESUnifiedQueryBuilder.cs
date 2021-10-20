@@ -2512,6 +2512,10 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 (term as ESTerms).Value.AddRange(recordingIds);
                 return (term);
             }
+            else if (leaf.field == NamingHelper.ASSET_TYPE)
+            {
+                leaf.field = "_type";
+            }
 
             // Create the term according to the comparison operator
             switch (leaf.operand)

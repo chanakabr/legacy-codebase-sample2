@@ -293,12 +293,29 @@ namespace Core.Catalog.Request
                     }
 
                     var futureRecording = string.Empty;
-                    if (serie.SeriesRecordingOption != null && serie.SeriesRecordingOption.MinSeasonNumber > 0 && serie.SeriesRecordingOption.MinEpisodeNumber > 0)
+
+                    //(or (and seasonnumber = '{serie.SeriesRecordingOption.MinSeasonNumber}' episodenumber >= '{serie.SeriesRecordingOption.MinEpisodeNumber}') seasonnumber > '{serie.SeriesRecordingOption.MinSeasonNumber}' end_date >= '{minDate}' )
+                    if (serie.SeriesRecordingOption != null && serie.SeriesRecordingOption.IsValid())
                     {
-                        //metas.X
-                        futureRecording = $"(or (and seasonnumber = '{serie.SeriesRecordingOption.MinSeasonNumber}" +
-                            $"' episodenumber >= '{serie.SeriesRecordingOption.MinEpisodeNumber}') seasonnumber > " +
-                            $"'{serie.SeriesRecordingOption.MinSeasonNumber}')";
+                        futureRecording = "(or ";
+                        if (serie.SeriesRecordingOption.MinSeasonNumber > 0 && serie.SeriesRecordingOption.MinEpisodeNumber > 0)
+                        {
+                            //metas.X
+                            futureRecording += $"(and seasonnumber = '{serie.SeriesRecordingOption.MinSeasonNumber}" +
+                                $"' episodenumber >= '{serie.SeriesRecordingOption.MinEpisodeNumber}') seasonnumber > " +
+                                $"'{serie.SeriesRecordingOption.MinSeasonNumber}'";
+                        }
+
+                        if (serie.SeriesRecordingOption.StartDateRecording.HasValue && serie.SeriesRecordingOption.StartDateRecording > 0)
+                        {
+                            var minDate = serie.SeriesRecordingOption.StartDateRecording.Value;
+                            var addPrefix = !futureRecording.Contains("and");
+                            var prefixAnd = addPrefix ? "(and" : "";
+                            var bracket = addPrefix ? ")" : string.Empty;
+                            futureRecording += $"{prefixAnd} end_date >= '{minDate}'{bracket}"; //future
+                        }
+                        futureRecording += ")";
+                        log.Debug($"futureRecording: {futureRecording}");
                     }
 
                     ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4} {5} {6})", seriesIdMetaOrTag, serie.SeriesId, 

@@ -57,7 +57,7 @@ namespace WebAPI.Clients
                 log.ErrorFormat("Error while trying to get languages. group id: {0}, exception: {1}", groupId, ex);
                 throw new ClientException((int)StatusCode.InternalConnectionIssue, "Error while calling API web service");
             }
-        }        
+        }
 
         internal List<KalturaUserRole> GetUserRoles(int groupId, string userId)
         {
@@ -91,7 +91,7 @@ namespace WebAPI.Clients
 
             return roles;
 
-        }       
+        }
 
         #region Parental Rules
 
@@ -233,7 +233,7 @@ namespace WebAPI.Clients
             }
 
             return userRole;
-        }       
+        }
 
         internal bool DeleteRole(int groupId, long id)
         {
@@ -4575,6 +4575,22 @@ namespace WebAPI.Clients
 
             result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
             result.TotalCount = response.TotalCount;
+            return result;
+        }
+
+        internal KalturaPartnerConfigurationListResponse GetCustomFieldsConfiguration(int groupId)
+        {
+            var result = new KalturaPartnerConfigurationListResponse();
+
+            Func<CustomFieldsPartnerConfig> getListFunc = () => CustomFieldsPartnerConfigManager.Instance.GetCustomFieldsConfigFromCache(groupId);
+            var response = ClientUtils.GetResponseFromWS<KalturaCustomFieldsPartnerConfiguration, CustomFieldsPartnerConfig>(getListFunc);
+
+            if (response != null)
+            {
+                result.Objects = new List<KalturaPartnerConfiguration>{ response };
+                result.TotalCount = 1;
+            }
+
             return result;
         }
 

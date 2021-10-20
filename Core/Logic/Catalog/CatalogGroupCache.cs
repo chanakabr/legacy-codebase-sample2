@@ -227,5 +227,39 @@ namespace Core.Catalog
 
             return programAssetStructId;
         }
+
+        public AssetStructMeta GetAssetStructMetaBySystemName(int groupId, long assetStructId, string systemName)
+        {
+            if (TopicsMapBySystemNameAndByType.ContainsKey(systemName))
+            {
+                var t = TopicsMapBySystemNameAndByType[systemName].FirstOrDefault(key => key.Key != MetaType.Tag.ToString());
+                if (!IsDefault(t))
+                {
+                    if (AssetStructsMapById.ContainsKey(assetStructId))
+                    {
+                        var assetStruct = this.AssetStructsMapById[assetStructId];
+                        if (assetStruct.AssetStructMetas.ContainsKey(t.Value.Id))
+                        {
+                            return assetStruct.AssetStructMetas[t.Value.Id];
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Check if struct object is default (null)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public bool IsDefault<T>(T value) where T : struct
+        {
+            bool isDefault = value.Equals(default(T));
+
+            return isDefault;
+        }
     }
 }

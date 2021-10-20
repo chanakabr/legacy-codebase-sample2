@@ -140,7 +140,7 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception ex)
             {
-                log.Error($"Failed GetPlaybackConfig for groupId: {groupId}", ex);
+                log.Error($"Failed GetCatalogConfig for groupId: {groupId}", ex);
             }
 
             return response;
@@ -260,6 +260,5 @@ namespace ApiLogic.Api.Managers
 
             return new Tuple<CatalogPartnerConfig, bool>(partnerConfig, result);
         }
-
     }
 }

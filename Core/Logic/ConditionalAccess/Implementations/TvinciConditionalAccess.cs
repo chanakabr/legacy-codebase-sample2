@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using APILogic.Api.Managers;
 
 namespace Core.ConditionalAccess
 {
@@ -531,7 +532,7 @@ namespace Core.ConditionalAccess
             log.DebugFormat("GetEPGLink parameters: {0}.", logParams);
 
             // check if domain is suspended
-            if (domainStatus == DomainSuspentionStatus.Suspended)
+            if (domainStatus == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(sSiteGUID)))
             {
                 StringBuilder sb = new StringBuilder("GetEPGLink: domain is suspended.");
                 sb.Append(logParams);

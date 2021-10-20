@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using KLogMonitor;
 using System.Reflection;
+using APILogic.Api.Managers;
 
 namespace Core.Users
 {
@@ -123,7 +124,7 @@ namespace Core.Users
                 return dom;
             }
 
-            if (dom.m_DomainStatus == DomainStatus.DomainSuspended)
+            if (dom.m_DomainStatus == DomainStatus.DomainSuspended && RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(dom.GroupId, dom.m_masterGUIDs[0]))
             {
                 return dom;
             }

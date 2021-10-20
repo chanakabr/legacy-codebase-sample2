@@ -3458,8 +3458,21 @@ namespace Core.Api
                 {
                     if (channelMediaId == 0)
                     {
-                        // get epg channel media id
-                        channelMediaId = DAL.ApiDAL.GetLinearMediaIdByEpgId(epgId);
+                        var isNewEpgIngestEnabled = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
+                        if (isNewEpgIngestEnabled) //BEO-10851
+                        {
+                            TvinciEpgBL epgBLTvinci = new TvinciEpgBL(groupId);  
+                            EpgCB epg = epgBLTvinci.GetEpgCB((ulong)epgId, false);
+                            if (epg != null)
+                            {
+                                channelMediaId = epg.LinearMediaId;
+                            }
+                        }
+                        else
+                        {
+                            // get epg channel media id
+                            channelMediaId = DAL.ApiDAL.GetLinearMediaIdByEpgId(epgId);
+                        }
                     }
 
                     if (channelMediaId > 0)

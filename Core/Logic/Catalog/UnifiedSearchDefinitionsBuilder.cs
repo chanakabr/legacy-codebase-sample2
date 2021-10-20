@@ -178,7 +178,7 @@ namespace Core.Catalog
                     definitions.shouldSearchEpg = false;
                 }
 
-                var result = _filterTreeValidator.ValidateTree(request.filterTree, definitions.mediaTypes);
+                var result = _filterTreeValidator.ValidateTree(request.filterTree, request.assetTypes);
                 if (result != null)
                 {
                     definitions.shouldSearchEpg = result.ShouldSearchEpg;

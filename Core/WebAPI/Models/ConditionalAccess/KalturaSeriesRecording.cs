@@ -102,7 +102,7 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "minSeasonNumber")]
         [JsonProperty("minSeasonNumber")]
         [XmlElement(ElementName = "minSeasonNumber", IsNullable = true)]
-        [SchemeProperty(MinInteger = 0)]
+        [SchemeProperty(MinInteger = 0, IsNullable = true)]
         public int? MinSeasonNumber { get; set; }
 
         /// <summary>
@@ -111,8 +111,17 @@ namespace WebAPI.Models.ConditionalAccess
         [DataMember(Name = "minEpisodeNumber")]
         [JsonProperty("minEpisodeNumber")]
         [XmlElement(ElementName = "minEpisodeNumber", IsNullable = true)]
-        [SchemeProperty(MinInteger = 0)]
+        [SchemeProperty(MinInteger = 0, IsNullable = true)]
         public int? MinEpisodeNumber { get; set; }
+
+        /// <summary>
+        /// Record future only from selected value
+        /// </summary>
+        [DataMember(Name = "chronologicalRecordStartTime")]
+        [JsonProperty("chronologicalRecordStartTime")]
+        [XmlElement(ElementName = "chronologicalRecordStartTime", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public KalturaChronologicalRecordStartTime? ChronologicalRecordStartTime { get; set; }
 
         internal void Validate()
         {
@@ -123,5 +132,12 @@ namespace WebAPI.Models.ConditionalAccess
             if (!MinSeasonNumber.HasValue && MinEpisodeNumber.HasValue)
                 throw new System.Exception("Can't use minimal episode without minimal season");
         }
+    }
+
+    public enum KalturaChronologicalRecordStartTime
+    {
+        NONE,
+        NOW,
+        EPG_START_TIME
     }
 }

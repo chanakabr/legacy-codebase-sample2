@@ -21,6 +21,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using APILogic.Api.Managers;
 using TVinciShared;
 
 namespace Core.ConditionalAccess
@@ -1099,7 +1100,7 @@ namespace Core.ConditionalAccess
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.InvalidUser, "Invalid user");
                     return response;
                 }
-                if (suspendStatus == DomainSuspentionStatus.Suspended)
+                if (suspendStatus == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(groupId, long.Parse(userId)))
                 {
                     log.ErrorFormat("Domain suspended, userId = {0}", userId);
                     response.Status = new ApiObjects.Response.Status((int)eResponseStatus.DomainSuspended, "Domain suspended");

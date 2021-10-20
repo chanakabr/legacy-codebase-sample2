@@ -15,7 +15,8 @@ namespace Core.Catalog
         public long UpdateDate { get; set; }
         public bool? IsInherited { get; set; }
         public bool? IsLocationTag { get; set; }
-        public int? SuppressedOrder { get; set; } 
+        public int? SuppressedOrder { get; set; }
+        public string Alias { get; set; }
 
         public AssetStructMeta()
         {
@@ -41,6 +42,7 @@ namespace Core.Catalog
             sb.AppendFormat("IsInherited: {0} ", IsInherited);
             sb.AppendFormat("IsLocationTag: {0} ", IsLocationTag);
             sb.AppendFormat("SuppressedOrder: {0} ", SuppressedOrder ?? -1);
+            sb.AppendFormat("Alias: {0} ", !string.IsNullOrEmpty(Alias) ? Alias : "");
             return sb.ToString();
         }
     }

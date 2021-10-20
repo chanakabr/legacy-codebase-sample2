@@ -114,7 +114,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.DeviceExistsInOtherDomains)]
         [Throws(eResponseStatus.NoUsersInDomain)]
         [Throws(eResponseStatus.DeviceTypeNotAllowed)]
-        [Throws(eResponseStatus.ExternalIdAlreadyExists)]
+        [Throws(eResponseStatus.ExternalIdAlreadyExists)]        
+        [Throws(eResponseStatus.ExceededLimit)]
         public static KalturaHouseholdDevice Add(KalturaHouseholdDevice device)
         {
             device.Validate();

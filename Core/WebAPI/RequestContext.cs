@@ -33,6 +33,7 @@ namespace WebAPI
             SetResponseProfile(requestParams, globalScope);
             SetUserIpContext();
             SetRequestVersion(requestParams);
+            SetRequestClientTag(requestParams);
 
             var loggingContext = new ContextData();
             loggingContext.Load();
@@ -302,6 +303,14 @@ namespace WebAPI
                 {
                     throw new RequestParserException(RequestParserException.INVALID_VERSION, requestParams["apiVersion"]);
                 }
+            }
+        }
+        
+        private static void SetRequestClientTag(IDictionary<string, object> requestParams)
+        {
+            if (requestParams.ContainsKey("clientTag"))
+            {
+                HttpContext.Current.Items[RequestContextConstants.REQUEST_CLIENT_TAG] = requestParams["clientTag"].ToString();
             }
         }
     }

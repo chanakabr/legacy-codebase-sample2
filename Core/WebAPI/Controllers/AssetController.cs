@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Web;
 using TVinciShared;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -29,7 +30,7 @@ using ApiObjects.SearchObjects;
 namespace WebAPI.Controllers
 {
     [Service("asset")]
-    public class AssetController : IKalturaController 
+    public class AssetController : IKalturaController
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly IFilterFileRule _filterFileRule = FilterFileRule.Instance;
@@ -181,7 +182,7 @@ namespace WebAPI.Controllers
             try
             {
                 response = filter.GetAssets(contextData, responseProfile, pager);
-                
+
                 if (response != null && response.Objects != null && response.Objects.Count > 0)
                 {
                     var discoveryRules = FilterRuleStorage.Instance.GetFilterFileRulesForDiscovery(GetUserCondition(contextData));
@@ -192,8 +193,14 @@ namespace WebAPI.Controllers
                                 FilterAssetFilesForUser(asset.MediaFiles, discoveryRules, ToEAssetType(asset.Type), fileTypes),
                                 playbackRules, ToEAssetType(asset.Type), fileTypes)
                             ?.ToList());
+
+                    var clientTag = OldStandardAttribute.getCurrentClientTag();
+
+                    response.Objects?.ForEach(asset =>
+                        asset.Metas = ModifyAlias(
+                        contextData.GroupId, clientTag, asset));
                 }
-                
+             
                 CatalogUtils.HandleResponseProfile(responseProfile, response.Objects);
             }
             catch (ClientException ex)
@@ -231,9 +238,10 @@ namespace WebAPI.Controllers
             }
 
             KS ks = KS.GetFromRequest();
+            int groupId = ks.GroupId;
+
             try
             {
-                int groupId = ks.GroupId;
                 string userID = ks.UserId;
                 string udid = KSUtils.ExtractKSPayload().UDID;
                 string language = Utils.Utils.GetLanguageFromRequest();
@@ -353,6 +361,9 @@ namespace WebAPI.Controllers
                         playbackRules, ToEAssetType(asset.Type), fileTypes
                     )
                     ?.ToList();
+
+                var clientTag = OldStandardAttribute.getCurrentClientTag();
+                asset.Metas = ModifyAlias(groupId, clientTag, asset);
             }
 
             return asset;
@@ -904,6 +915,8 @@ namespace WebAPI.Controllers
         [Throws(eResponseStatus.CatchUpBufferLimitation)]
         [Throws(eResponseStatus.ProgramCatchUpNotEnabled)]
         [Throws(eResponseStatus.AccountCatchUpNotEnabled)]
+        [Throws(eResponseStatus.ServiceNotAllowed)]
+        [Throws(eResponseStatus.NotAllowed)]
         static public KalturaPlaybackContext GetPlaybackContext(string assetId, KalturaAssetType assetType, KalturaPlaybackContextOptions contextDataParams, string sourceType = null)
         {
             KalturaPlaybackContext response = null;
@@ -1508,5 +1521,24 @@ namespace WebAPI.Controllers
         }
 
         private static eAssetTypes ToEAssetType(KalturaAssetType apiAssetType) => Mapper.Map<eAssetTypes>(apiAssetType);
+
+        private static SerializableDictionary<string, KalturaValue> ModifyAlias(int groupId, string clientTag, KalturaAsset asset)
+        {
+            if (asset.Metas == null || !asset.Metas.Any())
+                return asset.Metas;
+
+            var manager = Core.Catalog.CatalogManagement.CatalogManager.Instance;
+
+            if (!manager.IsGroupUsingAliases(groupId))
+                return asset.Metas;
+
+            var aliasHelper = ApiLogic.Api.Managers.CustomFieldsPartnerConfigManager.Instance;
+            var modifier = ApiLogic.Catalog.CatalogManagement.Managers.AssetMetaModifier.Instance;
+
+            var _metas = modifier.ReplaceWithAlias(groupId, clientTag, asset.Type.Value, asset.Metas, aliasHelper);
+            var _t = new SerializableDictionary<string, KalturaValue>();
+            _t.TryAddRange(_metas);
+            return _t;
+        }
     }
 }

@@ -20,7 +20,6 @@ namespace ElasticSearch.Searcher
                 returnFields = new List<string>();
             }
 
-            bool hasScoreSort = false;
             JArray sortArray = new JArray();
 
             if (functionScoreSort)
@@ -28,7 +27,6 @@ namespace ElasticSearch.Searcher
                 JObject scoreSort = new JObject();
                 scoreSort["_score"] = "desc";
                 sortArray.Add(scoreSort);
-                hasScoreSort = true;
             }
 
             string primaryOrderField = string.Empty;
@@ -47,10 +45,9 @@ namespace ElasticSearch.Searcher
             }
             else if (order.m_eOrderBy == OrderBy.RELATED || order.m_eOrderBy == OrderBy.NONE)
             {
-                if (!hasScoreSort)
+                if (!functionScoreSort)
                 {
                     primaryOrderField = "_score";
-                    hasScoreSort = true;
                 }
             }
             else
@@ -67,15 +64,6 @@ namespace ElasticSearch.Searcher
                 primaryOrder[primaryOrderField]["order"] = JToken.FromObject((order.m_eOrderDir.ToString().ToLower()));
 
                 sortArray.Add(primaryOrder);
-            }
-
-            //we always add the score at the end of the sorting so that our records will be in best order when using wildcards in the query itself
-            if (order.m_eOrderBy != OrderBy.ID && order.m_eOrderBy != OrderBy.RELATED && order.m_eOrderBy != OrderBy.NONE && !hasScoreSort)
-            {
-                JObject scoreSort = new JObject();
-                scoreSort["_score"] = "desc";
-                sortArray.Add(scoreSort);
-                hasScoreSort = true;
             }
 
             if (order.m_eOrderBy != OrderBy.ID)

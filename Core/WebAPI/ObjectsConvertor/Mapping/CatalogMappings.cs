@@ -659,6 +659,11 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.ChannelType, opt => opt.ResolveUsing(src => ConvertToKalturaLinearChannelType(src.ChannelType)))
                 .ForMember(dest => dest.ExternalIds, opt => opt.MapFrom(src => src.EpgChannelId));
 
+            //LineupChannelAsset to KalturaLineupChannelAsset
+            cfg.CreateMap<LineupChannelAsset, KalturaLineupChannelAsset>()
+                .IncludeBase<LiveAsset, KalturaLiveAsset>()
+                .ForMember(dest => dest.LinearChannelNumber, opt => opt.MapFrom(src => src.LinearChannelNumber));
+
             cfg.CreateMap<EpgAsset, KalturaProgramAsset>()
                 .IncludeBase<Asset, KalturaAsset>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => 0))
@@ -888,6 +893,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.IsInherited, opt => opt.MapFrom(src => src.IsInherited))
                 .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag))
                 .ForMember(dest => dest.SuppressedOrder, opt => opt.MapFrom(src => src.SuppressedOrder))
+                .ForMember(dest => dest.AliasName, opt => opt.MapFrom(src => src.Alias))
                 ;
 
             // KalturaAssetStructMeta to AssetStructMeta
@@ -902,6 +908,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.IsInherited, opt => opt.MapFrom(src => src.IsInherited))
                .ForMember(dest => dest.IsLocationTag, opt => opt.MapFrom(src => src.IsLocationTag))
                .ForMember(dest => dest.SuppressedOrder, opt => opt.MapFrom(src => src.SuppressedOrder))
+               .ForMember(dest => dest.Alias, opt => opt.MapFrom(src => src.AliasName))
                ;
 
             #endregion

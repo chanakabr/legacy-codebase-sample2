@@ -11,17 +11,21 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using ApiLogic.Api.Validators;
 using ConfigurationManager;
 using KeyValuePair = ApiObjects.KeyValuePair;
 
 namespace ApiLogic.Api.Managers
 {
-    public class RegionManager
+    public class RegionManager : IRegionManager
     {
+        private static readonly Lazy<RegionManager> Lazy = new Lazy<RegionManager>(() => new RegionManager(), LazyThreadSafetyMode.PublicationOnly);
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly IRegionValidator _regionValidator = new RegionValidator();
         private static readonly bool ShouldUseUpdateRegionPerformanceImprovement = ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseUpdateRegionPerformanceImprovement.Value;
+
+        public static RegionManager Instance => Lazy.Value;
 
         internal static Status DeleteRegion(int groupId, int id, long userId)
         {
@@ -111,11 +115,11 @@ namespace ApiLogic.Api.Managers
                     }
                     else if (regionToUpdate.linearChannels?.Count > 0)
                     {
-                        assetsToIndex = regionToUpdate.linearChannels.Select(lc => long.Parse(lc.key)).ToList();
+                        assetsToIndex = regionToUpdate.linearChannels.Select(lc => lc.Key).ToList();
                     }
                     else
                     {
-                        assetsToIndex = region.linearChannels?.Select(lc => long.Parse(lc.key)).ToList();
+                        assetsToIndex = region.linearChannels?.Select(lc => lc.Key).ToList();
                     }
 
                     if (assetsToIndex?.Count > 0)
@@ -128,7 +132,7 @@ namespace ApiLogic.Api.Managers
                 {
                     if (regionToUpdate.linearChannels == null)
                     {
-                        regionToUpdate.linearChannels = new List<KeyValuePair>();
+                        regionToUpdate.linearChannels = new List<KeyValuePair<long, int>>();
                     }
 
                     var parentRegion = GetRegion(groupId, regionToUpdate.parentId);
@@ -188,7 +192,7 @@ namespace ApiLogic.Api.Managers
 
                 if (region.linearChannels?.Count > 0)
                 {
-                    var assetIds = region.linearChannels.Select(lc => long.Parse(lc.key)).ToList();
+                    var assetIds = region.linearChannels.Select(lc => lc.Key).ToList();
                     UpdateIndex(groupId, assetIds);
                 }
 
@@ -268,8 +272,8 @@ namespace ApiLogic.Api.Managers
                                 {
                                     foreach (var kvp in region.linearChannels)
                                     {
-                                        int mediaId = 0;
-                                        if (int.TryParse(kvp.key, out mediaId) && mediaId > 0)
+                                        long mediaId = kvp.Key;
+                                        if (mediaId > 0)
                                         {
                                             if (!result.ContainsKey(mediaId))
                                             {
@@ -435,18 +439,18 @@ namespace ApiLogic.Api.Managers
                             {
                                 if (item.linearChannels == null)
                                 {
-                                    item.linearChannels = new List<KeyValuePair>();
+                                    item.linearChannels = new List<KeyValuePair<long, int>>();
                                 }
 
                                 if (filter.ExclusiveLcn)
                                 {
-                                    var parentChannelIds = regionsCache.Regions[item.parentId].linearChannels.Select(x => x.key);
-                                    item.linearChannels = item.linearChannels.Where(x => !parentChannelIds.Contains(x.key)).ToList();
+                                    var parentChannelIds = regionsCache.Regions[item.parentId].linearChannels.Select(x => x.Key);
+                                    item.linearChannels = item.linearChannels.Where(x => !parentChannelIds.Contains(x.Key)).ToList();
                                 }
                                 else
                                 {
-                                    var currentChannelIds = item.linearChannels.Select(x => x.key);
-                                    var missingChannels = regionsCache.Regions[item.parentId].linearChannels.Where(x => !currentChannelIds.Contains(x.key));
+                                    var currentChannelIds = item.linearChannels.Select(x => x.Key);
+                                    var missingChannels = regionsCache.Regions[item.parentId].linearChannels.Where(x => !currentChannelIds.Contains(x.Key));
                                     item.linearChannels.AddRange(missingChannels);
                                 }
                             }
@@ -564,7 +568,7 @@ namespace ApiLogic.Api.Managers
                                 if (region != null)
                                 {
                                     assetId = APILogic.Utils.GetIntSafeVal(row, "media_id");
-                                    region.linearChannels.Add(new ApiObjects.KeyValuePair(assetId.ToString(), APILogic.Utils.GetIntSafeVal(row, "channel_number").ToString()));
+                                    region.linearChannels.Add(new KeyValuePair<long, int>(assetId, APILogic.Utils.GetIntSafeVal(row, "channel_number")));
                                 }
                             }
 
@@ -588,14 +592,13 @@ namespace ApiLogic.Api.Managers
             return new Tuple<RegionsCache, bool>(regionsCache, regionsCache != null);
         }
 
-        private static List<long> GetLinearChannelsDiff(IEnumerable<KeyValuePair> newLinearChannels, IEnumerable<KeyValuePair> existingLinearChannels)
+        private static List<long> GetLinearChannelsDiff(IEnumerable<KeyValuePair<long, int>> newLinearChannels, IEnumerable<KeyValuePair<long, int>> existingLinearChannels)
         {
-            var existingIds = existingLinearChannels.Select(x => x.key).ToList();
-            var newIds = newLinearChannels.Select(x => x.key).ToList();
+            var existingIds = existingLinearChannels.Select(x => x.Key).ToList();
+            var newIds = newLinearChannels.Select(x => x.Key).ToList();
 
             var diffIds = existingIds.Except(newIds)
                 .Concat(newIds.Except(existingIds))
-                .Select(long.Parse)
                 .ToList();
 
             return diffIds;
@@ -692,6 +695,21 @@ namespace ApiLogic.Api.Managers
                     log.Error($"Index update failed. {nameof(groupId)}:{groupId}, {nameof(epgIds)}:{string.Join(",", epgIds)}");
                 }
             }
+        }
+
+        public GenericResponse<Region> GetRegion(long groupId, long regionId)
+        {
+            var regionFilter = new RegionFilter
+            {
+                RegionIds = new List<int> { (int)regionId }
+            };
+            var response = GetRegions((int)groupId, regionFilter);
+
+            return response.IsOkStatusCode()
+                ? response.HasObjects()
+                    ? new GenericResponse<Region>(Status.Ok, response.Objects.First())
+                    : new GenericResponse<Region>(eResponseStatus.RegionNotFound)
+                : new GenericResponse<Region>(response.Status);
         }
     }
 }

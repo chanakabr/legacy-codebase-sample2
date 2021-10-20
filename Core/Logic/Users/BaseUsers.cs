@@ -495,8 +495,8 @@ namespace Core.Users
                 uro = GetUserData(sSiteGUID, false);
             }
 
-            if (uro.m_RespStatus != ResponseStatus.OK || uro.m_user == null || uro.m_user.m_oDynamicData == null
-                || uro.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+            if (uro.m_RespStatus != ResponseStatus.OK || uro.m_user?.m_oDynamicData == null 
+                                                      || uro.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(sSiteGUID)))
                 return false;
 
             if (uro.m_user.m_oDynamicData.m_sUserData == null)
@@ -593,7 +593,8 @@ namespace Core.Users
         public ApiObjects.Response.Status DeleteUserDynamicData(long userId, string key)
         {
             var userResponse = GetUserData(userId.ToString(), false);
-            if (userResponse.m_RespStatus != ResponseStatus.OK || userResponse.m_user?.m_oDynamicData == null || userResponse.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+            if (userResponse.m_RespStatus != ResponseStatus.OK || userResponse.m_user?.m_oDynamicData == null
+                                                               || userResponse.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, userId))
             {
                 return ApiObjects.Response.Status.Error;
             }

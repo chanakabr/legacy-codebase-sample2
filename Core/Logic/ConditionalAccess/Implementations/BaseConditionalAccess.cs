@@ -6863,7 +6863,7 @@ namespace Core.ConditionalAccess
                 // check if user is valid
                 if (Utils.IsUserValid(userId, m_nGroupID, ref domainID, ref userSuspendStatus))
                 {
-                    if (userSuspendStatus == DomainSuspentionStatus.Suspended && blockEntitlement == BlockEntitlementType.NONE)
+                    if (userSuspendStatus == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(userId)) && blockEntitlement == BlockEntitlementType.NONE)
                     {
                         userId = string.Empty;
                     }
@@ -8398,7 +8398,7 @@ namespace Core.ConditionalAccess
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                         return ret;
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+                    else if (uObj.m_user?.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, uObj.m_user.Id))
                     {
                         ret.m_oStatus = PrePaidResponseStatus.UserSuspended;
                         ret.m_sStatusDescription = "Cannot charge a suspended user";
@@ -8717,7 +8717,7 @@ namespace Core.ConditionalAccess
                         ret.m_oStatus = PrePaidResponseStatus.UnKnownUser;
                         ret.m_sStatusDescription = "Cant charge an unknown user";
                     }
-                    else if (uObj != null && uObj.m_user != null && uObj.m_user.m_eSuspendState == DomainSuspentionStatus.Suspended)
+                    else if (uObj.m_user?.m_eSuspendState == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, uObj.m_user.Id))
                     {
                         ret.m_oStatus = PrePaidResponseStatus.UserSuspended;
                         ret.m_sStatusDescription = "Cannot charge a suspended user";
@@ -9986,7 +9986,7 @@ namespace Core.ConditionalAccess
                     return ChangeSubscriptionStatus.UserNotExists;
                 }
 
-                if (suspendStatus == DomainSuspentionStatus.Suspended)
+                if (suspendStatus == DomainSuspentionStatus.Suspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(sSiteGuid)))
                 {
                     log.Debug("ChangeSubscription - User with siteGuid: " + sSiteGuid + " Suspended. Subscription was not changed");
                     return ChangeSubscriptionStatus.UserSuspended;
@@ -16274,6 +16274,39 @@ namespace Core.ConditionalAccess
                         if (epgId > 0 && !string.IsNullOrEmpty(userId) && domainSeriesRecordingId > 0
                            && Utils.GetProgramFromRecordingCB(m_nGroupID, epgId, out EPGChannelProgrammeObject program, epgBLTvinci))
                         {
+                            var seriesRecording = Utils.ValidateSeriesRecordID(m_nGroupID, domainId, domainSeriesRecordingId);
+                            if (seriesRecording.Status.Code != (int)eResponseStatus.OK)
+                            {
+                                log.DebugFormat("series recording status not valid, recordID: {0}, DomainID: {1}, UserID: {2}, Recording: {3}", domainSeriesRecordingId, domainId, userId, seriesRecording != null ? seriesRecording.ToString() : string.Empty);
+                            }
+
+                            var seriesRecordingOption = seriesRecording?.SeriesRecordingOption;
+                            if (seriesRecordingOption != null && seriesRecordingOption.IsValid())
+                            {
+                                var _seasonNumber = Utils.GetStringParamFromExtendedSearchResult(potentialRecording, "metas.seasonnumber");
+                                var _episodeNumber = Utils.GetStringParamFromExtendedSearchResult(potentialRecording, "metas.episodenumber");
+
+                                log.Debug($"CompleteDomainSeriesRecordings: epg: {epgId}, episodeNumber: {_episodeNumber}, " +
+                                    $"seasosNumber: {_seasonNumber}, endDate: {potentialRecording.EndDate}");
+
+                                int.TryParse(_episodeNumber, out int epgEpisodeNumber);
+                                int.TryParse(_seasonNumber, out int epgSeasonNumber);
+
+                                //BEO-9899
+                                var shouldRecord = ShouldRecord(epgSeasonNumber, epgEpisodeNumber, DateUtils.ToUtcUnixTimestampSeconds(potentialRecording.EndDate), seriesRecordingOption, epgId);
+
+                                log.Debug($"epg: {epgId}, seasonNumber: {epgSeasonNumber}, episodeNumber: {epgEpisodeNumber}, " +
+                                    $"SeriesRecordingOption: {seriesRecordingOption}, " +
+                                    $"shouldRecord: {shouldRecord}, epg.EndDate: {potentialRecording.EndDate}");
+
+                                if (!shouldRecord)
+                                {
+                                    log.Debug($"Not being recorded due to seriesRecordingOption logic, seriesRecordingOption: {seriesRecordingOption}" +
+                                        $" domain: {domainId} will not record epgId: {epgId}, seasonNumber: {epgSeasonNumber} episodeNumber: {epgEpisodeNumber}, epgEndDate: {potentialRecording.EndDate}");
+                                    continue;
+                                }
+                            }
+
                             //if cannot record 
                             if (!VerifyCanRecord(epgId, recordingType, program))
                             {
@@ -16422,9 +16455,14 @@ namespace Core.ConditionalAccess
                     crid = Utils.GetStringParamFromExtendedSearchResult(epg, "crid");
                     var _seasonNumber = Utils.GetStringParamFromExtendedSearchResult(epg, "metas.seasonnumber");
                     var _episodeNumber = Utils.GetStringParamFromExtendedSearchResult(epg, "metas.episodenumber");
-                    log.Debug($"HandleFirstFollowerRecording: epg: {epgId}, episodeNumber: {_episodeNumber}, seasosNumber: {_seasonNumber}");
-                    int.TryParse(_episodeNumber, out int episodeNumber);
-                    int.TryParse(_seasonNumber, out int seasonNumber_);
+                    var _endDate = Utils.GetStringParamFromExtendedSearchResult(epg, "end_date");
+                    
+                    log.Debug($"HandleFirstFollowerRecording: epg: {epgId}, episodeNumber: {_episodeNumber}, " +
+                        $"seasosNumber: {_seasonNumber}, endDate: {_endDate}");
+                    
+                    int.TryParse(_episodeNumber, out int epgEpisodeNumber);
+                    int.TryParse(_seasonNumber, out int epgSeasonNumber);
+                    long.TryParse(_endDate, out long epgEndDate);
 
                     DateTime epgPaddedStartDate = epg.StartDate.AddSeconds(-1 * paddingBeforeProgramStarts);
                     DateTime epgPaddedEndDate = epg.EndDate.AddSeconds(paddingAfterProgramEnds);
@@ -16469,14 +16507,16 @@ namespace Core.ConditionalAccess
                         }
 
                         //BEO-9899
-                        var shouldRecord = ShouldRecord(seasonNumber_, episodeNumber, seriesRecording.SeriesRecordingOption);
+                        var shouldRecord = ShouldRecord(epgSeasonNumber, epgEpisodeNumber, DateUtils.ToUtcUnixTimestampSeconds(epg.EndDate), seriesRecording.SeriesRecordingOption, epgId);
                         
-                        log.Debug($"epg: {epgId}, seasonNumber: {seasonNumber_}, episodeNumber: {episodeNumber}, " +
-                            $"min: season: {seriesRecording.SeriesRecordingOption?.MinSeasonNumber} " +
-                            $"episode: {seriesRecording.SeriesRecordingOption?.MinEpisodeNumber}, shouldRecord: {shouldRecord}");
+                        log.Debug($"epg: {epgId}, seasonNumber: {epgSeasonNumber}, episodeNumber: {epgEpisodeNumber}, " +
+                            $"SeriesRecordingOption: {seriesRecording.SeriesRecordingOption?.ToString()}, " +
+                            $"shouldRecord: {shouldRecord}, epg.EndDate: {epg.EndDate}");
+
                         if (!shouldRecord)
                         {
-                            log.Debug($"domain: {domainId} will not record epgId: {epgId}, seasonNumber: {seasonNumber} episodeNumber: {episodeNumber}");
+                            log.Debug($"Not being recorded due to seriesRecordingOption logic, seriesRecordingOption: {seriesRecording.SeriesRecordingOption?.ToString()}" +
+                                $" domain: {domainId} will not record epgId: {epgId}, seasonNumber: {epgSeasonNumber} episodeNumber: {epgEpisodeNumber}, epgEndDate: {epg.EndDate}");
                             continue;
                         }
 
@@ -16518,27 +16558,57 @@ namespace Core.ConditionalAccess
         }
 
         //BEO-9899
-        public bool ShouldRecord(int seasonNumber, int episodeNumber, SeriesRecordingOption seriesRecordingOption)
+        public bool ShouldRecord(int seasonNumber, int episodeNumber, long episodeEndDate, SeriesRecordingOption seriesRecordingOption, long epgId)
         {
-            if (seasonNumber <= 0 || episodeNumber <= 0)
+            if ((seasonNumber <= 0 && episodeNumber <= 0) && //No episode or season
+                (seriesRecordingOption == null || //No series Recording Option
+                seriesRecordingOption.ChronologicalRecordStartTime == ChronologicalRecordStartTime.None))
                 return true;
 
-            if (seriesRecordingOption == null || !seriesRecordingOption.MinSeasonNumber.HasValue || !seriesRecordingOption.MinEpisodeNumber.HasValue)
+            if (seriesRecordingOption == null || !seriesRecordingOption.IsValid())
                 return true;
 
-            if (seriesRecordingOption.MinSeasonNumber.Value == 0 || seriesRecordingOption.MinEpisodeNumber.Value == 0)
+            if ((seriesRecordingOption.MinSeasonNumber.HasValue && seriesRecordingOption.MinSeasonNumber.Value == 0 
+                || seriesRecordingOption.MinEpisodeNumber.HasValue && seriesRecordingOption.MinEpisodeNumber.Value == 0) 
+                && !seriesRecordingOption.StartDateRecording.HasValue)
                 return true;
 
-            return IsFutureEpisode(seasonNumber, episodeNumber, seriesRecordingOption);
+            return IsFutureEpisode(seasonNumber, episodeNumber, episodeEndDate, seriesRecordingOption, epgId);
         }
 
-        private bool IsFutureEpisode(int seasonNumber, int episodeNumber, SeriesRecordingOption seriesRecordingOption)
+        private bool IsFutureEpisode(int seasonNumber, int episodeNumber, long episodeEndDate, SeriesRecordingOption seriesRecordingOption, long epgId)
         {
-            var result =
-                seasonNumber > seriesRecordingOption.MinSeasonNumber ||
-                seasonNumber == seriesRecordingOption.MinSeasonNumber && episodeNumber >= seriesRecordingOption.MinEpisodeNumber;
-            
-            return result;
+            var response = true;
+
+            var compareWithSeason = seriesRecordingOption.MinSeasonNumber.HasValue && seriesRecordingOption.MinSeasonNumber.Value > 0 &&
+                seriesRecordingOption.MinEpisodeNumber.HasValue && seriesRecordingOption.MinEpisodeNumber.Value >= 0;
+
+            if (compareWithSeason)
+            {
+                var recordFutureByEpisode = (seasonNumber > seriesRecordingOption.MinSeasonNumber) ||
+                (seasonNumber == seriesRecordingOption.MinSeasonNumber && episodeNumber >= seriesRecordingOption.MinEpisodeNumber);
+
+
+                if (!recordFutureByEpisode)
+                {
+                    log.Debug($"epgId: {epgId} not recorded due to the minimal season or episode");
+                    return recordFutureByEpisode;
+                }
+            }
+
+            var recordByRecordingStartDate = seriesRecordingOption.StartDateRecording.HasValue
+                && seriesRecordingOption.StartDateRecording.Value > 0;
+
+            if (recordByRecordingStartDate)
+            {
+                response = seriesRecordingOption.StartDateRecording.Value <= episodeEndDate;
+                if (!response)
+                {
+                    log.Debug($"epgId: {epgId} not recorded due to the minimal epg end date");
+                }
+            }
+             
+            return response;
         }
 
         public SeriesRecording RecordSeasonOrSeries(string userID, long epgID, RecordingType recordingType, SeriesRecordingOption recordingOption)
@@ -16992,7 +17062,7 @@ namespace Core.ConditionalAccess
             return response;
         }
 
-        private List<SeriesRecording> BuildSeriesRecording(DataSet ds, ApiObjects.TimeShiftedTv.SeriesRecordingOrderObj orderByObj)
+        private List<SeriesRecording> BuildSeriesRecording(DataSet ds, SeriesRecordingOrderObj orderByObj)
         {
             List<SeriesRecording> response = new List<SeriesRecording>();
             try
@@ -17131,7 +17201,37 @@ namespace Core.ConditionalAccess
                 int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "SEASON_NUMBER", 0);
                 long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "ID", 0);
                 RecordingType recordingType = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "RECORD_TYPE");
-                
+                int episodeNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "EPISODE_NUMBER", 0);
+                int? minSeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "MIN_SEASON_NUMBER", 0);
+                int? minEpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "MIN_EPISODE_NUMBER", 0);
+                long? startDateRecording = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "START_DATE_RECORDING", 0);
+                var chronologicalRecordStartTime = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "CHRONOLOGICAL_RECORD_STARTTIME", 0);
+
+                var seriesRecordingOption = new SeriesRecordingOption
+                {
+                    MinSeasonNumber = minSeasonNumber.Value > 0 ? minSeasonNumber : null,
+                    MinEpisodeNumber = minEpisodeNumber.Value > 0 ? minEpisodeNumber : null,
+                    StartDateRecording = startDateRecording.HasValue && startDateRecording.Value > 0 ? startDateRecording : null,
+                    ChronologicalRecordStartTime = (ChronologicalRecordStartTime)chronologicalRecordStartTime
+                };
+
+                if (seriesRecordingOption.IsValid())
+                {
+                    if (!DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var endDate))
+                    {
+                        endDate = new DateTime();
+                    }
+
+                    if (!ShouldRecord(epgSeasonNumber, epgEpisodeNumber, DateUtils.ToUtcUnixTimestampSeconds(endDate), seriesRecordingOption, epgId))
+                    {
+                        log.Debug($"Not being recorded due to seriesRecordingOption logic, seriesRecordingOption: {seriesRecordingOption}, " +
+                               $"domainId: {domainId}, domainSeriesRecordingId: {domainSeriesRecordingId}, epgId: {epgId}, epg endDate: {endDate}, " +
+                               $"seasonNumber: {epgSeasonNumber}, episodeNumber: {epgEpisodeNumber}");
+                        return;
+                    }
+                }
+
+
                 if (domainId > 0 && userId > 0)
                 {
                     //
@@ -17220,6 +17320,20 @@ namespace Core.ConditionalAccess
                 ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
                 ContextData contextData = new ContextData();
 
+                int epgSeasonNumber = 0;
+                int epgEpisodeNumber = 0;
+
+                if (epg.EPG_Meta != null && epg.EPG_Meta.Any())
+                {
+                    if (epg.EPG_Meta.Any(x => x.Key.Equals(Utils.SEASON_NUMBER, StringComparison.OrdinalIgnoreCase)))
+                        int.TryParse(epg.EPG_Meta.First(x => x.Key.Equals
+                        (Utils.SEASON_NUMBER, StringComparison.OrdinalIgnoreCase)).Value, out epgSeasonNumber);
+
+                    if (epg.EPG_Meta.Any(x => x.Key.Equals(Utils.EPISODE_NUMBER, StringComparison.OrdinalIgnoreCase)))
+                        int.TryParse(epg.EPG_Meta.First(x => x.Key.Equals
+                        (Utils.EPISODE_NUMBER, StringComparison.OrdinalIgnoreCase)).Value, out epgEpisodeNumber);
+                }
+
                 // parallel (query recording) 
                 Parallel.For(0, followingDomains.Rows.Count, options, i =>
                 {
@@ -17229,24 +17343,34 @@ namespace Core.ConditionalAccess
                     long domainId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "DOMAIN_ID", 0);
                     long userId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "USER_ID", 0);
                     int seasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "SEASON_NUMBER", 0);
-                    int episodeNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "EPISODE_NUMBER", 0);
                     long domainSeriesRecordingId = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "ID", 0);
                     var recordingType = (RecordingType)ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "RECORD_TYPE", 0);
                     int? minSeasonNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "MIN_SEASON_NUMBER", 0);
                     int? minEpisodeNumber = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "MIN_EPISODE_NUMBER", 0);
+                    long? startDateRecording = ODBCWrapper.Utils.GetLongSafeVal(followingDomainRow, "START_DATE_RECORDING", 0);
+                    var chronologicalRecordStartTime = ODBCWrapper.Utils.GetIntSafeVal(followingDomainRow, "CHRONOLOGICAL_RECORD_STARTTIME", 0);
 
-                    var seriesRecordingOption = new SeriesRecordingOption 
-                    { 
-                        MinSeasonNumber = minSeasonNumber.Value > 0 ? minSeasonNumber : null, 
-                        MinEpisodeNumber = minEpisodeNumber.Value > 0 ? minEpisodeNumber : null
+                    var seriesRecordingOption = new SeriesRecordingOption
+                    {
+                        MinSeasonNumber = minSeasonNumber.Value > 0 ? minSeasonNumber : null,
+                        MinEpisodeNumber = minEpisodeNumber.Value > 0 ? minEpisodeNumber : null,
+                        StartDateRecording = startDateRecording.HasValue && startDateRecording.Value > 0 ? startDateRecording : null,
+                        ChronologicalRecordStartTime = (ChronologicalRecordStartTime)chronologicalRecordStartTime
                     };
 
                     if (seriesRecordingOption.IsValid())
                     {
-                        if (!ShouldRecord(seasonNumber, episodeNumber, seriesRecordingOption))
+                        if (!DateTime.TryParseExact(epg.END_DATE, EPG_DATETIME_FORMAT, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var endDate))
                         {
-                            log.Debug($"Not being recorded due to seriesRecordingOption logic, seriesRecordingOption: " +
-                                $"Min episode: {seriesRecordingOption.MinEpisodeNumber}, Min season: {seriesRecordingOption.MinSeasonNumber}");
+                            endDate = new DateTime();
+                        }
+
+                        if (!ShouldRecord(epgSeasonNumber, epgEpisodeNumber, DateUtils.ToUtcUnixTimestampSeconds(endDate), seriesRecordingOption, epgId))
+                        {
+                            log.Debug($"Not being recorded due to seriesRecordingOption logic, seriesRecordingOption: {seriesRecordingOption}, " +
+                                $"domainId: {domainId}, domainSeriesRecordingId: {domainSeriesRecordingId}, epgId: {epg.EPG_ID}, epg endDate: {endDate}, " +
+                                $"seasonNumber: {epgSeasonNumber}, episodeNumber: {epgEpisodeNumber}");
+                            return;
                         }
                     }
 
@@ -17298,7 +17422,6 @@ namespace Core.ConditionalAccess
 
                                     domains.Add(new Tuple<long, long, bool, long, RecordingType>(domainId, userId, quotaOverage, domainSeriesRecordingId, recordingType));
                                 }
-
                             }
                         }
                     }

@@ -745,6 +745,11 @@ namespace CachingProvider.LayeredCache
             return string.Format("catalog_partner_config_{0}", groupId);
         }
 
+        public static string GetCustomFieldsPartnerConfigKey(int groupId)
+        {
+            return $"custom_fields_partner_config_{groupId}";
+        }
+
         public static string GetGroupCampaignKey(int groupId, int campaignType)
         {
             return $"group_campaign_{groupId}_type_{campaignType}";
@@ -838,6 +843,11 @@ namespace CachingProvider.LayeredCache
         public static string GetLabelsKey(long groupId)
         {
             return $"Labels_{groupId}";
+        }
+        
+        public static string GetGroupUsingAliasNamesKey(int groupId)
+        {
+            return $"GroupUsingAliasNames_{groupId}";
         }
 
         public static string GetUserSessionProfiles(int groupId)
@@ -1418,6 +1428,11 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format("invalidationKeyCatalogPartnerConfig_groupId_{0}", groupId);
         }
+        
+        public static string GetCustomFieldsPartnerConfigInvalidationKey(int groupId)
+        {
+            return $"invalidationKeyCustomFieldsPartnerConfig_groupId_{groupId}";
+        }
 
         public static string GetGroupIotClientConfigInvalidationKey(int groupId)
         {
@@ -1572,6 +1587,11 @@ namespace CachingProvider.LayeredCache
         public static string GetGroupPremiumServicesInvalidationKey(int groupId)
         {
             return string.Format("invalidationKey_GroupPremiumServices_groupId_{0}", groupId);
+        }
+        
+        public static string GetGroupUsingAliasNamesInvalidationKey(int groupId)
+        {
+            return $"invalidationKey_GetGroupUsingAliasNames_groupId_{groupId}";
         }
 
         public static string GetUserSessionProfilesInvalidationKey(int groupId)

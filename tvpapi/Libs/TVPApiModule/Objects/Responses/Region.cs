@@ -1,8 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace TVPApiModule.Objects.Responses
 {
@@ -22,7 +20,7 @@ namespace TVPApiModule.Objects.Responses
         public bool IsDefault { get; set; }
 
         [JsonProperty(PropertyName = "data")]
-        public Dictionary<int, int> Data { get; set; }
+        public Dictionary<long, int> Data { get; set; }
 
         public Region(ApiObjects.Region region)
         {
@@ -32,14 +30,7 @@ namespace TVPApiModule.Objects.Responses
                 Name = region.name;
                 ExternalID = region.externalId;
                 IsDefault = region.isDefault;
-                if (region.linearChannels != null)
-                {   
-                    Data = new Dictionary<int, int>();
-                    foreach (var channel in region.linearChannels)
-                    {
-                        Data.Add(int.Parse(channel.key), int.Parse(channel.value));
-                    }
-                }
+                Data = region.linearChannels?.ToDictionary(x => x.Key, x => x.Value);
             }
         }
 

@@ -10,6 +10,7 @@ using WebAPI.Controllers;
 using System.Net;
 using Validator.Managers.Scheme;
 using Validator;
+using WebAPI.Filters;
 
 namespace Reflector
 {
@@ -64,6 +65,7 @@ namespace Reflector
             WriteExecAction();
             WriteGetMethodParams();
             wrtieGetFailureHttpCode();
+            WriteContentNotModifiedResponseEnabled();
         }
 
         protected override void writeFooter()
@@ -806,6 +808,62 @@ namespace Reflector
 
             file.WriteLine("                    break;");
             file.WriteLine("                    ");
+        }
+
+        private void WriteContentNotModifiedResponseEnabled()
+        {
+            file.WriteLine("        public static bool ContentNotModifiedResponseEnabled(string service, string action)");
+            file.WriteLine("        {");
+            file.WriteLine("            service = service.ToLower();");
+            file.WriteLine("            action = action.ToLower();");
+            file.WriteLine("            switch (service)");
+            file.WriteLine("            {");
+
+            foreach (var controller in controllers)
+            {
+                var serviceAttribute = controller.GetCustomAttribute<ServiceAttribute>(true);
+                if (serviceAttribute == null)
+                {
+                    continue;
+                }
+
+                var actions = controller.GetMethods()
+                    .Where(x => x.DeclaringType == controller)
+                    .ToList();
+                actions.Sort(new MethodInfoComparer());
+
+                var anyActionHasAttribute = actions.Any(x => x.GetCustomAttribute<AllowContentNotModifiedResponseAttribute>(true) != null);
+                if (!anyActionHasAttribute)
+                {
+                    continue;
+                }
+
+                file.WriteLine("                case \"" + serviceAttribute.Name.ToLower() + "\":");
+                file.WriteLine("                    switch(action)");
+                file.WriteLine("                    {");
+
+                foreach (var action in actions)
+                {
+                    var actionAttribute = action.GetCustomAttribute<ActionAttribute>(true);
+                    var allowContentNotModifiedResponseAttribute = action.GetCustomAttribute<AllowContentNotModifiedResponseAttribute>(true);
+                    if (actionAttribute != null && allowContentNotModifiedResponseAttribute != null)
+                    {
+                        file.WriteLine("                        case \"" + actionAttribute.Name.ToLower() + "\":");
+                        file.WriteLine("                            return true;");
+                        file.WriteLine("                            ");
+                    }
+                }
+
+                file.WriteLine("                    }");
+                file.WriteLine("                    break;");
+                file.WriteLine("                    ");
+            }
+
+            file.WriteLine("            }");
+            file.WriteLine("            ");
+            file.WriteLine("            return false;");
+            file.WriteLine("        }");
+            file.WriteLine("        ");
         }
     }
 }
