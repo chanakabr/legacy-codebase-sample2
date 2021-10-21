@@ -3,8 +3,6 @@ version: '3'
 services:
   elastic02:
     image: elasticsearch:2.3.3
-    volumes:
-      - data01:/usr/share/elasticsearch/data
     ports:
       - 9200
     command:
@@ -26,18 +24,11 @@ services:
       - "bin/elasticsearch-plugin install analysis-icu; 
          bin/elasticsearch-plugin install analysis-kuromoji; 
          /usr/local/bin/docker-entrypoint.sh elasticsearch"
-    volumes:
-      - data02:/usr/share/elasticsearch/data
     networks:
       - testbed
     ports:
       - 9200
 
-volumes:
-  data01:
-    driver: local
-  data02:
-    driver: local
 networks:
   testbed:
     driver: bridge
