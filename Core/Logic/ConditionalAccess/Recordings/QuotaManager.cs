@@ -230,6 +230,7 @@ namespace Core.Recordings
         }
 
 
+        [Obsolete("Not using hh quota document")]
         public ApiObjects.Response.Status SetDomainTotalQuota(int groupId, long domainId, long totalQuota)
         {
             ApiObjects.Response.Status status = new ApiObjects.Response.Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
@@ -300,7 +301,7 @@ namespace Core.Recordings
                         recordingDuration = (int)(recording.Value.EpgEndDate - recording.Value.EpgStartDate).TotalSeconds;
                         tempRecordingDuration += recordingDuration;
 
-                        if (tempRecordingDuration >= totalRecordingDuration)
+                        if (tempRecordingDuration > totalRecordingDuration)
                         {
                             tempRecordingDuration -= recordingDuration;
                             break;
