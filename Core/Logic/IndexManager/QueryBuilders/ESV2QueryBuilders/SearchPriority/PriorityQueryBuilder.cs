@@ -63,6 +63,7 @@ namespace ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority
                 query = internalQuery,
                 functions = functions,
                 max_boost = _priorityGroupsMapping.Max(k => k.Key),
+                // We're using eFunctionScoreScoreMode.max score mode here to prevent additional calculations in case document are eligible for more than 1 function score.
                 score_mode = eFunctionScoreScoreMode.max,
                 boost_mode = eFunctionScoreBoostMode.replace
             };

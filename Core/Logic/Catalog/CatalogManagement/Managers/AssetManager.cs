@@ -2838,6 +2838,7 @@ namespace Core.Catalog.CatalogManagement
 
                     var keyFormat = "{0}_{1}"; // mapped asset key format = assetType_assetId
                     var mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.Id), x => x);
+                    var priorityGroupGetter = priorityGroupsMapping == null ? (Func<BaseObject, int?>)(_ => null) : GetPriorityGroupId;
                     foreach (BaseObject baseAsset in assets)
                     {
                         bool isNpvr = baseAsset.AssetType == eAssetTypes.NPVR;
@@ -2852,7 +2853,7 @@ namespace Core.Catalog.CatalogManagement
                                 continue;
                             }
                             
-                            assetPriority = new AssetPriority(mappedAssets[key], GetPriorityGroupId(baseAsset));
+                            assetPriority = new AssetPriority(mappedAssets[key], priorityGroupGetter(baseAsset));
                         }
                         else if (recordingsMap.ContainsKey(baseAsset.AssetId))
                         {
@@ -2863,10 +2864,10 @@ namespace Core.Catalog.CatalogManagement
                                 continue;
                             }
                             
-                            assetPriority = new AssetPriority(mappedAssets[key], GetPriorityGroupId(baseAsset));
+                            assetPriority = new AssetPriority(mappedAssets[key], priorityGroupGetter(baseAsset));
                         }
 
-                        if (assetPriority?.Asset.IndexStatus == AssetIndexStatus.Deleted)
+                        if (assetPriority.Asset.IndexStatus == AssetIndexStatus.Deleted)
                         {
                             resultScore.Objects.Add(assetPriority);
                             continue;
@@ -2882,7 +2883,7 @@ namespace Core.Catalog.CatalogManagement
                                 recordingAsset.RecordingId = baseAsset.AssetId;
                                 recordingAsset.RecordingType = recordingsMap[baseAsset.AssetId].RecordingType;
 
-                                assetPriority = new AssetPriority(recordingAsset, GetPriorityGroupId(baseAsset));
+                                assetPriority = new AssetPriority(recordingAsset, priorityGroupGetter(baseAsset));
                                 resultScore.Objects.Add(assetPriority);
                             }
                             else
@@ -2912,11 +2913,6 @@ namespace Core.Catalog.CatalogManagement
             int? GetPriorityGroupId(BaseObject baseObject)
             {
                 if (!(baseObject is UnifiedSearchResult searchResult))
-                {
-                    return null;
-                }
-
-                if (priorityGroupsMapping == null)
                 {
                     return null;
                 }

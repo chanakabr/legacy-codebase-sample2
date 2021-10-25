@@ -8,12 +8,14 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using ApiObjects.SearchPriority;
+using Core.Catalog.Request.SearchPriority;
 
 namespace Core.Catalog.Request
 {
     [Serializable]
     [DataContract]
-    public class InternalChannelRequest : BaseChannelRequest
+    public class InternalChannelRequest : BaseChannelRequest, ISearchPriorityRequest
     {
         #region Data Members
 
@@ -30,6 +32,11 @@ namespace Core.Catalog.Request
 
         [DataMember]
         public SearchAggregationGroupBy searchGroupBy;
+        
+        /// <summary>
+        /// Key Value Pair. Key - Score. Value - Corresponding Priority Group.
+        /// </summary>
+        public IReadOnlyDictionary<double, SearchPriorityGroup> PriorityGroupsMappings { get; set; }
 
         #endregion
 

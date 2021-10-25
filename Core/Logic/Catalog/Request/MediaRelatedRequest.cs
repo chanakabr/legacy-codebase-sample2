@@ -15,6 +15,8 @@ using KLogMonitor;
 using ElasticSearch.Searcher;
 using Catalog.Response;
 using ApiObjects.Response;
+using ApiObjects.SearchPriority;
+using Core.Catalog.Request.SearchPriority;
 using ElasticSearch.Common;
 
 namespace Core.Catalog.Request
@@ -23,7 +25,7 @@ namespace Core.Catalog.Request
    * return : Return all medias that share the same values Like the mediaID that was send
    * *************************************************************************************/
     [DataContract]
-    public class MediaRelatedRequest : BaseRequest, IRequestImp
+    public class MediaRelatedRequest : BaseRequest, IRequestImp, ISearchPriorityRequest
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -41,6 +43,12 @@ namespace Core.Catalog.Request
         
         [DataMember]
         public SearchAggregationGroupBy searchGroupBy;
+        
+        /// <summary>
+        /// Key Value Pair. Key - Score. Value - Corresponding Priority Group.
+        /// </summary>
+        [DataMember]
+        public IReadOnlyDictionary<double, SearchPriorityGroup> PriorityGroupsMappings { get; set; }
 
         public MediaRelatedRequest()
             : base()

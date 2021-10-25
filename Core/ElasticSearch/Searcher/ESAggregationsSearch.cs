@@ -265,6 +265,7 @@ namespace ElasticSearch.Searcher
 
             this.Sort = sort;
             this.SourceIncludes = sourceIncludes;
+            // TODO: Add function score param.
         }
 
         protected override string InnerToString()

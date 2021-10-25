@@ -298,8 +298,8 @@ namespace ApiLogic.IndexManager.QueryBuilders
             }
 
             var isBoostScoreValues = this.SearchDefinitions.boostScoreValues != null && this.SearchDefinitions.boostScoreValues.Count > 0;
-            var isPriorityGroupsDefined = this.SearchDefinitions.PriorityGroups != null && this.SearchDefinitions.PriorityGroups.Any();
-            bool functionScoreSort = isBoostScoreValues || isPriorityGroupsDefined;
+            var isPriorityGroupMappingsDefined = this.SearchDefinitions.PriorityGroupsMappings != null && this.SearchDefinitions.PriorityGroupsMappings.Any();
+            bool functionScoreSort = isBoostScoreValues || isPriorityGroupMappingsDefined;
             string sortString = SortUtils.GetSort(this.SearchDefinitions.order, this.ReturnFields, functionScoreSort);
 
             filteredQueryBuilder.AppendFormat("{0}, ", sortString);
@@ -466,9 +466,9 @@ namespace ApiLogic.IndexManager.QueryBuilders
                 filteredQueryBuilder.Append("},");
             }
 
-            if (this.SearchDefinitions.PriorityGroups != null)
+            if (this.SearchDefinitions.PriorityGroupsMappings != null)
             {
-                var priorityQueryBuilder = new PriorityQueryBuilder(this, this.SearchDefinitions.PriorityGroups);
+                var priorityQueryBuilder = new PriorityQueryBuilder(this, this.SearchDefinitions.PriorityGroupsMappings);
                 var functionScore = priorityQueryBuilder.Build(queryTerm, filterPart);
 
                 filteredQueryBuilder.Append(" \"query\" :");

@@ -466,7 +466,7 @@ namespace Core.Catalog
 
                 #region Priority Groups
 
-                definitions.PriorityGroups = request.PriorityGroups;
+                definitions.PriorityGroupsMappings = request.PriorityGroupsMappings;
 
                 #endregion
             }

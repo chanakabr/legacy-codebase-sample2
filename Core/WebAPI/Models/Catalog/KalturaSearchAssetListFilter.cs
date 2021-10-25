@@ -65,10 +65,11 @@ namespace WebAPI.Models.Catalog
                 EpgChannelIds = this.getEpgChannelIdIn(),
                 TrendingDays = TrendingDaysEqual,
                 GroupByType = GenericExtensionMethods.ConvertEnumsById<KalturaGroupingOption, GroupingOption>
-                                (this.GroupingOptionEqual, GroupingOption.Omit).Value
+                                (this.GroupingOptionEqual, GroupingOption.Omit).Value,
+                ShouldApplyPriorityGroups = this.ShouldApplyPriorityGroupsEqual ?? false
             };
 
-            var response = ClientsManager.CatalogClient().SearchAssetsExcludeWatched(filter, this.OrderBy, contextData.ManagementData, this.DynamicOrderBy);
+            var response = ClientsManager.CatalogClient().SearchAssetsExcludeWatched(filter, this.OrderBy, contextData.ManagementData, this.DynamicOrderBy, responseProfile);
 
             return response;
         }

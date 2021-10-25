@@ -439,8 +439,6 @@ namespace WebAPI.Clients
                         }
                         
                         assets.Add(new KalturaAssetPriority(asset, assetToConvert.PriorityGroupId));
-
-                        // result.Objects.Add(asset);
                     }
 
                     result.Objects = assets.Select(x => x.Asset).ToList();
@@ -676,15 +674,17 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse SearchAssetsExcludeWatched(SearchAssetsFilter filter, KalturaAssetOrderBy orderBy, bool managementData,
-            KalturaDynamicOrderBy assetOrder = null)
+            KalturaDynamicOrderBy assetOrder = null, KalturaBaseResponseProfile responseProfile = null)
         {
             return SearchAssetsExcludeWatched(filter.GroupId, int.Parse(filter.SiteGuid), filter.DomainId, filter.Udid, filter.Language, filter.PageIndex, filter.PageSize,
-                filter.Filter, orderBy, filter.AssetTypes, filter.EpgChannelIds, managementData, assetOrder, filter.TrendingDays, filter.GroupByType == GroupingOption.Include);
+                filter.Filter, orderBy, filter.AssetTypes, filter.EpgChannelIds, managementData, assetOrder, filter.TrendingDays, filter.GroupByType == GroupingOption.Include, 
+                responseProfile, filter.ShouldApplyPriorityGroups);
         }
 
         private KalturaAssetListResponse SearchAssetsExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData,
-            KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null, bool isGroupingOptionInclude = false)
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, 
+            KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null, bool isGroupingOptionInclude = false, 
+            KalturaBaseResponseProfile responseProfile = null, bool shouldApplyPriorityGroups = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -722,7 +722,7 @@ namespace WebAPI.Clients
             while (true && pageIndex < 10)
             {
                 searchResponse = CatalogUtils.SearchAssets(groupId, userId, domainId, udid, language, pageIndex, pageSize, filter, assetTypes,
-                    getServerTime(), order, group, Signature, SignString, key.ToString(), ref request, isGroupingOptionInclude);
+                    getServerTime(), order, group, Signature, SignString, key.ToString(), ref request, isGroupingOptionInclude, shouldApplyPriorityGroups);
 
                 if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
                 {
@@ -774,9 +774,19 @@ namespace WebAPI.Clients
                 }
             }
 
-            // get assets from catalog/cache
-            result.Objects = CatalogUtils.GetAssets(totalAssetsBaseDataList, request, managementData);
-            result.TotalCount = totalCount;
+            var modifiedSearchResponse = new UnifiedSearchResponse
+            {
+                searchResults = totalAssetsBaseDataList.Select(x => x as UnifiedSearchResult).ToList(),
+                m_nTotalItems = totalCount
+            };
+            result = GetAssetFromUnifiedSearchResponse(groupId,
+                modifiedSearchResponse,
+                request,
+                false,
+                managementData,
+                responseProfile,
+                false,
+                priorityGroupsMapping: request.PriorityGroupsMappings);
 
             return result;
         }
@@ -878,7 +888,8 @@ namespace WebAPI.Clients
             // for testing purposes
             if (searchAssetsFilter.ShouldApplyPriorityGroups)
             {
-                request.PriorityGroups = new Dictionary<double, SearchPriorityGroup>
+                // TODO : APPLY PRIORITY GROUPS
+                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
                 {
                     {
                         3, new SearchPriorityGroup
@@ -899,6 +910,32 @@ namespace WebAPI.Clients
                             {
                                 Type = CriteriaType.kSQL,
                                 Value = "name ~ 'Asset'"
+                            }
+                        }
+                    }
+                };
+                
+                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
+                {
+                    {
+                        3, new SearchPriorityGroup
+                        {
+                            Id = 456,
+                            Criteria = new Criteria
+                            {
+                                Type = CriteriaType.kSQL,
+                                Value = "name = 'testepisode2'"
+                            }
+                        }
+                    },
+                    {
+                        2, new SearchPriorityGroup
+                        {
+                            Id = 123,
+                            Criteria = new Criteria
+                            {
+                                Type = CriteriaType.kSQL,
+                                Value = "name = 'testepisode3'"
                             }
                         }
                     }
@@ -931,7 +968,7 @@ namespace WebAPI.Clients
             }
 
             result = GetAssetFromUnifiedSearchResponse(searchAssetsFilter.GroupId, searchResponse, request, searchAssetsFilter.IsAllowedToViewInactiveAssets,
-                searchAssetsFilter.ManagementData, responseProfile, searchAssetsFilter.IsPersonalListSearch, request.PriorityGroups);
+                searchAssetsFilter.ManagementData, responseProfile, searchAssetsFilter.IsPersonalListSearch, request.PriorityGroupsMappings);
 
             return result;
         }
@@ -1372,7 +1409,7 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse GetRelatedMedia(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes,
-            KalturaAssetOrderBy orderBy, KalturaDynamicOrderBy assetOrder = null, List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, int? trendingDays = null)
+            KalturaAssetOrderBy orderBy, KalturaDynamicOrderBy assetOrder = null, List<string> groupBy = null, KalturaBaseResponseProfile responseProfile = null, int? trendingDays = null, bool shouldApplyPriorityGroups = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -1408,6 +1445,13 @@ namespace WebAPI.Clients
                 m_sFilter = filter,
                 OrderObj = order
             };
+            if (shouldApplyPriorityGroups)
+            {
+                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
+                {
+                    // TODO: APPLY PRIORITY GROUPS
+                };
+            }
             if (groupBy != null && groupBy.Count > 0)
             {
                 request.searchGroupBy = new SearchAggregationGroupBy()
@@ -1428,10 +1472,9 @@ namespace WebAPI.Clients
         }
 
         public KalturaAssetListResponse GetRelatedMediaExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            int mediaId, string filter, List<int> mediaTypes, KalturaAssetOrderBy orderBy, KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null)
+            int mediaId, string filter, List<int> mediaTypes, KalturaAssetOrderBy orderBy, KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null, 
+            KalturaBaseResponseProfile responseProfile = null, bool shouldApplyPriorityGroups = false)
         {
-            KalturaAssetListResponse result = new KalturaAssetListResponse();
-
             // get group configuration 
             Group group = GroupsManager.Instance.GetGroup(groupId);
 
@@ -1456,7 +1499,7 @@ namespace WebAPI.Clients
             while (true && pageIndex < 10)
             {
                 searchResponse = CatalogUtils.GetMediaExcludeWatched(groupId, userId, domainId, udid, language, pageIndex, pageSize, mediaId, filter, mediaTypes,
-                    getServerTime(), order, group, Signature, SignString, key.ToString(), ref request);
+                    getServerTime(), order, group, Signature, SignString, key.ToString(), ref request, shouldApplyPriorityGroups);
 
                 if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
                 {
@@ -1507,11 +1550,18 @@ namespace WebAPI.Clients
                 }
             }
 
-            // get assets from catalog/cache
-            result.Objects = CatalogUtils.GetAssets(totalAssetsBaseDataList, request);
-            result.TotalCount = totalCount;
-
-            return result;
+            var mediaIdsResponse = new UnifiedSearchResponse
+            {
+                searchResults = totalAssetsBaseDataList.Select(x => x as UnifiedSearchResult).ToList(),
+                m_nTotalItems = totalCount
+            };
+            return ClientsManager.CatalogClient().GetAssetFromUnifiedSearchResponse(
+                    request?.m_nGroupID ?? groupId,
+                    mediaIdsResponse,
+                    request,
+                    false,
+                    responseProfile: responseProfile,
+                    priorityGroupsMapping: request?.PriorityGroupsMappings);
         }
 
         public KalturaAssetInfoListResponse GetRelatedMediaExternal(int groupId, string siteGuid, int domainId, string udid, string language, int pageIndex, int? pageSize,
@@ -2801,7 +2851,7 @@ namespace WebAPI.Clients
         internal KalturaAssetListResponse GetChannelAssets(int groupId, string userID, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
                                                             KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null,
                                                             KalturaBaseResponseProfile responseProfile = null, bool isAllowedToViewInactiveAssets = false, List<string> groupByValues = null,
-                                                            bool allowIncludedGroupBy = false, int? trendingDays = null)
+                                                            bool allowIncludedGroupBy = false, int? trendingDays = null, bool shouldApplyPriorityGroups = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -2847,6 +2897,13 @@ namespace WebAPI.Clients
                 m_bIgnoreDeviceRuleID = false,
                 isAllowedToViewInactiveAssets = isAllowedToViewInactiveAssets
             };
+            if (shouldApplyPriorityGroups)
+            {
+                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
+                {
+                    // TODO: APPLY PRIORITY GROUPS!
+                };
+            }
 
             if (groupByValues != null && groupByValues.Count > 0)
             {
@@ -2878,16 +2935,15 @@ namespace WebAPI.Clients
                 throw new ClientException(channelResponse.status);
             }
 
-            result = GetAssetFromUnifiedSearchResponse(groupId, channelResponse, request, isAllowedToViewInactiveAssets, false, responseProfile);
+            result = GetAssetFromUnifiedSearchResponse(groupId, channelResponse, request, isAllowedToViewInactiveAssets, false, responseProfile, priorityGroupsMapping: request.PriorityGroupsMappings);
 
             return result;
         }
 
         internal KalturaAssetListResponse GetChannelAssetsExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, int id,
-           KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null)
+           KalturaAssetOrderBy? orderBy, string filterQuery, bool shouldUseChannelDefault, bool isAllowedToViewInactiveAssets, KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null, 
+           KalturaBaseResponseProfile responseProfile = null, bool shouldApplyPriorityGroups = false)
         {
-            KalturaAssetListResponse result = new KalturaAssetListResponse();
-
             // Create catalog order object
             OrderObj order = new OrderObj();
             if ((assetOrder == null && orderBy == null) || shouldUseChannelDefault)
@@ -2912,6 +2968,7 @@ namespace WebAPI.Clients
 
             InternalChannelRequest request = null;
             UnifiedSearchResponse searchResponse = null;
+            UnifiedSearchResponse finalSearchResponse = null;
             List<BaseObject> assetsBaseDataList = null;
             List<BaseObject> totalAssetsBaseDataList = new List<BaseObject>();
             int totalCount = 0;
@@ -2920,7 +2977,7 @@ namespace WebAPI.Clients
             while (true && pageIndex < 10)
             {
                 searchResponse = CatalogUtils.GetChannelAssets(groupId, userId, domainId, udid, language, pageIndex, pageSize, id, filterQuery, getServerTime(), order, group,
-                    Signature, SignString, key.ToString(), ref request);
+                    Signature, SignString, key.ToString(), ref request, shouldApplyPriorityGroups);
 
                 if (searchResponse.searchResults != null && searchResponse.searchResults.Count > 0)
                 {
@@ -2972,11 +3029,12 @@ namespace WebAPI.Clients
                 }
             }
 
-            // get assets from catalog/cache
-            result.Objects = CatalogUtils.GetAssets(totalAssetsBaseDataList, request);
-            result.TotalCount = totalCount;
-
-            return result;
+            var channelResponse = new UnifiedSearchResponse
+            {
+                searchResults = totalAssetsBaseDataList.Select(x => x as UnifiedSearchResult).ToList(),
+                m_nTotalItems = totalCount
+            };
+            return GetAssetFromUnifiedSearchResponse(groupId, channelResponse, request, isAllowedToViewInactiveAssets, responseProfile: responseProfile, priorityGroupsMapping: request.PriorityGroupsMappings);
         }
 
         internal KalturaAssetListResponse GetBundleAssets(SearchAssetsFilter searchAssetsFilter, int id, KalturaAssetOrderBy? orderBy, KalturaBundleType bundleType, KalturaDynamicOrderBy assetOrder = null)
@@ -4047,7 +4105,7 @@ namespace WebAPI.Clients
         }
         internal KalturaAssetListResponse GetPersonalListAssets(int groupId, string userID, int domainId, string udid, string language, string kSql, KalturaAssetOrderBy orderBy,
                                                                 KalturaDynamicOrderBy dynamicOrderBy, List<string> groupBy, int pageIndex, int pageSize, HashSet<int> partnerListTypes,
-                                                                KalturaBaseResponseProfile responseProfile = null, int? trendingDays = null)
+                                                                KalturaBaseResponseProfile responseProfile = null, int? trendingDays = null, bool shouldApplyPriorityGroups = false)
         {
             KalturaAssetListResponse response = new KalturaAssetListResponse();
 
@@ -4090,7 +4148,8 @@ namespace WebAPI.Clients
                     GroupByType = GroupingOption.Omit,
                     IsPersonalListSearch = true,
                     UseFinal = false,
-                    TrendingDays = trendingDays
+                    TrendingDays = trendingDays,
+                    ShouldApplyPriorityGroups = shouldApplyPriorityGroups
                 };
 
                 response = ClientsManager.CatalogClient().SearchAssets(searchAssetsFilter, orderBy, dynamicOrderBy, responseProfile);

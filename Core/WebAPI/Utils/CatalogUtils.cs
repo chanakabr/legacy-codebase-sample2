@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ApiObjects.SearchPriority;
+using Core.Catalog.Request.SearchPriority;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;
 using WebAPI.Managers;
@@ -321,8 +323,6 @@ namespace WebAPI.Utils
 
         public static KalturaAssetListResponse GetMedia(BaseRequest request, bool isAllowedToViewInactiveAssets, string key, KalturaBaseResponseProfile responseProfile = null)
         {
-            KalturaAssetListResponse result = new KalturaAssetListResponse();
-
             // fire request
             UnifiedSearchResponse mediaIdsResponse = new UnifiedSearchResponse();
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out mediaIdsResponse, true, key))
@@ -336,8 +336,15 @@ namespace WebAPI.Utils
                 throw new ClientException(mediaIdsResponse.status.Code, mediaIdsResponse.status.Message);
             }
 
-            result = ClientManagers.Client.ClientsManager.CatalogClient().GetAssetFromUnifiedSearchResponse(request.m_nGroupID, mediaIdsResponse, request, isAllowedToViewInactiveAssets, false, responseProfile);
-            return result;
+            var priorityGroupsMappings = request is ISearchPriorityRequest priorityRequest ? priorityRequest.PriorityGroupsMappings : null;
+            return ClientManagers.Client.ClientsManager.CatalogClient()
+                .GetAssetFromUnifiedSearchResponse(request.m_nGroupID,
+                    mediaIdsResponse,
+                    request,
+                    isAllowedToViewInactiveAssets,
+                    false,
+                    responseProfile,
+                    priorityGroupsMapping: priorityGroupsMappings);
         }
 
         public static KalturaAssetInfoListResponse GetMediaWithStatus(BaseRequest request, string key, List<KalturaCatalogWith> with)
@@ -608,7 +615,7 @@ namespace WebAPI.Utils
         }
 
         public static UnifiedSearchResponse SearchAssets(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, string filter, List<int> assetTypes,
-            DateTime serverTime, OrderObj order, Group group, string signature, string signString, string failoverCacheKey, ref UnifiedSearchRequest request, bool isGroupingOptionInclude)
+            DateTime serverTime, OrderObj order, Group group, string signature, string signString, string failoverCacheKey, ref UnifiedSearchRequest request, bool isGroupingOptionInclude, bool shouldApplyPriorityGroups)
         {
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
 
@@ -636,6 +643,13 @@ namespace WebAPI.Utils
                 domainId = domainId,
                 isGroupingOptionInclude = isGroupingOptionInclude
             };
+            if (shouldApplyPriorityGroups)
+            {
+                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
+                {
+                    // TODO : APPLY PRIORITY GROUPS
+                };
+            }
 
             // fire unified search request
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, failoverCacheKey))
@@ -680,7 +694,7 @@ namespace WebAPI.Utils
         }
 
         public static UnifiedSearchResponse GetChannelAssets(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize, int internalChannelId,
-            string filterQuery, DateTime serverTime, OrderObj order, Group group, string signature, string signString, string failoverCacheKey, ref InternalChannelRequest request)
+            string filterQuery, DateTime serverTime, OrderObj order, Group group, string signature, string signString, string failoverCacheKey, ref InternalChannelRequest request, bool shouldApplyPriorityGroups = false)
         {
             UnifiedSearchResponse channelResponse = new UnifiedSearchResponse();
 
@@ -708,6 +722,13 @@ namespace WebAPI.Utils
                 m_dServerTime = serverTime,
                 m_bIgnoreDeviceRuleID = false
             };
+            if (shouldApplyPriorityGroups)
+            {
+                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
+                {
+                    // TODO: APPLY PRIORITY GROUPS!
+                };
+            }
 
             // fire request
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out channelResponse, true, failoverCacheKey))
@@ -727,7 +748,7 @@ namespace WebAPI.Utils
 
         internal static UnifiedSearchResponse GetMediaExcludeWatched(int groupId, int userId, int domainId, string udid, string language,
             int pageIndex, int? pageSize, int mediaId, string filter, List<int> mediaTypes, DateTime dateTime, OrderObj order, Group group,
-            string signature, string signString, string failoverCacheKey, ref MediaRelatedRequest request)
+            string signature, string signString, string failoverCacheKey, ref MediaRelatedRequest request, bool shouldApplyPriorityGroups)
         {
             UnifiedSearchResponse searchResponse = new UnifiedSearchResponse();
 
@@ -754,6 +775,13 @@ namespace WebAPI.Utils
                 m_sFilter = filter,
                 OrderObj = order
             };
+            if (shouldApplyPriorityGroups)
+            {
+                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
+                {
+                    // TODO : APPLY PRIORITY GROUPS
+                };
+            }
 
             // fire request            
             if (!CatalogUtils.GetBaseResponse<UnifiedSearchResponse>(request, out searchResponse, true, failoverCacheKey))

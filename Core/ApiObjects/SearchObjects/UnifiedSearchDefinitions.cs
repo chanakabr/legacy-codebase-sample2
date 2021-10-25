@@ -389,7 +389,7 @@ namespace ApiObjects.SearchObjects
 
         public List<string> PersonalData { get; set; }
 
-        public IReadOnlyDictionary<double, SearchPriorityGroup> PriorityGroups { get; set; }
+        public IReadOnlyDictionary<double, SearchPriorityGroup> PriorityGroupsMappings { get; set; }
 
         /// <summary>
         /// The country Id of the calling user for geo availability 

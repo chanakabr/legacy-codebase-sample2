@@ -33,7 +33,7 @@ namespace WebAPI.Models.Catalog
             var ksqlFilter = FilterAsset.Instance.UpdateKsql(Ksql, contextData.GroupId, contextData.SessionCharacteristicKey);
 
             var response = ClientsManager.CatalogClient().GetPersonalListAssets(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid, contextData.Language, ksqlFilter, 
-                this.OrderBy, this.DynamicOrderBy, this.getGroupByValue(), pager.getPageIndex(), pager.getPageSize(), this.GetPartnerListTypeIn(), responseProfile, this.TrendingDaysEqual);
+                this.OrderBy, this.DynamicOrderBy, this.getGroupByValue(), pager.getPageIndex(), pager.getPageSize(), this.GetPartnerListTypeIn(), responseProfile, this.TrendingDaysEqual, this.ShouldApplyPriorityGroupsEqual ?? false);
 
             return response;
         }

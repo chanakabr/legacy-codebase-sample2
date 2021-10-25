@@ -6849,6 +6849,12 @@ namespace Core.Catalog
 
             #endregion
 
+            #region Search Results Priority
+
+            definitions.PriorityGroupsMappings = request.PriorityGroupsMappings;
+
+            #endregion
+
             return status;
         }
 
@@ -8091,6 +8097,12 @@ namespace Core.Catalog
 
             definitions.isGroupingOptionInclude = request.searchGroupBy != null && request.searchGroupBy.isGroupingOptionInclude;
             definitions.trendingAssetWindow = request.order?.trendingAssetWindow;
+
+            #endregion
+
+            #region Search Results Priority
+
+            definitions.PriorityGroupsMappings = request.PriorityGroupsMappings;
 
             #endregion
 

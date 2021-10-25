@@ -67,6 +67,7 @@ namespace WebAPI.Models.Catalog
             KalturaAssetListResponse response = null;
             int domainId = (int)(contextData.DomainId ?? 0);
             var ksqlFilter = FilterAsset.Instance.UpdateKsql(Ksql, contextData.GroupId, contextData.SessionCharacteristicKey);
+            var shouldApplyPriorityGroups = this.ShouldApplyPriorityGroupsEqual ?? false;
             if (this.ExcludeWatched)
             {
                 if (pager.getPageIndex() > 0)
@@ -88,13 +89,13 @@ namespace WebAPI.Models.Catalog
 
                 response = ClientsManager.CatalogClient().GetRelatedMediaExcludeWatched(contextData.GroupId, userId, domainId, contextData.Udid,
                     contextData.Language, pager.getPageIndex(), pager.PageSize, this.getMediaId(), ksqlFilter, this.getTypeIn(),
-                    this.OrderBy, this.DynamicOrderBy, this.TrendingDaysEqual);
+                    this.OrderBy, this.DynamicOrderBy, this.TrendingDaysEqual, responseProfile, shouldApplyPriorityGroups);
             }
             else
             {
                 response = ClientsManager.CatalogClient().GetRelatedMedia(contextData.GroupId, contextData.UserId.ToString(), domainId, contextData.Udid,
                     contextData.Language, pager.getPageIndex(), pager.PageSize, this.getMediaId(), ksqlFilter, this.getTypeIn(),
-                    this.OrderBy, this.DynamicOrderBy, this.getGroupByValue(), responseProfile, this.TrendingDaysEqual);
+                    this.OrderBy, this.DynamicOrderBy, this.getGroupByValue(), responseProfile, this.TrendingDaysEqual, shouldApplyPriorityGroups);
             }
 
             return response;
