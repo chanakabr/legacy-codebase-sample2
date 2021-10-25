@@ -619,8 +619,10 @@ namespace OPC_Migration
                     {
                         if (assetStructToGroupId.ContainsKey(assetStruct.Id) && metasByGroupId.ContainsKey(assetStructToGroupId[assetStruct.Id]))
                         {
-                            bool shouldIncludeBasicDateTopics = assetStructToGroupId[assetStruct.Id] == regularGroupId;
-                            Dictionary<string, string> assetStructTopicsSystemNameToType = GetTopicsByMediaTypeId(basicMediaTopics, shouldIncludeBasicDateTopics, metasByGroupId[assetStructToGroupId[assetStruct.Id]], assetStruct.Id);
+                            //bool shouldIncludeBasicDateTopics = assetStructToGroupId[assetStruct.Id] == regularGroupId;
+                            // According to Ruby Schechter (product of OPC) request we will always create also the basic date topics, previously we didn't (see line above)
+                            // This was done per ticket https://kaltura.atlassian.net/browse/GEN-1721 - good luck to us all...
+                            Dictionary<string, string> assetStructTopicsSystemNameToType = GetTopicsByMediaTypeId(basicMediaTopics, true, metasByGroupId[assetStructToGroupId[assetStruct.Id]], assetStruct.Id);
                             if (assetStructTopicsSystemNameToType.Count > 0 && !assetStructTopicsMap.ContainsKey(assetStruct.Id))
                             {
                                 assetStructTopicsMap.Add(assetStruct.Id, assetStructTopicsSystemNameToType);
