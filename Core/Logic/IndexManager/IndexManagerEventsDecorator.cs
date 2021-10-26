@@ -86,11 +86,6 @@ namespace ApiLogic.Catalog.IndexManager
         }
 
         //CUD
-        public bool CompactEpgV2Indices(int futureIndexCompactionStart, int pastIndexCompactionStart)
-        {
-            return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG);
-        }
-
         public bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds)
         {
             return Execute<bool>(MethodBase.GetCurrentMethod(), IndexManagerMigrationEventKeys.EPG, epgIds, epgChannelIds);

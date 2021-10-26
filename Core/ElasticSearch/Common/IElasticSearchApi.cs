@@ -21,7 +21,7 @@ namespace ElasticSearch.Common
         ESDeleteResult DeleteDoc(string sIndex, string sType, string sId);
         bool DeleteDocsByQuery(string sIndex, string sType, ref string sQuery);
         bool DeleteDocsByQuery(string sIndex, string sType, ref string sQuery, out int countDeleted);
-        bool DeleteIndices(List<string> lIndices);
+        void DeleteIndices(List<string> lIndices);
         bool ForceRefresh(string index);
         List<string> GetAliases(string sIndex);
         string GetAllMappings(string sIndex);

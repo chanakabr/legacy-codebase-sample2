@@ -161,7 +161,7 @@ namespace IngestHandler
                 ? ingestedProgramIds.Concat(affectedProgramIds)
                 : ingestedProgramIds;
 
-            var isOPC = GroupSettingsManager.Instance.IsOpc(_bulkUpload.GroupId);
+            var isOPC = GroupSettingsManager.IsOpc(_bulkUpload.GroupId);
             foreach (var progId in programIdsToInvalidate)
             {
                 string invalidationKey = isOPC

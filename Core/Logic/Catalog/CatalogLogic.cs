@@ -9160,7 +9160,7 @@ namespace Core.Catalog
                 return null;
             }
 
-            if (GroupSettingsManager.Instance.IsOpc(partnerId))
+            if (GroupSettingsManager.IsOpc(partnerId))
             {
                 return GetUserPreferencesForOpcAccount(partnerId, userId, userInterests);
             }

@@ -31,7 +31,6 @@ namespace IngestTransformationHandler
 {
     public class BulkUploadTransformationHandler : IServiceEventHandler<BulkUploadTransformationEvent>
     {
-        private readonly IndexCompactionManager _indexCompactionManager;
         private readonly IEpgCRUDOperationsManager _crudOperationsManager;
         private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly XmlSerializer _XmlTVSerializer = new XmlSerializer(typeof(EpgChannels));
@@ -47,9 +46,8 @@ namespace IngestTransformationHandler
         private IngestProfile _ingestProfile;
         private DistributedLock _locker;
 
-        public BulkUploadTransformationHandler(IndexCompactionManager indexCompactionManager, IEpgCRUDOperationsManager crudOperationsManager)
+        public BulkUploadTransformationHandler(IEpgCRUDOperationsManager crudOperationsManager)
         {
-            _indexCompactionManager = indexCompactionManager;
             _crudOperationsManager = crudOperationsManager;
         }
 
@@ -58,8 +56,6 @@ namespace IngestTransformationHandler
             try
             {
                 _logger.Debug($"Starting ingest transformation handler requestId:[{serviceEvent.RequestId}], BulkUploadId:[{serviceEvent.BulkUploadId}]");
-                _indexCompactionManager.RunEpgIndexCompactionIfRequired(serviceEvent.GroupId);
-                
                 InitHandlerProperties(serviceEvent);
                 BulkUploadManager.UpdateBulkUpload(_bulUpload, BulkUploadJobStatus.Parsing);
 
@@ -529,8 +525,7 @@ namespace IngestTransformationHandler
         {
             var orderedDates = dates.OrderBy(d => d).ToArray();
             _jobData.DatesOfProgramsToIngest = orderedDates;
-            var keys = orderedDates.Select(programDate => BulkUploadMethods.GetIngestLockKey(_bulUpload.GroupId, programDate));
-            _jobData.LockKeys = keys.Distinct().ToArray();
+            _jobData.LockKeys = orderedDates.Select(programDate => BulkUploadMethods.GetIngestLockKey(_bulUpload.GroupId, programDate)).ToArray();
         }
     }
 }

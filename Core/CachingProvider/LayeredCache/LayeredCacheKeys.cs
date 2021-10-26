@@ -819,11 +819,6 @@ namespace CachingProvider.LayeredCache
         {
             return string.Format($"{partnerId}_ElasticsearchCanaryDeploymentConfiguration");
         }
-        
-        public static string GetEpgV2PartnerConfigurationKey(int partnerId)
-        {
-            return string.Format($"{partnerId}_EpgV2PartnerConfiguration");
-        }
 
         public static string GetDomainSubscriptionPurchaseKey(long domainId, string subscriptionId)
         {

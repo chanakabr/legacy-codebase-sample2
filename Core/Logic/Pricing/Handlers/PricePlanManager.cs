@@ -13,6 +13,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Core.GroupManagers;
+using Core.GroupManagers.Adapters;
 
 namespace ApiLogic.Pricing.Handlers
 {
@@ -30,7 +31,7 @@ namespace ApiLogic.Pricing.Handlers
                                         LayeredCache.Instance,
                                         PriceDetailsManager.Instance,
                                         DiscountDetailsManager.Instance,
-                                        GroupSettingsManager.Instance
+                                        GroupSettingsManagerAdapter.Instance
                                     ),
             LazyThreadSafetyMode.PublicationOnly);
 

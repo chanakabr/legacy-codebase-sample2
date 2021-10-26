@@ -26,14 +26,11 @@ using EpgGroupSettings = GroupsCacheManager.EpgGroupSettings;
 using KeyValuePair = System.Collections.Generic.KeyValuePair;
 using Utils = ElasticSearch.Common.Utils;
 using ApiLogic.Catalog;
-using ApiLogic.EPG;
 using ApiLogic.Tests.ConfigurationMocks;
 using ElasticSearch.NEST;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.Mappings;
-using ApiObjects.Epg;
-using Core.GroupManagers;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -52,8 +49,6 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<IWatchRuleManager> _mockWatchRuleManager;
         private Mock<IChannelQueryBuilder> _mockChannelQueryBuilder;
         private Mock<IMappingTypeResolver> _mockMappingTypeResolver;
-        private INamingHelper _mockNamingHelper;
-        private IGroupSettingsManager _mockGroupSettingsManager;
 
         private IndexManagerV2 GetIndexV2Manager(int partnerId)
         {
@@ -68,9 +63,7 @@ namespace ApiLogic.Tests.IndexManager
                 _mockCatalogCache.Object,
                 _mockWatchRuleManager.Object,
                 _mockChannelQueryBuilder.Object,
-                _mockMappingTypeResolver.Object,
-                _mockNamingHelper,
-                _mockGroupSettingsManager
+                _mockMappingTypeResolver.Object
                 );
         }
 
@@ -93,18 +86,6 @@ namespace ApiLogic.Tests.IndexManager
             _mockChannelQueryBuilder = _mockRepository.Create<IChannelQueryBuilder>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance, ApplicationConfiguration.Current);
             _mockMappingTypeResolver = _mockRepository.Create<IMappingTypeResolver>();
-            
-            var epgV2ConfigManagerMock = new Mock<IEpgV2PartnerConfigurationManager>(MockBehavior.Loose);
-            epgV2ConfigManagerMock.Setup(m => m.GetConfiguration(It.IsAny<int>())).Returns(new EpgV2PartnerConfiguration()
-            {
-                // all tests assume they use epg v1 unless a method for epg v2 is explcitly called
-                IsEpgV2Enabled = false,
-                FutureIndexCompactionStart = 7,
-                PastIndexCompactionStart = 0,
-            });
-            
-            _mockNamingHelper = new NamingHelper(epgV2ConfigManagerMock.Object);
-            _mockGroupSettingsManager = new GroupSettingsManager(_mockLayeredCache.Object, epgV2ConfigManagerMock.Object);
         }
 
         [Test]

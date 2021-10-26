@@ -33,7 +33,7 @@ namespace ElasticSearchHandler
                     // HttpContext.Current.Items[CachingProvider.LayeredCache.LayeredCache.IS_READ_ACTION] = true;
 
                     #region Rebuild
-                    if (request.Type == ApiObjects.eObjectType.EPG && GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(request.GroupID))
+                    if (request.Type == ApiObjects.eObjectType.EPG && GroupSettingsManager.DoesGroupUseNewEpgIngest(request.GroupID))
                     {
                         throw new Exception("Rebuild index is not required / supported for EPG Ingest V2");
                     }

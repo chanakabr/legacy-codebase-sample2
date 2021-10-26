@@ -189,7 +189,7 @@ namespace Core.Catalog.CatalogManagement
                     }
                 }
 
-                var isIngestV2 = GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
+                var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
                 if (isIngestV2)
                 {
                     var epgBl = new TvinciEpgBL(groupId);
@@ -291,7 +291,7 @@ namespace Core.Catalog.CatalogManagement
                 }
 
                 // Ingest V2 does not use DB anymore so we will wrap all EpgDAL calls in !isIngestV2
-                var isIngestV2 = GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
+                var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
 
                 // update Epg_channels_schedule table (basic data)
                 epgCBToUpdate = CreateEpgCbFromEpgAsset(epgAssetToUpdate, groupId, epgAssetToUpdate.CreateDate.Value, updateDate);
@@ -415,7 +415,7 @@ namespace Core.Catalog.CatalogManagement
         {
             Status result = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
-            var isIngestV2 = GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
+            var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
 
             // Ingest V2 is not using DB anymore so we will skip the DB deletion and move to deleting the index and CB
             if (!isIngestV2)
@@ -523,7 +523,7 @@ namespace Core.Catalog.CatalogManagement
                     var programTagIds = tagTopics.Select(x => mappingFields[FieldTypes.Tag][x.SystemName.ToLower()]).ToList();
                     var tagsToRemoveByName = tagTopics.Select(x => x.SystemName.ToLower()).ToList();
 
-                    var isIngestV2 = GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
+                    var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
                     if (!isIngestV2)
                     {
                         var metasAndTagsRemoved = EpgDal.RemoveMetasAndTagsFromProgram(groupId, epgAsset.Id, programMetaIds, programTagIds, userId);
