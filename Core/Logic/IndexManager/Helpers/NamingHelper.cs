@@ -1,10 +1,19 @@
 ﻿using ApiObjects.SearchObjects;
 using System;
+using System.Threading;
+using ApiLogic.EPG;
 
 namespace ApiLogic.IndexManager.Helpers
 {
-    public static class NamingHelper
+    public interface INamingHelper
     {
+        string GetDailyEpgIndexName(int groupId, DateTime indexDate);
+        string GetEpgIndexDateSuffix(int groupId, DateTime d);
+    }
+
+    public class NamingHelper : INamingHelper
+    {
+        private readonly IEpgV2PartnerConfigurationManager _epgV2PartnerConfigurationManager;
         internal const string SUB_SUM_AGGREGATION_NAME = "sub_sum";
         internal const string SUB_STATS_AGGREGATION_NAME = "sub_stats";
         internal const string STAT_ACTION_RATE_VALUE_FIELD = "rate_value";
@@ -28,17 +37,54 @@ namespace ApiLogic.IndexManager.Helpers
         public const string ENABLE_CATCHUP = "enable_catchup";
 
         public const string EPG_IDENTIFIER = "epg_identifier";
+        private const string EPG_V2_PAST_INDEX_NAME_SUFFIX = "past";
+        private const string EPG_V2_FUTURE_INDEX_NAME_SUFFIX = "future";
 
+
+        private static readonly Lazy<INamingHelper> _lazy =
+            new Lazy<INamingHelper>(GetNamingHelperInstance, LazyThreadSafetyMode.PublicationOnly);
+
+        public NamingHelper(IEpgV2PartnerConfigurationManager epgV2PartnerConfigurationManager)
+        {
+            _epgV2PartnerConfigurationManager = epgV2PartnerConfigurationManager;
+        }
+
+        private static INamingHelper GetNamingHelperInstance()
+        {
+            return new NamingHelper(EpgV2PartnerConfigurationManager.Instance);
+        }
+
+        public static INamingHelper Instance => _lazy.Value;
+
+        public static string GetEpgFutureIndexName(int groupId) => $"{groupId}_epg_v2_{EPG_V2_PAST_INDEX_NAME_SUFFIX}";
+        public static string GetEpgPastIndexName(int groupId) => $"{groupId}_epg_v2_{EPG_V2_FUTURE_INDEX_NAME_SUFFIX}";
         public static string GetEpgIndexAlias(int groupId)
         {
             return $"{groupId}_epg";
         }
 
-        public static string GetDailyEpgIndexName(int groupId, DateTime indexDate)
+        public string GetDailyEpgIndexName(int groupId, DateTime indexDate)
         {
-            string dateString = indexDate.Date.ToString(ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
+            var dateString = GetEpgIndexDateSuffix(groupId, indexDate);
             return $"{groupId}_epg_v2_{dateString}";
         }
+
+        public string GetEpgIndexDateSuffix(int groupId, DateTime d)
+        {
+            var currDate = DateTime.UtcNow.Date;
+            var epgV2Conf = _epgV2PartnerConfigurationManager.GetConfiguration(groupId);
+            if (d > currDate && d.Subtract(currDate).TotalDays > epgV2Conf.FutureIndexCompactionStart)
+            {
+                return EPG_V2_FUTURE_INDEX_NAME_SUFFIX;
+            }
+
+            if (d < currDate && currDate.Subtract(d).TotalDays > epgV2Conf.PastIndexCompactionStart)
+            {
+                return EPG_V2_PAST_INDEX_NAME_SUFFIX;
+            }
+            
+            return d.ToString(ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT);
+        } 
 
         public static string GetMediaIndexAlias(int nGroupID)
         {

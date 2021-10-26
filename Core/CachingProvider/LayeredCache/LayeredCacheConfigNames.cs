@@ -150,6 +150,7 @@
         public const string GET_MICROSERVICES_CANARY_CONFIGURATION = "GetCanaryConfiguration";
         public const string GET_ELASTICSEARCH_CANARY_CONFIGURATION = "GetElasticsearchCanaryConfiguration";
 
+        public const string GET_EPG_V2_PARTNER_CONFIGURATION = "GetEpgV2PartnerConfiguration";
         #endregion
 
         #region Constant Invalidation Keys

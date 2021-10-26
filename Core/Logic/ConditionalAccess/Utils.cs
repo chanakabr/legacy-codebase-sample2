@@ -8018,7 +8018,7 @@ namespace Core.ConditionalAccess
 
         private static List<MediaFile> ValidateMediaFilesUponSecurity(List<MediaFile> allMediafiles, int groupId)
         {
-            if (!GroupSettingsManager.IsOpc(groupId))
+            if (!GroupSettingsManager.Instance.IsOpc(groupId))
             {
                 // If group is not OPC, we should check child subgroups for permissions as well.
                 var subGroups = new GroupManager().GetSubGroup(groupId);
@@ -8030,7 +8030,7 @@ namespace Core.ConditionalAccess
 
         public static bool IsOpc(int groupId)
         {
-            return GroupSettingsManager.IsOpc(groupId);
+            return GroupSettingsManager.Instance.IsOpc(groupId);
         }
 
         internal static ApiObjects.Response.Status GetMediaIdForAsset(int groupId, string assetId, eAssetTypes assetType, string userId, Domain domain, string udid,

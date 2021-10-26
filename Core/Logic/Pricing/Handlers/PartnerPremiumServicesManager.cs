@@ -3,7 +3,6 @@ using ApiObjects.Pricing;
 using ApiObjects.Response;
 using CachingProvider.LayeredCache;
 using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 using DAL;
 using DAL.Catalog;
 using KLogMonitor;
@@ -27,7 +26,7 @@ namespace ApiLogic.Pricing.Handlers
         private static readonly Lazy<PartnerPremiumServicesManager> lazy = new Lazy<PartnerPremiumServicesManager>(() =>
             new PartnerPremiumServicesManager(PremiumServicesDal.Instance,
                                       LayeredCache.Instance,
-                                      GroupSettingsManagerAdapter.Instance),    
+                                      GroupSettingsManager.Instance),    
             LazyThreadSafetyMode.PublicationOnly);
 
         private readonly IPremiumServiceRepository _repository;

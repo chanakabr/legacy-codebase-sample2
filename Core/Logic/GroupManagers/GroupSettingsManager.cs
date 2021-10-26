@@ -7,6 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using ApiLogic.EPG;
+using ApiObjects.Epg;
 using Tvinci.Core.DAL;
 
 namespace Core.GroupManagers
@@ -20,20 +22,35 @@ namespace Core.GroupManagers
         bool DoesGroupUseNewEpgIngest(int groupId);
     }
     
-    public static class GroupSettingsManager
+    public class GroupSettingsManager : IGroupSettingsManager
     {
-        private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());    
+        private readonly ILayeredCache _layeredCache;
+        private readonly IEpgV2PartnerConfigurationManager _epgV2PartnerConfigurationManager;
+        private static readonly KLogger _logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
-        public static bool IsOpc(int groupId) => DoesGroupUsesTemplates(groupId);
+        private static readonly Lazy<IGroupSettingsManager> _lazy =
+            new Lazy<IGroupSettingsManager>(GetGroupSettingsManagerInstance, LazyThreadSafetyMode.PublicationOnly);
 
-        public static bool DoesGroupUsesTemplates(int groupId)
+        public static IGroupSettingsManager Instance => _lazy.Value;
+        
+        private static IGroupSettingsManager GetGroupSettingsManagerInstance() => new GroupSettingsManager(LayeredCache.Instance, EpgV2PartnerConfigurationManager.Instance);
+
+        public GroupSettingsManager(ILayeredCache layeredCache, IEpgV2PartnerConfigurationManager epgV2PartnerConfigurationManager)
+        {
+            _layeredCache = layeredCache;
+            _epgV2PartnerConfigurationManager = epgV2PartnerConfigurationManager;
+        }
+        
+        public bool IsOpc(int groupId) => DoesGroupUsesTemplates(groupId);
+
+        public bool DoesGroupUsesTemplates(int groupId)
         {
             bool result = false;
             try
             {
                 string key = LayeredCacheKeys.GetDoesGroupUsesTemplatesCacheKey(groupId);
 
-                if (!LayeredCache.Instance.Get<bool>(key, ref result, DoesGroupUsesTemplates, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
+                if (!_layeredCache.Get<bool>(key, ref result, DoesGroupUsesTemplates, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                                                         LayeredCacheConfigNames.DOES_GROUP_USES_TEMPLATES_CACHE_CONFIG_NAME))
                 {
                     _logger.ErrorFormat("Failed getting DoesGroupUsesTemplates from LayeredCache, groupId: {0}", groupId);
@@ -47,9 +64,26 @@ namespace Core.GroupManagers
             return result;
         }
 
-        public static bool DoesGroupUseNewEpgIngest(int groupId)
+        public bool DoesGroupUseNewEpgIngest(int groupId)
         {
-            return TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
+            var epgV2PartnerConfig = _epgV2PartnerConfigurationManager.GetConfiguration(groupId);
+            
+            // if null then fallback to check the old groups features table
+            if (epgV2PartnerConfig == null)
+            { 
+                // create a new partner config with default confs
+                epgV2PartnerConfig = new EpgV2PartnerConfiguration();
+                var isGroupsFeaturesEnabledFallback = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(groupId, GroupFeature.EPG_INGEST_V2);
+                if (isGroupsFeaturesEnabledFallback)
+                {
+                    epgV2PartnerConfig.IsEpgV2Enabled = true;
+                }
+                
+                // set the config in any way to avoid calling groups features in the future
+                _epgV2PartnerConfigurationManager.SetConfiguration(groupId, epgV2PartnerConfig);
+            }
+
+            return epgV2PartnerConfig.IsEpgV2Enabled;
         }
 
         private static Tuple<bool, bool> DoesGroupUsesTemplates(Dictionary<string, object> funcParams)

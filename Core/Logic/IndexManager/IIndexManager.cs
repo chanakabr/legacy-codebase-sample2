@@ -20,7 +20,8 @@ namespace Core.Catalog
 
         bool ForceRefreshEpgV2Index(DateTime date);
         bool FinalizeEpgV2Indices(List<DateTime> date);
-        // ............................................................................
+
+        bool CompactEpgV2Indices(int futureIndexCompactionStart, int pastIndexCompactionStart);
 
         bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds);
         bool UpsertProgram(List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings);

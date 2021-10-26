@@ -13,7 +13,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Core.GroupManagers;
-using Core.GroupManagers.Adapters;
 
 namespace ApiLogic.Pricing.Handlers
 {
@@ -31,7 +30,7 @@ namespace ApiLogic.Pricing.Handlers
                                     GeneralPartnerConfigManager.Instance,
                                     LayeredCache.Instance,
                                     api.Instance,
-                                    GroupSettingsManagerAdapter.Instance),
+                                    GroupSettingsManager.Instance),
             LazyThreadSafetyMode.PublicationOnly);
 
         public static PriceDetailsManager Instance => lazy.Value;

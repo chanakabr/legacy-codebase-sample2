@@ -103,7 +103,7 @@ namespace Ingest
                                     KLogger.LogContextData[Constants.TOPIC] = "EPG Ingest";
                                 }
 
-                                var isNewIngestEnabled = Core.GroupManagers.GroupSettingsManager.DoesGroupUseNewEpgIngest(groupID);
+                                var isNewIngestEnabled = Core.GroupManagers.GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupID);
                                 if (isNewIngestEnabled)
                                 {
                                     // invalid credentials

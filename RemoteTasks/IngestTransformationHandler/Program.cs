@@ -28,6 +28,7 @@ namespace EPGTransformationHandler
                     s.AddScoped<IEpgCRUDOperationsManager, EpgCRUDOperationsManager>();
                     s.AddScoped<IMappingTypeResolver, MappingTypeResolver>();
                     s.AddSingleton<ICatalogManagerAdapter, CatalogManagerAdapter>();
+                    s.AddSingleton<IndexCompactionManager, IndexCompactionManager>();
                 })
                 .ConfigureEventBustConsumer(c =>
                 {

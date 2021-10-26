@@ -200,7 +200,7 @@ namespace Core.Catalog.CatalogManagement
                 // Enqueue to CeleryQueue new BulkUpload (the remote will handle the file and its content).
                 if (jobData is BulkUploadIngestJobData)
                 {
-                    var doesGroupUseNewEpgIngest = GroupManagers.GroupSettingsManager.DoesGroupUseNewEpgIngest(groupId);
+                    var doesGroupUseNewEpgIngest = GroupManagers.GroupSettingsManager.Instance.DoesGroupUseNewEpgIngest(groupId);
                     if (!doesGroupUseNewEpgIngest)
                     {
                         var msg = $"AddBulkUpload > GroupId :[{groupId}]. epg ingest using bulk upload is not supported for this account";

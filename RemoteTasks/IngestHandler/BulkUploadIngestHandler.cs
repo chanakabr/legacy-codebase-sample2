@@ -73,10 +73,10 @@ namespace IngestHandler
             finally
             {
                 // unlock this day since it was refreshed and ingested
-                var lockKeyOfthisDay = BulkUploadMethods.GetIngestLockKey(serviceEvent.GroupId, serviceEvent.DateOfProgramsToIngest);
+                var lockKeyOfThisDay = BulkUploadMethods.GetIngestLockKey(serviceEvent.GroupId, serviceEvent.DateOfProgramsToIngest);
                 var locker = new DistributedLock(serviceEvent.GroupId);
                 _logger.Info($"HandleIngestCrudOperations completed, unlocking current Date:[{serviceEvent.DateOfProgramsToIngest}], BulkUploadId: [{_eventData.BulkUploadId}]");
-                locker.Unlock(new[] { lockKeyOfthisDay });
+                locker.Unlock(new[] { lockKeyOfThisDay });
             }
         }
 
@@ -365,7 +365,7 @@ namespace IngestHandler
             epgItem.pictures = epgItem.pictures ?? new List<EpgPicture>();
             var groupRatioNamesToImageTypes = Core.Catalog.CatalogManagement.ImageManager.GetImageTypesMapBySystemName(_eventData.GroupId);
             var nonOpcGroupRatios = EpgDal.Get_PicsEpgRatios();
-            var isOpc = GroupSettingsManager.IsOpc(_eventData.GroupId);
+            var isOpc = GroupSettingsManager.Instance.IsOpc(_eventData.GroupId);
             foreach (var icon in icons)
             {
                 var epgPicture = new EpgPicture();

@@ -16,6 +16,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ApiLogic.EPG;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.Tests.IndexManager.helpers;
 using Utils = ElasticSearch.Common.Utils;
@@ -30,10 +31,14 @@ using Policy = Polly.Policy;
 using ApiLogic.IndexManager.NestData;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.QueryBuilders.NestQueryBuilders;
+using ApiObjects.Epg;
 using ApiObjects.Response;
 using Core.Catalog.Response;
 using TvinciCache;
 using Catalog.Response;
+using Core.GroupManagers;
+using Google.Protobuf.WellKnownTypes;
+using Type = System.Type;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -54,6 +59,8 @@ namespace ApiLogic.Tests.IndexManager
 
         private static int _nextPartnerId = 10000;
         private Random _random;
+        private INamingHelper _mockNamingHelper;
+        private IGroupSettingsManager _mockGroupSettingsManager;
 
         private IElasticClient _elasticClient;
         private HashSet<string> _createdIndices;
@@ -74,8 +81,22 @@ namespace ApiLogic.Tests.IndexManager
                     _mockWatchRuleManager.Object,
                     _mockChannelQueryBuilder.Object,
                     _mockGroupsFeatures.Object,
-                    _mockLayeredCache.Object
+                    _mockLayeredCache.Object,
+                    _mockNamingHelper,
+                    _mockGroupSettingsManager
                 );
+        }
+
+        private INamingHelper GetMockNamingHelper()
+        {
+            var epgV2ConfigManagerMock = new Mock<IEpgV2PartnerConfigurationManager>(MockBehavior.Loose);
+            epgV2ConfigManagerMock.Setup(m => m.GetConfiguration(It.IsAny<int>())).Returns(new EpgV2PartnerConfiguration()
+            {
+                IsEpgV2Enabled = true,
+                FutureIndexCompactionStart = 7,
+                PastIndexCompactionStart = 0,
+            });
+            return new NamingHelper(epgV2ConfigManagerMock.Object);
         }
 
         private static string GetAnalyzerFromMockTcm()
@@ -124,6 +145,18 @@ namespace ApiLogic.Tests.IndexManager
             _mockElasticSearchCommonUtils = _mockRepository.Create<IElasticSearchCommonUtils>();
             _mockGroupsFeatures = _mockRepository.Create<IGroupsFeatures>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitionsNest(_mockElasticSearchCommonUtils.Object, ApplicationConfiguration.Current);
+            
+            var epgV2ConfigManagerMock = new Mock<IEpgV2PartnerConfigurationManager>(MockBehavior.Loose);
+            epgV2ConfigManagerMock.Setup(m => m.GetConfiguration(It.IsAny<int>())).Returns(new EpgV2PartnerConfiguration()
+            {
+                // all tests assume they use epg v1 unless a method for epg v2 is explcitly called
+                IsEpgV2Enabled = false,
+                FutureIndexCompactionStart = 7,
+                PastIndexCompactionStart = 0,
+            });
+            
+            _mockNamingHelper = new NamingHelper(epgV2ConfigManagerMock.Object);
+            _mockGroupSettingsManager = new GroupSettingsManager(_mockLayeredCache.Object, epgV2ConfigManagerMock.Object);
         }
 
         [TearDown]

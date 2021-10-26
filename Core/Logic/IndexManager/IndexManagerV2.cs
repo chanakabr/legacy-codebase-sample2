@@ -15,6 +15,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -103,6 +104,9 @@ namespace Core.Catalog
         private readonly IMappingTypeResolver _mappingTypeResolver;
         private readonly int _partnerId;
         private readonly IChannelQueryBuilder _channelQueryBuilder;
+        private readonly INamingHelper _namingHelper;
+        private readonly IGroupSettingsManager _groupSettingsManager;
+        
  
         /// <summary>
         /// Initialiezs an instance of Index Manager for work with ElasticSearch 2.3. 
@@ -130,7 +134,10 @@ namespace Core.Catalog
             ICatalogCache catalogCache,
             IWatchRuleManager watchRuleManager,
             IChannelQueryBuilder channelQueryBuilder,
-            IMappingTypeResolver mappingTypeResolver)
+            IMappingTypeResolver mappingTypeResolver,
+            INamingHelper namingHelper,
+            IGroupSettingsManager groupSettingsManager
+            )
         {
             _elasticSearchApi = elasticSearchClient;
             _groupManager = groupManager;
@@ -144,6 +151,8 @@ namespace Core.Catalog
             _watchRuleManager = watchRuleManager;
             _channelQueryBuilder = channelQueryBuilder;
             _mappingTypeResolver = mappingTypeResolver;
+            _namingHelper = namingHelper;
+            _groupSettingsManager = groupSettingsManager;
         }
         
         #region OPC helpers
@@ -627,7 +636,7 @@ namespace Core.Catalog
                             epg.Language.ToLower() == language.Code.ToLower() || (language.IsDefault && string.IsNullOrEmpty(epg.Language))).ToList();
 
                         var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
-                        var isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
+                        var isIngestV2 = _groupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
                         if (currentLanguageEpgs != null && currentLanguageEpgs.Count > 0)
                         {
                             // Create bulk request object for each program
@@ -637,7 +646,7 @@ namespace Core.Catalog
                                 // in that case we need to use the specific date alias for each epg item to update
                                 if (isIngestV2)
                                 {
-                                    alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
+                                    alias = _namingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
                                     //in case alias already created ,no need to check in ES
                                     if (!createdAliases.Contains(alias))
                                     {
@@ -742,6 +751,64 @@ namespace Core.Catalog
             return result;
         }
 
+        public bool CompactEpgV2Indices(int futureIndexCompactionStart, int pastIndexCompactionStart)
+        {
+            var retryCount = 3;
+            var globalEpgAlias = NamingHelper.GetEpgIndexAlias(_partnerId);
+            var futureIndexName = NamingHelper.GetEpgFutureIndexName(_partnerId);
+            var pastIndexName = NamingHelper.GetEpgPastIndexName(_partnerId);
+
+            try
+            {
+                EnsureEpgIndexExist(futureIndexName);
+                SetNoRefresh(futureIndexName);
+                EnsureEpgIndexExist(pastIndexName);
+                SetNoRefresh(pastIndexName);
+
+                var epgV2Indices = _elasticSearchApi.ListIndicesByAlias(globalEpgAlias)?.Select(i=>i.Name)?.ToList();
+                
+                // Create a dictionary of index date parsed to the actual index name
+                var epgV2IndicesDict = epgV2Indices
+                    .Where(i => !i.Equals(futureIndexName, StringComparison.OrdinalIgnoreCase) && !i.Equals(pastIndexName, StringComparison.OrdinalIgnoreCase))
+                    .ToDictionary(i => DateTime.ParseExact(i.Split('_').Last(), ElasticSearch.Common.Utils.ES_DATEONLY_FORMAT, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal));
+
+                var pastCompactionStartDate = DateTime.UtcNow.Date.AddDays(-pastIndexCompactionStart);
+                var futureCompactionStartDate = DateTime.UtcNow.Date.AddDays(futureIndexCompactionStart);
+                var pastDatesToCompact = epgV2IndicesDict.Where(d => d.Key < pastCompactionStartDate).ToDictionary(k=>k.Key, v=>v.Value);
+                var futureDatesToCompact = epgV2IndicesDict.Where(d => d.Key > futureCompactionStartDate).ToDictionary(k=>k.Key, v=>v.Value);
+                // map to hold target index to list of sources
+                var reindexMap = new Dictionary<string, Dictionary<DateTime, string>>()
+                {
+                    { pastIndexName, pastDatesToCompact },
+                    { futureIndexName, futureDatesToCompact }
+                };
+
+                foreach (var sourceTargetPair in reindexMap)
+                {
+                    var target = sourceTargetPair.Key;
+                    var sources = sourceTargetPair.Value;
+                    foreach (var s in sources)
+                    {
+                        var sourceIndexName = s.Value;
+                        if (!Reindex(sourceIndexName, pastIndexName, retryCount)) { throw new Exception($"error reindexing source:[{sourceIndexName}], target:[{target}]"); }
+                        if (!DeleteIndex(sourceIndexName)) { throw new Exception($"error deleting source after reindex: [{sourceIndexName}], target:[{target}]"); }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error($"error while trying to compact indices for partner:[{_partnerId}]", ex);
+                return false;
+            }
+            finally
+            {
+                SetIndexRefreshToDefault(futureIndexName);
+                SetIndexRefreshToDefault(pastIndexName);
+            }
+
+            return true;
+        }
+
         public bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds)
         {
             bool result = false;
@@ -815,7 +882,7 @@ namespace Core.Catalog
 
         public string SetupEpgV2Index(DateTime dateOfProgramsToIngest)
         {
-            string dailyEpgIndexName = NamingHelper.GetDailyEpgIndexName(_partnerId, dateOfProgramsToIngest);
+            string dailyEpgIndexName = _namingHelper.GetDailyEpgIndexName(_partnerId, dateOfProgramsToIngest);
             EnsureEpgIndexExist(dailyEpgIndexName);
             SetNoRefresh(dailyEpgIndexName);
 
@@ -912,29 +979,33 @@ namespace Core.Catalog
             });
         }
 
+        private void SetIndexRefreshToDefault(string indexName)
+        {
+            IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
+            {
+                var isSetRefreshSuccess = _elasticSearchApi.UpdateIndexRefreshInterval(indexName, INDEX_REFRESH_INTERVAL);
+                if (!isSetRefreshSuccess)
+                {
+                    log.Error($"index {indexName} set refresh to -1 failed [{isSetRefreshSuccess}]]");
+                    throw new Exception("Could not set index refresh interval");
+                }
+            });
+        }
+        
         public bool ForceRefreshEpgV2Index(DateTime date)
         {
-            var dailyEpgIndexName = NamingHelper.GetDailyEpgIndexName(_partnerId, date);
+            var dailyEpgIndexName = _namingHelper.GetDailyEpgIndexName(_partnerId, date);
             return _elasticSearchApi.ForceRefresh(dailyEpgIndexName);
         }
 
         public bool FinalizeEpgV2Indices(List<DateTime> dates)
         {
-            var indexes = dates.Select(x => NamingHelper.GetDailyEpgIndexName(_partnerId, x));
+            var indexes = dates.Select(x => _namingHelper.GetDailyEpgIndexName(_partnerId, x));
 
             foreach (var indexName in indexes)
             {
                 if (!_elasticSearchApi.IndexExists(indexName)) { continue; }
-
-                IndexManagerCommonHelpers.GetRetryPolicy<Exception>().Execute(() =>
-                {
-                    var isSetRefreshSuccess = _elasticSearchApi.UpdateIndexRefreshInterval(indexName, INDEX_REFRESH_INTERVAL);
-                    if (!isSetRefreshSuccess)
-                    {
-                        log.Error($"index {indexName} set refresh to -1 failed [{isSetRefreshSuccess}]]");
-                        throw new Exception("Could not set index refresh interval");
-                    }
-                });
+                SetIndexRefreshToDefault(indexName);
             }
 
             return true;
@@ -6470,7 +6541,7 @@ namespace Core.Catalog
                 return result;
             }
 
-            bool isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
+            bool isIngestV2 = _groupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
 
             _catalogManager.GetLinearChannelValues(epgObjects, _partnerId, _ => { });
 
@@ -6494,7 +6565,7 @@ namespace Core.Catalog
                         // in that case we need to use the specific date alias for each epg item to update
                         if (!isRecording && isIngestV2)
                         {
-                            alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
+                            alias = _namingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
                         }
 
                         epg.PadMetas(metasToPad);
@@ -6626,7 +6697,7 @@ namespace Core.Catalog
 
             // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
             // in that case we need to use the specific date alias for each epg item to update
-            bool isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
+            bool isIngestV2 = _groupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
             
             var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
             if (!_elasticSearchApi.IndexExists(alias))
@@ -6651,7 +6722,7 @@ namespace Core.Catalog
                         // in that case we need to use the specific date alias for each epg item to update
                         if (isIngestV2)
                         {
-                            alias = NamingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
+                            alias = _namingHelper.GetDailyEpgIndexName(_partnerId, epg.StartDate.Date);
                         }
 
                         string suffix = null;
@@ -6865,6 +6936,34 @@ namespace Core.Catalog
         #endregion
 
         #region Private Methods
+        
+        private bool Reindex(string sourceIndex, string targetIndex, int retryCount = 1)
+        {
+            var policy = IndexManagerCommonHelpers.GetRetryPolicy<Exception>(retryCount);
+            var retryResult = policy.ExecuteAndCapture(()=>
+            {
+                var res = _elasticSearchApi.Reindex(sourceIndex, targetIndex);
+                if (!res)
+                {
+                    throw new Exception($"error while trying to compact indices for partner:[{_partnerId}]");
+                }
+            });
+            return retryResult.Outcome == OutcomeType.Successful;
+        }
+        
+        private bool DeleteIndex(string index, int retryCount = 1)
+        {
+            var policy = IndexManagerCommonHelpers.GetRetryPolicy<Exception>(retryCount);
+            var retryResult = policy.ExecuteAndCapture(()=>
+            {
+                var res = _elasticSearchApi.DeleteIndices(new List<string>{index});
+                if (!res)
+                {
+                    throw new Exception($"error while trying to delete index:[{index}] for partner:[{_partnerId}]");
+                }
+            });
+            return retryResult.Outcome == OutcomeType.Successful;
+        }
 
         private bool GetMetasAndTagsForMapping(
             out Dictionary<string, KeyValuePair<eESFieldType, string>> metas,

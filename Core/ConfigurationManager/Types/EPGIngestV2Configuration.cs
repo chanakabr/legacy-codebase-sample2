@@ -12,6 +12,7 @@ namespace ConfigurationManager
         public BaseValue<int> LockNumOfRetries = new BaseValue<int>("lock_num_of_retries", 600);
         public BaseValue<int> LockRetryIntervalMS = new BaseValue<int>("lock_retry_interval_ms", 10000);
         public BaseValue<int> LockTTLSeconds = new BaseValue<int>("lock_ttl_seconds", 10800);
+        public BaseValue<int> IndexCompactionIntervalMinutes = new BaseValue<int>("index_compaction_interval_minutes", 1440);
 
         public override string TcmKey => TcmObjectKeys.EPGIngestV2Configuration;
 
@@ -23,6 +24,7 @@ namespace ConfigurationManager
             var isValid = LockNumOfRetries.ActualValue > 0;
             isValid &= LockRetryIntervalMS.ActualValue > 0;
             isValid &= LockTTLSeconds.ActualValue > 0;
+            isValid &= IndexCompactionIntervalMinutes.ActualValue > 0;
 
             // TODO: Check with lior if its okay to add klogger and print additional logs to this chekc .. 
             //if (LockTTLSeconds.ActualValue < 10800)

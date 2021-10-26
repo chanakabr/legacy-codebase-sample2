@@ -86,7 +86,7 @@ namespace Core.Api.Managers
             {
                 if (assetIds != null && assetIds.Count > 0 && ruleToApply != null && ruleToApply.Actions != null)
                 {
-                    bool isOpc = GroupSettingsManager.IsOpc(groupId); //BEO-9685
+                    bool isOpc = GroupSettingsManager.Instance.IsOpc(groupId); //BEO-9685
 
                     res = ApplyLifeCycleRuleTagTransitionsOnAssets(isOpc, assetIds, ruleToApply.Actions.TagIdsToAdd, ruleToApply.Actions.TagIdsToRemove) &&
                           ApplyLifeCycleRuleFileTypeAndPpvTransitionsOnAssets(assetIds, ruleToApply.Actions.FileTypesAndPpvsToAdd, ruleToApply.Actions.FileTypesAndPpvsToRemove) &&
