@@ -104,7 +104,7 @@ namespace Core.Notification
             // get group ID
             MonitorLogsHelper.SetContext(Constants.GROUP_ID, partnerId);
 
-            log.DebugFormat("EpgEvent - Program ID: {0}, partner ID: {1}", string.Join(",", programIds.ToArray(), partnerId));
+            log.DebugFormat("EpgEvent - Program ID: {0}, partner ID: {1}", string.Join(",", programIds.ToArray()), partnerId);
             try
             {
                 return ReminderManager.HandleEpgEvent(partnerId, programIds);
