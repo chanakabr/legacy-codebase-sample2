@@ -1802,22 +1802,27 @@ namespace ApiLogic.IndexManager.QueryBuilders
             if (root.type == BooleanNodeType.Leaf)
             {
                 BooleanLeaf leaf = root as BooleanLeaf;
-                HandleLanguageSpecificLeafField(leaf);
+                if (leaf == null)
+                {
+                    return term;
+                }
+                
+                var leafField = GetElasticsearchFieldName(leaf.isLanguageSpecific, this.SearchDefinitions.langauge, leaf.field, leaf.fieldType);
 
                 // Special case - if this is the entitled assets leaf, we build a specific term for it
-                if (leaf.field == NamingHelper.ENTITLED_ASSETS_FIELD)
+                if (leafField == NamingHelper.ENTITLED_ASSETS_FIELD)
                 {
                     term = BuildEntitledAssetsQuery();
                 }
-                else if (leaf.field == NamingHelper.USER_INTERESTS_FIELD)
+                else if (leafField == NamingHelper.USER_INTERESTS_FIELD)
                 {
                     term = BuildUserInterestsQuery();
                 }
-                else if (leaf.field == NamingHelper.ASSET_TYPE)
+                else if (leafField == NamingHelper.ASSET_TYPE)
                 {
                     term = BuildAssetTypeQuery(leaf);
                 }
-                else if (leaf.field == NamingHelper.RECORDING_ID)
+                else if (leafField == NamingHelper.RECORDING_ID)
                 {
                     term = BuildRecordingIdTerm(leaf);
                 }
@@ -1862,36 +1867,36 @@ namespace ApiLogic.IndexManager.QueryBuilders
 
                         if (leaf.operand == ApiObjects.ComparisonOperator.WordStartsWith)
                         {
-                            field = string.Format("{0}.autocomplete", leaf.field);
+                            field = string.Format("{0}.autocomplete", leafField);
                         }
                         else if (leaf.operand == ApiObjects.ComparisonOperator.PhraseStartsWith)
                         {
-                            field = string.Format("{0}.phrase_autocomplete", leaf.field);
+                            field = string.Format("{0}.phrase_autocomplete", leafField);
                         }
                         else if (leaf.operand == ApiObjects.ComparisonOperator.Contains)
                         {
-                            field = string.Format("{0}.analyzed", leaf.field);
+                            field = string.Format("{0}.analyzed", leafField);
                         }
                         else if (leaf.operand == ApiObjects.ComparisonOperator.Phonetic)
                         {
                             if (leaf.valueType == typeof(string) && !IndexManagerCommonHelpers.IsLanguagePhoneticSupported(leaf.value.ToString()))
                             {
                                 isFuzzySearch = true;
-                                field = leaf.field;
+                                field = leafField;
                             }
                             else
                             {
-                                field = string.Format("{0}.phonetic", leaf.field);
+                                field = string.Format("{0}.phonetic", leafField);
                             }
                         }
                         else if (leaf.operand == ApiObjects.ComparisonOperator.Equals &&
                             leaf.shouldLowercase)
                         {
-                            field = string.Format("{0}.lowercase", leaf.field);
+                            field = string.Format("{0}.lowercase", leafField);
                         }
                         else
                         {
-                            field = leaf.field;
+                            field = leafField;
                         }
 
                         if (isFuzzySearch)
@@ -1911,7 +1916,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     // "bool" with "must_not" when no contains
                     else if (leaf.operand == ApiObjects.ComparisonOperator.NotContains)
                     {
-                        string field = string.Format("{0}.analyzed", leaf.field);
+                        string field = string.Format("{0}.analyzed", leafField);
 
                         term = new ElasticSearch.Searcher.BoolQuery();
 
@@ -1926,7 +1931,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     // "bool" with "must_not" when no equals
                     else if (leaf.operand == ApiObjects.ComparisonOperator.NotEquals && leaf.shouldLowercase)
                     {
-                        string field = string.Format("{0}.lowercase", leaf.field);
+                        string field = string.Format("{0}.lowercase", leafField);
 
                         term = new ElasticSearch.Searcher.BoolQuery();
 
@@ -1944,7 +1949,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         term = new ESTerm(isNumeric)
                         {
-                            Key = leaf.field,
+                            Key = leafField,
                             Value = value
                         };
                     }
@@ -1952,7 +1957,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         term = new ESPrefix()
                         {
-                            Key = leaf.field,
+                            Key = leafField,
                             Value = value
                         };
                     }
@@ -1960,7 +1965,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         term = new ESTerms(false)
                         {
-                            Key = leaf.field
+                            Key = leafField
                         };
 
                         (term as ESTerms).Value.AddRange(leaf.value as IEnumerable<string>);
@@ -1969,7 +1974,7 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         term = new ESTerms(false)
                         {
-                            Key = leaf.field,
+                            Key = leafField,
                             isNot = true
                         };
 
@@ -1979,21 +1984,21 @@ namespace ApiLogic.IndexManager.QueryBuilders
                     {
                         term = new ESExists()
                         {
-                            Value = leaf.field
+                            Value = leafField
                         };
                     }
                     else if (leaf.operand == ApiObjects.ComparisonOperator.NotExists)
                     {
                         term = new ESExists()
                         {
-                            Value = leaf.field,
+                            Value = leafField,
                             isNot = true
                         };
                     }
                     // Other cases are "Range"
                     else
                     {
-                        term = ConvertToRange(leaf.field, value, leaf.operand, isNumeric);
+                        term = ConvertToRange(leafField, value, leaf.operand, isNumeric);
                     }
                 }
 
