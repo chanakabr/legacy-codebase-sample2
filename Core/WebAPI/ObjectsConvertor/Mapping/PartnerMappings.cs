@@ -377,6 +377,20 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.AdminUsername, opt => opt.MapFrom(src => src.AdminUsername))
                 .ForMember(dest => dest.AdminPassword, opt => opt.MapFrom(src => src.AdminPassword));
 
+            cfg.CreateMap<DefaultParentalSettingsPartnerConfig, KalturaDefaultParentalSettingsPartnerConfig>()
+                  .ForMember(dest => dest.DefaultPurchaseSettings, opt => opt.MapFrom(src => src.DefaultPurchaseSettings))
+                  .ForMember(dest => dest.DefaultTvSeriesParentalRuleId, opt => opt.MapFrom(src => src.DefaultTvSeriesParentalRuleId))
+                  .ForMember(dest => dest.DefaultPurchasePin, opt => opt.MapFrom(src => src.DefaultPurchasePin))
+                  .ForMember(dest => dest.DefaultParentalPin, opt => opt.MapFrom(src => src.DefaultParentalPin))
+                  .ForMember(dest => dest.DefaultMoviesParentalRuleId, opt => opt.MapFrom(src => src.DefaultMoviesParentalRuleId));
+
+            cfg.CreateMap<KalturaDefaultParentalSettingsPartnerConfig, DefaultParentalSettingsPartnerConfig>()
+                  .ForMember(dest => dest.DefaultPurchaseSettings, opt => opt.MapFrom(src => src.DefaultPurchaseSettings))
+                  .ForMember(dest => dest.DefaultTvSeriesParentalRuleId, opt => opt.MapFrom(src => src.DefaultTvSeriesParentalRuleId))
+                  .ForMember(dest => dest.DefaultPurchasePin, opt => opt.MapFrom(src => src.DefaultPurchasePin))
+                  .ForMember(dest => dest.DefaultParentalPin, opt => opt.MapFrom(src => src.DefaultParentalPin))
+                  .ForMember(dest => dest.DefaultMoviesParentalRuleId, opt => opt.MapFrom(src => src.DefaultMoviesParentalRuleId));
+
             RegisterDTOMappings(cfg);
         }
 

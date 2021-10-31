@@ -745,6 +745,10 @@ namespace CachingProvider.LayeredCache
             return string.Format("catalog_partner_config_{0}", groupId);
         }
 
+        public static string GetDefaultParentalSettingsPartnerConfigKey(int groupId)
+        {
+            return $"default_parental_settings_partner_config_{groupId}";
+        }
         public static string GetCustomFieldsPartnerConfigKey(int groupId)
         {
             return $"custom_fields_partner_config_{groupId}";
@@ -1432,6 +1436,11 @@ namespace CachingProvider.LayeredCache
         public static string GetCustomFieldsPartnerConfigInvalidationKey(int groupId)
         {
             return $"invalidationKeyCustomFieldsPartnerConfig_groupId_{groupId}";
+        }
+
+        public static string GetDefaultParentalSettingsPartnerConfigInvalidationKey(int groupId)
+        {
+            return $"invalidationKeyDefaultParentalSettingsPartnerConfigPartnerConfig_groupId_{groupId}";
         }
 
         public static string GetGroupIotClientConfigInvalidationKey(int groupId)

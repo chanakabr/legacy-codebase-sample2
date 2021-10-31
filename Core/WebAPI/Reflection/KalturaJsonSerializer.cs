@@ -38765,6 +38765,76 @@ namespace WebAPI.Models.Partner
             return ret;
         }
     }
+    public partial class KalturaDefaultParentalSettingsPartnerConfig
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(DefaultMoviesParentalRuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("defaultMoviesParentalRuleId")))
+            {
+                ret.Add("defaultMoviesParentalRuleId", "\"defaultMoviesParentalRuleId\": " + DefaultMoviesParentalRuleId);
+            }
+            if(DefaultParentalPin != null && (retrievedProperties == null || retrievedProperties.Contains("defaultParentalPin")))
+            {
+                ret.Add("defaultParentalPin", "\"defaultParentalPin\": " + "\"" + EscapeJson(DefaultParentalPin) + "\"");
+            }
+            if(DefaultPurchasePin != null && (retrievedProperties == null || retrievedProperties.Contains("defaultPurchasePin")))
+            {
+                ret.Add("defaultPurchasePin", "\"defaultPurchasePin\": " + "\"" + EscapeJson(DefaultPurchasePin) + "\"");
+            }
+            if(DefaultPurchaseSettings.HasValue && (retrievedProperties == null || retrievedProperties.Contains("defaultPurchaseSettings")))
+            {
+                ret.Add("defaultPurchaseSettings", "\"defaultPurchaseSettings\": " + DefaultPurchaseSettings);
+            }
+            if(DefaultTvSeriesParentalRuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("defaultTvSeriesParentalRuleId")))
+            {
+                ret.Add("defaultTvSeriesParentalRuleId", "\"defaultTvSeriesParentalRuleId\": " + DefaultTvSeriesParentalRuleId);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(DefaultMoviesParentalRuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("defaultMoviesParentalRuleId")))
+            {
+                ret.Add("defaultMoviesParentalRuleId", "<defaultMoviesParentalRuleId>" + DefaultMoviesParentalRuleId + "</defaultMoviesParentalRuleId>");
+            }
+            if(DefaultParentalPin != null && (retrievedProperties == null || retrievedProperties.Contains("defaultParentalPin")))
+            {
+                ret.Add("defaultParentalPin", "<defaultParentalPin>" + EscapeXml(DefaultParentalPin) + "</defaultParentalPin>");
+            }
+            if(DefaultPurchasePin != null && (retrievedProperties == null || retrievedProperties.Contains("defaultPurchasePin")))
+            {
+                ret.Add("defaultPurchasePin", "<defaultPurchasePin>" + EscapeXml(DefaultPurchasePin) + "</defaultPurchasePin>");
+            }
+            if(DefaultPurchaseSettings.HasValue && (retrievedProperties == null || retrievedProperties.Contains("defaultPurchaseSettings")))
+            {
+                ret.Add("defaultPurchaseSettings", "<defaultPurchaseSettings>" + DefaultPurchaseSettings + "</defaultPurchaseSettings>");
+            }
+            if(DefaultTvSeriesParentalRuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("defaultTvSeriesParentalRuleId")))
+            {
+                ret.Add("defaultTvSeriesParentalRuleId", "<defaultTvSeriesParentalRuleId>" + DefaultTvSeriesParentalRuleId + "</defaultTvSeriesParentalRuleId>");
+            }
+            return ret;
+        }
+    }
     public partial class KalturaDefaultPlaybackAdapters
     {
         protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)

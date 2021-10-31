@@ -47,8 +47,15 @@ namespace DAL
         DataSet GetGeneralPartnerConfig(int groupId);
     }
 
+    public interface IDefaultParentalSettingsPartnerRepository
+    {
+        bool UpdateDefaultParentalSettingsPartnerConfig(int groupId, long userId, DefaultParentalSettingsPartnerConfig partnerConfig);
+        bool InsertDefaultParentalSettingsPartnerConfig(int groupId, long userId, DefaultParentalSettingsPartnerConfig partnerConfig);
+        DefaultParentalSettingsPartnerConfig GetDefaultParentalSettingsPartnerConfig(int groupId);
+    }
+
     public class ApiDAL : ICatalogPartnerRepository, IVirtualAssetPartnerConfigRepository, IDrmAdapterRepository, 
-                          IGeneralPartnerConfigRepository
+                          IGeneralPartnerConfigRepository, IDefaultParentalSettingsPartnerRepository
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
         private static readonly string CB_MEDIA_MARK_DESGIN = ApplicationConfiguration.Current.CouchBaseDesigns.MediaMarkDesign.Value;
@@ -6364,6 +6371,58 @@ namespace DAL
             sp.AddParameter("@userId", userId);
 
             return sp.ExecuteReturnValue<int>();
+        }
+
+        public bool UpdateDefaultParentalSettingsPartnerConfig(int groupId, long userId, DefaultParentalSettingsPartnerConfig partnerConfig)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_GroupRuleSettings");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@updaterId", userId);
+            sp.AddParameter("@defaultMoviesParentalRuleId", partnerConfig.DefaultMoviesParentalRuleId);
+            sp.AddParameter("@defaultTvSeriesParentalRuleId", partnerConfig.DefaultTvSeriesParentalRuleId);
+            sp.AddParameter("@defaultParentalPin", partnerConfig.DefaultParentalPin);
+            sp.AddParameter("@defaultPurchaseSettings", partnerConfig.DefaultPurchaseSettings);
+            sp.AddParameter("@defaultPurchasePin", partnerConfig.DefaultPurchasePin);
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+
+        public DefaultParentalSettingsPartnerConfig GetDefaultParentalSettingsPartnerConfig(int groupId)
+        {
+            DefaultParentalSettingsPartnerConfig config = null;
+            StoredProcedure sp = new StoredProcedure("Get_GroupRuleSettings");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+
+            DataTable dt = sp.Execute();
+
+            if (dt?.Rows?.Count > 0)
+            {
+                config = new DefaultParentalSettingsPartnerConfig
+                {
+                    DefaultMoviesParentalRuleId = Utils.GetLongSafeVal(dt.Rows[0], "DEFAULT_MOVIES_PARENTAL_RULE"),
+                    DefaultTvSeriesParentalRuleId = Utils.GetLongSafeVal(dt.Rows[0], "DEFAULT_TV_SERIES_PARENTAL_RULE"),
+                    DefaultParentalPin = Utils.GetSafeStr(dt.Rows[0], "DEFAULT_PARENTAL_PIN"),
+                    DefaultPurchasePin = Utils.GetSafeStr(dt.Rows[0], "DEFAULT_PURCHASE_PIN"),
+                    DefaultPurchaseSettings = Utils.GetIntSafeVal(dt.Rows[0], "DEFAULT_PURCHASE_SETTINGS")
+                };
+            }
+
+            return config;
+        }
+
+        public bool InsertDefaultParentalSettingsPartnerConfig(int groupId, long userId, DefaultParentalSettingsPartnerConfig partnerConfig)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_GroupRuleSettings");
+            sp.SetConnectionKey("MAIN_CONNECTION_STRING");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@updaterId", userId);
+            sp.AddParameter("@defaultMoviesParentalRuleId", partnerConfig.DefaultMoviesParentalRuleId);
+            sp.AddParameter("@defaultTvSeriesParentalRuleId", partnerConfig.DefaultTvSeriesParentalRuleId);
+            sp.AddParameter("@defaultParentalPin", partnerConfig.DefaultParentalPin);
+            sp.AddParameter("@defaultPurchaseSettings", partnerConfig.DefaultPurchaseSettings);
+            sp.AddParameter("@defaultPurchasePin", partnerConfig.DefaultPurchasePin);
+            return sp.ExecuteReturnValue<int>() > 0;
         }
     }
 }

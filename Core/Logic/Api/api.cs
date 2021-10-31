@@ -81,7 +81,12 @@ namespace Core.Api
         Dictionary<int, Country> GetCountryMapById(int groupId);
     }
 
-    public class api : IVirtualAssetManager, IDeviceFamilyManager, IDeviceBrandManager, ICountryManager
+    public interface IParentalRuleManager
+    {
+        ParentalRulesResponse GetParentalRules(int groupId, bool shouldGetOnlyActive = true);
+    }
+
+    public class api : IVirtualAssetManager, IDeviceFamilyManager, IDeviceBrandManager, ICountryManager, IParentalRuleManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -2731,7 +2736,7 @@ namespace Core.Api
         {
             List<GroupRule> groupRules = new List<GroupRule>();
 
-            var response = GetParentalRules(groupId);
+            var response = Instance.GetParentalRules(groupId);
 
             if (response != null && response.status != null && response.status.Code == 0)
             {
@@ -4721,7 +4726,7 @@ namespace Core.Api
 
         #region Parental Rules
 
-        public static ParentalRulesResponse GetParentalRules(int groupId, bool shouldGetOnlyActive = true)
+        public ParentalRulesResponse GetParentalRules(int groupId, bool shouldGetOnlyActive = true)
         {
             ParentalRulesResponse response = new ParentalRulesResponse()
             {
@@ -5066,7 +5071,7 @@ namespace Core.Api
             if (ruleId != null && ruleId.HasValue)
             {
                 // Get all parental rules of this group and check if rule Id is valid
-                var groupRules = GetParentalRules(groupId);
+                var groupRules = Instance.GetParentalRules(groupId);
 
                 // if something went wrong when getting rules - return relevant error
                 if (groupRules.status != null && groupRules.status.Code != (int)eResponseStatus.OK)
@@ -5408,7 +5413,7 @@ namespace Core.Api
             {
                 try
                 {
-                    ParentalRulesResponse prResponse = GetParentalRules(groupId);
+                    ParentalRulesResponse prResponse = Instance.GetParentalRules(groupId);
                     if (prResponse == null || prResponse.status == null || prResponse.status.Code != (int)eResponseStatus.OK
                         || prResponse.rules == null || prResponse.rules.Count == 0)
                     {
@@ -5572,7 +5577,7 @@ namespace Core.Api
             {
                 try
                 {
-                    ParentalRulesResponse prResponse = GetParentalRules(groupId);
+                    ParentalRulesResponse prResponse = Instance.GetParentalRules(groupId);
                     if (prResponse == null || prResponse.status == null || prResponse.status.Code != (int)eResponseStatus.OK
                         || prResponse.rules == null || prResponse.rules.Count == 0)
                     {
@@ -5756,7 +5761,7 @@ namespace Core.Api
             GenericResponse<ParentalRule> response = new GenericResponse<ParentalRule>();
             try
             {
-                ParentalRulesResponse result = GetParentalRules(groupId, false);
+                ParentalRulesResponse result = Instance.GetParentalRules(groupId, false);
                 if (result.status.Code != (int)eResponseStatus.OK && result.rules != null && result.rules.Count > 0 && result.rules.Count(x => x.name == parentalRuleToAdd.name) > 0)
                 {
                     response.SetStatus(eResponseStatus.ParentalRuleNameAlreadyInUse, eResponseStatus.ParentalRuleNameAlreadyInUse.ToString());
@@ -5810,7 +5815,7 @@ namespace Core.Api
             try
             {
                 parentalRuleToUpdate.id = id;
-                ParentalRulesResponse result = GetParentalRules(groupId, false);
+                ParentalRulesResponse result = Instance.GetParentalRules(groupId, false);
                 if (result.status.Code != (int)eResponseStatus.OK)
                 {
                     response.SetStatus(result.status);
@@ -5883,7 +5888,7 @@ namespace Core.Api
             GenericResponse<ParentalRule> response = new GenericResponse<ParentalRule>();
             try
             {
-                ParentalRulesResponse result = GetParentalRules(groupId, !isAllowedToViewInactiveAssets);
+                ParentalRulesResponse result = Instance.GetParentalRules(groupId, !isAllowedToViewInactiveAssets);
                 if (result.status.Code != (int)eResponseStatus.OK)
                 {
                     response.SetStatus(result.status);
@@ -5913,7 +5918,7 @@ namespace Core.Api
             Status response = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
             try
             {
-                ParentalRulesResponse result = GetParentalRules(groupId, false);
+                ParentalRulesResponse result = Instance.GetParentalRules(groupId, false);
                 if (result.status.Code != (int)eResponseStatus.OK)
                 {
                     response = new Status((int)result.status.Code, result.status.Message);

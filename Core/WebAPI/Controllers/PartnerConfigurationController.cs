@@ -1,4 +1,5 @@
-﻿using ApiObjects.Response;
+﻿using ApiLogic.Api.Managers;
+using ApiObjects.Response;
 using System;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
@@ -66,6 +67,10 @@ namespace WebAPI.Controllers
                 else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.Base)
                 {
                     response = GroupsManager.Instance.GetBaseConfiguration(groupId);
+                }
+                else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.DefaultParentalSettings)
+                {
+                    response = ClientsManager.ApiClient().GetParentalDefaultPartnerConfiguration(groupId);
                 }
                 else if (filter.PartnerConfigurationTypeEqual == KalturaPartnerConfigurationType.CustomFields)
                 {

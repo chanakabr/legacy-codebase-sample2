@@ -21,7 +21,8 @@ namespace WebAPI.Models.Partner
         Security,
         Opc,
         Base,
-        CustomFields
+        CustomFields,
+        DefaultParentalSettings
     }
 
     /// <summary>

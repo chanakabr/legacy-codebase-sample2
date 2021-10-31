@@ -4578,6 +4578,22 @@ namespace WebAPI.Clients
             return result;
         }
 
+        internal KalturaPartnerConfigurationListResponse GetParentalDefaultPartnerConfiguration(int groupId)
+        {
+            var result = new KalturaPartnerConfigurationListResponse();
+
+            Func<GenericListResponse<DefaultParentalSettingsPartnerConfig>> getOpcPartnerConfigFunc = () =>
+            DefaultParentalSettingsPartnerConfigManager.Instance.GetDefaultParentalSettingsConfigList(groupId);
+
+            KalturaGenericListResponse<KalturaDefaultParentalSettingsPartnerConfig> response =
+                ClientUtils.GetResponseListFromWS<KalturaDefaultParentalSettingsPartnerConfig, DefaultParentalSettingsPartnerConfig>(getOpcPartnerConfigFunc);
+
+            result.Objects = new List<KalturaPartnerConfiguration>(response.Objects);
+            result.TotalCount = response.TotalCount;
+
+            return result;
+        }
+
         internal KalturaPartnerConfigurationListResponse GetCustomFieldsConfiguration(int groupId)
         {
             var result = new KalturaPartnerConfigurationListResponse();
@@ -4620,4 +4636,6 @@ namespace WebAPI.Clients
             return result;
         }
     }
+
+
 }

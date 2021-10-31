@@ -2285,6 +2285,22 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaDefaultParentalSettingsPartnerConfig":
+                    switch(property.Name)
+                    {
+                        case "DefaultMoviesParentalRuleId":
+                            return "defaultMoviesParentalRuleId";
+                        case "DefaultParentalPin":
+                            return "defaultParentalPin";
+                        case "DefaultPurchasePin":
+                            return "defaultPurchasePin";
+                        case "DefaultPurchaseSettings":
+                            return "defaultPurchaseSettings";
+                        case "DefaultTvSeriesParentalRuleId":
+                            return "defaultTvSeriesParentalRuleId";
+                    }
+                    break;
+                    
                 case "KalturaDefaultPlaybackAdapters":
                     switch(property.Name)
                     {

@@ -849,7 +849,7 @@ namespace Core.Api
         /// <returns></returns>
         public static ParentalRulesResponse GetParentalRules(int groupId, bool isAllowedToViewInactiveAssets = false)
         {
-            return Core.Api.api.GetParentalRules(groupId, !isAllowedToViewInactiveAssets);
+            return Core.Api.api.Instance.GetParentalRules(groupId, !isAllowedToViewInactiveAssets);
         }
 
         /// <summary>

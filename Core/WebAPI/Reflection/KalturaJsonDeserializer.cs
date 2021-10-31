@@ -734,6 +734,9 @@ namespace WebAPI.Reflection
                 case "KalturaDateTrigger":
                     return new KalturaDateTrigger(parameters, true);
                     
+                case "KalturaDefaultParentalSettingsPartnerConfig":
+                    return new KalturaDefaultParentalSettingsPartnerConfig(parameters, true);
+                    
                 case "KalturaDefaultPlaybackAdapters":
                     return new KalturaDefaultPlaybackAdapters(parameters, true);
                     
@@ -34877,6 +34880,117 @@ namespace WebAPI.Models.Partner
                     {
                         Username = (KalturaEncryption) Deserializer.deserialize(typeof(KalturaEncryption), (Dictionary<string, object>) parameters["username"]);
                     }
+                }
+            }
+        }
+    }
+    public partial class KalturaDefaultParentalSettingsPartnerConfig
+    {
+        private static RuntimeSchemePropertyAttribute DefaultMoviesParentalRuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultParentalSettingsPartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute DefaultTvSeriesParentalRuleIdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultParentalSettingsPartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute DefaultParentalPinSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultParentalSettingsPartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = 50,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute DefaultPurchasePinSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultParentalSettingsPartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = 50,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute DefaultPurchaseSettingsSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaDefaultParentalSettingsPartnerConfig")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaDefaultParentalSettingsPartnerConfig(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("defaultMoviesParentalRuleId") && parameters["defaultMoviesParentalRuleId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DefaultMoviesParentalRuleIdSchemaProperty.Validate("defaultMoviesParentalRuleId", parameters["defaultMoviesParentalRuleId"]);
+                    }
+                    DefaultMoviesParentalRuleId = (Int64) Convert.ChangeType(parameters["defaultMoviesParentalRuleId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("defaultTvSeriesParentalRuleId") && parameters["defaultTvSeriesParentalRuleId"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DefaultTvSeriesParentalRuleIdSchemaProperty.Validate("defaultTvSeriesParentalRuleId", parameters["defaultTvSeriesParentalRuleId"]);
+                    }
+                    DefaultTvSeriesParentalRuleId = (Int64) Convert.ChangeType(parameters["defaultTvSeriesParentalRuleId"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("defaultParentalPin") && parameters["defaultParentalPin"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DefaultParentalPinSchemaProperty.Validate("defaultParentalPin", parameters["defaultParentalPin"]);
+                    }
+                    DefaultParentalPin = (String) Convert.ChangeType(parameters["defaultParentalPin"], typeof(String));
+                }
+                if (parameters.ContainsKey("defaultPurchasePin") && parameters["defaultPurchasePin"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DefaultPurchasePinSchemaProperty.Validate("defaultPurchasePin", parameters["defaultPurchasePin"]);
+                    }
+                    DefaultPurchasePin = (String) Convert.ChangeType(parameters["defaultPurchasePin"], typeof(String));
+                }
+                if (parameters.ContainsKey("defaultPurchaseSettings") && parameters["defaultPurchaseSettings"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        DefaultPurchaseSettingsSchemaProperty.Validate("defaultPurchaseSettings", parameters["defaultPurchaseSettings"]);
+                    }
+                    DefaultPurchaseSettings = (Int64) Convert.ChangeType(parameters["defaultPurchaseSettings"], typeof(Int64));
                 }
             }
         }
