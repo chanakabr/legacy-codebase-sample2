@@ -546,7 +546,11 @@ namespace ApiLogic.Tests.IndexManager
 
             var searchPolicy = Policy.HandleResult<Dictionary<int, AssetStatsResult>>(x =>
                 x.Values == null || x.Values.Count == 0 ||
-                (x.ContainsKey(stat1.MediaID) && x[stat1.MediaID].m_nLikes <= 0)).WaitAndRetry(
+                (x.ContainsKey(stat1.MediaID) && 
+                    (x[stat1.MediaID].m_nLikes < 2 ||
+                    x[stat1.MediaID].m_nViews < 8 ||
+                    x[stat1.MediaID].m_dRate != 4.5)
+                )).WaitAndRetry(
                 3,
                 retryAttempt => TimeSpan.FromSeconds(1));
 
