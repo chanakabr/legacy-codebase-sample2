@@ -6998,19 +6998,30 @@ namespace Core.Catalog
                     object value = leaf.value;
 
                     bool shouldLowercase = true;
+                    bool isNumericValueType = false;
 
                     if (searchKey.ValueType == typeof(double))
                     {
                         value = Convert.ToDouble(value);
                         shouldLowercase = false;
+                        isNumericValueType = true;
                     }
                     else if (searchKey.ValueType == typeof(int) || searchKey.ValueType == typeof(long))
                     {
                         value = Convert.ToInt64(value);
                         shouldLowercase = false;
+                        isNumericValueType = true;
                     }
-                    var newLeaf = new BooleanLeaf(searchKey.Field, value, value.GetType(), leaf.operand, shouldLowercase, true);
-                    HandleNumericLeaf(newLeaf);
+
+                    var newLeaf = new BooleanLeaf(searchKey.Field, value, value.GetType(), leaf.operand, shouldLowercase, true)
+                    {
+                        fieldType = searchKey.FieldType
+                    };
+                    if (isNumericValueType == true)
+                    {
+                        HandleNumericLeaf(newLeaf);                        
+                    }
+                    
                     newList.Add(newLeaf);
                 }
 
