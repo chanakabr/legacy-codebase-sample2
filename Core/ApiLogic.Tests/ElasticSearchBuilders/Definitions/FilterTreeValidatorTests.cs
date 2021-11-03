@@ -568,6 +568,22 @@ namespace ApiLogic.Tests.ElasticSearchBuilders.Definitions
                 Indexes = ElasticSearchIndexes.Media | ElasticSearchIndexes.Epg
             };
             yield return new TestCaseData(kSql16, mediaTypes16, result16);
+
+            string kSql17 = null;
+            var mediaTypes17 = new[] { 1 };
+            var result17 = new IndexesModel
+            {
+                Indexes = new ElasticSearchIndexes()
+            };
+            yield return new TestCaseData(kSql17, mediaTypes17, result17);
+            
+            string kSql18 = "(and series name = 'episode1')";
+            var mediaTypes18 = new[] { 1 };
+            var result18 = new IndexesModel
+            {
+                Indexes = ElasticSearchIndexes.Common
+            };
+            yield return new TestCaseData(kSql18, mediaTypes18, result18);
         }
 
         #endregion

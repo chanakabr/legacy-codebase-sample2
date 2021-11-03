@@ -65,15 +65,18 @@ namespace ApiLogic.Catalog.Tree
 
                 if (string.Equals(leafNode.field, CatalogLogic.ASSET_TYPE, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if ((string)leafNode.value == "0" || (string)leafNode.value == "epg" || (!string.IsNullOrEmpty(_programAssetStructId) && (string)leafNode.value == _programAssetStructId))
+                    if ((string)leafNode.value == UnifiedSearchDefinitions.EPG_ASSET_TYPE.ToString() || (string)leafNode.value == "epg" || (!string.IsNullOrEmpty(_programAssetStructId) && (string)leafNode.value == _programAssetStructId))
                     {
                         indexes.Indexes |= ElasticSearchIndexes.Epg;
+                        return indexes;
                     }
-                    else
+                    
+                    if((string)leafNode.value == UnifiedSearchDefinitions.RECORDING_ASSET_TYPE.ToString())
                     {
-                        indexes.Indexes |= ElasticSearchIndexes.Media;
+                        return indexes;
                     }
 
+                    indexes.Indexes |= ElasticSearchIndexes.Media;
                     return indexes;
                 }
 
