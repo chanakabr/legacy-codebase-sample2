@@ -378,7 +378,7 @@ namespace WebAPI.Controllers
             }
             else
             {
-                int epgId = (int)recording.AssetId;
+                int epgId = (int)recording.AssetId; 
 
                 if (Utils.Utils.DoesGroupUsesTemplates(groupId))
                 {

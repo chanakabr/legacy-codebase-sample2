@@ -1,11 +1,17 @@
-﻿using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
-using EventBus.RabbitMQ;
-using WebAPI.Filters;
-using Microsoft.Extensions.DependencyInjection;
-using Core.Notification;
+using ApiLogic.Api.Managers;
 using ApiLogic.Notification;
-using EpgNotificationHandler.EpgCache;
+using CachingProvider.LayeredCache;
+using Core.Catalog.CatalogManagement;
+using Core.Domains;
+using Core.Notification;
+using DAL;
+using EventBus.RabbitMQ;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using NotificationHandlers.Common;
+using WebAPI.Filters;
+using Module = Core.Domains.Module;
 
 namespace EpgNotificationHandler
 {
@@ -16,13 +22,18 @@ namespace EpgNotificationHandler
             var builder = new HostBuilder()
                 .ConfigureMappings()
                 .ConfigureEventNotificationsConfig()
-                .ConfigureEventBustConsumer()
+                .ConfigureEventBusConsumer()
                 .ConfigureServices(services =>
                 {
                     services
-                        .AddScoped<IIotManager>(provider => IotManager.Instance)
-                        .AddSingleton<INotificationCache>(provider => NotificationCache.Instance())
-                        .AddEpgCacheClient();
+                        .AddScoped<IIotManager, IotManager>()
+                        .AddSingleton<INotificationDal, NotificationDal>()
+                        .AddSingleton<ILayeredCache, LayeredCache>()
+                        .AddSingleton<IDomainModule, Module>()
+                        .AddSingleton<INotificationCache, NotificationCache>()
+                        .AddSingleton<ICatalogManager, CatalogManager>()
+                        .AddSingleton<IRegionManager, RegionManager>()
+                        .AddSingleton<INotificationCache>(provider => NotificationCache.Instance());
                 });
 
             AppMetrics.Start();

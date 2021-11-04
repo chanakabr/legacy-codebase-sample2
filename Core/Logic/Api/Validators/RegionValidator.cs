@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace ApiLogic.Api.Validators
 {
-    internal class RegionValidator : IRegionValidator
+    public class RegionValidator : IRegionValidator
     {
         private static readonly KLogger log = new KLogger(nameof(RegionValidator));
 
@@ -133,7 +133,7 @@ namespace ApiLogic.Api.Validators
             }
 
             var filter = new RegionFilter { RegionIds = regionUniqueIds };
-            var regionsResult = RegionManager.GetRegions(groupId, filter);
+            var regionsResult = RegionManager.Instance.GetRegions(groupId, filter);
             if (regionsResult.IsOkStatusCode())
             {
                 foreach (var regionChannelNumber in regionChannelNumbers)
@@ -173,7 +173,7 @@ namespace ApiLogic.Api.Validators
             if (!string.IsNullOrEmpty(regionToValidate.externalId) && regionToValidate.externalId != existingRegion?.externalId)
             {
                 var filter = new RegionFilter { ExternalIds = new List<string> { regionToValidate.externalId } };
-                var regionsResult = RegionManager.GetRegions(groupId, filter);
+                var regionsResult = RegionManager.Instance.GetRegions(groupId, filter);
                 if (regionsResult.HasObjects())
                 {
                     log.ErrorFormat("Region external ID already exists. groupId:{0}, externalId:{1}", groupId, regionToValidate.externalId);
@@ -189,7 +189,7 @@ namespace ApiLogic.Api.Validators
             if (regionToUpdate.parentId > 0 && existingRegion.parentId == 0)
             {
                 var filterParent = new RegionFilter { ParentId = existingRegion.id };
-                var subRegionsResult = RegionManager.GetRegions(groupId, filterParent);
+                var subRegionsResult = RegionManager.Instance.GetRegions(groupId, filterParent);
                 if (subRegionsResult.HasObjects())
                 {
                     log.ErrorFormat("Sub region cannot be parent region. groupId:{0}, regionId:{1}", groupId, existingRegion.id);
@@ -227,7 +227,7 @@ namespace ApiLogic.Api.Validators
             if (regionToUpdate.parentId == 0 && existingRegion.parentId > 0)
             {
                 var filter = new RegionFilter { ParentId = existingRegion.parentId };
-                var regionsResult = RegionManager.GetRegions(groupId, filter);
+                var regionsResult = RegionManager.Instance.GetRegions(groupId, filter);
                 if (regionsResult.HasObjects())
                 {
                     return false;
@@ -294,7 +294,7 @@ namespace ApiLogic.Api.Validators
             }
 
             var filterParent = new RegionFilter { ParentId = regionToValidate.id, ExclusiveLcn = true };
-            var subRegionsResult = RegionManager.GetRegions(groupId, filterParent);
+            var subRegionsResult = RegionManager.Instance.GetRegions(groupId, filterParent);
             if (subRegionsResult.HasObjects())
             {
                 foreach (var subRegion in subRegionsResult.Objects)

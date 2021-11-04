@@ -1,27 +1,39 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using ApiLogic.Api.Managers;
 using ApiLogic.Catalog;
+using ApiObjects.EventBus;
 using ApiObjects.Response;
+using EventBus.Abstraction;
+using EventBus.RabbitMQ;
 using KLogMonitor;
 
 namespace Core.Catalog.CatalogManagement
 {
     public class LineupService : ILineupService
     {
-        private static readonly Lazy<LineupService> Lazy = new Lazy<LineupService>(() => new LineupService(RegionManager.Instance, AssetManager.Instance, new KLogger(nameof(LineupService))), LazyThreadSafetyMode.PublicationOnly);
+        private static readonly Lazy<LineupService> Lazy = new Lazy<LineupService>(
+            () => new LineupService(
+                RegionManager.Instance,
+                AssetManager.Instance,
+                new KLogger(nameof(LineupService)),
+                EventBusPublisherRabbitMQ.GetInstanceUsingTCMConfiguration()),
+            LazyThreadSafetyMode.PublicationOnly);
         private readonly IRegionManager _regionManager;
         private readonly IAssetManager _assetManager;
         private readonly IKLogger _logger;
+        private readonly IEventBusPublisher _publisher;
 
         public static LineupService Instance => Lazy.Value;
 
-        public LineupService(IRegionManager regionManager, IAssetManager assetManager, IKLogger logger)
+        public LineupService(IRegionManager regionManager, IAssetManager assetManager, IKLogger logger, IEventBusPublisher publisher)
         {
             _regionManager = regionManager;
             _assetManager = assetManager;
             _logger = logger;
+            _publisher = publisher;
         }
 
         public GenericListResponse<LineupChannelAsset> GetLineupChannelAssets(long groupId, long regionId, UserSearchContext searchContext, int pageIndex, int pageSize)
@@ -96,6 +108,31 @@ namespace Core.Catalog.CatalogManagement
             var result = new GenericListResponse<LineupChannelAsset>(Status.Ok, pagedLinearChannels, linearChannels.Length);
 
             return result;
+        }
+
+        public Status SendUpdatedNotification(long groupId, string userId, List<long> regionIds)
+        {
+            var groupRegionIds = _regionManager.GetRegionIds((int)groupId);
+            if (groupRegionIds == null || !regionIds.All(x => groupRegionIds.Contains((int)x)))
+            {
+                _logger.Error($"{nameof(SendUpdatedNotification)} - one of regionIds ({string.Join(",", regionIds)}) don't belong to group {groupId}.");
+
+                return new Status(eResponseStatus.RegionNotFound);
+            }
+
+            var requestId = KLogger.GetRequestId();
+            var @event = new LineupNotificationRequestedEvent
+            {
+                GroupId = (int)groupId,
+                SiteGuid = userId,
+                RequestId = requestId,
+                RegionIds = regionIds.Distinct().ToList()
+            };
+
+            _publisher.Publish(@event);
+            _logger.Debug($"[Lineup updated notification] was sent successfully. requestId:{requestId}");
+
+            return Status.Ok;
         }
     }
 }

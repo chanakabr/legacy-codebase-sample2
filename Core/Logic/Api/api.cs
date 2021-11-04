@@ -2904,7 +2904,8 @@ namespace Core.Api
                 {
                     setRuleResult = false;
 
-                    List<ParentalRule> parentalRules = DAL.ApiDAL.Get_User_ParentalRules(groupId, siteGuid);
+                    var doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
+                    List<ParentalRule> parentalRules = DAL.ApiDAL.Get_User_ParentalRules(groupId, siteGuid, doesGroupUsesTemplates);
 
                     // Check if the rule is defined for this user from the domain or the group level
                     ParentalRule defaultRule = parentalRules.FirstOrDefault(rule => (rule.id == (long)ruleId && rule.level != eRuleLevel.User));
@@ -3053,11 +3054,12 @@ namespace Core.Api
         public static List<GroupRule> GetUserDomainGroupRules(int groupId, string siteGuid, int domainId)
         {
             List<GroupRule> groupRules = new List<GroupRule>();
+            var doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
 
             if (!string.IsNullOrEmpty(siteGuid))
             {
                 // Get parental rule from new DAL method
-                var parentalRules = DAL.ApiDAL.Get_User_ParentalRules(groupId, siteGuid);
+                var parentalRules = DAL.ApiDAL.Get_User_ParentalRules(groupId, siteGuid, doesGroupUsesTemplates);
 
                 groupRules.AddRange(ConvertParentalToGroupRule(parentalRules));
 
@@ -3085,7 +3087,7 @@ namespace Core.Api
                 }
 
                 // Get parental rule from new DAL method
-                var parentalRules = DAL.ApiDAL.Get_Domain_ParentalRules(groupId, domainId);
+                var parentalRules = DAL.ApiDAL.Get_Domain_ParentalRules(groupId, domainId, doesGroupUsesTemplates);
 
                 groupRules.AddRange(ConvertParentalToGroupRule(parentalRules));
 
@@ -3265,7 +3267,8 @@ namespace Core.Api
                 {
                     setRuleResult = false;
 
-                    List<ParentalRule> parentalRules = DAL.ApiDAL.Get_Domain_ParentalRules(groupId, domainId);
+                    var doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
+                    List<ParentalRule> parentalRules = DAL.ApiDAL.Get_Domain_ParentalRules(groupId, domainId, doesGroupUsesTemplates);
 
                     // Check if the rule is defined for this user from the domain or the group level
                     if (parentalRules != null && parentalRules.FirstOrDefault(rule => (rule.id == (long)ruleId && rule.level == eRuleLevel.Group)) != null)
@@ -4782,7 +4785,8 @@ namespace Core.Api
             {
                 try
                 {
-                    response.rules = DAL.ApiDAL.Get_Domain_ParentalRules(groupId, domainId);
+                    var doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
+                    response.rules = DAL.ApiDAL.Get_Domain_ParentalRules(groupId, domainId, doesGroupUsesTemplates);
                     response.status = new ApiObjects.Response.Status()
                     {
                         Code = (int)eResponseStatus.OK
@@ -4815,7 +4819,8 @@ namespace Core.Api
             {
                 try
                 {
-                    response.rules = DAL.ApiDAL.Get_User_ParentalRules(groupId, siteGuid);
+                    var doesGroupUsesTemplates = Core.Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
+                    response.rules = DAL.ApiDAL.Get_User_ParentalRules(groupId, siteGuid, doesGroupUsesTemplates);
 
                     response.status = new ApiObjects.Response.Status()
                     {
@@ -9753,7 +9758,8 @@ namespace Core.Api
         public List<DeviceFamily> GetAllDeviceFamilyList()
         {
             List<DeviceFamily> deviceFamilies = null;
-            DataTable dt = DAL.ApiDAL.GetDeviceBrands();
+            DataTable dt = DAL.ApiDAL.GetDeviceFamilies();
+            
             if (dt != null && dt.Rows != null)
             {
                 deviceFamilies = new List<DeviceFamily>(dt.Rows.Count);

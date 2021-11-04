@@ -1082,7 +1082,7 @@ namespace Core.ConditionalAccess
                 return false;
             }
 
-            resp = Core.Domains.Module.GetDeviceInfo(m_nGroupID, udid, true);
+            resp = Core.Domains.Module.Instance.GetDeviceInfo(m_nGroupID, udid, true);
             if (resp != null && resp.m_oDeviceResponseStatus == DeviceResponseStatus.OK && resp.m_oDevice != null && resp.m_oDevice.m_state == DeviceState.Activated && domainID == resp.m_oDevice.m_domainID)
             {
                 if (string.IsNullOrEmpty(customerType) || !customerType.ToUpper().StartsWith(NPVR_TYPE_PREFIX)

@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EpgNotificationHandler\EpgNotificationHandler.csproj" />
+    <ProjectReference Include="..\LineupNotificationHandler\LineupNotificationHandler.csproj" />
   </ItemGroup>
 
 </Project>

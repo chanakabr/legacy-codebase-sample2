@@ -1643,11 +1643,12 @@ namespace Core.Users
         public static List<GroupRule> GetUserDomainGroupRules(int groupId, string siteGuid, int domainId)
         {
             List<GroupRule> groupRules = new List<GroupRule>();
+            var doesGroupUsesTemplates = Catalog.CatalogManagement.CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
 
             if (!string.IsNullOrEmpty(siteGuid))
             {
                 // Get parental rule from new DAL method
-                var parentalRules = DAL.ApiDAL.Get_User_ParentalRules(groupId, siteGuid);
+                var parentalRules = DAL.ApiDAL.Get_User_ParentalRules(groupId, siteGuid, doesGroupUsesTemplates);
 
                 groupRules.AddRange(ConvertParentalToGroupRule(parentalRules));
 
@@ -1667,7 +1668,7 @@ namespace Core.Users
             else
             {
                 // Get parental rule from new DAL method
-                var parentalRules = DAL.ApiDAL.Get_Domain_ParentalRules(groupId, domainId);
+                var parentalRules = DAL.ApiDAL.Get_Domain_ParentalRules(groupId, domainId, doesGroupUsesTemplates);
 
                 groupRules.AddRange(ConvertParentalToGroupRule(parentalRules));
 

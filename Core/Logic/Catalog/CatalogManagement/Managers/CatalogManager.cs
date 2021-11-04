@@ -23,6 +23,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using ApiLogic.Catalog;
+using Core.GroupManagers.Adapters;
 using Tvinci.Core.DAL;
 using TVinciShared;
 using MetaType = ApiObjects.MetaType;
@@ -44,18 +46,21 @@ namespace Core.Catalog.CatalogManagement
         void GetLinearChannelValues(List<EpgCB> lEpg, int groupID, Action<EpgCB> action);
         HashSet<BooleanLeafFieldDefinitions> GetUnifiedSearchKey(int groupId, string originalKey);
         List<AssetStruct> GetLinearMediaTypes(int groupId);
+        bool IsRegionalizationEnabled(int groupId);
     }
 
     public class CatalogManager : ICatalogManager, ITagManager
     {
         #region Constants and Readonly
 
-        private static IKLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static IKLogger log = new KLogger(nameof(CatalogManager));
         private readonly ILabelRepository _labelRepository;
+        private readonly IGroupSettingsManager _groupSettingsManager;
+        private readonly IGroupManager _groupManager;
         private readonly ILayeredCache _layeredCache;
         private readonly IAssetStructMetaRepository _assetStructMetaRepository;
 
-        internal static readonly HashSet<string> TopicsToIgnore = Core.Catalog.CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
+        internal static readonly HashSet<string> TopicsToIgnore = CatalogLogic.GetTopicsToIgnoreOnBuildIndex();
         internal const string OPC_UI_METADATA = "metadata";
         internal const string OPC_UI_AVAILABILITY = "availability";
         internal const string OPC_UI_TEXTAREA = "textarea";
@@ -68,22 +73,38 @@ namespace Core.Catalog.CatalogManagement
         #endregion
 
         private static readonly Lazy<CatalogManager> lazy = new Lazy<CatalogManager>(() =>
-            new CatalogManager(LayeredCache.Instance, AssetStructMetaRepository.Instance),
+                new CatalogManager(new LabelRepository(),
+                    LayeredCache.Instance,
+                    AssetStructMetaRepository.Instance,
+                    GroupSettingsManagerAdapter.Instance,
+                    new GroupManager()),
             LazyThreadSafetyMode.PublicationOnly);
 
-        public static CatalogManager Instance { get { return lazy.Value; } }
+        public static CatalogManager Instance => lazy.Value;
 
-        private CatalogManager(ILayeredCache layeredCache, IAssetStructMetaRepository assetStructMetaRepository)
+        public CatalogManager(
+            ILabelRepository labelRepository,
+            ILayeredCache layeredCache,
+            IAssetStructMetaRepository assetStructMetaRepository,
+            IGroupSettingsManager groupSettingsManager,
+            IGroupManager groupManager)
         {
-            _labelRepository = new LabelRepository();
-            _layeredCache = layeredCache;
-            _assetStructMetaRepository = assetStructMetaRepository;
+            _labelRepository = labelRepository ?? throw new ArgumentNullException(nameof(labelRepository));
+            _layeredCache = layeredCache ?? throw new ArgumentNullException(nameof(layeredCache));
+            _assetStructMetaRepository = assetStructMetaRepository ?? throw new ArgumentNullException(nameof(assetStructMetaRepository));
+            _groupSettingsManager = groupSettingsManager ?? throw new ArgumentNullException(nameof(groupSettingsManager));
+            _groupManager = groupManager ?? throw new ArgumentNullException(nameof(groupManager));
         }
 
-        public CatalogManager(ILabelRepository labelRepository, IKLogger logger)
+        public CatalogManager(
+            ILabelRepository labelRepository,
+            ILayeredCache layeredCache,
+            IAssetStructMetaRepository assetStructMetaRepository,
+            IGroupSettingsManager groupSettingsManager,
+            IGroupManager groupManager,
+            IKLogger logger) : this(labelRepository, layeredCache, assetStructMetaRepository, groupSettingsManager, groupManager)
         {
-            _labelRepository = labelRepository;
-            log = logger;
+            log = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         #region Private Methods
@@ -2697,7 +2718,7 @@ namespace Core.Catalog.CatalogManagement
             //Validate SystemName != Alias value
             foreach (var _metaId in assetStruct.MetaIds)
             {
-                if (metaId != _metaId && topics.ContainsKey(_metaId) && 
+                if (metaId != _metaId && topics.ContainsKey(_metaId) &&
                     topics[_metaId].SystemName.Equals(alias))
                 {
                     status.Set(eResponseStatus.AliasMustBeUnique,
@@ -2708,7 +2729,7 @@ namespace Core.Catalog.CatalogManagement
 
             //Validate unique value by other meta alias and types
             var assetStructMetasWithAlias = assetStruct.AssetStructMetas.Where(asm => asm.Key != metaId && asm.Value.Alias.Equals(alias))?
-                .FirstOrDefault(asm => topics.ContainsKey(asm.Key) && topics[asm.Key].Type.Equals(metaType)); 
+                .FirstOrDefault(asm => topics.ContainsKey(asm.Key) && topics[asm.Key].Type.Equals(metaType));
 
             if (assetStructMetasWithAlias.HasValue && !assetStructMetasWithAlias.Value.IsDefault())
             {
@@ -2965,13 +2986,15 @@ namespace Core.Catalog.CatalogManagement
             return new Tuple<Dictionary<long, List<int>>, bool>(result, res);
         }
 
-        internal bool IsRegionalizationEnabled(int groupId)
+        public bool IsRegionalizationEnabled(int groupId)
         {
-            var regionalizationEnabled = GroupSettingsManager.IsOpc(groupId)
-                ? TryGetCatalogGroupCacheFromCache(groupId, out CatalogGroupCache catalogGroupCache)
-                    && catalogGroupCache.IsRegionalizationEnabled
-                : GroupsCache.Instance().GetGroup(groupId)?.isRegionalizationEnabled ?? false;
-            return regionalizationEnabled;
+            if (!_groupSettingsManager.IsOpc(groupId))
+            {
+                return _groupManager.GetGroup(groupId)?.isRegionalizationEnabled ?? false;
+            }
+
+            return TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache)
+                   && catalogGroupCache.IsRegionalizationEnabled;
         }
 
         internal static List<int> GetRegions(int groupId)

@@ -1112,7 +1112,7 @@ namespace Core.Notification
             {
                 if (IsToIot(partnerId, pushMessage, device))
                 {
-                    PublishToIot(partnerId, pushMessage, NotificationDal.GetRegisteredDevice(partnerId.ToString(), device.Udid));
+                    PublishToIot(partnerId, pushMessage, NotificationDal.Instance.GetRegisteredDevice(partnerId.ToString(), device.Udid));
                 }
                 else if (IsToSns(pushMessage, device))
                 {
@@ -1196,7 +1196,7 @@ namespace Core.Notification
 
         private static bool IsToIot(int groupId, PushMessage pushMessage, UserDevice device)
         {
-            var iotDevice = NotificationDal.GetRegisteredDevice(groupId.ToString(), device.Udid);
+            var iotDevice = NotificationDal.Instance.GetRegisteredDevice(groupId.ToString(), device.Udid);
             return iotDevice != null ||
                 (pushMessage.PushChannels == null || pushMessage.PushChannels.Contains(PushChannel.Iot))
                 && device.PushChannel == PushChannel.Iot;
@@ -1223,7 +1223,7 @@ namespace Core.Notification
                 return status;
             }
 
-            var device = NotificationDal.GetRegisteredDevice(partnerId.ToString(), pushMessage.Udid);
+            var device = NotificationDal.Instance.GetRegisteredDevice(partnerId.ToString(), pushMessage.Udid);
             if (device != null)
             {
                 status = PublishToIot(partnerId, pushMessage, device);

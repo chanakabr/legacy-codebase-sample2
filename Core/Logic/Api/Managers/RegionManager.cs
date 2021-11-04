@@ -1,53 +1,73 @@
-﻿using ApiObjects;
-using ApiObjects.Response;
-using CachingProvider.LayeredCache;
-using Core.Api;
-using Core.Catalog;
-using Core.Catalog.CatalogManagement;
-using DAL;
-using KLogMonitor;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using ApiLogic.Api.Validators;
+using ApiObjects;
+using ApiObjects.Response;
+using CachingProvider.LayeredCache;
 using ConfigurationManager;
-using KeyValuePair = ApiObjects.KeyValuePair;
+using Core.Api;
+using Core.Catalog;
+using DAL;
+using KLogMonitor;
+using System.Reflection;
+using Utils = ODBCWrapper.Utils;
+using Core.Catalog.CatalogManagement;
+using Core.GroupManagers.Adapters;
+using GroupsCacheManager;
+using Core.GroupManagers;
 
 namespace ApiLogic.Api.Managers
 {
     public class RegionManager : IRegionManager
     {
-        private static readonly Lazy<RegionManager> Lazy = new Lazy<RegionManager>(() => new RegionManager(), LazyThreadSafetyMode.PublicationOnly);
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly IRegionValidator _regionValidator = new RegionValidator();
+        private static readonly KLogger Log = new KLogger(nameof(RegionManager));
+        private static readonly Lazy<RegionManager> RegionManagerLazy = new Lazy<RegionManager>(
+            () => new RegionManager(new RegionValidator(), CatalogManager.Instance, GroupSettingsManagerAdapter.Instance, new GroupManager()),
+            LazyThreadSafetyMode.PublicationOnly);
+        private readonly IRegionValidator _regionValidator;
+        private readonly ICatalogManager _catalogManager;
+        private readonly IGroupSettingsManager _groupSettingsManager;
+        private readonly IGroupManager _groupManager;
+
+        public static RegionManager Instance => RegionManagerLazy.Value;
         private static readonly bool ShouldUseUpdateRegionPerformanceImprovement = ApplicationConfiguration.Current.CatalogLogicConfiguration.ShouldUseUpdateRegionPerformanceImprovement.Value;
 
-        public static RegionManager Instance => Lazy.Value;
+        public RegionManager(
+            IRegionValidator regionValidator,
+            ICatalogManager catalogManager,
+            IGroupSettingsManager groupSettingsManager,
+            IGroupManager groupManager)
+        {
+            _regionValidator = regionValidator ?? throw new ArgumentNullException(nameof(regionValidator));
+            _catalogManager = catalogManager ?? throw new ArgumentNullException(nameof(catalogManager));
+            _groupSettingsManager = groupSettingsManager ?? throw new ArgumentNullException(nameof(groupSettingsManager));
+            _groupManager = groupManager ?? throw new ArgumentNullException(nameof(groupManager));
+        }
 
-        internal static Status DeleteRegion(int groupId, int id, long userId)
+        internal Status DeleteRegion(int groupId, int id, long userId)
         {
             try
             {
                 Region region = GetRegion(groupId, id);
                 if (region == null)
                 {
-                    log.Error($"Region wasn't found. groupId:{groupId}, id:{id}");
+                    Log.Error($"Region wasn't found. groupId:{groupId}, id:{id}");
                     return new Status((int)eResponseStatus.RegionNotFound, "Region was not found");
                 }
 
                 if (region.isDefault)
                 {
-                    log.Error($"Default region cannot be deleted. groupId:{groupId}, id:{id}");
+                    Log.Error($"Default region cannot be deleted. groupId:{groupId}, id:{id}");
                     return new Status((int)eResponseStatus.DefaultRegionCannotBeDeleted, "Default region cannot be deleted");
                 }
 
                 // check if region in use
                 if (DomainDal.IsRegionInUse(groupId, id))
                 {
-                    log.Error($"Region in use by household and cannot be deleted. groupId:{groupId}, id:{id}");
+                    Log.Error($"Region in use by household and cannot be deleted. groupId:{groupId}, id:{id}");
                     return new Status((int)eResponseStatus.CannotDeleteRegionInUse, "Region in use by household and cannot be deleted");
                 }
 
@@ -67,7 +87,7 @@ namespace ApiLogic.Api.Managers
 
                 if (!ApiDAL.DeleteRegion(groupId, id, userId))
                 {
-                    log.Error($"Error while trying to delete region. groupId:{groupId}, id:{id}");
+                    Log.Error($"Error while trying to delete region. groupId:{groupId}, id:{id}");
                     return new Status((int)eResponseStatus.Error);
                 }
 
@@ -75,14 +95,14 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception exc)
             {
-                log.Error($"DeleteRegion Failed. regionId {id}, groupId: {groupId}. ex: {exc}");
+                Log.Error($"DeleteRegion Failed. regionId {id}, groupId: {groupId}. ex: {exc}");
                 return new Status((int)eResponseStatus.Error);
             }
 
             return new Status((int)eResponseStatus.OK);
         }
 
-        internal static GenericResponse<Region> UpdateRegion(int groupId, Region regionToUpdate, long userId)
+        public GenericResponse<Region> UpdateRegion(int groupId, Region regionToUpdate, long userId)
         {
             var response = new GenericResponse<Region>();
 
@@ -99,7 +119,7 @@ namespace ApiLogic.Api.Managers
 
                 if (!ApiDAL.UpdateRegion(groupId, regionToUpdate, userId))
                 {
-                    log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, regionToUpdate.id);
+                    Log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, regionToUpdate.id);
                     response.SetStatus(eResponseStatus.Error);
                     return response;
                 }
@@ -141,7 +161,7 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception exc)
             {
-                log.ErrorFormat("UpdateRegion Failed. regionId {0}, groupId: {1}. ex: {2}", regionToUpdate.id, groupId, exc);
+                Log.ErrorFormat("UpdateRegion Failed. regionId {0}, groupId: {1}. ex: {2}", regionToUpdate.id, groupId, exc);
                 response.SetStatus(eResponseStatus.Error);
                 return response;
             }
@@ -157,7 +177,7 @@ namespace ApiLogic.Api.Managers
             string invalidationKey = LayeredCacheKeys.GetRegionsInvalidationKey(groupId);
             if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
             {
-                log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
+                Log.ErrorFormat("Failed to set invalidation key for region. key = {0}", invalidationKey);
             }
             else
             {
@@ -167,7 +187,7 @@ namespace ApiLogic.Api.Managers
             return result;
         }
 
-        internal static GenericResponse<Region> AddRegion(int groupId, Region region, long userId)
+        public GenericResponse<Region> AddRegion(int groupId, Region region, long userId)
         {
             var response = new GenericResponse<Region>();
 
@@ -183,7 +203,7 @@ namespace ApiLogic.Api.Managers
                 region.id = ApiDAL.AddRegion(groupId, region, userId);
                 if (region.id == 0)
                 {
-                    log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, region.id);
+                    Log.ErrorFormat("Error while trying to update region. groupId:{0}, id:{1}", groupId, region.id);
                     response.SetStatus(eResponseStatus.Error);
                     return response;
                 }
@@ -211,7 +231,7 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception exc)
             {
-                log.ErrorFormat("AddRegion Failed. regionId {0}, groupId: {1}. ex: {2}", region.id, groupId, exc);
+                Log.ErrorFormat("AddRegion Failed. regionId {0}, groupId: {1}. ex: {2}", region.id, groupId, exc);
                 response.SetStatus(eResponseStatus.Error);
                 return response;
             }
@@ -221,16 +241,12 @@ namespace ApiLogic.Api.Managers
             return response;
         }
 
-        public static IReadOnlyDictionary<long, List<int>> GetLinearMediaToRegionsMapWhenEnabled(int groupId)
-        {
-            var linearChannelsRegionsMapping = CatalogManager.Instance.IsRegionalizationEnabled(groupId)
+        public IReadOnlyDictionary<long, List<int>> GetLinearMediaToRegionsMapWhenEnabled(int groupId)
+            => _catalogManager.IsRegionalizationEnabled(groupId)
                 ? GetLinearMediaRegions(groupId)
                 : new Dictionary<long, List<int>>();
 
-            return linearChannelsRegionsMapping;
-        }
-
-        public static Dictionary<long, List<int>> GetLinearMediaRegions(int groupId)
+        public Dictionary<long, List<int>> GetLinearMediaRegions(int groupId)
         {
             Dictionary<long, List<int>> res = null;
 
@@ -240,18 +256,18 @@ namespace ApiLogic.Api.Managers
                 if (!LayeredCache.Instance.Get(key, ref res, GetLinearMediaRegionsMap, new Dictionary<string, object>() { { "groupId", groupId } }, groupId,
                     LayeredCacheConfigNames.GET_LINEAR_MEDIA_REGIONS_NAME_CACHE_CONFIG_NAME, new List<string>() { LayeredCacheKeys.GetRegionsInvalidationKey(groupId) }))
                 {
-                    log.ErrorFormat("Failed getting GetLinearMediaRegions from LayeredCache, groupId: {0}", groupId);
+                    Log.ErrorFormat("Failed getting GetLinearMediaRegions from LayeredCache, groupId: {0}", groupId);
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetLinearMediaRegions with groupId: {0}", groupId), ex);
+                Log.Error(string.Format("Failed GetLinearMediaRegions with groupId: {0}", groupId), ex);
             }
 
             return res;
         }
 
-        private static Tuple<Dictionary<long, List<int>>, bool> GetLinearMediaRegionsMap(Dictionary<string, object> funcParams)
+        private Tuple<Dictionary<long, List<int>>, bool> GetLinearMediaRegionsMap(Dictionary<string, object> funcParams)
         {
             bool res = false;
             Dictionary<long, List<int>> result = new Dictionary<long, List<int>>();
@@ -293,7 +309,7 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("GetLinearMediaRegionsFromDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+                Log.Error(string.Format("GetLinearMediaRegionsFromDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
             return new Tuple<Dictionary<long, List<int>>, bool>(result, res);
@@ -315,12 +331,12 @@ namespace ApiLogic.Api.Managers
                                                           LayeredCacheConfigNames.GET_GROUP_REGIONS,
                                                           regionsInvalidationKey))
                 {
-                    log.ErrorFormat("Failed getting GetRegions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
+                    Log.ErrorFormat("Failed getting GetRegions from LayeredCache, groupId: {0}, key: {1}", groupId, key);
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetRegions for groupId: {0}", groupId), ex);
+                Log.Error(string.Format("Failed GetRegions for groupId: {0}", groupId), ex);
             }
 
             return regionsCache;
@@ -340,21 +356,21 @@ namespace ApiLogic.Api.Managers
             return result;
         }
 
-        internal static List<int> GetRegionIds(int groupId)
+        public List<int> GetRegionIds(int groupId) => GetRegionsFromCache(groupId)?.Regions?.Keys.ToList();
+
+        public List<long> GetChildRegionIds(int groupId, long parentRegionId)
         {
-            List<int> result = null;
-
-            RegionsCache regionsCache = GetRegionsFromCache(groupId);
-
-            if (regionsCache != null && regionsCache.Regions != null)
+            var result = new List<long>();
+            var regionCache = GetRegionsFromCache(groupId);
+            if (regionCache != null && regionCache.ParentIdsToRegionIdsMapping.TryGetValue((int)parentRegionId, out var childRegions))
             {
-                result = regionsCache.Regions.Keys.ToList();
+                result.AddRange(childRegions.Select(x => (long)x));
             }
 
             return result;
         }
 
-        public static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter, int pageIndex = 0, int pageSize = 0)
+        public GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter, int pageIndex = 0, int pageSize = 0)
         {
             GenericListResponse<Region> result = new GenericListResponse<Region>();
 
@@ -460,7 +476,7 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetRegions for groupId: {0}", groupId), ex);
+                Log.Error(string.Format("Failed GetRegions for groupId: {0}", groupId), ex);
             }
 
             return result;
@@ -494,7 +510,7 @@ namespace ApiLogic.Api.Managers
 
                                 foreach (DataRow dr in ds.Tables[0].Rows)
                                 {
-                                    int id = ODBCWrapper.Utils.GetIntSafeVal(dr, "ID");
+                                    int id = Utils.GetIntSafeVal(dr, "ID");
                                     result.Add(id);
                                 }
                             }
@@ -504,7 +520,7 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("GetRegionsFromDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+                Log.Error(string.Format("GetRegionsFromDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
             return new Tuple<List<int>, bool>(result, res);
@@ -519,7 +535,7 @@ namespace ApiLogic.Api.Managers
                 int? groupId = funcParams["groupId"] as int?;
                 if (groupId.HasValue)
                 {
-                    DataSet ds = DAL.ApiDAL.Get_Regions(groupId.Value, null); // TODO: move the ordering to code from SP
+                    DataSet ds = ApiDAL.Get_Regions(groupId.Value, null); // TODO: move the ordering to code from SP
 
                     if (ds != null && ds.Tables != null && ds.Tables.Count >= 2)
                     {
@@ -532,12 +548,12 @@ namespace ApiLogic.Api.Managers
                             {
                                 region = new Region()
                                 {
-                                    id = ODBCWrapper.Utils.GetIntSafeVal(row, "id"),
-                                    name = ODBCWrapper.Utils.GetSafeStr(row, "name"),
-                                    externalId = ODBCWrapper.Utils.GetSafeStr(row, "external_id"),
-                                    isDefault = ODBCWrapper.Utils.GetIntSafeVal(row, "IS_DEFAULT_REGION") == 1,
-                                    parentId = ODBCWrapper.Utils.GetIntSafeVal(row, "parent_id"),
-                                    createDate = ODBCWrapper.Utils.GetDateSafeVal(row, "create_date")
+                                    id = Utils.GetIntSafeVal(row, "id"),
+                                    name = Utils.GetSafeStr(row, "name"),
+                                    externalId = Utils.GetSafeStr(row, "external_id"),
+                                    isDefault = Utils.GetIntSafeVal(row, "IS_DEFAULT_REGION") == 1,
+                                    parentId = Utils.GetIntSafeVal(row, "parent_id"),
+                                    createDate = Utils.GetDateSafeVal(row, "create_date")
                                 };
 
                                 regionsCache.Regions.Add(region.id, region);
@@ -586,7 +602,7 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("GetAllAssetRulesDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
+                Log.Error(string.Format("GetAllAssetRulesDB failed, parameters : {0}", string.Join(";", funcParams.Keys)), ex);
             }
 
             return new Tuple<RegionsCache, bool>(regionsCache, regionsCache != null);
@@ -604,7 +620,29 @@ namespace ApiLogic.Api.Managers
             return diffIds;
         }
 
-        internal static GenericListResponse<Region> GetDefaultRegion(int groupId)
+        public long? GetDefaultRegionId(int groupId)
+        {
+            if (!_catalogManager.IsRegionalizationEnabled(groupId))
+            {
+                return null;
+            }
+
+            if (!_groupSettingsManager.IsOpc(groupId))
+            {
+                var group = _groupManager.GetGroup(groupId);
+
+                return group?.defaultRegion > 0 ? group.defaultRegion : (long?)null;
+            }
+
+            if (!_catalogManager.TryGetCatalogGroupCacheFromCache(groupId, out var catalogGroupCache))
+            {
+                return null;
+            }
+
+            return catalogGroupCache.DefaultRegion > 0 ? catalogGroupCache.DefaultRegion : (long?)null;
+        }
+
+        internal GenericListResponse<Region> GetDefaultRegion(int groupId)
         {
             GenericListResponse<Region> result = new GenericListResponse<Region>();
 
@@ -627,13 +665,13 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetDefaultRegion for groupId: {0}", groupId), ex);
+                Log.Error(string.Format("Failed GetDefaultRegion for groupId: {0}", groupId), ex);
             }
 
             return result;
         }
 
-        internal static Status BulkUpdateRegions(int groupId, long userId, long linearChannelId, IReadOnlyCollection<RegionChannelNumber> regionChannelNumbers)
+        public Status BulkUpdateRegions(int groupId, long userId, long linearChannelId, IReadOnlyCollection<RegionChannelNumber> regionChannelNumbers)
         {
             try
             {
@@ -646,7 +684,7 @@ namespace ApiLogic.Api.Managers
                 var dbUpdateResult = ApiDAL.UpdateLinearChannelRegions(groupId, linearChannelId, regionChannelNumbers, userId);
                 if (!dbUpdateResult)
                 {
-                    log.Error("Error while trying to update linear channel in multiple regions.");
+                    Log.Error("Error while trying to update linear channel in multiple regions.");
                     return new Status(eResponseStatus.Error);
                 }
 
@@ -658,7 +696,7 @@ namespace ApiLogic.Api.Managers
             }
             catch (Exception e)
             {
-                log.Error($"{nameof(BulkUpdateRegions)} failed.", e);
+                Log.Error($"{nameof(BulkUpdateRegions)} failed.", e);
 
                 return Status.Error;
             }
@@ -676,23 +714,23 @@ namespace ApiLogic.Api.Managers
         {
             var epgKsql = $"(and linear_media_id='{linearChannelId}')";
             var epgResult = api.SearchAssets(groupId, epgKsql, 0, 0, true, 0, false, string.Empty, string.Empty, string.Empty, 0, 0, true, true);
-            
+
             var result = CatalogLogic.UpdateIndex(new List<long> { linearChannelId }, groupId, eAction.Update);
             if (!result)
             {
-                log.Error($"Index update failed. {nameof(groupId)}:{groupId}, {nameof(linearChannelId)}:{linearChannelId}");
+                Log.Error($"Index update failed. {nameof(groupId)}:{groupId}, {nameof(linearChannelId)}:{linearChannelId}");
             }
-            
+
             if (epgResult?.Length > 0)
             {
                 var epgIds = epgResult.Select(x => long.Parse(x.AssetId)).ToList();
                 result = ShouldUseUpdateRegionPerformanceImprovement
                     ? CatalogLogic.UpdateEpgRegionsIndex(epgIds, new[] { linearChannelId }, groupId, eAction.Update, null, false)
                     : CatalogLogic.UpdateEpgIndex(epgIds, groupId, eAction.Update, null, false);
-                
+
                 if (!result)
                 {
-                    log.Error($"Index update failed. {nameof(groupId)}:{groupId}, {nameof(epgIds)}:{string.Join(",", epgIds)}");
+                    Log.Error($"Index update failed. {nameof(groupId)}:{groupId}, {nameof(epgIds)}:{string.Join(",", epgIds)}");
                 }
             }
         }

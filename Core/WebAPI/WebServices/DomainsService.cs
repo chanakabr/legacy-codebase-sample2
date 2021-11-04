@@ -660,7 +660,7 @@ namespace WebAPI.WebServices
             Int32 nGroupID = Core.Users.Utils.GetDomainGroupID(sWSUserName, sWSPassword);
             if (nGroupID != 0)
             {
-                return Core.Domains.Module.GetDeviceInfo(nGroupID, sID, bIsUDID);
+                return Core.Domains.Module.Instance.GetDeviceInfo(nGroupID, sID, bIsUDID);
             }
             else
             {

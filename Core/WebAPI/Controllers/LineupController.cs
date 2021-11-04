@@ -1,5 +1,7 @@
+using System.Linq;
 using System.Net;
 using ApiLogic.Catalog;
+using ApiObjects.Response;
 using WebAPI.ClientManagers;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
@@ -17,7 +19,7 @@ namespace WebAPI.Controllers
     [Service("lineup")]
     public class LineupController : IKalturaController
     {
-        private static readonly ILineupRequestValidator LineupRequestValidator = new LineupRequestValidator();
+        private static readonly ILineupRequestValidator _lineupRequestValidator = LineupRequestValidator.Instance;
 
         /// <summary>
         /// Return regional lineup (list of lineup channel asset objects) based on the requester session characteristics and his region.
@@ -35,20 +37,22 @@ namespace WebAPI.Controllers
         {
             if (!pageIndex.HasValue)
             {
-                pageIndex = LineupRequestValidator.MinPageIndex;
+                pageIndex = _lineupRequestValidator.MinPageIndex;
             }
-            else if (!LineupRequestValidator.ValidatePageIndex(pageIndex.Value))
+            else if (!_lineupRequestValidator.ValidatePageIndex(pageIndex.Value))
             {
-                throw new ApiException(new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, nameof(pageIndex), LineupRequestValidator.MinPageIndex), HttpStatusCode.BadRequest);
+                throw new ApiException(
+                    new BadRequestException(BadRequestException.ARGUMENT_MIN_VALUE_CROSSED, nameof(pageIndex), _lineupRequestValidator.MinPageIndex),
+                    HttpStatusCode.BadRequest);
             }
 
             if (!pageSize.HasValue)
             {
-                pageSize = LineupRequestValidator.DefaultPageSize;
+                pageSize = _lineupRequestValidator.DefaultPageSize;
             }
-            else if (!LineupRequestValidator.ValidatePageSize(pageSize.Value))
+            else if (!_lineupRequestValidator.ValidatePageSize(pageSize.Value))
             {
-                throw new ApiException(new BadRequestException(BadRequestException.ARGUMENT_NOT_IN_PREDEFINED_RANGE, nameof(pageSize), string.Join(", ", LineupRequestValidator.AllowedPageSizes)), HttpStatusCode.BadRequest);
+                throw new ApiException(new BadRequestException(BadRequestException.ARGUMENT_NOT_IN_PREDEFINED_RANGE, nameof(pageSize), string.Join(", ", _lineupRequestValidator.AllowedPageSizes)), HttpStatusCode.BadRequest);
             }
 
             var groupId = KS.GetFromRequest().GroupId;
@@ -66,6 +70,34 @@ namespace WebAPI.Controllers
             var response = ClientsManager.CatalogClient().GetLineup(groupId, regionId, searchContext, pageIndex.Value - 1, pageSize.Value);
 
             return response;
+        }
+
+        /// <summary>
+        /// Sends lineup update requested notification.
+        /// </summary>
+        /// <param name="regionIds">Region IDs separated by commas.</param>
+        /// /api_v3/service/lineup/action/sendUpdatedNotification
+        [Action("sendUpdatedNotification")]
+        [ApiAuthorize]
+        [ValidationException(SchemeValidationType.ACTION_NAME)]
+        [ValidationException(SchemeValidationType.ACTION_ARGUMENTS)]
+        [Throws(eResponseStatus.RegionNotFound)]
+        public static bool SendUpdatedNotification(string regionIds)
+        {
+            var regionIdsList = Utils.Utils
+                .ParseCommaSeparatedValues<long>(regionIds, nameof(regionIds))
+                .ToList();
+
+            if (!regionIds.Any())
+            {
+                throw new BadRequestException(
+                    BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, nameof(regionIds),
+                    HttpStatusCode.BadRequest);
+            }
+
+            var ks = KS.GetFromRequest();
+
+            return ClientsManager.CatalogClient().SendUpdatedNotification(ks.GroupId, ks.UserId, regionIdsList);
         }
     }
 }

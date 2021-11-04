@@ -711,7 +711,7 @@ namespace TVPApiModule.Services
             {
                 using (KMonitor km = new KMonitor(KLogMonitor.Events.eEvent.EVENT_WS, null, null, null, null))
                 {
-                    deviceInfo = Core.Domains.Module.GetDeviceInfo(m_groupID, sId, bIsUDID);
+                    deviceInfo = Core.Domains.Module.Instance.GetDeviceInfo(m_groupID, sId, bIsUDID);
                 }
             }
             catch (Exception ex)

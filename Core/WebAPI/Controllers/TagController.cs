@@ -1,6 +1,5 @@
-﻿using ApiObjects.Response;
-using System;
-using System.Linq;
+﻿using System.Linq;
+using ApiObjects.Response;
 using WebAPI.ClientManagers.Client;
 using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
@@ -49,7 +48,7 @@ namespace WebAPI.Controllers
 
                 if (!string.IsNullOrEmpty(filter.IdIn))
                 {
-                    var idIn = Utils.Utils.ParseCommaSeparatedString(filter.IdIn, new[] { ',' }, $"{nameof(filter)}.idIn");
+                    var idIn = Utils.Utils.ParseCommaSeparatedValues<long>(filter.IdIn, $"{nameof(filter)}.idIn", checkDuplicate: true, ignoreDefaultValueValidation: true);
                     response = ClientsManager.CatalogClient().GetTags(groupId, idIn.ToList(), pager.getPageIndex(), pager.getPageSize());
                 }
                 else if (!string.IsNullOrEmpty(filter.TagEqual))

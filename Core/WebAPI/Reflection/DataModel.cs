@@ -10388,6 +10388,10 @@ namespace WebAPI.Reflection
                         case "get":
                             return LineupController.Get((Nullable<int>) methodParams[0], (Nullable<int>) methodParams[1]);
                             
+                        case "sendupdatednotification":
+                            RolesManager.ValidateActionPermitted("lineup", "sendUpdatedNotification", false);
+                            return LineupController.SendUpdatedNotification((string) methodParams[0]);
+                            
                     }
                     break;
                     
@@ -17734,6 +17738,13 @@ namespace WebAPI.Reflection
                                 NewName = newParamName,
                                 IsNullable = true,
                                 Type = typeof(Int32),
+                            });
+                            return ret;
+                            
+                        case "sendupdatednotification":
+                            ret.Add("regionIds", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(string),
                             });
                             return ret;
                             

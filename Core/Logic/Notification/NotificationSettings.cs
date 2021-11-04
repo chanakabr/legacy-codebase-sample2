@@ -306,7 +306,7 @@ namespace Core.Notification
             if (partnerSettingsResponse != null &&
                 partnerSettingsResponse.settings != null)
             {
-                return NotificationDal.GetIotProfile(groupId);
+                return NotificationDal.Instance.GetIotProfile(groupId);
             }
             return null;
         }

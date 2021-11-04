@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <RootNamespace>NotificationHandlers.Common</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Core\ApiObjects\ApiObjects.csproj" />
+      <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
+      <ProjectReference Include="..\..\Core\Logic\ApiLogic.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="prometheus-net" Version="4.1.1" />
+    </ItemGroup>
+
+</Project>

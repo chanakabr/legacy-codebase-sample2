@@ -980,7 +980,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Key, opt => opt.MapFrom(src => src.Key))
                 .ForMember(dest => dest.Values, opt => opt.ResolveUsing(src => ToCSV(src.Values)));
-            
+
             cfg.CreateMap<KalturaDeviceDynamicDataCondition, DeviceDynamicDataCondition>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
@@ -1005,7 +1005,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<KalturaRuleActionType, RuleActionType>()
            .ConvertUsing(kalturaRuleActionType =>
            {
-               
+
                switch (kalturaRuleActionType)
                {
                    case KalturaRuleActionType.BLOCK: return RuleActionType.Block;
@@ -2224,7 +2224,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                 .IncludeBase<KalturaDynamicListFilter, DynamicListFilter>()
                 .ForMember(dest => dest.IdEqual, opt => opt.MapFrom(src => src.IdEqual))
                 .ForMember(dest => dest.ValueEqual, opt => opt.MapFrom(src => src.ValueEqual));
-            
+
             cfg.CreateMap<KalturaStringValueArray, List<string>>().ConvertUsing(v => v.Objects.Select(_ => _.value).ToList());
             cfg.CreateMap<List<string>, KalturaStringValueArray>().ConvertUsing(v => new KalturaStringValueArray
                 { Objects = v.Select(_ => new KalturaStringValue { value = _ }).ToList() });

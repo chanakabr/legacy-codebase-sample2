@@ -27390,18 +27390,6 @@ namespace WebAPI.Models.Pricing
     }
     public partial class KalturaPpv
     {
-        private static RuntimeSchemePropertyAttribute PriceSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpv")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
         private static RuntimeSchemePropertyAttribute FileTypesSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpv")
         {
             ReadOnly = false,
@@ -27450,6 +27438,18 @@ namespace WebAPI.Models.Pricing
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute ProductCodeSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpv")
+        {
+            ReadOnly = false,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         private static RuntimeSchemePropertyAttribute IsSubscriptionOnlySchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpv")
         {
             ReadOnly = false,
@@ -27463,18 +27463,6 @@ namespace WebAPI.Models.Pricing
             MaxItems = -1,
         };
         private static RuntimeSchemePropertyAttribute FirstDeviceLimitationSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpv")
-        {
-            ReadOnly = false,
-            InsertOnly = false,
-            WriteOnly = false,
-            RequiresPermission = 0,
-            IsNullable = true,
-            MaxLength = -1,
-            MinLength = -1,
-            MinItems = -1,
-            MaxItems = -1,
-        };
-        private static RuntimeSchemePropertyAttribute UsageModuleSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaPpv")
         {
             ReadOnly = false,
             InsertOnly = false,
@@ -27502,10 +27490,6 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("price") && parameters["price"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        PriceSchemaProperty.Validate("price", parameters["price"]);
-                    }
                     if (parameters["price"] is JObject)
                     {
                         Price = (KalturaPriceDetails) Deserializer.deserialize(typeof(KalturaPriceDetails), ((JObject) parameters["price"]).ToObject<Dictionary<string, object>>());
@@ -27577,6 +27561,10 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("productCode") && parameters["productCode"] != null)
                 {
+                    if(!isOldVersion)
+                    {
+                        ProductCodeSchemaProperty.Validate("productCode", parameters["productCode"]);
+                    }
                     ProductCode = (String) Convert.ChangeType(parameters["productCode"], typeof(String));
                 }
                 if (parameters.ContainsKey("isSubscriptionOnly") && parameters["isSubscriptionOnly"] != null)
@@ -27597,10 +27585,6 @@ namespace WebAPI.Models.Pricing
                 }
                 if (parameters.ContainsKey("usageModule") && parameters["usageModule"] != null)
                 {
-                    if(!isOldVersion)
-                    {
-                        UsageModuleSchemaProperty.Validate("usageModule", parameters["usageModule"]);
-                    }
                     if (parameters["usageModule"] is JObject)
                     {
                         UsageModule = (KalturaUsageModule) Deserializer.deserialize(typeof(KalturaUsageModule), ((JObject) parameters["usageModule"]).ToObject<Dictionary<string, object>>());

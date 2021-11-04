@@ -2604,29 +2604,19 @@ namespace Core.Api
         }
 
         public static GenericResponse<Region> AddRegion(int groupId, Region region, long userId)
-        {
-            return ApiLogic.Api.Managers.RegionManager.AddRegion(groupId, region, userId);
-        }
+            => RegionManager.Instance.AddRegion(groupId, region, userId);
 
         public static GenericResponse<Region> UpdateRegion(int groupId, Region region, long userId)
-        {
-            return ApiLogic.Api.Managers.RegionManager.UpdateRegion(groupId, region, userId);
-        }
+            => RegionManager.Instance.UpdateRegion(groupId, region, userId);
 
         public static Status DeleteRegion(int groupId, int id, long userId)
-        {
-            return ApiLogic.Api.Managers.RegionManager.DeleteRegion(groupId, id, userId);
-        }
+            => RegionManager.Instance.DeleteRegion(groupId, id, userId);
 
         public static GenericListResponse<Region> GetRegions(int groupId, RegionFilter filter, int pageIndex, int pageSize)
-        {
-            return ApiLogic.Api.Managers.RegionManager.GetRegions(groupId, filter, pageIndex, pageSize);
-        }
+            => RegionManager.Instance.GetRegions(groupId, filter, pageIndex, pageSize);
 
         public static Status BulkUpdateRegions(int groupId, long userId, long linearChannelId, IReadOnlyCollection<RegionChannelNumber> regionChannelNumbers)
-        {
-            return RegionManager.BulkUpdateRegions(groupId, userId, linearChannelId, regionChannelNumbers);
-        }
+            => RegionManager.Instance.BulkUpdateRegions(groupId, userId, linearChannelId, regionChannelNumbers);
 
         public static Status UpdateObjectVirtualAssetPartnerConfiguration(int groupId, ObjectVirtualAssetPartnerConfig partnerConfigToUpdate)
         {
@@ -2674,9 +2664,7 @@ namespace Core.Api
             return api.GetPlaybackAdapterManifest(adapterId, groupId, playbackContext, requestPlaybackContextOptions, userId, udid, ip);
         }
         public static GenericListResponse<Region> GetDefaultRegion(int groupId)
-        {
-            return ApiLogic.Api.Managers.RegionManager.GetDefaultRegion(groupId);
-        }
+            => RegionManager.Instance.GetDefaultRegion(groupId);
 
         public static GenericListResponse<SegmentationType> GetSegmentationTypesBySegmentIds(int groupId, List<long> ids, int pageIndex, int pageSize,
             AssetSearchDefinition assetSearchDefinition)

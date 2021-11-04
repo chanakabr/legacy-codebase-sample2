@@ -1813,7 +1813,7 @@ namespace DAL
             return new Dictionary<long, long>();
         }
 
-        public static List<ParentalRule> Get_Domain_ParentalRules(int groupId, int domainId)
+        public static List<ParentalRule> Get_Domain_ParentalRules(int groupId, int domainId, bool doesGroupUsesTemplates)
         {
             // Perform stored procedure
 
@@ -1821,6 +1821,7 @@ namespace DAL
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@DomainID", domainId);
+            storedProcedure.AddParameter("@DoesGroupUsesTemplates", doesGroupUsesTemplates);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
             List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);
@@ -1828,7 +1829,7 @@ namespace DAL
             return rules;
         }
 
-        public static List<ParentalRule> Get_User_ParentalRules(int groupId, string siteGuid)
+        public static List<ParentalRule> Get_User_ParentalRules(int groupId, string siteGuid, bool doesGroupUsesTemplates)
         {
             // Perform stored procedure
 
@@ -1836,6 +1837,7 @@ namespace DAL
             storedProcedure.SetConnectionKey("MAIN_CONNECTION_STRING");
             storedProcedure.AddParameter("@GroupID", groupId);
             storedProcedure.AddParameter("@SiteGuid", siteGuid);
+            storedProcedure.AddParameter("@DoesGroupUsesTemplates", doesGroupUsesTemplates ? 1 : 0);
 
             DataSet dataSet = storedProcedure.ExecuteDataSet();
             List<ParentalRule> rules = CreateParentalRulesFromDataSet(dataSet);

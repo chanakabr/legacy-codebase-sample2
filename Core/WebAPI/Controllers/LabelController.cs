@@ -66,7 +66,7 @@ namespace WebAPI.Controllers
             {
                 var groupId = KS.GetFromRequest().GroupId;
 
-                var idIn = Utils.Utils.ParseCommaSeparatedString(filter.IdIn, new[] { ',' }, $"{nameof(filter)}.idIn");
+                var idIn = Utils.Utils.ParseCommaSeparatedValues<long>(filter.IdIn, $"{nameof(filter)}.idIn", checkDuplicate: true, ignoreDefaultValueValidation: true);
                 response = ClientsManager.CatalogClient().SearchLabels(groupId, idIn, filter.LabelEqual, filter.LabelStartsWith, filter.EntityAttributeEqual, pager.getPageIndex(), pager.getPageSize());
             }
             catch (ClientException ex)

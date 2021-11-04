@@ -107,8 +107,10 @@ namespace Core.Catalog.CatalogManagement
         };
 
         private static readonly Lazy<MediaAssetService> MediaAssetServiceLazy = new Lazy<MediaAssetService>(() => MediaAssetService.Instance, LazyThreadSafetyMode.PublicationOnly);
-        private static readonly Lazy<AssetManager> lazy = new Lazy<AssetManager>(() => new AssetManager(), LazyThreadSafetyMode.PublicationOnly);
-        public static AssetManager Instance => Lazy.Value;
+        private static readonly Lazy<AssetManager> AssetManagerLazy = new Lazy<AssetManager>(() => new AssetManager(), LazyThreadSafetyMode.PublicationOnly);
+
+        public static AssetManager Instance => AssetManagerLazy.Value;
+
         #endregion
 
         private AssetManager()
@@ -1502,7 +1504,7 @@ namespace Core.Catalog.CatalogManagement
 
                 if (catalogGroupCache.IsRegionalizationEnabled)
                 {
-                    linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
+                    linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(groupId);
                 }
 
                 System.Threading.Tasks.Parallel.ForEach(ds.Tables[0].AsEnumerable(), (basicDataRow, state) =>
@@ -2988,7 +2990,7 @@ namespace Core.Catalog.CatalogManagement
 
                     if (catalogGroupCache.IsRegionalizationEnabled)
                     {
-                        linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
+                        linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(groupId);
                         log.Debug(string.Format("GetMediaForElasticSearchIndex -> Got linearChannelsRegionsMapping with {0} medias", linearChannelsRegionsMapping?.Count));
                     }
 
@@ -3445,11 +3447,11 @@ namespace Core.Catalog.CatalogManagement
                             {
                                 log.ErrorFormat("Failed UpsertMedia index for assetId: {0}, type: {1}, groupId: {2} after RemoveTopicsFromMediaAsset", id, eAssetTypes.MEDIA.ToString(), groupId);
                             }
-                            
+
                             //extracted it from upsertMedia it was called also for OPC accounts,searchDefinitions
                             //not sure it's required but better be safe
                             LayeredCache.Instance.SetInvalidationKey(LayeredCacheKeys.GetMediaInvalidationKey(groupId, id));
-                            
+
                         }
                     }
                     else

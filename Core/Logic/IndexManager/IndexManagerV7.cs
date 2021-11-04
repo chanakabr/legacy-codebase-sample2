@@ -369,7 +369,7 @@ namespace Core.Catalog
                     : GetGroupManager().isRegionalizationEnabled;
 
                 var linearChannelsRegionsMapping = isRegionalizationEnabled
-                    ? RegionManager.GetLinearMediaRegions(_partnerId)
+                    ? RegionManager.Instance.GetLinearMediaRegions(_partnerId)
                     : new Dictionary<long, List<int>>();
 
                 var createdAliases = new HashSet<string>();
@@ -4650,7 +4650,7 @@ namespace Core.Catalog
 
             if (VerifyGroupUsesTemplates() ? GetCatalogGroupCache().IsRegionalizationEnabled : GetGroupManager().isRegionalizationEnabled)
             {
-                linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(_partnerId);
+                linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(_partnerId);
             }
 
             var alias = NamingHelper.GetEpgIndexAlias(_partnerId);

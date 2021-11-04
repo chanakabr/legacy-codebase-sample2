@@ -804,7 +804,7 @@ namespace Core.Catalog.CatalogManagement
                 ct = BuildCategoryTree(groupId, c);
                 if (c.ChildrenIds != null)
                 {
-                    var ch = c.ChildrenIds.Select(x => GetCategoryItem(groupId, x, onlyActive)).ToList();
+                    var ch = c.ChildrenIds.Select(x => GetCategoryItem(groupId, x, filter, onlyActive)).ToList();
                     ch.RemoveAll(item => item == null);
                     if (ch.Any(i => i != null))
                     {

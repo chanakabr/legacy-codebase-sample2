@@ -16,6 +16,7 @@ namespace Core.Domains
     public interface IDomainModule
     {
         DLMResponse GetDLM(int groupId, int dlmId);
+        DeviceResponseObject GetDeviceInfo(int nGroupID, string sID, bool bIsUDID);
     }
     public class Module : IDomainModule
     {
@@ -513,7 +514,7 @@ namespace Core.Domains
         }
 
 
-        public static DeviceResponseObject GetDeviceInfo(int nGroupID, string sID, bool bIsUDID)
+        public DeviceResponseObject GetDeviceInfo(int nGroupID, string sID, bool bIsUDID)
         {
             Core.Users.BaseDevice t = null;
             Utils.GetBaseImpl(ref t, nGroupID);

@@ -433,45 +433,54 @@ namespace WebAPI.Managers.Models
         public static ContextData GetContextData(bool skipDomain = false)
         {
             var ks = GetFromRequest();
-
             if (ks == null)
             {
                 return null;
             }
 
-            long? domainId = null;
+            var payload = GetPayload();
 
-            if (!skipDomain)
+            return new ContextData(ks.GroupId)
             {
-                try
-                {
-                    domainId = HouseholdUtils.GetHouseholdIDByKS();
-                }
-                catch (Exception) { }
-            }
-
-            KSData payload = null;
-            try
-            {
-                payload = KSUtils.ExtractKSPayload();
-            }
-            catch (Exception) { }
-            
-            long.TryParse(ks.OriginalUserId, out var originalUserId);
-
-            var contextData = new ContextData(ks.GroupId)
-            {
-                DomainId = domainId,
+                DomainId = GetDomainId(skipDomain),
                 UserId = Utils.Utils.GetUserIdFromKs(ks),
                 Udid = payload?.UDID,
                 UserIp = Utils.Utils.GetClientIP(),
                 Language = Utils.Utils.GetLanguageFromRequest(),
                 Format = Utils.Utils.GetFormatFromRequest(),
-                OriginalUserId = originalUserId,
+                OriginalUserId = long.TryParse(ks.OriginalUserId, out var originalUserId) ? originalUserId : default,
+                RegionId = payload?.RegionId > 0 ? payload.RegionId : (long?)null,
                 SessionCharacteristicKey = payload?.SessionCharacteristicKey
             };
+        }
 
-            return contextData;
+        private static KSData GetPayload()
+        {
+            try
+            {
+                return KSUtils.ExtractKSPayload();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
+        private static long? GetDomainId(bool skipDomain)
+        {
+            if (skipDomain)
+            {
+                return null;
+            }
+
+            try
+            {
+                return HouseholdUtils.GetHouseholdIDByKS();
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }

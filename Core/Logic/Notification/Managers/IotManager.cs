@@ -1,26 +1,30 @@
-﻿using ApiLogic.Base;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
+using ApiLogic.Api.Managers;
+using ApiLogic.Base;
 using ApiObjects;
 using ApiObjects.Base;
-using ApiObjects.Response;
-using System;
-using System.Reflection;
-using KLogMonitor;
-using System.Net.Http;
-using System.Configuration;
-using Core.Notification;
-using Newtonsoft.Json;
-using ApiObjects.Notification;
-using DAL;
-using TVinciShared;
-using ConfigurationManager;
-using System.Text;
-using Core.Notification.Adapters;
-using System.Collections.Generic;
-using CachingProvider.LayeredCache;
-using System.Linq;
-using System.Security.Cryptography;
 using ApiObjects.EventBus;
-using System.Threading;
+using ApiObjects.Notification;
+using ApiObjects.Response;
+using CachingProvider.LayeredCache;
+using ConfigurationManager;
+using Core.Catalog.CatalogManagement;
+using Core.Domains;
+using Core.Notification;
+using Core.Notification.Adapters;
+using DAL;
+using KLogMonitor;
+using Newtonsoft.Json;
+using TVinciShared;
+using Module = Core.Domains.Module;
 
 namespace ApiLogic.Notification
 {
@@ -32,27 +36,63 @@ namespace ApiLogic.Notification
         IotProfileAws UpdateIotEnvironment(int groupId, IotProfile newConfigurations);
         int GetTopicPartitionsCount();
         string GetTopicFormat(int groupId, EventType eventType);
+        string GetRegionTopicFormat(int groupId, EventType eventType, long regionId);
+        IotProfileAws GetClientConfiguration(int groupId);
+        void InvalidateClientConfiguration(int groupId);
     }
 
     public class IotManager : IIotManager
     {
-        private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly Lazy<IotManager> lazy = new Lazy<IotManager>(() => new IotManager(), LazyThreadSafetyMode.PublicationOnly);
-        private static readonly HttpClient httpClient = HttpClientUtil.GetHttpClient(ApplicationConfiguration.Current.IotHttpClientConfiguration);
-        private readonly ThreadLocal<MD5> md5 = new ThreadLocal<MD5>(() => MD5.Create());
+        private static readonly Lazy<IotManager> IoTManagerLazy = new Lazy<IotManager>(
+            () => new IotManager(), LazyThreadSafetyMode.PublicationOnly);
+        private static readonly KLogger Logger = new KLogger(nameof(IotManager));
+        private static readonly Lazy<HttpClient> HttpClientLazy = new Lazy<HttpClient>(
+            () => HttpClientUtil.GetHttpClient(ApplicationConfiguration.Current.IotHttpClientConfiguration),
+            LazyThreadSafetyMode.PublicationOnly);
+        private readonly ThreadLocal<MD5> _md5 = new ThreadLocal<MD5>(MD5.Create);
+        private readonly ICatalogManager _catalogManager;
+        private readonly IRegionManager _regionManager;
+        private readonly INotificationCache _notificationCache;
+        private readonly INotificationDal _notificationDal;
+        private readonly ILayeredCache _layeredCache;
+        private readonly IDomainModule _domainModule;
 
         private const string REGISTER = "/api/IOT/RegisterDevice";
         private const string GET_IOT_CONFIGURATION = "/api/IOT/Configuration/List?";
-        public const string ADD_TO_SHADOW = "/api/IOT/AddToShadow";
-        public const string PUBLISH = "/api/IOT/Publish";
-        public const string DELETE_DEVICE = "/api/IOT/DeleteDevice";
+        private const string ADD_TO_SHADOW = "/api/IOT/AddToShadow";
+        private const string PUBLISH = "/api/IOT/Publish";
+        private const string DELETE_DEVICE = "/api/IOT/DeleteDevice";
         public const string SYSTEM_ANNOUNCEMENT = "SystemAnnouncement";
-        public const string ADD_CONFIG = "/api/IOT/Configuration/Update";
+        private const string ADD_CONFIG = "/api/IOT/Configuration/Update";
         private const string CREATE_ENVIRONMENT = "/api/IOT/Environment/Create";
         private const int TOPIC_PARTITIONS_COUNT = 10;
-        public static IotManager Instance { get { return lazy.Value; } }
+        public static IotManager Instance => IoTManagerLazy.Value;
+        private static HttpClient HttpClient => HttpClientLazy.Value;
 
-        private IotManager() { }
+        private IotManager() : this(
+            CatalogManager.Instance,
+            RegionManager.Instance,
+            NotificationCache.Instance(),
+            NotificationDal.Instance,
+            LayeredCache.Instance,
+            Module.Instance)
+        {
+        }
+
+        public IotManager(ICatalogManager catalogManager,
+            IRegionManager regionManager,
+            INotificationCache notificationCache,
+            INotificationDal notificationDal,
+            ILayeredCache layeredCache,
+            IDomainModule domainModule)
+        {
+            _catalogManager = catalogManager ?? throw new ArgumentNullException(nameof(catalogManager));
+            _regionManager = regionManager ?? throw new ArgumentNullException(nameof(regionManager));
+            _notificationCache = notificationCache ?? throw new ArgumentNullException(nameof(notificationCache));
+            _notificationDal = notificationDal ?? throw new ArgumentNullException(nameof(notificationDal));
+            _layeredCache = layeredCache ?? throw new ArgumentNullException(nameof(layeredCache));
+            _domainModule = domainModule ?? throw new ArgumentNullException(nameof(domainModule));
+        }
 
         public GenericResponse<Iot> Register(ContextData contextData)
         {
@@ -61,20 +101,19 @@ namespace ApiLogic.Notification
             var udid = contextData.Udid;
             try
             {
-                var partnerSettings = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+                var partnerSettings = _notificationCache.GetPartnerNotificationSettings(groupId);
 
                 if (!IsIotAllowed(partnerSettings))
                 {
-                    log.Error($"Error while getting PartnerNotificationSettings for group: {groupId}.");
+                    Logger.Error($"Error while getting PartnerNotificationSettings for group: {groupId}.");
                     return response;
                 }
 
                 response.Object = RegisterDevice(groupId, udid);
 
-
                 if (response.Object == null)
                 {
-                    log.Error($"Error while registering udid: {udid} for group: {groupId}.");
+                    Logger.Error($"Error while registering udid: {udid} for group: {groupId}.");
                     return response;
                 }
 
@@ -84,35 +123,34 @@ namespace ApiLogic.Notification
             }
             catch (Exception ex)
             {
-                log.Error($"Register failed, group: {groupId}, error: {ex.Message}", ex);
+                Logger.Error($"Register failed, group: {groupId}, error: {ex.Message}", ex);
             }
 
             return response;
         }
 
         public static bool IsIotAllowed(NotificationPartnerSettingsResponse partnerSettings)
-        {
-            return partnerSettings != null && partnerSettings.settings != null &&
-                partnerSettings.settings.IsIotEnabled != null && partnerSettings.settings.IsIotEnabled.Value == true;
-        }
+            => partnerSettings?.settings?.IsIotEnabled == true;
 
         private bool SaveRegisteredDevice(int groupId, string udid, Iot msResponse)
         {
             msResponse.Udid = msResponse.Udid ?? udid;
             msResponse.GroupId = msResponse.GroupId ?? groupId.ToString();
 
-            if (!DAL.NotificationDal.SaveRegisteredDevice(msResponse))
+            if (_notificationDal.SaveRegisteredDevice(msResponse))
             {
-                log.ErrorFormat($"Error while saving Iot device. Iot response: {Newtonsoft.Json.JsonConvert.SerializeObject(msResponse)}");
-                return false;
+                return true;
             }
-            return true;
+
+            Logger.ErrorFormat($"Error while saving Iot device. Iot response: {JsonConvert.SerializeObject(msResponse)}");
+
+            return false;
         }
 
-        public string GetTopicFormat(int groupId, EventType eventType)
-        {
-            return $"{groupId}/{eventType.ToString()}/{{0}}";
-        }
+        public string GetTopicFormat(int groupId, EventType eventType) => $"{groupId}/{eventType.ToString()}/{{0}}";
+
+        public string GetRegionTopicFormat(int groupId, EventType eventType, long regionId)
+            => $"{groupId}/{eventType.ToString()}/{regionId}/{{0}}";
 
         public GenericResponse<IotClientConfiguration> GetClientConfiguration(ContextData contextData)
         {
@@ -120,10 +158,10 @@ namespace ApiLogic.Notification
             var groupId = contextData.GroupId;
             try
             {
-                var partnerSettings = NotificationCache.Instance().GetPartnerNotificationSettings(groupId);
+                var partnerSettings = _notificationCache.GetPartnerNotificationSettings(groupId);
                 if (!IsIotAllowed(partnerSettings))
                 {
-                    log.Error($"Error while getting PartnerNotificationSettings for group: {groupId}.");
+                    Logger.Error($"Error while getting PartnerNotificationSettings for group: {groupId}.");
                     return response;
                 }
 
@@ -134,7 +172,7 @@ namespace ApiLogic.Notification
                     CognitoUserPool = groupConfig.CognitoUserPool,
                     CredentialsProvider = groupConfig.CredentialsProvider,
                     Json = groupConfig.Json,
-                    Topics = GetTopicsForDevice(contextData, partnerSettings)
+                    Topics = GetTopicsForDevice(contextData, partnerSettings.settings)
                 };
                 response.Object = deviceConfig;
 
@@ -142,55 +180,97 @@ namespace ApiLogic.Notification
             }
             catch (ConfigurationErrorsException)
             {
-                log.Error($"No configurations for group: {groupId}.");
+                Logger.Error($"No configurations for group: {groupId}.");
             }
             catch (Exception ex)
             {
-                log.Error($"GetIotClientConfiguration failed, error: {ex.Message}");
+                Logger.Error($"GetIotClientConfiguration failed, error: {ex.Message}");
             }
 
             return response;
         }
 
-        private List<string> GetTopicsForDevice(ContextData contextData, NotificationPartnerSettingsResponse ns)
+        private List<string> GetTopicsForDevice(ContextData contextData, NotificationPartnerSettings settings)
         {
             var response = new List<string>();
-            if (ValidateEpgTopicsAllowed(contextData, ns)) // what if unrecognized device
+            var epgTopicFormat = GetEpgTopicFormat(contextData, settings);
+            var partitionNumber = HashUdid(contextData.Udid) % GetTopicPartitionsCount();
+            if (!string.IsNullOrEmpty(epgTopicFormat)) // what if unrecognized device
             {
-                var partitionNumber = HashUdid(contextData.Udid) % GetTopicPartitionsCount();
-                var topicFormat = GetTopicFormat(contextData.GroupId, EventType.epg_update);
-                response.Add(string.Format(topicFormat, partitionNumber));
+                response.Add(string.Format(epgTopicFormat, partitionNumber));
             }
-            //TODO - Add other events if allowed?
+
+            var lineupTopicFormat = GetLineupTopicFormat(contextData, settings);
+            if (!string.IsNullOrEmpty(lineupTopicFormat))
+            {
+                response.Add(string.Format(lineupTopicFormat, partitionNumber));
+            }
+
             return response;
         }
 
-        /// <summary>
-        /// Check if epg update is allowed for the given device family Id
-        /// </summary>
-        /// <param name="contextData"></param>
-        /// <param name="ns"></param>
-        /// <returns></returns>
-        private bool ValidateEpgTopicsAllowed(ContextData contextData, NotificationPartnerSettingsResponse ns)
+        private string GetEpgTopicFormat(ContextData contextData, NotificationPartnerSettings settings)
         {
-            var resp = Core.Domains.Module.GetDeviceInfo(contextData.GroupId, contextData.Udid, true);
-            int familyId;
-            if (resp?.m_oDevice == null || resp.m_oDevice.m_deviceFamilyID == 0)
+            if (!settings.EpgNotification.Enabled)
             {
-                familyId = 0;
+                return null;
             }
-            else
+
+            if (!IsValidDeviceFamily(contextData, settings.EpgNotification.DeviceFamilyIds))
             {
-                familyId = resp.m_oDevice.m_deviceFamilyID;
+                return null;
             }
-            return ns.settings.EpgNotification.Enabled &&
-                (ns.settings.EpgNotification.DeviceFamilyIds.Count == 0 || ns.settings.EpgNotification.DeviceFamilyIds.Contains(familyId));
+
+            return !_catalogManager.IsRegionalizationEnabled(contextData.GroupId)
+                ? GetTopicFormat(contextData.GroupId, EventType.epg_update)
+                : GetRegionTopicFormat(contextData, EventType.epg_update);
+        }
+
+        private string GetLineupTopicFormat(ContextData contextData, NotificationPartnerSettings settings)
+        {
+            if (!settings.LineupNotification.Enabled)
+            {
+                return null;
+            }
+
+            return !_catalogManager.IsRegionalizationEnabled(contextData.GroupId)
+                ? null
+                : GetRegionTopicFormat(contextData, EventType.lineup_updated);
+        }
+
+        private string GetRegionTopicFormat(ContextData contextData, EventType eventType)
+        {
+            if (contextData.RegionId.HasValue)
+            {
+                return GetRegionTopicFormat(contextData.GroupId, eventType, contextData.RegionId.Value);
+            }
+
+            var defaultRegionId = _regionManager.GetDefaultRegionId(contextData.GroupId);
+            if (!defaultRegionId.HasValue)
+            {
+                Logger.Error("Regionalization is enabled but default region is not set. EPG topic is not available.");
+
+                return null;
+            }
+
+            return GetRegionTopicFormat(contextData.GroupId, eventType, defaultRegionId.Value);
+        }
+
+        private bool IsValidDeviceFamily(ContextData contextData, IReadOnlyCollection<int> deviceFamilyIds)
+        {
+            var deviceInfoResponse = _domainModule.GetDeviceInfo(contextData.GroupId, contextData.Udid, true);
+            var familyId = deviceInfoResponse?.m_oDevice == null || deviceInfoResponse.m_oDevice.m_deviceFamilyID == 0
+                ? default
+                : deviceInfoResponse.m_oDevice.m_deviceFamilyID;
+
+            return deviceFamilyIds.Count == 0 || deviceFamilyIds.Contains(familyId);
         }
 
         private int HashUdid(string udid)
         {
-            var hashed = md5.Value.ComputeHash(Encoding.UTF8.GetBytes(udid));
+            var hashed = _md5.Value.ComputeHash(Encoding.UTF8.GetBytes(udid));
             var result = BitConverter.ToInt32(hashed, 0);
+
             return Math.Abs(result);
         }
 
@@ -204,21 +284,25 @@ namespace ApiLogic.Notification
             var result = new IotClientConfiguration();
             try
             {
-                string key = LayeredCacheKeys.GetGroupIotClientConfig(groupId);
-                string invalidationKey = LayeredCacheKeys.GetGroupIotClientConfigInvalidationKey(groupId);
-
-                var success = LayeredCache.Instance.Get
-                        (key, ref result, GetClientConfiguration, new Dictionary<string, object>() { { "groupId", groupId } },
-                        groupId, LayeredCacheConfigNames.GET_IOT_CLIENT_CONFIGURATION, new List<string> { invalidationKey });
+                var key = LayeredCacheKeys.GetGroupIotClientConfig(groupId);
+                var invalidationKey = LayeredCacheKeys.GetGroupIotClientConfigInvalidationKey(groupId);
+                var success = _layeredCache.Get(
+                    key,
+                    ref result,
+                    GetClientConfiguration,
+                    new Dictionary<string, object> { { nameof(groupId), groupId } },
+                    groupId,
+                    LayeredCacheConfigNames.GET_IOT_CLIENT_CONFIGURATION,
+                    new List<string> { invalidationKey });
 
                 if (!success || result == null)
                 {
-                    log.ErrorFormat("Failed GetClientConfiguration, groupId: {0}", groupId);
+                    Logger.ErrorFormat($"Failed GetClientConfiguration, groupId: {groupId}");
                 }
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("Failed GetGroupPermissionItemsDictionary, groupId: {0}", groupId), ex);
+                Logger.Error($"Failed GetGroupPermissionItemsDictionary, groupId: {groupId}", ex);
             }
 
             return result;
@@ -227,9 +311,9 @@ namespace ApiLogic.Notification
         public void InvalidateClientConfiguration(int groupId)
         {
             string invalidationKey = LayeredCacheKeys.GetGroupIotClientConfigInvalidationKey(groupId);
-            if (!LayeredCache.Instance.SetInvalidationKey(invalidationKey))
+            if (!_layeredCache.SetInvalidationKey(invalidationKey))
             {
-                log.ErrorFormat("Failed to set invalidation key on InvalidateClientConfiguration key = {0}", invalidationKey);
+                Logger.ErrorFormat("Failed to set invalidation key on InvalidateClientConfiguration key = {0}", invalidationKey);
             }
         }
 
@@ -250,10 +334,10 @@ namespace ApiLogic.Notification
                             return Tuple.Create(result, false);
                         }
 
-                        var iotProfile = NotificationDal.GetIotProfile(groupId.Value);
+                        var iotProfile = _notificationDal.GetIotProfile(groupId.Value);
                         if (iotProfile == null)
                         {
-                            log.Error($"Error while getting configurations for group: {groupId}.");
+                            Logger.Error($"Error while getting configurations for group: {groupId}.");
                             return Tuple.Create(result, false);
                         }
 
@@ -282,64 +366,57 @@ namespace ApiLogic.Notification
             }
             catch (Exception ex)
             {
-                log.Error(string.Format("GetClientConfiguration failed params : {0}", string.Join(";", funcParams.Keys)), ex);
+                Logger.Error(string.Format("GetClientConfiguration failed params : {0}", string.Join(";", funcParams.Keys)), ex);
                 return Tuple.Create(result, false);
             }
         }
 
-        public Status Delete(ContextData contextData, long id)
-        {
-            throw new NotImplementedException();
-        }
+        public Status Delete(ContextData contextData, long id) => throw new NotImplementedException();
 
         public bool RemoveFromIot(int m_nGroupID, string udid)
         {
             try
             {
-                var iotDevice = DAL.NotificationDal.GetRegisteredDevice(m_nGroupID.ToString(), udid);
+                var iotDevice = _notificationDal.GetRegisteredDevice(m_nGroupID.ToString(), udid);
                 if (iotDevice == null)
                 {
-                    log.Error($"Device {udid} not found");
+                    Logger.Error($"Device {udid} not found");
                     return false;
                 }
-                var partnerSettings = NotificationCache.Instance().GetPartnerNotificationSettings(m_nGroupID);
 
                 var response = DeleteDevice(m_nGroupID, iotDevice);
 
                 if (!response)
                 {
-                    log.Error($"Failed removing udid: {udid} from group: {m_nGroupID}");
+                    Logger.Error($"Failed removing udid: {udid} from group: {m_nGroupID}");
                     return false;
                 }
 
-                if (!DAL.NotificationDal.RemoveRegisteredDevice(m_nGroupID.ToString(), udid))
+                if (!_notificationDal.RemoveRegisteredDevice(m_nGroupID.ToString(), udid))
                 {
-                    log.Error($"Failed to delete iot document for device: {udid}, group: {m_nGroupID}");
+                    Logger.Error($"Failed to delete iot document for device: {udid}, group: {m_nGroupID}");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                log.Error($"Failed removing udid: {udid} from group: {m_nGroupID} by exception: {ex.Message}");
+                Logger.Error($"Failed removing udid: {udid} from group: {m_nGroupID} by exception: {ex.Message}");
                 return false;
             }
 
             return true;
         }
 
-        public GenericResponse<Iot> Get(ContextData contextData, long id)
-        {
-            throw new NotImplementedException();
-        }
+        public GenericResponse<Iot> Get(ContextData contextData, long id) => throw new NotImplementedException();
 
         private string GetAdapterUrl(int groupId, IotAction action, IotProfile iotProfile = null)
         {
-            iotProfile = iotProfile ?? NotificationDal.GetIotProfile(groupId);
+            iotProfile = iotProfile ?? _notificationDal.GetIotProfile(groupId);
             var adapterUrl = iotProfile?.AdapterUrl;
 
             if (string.IsNullOrEmpty(adapterUrl))
             {
-                log.Error("Iot Notification URL wasn't found");
+                Logger.Error("Iot Notification URL wasn't found");
                 return string.Empty;
             }
 
@@ -392,9 +469,9 @@ namespace ApiLogic.Notification
                 {
                     case MethodType.Post:
                         content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-                        response = httpClient.PostAsync(url, content).Result;
+                        response = HttpClient.PostAsync(url, content).Result;
                         if (IsServiceStatusDefined(response.StatusCode, out hasConfig)) { httpStatus = (int)response.StatusCode; return default; }
-                        if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.Created)
+                        if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
                         {
                             httpStatus = (int)response.StatusCode;
                             return NotificationAdapter.ParseResponse<T>(response);
@@ -403,9 +480,9 @@ namespace ApiLogic.Notification
 
                     case MethodType.Put:
                         content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-                        response = httpClient.PutAsync(url, content).Result;
+                        response = HttpClient.PutAsync(url, content).Result;
                         if (IsServiceStatusDefined(response.StatusCode, out hasConfig)) { httpStatus = (int)response.StatusCode; return default; }
-                        if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.Created)
+                        if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
                         {
                             httpStatus = (int)response.StatusCode;
                             return NotificationAdapter.ParseResponse<T>(response);
@@ -414,9 +491,9 @@ namespace ApiLogic.Notification
 
                     case MethodType.Get:
                         var fullUrl = $"{url}{request}";
-                        response = httpClient.GetAsync(fullUrl).Result;
+                        response = HttpClient.GetAsync(fullUrl).Result;
                         if (IsServiceStatusDefined(response.StatusCode, out hasConfig)) { httpStatus = (int)response.StatusCode; return default; }
-                        if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.Created)
+                        if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
                         {
                             httpStatus = (int)response.StatusCode;
                             return NotificationAdapter.ParseResponse<T>(response);
@@ -430,9 +507,9 @@ namespace ApiLogic.Notification
                             RequestUri = new Uri(url),
                             Content = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json")
                         };
-                        response = httpClient.SendAsync(_request).Result;
+                        response = HttpClient.SendAsync(_request).Result;
                         if (IsServiceStatusDefined(response.StatusCode, out hasConfig)) { httpStatus = (int)response.StatusCode; return default; }
-                        if (response.StatusCode == System.Net.HttpStatusCode.OK || response.StatusCode == System.Net.HttpStatusCode.Created)
+                        if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
                         {
                             httpStatus = (int)response.StatusCode;
                             return NotificationAdapter.ParseResponse<T>(response);
@@ -440,7 +517,7 @@ namespace ApiLogic.Notification
                         break;
 
                     default:
-                        log.Error($"Invalid attempt to call method: {method}, url: {url} group: {groupId}");
+                        Logger.Error($"Invalid attempt to call method: {method}, url: {url} group: {groupId}");
                         httpStatus = -1;
                         return default;
                 }
@@ -450,19 +527,7 @@ namespace ApiLogic.Notification
             return default;
         }
 
-        public IotProfile UpdateIotProfile(int groupId, ContextData contextData)
-        {
-            log.Info($"No Configurations for group: {groupId} trying to reload from CB");
-            var config = NotificationDal.GetIotProfile(groupId);
-            if (config == null)
-            {
-                log.Error($"No configurations were found for group: {groupId}");
-                return null;
-            }
-            return IotProfileManager.Instance.Update(contextData, config)?.Object;
-        }
-
-        private bool IsServiceStatusDefined(System.Net.HttpStatusCode status, out bool hasConfig)
+        private bool IsServiceStatusDefined(HttpStatusCode status, out bool hasConfig)
         {
             hasConfig = (int)status != 204;
             return new List<int> { 204 /*NoContent*/, 208 /*AlreadyReported*/ }.Contains((int)status);

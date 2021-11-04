@@ -24,9 +24,4 @@ namespace ApiObjects.EventBus
             To = to;
         }
     }
-
-    public enum EventType
-    {
-        epg_update = 1
-    }
 }

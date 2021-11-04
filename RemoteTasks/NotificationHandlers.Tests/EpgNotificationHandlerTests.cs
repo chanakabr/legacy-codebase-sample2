@@ -1,22 +1,21 @@
-using NUnit.Framework;
-using ApiObjects.Notification;
-using ApiObjects.EventBus;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using ApiLogic.Notification;
-using Moq;
 using System.Threading.Tasks;
+using ApiLogic.Notification;
+using ApiObjects.EventBus;
+using ApiObjects.Notification;
+using ApiObjects.Response;
 using Core.Notification;
-using Polly;
-using EpgCacheGrpcClientWrapper;
+using Moq;
+using NUnit.Framework;
 
 namespace EpgNotificationHandler.Tests
 {
     public class Tests
     {
         private Mock<IIotManager> _iotManager;
-        private Mock<IEpgCacheClient> _epgCacheClient;
+        //private Mock<IEpgCacheClient> _epgCacheClient;
         private NotificationPartnerSettings _notificationSettings;
         private EpgNotificationHandler _handler;
         private EpgNotificationEvent _epgEvent;
@@ -38,8 +37,8 @@ namespace EpgNotificationHandler.Tests
                 }
             };
             var notificationSettingsCache = GetMockSettings(_notificationSettings);
-            _epgCacheClient = new Mock<IEpgCacheClient>();
-            _handler = new EpgNotificationHandler(_iotManager.Object, notificationSettingsCache.Object, _epgCacheClient.Object, Policy.NoOpAsync());
+            //_epgCacheClient = new Mock<IEpgCacheClient>();
+            _handler = new EpgNotificationHandler(_iotManager.Object, notificationSettingsCache.Object);
             
             _epgEvent = new EpgNotificationEvent
             {
@@ -49,15 +48,15 @@ namespace EpgNotificationHandler.Tests
             };
         }
         
-        [Test]
-        public async Task TestEpgCacheInvalidationFailed()
-        {
-            _epgCacheClient
-                .Setup(m => m.InvalidateEpgAsync(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()))
-                .ThrowsAsync(new Exception());
-            await _handler.Handle(_epgEvent);
-            VerifyNotificationWasSent(Times.Never);
-        }
+        // [Test]
+        // public async Task TestEpgCacheInvalidationFailed()
+        // {
+        //     _epgCacheClient
+        //         .Setup(m => m.InvalidateEpgAsync(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()))
+        //         .ThrowsAsync(new Exception());
+        //     await _handler.Handle(_epgEvent);
+        //     VerifyNotificationWasSent(Times.Never);
+        // }
 
         [Test]
         [TestCaseSource(nameof(TestBackwardAndForwardTimeRangeForSendingNotificationsSource))]
@@ -232,7 +231,7 @@ namespace EpgNotificationHandler.Tests
         private void VerifyNotificationWasSent(Func<Times> times)
         {
             // should always call invalidation
-            _epgCacheClient.Verify(m => m.InvalidateEpgAsync(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()), Times.Once);
+            //_epgCacheClient.Verify(m => m.InvalidateEpgAsync(It.IsAny<int>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()), Times.Once);
             
             _iotManager.Verify(mock => mock.PublishIotMessage(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>()), times);
         }
@@ -260,7 +259,7 @@ namespace EpgNotificationHandler.Tests
                 .Returns(new NotificationPartnerSettingsResponse()
                 {
                     settings = settings,
-                    Status = new ApiObjects.Response.Status(ApiObjects.Response.eResponseStatus.OK)
+                    Status = new Status(eResponseStatus.OK)
                 });
             return mock;
         }

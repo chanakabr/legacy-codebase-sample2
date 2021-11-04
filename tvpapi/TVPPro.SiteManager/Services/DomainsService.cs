@@ -239,7 +239,7 @@ namespace TVPPro.SiteManager.Services
 
             try
             {
-                device = Core.Domains.Module.GetDeviceInfo(groupId, udid, true);
+                device = Core.Domains.Module.Instance.GetDeviceInfo(groupId, udid, true);
             }
             catch (Exception e)
             {

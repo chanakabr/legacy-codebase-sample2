@@ -243,54 +243,14 @@ namespace WebAPI.Models.General
         /// <param name="itemsIn">Comma separated string</param>
         /// <param name="propertyName">The property name of comma separated string (for error message)</param>
         /// <returns></returns>
-        public U GetItemsIn<U, T>(string itemsIn, string propertyName, bool checkDuplicate = false, bool ignoreDefaultValueValidation = false) where T : IConvertible where U : ICollection<T>
-        {
-            U values = Activator.CreateInstance<U>();
-
-            if (!string.IsNullOrEmpty(itemsIn))
-            {
-                string[] stringValues = itemsIn.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
-                Type t = typeof(T);
-                foreach (string stringValue in stringValues)
-                {
-                    T value;
-
-                    try
-                    {
-                        if (t.IsEnum)
-                        {
-                            value = (T)Enum.Parse(t, stringValue);
-                        }
-                        else
-                        {
-                            value = (T)Convert.ChangeType(stringValue, t);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, propertyName, t.Name);
-                    }
-
-                    if (value != null && (ignoreDefaultValueValidation || !value.Equals(default(T))))
-                    {
-                        if (!values.Contains(value))
-                        {
-                            values.Add(value);
-                        }
-                        else if (checkDuplicate)
-                        {
-                            throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, propertyName);
-                        }
-                    }
-                    else
-                    {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, propertyName);
-                    }
-                }
-            }
-
-            return values;
-        }
+        public U GetItemsIn<U, T>(string itemsIn, string propertyName, bool checkDuplicate = false,
+            bool ignoreDefaultValueValidation = false)
+            where T : IConvertible
+            where U : ICollection<T> => Utils.Utils.ParseCommaSeparatedValues<U, T>(
+            itemsIn,
+            propertyName,
+            checkDuplicate,
+            ignoreDefaultValueValidation);
     }
     
     /// <summary>

@@ -608,7 +608,7 @@ namespace Core.Catalog
                     if ((groupUsesTemplates && catalogGroupCache.IsRegionalizationEnabled) || 
                         (groupManager!=null && groupManager.isRegionalizationEnabled))
                     {                                            
-                        linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(_partnerId);
+                        linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(_partnerId);
                     }
 
                     #endregion
@@ -6454,7 +6454,7 @@ namespace Core.Catalog
             if ((groupUsesTemplates &&catalogGroupCache!=null&& catalogGroupCache.IsRegionalizationEnabled) || 
              (groupManager!=null&& groupManager.isRegionalizationEnabled))
             {
-                linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(_partnerId);
+                linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(_partnerId);
             }
 
             var alias = NamingHelper.GetEpgIndexAlias(_partnerId);

@@ -91,7 +91,7 @@ namespace ElasticSearchHandler.IndexBuilders
 
             if (doesGroupUsesTemplates ? catalogGroupCache.IsRegionalizationEnabled : group.isRegionalizationEnabled)
             {
-                linearChannelsRegionsMapping = RegionManager.GetLinearMediaRegions(groupId);
+                linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(groupId);
             }
 
             #endregion

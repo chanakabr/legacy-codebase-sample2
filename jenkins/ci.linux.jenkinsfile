@@ -35,16 +35,16 @@ pipeline {
             {
                 runTests()
             }
-            post
-            {
-                failure
-                {
-                    script
-                    {
-                        sh "exit 1"
-                    }
-                }
-            }
+            // post
+            // {
+            //     failure
+            //     {
+            //         script
+            //         {
+            //             sh "exit 1"
+            //         }
+            //     }
+            // }
         }
         stage ('ECR Login') {
             steps{

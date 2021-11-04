@@ -1,13 +1,13 @@
-﻿using KLogMonitor;
-using Prometheus;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using KLogMonitor;
+using Prometheus;
 
-namespace EpgNotificationHandler
+namespace NotificationHandlers.Common
 {
-    internal class AppMetrics
+    public class AppMetrics
     {
         private static readonly KLogger Logger = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -35,9 +35,8 @@ namespace EpgNotificationHandler
         public static void EventSucceed() => Events.WithLabels("succeed").Inc();
         public static void EventFailed() => Events.WithLabels("failed").Inc();
 
-        public static RequestMetric EpgCacheInvalidate { get; } = new RequestMetric("epgcache", "invalidate_epg");
         public static RequestMetric Iot { get; } = new RequestMetric("iot", "publish_message");
-        
+
         private static IEnumerable<double> Range(double min, double max, double step)
         {
             for (var i = min; i <= max; i += step) yield return i;

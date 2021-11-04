@@ -166,7 +166,7 @@ namespace Core.Users
                 if (regionId.HasValue)
                 {
                     // validate region exists
-                    if (!ApiLogic.Api.Managers.RegionManager.GetRegionIds(m_nGroupID).Contains(regionId.Value))
+                    if (!RegionManager.Instance.GetRegionIds(m_nGroupID).Contains(regionId.Value))
                     {
                         return new DomainResponseObject(domain, DomainResponseStatus.RegionDoesNotExist);
                     }

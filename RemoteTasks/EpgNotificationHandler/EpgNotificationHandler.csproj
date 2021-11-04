@@ -34,6 +34,7 @@
     <ProjectReference Include="..\..\Core\EventBus.RabbitMQ\EventBus.RabbitMQ.csproj" />
     <ProjectReference Include="..\..\Core\KLogMonitor\KLogMonitor.csproj" />
     <ProjectReference Include="..\..\Core\WebAPI\WebAPI.csproj" />
+    <ProjectReference Include="..\NotificationHandlers.Common\NotificationHandlers.Common.csproj" />
   </ItemGroup>
 
 </Project>

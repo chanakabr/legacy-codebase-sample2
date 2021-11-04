@@ -7420,8 +7420,7 @@ namespace Core.ConditionalAccess
                 recording = BuildRecordingFromDataRow(dt.Rows[0]);
             }
 
-            return recording;
-
+            return recording; 
         }
 
         internal static List<Recording> GetAllRecordingsByStatuses(int groupId, List<int> statuses)

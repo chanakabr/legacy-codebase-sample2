@@ -363,26 +363,62 @@ namespace WebAPI.Utils
             return res;
         }
 
-        internal static IEnumerable<long> ParseCommaSeparatedString(string value, char[] separator, string argumentName)
+        public static IEnumerable<T> ParseCommaSeparatedValues<T>(
+            string itemsIn,
+            string propertyName,
+            bool checkDuplicate = false,
+            bool ignoreDefaultValueValidation = false) where T : IConvertible =>
+            ParseCommaSeparatedValues<HashSet<T>, T>(
+                itemsIn,
+                propertyName,
+                checkDuplicate,
+                ignoreDefaultValueValidation);
+
+        public static U ParseCommaSeparatedValues<U, T>(
+            string itemsIn,
+            string propertyName,
+            bool checkDuplicate = false,
+            bool ignoreDefaultValueValidation = false) where T : IConvertible where U : ICollection<T>
         {
-            var ids = new HashSet<long>();
-            if (!string.IsNullOrEmpty(value))
+            var values = Activator.CreateInstance<U>();
+
+            if (string.IsNullOrEmpty(itemsIn))
             {
-                var stringValues = value.Split(separator, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var stringValue in stringValues)
+                return values;
+            }
+
+            var stringValues = itemsIn.Split(new [] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            var valueType = typeof(T);
+            foreach (var stringValue in stringValues)
+            {
+                T value;
+                try
                 {
-                    if (long.TryParse(stringValue, out var id) && !ids.Contains(id))
+                    value = valueType.IsEnum ? (T)Enum.Parse(valueType, stringValue) : (T)Convert.ChangeType(stringValue, valueType);
+                }
+                catch (Exception)
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, propertyName, valueType.Name);
+                }
+
+                if (value != null && (ignoreDefaultValueValidation || !value.Equals(default(T))))
+                {
+                    if (!values.Contains(value))
                     {
-                        ids.Add(id);
+                        values.Add(value);
                     }
-                    else
+                    else if (checkDuplicate)
                     {
-                        throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, argumentName);
+                        throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, propertyName);
                     }
+                }
+                else
+                {
+                    throw new BadRequestException(BadRequestException.INVALID_ARGUMENT, propertyName);
                 }
             }
 
-            return ids.ToArray();
+            return values;
         }
     }
 }

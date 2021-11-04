@@ -64,7 +64,7 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
-                if (NotificationDal.GetIotProfile(groupId) != null)
+                if (NotificationDal.Instance.GetIotProfile(groupId) != null)
                 {
                     var error = $"Error: IotProfile already exists for group: {groupId}.";
                     log.Error(error);
@@ -142,7 +142,7 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
-                var currentConfigurations = NotificationDal.GetIotProfile(contextData.GroupId);
+                var currentConfigurations = NotificationDal.Instance.GetIotProfile(contextData.GroupId);
 
                 if (currentConfigurations == null)
                 {
@@ -193,7 +193,7 @@ namespace ApiLogic.Notification
                     return response;
                 }
 
-                var iotProfile = NotificationDal.GetIotProfile(groupId);
+                var iotProfile = NotificationDal.Instance.GetIotProfile(groupId);
 
                 if (iotProfile == null)
                 {
@@ -225,7 +225,7 @@ namespace ApiLogic.Notification
 
         private bool SaveIotProfile(int groupId, IotProfile msResponse)
         {
-            if (!DAL.NotificationDal.SaveIotProfile(groupId, msResponse))
+            if (!DAL.NotificationDal.Instance.SaveIotProfile(groupId, msResponse))
             {
                 log.ErrorFormat($"Error while adding Iot profile. Iot response: {JsonConvert.SerializeObject(msResponse)}");
                 return false;

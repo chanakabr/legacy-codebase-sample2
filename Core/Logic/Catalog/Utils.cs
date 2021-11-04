@@ -1168,7 +1168,7 @@ namespace Core.Catalog
                 foreach (var groupBy in searchGroupBy.groupBy)
                 {
                     var groupByDefinition = new GroupByDefinition()
-                    { 
+                    {
                         Key = groupBy
                     };
 

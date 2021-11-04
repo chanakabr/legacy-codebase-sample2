@@ -249,7 +249,7 @@ namespace ElasticSearchHandler.Updaters
 
         private bool UpdateEpgRegionsPartial(IEnumerable<EpgCB> epgs, int linearMediaId)
         {
-            var linearMediaRegions = RegionManager.GetLinearMediaRegions(groupId);
+            var linearMediaRegions = RegionManager.Instance.GetLinearMediaRegions(groupId);
             if (linearMediaRegions != null && linearMediaRegions.ContainsKey(linearMediaId))
             {
                 var epgPartialUpdateEsObjects = epgs.Select(e => new EpgPartialUpdate

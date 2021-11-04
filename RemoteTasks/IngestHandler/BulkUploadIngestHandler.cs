@@ -195,7 +195,7 @@ namespace IngestHandler
             }
 
             _linearChannelToRegionsMap = new Lazy<IReadOnlyDictionary<long, List<int>>>(
-                () => RegionManager.GetLinearMediaToRegionsMapWhenEnabled(_eventData.GroupId));
+                () => RegionManager.Instance.GetLinearMediaToRegionsMapWhenEnabled(_eventData.GroupId));
         }
 
         private void ValidateServiceEvent()

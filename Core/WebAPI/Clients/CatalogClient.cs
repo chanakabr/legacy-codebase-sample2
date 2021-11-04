@@ -663,7 +663,7 @@ namespace WebAPI.Clients
         }
 
         private KalturaAssetListResponse SearchAssetsExcludeWatched(int groupId, int userId, int domainId, string udid, string language, int pageIndex, int? pageSize,
-            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData, 
+            string filter, KalturaAssetOrderBy orderBy, List<int> assetTypes, List<int> epgChannelIds, bool managementData,
             KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null, bool isGroupingOptionInclude = false)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
@@ -890,7 +890,7 @@ namespace WebAPI.Clients
         public KalturaAssetCount GetAssetCount(SearchAssetsFilter filter, KalturaAssetOrderBy orderBy, KalturaGroupByOrder? groupByOrder)
         {
             return GetAssetCount(filter.GroupId, filter.SiteGuid, filter.DomainId, filter.Udid, filter.Language, filter.Filter,
-                    orderBy, filter.AssetTypes, filter.EpgChannelIds, filter.GroupBy, groupByOrder, filter.IsAllowedToViewInactiveAssets, 
+                    orderBy, filter.AssetTypes, filter.EpgChannelIds, filter.GroupBy, groupByOrder, filter.IsAllowedToViewInactiveAssets,
                     filter.GroupByType == GroupingOption.Include);
         }
 
@@ -3520,11 +3520,11 @@ namespace WebAPI.Clients
 
             KalturaImage result =
                 ClientUtils.GetResponseFromWS<KalturaImage, Image>(image, addImageFunc);
-            
+
             Dictionary<long, string> imageTypeIdToNameMap = Core.Catalog.CatalogManagement.ImageManager.GetImageTypeIdToNameMap(groupId);
-            result.ImageTypeName = imageTypeIdToNameMap != null && imageTypeIdToNameMap.ContainsKey(result.ImageTypeId) ? 
+            result.ImageTypeName = imageTypeIdToNameMap != null && imageTypeIdToNameMap.ContainsKey(result.ImageTypeId) ?
                 imageTypeIdToNameMap[result.ImageTypeId] : string.Empty;
-            
+
             return result;
         }
 
@@ -4189,7 +4189,7 @@ namespace WebAPI.Clients
             result.TotalCount = response.TotalCount;
 
             return result;
-        }       
+        }
 
         internal KalturaLabel AddLabel(int groupId, KalturaLabel label, long userId)
         {
@@ -4237,6 +4237,13 @@ namespace WebAPI.Clients
             var result = new KalturaLineupChannelAssetListResponse(assets.Objects, assets.TotalCount);
 
             return result;
+        }
+
+        internal bool SendUpdatedNotification(long groupId, string userId, List<long> regionIds)
+        {
+            Status SendUpdatedNotificationCallback() => LineupService.Instance.SendUpdatedNotification(groupId, userId, regionIds);
+
+            return ClientUtils.GetResponseStatusFromWS(SendUpdatedNotificationCallback);
         }
     }
 }

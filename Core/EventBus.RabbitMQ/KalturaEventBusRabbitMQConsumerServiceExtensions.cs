@@ -35,7 +35,7 @@ namespace EventBus.RabbitMQ
 
         private static EventBusConfiguration _Configuration;
 
-        public static IHostBuilder ConfigureEventBustConsumer(this IHostBuilder builder)
+        public static IHostBuilder ConfigureEventBusConsumer(this IHostBuilder builder)
         {
             ConfigureEventBustConsumer(builder, config => { });
             return builder;

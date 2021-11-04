@@ -24,6 +24,7 @@ namespace KLogMonitor
     {
         void Error(string sMessage, Exception ex = null, [CallerMemberName] string callerMemberName = null);
         void ErrorFormat(string format, params object[] args);
+        void Debug(string sMessage, Exception ex = null, [CallerMemberName] string callerMemberName = null);
     }
 
     [Serializable]

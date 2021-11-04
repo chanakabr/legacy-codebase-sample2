@@ -15,10 +15,19 @@ using static ODBCWrapper.Utils;
 
 namespace DAL
 {
+    public interface INotificationDal
+    {
+        IotProfile GetIotProfile(int groupId);
+        bool SaveRegisteredDevice(Iot msResponse);
+        Iot GetRegisteredDevice(string groupId, string udid);
+        bool RemoveRegisteredDevice(string groupId, string udid);
+        bool SaveIotProfile(int groupId, IotProfile msResponse);
+    }
+
     /// <summary>
     /// Handle db operations against MessageBox db.
     /// </summary>
-    public class NotificationDal : BaseDal
+    public class NotificationDal : BaseDal, INotificationDal
     {
         private const string SP_INSERT_NOTIFICATION_REQUEST = "InsertNotifictaionRequest";
         private const string SP_GET_NOTIFICATION_REQUESTS = "GetNotifictaionRequests";
@@ -39,7 +48,10 @@ namespace DAL
 
 
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
+        private static readonly Lazy<NotificationDal> NotificationDalLazy = new Lazy<NotificationDal>(() => new NotificationDal(), LazyThreadSafetyMode.PublicationOnly);
         private static CouchbaseManager.CouchbaseManager cbManager = new CouchbaseManager.CouchbaseManager(eCouchbaseBucket.NOTIFICATION);
+
+        public static NotificationDal Instance => NotificationDalLazy.Value;
 
         private static string GetDeviceDataKey(int groupId, string udid)
         {
@@ -71,13 +83,13 @@ namespace DAL
             return string.Format("user_push:{0}:{1}", groupId, userId);
         }
 
-        public static bool SaveIotProfile(int groupId, IotProfile msResponse)
+        public bool SaveIotProfile(int groupId, IotProfile msResponse)
         {
             string key = GetIotProfileKey(groupId);
             return UtilsDal.SaveObjectInCB<IotProfile>(eCouchbaseBucket.NOTIFICATION, key, msResponse);
         }
 
-        public static IotProfile GetIotProfile(int groupId)
+        public IotProfile GetIotProfile(int groupId)
         {
             string key = GetIotProfileKey(groupId);
             return UtilsDal.GetObjectFromCB<IotProfile>(eCouchbaseBucket.NOTIFICATION, key);
@@ -3203,19 +3215,19 @@ namespace DAL
             return string.Format("topic_notification_message:{0}", id);
         }
 
-        public static Iot GetRegisteredDevice(string groupId, string udid)
+        public Iot GetRegisteredDevice(string groupId, string udid)
         {
             var key = GetIotDeviceKey(groupId, udid);
             return UtilsDal.GetObjectFromCB<Iot>(eCouchbaseBucket.NOTIFICATION, key);
         }
 
-        public static bool SaveRegisteredDevice(Iot msResponse)
+        public bool SaveRegisteredDevice(Iot msResponse)
         {
             string key = GetIotDeviceKey(msResponse.GroupId, msResponse.Udid);
             return UtilsDal.SaveObjectInCB<Iot>(eCouchbaseBucket.NOTIFICATION, key, msResponse);
         }
 
-        public static bool RemoveRegisteredDevice(string groupId, string udid)
+        public bool RemoveRegisteredDevice(string groupId, string udid)
         {
             var key = GetIotDeviceKey(groupId, udid);
             return UtilsDal.DeleteObjectFromCB(eCouchbaseBucket.NOTIFICATION, key);

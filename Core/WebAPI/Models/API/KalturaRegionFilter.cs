@@ -109,7 +109,7 @@ namespace WebAPI.Models.API
             RegionFilter wsFilter = AutoMapper.Mapper.Map<RegionFilter>(this);
 
             Func<GenericListResponse<Region>> getListFunc = () =>
-                             RegionManager.GetRegions(groupId, wsFilter, pager.getPageIndex(), pager.getPageSize());
+                             RegionManager.Instance.GetRegions(groupId, wsFilter, pager.getPageIndex(), pager.getPageSize());
 
             KalturaGenericListResponse<KalturaRegion> response =
                 ClientUtils.GetResponseListFromWS<KalturaRegion, Region>(getListFunc);

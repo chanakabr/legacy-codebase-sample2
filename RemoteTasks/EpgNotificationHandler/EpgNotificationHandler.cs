@@ -12,6 +12,7 @@ using EpgNotificationHandler.DTO;
 using ApiObjects.Notification;
 using System.Linq;
 using EpgCacheGrpcClientWrapper;
+using NotificationHandlers.Common;
 using Polly;
 
 namespace EpgNotificationHandler
@@ -24,17 +25,12 @@ namespace EpgNotificationHandler
         private const int EpgCacheInMemoryCacheTTL = 10 * 1000; // 10 sec https://github.com/kaltura/ott-service-epgcache/blob/master/logic/clients/epg_cache.go#L81
         private readonly IIotManager _manager;
         private readonly INotificationCache _notificationCache;
-        private readonly IEpgCacheClient _epgCacheClient;
-        private readonly IAsyncPolicy _retryPolicy;
 
-        public EpgNotificationHandler(IIotManager manager, INotificationCache notificationCache,
-            IEpgCacheClient epgCacheClient, IAsyncPolicy retryPolicy)
+        public EpgNotificationHandler(IIotManager manager, INotificationCache notificationCache)
         {
             Logger.Debug("Starting 'EpgNotificationHandler'");
             _manager = manager;
             _notificationCache = notificationCache;
-            _epgCacheClient = epgCacheClient;
-            _retryPolicy = retryPolicy;
         }
 
         public async Task Handle(EpgNotificationEvent serviceEvent)
@@ -49,7 +45,7 @@ namespace EpgNotificationHandler
                     // This call should be in a separate service EpgCacheInvalidator.
                     // If you need to make invalidation logic more complex (e.g. call several services, have some settings),
                     // please, make refactoring and move this logic to a separate service (look at better-epg-notification-flow.puml)
-                    await InvalidateEpgCache(serviceEvent);
+                    //await InvalidateEpgCache(serviceEvent);
                     await Task.Delay(EpgCacheInMemoryCacheTTL); // need to be 100% sure that user will receive latest data from EpgCache
                     // END WARNING
                     
@@ -73,31 +69,31 @@ namespace EpgNotificationHandler
             }
         }
 
-        private async Task InvalidateEpgCache(EpgNotificationEvent serviceEvent)
-        {
-            Logger.Debug($"Invalidating EpgCache");
-            try
-            {
-                using (AppMetrics.EpgCacheInvalidate.RequestDuration())
-                {
-                    await _retryPolicy.ExecuteAsync(
-                        async () => // TODO https://anthonygiretti.com/2020/03/31/grpc-asp-net-core-3-1-resiliency-with-polly/
-                            await _epgCacheClient.InvalidateEpgAsync(
-                                serviceEvent.GroupId,
-                                serviceEvent.LiveAssetId,
-                                DateUtils.DateTimeToUtcUnixTimestampSeconds(serviceEvent.UpdatedRange.From),
-                                DateUtils.DateTimeToUtcUnixTimestampSeconds(serviceEvent.UpdatedRange.To))
-                    );
-                }
-                AppMetrics.EpgCacheInvalidate.RequestSucceed();
-            }
-            catch (Exception exception)
-            {
-                AppMetrics.EpgCacheInvalidate.RequestFailed();
-                Logger.Error($"Failed to invalidate EpgCache", exception);
-                throw;
-            }
-        }
+        // private async Task InvalidateEpgCache(EpgNotificationEvent serviceEvent)
+        // {
+        //     Logger.Debug($"Invalidating EpgCache");
+        //     try
+        //     {
+        //         using (AppMetrics.EpgCacheInvalidate.RequestDuration())
+        //         {
+        //             await _retryPolicy.ExecuteAsync(
+        //                 async () => // TODO https://anthonygiretti.com/2020/03/31/grpc-asp-net-core-3-1-resiliency-with-polly/
+        //                     await _epgCacheClient.InvalidateEpgAsync(
+        //                         serviceEvent.GroupId,
+        //                         serviceEvent.LiveAssetId,
+        //                         DateUtils.DateTimeToUtcUnixTimestampSeconds(serviceEvent.UpdatedRange.From),
+        //                         DateUtils.DateTimeToUtcUnixTimestampSeconds(serviceEvent.UpdatedRange.To))
+        //             );
+        //         }
+        //         AppMetrics.EpgCacheInvalidate.RequestSucceed();
+        //     }
+        //     catch (Exception exception)
+        //     {
+        //         AppMetrics.EpgCacheInvalidate.RequestFailed();
+        //         Logger.Error($"Failed to invalidate EpgCache", exception);
+        //         throw;
+        //     }
+        // }
 
         private bool SkipNotification(EpgNotificationEvent serviceEvent)
         {

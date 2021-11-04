@@ -4,6 +4,7 @@
     {
         public int GroupId { get; }
         public long? DomainId { get; set; }
+        public long? RegionId { get; set; }
         public long? UserId { get; set; }
         public long? OriginalUserId { get; set; }
         public string Udid { get; set; }
@@ -21,7 +22,7 @@
         public override string ToString()
         {
             return
-                $"GroupId:{GroupId}, DomainId:{DomainId}, UserId:{UserId}, Udid:{Udid}, UserIp:{UserIp}, Language:{Language}, Format:{Format}, SessionCharacteristicKey:{SessionCharacteristicKey}.";
+                $"GroupId:{GroupId}, DomainId:{DomainId}, RegionId:{RegionId}, UserId:{UserId}, Udid:{Udid}, UserIp:{UserIp}, Language:{Language}, Format:{Format}, SessionCharacteristicKey:{SessionCharacteristicKey}.";
         }
     }
 }

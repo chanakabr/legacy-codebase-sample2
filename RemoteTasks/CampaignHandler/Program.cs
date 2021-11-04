@@ -12,7 +12,7 @@ namespace CampaignHandler
             var builder = new HostBuilder()
               .ConfigureMappings()
               .ConfigureEventNotificationsConfig()
-              .ConfigureEventBustConsumer();
+              .ConfigureEventBusConsumer();
             await builder.RunConsoleAsync();
         }
     }

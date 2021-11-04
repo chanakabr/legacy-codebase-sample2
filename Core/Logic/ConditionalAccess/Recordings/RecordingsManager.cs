@@ -1458,7 +1458,7 @@ namespace Core.Recordings
             return status;
         }
 
-        private Status NotifyAdapterForDelete(int groupId, Recording slimRecording, List<long> domainIds, int adapterId = 0)
+        internal Status NotifyAdapterForDelete(int groupId, Recording slimRecording, List<long> domainIds, int adapterId = 0)
         {
             Status status = new Status((int)eResponseStatus.Error, eResponseStatus.Error.ToString());
 
@@ -1480,7 +1480,7 @@ namespace Core.Recordings
                     //  recording in status scheduled/recording is canceled, otherwise we delete
                     if (slimRecording.EpgEndDate > DateTime.UtcNow)
                     {
-                        adapterResponse = adapterController.CancelRecording(groupId, slimRecording.EpgId.ToString(), externalChannelId, slimRecording.ExternalRecordingId, adapterId, domainIds.First());
+                        adapterResponse = adapterController.CancelRecording(groupId, slimRecording.EpgId.ToString(), externalChannelId, slimRecording.ExternalRecordingId, adapterId, domainIds.FirstOrDefault());
                     }
                     else
                     {

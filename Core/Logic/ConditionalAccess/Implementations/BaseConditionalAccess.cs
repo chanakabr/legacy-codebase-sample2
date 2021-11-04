@@ -15975,7 +15975,9 @@ namespace Core.ConditionalAccess
                     }
 
                     // bulk delete for all domainIds
-                    if (Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value)
+                    var isPrivateCopy = Utils.GetTimeShiftedTvPartnerSettings(m_nGroupID).IsPrivateCopyEnabled.Value;
+
+                    if (isPrivateCopy)
                     {
                         if (recording.RecordingStatus == TstvRecordingStatus.Failed)
                         {
@@ -15989,6 +15991,7 @@ namespace Core.ConditionalAccess
                     }
 
                     long minProtectionEpoch = RecordingsDAL.GetRecordingMinProtectedEpoch(task.RecordingId, task.ScheduledExpirationEpoch);
+
                     // add recording schedule task for next min protected date
                     if (minProtectionEpoch > 0)
                     {
@@ -16000,6 +16003,13 @@ namespace Core.ConditionalAccess
                     else
                     {
                         log.DebugFormat("recordingId: {0} has no domain recording that protect it", task.RecordingId);
+
+                        if (!isPrivateCopy && RecordingsManager.Instance.NotifyAdapterForDelete(task.GroupId, recording, new List<long>()).IsOkStatusCode())
+                        {
+                            log.Debug($"After NotifyAdapterForDelete: groupId: {task.GroupId}, id: {recording.Id}, action: {eAction.Delete}");
+                            RecordingsManager.UpdateIndex(task.GroupId, recording.Id, eAction.Delete);
+                            RecordingsManager.UpdateCouchbase(task.GroupId, recording.EpgId, recording.Id, true);
+                        }
                     }
                 }
 

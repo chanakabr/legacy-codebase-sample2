@@ -879,7 +879,7 @@ namespace WebAPI.Managers
                 string userSessionsCbKey = string.Format(userSessionsKeyFormat, ks.UserId);
                 UserSessions usersSessions = cbManager.Get<UserSessions>(userSessionsCbKey, true);
 
-                if (usersSessions != null)
+                if (usersSessions != null && ks.IsKsFormat)
                 {
                     var ksData = KSUtils.ExtractKSPayload(ks);
 
