@@ -9,8 +9,9 @@
 
 
 
-public partial class adm_users_list {
-    
+public partial class adm_users_list
+{
+
     /// <summary>
     /// form1 control.
     /// </summary>

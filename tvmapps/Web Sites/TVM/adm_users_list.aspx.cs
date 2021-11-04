@@ -135,6 +135,13 @@ public partial class adm_users_list : System.Web.UI.Page
             theTable += queryPart;
             countQuery += queryPart;
         }
+        else if(Session["search_exact_ul"] != null && Session["search_exact_ul"].ToString() != "")
+        {
+            string exactSearch = $"= '{Session["search_exact_ul"].ToString()}'";
+            queryPart = " and (u.USERNAME " + exactSearch + " or u.FIRST_NAME " + exactSearch + " or u.LAST_NAME " + exactSearch + " or u.EMAIL_ADD " + exactSearch + ")";
+            theTable += queryPart;
+            countQuery += queryPart;
+        }
 
         if (Session["search_only_open_tickets"] != null && Session["search_only_open_tickets"].ToString() != "" && Session["search_only_open_tickets"].ToString() != "-1")
         {
@@ -349,9 +356,10 @@ public partial class adm_users_list : System.Web.UI.Page
         return couponGroups;
     }
 
-    public string GetPageContent(string sOrderBy, string sPageNum, string search_free_ul, string search_only_paid_users, string search_only_open_tickets)
+    public string GetPageContent(string sOrderBy, string sPageNum, string search_free_ul, string search_exact_ul ,string search_only_paid_users, string search_only_open_tickets)
     {
         Session["search_free_ul"] = search_free_ul.Replace("'", "''");
+        Session["search_exact_ul"] = search_exact_ul.Replace("'", "''");
 
         if (search_only_paid_users != "")
             Session["search_only_paid_users"] = search_only_paid_users.Replace("'", "''");
@@ -361,6 +369,7 @@ public partial class adm_users_list : System.Web.UI.Page
         else if (Session["search_save"] == null)
         {
             Session["search_free_ul"] = "";
+            Session["search_exact_ul"] = "";
             Session["search_only_paid_users"] = "";
             Session["search_only_open_tickets"] = "";
         }
