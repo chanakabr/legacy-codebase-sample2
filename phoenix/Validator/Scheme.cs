@@ -19,6 +19,8 @@ using TVinciShared;
 using WebAPI.Models.API;
 using WebAPI;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace Validator.Managers.Scheme
 {
@@ -1089,7 +1091,7 @@ namespace Validator.Managers.Scheme
 
                     var propertyDetailsKalturaTranslationTokenList = GetPropertyDetails(property.Key, property.Value);
                     propertyDetailsKalturaTranslationTokenList.PropertyType = typeof(List<KalturaTranslationToken>);
-                    propertyDetailsKalturaTranslationTokenList.Name = KalturaMultilingualString.GetMultilingualName(propertyDetailsKalturaTranslationTokenList.Name);
+                    propertyDetailsKalturaTranslationTokenList.Name = MultilingualStringMapper.GetMultilingualName(propertyDetailsKalturaTranslationTokenList.Name);
                     propertiesDetails.Add(propertyDetailsKalturaTranslationTokenList);
                 }
                 else

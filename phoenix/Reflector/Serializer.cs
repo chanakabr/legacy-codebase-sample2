@@ -69,7 +69,8 @@ namespace Reflector
             file.WriteLine("using WebAPI.Filters;");
             file.WriteLine("using WebAPI.Managers;");
             file.WriteLine("using WebAPI.Utils;");
-
+            file.WriteLine("using WebAPI.ModelsValidators;");
+            file.WriteLine("using WebAPI.ObjectsConvertor.Extensions;");
         }
 
         protected override void writeBody()

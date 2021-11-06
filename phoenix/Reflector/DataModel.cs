@@ -46,7 +46,9 @@ namespace Reflector
             file.WriteLine("using WebAPI.Models.MultiRequest;");
             file.WriteLine("using TVinciShared;");
             file.WriteLine("using KalturaRequestContext;");
-            
+            file.WriteLine("using WebAPI.ModelsValidators;");
+            file.WriteLine("using WebAPI.ObjectsConvertor.Extensions;");
+
             types.GroupBy(type => type.Namespace)
                  .Select(group => group.First().Namespace)
                  .ToList()

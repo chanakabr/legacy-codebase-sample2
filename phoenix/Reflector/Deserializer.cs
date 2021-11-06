@@ -8,6 +8,8 @@ using WebAPI.Models.General;
 using WebAPI.App_Start;
 using System.Collections;
 using System.IO;
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace Reflector
 {
@@ -43,6 +45,9 @@ namespace Reflector
             file.WriteLine("using WebAPI.Reflection;");
             file.WriteLine("using KalturaRequestContext;");
             file.WriteLine("using WebAPI.Exceptions;");
+            file.WriteLine("using WebAPI.ModelsValidators;");
+            file.WriteLine("using WebAPI.ObjectsConvertor.Extensions;");
+            file.WriteLine("using WebAPI.ModelsFactory;");
         }
 
         protected override void writeBody()
@@ -144,11 +149,11 @@ namespace Reflector
             {
                 file.WriteLine("                    if (parameters[\"" + apiName + "\"] is JArray)");
                 file.WriteLine("                    {");
-                file.WriteLine("                        " + property.Name + " = new KalturaMultilingualString(((JArray) parameters[\"" + apiName + "\"]));");
+                file.WriteLine("                        " + property.Name + " = MultilengualStringFactory.Create((JArray) parameters[\"" + apiName + "\"]);");
                 file.WriteLine("                    }");
                 file.WriteLine("                    else if (parameters[\"" + apiName + "\"] is IList)");
                 file.WriteLine("                    {");
-                file.WriteLine("                        " + property.Name + " = new KalturaMultilingualString((List<object>) parameters[\"" + apiName + "\"]);");
+                file.WriteLine("                        " + property.Name + " = MultilengualStringFactory.Create((List<object>) parameters[\"" + apiName + "\"]);");
                 file.WriteLine("                    }");
             }
             else // object
@@ -318,7 +323,7 @@ namespace Reflector
 
                 if (typeof(KalturaMultilingualString).IsAssignableFrom(property.PropertyType))
                 {
-                    apiName = KalturaMultilingualString.GetMultilingualName(apiName);
+                    apiName = MultilingualStringMapper.GetMultilingualName(apiName);
                 }
 
                 var ca = property.GetCustomAttributes<SchemePropertyAttribute>().FirstOrDefault();
@@ -343,7 +348,7 @@ namespace Reflector
                     apiName = oldStandard.oldName;
                     if (typeof(KalturaMultilingualString).IsAssignableFrom(property.PropertyType))
                     {
-                        apiName = KalturaMultilingualString.GetMultilingualName(apiName);
+                        apiName = MultilingualStringMapper.GetMultilingualName(apiName);
                     }
 
                     if (oldStandard.sinceVersion == null)

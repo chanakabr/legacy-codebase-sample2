@@ -13,6 +13,8 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.MultiRequest;
 using TVinciShared;
 using KalturaRequestContext;
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
 using WebAPI.Models.ConditionalAccess;
 using WebAPI.Models.Social;
 using WebAPI.Models.General;

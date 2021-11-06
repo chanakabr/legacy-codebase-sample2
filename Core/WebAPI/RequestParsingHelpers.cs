@@ -12,6 +12,8 @@ using WebAPI.Managers.Models;
 using WebAPI.Models.General;
 using WebAPI.Models.MultiRequest;
 using WebAPI.Reflection;
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI
 {
@@ -78,7 +80,7 @@ namespace WebAPI
 
                         if (methodArg.IsKalturaMultilingualString)
                         {
-                            requestName = KalturaMultilingualString.GetMultilingualName(name);
+                            requestName = MultilingualStringMapper.GetMultilingualName(name);
                         }
                         if (reqParams[requestName].GetType() == typeof(JObject) || reqParams[requestName].GetType().IsSubclassOf(typeof(JObject)))
                         {

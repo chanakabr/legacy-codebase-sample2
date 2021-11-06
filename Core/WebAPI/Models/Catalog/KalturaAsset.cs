@@ -9,6 +9,8 @@ using WebAPI.Exceptions;
 using WebAPI.Managers.Models;
 using WebAPI.Managers.Scheme;
 using WebAPI.Models.General;
+using WebAPI.ModelsValidators;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.Models.Catalog
 {

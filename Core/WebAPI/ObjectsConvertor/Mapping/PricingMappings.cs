@@ -17,6 +17,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Pricing;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor.Extensions;
+using WebAPI.ModelsFactory;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {
@@ -227,10 +228,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ProrityInOrder, opt => opt.MapFrom(src => src.m_Priority))
                .ForMember(dest => dest.ProductCode, opt => opt.MapFrom(src => src.m_ProductCode))
                .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.m_sCodes))
-               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sDescription)))
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => MultilengualStringFactory.Create(src.m_sDescription)))
                .ForMember(dest => dest.Descriptions, opt => opt.MapFrom(src => src.m_sDescription))
                .ForMember(dest => dest.FileTypes, opt => opt.MapFrom(src => src.m_sFileTypes))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sName)))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => MultilengualStringFactory.Create(src.m_sName)))
                .ForMember(dest => dest.Names, opt => opt.MapFrom(src => src.m_sName))
                .ForMember(dest => dest.GracePeriodMinutes, opt => opt.MapFrom(src => src.m_GracePeriodMinutes))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_SubscriptionCode))
@@ -305,7 +306,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.ChannelsIds, opt => opt.MapFrom(src => src.ChannelsIds != null ? string.Join(",", src.ChannelsIds) : string.Empty))
                .ForMember(dest => dest.SubscriptionCouponGroup, opt => opt.Ignore())
                .ForMember(dest => dest.DependencyType, opt => opt.MapFrom(src => ConvertSubscriptionType(src.DependencyType)))
-               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Descriptions)))
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => MultilengualStringFactory.Create(src.Descriptions)))
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.EndDate)))
                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.ExternalId))
                .ForMember(dest => dest.ProductCodes, opt => opt.MapFrom(src => src.ExternalProductCodes != null ? string.Join(",", src.ExternalProductCodes) : string.Empty))
@@ -316,7 +317,7 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.InternalDiscountModuleId, opt => opt.MapFrom(src => src.InternalDiscountModuleId))
                .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
                .ForMember(dest => dest.IsCancellationBlocked, opt => opt.MapFrom(src => src.IsCancellationBlocked))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.Names)))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => MultilengualStringFactory.Create(src.Names)))
                .ForMember(dest => dest.PremiumServices, opt => opt.ResolveUsing(src => ConvertServices(src.PremiumServices)))
                .ForMember(dest => dest.PreSaleDate, opt => opt.MapFrom(src => src.PreSaleDate))
                .ForMember(dest => dest.PreviewModuleId, opt => opt.MapFrom(src => src.PreviewModuleId))
@@ -531,8 +532,8 @@ namespace WebAPI.ObjectsConvertor.Mapping
                .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => DateUtils.DateTimeToUtcUnixTimestampSeconds(src.m_dEndDate)))
                .ForMember(dest => dest.DiscountModule, opt => opt.MapFrom(src => src.m_oDiscountModule))
                .ForMember(dest => dest.Channels, opt => opt.MapFrom(src => src.m_sCodes))
-               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sDescription)))
-               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => new KalturaMultilingualString(src.m_sName)))
+               .ForMember(dest => dest.Description, opt => opt.MapFrom(src => MultilengualStringFactory.Create(src.m_sDescription)))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => MultilengualStringFactory.Create(src.m_sName)))
                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.m_CollectionCode))
                .ForMember(dest => dest.ExternalId, opt => opt.MapFrom(src => src.m_ProductCode))
                .ForMember(dest => dest.UsageModule, opt => opt.MapFrom(src => src.m_oCollectionUsageModule))

@@ -39,7 +39,7 @@ namespace WebAPI.Models.General
         };
         private static Regex escapeRegex = new Regex(string.Join("|", escapeMapping.Keys.ToArray()));
 
-        protected string EscapeJson(string str)
+        public string EscapeJson(string str)
         {
             return escapeRegex.Replace(str, EscapeMatchEval);
         }
@@ -53,7 +53,7 @@ namespace WebAPI.Models.General
             return escapeMapping[Regex.Escape(m.Value)];
         }
 
-        protected string EscapeXml(string str)
+        public string EscapeXml(string str)
         {
             return WebUtility.HtmlEncode(str);
         }
