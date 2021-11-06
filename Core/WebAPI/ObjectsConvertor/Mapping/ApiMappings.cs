@@ -28,6 +28,7 @@ using WebAPI.Models.Users;
 using WebAPI.Models.Users.UserSessionProfile;
 using WebAPI.ObjectsConvertor.Mapping.Utils;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {

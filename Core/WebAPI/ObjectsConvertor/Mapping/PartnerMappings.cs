@@ -11,6 +11,7 @@ using WebAPI.Models.General;
 using WebAPI.Models.Users;
 using TVinciShared;
 using DAL.DTO;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {

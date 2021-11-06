@@ -23,6 +23,7 @@ using WebAPI.Models.Notification;
 using ApiObjects.Notification;
 using ApiObjects.Response;
 using ApiLogic;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {

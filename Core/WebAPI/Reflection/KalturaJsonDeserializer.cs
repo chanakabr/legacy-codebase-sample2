@@ -10287,6 +10287,20 @@ namespace WebAPI.Models.API
     {
         public KalturaCampaignListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaCampaign>(typeof(KalturaCampaign), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaCampaign), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaCampaignSearchFilter
@@ -21199,6 +21213,20 @@ namespace WebAPI.Models.Catalog
     {
         public KalturaCategoryItemListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaCategoryItem>(typeof(KalturaCategoryItem), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaCategoryItem), parameters["objects"] as object[]);
+                    }
+                }
+            }
         }
     }
     public partial class KalturaCategoryItemSearchFilter

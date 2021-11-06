@@ -10,6 +10,7 @@ using WebAPI.Models.CanaryDeployment.Elasticsearch;
 using WebAPI.Models.CanaryDeployment.Microservices;
 using WebAPI.Models.General;
 using KalturaCanaryDeploymentAuthenticationMsOwnerShip = WebAPI.Models.CanaryDeployment.Microservices.KalturaCanaryDeploymentAuthenticationMsOwnerShip;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {

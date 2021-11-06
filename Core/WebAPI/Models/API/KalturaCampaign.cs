@@ -15,7 +15,7 @@ namespace WebAPI.Models.API
     /// <summary>
     /// Campaign
     /// </summary>
-    public partial class KalturaCampaign : KalturaCrudObject<Campaign, long>
+    public partial class KalturaCampaign : KalturaOTTObjectSupportNullable
     {
         /// <summary>
         /// ID
@@ -123,105 +123,5 @@ namespace WebAPI.Models.API
         [XmlElement(ElementName = "collectionIdIn")]
         [SchemeProperty(IsNullable = true)]
         public string CollectionIdIn { get; set; }
-
-        public KalturaCampaign()
-        {
-
-        }
-        
-        internal override ICrudHandler<Campaign, long> Handler
-        {
-            get
-            {
-                return CampaignManager.Instance;
-            }
-        }
-
-        public override void ValidateForAdd()
-        {
-            ValidateDates(false);
-
-            if (string.IsNullOrEmpty(this.Name) || string.IsNullOrWhiteSpace(this.Name))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-            }
-
-            if (string.IsNullOrEmpty(this.SystemName) || string.IsNullOrWhiteSpace(this.SystemName))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "systemName");
-            }
-
-            if (string.IsNullOrEmpty(this.Message))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "message");
-            }
-
-            if (Promotion != null)
-            {
-                Promotion.Validate();
-            }
-        }
-
-        internal override void SetId(long id)
-        {
-            this.Id = id;
-        }
-
-        internal override void ValidateForUpdate()
-        {
-            ValidateDates(true);
-
-            if (Promotion != null)
-            {
-                Promotion.Validate();
-            }
-        }
-
-        private void ValidateDates(bool isUpdate)
-        {
-            if (StartDate == 0 && EndDate != 0)
-            {
-                throw new BadRequestException(BadRequestException.BOTH_ARGUMENTS_MUST_HAVE_VALUE, "StartDate", "EndDate");
-            }
-
-            if (StartDate != 0 && EndDate == 0)
-            {
-                throw new BadRequestException(BadRequestException.BOTH_ARGUMENTS_MUST_HAVE_VALUE, "EndDate", "StartDate");
-            }
-
-            var now = TVinciShared.DateUtils.GetUtcUnixTimestampNow();
-            if (EndDate <= now && (!isUpdate || this.EndDate != 0))
-            {
-                throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "EndDate");
-            }
-
-            if (StartDate < now && (!isUpdate || this.StartDate != 0))
-            {
-                throw new BadRequestException(BadRequestException.TIME_ARGUMENT_IN_PAST, "StartDate");
-            }
-
-            if (EndDate <= StartDate && StartDate != 0 && EndDate != 0)
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "StartDate", "EndDate");
-            }
-        }
-
-        public List<long> GetCollectionIds()
-        {
-            if (this.CollectionIdIn == null) { return null; }
-            return this.GetItemsIn<List<long>, long>(this.CollectionIdIn, "collectionIdIn");
-        }
-    }
-
-    public partial class KalturaCampaignListResponse : KalturaListResponse<KalturaCampaign>
-    {
-        public KalturaCampaignListResponse() : base() { }
-    }
-
-    public enum KalturaObjectState
-    {
-        INACTIVE = 0,
-        ACTIVE = 1,
-        ARCHIVE = 2
     }
 }

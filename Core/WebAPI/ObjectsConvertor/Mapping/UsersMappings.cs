@@ -14,6 +14,7 @@ using TVinciShared;
 using ApiLogic.Users;
 using System.Collections.Specialized;
 using System.Web;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace ObjectsConvertor.Mapping
 {

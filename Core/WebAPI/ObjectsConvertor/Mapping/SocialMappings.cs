@@ -12,6 +12,7 @@ using Core.Social.SocialFeed;
 using Core.Social.Requests;
 using AutoMapper.Configuration;
 using KeyValuePair = ApiObjects.KeyValuePair;
+using WebAPI.ObjectsConvertor.Extensions;
 
 namespace WebAPI.ObjectsConvertor.Mapping
 {

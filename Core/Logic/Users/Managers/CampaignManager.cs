@@ -305,9 +305,9 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<Campaign> AddCampaign<T>(ContextData contextData, T campaignToAdd) where T : Campaign, new()
+        public GenericResponse<T> AddCampaign<T>(ContextData contextData, T campaignToAdd) where T : Campaign, new()
         {
-            var response = new GenericResponse<Campaign>();
+            var response = new GenericResponse<T>();
 
             try
             {
@@ -342,9 +342,9 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<Campaign> UpdateTriggerCampaign(ContextData contextData, TriggerCampaign campaignToUpdate)
+        public GenericResponse<TriggerCampaign> UpdateTriggerCampaign(ContextData contextData, TriggerCampaign campaignToUpdate)
         {
-            var response = new GenericResponse<Campaign>();
+            var response = new GenericResponse<TriggerCampaign>();
             try
             {
                 var oldTriggerCampaignResponse = Get(contextData, campaignToUpdate.Id, true);
@@ -400,9 +400,9 @@ namespace ApiLogic.Users.Managers
             return response;
         }
 
-        public GenericResponse<Campaign> UpdateBatchCampaign(ContextData contextData, BatchCampaign campaignToUpdate)
+        public GenericResponse<BatchCampaign> UpdateBatchCampaign(ContextData contextData, BatchCampaign campaignToUpdate)
         {
-            var response = new GenericResponse<Campaign>();
+            var response = new GenericResponse<BatchCampaign>();
             try
             {
                 var oldBatchCampaignResponse = Get(contextData, campaignToUpdate.Id, true);
