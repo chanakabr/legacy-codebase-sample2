@@ -103,7 +103,7 @@ namespace Core.Catalog
         private readonly IMappingTypeResolver _mappingTypeResolver;
         private readonly int _partnerId;
         private readonly IChannelQueryBuilder _channelQueryBuilder;
- 
+
         /// <summary>
         /// Initialiezs an instance of Index Manager for work with ElasticSearch 2.3. 
         /// Please do not use this ctor, rather use IndexManagerFactory.
@@ -121,7 +121,7 @@ namespace Core.Catalog
         /// <param name="channelQueryBuilder"></param>
         public IndexManagerV2(int partnerId,
             IElasticSearchApi elasticSearchClient,
-            IGroupManager groupManager, 
+            IGroupManager groupManager,
             ESSerializerV2 eSSerializerV2,
             ICatalogManager catalogManager,
             IElasticSearchIndexDefinitions esIndexDefinitions,
@@ -145,7 +145,7 @@ namespace Core.Catalog
             _channelQueryBuilder = channelQueryBuilder;
             _mappingTypeResolver = mappingTypeResolver;
         }
-        
+
         #region OPC helpers
 
         private Group GetGroupManager()
@@ -171,7 +171,7 @@ namespace Core.Catalog
             GetMetasAndTagsForMapping(out _, out _, out metasToPad);
             return metasToPad;
         }
-        
+
         #endregion
 
         #region Methods from Static IndexManager
@@ -212,7 +212,7 @@ namespace Core.Catalog
                 var languages = GetGroupManager().GetLangauges();
                 languagesMap = languages.ToDictionary(x => x.ID, x => x);
             }
-            
+
 
             try
             {
@@ -271,7 +271,7 @@ namespace Core.Catalog
         {
             bool result = false;
             string index = NamingHelper.GetMediaIndexAlias(_partnerId);
-                        
+
             if (assetId <= 0)
             {
                 log.WarnFormat("Received media request of invalid media id {0} when calling DeleteMedia", assetId);
@@ -324,7 +324,7 @@ namespace Core.Catalog
             {
                 log.ErrorFormat("Delete media with id {0} failed", assetId);
             }
-            
+
             return result;
         }
 
@@ -344,7 +344,7 @@ namespace Core.Catalog
                     // isAllowedToViewInactiveAssets = true because only operator can cause upsert of channel
                     //todo tests move to ctor
                     GenericResponse<Channel> response = _channelManager.GetChannelById(_partnerId, channelId, true, userId);
-                    if (response != null && response.Status != null && response.Status.Code != (int) eResponseStatus.OK)
+                    if (response != null && response.Status != null && response.Status.Code != (int)eResponseStatus.OK)
                     {
                         return result;
                     }
@@ -370,8 +370,8 @@ namespace Core.Catalog
                 if (_elasticSearchApi.InsertRecord(index, type, channelId.ToString(), serializedChannel))
                 {
                     result = true;
-                    if ((channel.m_nChannelTypeID != (int) ChannelType.Manual || (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0))
-                        && !UpdateChannelPercolator(new List<int>() {channelId}, channel))
+                    if ((channel.m_nChannelTypeID != (int)ChannelType.Manual || (channel.m_lChannelTags != null && channel.m_lChannelTags.Count > 0))
+                        && !UpdateChannelPercolator(new List<int>() { channelId }, channel))
                     {
                         log.ErrorFormat("Update channel percolator failed for Upsert Channel with channelId: {0}", channelId);
                     }
@@ -389,10 +389,10 @@ namespace Core.Catalog
 
             return result;
         }
-        
+
         public bool DeleteChannel(int channelId)
         {
-            bool result = false;            
+            bool result = false;
 
             if (channelId <= 0)
             {
@@ -407,7 +407,7 @@ namespace Core.Catalog
                 if (deleteResult.Ok)
                 {
                     result = true;
-                    if (DeleteChannelPercolator(new List<int>() {channelId}))
+                    if (DeleteChannelPercolator(new List<int>() { channelId }))
                     {
                         log.ErrorFormat("Delete channel percolator failed for Delete Channel");
                     }
@@ -429,7 +429,7 @@ namespace Core.Catalog
         public bool UpdateChannelPercolator(List<int> channelIds, Channel channel = null)
         {
             bool result = false;
-                            
+
             List<string> mediaAliases = _elasticSearchApi.GetAliases(NamingHelper.GetMediaIndexAlias(_partnerId));
             List<string> epgAliases = _elasticSearchApi.GetAliases(NamingHelper.GetEpgIndexAlias(_partnerId));
 
@@ -456,7 +456,7 @@ namespace Core.Catalog
 
                             if (channelToUpdate != null)
                             {
-                                result = result && UpdateChannelPercolator( channelToUpdate, mediaAliases, epgAliases);
+                                result = result && UpdateChannelPercolator(channelToUpdate, mediaAliases, epgAliases);
                             }
                         }
                     }
@@ -566,24 +566,24 @@ namespace Core.Catalog
 
                 // dictionary contains all language ids and its  code (string)
                 var groupUsesTemplates = VerifyGroupUsesTemplates();
-                CatalogGroupCache catalogGroupCache=null;
-                Group groupManager=null;
+                CatalogGroupCache catalogGroupCache = null;
+                Group groupManager = null;
                 List<LanguageObj> languages;
 
                 if (groupUsesTemplates)
                 {
                     catalogGroupCache = GetCatalogGroupCache();
                     languages = catalogGroupCache.LanguageMapById.Values.ToList();
-                                         
+
                 }
                 else
                 {
                     groupManager = GetGroupManager();
-                    languages=groupManager.GetLangauges();
+                    languages = groupManager.GetLangauges();
                 }
-                              
+
                 if (languages == null)
-                {            
+                {
                     // return false; // perhaps?
                     log.Debug("Warning - " + string.Format("Group {0} has no languages defined.", _partnerId));
                 }
@@ -606,7 +606,7 @@ namespace Core.Catalog
                     Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
 
                     if ((groupUsesTemplates && catalogGroupCache.IsRegionalizationEnabled) || 
-                        (groupManager!=null && groupManager.isRegionalizationEnabled))
+                        (groupManager != null && groupManager.isRegionalizationEnabled))
                     {                                            
                         linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(_partnerId);
                     }
@@ -679,10 +679,10 @@ namespace Core.Catalog
                                     ttl = $"{totalMinutes}m"
                                 });
 
-                                    if (bulkRequests.Count > sizeOfBulk)
-                                    {
-                                        // send request to ES API
-                                        invalidResults = _elasticSearchApi.CreateBulkRequest(bulkRequests);
+                                if (bulkRequests.Count > sizeOfBulk)
+                                {
+                                    // send request to ES API
+                                    invalidResults = _elasticSearchApi.CreateBulkRequest(bulkRequests);
 
                                     if (invalidResults != null && invalidResults.Count > 0)
                                     {
@@ -698,7 +698,7 @@ namespace Core.Catalog
                                     else
                                     {
                                         temporaryResult &= true;
-                                      
+
                                     }
 
                                     bulkRequests.Clear();
@@ -766,7 +766,7 @@ namespace Core.Catalog
                 ESQuery query = new ESQuery(terms);
                 string queryString = query.ToString();
 
-                
+
                 foreach (var lang in languages)
                 {
                     string type = GetTranslationType(EPG_INDEX_TYPE, lang);
@@ -776,7 +776,7 @@ namespace Core.Catalog
                 result = true;
             }
 
-           
+
 
             return result;
         }
@@ -788,7 +788,7 @@ namespace Core.Catalog
             AddMappingsToEpgIndex(newIndexName, isRecording);
         }
 
-        private void CreateEmptyEpgIndex(string newIndexName,  bool shouldBuildWithReplicas = true,
+        private void CreateEmptyEpgIndex(string newIndexName, bool shouldBuildWithReplicas = true,
             bool shouldUseNumOfConfiguredShards = true, string refreshInterval = null)
         {
             List<LanguageObj> languages = GetLanguages();
@@ -801,7 +801,7 @@ namespace Core.Catalog
 
         private List<LanguageObj> GetLanguages()
         {
-            return VerifyGroupUsesTemplates() ? GetCatalogGroupCache().LanguageMapById.Values.ToList(): GetGroupManager().GetLangauges();
+            return VerifyGroupUsesTemplates() ? GetCatalogGroupCache().LanguageMapById.Values.ToList() : GetGroupManager().GetLangauges();
         }
 
         private LanguageObj GetDefaultLanguage()
@@ -1037,12 +1037,12 @@ namespace Core.Catalog
             var minimumRange = new ESRange(false, "end_date", eRangeComp.GTE, fromDate.ToString(ESUtils.ES_DATE_FORMAT));
             var maximumRange = new ESRange(false, "start_date", eRangeComp.LTE, toDate.ToString(ESUtils.ES_DATE_FORMAT));
             var channelFilter = ESTerms.GetSimpleNumericTerm("epg_channel_id", new[] { channelId });
-            
+
             var filterCompositeType = new FilterCompositeType(CutWith.AND);
             filterCompositeType.AddChild(minimumRange);
             filterCompositeType.AddChild(maximumRange);
             filterCompositeType.AddChild(channelFilter);
-            
+
             query.Filter = new QueryFilter()
             {
                 FilterSettings = filterCompositeType
@@ -1170,7 +1170,7 @@ namespace Core.Catalog
                             }
                             else
                             {
-                                Utils.OrderMediasByStats(lMediaIds, (int) search.m_oOrder.m_eOrderBy, (int) search.m_oOrder.m_eOrderDir);
+                                Utils.OrderMediasByStats(lMediaIds, (int)search.m_oOrder.m_eOrderBy, (int)search.m_oOrder.m_eOrderDir);
                             }
 
                             var dItems = oRes.m_resultIDs.ToDictionary(item => item.assetID);
@@ -1221,7 +1221,7 @@ namespace Core.Catalog
 
             mediaSearch.m_dOr.Add(new SearchValue()
             {
-                m_lValue = new List<string>() {""},
+                m_lValue = new List<string>() { "" },
                 m_sKey = "name^3"
             });
 
@@ -1303,7 +1303,7 @@ namespace Core.Catalog
             if (oSearch != null && oSearch.Count > 0)
             {
                 var lSearchResults = new List<ElasticSearchApi.ESAssetDocument>();
-                
+
 
                 ESMediaQueryBuilder queryBuilder = new ESMediaQueryBuilder();
 
@@ -1371,7 +1371,7 @@ namespace Core.Catalog
                     {
                         List<int> lIds = lSearchResults.Select(item => item.asset_id).ToList();
 
-                        Utils.OrderMediasByStats(lIds, (int) orderObj.m_eOrderBy, (int) orderObj.m_eOrderDir);
+                        Utils.OrderMediasByStats(lIds, (int)orderObj.m_eOrderBy, (int)orderObj.m_eOrderDir);
 
                         var dItems = lSearchResults.ToDictionary(item => item.asset_id);
 
@@ -1427,9 +1427,9 @@ namespace Core.Catalog
 
             var parentGroupId = _partnerId;
 
-            
+
             parentGroupId = groupManager.m_nParentGroupID;
-            
+
 
             if (searchObjects != null && searchObjects.Count > 0)
             {
@@ -1483,7 +1483,7 @@ namespace Core.Catalog
                     {
                         List<int> ids = searchResults.Select(item => item.asset_id).ToList();
 
-                        Utils.OrderMediasByStats(ids, (int) order.m_eOrderBy, (int) order.m_eOrderDir);
+                        Utils.OrderMediasByStats(ids, (int)order.m_eOrderBy, (int)order.m_eOrderDir);
 
                         Dictionary<int, ElasticSearchApi.ESAssetDocument> itemsDictionary = searchResults.ToDictionary(item => item.asset_id);
 
@@ -1589,7 +1589,7 @@ namespace Core.Catalog
         public List<SearchResult> GetAssetsUpdateDate(eObjectType assetType, List<int> assetIds)
         {
             List<SearchResult> response = new List<SearchResult>();
-            
+
             try
             {
                 string index = string.Empty;
@@ -1647,7 +1647,7 @@ namespace Core.Catalog
                     JObject searchJsonObject = new JObject();
                     searchJsonObject["size"] = 500;
                     searchJsonObject["from"] = 0;
-                    searchJsonObject["fields"] = new JArray(new List<string>() {idField, "update_date"});
+                    searchJsonObject["fields"] = new JArray(new List<string>() { idField, "update_date" });
                     JObject queryPart = new JObject();
                     JObject termsPart = new JObject();
                     // every time take another 500 assets
@@ -1812,7 +1812,7 @@ namespace Core.Catalog
             return UnifiedSearch(unifiedSearchDefinitions, ref totalItems, out _);
         }
 
-       
+
         /// <summary>
         /// Performs a search on several types of assets in a single call
         /// </summary>
@@ -2079,7 +2079,7 @@ namespace Core.Catalog
                                     int assetId = int.Parse(item.AssetId);
                                     if (item.AssetType == eAssetTypes.NPVR)
                                     {
-                                        assetId = int.Parse(((RecordingSearchResult) item).RecordingId);
+                                        assetId = int.Parse(((RecordingSearchResult)item).RecordingId);
                                     }
 
                                     if (!idToResultDictionary.ContainsKey(assetId))
@@ -2140,14 +2140,14 @@ namespace Core.Catalog
         public AggregationsResult UnifiedSearchForGroupBy(UnifiedSearchDefinitions search)
         {
             var singleGroupByWithDistinct = search.groupBy?.Count == 1 && search.groupBy.Single().Key == search.distinctGroup.Key;
-            
+
             if (!singleGroupByWithDistinct)
             {
                 throw new NotSupportedException($"Method should be used for single group by");
             }
 
             var groupBySearch =
-                IndexManagerCommonHelpers.GetStrategy(search.order.m_eOrderBy) ?? 
+                IndexManagerCommonHelpers.GetStrategy(search.order.m_eOrderBy) ??
                 throw new NotSupportedException($"Not supported group by with {search.order.m_eOrderBy} order");
 
             // save original page and size, will be mutated later :(
@@ -2175,7 +2175,7 @@ namespace Core.Catalog
             // handle response
             var elasticAggregation = groupBySearch.HandleQueryResponse(search, pageSize, fromIndex, queryBuilder, responseBody);
             var topHitsMapping = MapTopHits(elasticAggregation, search);
-            var aggregationsResult = ConvertAggregationsResponse(elasticAggregation, new List<string> {search.groupBy.Single().Key}, topHitsMapping);
+            var aggregationsResult = ConvertAggregationsResponse(elasticAggregation, new List<string> { search.groupBy.Single().Key }, topHitsMapping);
 
             return aggregationsResult;
         }
@@ -2667,8 +2667,8 @@ namespace Core.Catalog
                                             {
                                                 string maximumStartDate = subBucket.max_as_string.ToString();
 
-                                                idToStartDate[assetId] = 
-                                                    DateTime.ParseExact(maximumStartDate, 
+                                                idToStartDate[assetId] =
+                                                    DateTime.ParseExact(maximumStartDate,
                                                     ElasticSearch.Common.Utils.ES_DATE_FORMAT, null);
                                             }
                                         }
@@ -2871,29 +2871,29 @@ namespace Core.Catalog
             switch (orderBy)
             {
                 case ApiObjects.SearchObjects.OrderBy.VIEWS:
-                {
-                    actionName = NamingHelper.STAT_ACTION_FIRST_PLAY;
-                    break;
-                }
+                    {
+                        actionName = NamingHelper.STAT_ACTION_FIRST_PLAY;
+                        break;
+                    }
                 case ApiObjects.SearchObjects.OrderBy.RATING:
-                {
-                    actionName = NamingHelper.STAT_ACTION_RATES;
-                    break;
-                }
+                    {
+                        actionName = NamingHelper.STAT_ACTION_RATES;
+                        break;
+                    }
                 case ApiObjects.SearchObjects.OrderBy.VOTES_COUNT:
-                {
-                    actionName = NamingHelper.STAT_ACTION_RATES;
-                    break;
-                }
+                    {
+                        actionName = NamingHelper.STAT_ACTION_RATES;
+                        break;
+                    }
                 case ApiObjects.SearchObjects.OrderBy.LIKE_COUNTER:
-                {
-                    actionName = NamingHelper.STAT_ACTION_LIKE;
-                    break;
-                }
+                    {
+                        actionName = NamingHelper.STAT_ACTION_LIKE;
+                        break;
+                    }
                 default:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
             }
 
             ESTerm actionTerm = new ESTerm(false)
@@ -3070,7 +3070,7 @@ namespace Core.Catalog
                 // extract from funcParams
                 if (funcParams.ContainsKey("orderBy"))
                 {
-                    orderBy = (OrderBy) funcParams["orderBy"];
+                    orderBy = (OrderBy)funcParams["orderBy"];
                 }
 
                 // if we don't have missing keys - all ids should be sent
@@ -3080,7 +3080,7 @@ namespace Core.Catalog
                 }
                 else if (funcParams.ContainsKey("assetIds"))
                 {
-                    assetIds = (List<long>) funcParams["assetIds"];
+                    assetIds = (List<long>)funcParams["assetIds"];
                 }
 
                 GetAssetStatsValuesFromElasticSearch(assetIds, orderBy, null, null, null, countsAggregationsDictionary);
@@ -3122,7 +3122,7 @@ namespace Core.Catalog
                 {
                     Dictionary<string, string> keyToOriginalValueMap = assetIds.Select(x => x.ToString()).ToDictionary(x => LayeredCacheKeys.GetAssetStatsSortKey(x, orderBy.ToString()));
                     Dictionary<string, List<string>> invalidationKeys =
-                        keyToOriginalValueMap.Keys.ToDictionary(x => x, x => new List<string>() {LayeredCacheKeys.GetAssetStatsInvalidationKey(_partnerId)});
+                        keyToOriginalValueMap.Keys.ToDictionary(x => x, x => new List<string>() { LayeredCacheKeys.GetAssetStatsInvalidationKey(_partnerId) });
 
                     Dictionary<string, object> funcParams = new Dictionary<string, object>();
                     funcParams.Add("orderBy", orderBy);
@@ -3308,13 +3308,13 @@ namespace Core.Catalog
                     if (jsonObj != null)
                     {
                         JToken tempToken;
-                        totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int) tempToken);
+                        totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
 
                         if (totalItems > 0)
                         {
                             foreach (var item in jsonObj.SelectToken("hits.hits"))
                             {
-                                string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string) tempToken);
+                                string typeString = ((tempToken = item.SelectToken("_type")) == null ? string.Empty : (string)tempToken);
                                 eAssetTypes assetType = ESUtils.ParseAssetType(typeString);
 
                                 string assetIdField = string.Empty;
@@ -3322,22 +3322,22 @@ namespace Core.Catalog
                                 switch (assetType)
                                 {
                                     case eAssetTypes.MEDIA:
-                                    {
-                                        assetIdField = "fields.media_id";
-                                        break;
-                                    }
+                                        {
+                                            assetIdField = "fields.media_id";
+                                            break;
+                                        }
                                     case eAssetTypes.EPG:
-                                    {
-                                        assetIdField = "fields.epg_id";
-                                        break;
-                                    }
+                                        {
+                                            assetIdField = "fields.epg_id";
+                                            break;
+                                        }
                                     default:
-                                    {
-                                        break;
-                                    }
+                                        {
+                                            break;
+                                        }
                                 }
 
-                                string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string) tempToken);
+                                string id = ((tempToken = item.SelectToken("_id")) == null ? string.Empty : (string)tempToken);
                                 DateTime update_date = ESUtils.ExtractDateFromToken(item, "fields.update_date");
 
                                 // Find the asset in the list with this ID, set its update date
@@ -3460,8 +3460,8 @@ namespace Core.Catalog
 
             IESTerm valueTerm = null;
 
-            CatalogGroupCache catalogGroupCache=null;
-            
+            CatalogGroupCache catalogGroupCache = null;
+
             if (!string.IsNullOrEmpty(definitions.AutocompleteSearchValue) || !string.IsNullOrEmpty(definitions.ExactSearchValue))
             {
                 // if we have a specific language - we will search it only
@@ -3590,7 +3590,7 @@ namespace Core.Catalog
             if (jsonObj != null)
             {
                 JToken tempToken;
-                totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int) tempToken);
+                totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
 
                 if (totalItems > 0)
                 {
@@ -3652,15 +3652,42 @@ namespace Core.Catalog
             else if (!string.IsNullOrEmpty(exactValue))
             {
                 value = exactValue.ToLower();
-                term = new ESTerm(false)
+
+                //BEO-10960
+                if (IsDiacriticsAccentsTag(value))
                 {
-                    Key = key,
-                    Value = value
-                };
+                    term = new ESMatchQuery()
+                    {
+                        eOperator = CutWith.AND,
+                        Field = key,
+                        Query = value
+                    };
+                }
+                else
+                {
+                    term = new ESTerm(false)
+                    {
+                        Key = key,
+                        Value = value
+                    };
+                }
             }
 
 
             return term;
+        }
+
+        private static bool IsDiacriticsAccentsTag(string accentedStr)
+        {
+            return accentedStr.Any(c => IsLetterWithDiacritics(c));
+        }
+
+        static bool IsLetterWithDiacritics(char c)
+        {
+            var s = c.ToString().Normalize(NormalizationForm.FormD);
+            return (s.Length > 1) &&
+                   char.IsLetter(s[0]) &&
+                   s.Skip(1).All(c2 => System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c2) == System.Globalization.UnicodeCategory.NonSpacingMark);
         }
 
         public ApiObjects.Response.Status DeleteTag(long tagId)
@@ -3693,7 +3720,7 @@ namespace Core.Catalog
 
                 if (!deleteResult)
                 {
-                    status.Code = (int) ApiObjects.Response.eResponseStatus.Error;
+                    status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
                     status.Message = "Failed performing delete query";
                 }
             }
@@ -3731,7 +3758,7 @@ namespace Core.Catalog
 
                 if (!deleteResult)
                 {
-                    status.Code = (int) ApiObjects.Response.eResponseStatus.Error;
+                    status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
                     status.Message = "Failed performing delete query";
                 }
             }
@@ -3770,7 +3797,7 @@ namespace Core.Catalog
                 updateDate = tag.updateDate,
                 value = tag.value
             });
-            
+
             var catalogGroupCache = GetCatalogGroupCache();
             foreach (var languageContainer in tag.TagsInOtherLanguages)
             {
@@ -3826,7 +3853,7 @@ namespace Core.Catalog
 
                 if (!insertResult)
                 {
-                    status.Code = (int) ApiObjects.Response.eResponseStatus.Error;
+                    status.Code = (int)ApiObjects.Response.eResponseStatus.Error;
                     status.Message = "Failed performing insert query";
                 }
             }
@@ -3897,7 +3924,7 @@ namespace Core.Catalog
                     Value = CHANNEL_SEARCH_IS_ACTIVE_VALUE
                 });
 
-                queryFilter = new QueryFilter() {FilterSettings = filterSettings};
+                queryFilter = new QueryFilter() { FilterSettings = filterSettings };
             }
 
             if (definitions.AssetUserRuleId > 0)
@@ -3911,7 +3938,7 @@ namespace Core.Catalog
                         Value = definitions.AssetUserRuleId.ToString()
                     });
 
-                    queryFilter = new QueryFilter() {FilterSettings = filterSettings};
+                    queryFilter = new QueryFilter() { FilterSettings = filterSettings };
                 }
                 else
                 {
@@ -3936,25 +3963,25 @@ namespace Core.Catalog
             switch (definitions.OrderBy)
             {
                 case ChannelOrderBy.Name:
-                {
-                    orderValue = "name";
-                    break;
-                }
+                    {
+                        orderValue = "name";
+                        break;
+                    }
                 case ChannelOrderBy.CreateDate:
-                {
-                    orderValue = "create_date";
-                    break;
-                }
+                    {
+                        orderValue = "create_date";
+                        break;
+                    }
                 case ChannelOrderBy.UpdateDate:
-                {
-                    orderValue = "update_date";
-                    break;
-                }
+                    {
+                        orderValue = "update_date";
+                        break;
+                    }
                 case ChannelOrderBy.Id:
-                {
-                    orderValue = "_id";
-                    break;
-                }
+                    {
+                        orderValue = "_id";
+                        break;
+                    }
                 default:
                     break;
             }
@@ -3988,7 +4015,7 @@ namespace Core.Catalog
             if (jsonObj != null)
             {
                 JToken tempToken;
-                totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int) tempToken);
+                totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
 
                 if (totalItems > 0)
                 {
@@ -3997,7 +4024,7 @@ namespace Core.Catalog
                         var source = item["_source"];
 
 
-                        string id = ((tempToken = source.SelectToken("channel_id")) == null ? string.Empty : (string) tempToken);
+                        string id = ((tempToken = source.SelectToken("channel_id")) == null ? string.Empty : (string)tempToken);
                         int channelId = 0;
                         if (int.TryParse(id, out channelId) && channelId > 0)
                         {
@@ -4020,59 +4047,59 @@ namespace Core.Catalog
             DateTime endDate, StatsType type, ref Dictionary<int, AssetStatsResult> assetIDsToStatsMapping)
         {
             string index = NamingHelper.GetStatisticsIndexName(_partnerId);
-            
+
             switch (type)
             {
                 case StatsType.MEDIA:
-                {
-                    List<string> aggregations = new List<string>(3);
-                    aggregations.Add(BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, NamingHelper.STAT_ACTION_FIRST_PLAY, true)); // views count
-                    aggregations.Add(BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, NamingHelper.STAT_ACTION_LIKE));
-                    aggregations.Add(BuildSlidingWindowStatisticsAggregationRequest(_partnerId, assetIDs, startDate, endDate, NamingHelper.STAT_ACTION_RATES, NamingHelper.STAT_ACTION_RATE_VALUE_FIELD));
-
-                    string esResp = _elasticSearchApi.MultiSearch(index, ESUtils.ES_STATS_TYPE, aggregations, null);
-
-                    List<string> responses = ParseResponsesFromMultiAggregations(esResp);
-                    string currResp = responses[0];
-                    Dictionary<string, Dictionary<int, int>> viewsRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp, NamingHelper.SUB_SUM_AGGREGATION_NAME);
-                    currResp = responses[1];
-                    Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp);
-                    currResp = responses[2];
-                    Dictionary<string, List<StatisticsAggregationResult>> ratesRaw = ESAggregationsResult.DeserializeStatisticsAggregations(currResp, "sub_stats");
-
-                    Dictionary<int, int> views, likes;
-                    List<StatisticsAggregationResult> rates = null;
-                    viewsRaw.TryGetValue(NamingHelper.STAT_SLIDING_WINDOW_AGGREGATION_NAME, out views);
-                    likesRaw.TryGetValue(NamingHelper.STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
-                    ratesRaw.TryGetValue(NamingHelper.STAT_SLIDING_WINDOW_AGGREGATION_NAME, out rates);
-                    InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, views, likes, rates);
-                    break;
-                }
-                case StatsType.EPG:
-                {
-                    // in epg we bring just likes
-                    string likesAggregations = BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, NamingHelper.STAT_ACTION_LIKE);
-                    string searchResponse = _elasticSearchApi.Search(index, ESUtils.ES_STATS_TYPE, ref likesAggregations);
-
-                    if (!string.IsNullOrEmpty(searchResponse))
                     {
-                        Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(searchResponse);
-                        Dictionary<int, int> likes = null;
+                        List<string> aggregations = new List<string>(3);
+                        aggregations.Add(BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, NamingHelper.STAT_ACTION_FIRST_PLAY, true)); // views count
+                        aggregations.Add(BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, NamingHelper.STAT_ACTION_LIKE));
+                        aggregations.Add(BuildSlidingWindowStatisticsAggregationRequest(_partnerId, assetIDs, startDate, endDate, NamingHelper.STAT_ACTION_RATES, NamingHelper.STAT_ACTION_RATE_VALUE_FIELD));
+
+                        string esResp = _elasticSearchApi.MultiSearch(index, ESUtils.ES_STATS_TYPE, aggregations, null);
+
+                        List<string> responses = ParseResponsesFromMultiAggregations(esResp);
+                        string currResp = responses[0];
+                        Dictionary<string, Dictionary<int, int>> viewsRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp, NamingHelper.SUB_SUM_AGGREGATION_NAME);
+                        currResp = responses[1];
+                        Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(currResp);
+                        currResp = responses[2];
+                        Dictionary<string, List<StatisticsAggregationResult>> ratesRaw = ESAggregationsResult.DeserializeStatisticsAggregations(currResp, "sub_stats");
+
+                        Dictionary<int, int> views, likes;
+                        List<StatisticsAggregationResult> rates = null;
+                        viewsRaw.TryGetValue(NamingHelper.STAT_SLIDING_WINDOW_AGGREGATION_NAME, out views);
                         likesRaw.TryGetValue(NamingHelper.STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
-
-                        if (likes != null && likes.Count > 0)
-                        {
-                            InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, new Dictionary<int, int>(0), likes,
-                                new List<StatisticsAggregationResult>(0));
-                        }
+                        ratesRaw.TryGetValue(NamingHelper.STAT_SLIDING_WINDOW_AGGREGATION_NAME, out rates);
+                        InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, views, likes, rates);
+                        break;
                     }
+                case StatsType.EPG:
+                    {
+                        // in epg we bring just likes
+                        string likesAggregations = BuildSlidingWindowCountAggregationRequest(_partnerId, assetIDs, startDate, endDate, NamingHelper.STAT_ACTION_LIKE);
+                        string searchResponse = _elasticSearchApi.Search(index, ESUtils.ES_STATS_TYPE, ref likesAggregations);
 
-                    break;
-                }
+                        if (!string.IsNullOrEmpty(searchResponse))
+                        {
+                            Dictionary<string, Dictionary<int, int>> likesRaw = ESAggregationsResult.DeserializeAggrgations<int>(searchResponse);
+                            Dictionary<int, int> likes = null;
+                            likesRaw.TryGetValue(NamingHelper.STAT_SLIDING_WINDOW_AGGREGATION_NAME, out likes);
+
+                            if (likes != null && likes.Count > 0)
+                            {
+                                InjectResultsIntoAssetStatsResponse(assetIDsToStatsMapping, new Dictionary<int, int>(0), likes,
+                                    new List<StatisticsAggregationResult>(0));
+                            }
+                        }
+
+                        break;
+                    }
                 default:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
             }
         }
 
@@ -4228,7 +4255,7 @@ namespace Core.Catalog
 
             //Search
             string index = NamingHelper.GetStatisticsIndexName(_partnerId);
-            
+
             string retval = _elasticSearchApi.Search(index, ESUtils.ES_STATS_TYPE, ref aggregationsQuery);
 
             if (!string.IsNullOrEmpty(retval))
@@ -4358,35 +4385,35 @@ namespace Core.Catalog
         {
             List<int> result = new List<int>(lMediaIds);
 
-            var assetIds = lMediaIds.Select(id => (long) id).ToList();
+            var assetIds = lMediaIds.Select(id => (long)id).ToList();
             OrderBy orderBy = OrderBy.ID;
 
             switch (action)
             {
                 case NamingHelper.STAT_ACTION_FIRST_PLAY:
-                {
-                    orderBy = OrderBy.VIEWS;
-                    break;
-                }
+                    {
+                        orderBy = OrderBy.VIEWS;
+                        break;
+                    }
                 case NamingHelper.STAT_ACTION_LIKE:
-                {
-                    orderBy = OrderBy.LIKE_COUNTER;
-                    break;
-                }
+                    {
+                        orderBy = OrderBy.LIKE_COUNTER;
+                        break;
+                    }
                 case NamingHelper.STAT_ACTION_RATES:
-                {
-                    orderBy = OrderBy.RATING;
-                    break;
-                }
+                    {
+                        orderBy = OrderBy.RATING;
+                        break;
+                    }
                 default:
-                {
-                    break;
-                }
+                    {
+                        break;
+                    }
             }
 
             var orderedList = this.SortAssetsByStats(assetIds, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, dtEndDate);
 
-            result = orderedList.Select(id => (int) id).ToList();
+            result = orderedList.Select(id => (int)id).ToList();
 
             return result;
         }
@@ -4498,15 +4525,15 @@ namespace Core.Catalog
 
             #region Define Aggregations Query
 
-            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() {PageIndex = 0, PageSize = 1};
+            ElasticSearch.Searcher.FilteredQuery filteredQuery = new ElasticSearch.Searcher.FilteredQuery() { PageIndex = 0, PageSize = 1 };
             filteredQuery.Filter = new ElasticSearch.Searcher.QueryFilter();
 
             BaseFilterCompositeType filter = new FilterCompositeType(CutWith.AND);
-            filter.AddChild(new ESTerm(true) {Key = "group_id", Value = _partnerId.ToString()});
+            filter.AddChild(new ESTerm(true) { Key = "group_id", Value = _partnerId.ToString() });
 
             #region define date filter
 
-            ESRange dateRange = new ESRange(false) {Key = "action_date"};
+            ESRange dateRange = new ESRange(false) { Key = "action_date" };
             string sMax = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
             string sMin = dtStartDate.ToString("yyyyMMddHHmmss");
             dateRange.Value.Add(new KeyValuePair<eRangeComp, string>(eRangeComp.GTE, sMin));
@@ -4517,14 +4544,14 @@ namespace Core.Catalog
 
             #region define action filter
 
-            ESTerm esActionTerm = new ESTerm(false) {Key = "action", Value = action};
+            ESTerm esActionTerm = new ESTerm(false) { Key = "action", Value = action };
             filter.AddChild(esActionTerm);
 
             #endregion
 
             #region define media id filter
 
-            ESTerms esMediaIdTerms = new ESTerms(true) {Key = "media_id"};
+            ESTerms esMediaIdTerms = new ESTerms(true) { Key = "media_id" };
             esMediaIdTerms.Value.AddRange(lMediaIds.Select(item => item.ToString()));
             filter.AddChild(esMediaIdTerms);
 
@@ -4555,7 +4582,7 @@ namespace Core.Catalog
 
             //Search
             string index = NamingHelper.GetStatisticsIndexName(_partnerId);
-            
+
             string retval = _elasticSearchApi.Search(index, ESUtils.ES_STATS_TYPE, ref aggregationsQuery);
 
             if (!string.IsNullOrEmpty(retval))
@@ -4602,7 +4629,7 @@ namespace Core.Catalog
             var filters = new List<string>();
             return _elasticSearchApi.BuildIndex(statisticsIndex, NUM_OF_SHARDS, NUM_OF_REPLICAS, analyzers, filters);
         }
-        
+
         public bool InsertSocialStatisticsData(SocialActionStatistics action)
         {
             bool result = false;
@@ -4662,7 +4689,7 @@ namespace Core.Catalog
                 if (jsonObj != null)
                 {
                     JToken tempToken;
-                    totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int) tempToken);
+                    totalItems = ((tempToken = jsonObj.SelectToken("hits.total")) == null ? 0 : (int)tempToken);
 
                     if (totalItems > 0)
                     {
@@ -4985,7 +5012,7 @@ namespace Core.Catalog
             var tempToken = jsonObj.SelectToken("hits.total");
 
             // check total items
-            int totalItems = tempToken == null ? 0 : (int) tempToken;
+            int totalItems = tempToken == null ? 0 : (int)tempToken;
             if (totalItems <= 0) { return null; }
 
             // get country from first (and hopefully only) result 
@@ -5030,7 +5057,7 @@ namespace Core.Catalog
                 if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(code) && int.TryParse(country_id, out int countryId))
                 {
                     log.DebugFormat("ParseSearchResultToCountry - the result (network) ID is:{0}.", id);
-                    var country = new Country() {Id = countryId, Code = code, Name = name};
+                    var country = new Country() { Id = countryId, Code = code, Name = name };
                     return country;
                 }
             }
@@ -5049,7 +5076,7 @@ namespace Core.Catalog
 
             var query = new FilteredQuery(true);
 
-            var channelTerm = new ESTerm(true) {Key = "epg_channel_id", Value = channelId.ToString()};
+            var channelTerm = new ESTerm(true) { Key = "epg_channel_id", Value = channelId.ToString() };
 
             var endDateRange = new ESRange(false, "end_date", eRangeComp.LTE, endDate.ToString(ESUtils.ES_DATE_FORMAT));
             var startDateRange = new ESRange(false, "start_date", eRangeComp.GTE, startDate.ToString(ESUtils.ES_DATE_FORMAT));
@@ -5137,7 +5164,7 @@ namespace Core.Catalog
             var searchResult = _elasticSearchApi.Search(alias, indexType, ref searchQuery);
 
             if (string.IsNullOrEmpty(searchResult))
-            { 
+            {
                 throw new Exception($"GetEpgCBDocumentIdByEpgIdFromElasticsearch > " +
                     $"Got empty results from elasticsearch epgIds:[{string.Join(",", epgIds)}], " +
                     $"_partnerId:[{_partnerId}], langCodes:[{string.Join(",", languages)}]");
@@ -5165,7 +5192,7 @@ namespace Core.Catalog
             var result = new List<string>();
             var isNewEpgIngestEnabled = TvinciCache.GroupsFeatures.GetGroupFeatureStatus(_partnerId, GroupFeature.EPG_INGEST_V2);
 
-            if (isNewEpgIngestEnabled )
+            if (isNewEpgIngestEnabled)
             {
                 // using the new EPG ingest the document id has a suffix cintaining the bulk upload that inserted it
                 // so there is no way for us to now what is the document id.
@@ -5174,17 +5201,17 @@ namespace Core.Catalog
             }
             else
             {
-                result.AddRange(epgIds.Select(x=>x.ToString()));
+                result.AddRange(epgIds.Select(x => x.ToString()));
             }
 
             return result.Distinct().ToList();
         }
 
-        
 
-        private string GetEpgCBKey(long epgId )
+
+        private string GetEpgCBKey(long epgId)
         {
-            var keys = GetEpgsCBKeys(new[] {epgId});
+            var keys = GetEpgsCBKeys(new[] { epgId });
             return keys.FirstOrDefault();
         }
 
@@ -5290,7 +5317,7 @@ namespace Core.Catalog
                 {
                     int numOfBulkRequests = 0;
 
-                    var bulkRequests =  new Dictionary<int, List<ESBulkRequestObj<int>>>() { { numOfBulkRequests, new List<ESBulkRequestObj<int>>() } };
+                    var bulkRequests = new Dictionary<int, List<ESBulkRequestObj<int>>>() { { numOfBulkRequests, new List<ESBulkRequestObj<int>>() } };
                     var metasToPad = GetMetasToPad();
 
                     // For each media
@@ -5304,7 +5331,7 @@ namespace Core.Catalog
                             ApiObjects.LanguageObj language = VerifyGroupUsesTemplates()
                                 ? GetCatalogGroupCache().LanguageMapById[languageId]
                                 : GetGroupManager().GetLanguage(languageId);
-                            
+
                             string suffix = null;
 
                             if (!language.IsDefault)
@@ -5340,11 +5367,11 @@ namespace Core.Catalog
                     {
                         maxDegreeOfParallelism = 5;
                     }
-                    
+
                     var options = new ParallelOptions() { MaxDegreeOfParallelism = maxDegreeOfParallelism };
                     var contextData = new ContextData();
                     ServicePointManager.DefaultConnectionLimit = Environment.ProcessorCount;
-                    
+
                     var failedBulkRequests = new System.Collections.Concurrent.ConcurrentBag<List<ESBulkRequestObj<int>>>();
                     // Send request to elastic search in a different thread
                     Parallel.ForEach(bulkRequests, options, (bulkRequest, state) =>
@@ -5461,7 +5488,7 @@ namespace Core.Catalog
             }
         }
 
-        public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds, 
+        public bool AddChannelsPercolatorsToIndex(HashSet<int> channelIds,
             string newIndexName, bool shouldCleanupInvalidChannels = false)
         {
             var channelsToRemove = new HashSet<string>();
@@ -5484,7 +5511,7 @@ namespace Core.Catalog
 
                     if (groupUsesTemplates)
                     {
-                        groupChannels = IndexManagerCommonHelpers.GetGroupChannels(_partnerId,_channelManager,groupUsesTemplates,ref channelIds);
+                        groupChannels = IndexManagerCommonHelpers.GetGroupChannels(_partnerId, _channelManager, groupUsesTemplates, ref channelIds);
                         channelIds = new HashSet<int>(groupChannels.Select(x => x.m_nChannelID));
                     }
                     // means that channelIds != null
@@ -6175,15 +6202,15 @@ namespace Core.Catalog
 
                 // used only to support linear media id search on elastic search
                 List<string> epgChannelIds = programsList.Select(item => item.ChannelID.ToString()).ToList<string>();
-                
+
                 var linearChannelSettings = _catalogCache.GetLinearChannelSettings(_partnerId, epgChannelIds);
 
                 // prevent from size of bulk to be more than the default value of 500 (currently as of 23.06.20)
                 int sizeOfBulk = SIZE_OF_BULK == 0 ? SIZE_OF_BULK_DEFAULT_VALUE : SIZE_OF_BULK > SIZE_OF_BULK_DEFAULT_VALUE ? SIZE_OF_BULK_DEFAULT_VALUE : SIZE_OF_BULK;
 
                 // Run on all programs
-                CatalogGroupCache catalogGroupCache=null;
-                Group groupManager=null;
+                CatalogGroupCache catalogGroupCache = null;
+                Group groupManager = null;
                 var groupUsesTemplates = VerifyGroupUsesTemplates();
                 if (groupUsesTemplates)
                 {
@@ -6206,10 +6233,10 @@ namespace Core.Catalog
 
                         if (!string.IsNullOrEmpty(languageCode))
                         {
-                            
+
                             if (groupUsesTemplates)
                             {
-                               
+
                                 language = catalogGroupCache.LanguageMapByCode.ContainsKey(languageCode) ? catalogGroupCache.LanguageMapByCode[languageCode] : null;
                             }
                             else
@@ -6359,7 +6386,7 @@ namespace Core.Catalog
                     log.ErrorFormat("Failed switching index for new index name = {0}, group alias = {1}", newIndexName, alias);
                     return false;
                 }
-                
+
                 if (shouldDeleteOldIndices && oldIndices.Count > 0)
                 {
                     _elasticSearchApi.DeleteIndices(oldIndices);
@@ -6398,7 +6425,7 @@ namespace Core.Catalog
                 return _serializer.SerializeRecordingObject(epg, recordingId, suffix, doesGroupUsesTemplates);
             }
         }
-        
+
         protected virtual string SerializeEPGObject(EpgEs epg, string suffix = null)
         {
             return _serializer.SerializeEpgObject(epg, suffix);
@@ -6408,7 +6435,7 @@ namespace Core.Catalog
 
         #region 
 
-        public bool UpdateEpgs(List<EpgCB> epgObjects, 
+        public bool UpdateEpgs(List<EpgCB> epgObjects,
             bool isRecording,
             Dictionary<long, long> epgToRecordingMapping = null)
         {
@@ -6447,12 +6474,12 @@ namespace Core.Catalog
             else
             {
                 groupManager = GetGroupManager();
-                languages =  groupManager.GetLangauges();
-            }                                    
+                languages = groupManager.GetLangauges();
+            }
 
             Dictionary<long, List<int>> linearChannelsRegionsMapping = null;
-            if ((groupUsesTemplates &&catalogGroupCache!=null&& catalogGroupCache.IsRegionalizationEnabled) || 
-             (groupManager!=null&& groupManager.isRegionalizationEnabled))
+            if ((groupUsesTemplates && catalogGroupCache != null && catalogGroupCache.IsRegionalizationEnabled) ||
+             (groupManager != null && groupManager.isRegionalizationEnabled))
             {
                 linearChannelsRegionsMapping = RegionManager.Instance.GetLinearMediaRegions(_partnerId);
             }
@@ -6517,7 +6544,7 @@ namespace Core.Catalog
                             epg.regions = linearChannelsRegionsMapping[epg.LinearMediaId];
                         }
 
-                        string serializedEpg = SerializeEPGObject(epg, isRecording, epgToRecordingMapping, suffix, 
+                        string serializedEpg = SerializeEPGObject(epg, isRecording, epgToRecordingMapping, suffix,
                             groupUsesTemplates);
 
                         var ttl = string.Empty;
@@ -6595,7 +6622,7 @@ namespace Core.Catalog
 
             return result;
         }
-        
+
         /// <summary>
         /// Update EPGs partially.
         /// PadMetas aren't allowed during partial updates - be aware!
@@ -6627,7 +6654,7 @@ namespace Core.Catalog
             // Epg V2 has multiple indices connected to the gloabl alias {groupID}_epg
             // in that case we need to use the specific date alias for each epg item to update
             bool isIngestV2 = GroupSettingsManager.DoesGroupUseNewEpgIngest(_partnerId);
-            
+
             var alias = NamingHelper.GetEpgIndexAlias(_partnerId);
             if (!_elasticSearchApi.IndexExists(alias))
             {
@@ -6659,9 +6686,9 @@ namespace Core.Catalog
                         {
                             suffix = language.Code;
                         }
-                        
+
                         string serializedEpg = SerializeEPGObject(new EpgEs(epg.EpgPartial), suffix);
-                        
+
                         bulkRequests.Add(new ESBulkRequestObj<ulong>()
                         {
                             docID = GetDocumentId(epg.EpgId, false, null),
@@ -6734,7 +6761,7 @@ namespace Core.Catalog
             LanguageObj defaultLanguage, IDictionary<string, LanguageObj> languages)
         {
             int bulkSize = SIZE_OF_BULK;
-            bulkSize = bulkSize == 0 ? SIZE_OF_BULK_DEFAULT_VALUE : 
+            bulkSize = bulkSize == 0 ? SIZE_OF_BULK_DEFAULT_VALUE :
                 bulkSize > SIZE_OF_BULK_DEFAULT_VALUE ? SIZE_OF_BULK_DEFAULT_VALUE : bulkSize;
 
             var retryCount = 5;
@@ -6803,7 +6830,7 @@ namespace Core.Catalog
             });
 
         }
-        
+
         private string TryGetSerializedEpg(bool isOpc, EpgCB program, string suffix)
         {
             try
@@ -6869,7 +6896,7 @@ namespace Core.Catalog
         private bool GetMetasAndTagsForMapping(
             out Dictionary<string, KeyValuePair<eESFieldType, string>> metas,
             out List<string> tags,
-            out HashSet<string> metasToPad, 
+            out HashSet<string> metasToPad,
             bool isEpg = false)
         {
             var serializer = _serializer;
@@ -6881,7 +6908,7 @@ namespace Core.Catalog
             // Padded with zero prefix metas to sort numbers by text without issues in elastic (Brilliant!)
             metasToPad = new HashSet<string>();
 
-            if (VerifyGroupUsesTemplates() )
+            if (VerifyGroupUsesTemplates())
             {
                 var catalogGroupCache = GetCatalogGroupCache();
                 if (catalogGroupCache != null)
@@ -7066,7 +7093,7 @@ namespace Core.Catalog
             return searchQuery;
         }
 
-        
+
 
         private void ExecuteAndValidateBulkRequests(List<ESBulkRequestObj<string>> bulkRequests)
         {
@@ -7900,7 +7927,7 @@ namespace Core.Catalog
 
         public void PublishChannelPercolatorIndex(string newIndexName, bool shouldSwitchIndexAlias, bool shouldDeleteOldIndices)
         {
-            
+
         }
 
         private static string GetTranslationType(string sType, LanguageObj oLanguage)
