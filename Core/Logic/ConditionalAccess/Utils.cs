@@ -1348,6 +1348,12 @@ namespace Core.ConditionalAccess
                 {
                     return fullPrice;
                 }
+                
+                if(subscription.IsActive.HasValue && !subscription.IsActive.Value)
+                {
+                    fullPrice.PriceReason = PriceReason.NotForPurchase;
+                    return fullPrice;
+                }
 
                 if (subscription.PreSaleDate.HasValue)
                 {
