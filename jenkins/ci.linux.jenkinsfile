@@ -29,23 +29,23 @@ pipeline {
                     currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}" }
             }
         }
-        stage('Test')
-        {
-            steps
-            {
-                runTests()
-            }
-            // post
-            // {
-            //     failure
-            //     {
-            //         script
-            //         {
-            //             sh "exit 1"
-            //         }
-            //     }
-            // }
-        }
+        // stage('Test')
+        // {
+        //     steps
+        //     {
+        //         runTests()
+        //     }
+        //     // post
+        //     // {
+        //     //     failure
+        //     //     {
+        //     //         script
+        //     //         {
+        //     //             sh "exit 1"
+        //     //         }
+        //     //     }
+        //     // }
+        // }
         stage ('ECR Login') {
             steps{
                 sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
