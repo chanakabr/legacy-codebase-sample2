@@ -188,7 +188,7 @@ namespace ApiObjects.Response
         SubscriptionCancellationIsBlocked = 3074,
         InvalidProductType = 3075,
         InvalidContentId = 3076,
-        UnknownPriceReason = 3077,
+        InvalidOffer = 3077,
         PurchaseFailed = 3078,
         PurchasePassedEntitlementFailed = 3079,
         NetworkRuleBlock = 3080,
