@@ -131,13 +131,13 @@ def runTestInDocker(testProjects){
     testProjects.any { project -> 
         echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
         withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "mcr.microsoft.com/dotnet/core/sdk:3.1-alpine", project) {
-            def buildStatus = sh ( script: "dotnet build ${project} --nologo", returnStatus: true)
+            def buildStatus = sh ( script: "dotnet build ${project}", returnStatus: true)
             if(buildStatus != 0) {
                 echo "${RED}------------------------------------------- Building Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                 }
             }
-            def testStatus = sh ( script: "dotnet test ${project} --nologo --no-build --logger \"junit;LogFilePath=./test-results.xml\"", returnStatus: true)
+            def testStatus = sh ( script: "dotnet test ${project} --no-build --logger \"junit;LogFilePath=./test-results.xml\"", returnStatus: true)
             if(testStatus != 0) {
                 echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
