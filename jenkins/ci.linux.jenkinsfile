@@ -127,13 +127,8 @@ def runTestInDocker(testProjects){
                 }
             }
             junit "**/test-results.xml"
-            if (currentBuild.result == 'UNSTABLE') {
-                echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
-                catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-                }
-            }
         }
-        if (currentBuild.result == 'FAILURE') {
+        if (currentBuild.result == 'FAILURE' || currentBuild.result == 'UNSTABLE' ) {
             return true
         }
         echo "${GREEN}------------------------------------------- Finished Tests: ${project} -------------------------------------------${ANSI_END}"
