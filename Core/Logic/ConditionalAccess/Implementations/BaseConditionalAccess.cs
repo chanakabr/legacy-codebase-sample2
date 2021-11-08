@@ -12820,7 +12820,7 @@ namespace Core.ConditionalAccess
             return ConditionalAccess.ReconciliationManager.ReconcileEntitlements(this, m_nGroupID, userId);
         }
 
-        public UserBundlesResponse GetUserBundles(int domainID, int[] fileTypeIDs)
+        public UserBundlesResponse GetUserBundles(int domainID, int[] fileTypeIDs, bool isSubscriptionsOnly)
         {
             UserBundlesResponse response = new UserBundlesResponse()
             {
@@ -12885,7 +12885,7 @@ namespace Core.ConditionalAccess
                     }
 
                     // Get all collections
-                    if (domainEntitlements.DomainBundleEntitlements.CollectionsData != null && domainEntitlements.DomainBundleEntitlements.CollectionsData.Count > 0)
+                    if (domainEntitlements.DomainBundleEntitlements.CollectionsData != null && domainEntitlements.DomainBundleEntitlements.CollectionsData.Count > 0 && !isSubscriptionsOnly)
                     {
                         foreach (Collection collection in domainEntitlements.DomainBundleEntitlements.CollectionsData.Values)
                         {

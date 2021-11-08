@@ -6836,7 +6836,7 @@ namespace Core.Catalog
 
             if (definitions.entitlementSearchDefinitions != null)
             {
-                UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, null, group.m_nParentGroupID, group);
+                UnifiedSearchDefinitionsBuilder.BuildEntitlementSearchDefinitions(definitions, request, null, groupId, group);
             }
 
             if (definitions.shouldGetUserPreferences)
@@ -7315,6 +7315,13 @@ namespace Core.Catalog
                                     definitions.PersonalData.Add(NamingHelper.ENTITLED_ASSETS_FIELD);
                                     break;
                                 }
+                            case ("entitledsubscriptions"):
+                            {
+                                definitions.entitlementSearchDefinitions.shouldGetPurchasedAssets = true;
+                                definitions.entitlementSearchDefinitions.shouldGetOnlySubscriptionAssets = true;
+                                definitions.PersonalData.Add(NamingHelper.ENTITLED_ASSETS_FIELD);
+                                break;
+                            }
                             case ("both"):
                                 {
                                     definitions.entitlementSearchDefinitions.shouldGetFreeAssets = true;

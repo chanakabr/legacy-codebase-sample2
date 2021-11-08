@@ -29,6 +29,13 @@ namespace ApiObjects.SearchObjects
         public bool shouldGetPurchasedAssets;
 
         /// <summary>
+        /// Should the search include explicitly entitled (subscriptions) assets or not
+        /// </summary>
+        [JsonProperty()]
+        [DataMember]
+        public bool shouldGetOnlySubscriptionAssets;
+        
+        /// <summary>
         /// Defines whether we eventually want to get all assets that user is NOT entitled to watch currently
         /// </summary>
         [JsonProperty()]
@@ -77,6 +84,7 @@ namespace ApiObjects.SearchObjects
         None,
         Free,
         Entitled,
-        Both
+        Both,
+        Subscriptions
     }
 }
