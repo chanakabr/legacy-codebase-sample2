@@ -46,6 +46,13 @@ pipeline {
                         error "Tests have been failing so the build has been terminated. Please fix the tests."
                     }
                 }
+                unstable
+                {
+                    script
+                    {
+                        error "Tests have been failing so the build has been terminated. Please fix the tests."
+                    }
+                }
             }
         }
         stage ('ECR Login') {
@@ -143,7 +150,9 @@ def runTestInDocker(testProjects){
         }
         echo "${GREEN}------------------------------------------- Finished Tests: ${project} -------------------------------------------${ANSI_END}"
     }
-    echo "${GREEN}------------------------------------------- Finished All Tests!!! -------------------------------------------${ANSI_END}"
+    if (currentBuild.result == 'SUCCESS') {
+        echo "${GREEN}------------------------------------------- Finished All Tests!!! -------------------------------------------${ANSI_END}"
+    }
 }
 
 def buildDockerAndPushToEcr(componentName, dockerfile){
