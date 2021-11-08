@@ -138,11 +138,13 @@ def runTestInDocker(testProjects){
             if(buildStatus != 0) {
                 echo "${RED}------------------------------------------- Building Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
                 currentBuild.result = 'FAILURE'
+                error "1"
             }
             def testStatus = sh ( script: "dotnet test ${project} --no-build --logger \"junit;LogFilePath=./test-results.xml\"", returnStatus: true)
             if(testStatus != 0) {
                 echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
                 currentBuild.result = 'FAILURE'
+                error "2"
             }
             junit "**/test-results.xml"
         }
