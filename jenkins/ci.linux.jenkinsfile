@@ -102,7 +102,7 @@ def runTests(){
 }
 
 def findDirectoriesWithTests() {
-    sh (script: "ls -d -- **/*.Tests", returnStdout: true).trim().split("\\r?\\n")
+    sh (script: "set +x;ls -d -- **/*.Tests", returnStdout: true).trim().split("\\r?\\n")
 }
 
 def runTestInDocker(testProjects){
@@ -112,8 +112,8 @@ def runTestInDocker(testProjects){
     def BLUE="\u001B[34m"
     def CYAN="\u001B[36m"
     testProjects.any { project -> 
+        echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
         withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "mcr.microsoft.com/dotnet/core/sdk:3.1-alpine", project) {
-            echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
             sh "dotnet build ${project}"
             sh "dotnet test ${project} --no-build --logger \"junit;LogFilePath=./test-results.xml\""
             junit "**/test-results.xml"
