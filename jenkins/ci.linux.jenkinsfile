@@ -7,7 +7,7 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr:'50'))
         skipDefaultCheckout true
         disableConcurrentBuilds()
-        quietPeriod(10)
+        quietPeriod(50)
     }
     environment{
         AWS_REGION="us-west-2"
@@ -35,6 +35,16 @@ pipeline {
             {
                 ansiColor('xterm') {
                     runTests()
+                }
+            }
+            post
+            {
+                failure
+                {
+                    script
+                    {
+                        error "Tests have been failing so the build has been terminated. Please fix the tests."
+                    }
                 }
             }
         }
@@ -118,14 +128,12 @@ def runTestInDocker(testProjects){
             if(buildStatus != 0) {
                 echo "${RED}------------------------------------------- Building Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh "exit 1"
                 }
             }
             def testStatus = sh ( script: "dotnet test ${project} --nologo --no-build --logger \"junit;LogFilePath=./test-results.xml\"", returnStatus: true)
             if(testStatus != 0) {
                 echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh "exit 1"
                 }
             }
             junit "**/test-results.xml"
@@ -135,6 +143,7 @@ def runTestInDocker(testProjects){
         }
         echo "${GREEN}------------------------------------------- Finished Tests: ${project} -------------------------------------------${ANSI_END}"
     }
+    echo "${GREEN}------------------------------------------- Finished All Tests!!! -------------------------------------------${ANSI_END}"
 }
 
 def buildDockerAndPushToEcr(componentName, dockerfile){
