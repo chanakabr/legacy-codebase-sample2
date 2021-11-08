@@ -5501,6 +5501,7 @@ namespace Core.Catalog
         {
             var channelsToRemove = new HashSet<string>();
             List<Channel> groupChannels = null;
+            List<string> previousChannelIds = null;
 
             if (string.IsNullOrEmpty(newIndexName))
             {
@@ -5517,24 +5518,18 @@ namespace Core.Catalog
                 {
                     List<int> subGroups = new List<int>();
 
-                    if (groupUsesTemplates)
-                    {
-                        groupChannels = IndexManagerCommonHelpers.GetGroupChannels(_partnerId, _channelManager, groupUsesTemplates, ref channelIds);
-                        channelIds = new HashSet<int>(groupChannels.Select(x => x.m_nChannelID));
-                    }
-                    // means that channelIds != null
-                    else
-                    {
-                        GroupManager groupManager = new GroupManager();
-                        groupManager.RemoveGroup(_partnerId);
-                        groupChannels = groupManager.GetChannels(channelIds.ToList(), _partnerId);
-                    }
+                    groupChannels = IndexManagerCommonHelpers.GetGroupChannels(_partnerId, _channelManager, groupUsesTemplates, ref channelIds);
 
                     ESMediaQueryBuilder mediaQueryParser = new ESMediaQueryBuilder()
                     {
                         QueryType = eQueryType.EXACT
                     };
                     var unifiedQueryBuilder = new ESUnifiedQueryBuilder(null, _partnerId);
+
+                    if (shouldCleanupInvalidChannels)
+                    {
+                        previousChannelIds = this.GetAllChannels();
+                    }
 
                     //allChannels = groupChannels.Select(channel => channel.m_nChannelID.ToString()).ToList();
 
@@ -5642,21 +5637,18 @@ namespace Core.Catalog
 
             if (shouldCleanupInvalidChannels)
             {
-                var allChannels = this.GetAllChannels();
-                HashSet<int> groupChannelIds = new HashSet<int>();
-
-                if (!groupUsesTemplates)
+                if (!groupUsesTemplates && channelIds.Count == 0)
                 {
-                    groupChannelIds = GetGroupManager().channelIDs;
+                    channelIds = GetGroupManager().channelIDs;
                 }
 
-                CleanupChannelsPercolators(allChannels, channelsToRemove, groupChannelIds);
+                CleanupChannelsPercolators(previousChannelIds, channelsToRemove, channelIds);
             }
 
             return true;
         }
 
-        private void CleanupChannelsPercolators(List<string> currentChannelIds, HashSet<string> channelsToRemove, HashSet<int> channelIds)
+        private void CleanupChannelsPercolators(List<string> previousChannelIds, HashSet<string> channelsToRemove, HashSet<int> channelIds)
         {
             ContextData cd = new ContextData();
             string indexName = $"{_partnerId}";
@@ -5666,7 +5658,7 @@ namespace Core.Catalog
             int sizeOfBulk = 500;
 
             int id = 0;
-            foreach (var channelId in currentChannelIds)
+            foreach (var channelId in previousChannelIds)
             {
                 // channel is not in groups channel anymore / channel with empty query / channel id is not int - must be garbage
                 if ((int.TryParse(channelId, out id) && !channelIds.Contains(id)) || id == 0 || channelsToRemove.Contains(channelId))
