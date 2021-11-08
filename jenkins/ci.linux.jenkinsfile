@@ -34,11 +34,6 @@ pipeline {
             steps
             {
                 ansiColor('xterm') {
-                    GREEN="\u001B[32m"
-                    RED="\u001B[31m"
-                    ANSI_END="\u001B[0m"
-                    BLUE="\u001B[34m"
-                    CYAN="\u001B[36m"
                     runTests()
                 }
             }
@@ -111,8 +106,12 @@ def findDirectoriesWithTests() {
 }
 
 def runTestInDocker(testProjects){
-    testProjects.any { project -> 
-        // ott-lib-jenkins
+    def GREEN="\u001B[32m"
+    def RED="\u001B[31m"
+    def ANSI_END="\u001B[0m"
+    def BLUE="\u001B[34m"
+    def CYAN="\u001B[36m"
+    def testProjects.any { project -> 
         withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "mcr.microsoft.com/dotnet/core/sdk:3.1-alpine", project) {
             echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
             sh "dotnet build ${project}"
