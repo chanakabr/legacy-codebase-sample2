@@ -103,7 +103,9 @@ namespace Core.Catalog
         private readonly IMappingTypeResolver _mappingTypeResolver;
         private readonly int _partnerId;
         private readonly IChannelQueryBuilder _channelQueryBuilder;
-
+        
+        private static eFieldType[] LanguageSpecificGroupByFieldTypes => new eFieldType[] { eFieldType.LanguageSpecificField, eFieldType.Tag, eFieldType.StringMeta };
+        
         /// <summary>
         /// Initialiezs an instance of Index Manager for work with ElasticSearch 2.3. 
         /// Please do not use this ctor, rather use IndexManagerFactory.
@@ -2202,7 +2204,8 @@ namespace Core.Catalog
         {
             var key = groupBy.Key.ToLower();
             var type = groupBy.Type;
-            string value = ESUnifiedQueryBuilder.GetElasticsearchFieldName(false, language, key, type);
+            var isLanguageSpecific = ExtractLanguageSpecific(groupBy);
+            string value = ESUnifiedQueryBuilder.GetElasticsearchFieldName(isLanguageSpecific, language, key, type);
 
             if (groupBy.Type == eFieldType.Tag || groupBy.Type == eFieldType.StringMeta)
             {
@@ -2210,6 +2213,11 @@ namespace Core.Catalog
             }
 
             groupBy.Value = value;
+        }
+
+        private bool ExtractLanguageSpecific(GroupByDefinition groupBy)
+        {
+            return LanguageSpecificGroupByFieldTypes.Contains(groupBy.Type);
         }
 
         private string GetUrl(UnifiedSearchDefinitions unifiedSearchDefinitions, int parentGroupId)
