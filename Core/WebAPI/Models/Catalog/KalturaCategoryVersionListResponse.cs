@@ -5,10 +5,10 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using WebAPI.Models.General;
 
-namespace WebAPI.Models.Notification
+namespace WebAPI.Models.Catalog
 {
     [Serializable]
-    public partial class KalturaSmsAdapterProfileListResponse : KalturaListResponse
+    public partial class KalturaCategoryVersionListResponse : KalturaListResponse
     {
         /// <summary>
         /// A list of objects
@@ -17,6 +17,6 @@ namespace WebAPI.Models.Notification
         [JsonProperty("objects")]
         [XmlArray(ElementName = "objects", IsNullable = true)]
         [XmlArrayItem("item")]
-        public List<KalturaSmsAdapterProfile> Objects { get; set; }
+        public List<KalturaCategoryVersion> Objects { get; set; }
     }
 }
