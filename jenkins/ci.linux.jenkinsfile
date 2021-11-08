@@ -129,7 +129,7 @@ def runTestInDocker(testProjects){
     def BLUE="\u001B[34m"
     def CYAN="\u001B[36m"
     testProjects.any { project -> 
-        if (currentBuild.result == 'FAILURE' || currentBuild.result == 'UNSTABLE' ) {
+        if (currentBuild.result == 'FAILURE') {
             return true
         }
         echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
