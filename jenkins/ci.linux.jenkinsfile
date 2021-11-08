@@ -7,7 +7,7 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr:'50'))
         skipDefaultCheckout true
         disableConcurrentBuilds()
-        quietPeriod(50)
+        quietPeriod(10)
     }
     environment{
         AWS_REGION="us-west-2"
@@ -114,12 +114,26 @@ def runTestInDocker(testProjects){
     testProjects.any { project -> 
         echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
         withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "mcr.microsoft.com/dotnet/core/sdk:3.1-alpine", project) {
-            sh "dotnet build ${project}"
-            sh "dotnet test ${project} --no-build --logger \"junit;LogFilePath=./test-results.xml\""
+            def buildStatus = sh ( script: "dotnet build ${project} --nologo", returnStatus: true)
+            if(buildStatus != 0) {
+                echo "${RED}------------------------------------------- Building Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh "exit 1"
+                }
+            }
+            def testStatus = sh ( script: "dotnet test ${project} --nologo --no-build --logger \"junit;LogFilePath=./test-results.xml\"", returnStatus: true)
+            if(testStatus != 0) {
+                echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh "exit 1"
+                }
+            }
             junit "**/test-results.xml"
             if (currentBuild.result == 'UNSTABLE') {
-                echo "${RED}------------------------------------------- Tests: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
-                return true
+                echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
+                catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                    sh "exit 1"
+                }
             }
         }
         echo "${GREEN}------------------------------------------- Finished Tests: ${project} -------------------------------------------${ANSI_END}"
