@@ -37,23 +37,6 @@ pipeline {
                     runTests()
                 }
             }
-            post
-            {
-                failure
-                {
-                    script
-                    {
-                        error "Tests have been failing so the build has been terminated. Please fix the tests."
-                    }
-                }
-                unstable
-                {
-                    script
-                    {
-                        error "Tests have been failing so the build has been terminated. Please fix the tests."
-                    }
-                }
-            }
         }
         stage ('ECR Login') {
             steps{
@@ -128,23 +111,14 @@ def runTestInDocker(testProjects){
     def ANSI_END="\u001B[0m"
     def BLUE="\u001B[34m"
     def CYAN="\u001B[36m"
-    testProjects.any { project -> 
-        if (currentBuild.result == 'FAILURE') {
-            return true
-        }
+    for(project in testProjects) { 
         echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
         withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "mcr.microsoft.com/dotnet/core/sdk:3.1-alpine", project) {
-            def buildStatus = sh ( script: "dotnet build ${project}", returnStatus: true)
-            if(buildStatus != 0) {
-                echo "${RED}------------------------------------------- Building Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
-                currentBuild.result = 'FAILURE'
-                error "1"
-            }
-            def testStatus = sh ( script: "dotnet test ${project} --no-build --logger \"junit;LogFilePath=./test-results.xml\"", returnStatus: true)
+            def testStatus = sh ( script: "dotnet test ${project} --logger \"junit;LogFilePath=./test-results.xml\"", returnStatus: true)
             if(testStatus != 0) {
                 echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
                 currentBuild.result = 'FAILURE'
-                error "2"
+                break;
             }
             junit "**/test-results.xml"
         }
