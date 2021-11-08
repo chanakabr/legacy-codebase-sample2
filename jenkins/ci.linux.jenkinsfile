@@ -118,23 +118,23 @@ def runTestInDocker(testProjects){
             if(buildStatus != 0) {
                 echo "${RED}------------------------------------------- Building Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh "exit 1"
                 }
             }
             def testStatus = sh ( script: "dotnet test ${project} --nologo --no-build --logger \"junit;LogFilePath=./test-results.xml\"", returnStatus: true)
             if(testStatus != 0) {
                 echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh "exit 1"
                 }
             }
             junit "**/test-results.xml"
             if (currentBuild.result == 'UNSTABLE') {
                 echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
                 catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-                    sh "exit 1"
                 }
             }
+        }
+        if (currentBuild.result == 'FAILURE') {
+            return true
         }
         echo "${GREEN}------------------------------------------- Finished Tests: ${project} -------------------------------------------${ANSI_END}"
     }
