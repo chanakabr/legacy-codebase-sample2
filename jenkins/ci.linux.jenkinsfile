@@ -197,13 +197,11 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
 }
 
 def report(){
-    sh ("\$(aws ecr get-login --no-include-email --region ${AWS_REGION})")
+    sh ("set +x;\$(aws ecr get-login --no-include-email --region ${AWS_REGION})")
     //configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-    def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
-    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim();
+    def committerEmail = sh ( script: 'set +x;git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
+    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "set +x;git rev-parse HEAD", returnStdout: true).trim();
     //def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
     //echo "${reportout}"
-    def report = sh (script: "${PIPECLI} report job -b ${BRANCH_NAME} -s ${STAGE} --buildnum ${env.BUILD_NUMBER} --job ${env.JOB_NAME} --type build --buildstatus ${currentBuild.currentResult} --gitcommit ${GIT_COMMIT} --ecr NA --commiter ${committerEmail}", returnStdout: true)
-    echo "${report}"
-
+    def report = sh (script: "set +x;${PIPECLI} report job -b ${BRANCH_NAME} -s ${STAGE} --buildnum ${env.BUILD_NUMBER} --job ${env.JOB_NAME} --type build --buildstatus ${currentBuild.currentResult} --gitcommit ${GIT_COMMIT} --ecr NA --commiter ${committerEmail}", returnStdout: true)
 }
