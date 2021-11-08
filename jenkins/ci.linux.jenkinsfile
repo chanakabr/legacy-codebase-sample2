@@ -1,4 +1,4 @@
-library identifier: 'ott-lib-jenkins@master', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
+library identifier: 'ott-lib-jenkins@fixOTTBackend', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
 pipeline {
     agent {
         label 'Linux'
@@ -29,23 +29,20 @@ pipeline {
                     currentBuild.displayName = "#${BUILD_NUMBER}: ${BRANCH_NAME} - ${committerEmail}" }
             }
         }
-        // stage('Test')
-        // {
-        //     steps
-        //     {
-        //         runTests()
-        //     }
-        //     // post
-        //     // {
-        //     //     failure
-        //     //     {
-        //     //         script
-        //     //         {
-        //     //             sh "exit 1"
-        //     //         }
-        //     //     }
-        //     // }
-        // }
+        stage('Test')
+        {
+            steps
+            {
+                ansiColor('xterm') {
+                    GREEN="\u001B[32m"
+                    RED="\u001B[31m"
+                    ANSI_END="\u001B[0m"
+                    BLUE="\u001B[34m"
+                    CYAN="\u001B[36m"
+                    runTests()
+                }
+            }
+        }
         stage ('ECR Login') {
             steps{
                 sh(label: "ECR Login", script: "login=\$(aws ecr get-login --no-include-email --region ${AWS_REGION}) && \${login}")
@@ -57,7 +54,7 @@ pipeline {
                 buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
                 buildDockerAndPushToEcr("wsingest","WSIngest.Dockerfile")
                 buildDockerAndPushToEcr("ingesthandlers","IngestHandlers.Dockerfile")
-		buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
+		        buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
             }
         }
         stage("Trigger Release Candidate"){
@@ -114,16 +111,19 @@ def findDirectoriesWithTests() {
 }
 
 def runTestInDocker(testProjects){
-    testProjects.each { project -> 
+    testProjects.any { project -> 
         // ott-lib-jenkins
         withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "mcr.microsoft.com/dotnet/core/sdk:3.1-alpine", project) {
+            echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
             sh "dotnet build ${project}"
             sh "dotnet test ${project} --no-build --logger \"junit;LogFilePath=./test-results.xml\""
             junit "**/test-results.xml"
             if (currentBuild.result == 'UNSTABLE') {
-                error "Tests are failed, check tab Tests/Test Result..."
+                echo "${RED}------------------------------------------- Tests: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
+                return true
             }
         }
+        echo "${GREEN}------------------------------------------- Finished Tests: ${project} -------------------------------------------${ANSI_END}"
     }
 }
 
