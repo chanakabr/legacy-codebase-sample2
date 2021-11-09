@@ -33,18 +33,10 @@ pipeline {
         {
             steps
             {
-                runTests()
+                ansiColor('xterm') {
+                    runTests()
+                }
             }
-            // post
-            // {
-            //     failure
-            //     {
-            //         script
-            //         {
-            //             sh "exit 1"
-            //         }
-            //     }
-            // }
         }
         stage ('ECR Login') {
             steps{
@@ -57,7 +49,7 @@ pipeline {
                 buildDockerAndPushToEcr("tvpapi","Tvpapi.Dockerfile")
                 buildDockerAndPushToEcr("wsingest","WSIngest.Dockerfile")
                 buildDockerAndPushToEcr("ingesthandlers","IngestHandlers.Dockerfile")
-		buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
+		        buildDockerAndPushToEcr("opc-migration","OPC_Migration.Dockerfile")
             }
         }
         stage("Trigger Release Candidate"){
@@ -110,25 +102,29 @@ def runTests(){
 }
 
 def findDirectoriesWithTests() {
-    sh (script: "ls -d -- **/*.Tests", returnStdout: true).trim().split("\\r?\\n")
+    sh (script: "set +x;ls -d -- **/*.Tests", returnStdout: true).trim().split("\\r?\\n")
 }
 
 def runTestInDocker(testProjects){
-    testProjects.each { project -> 
-        // ott-lib-jenkins
+    def GREEN="\u001B[32m"
+    def RED="\u001B[31m"
+    def ANSI_END="\u001B[0m"
+    def BLUE="\u001B[34m"
+    def CYAN="\u001B[36m"
+    for(project in testProjects) { 
+        echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
         withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "mcr.microsoft.com/dotnet/core/sdk:3.1-alpine", project) {
-            def buildStatus = sh ( script: "dotnet build ${project}", returnStatus: true)
-            if(buildStatus != 0) {
-                echo "Project ${project} failed to build"
+            def testStatus = sh ( script: "dotnet test ${project} --logger \"junit;LogFilePath=./test-results.xml\"", returnStatus: true)
+            if(testStatus != 0) {
+                echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
                 currentBuild.result = 'FAILURE'
-            } else {
-                sh("dotnet test ${project} --no-build --logger \"junit;LogFilePath=./test-results.xml\" || true")
-                junit "**/test-results.xml"
-                if (currentBuild.result == 'UNSTABLE') {
-                    error "Tests are failed, check tab Tests/Test Result..."
-                }
+                break;
             }
+            junit "**/test-results.xml"
         }
+    }
+    if (currentBuild.result == 'SUCCESS') {
+        echo "${GREEN}------------------------------------------- Finished All Tests!!! -------------------------------------------${ANSI_END}"
     }
 }
 
@@ -177,13 +173,11 @@ def buildDockerAndPushToEcr(componentName, dockerfile){
 }
 
 def report(){
-    sh ("\$(aws ecr get-login --no-include-email --region ${AWS_REGION})")
+    sh ("set +x;\$(aws ecr get-login --no-include-email --region ${AWS_REGION})")
     //configFileProvider([configFile(fileId: 'cec5686d-4d84-418a-bb15-33c85c236ba0', targetLocation: 'ReportJobStatus.sh')]) {}
-    def committerEmail = sh ( script: 'git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
-    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "git rev-parse HEAD", returnStdout: true).trim();
+    def committerEmail = sh ( script: 'set +x;git --no-pager show -s --format=\'%ae\'', returnStdout: true ).trim()
+    def GIT_COMMIT = sh(label:"Obtain GIT Commit", script: "set +x;git rev-parse HEAD", returnStdout: true).trim();
     //def reportout = sh (script: "chmod +x ReportJobStatus.sh && ./ReportJobStatus.sh ${BRANCH_NAME} build ${env.BUILD_NUMBER} ${env.JOB_NAME} build ${currentBuild.currentResult} ${GIT_COMMIT} NA ${committerEmail}", returnStdout: true)
     //echo "${reportout}"
-    def report = sh (script: "${PIPECLI} report job -b ${BRANCH_NAME} -s ${STAGE} --buildnum ${env.BUILD_NUMBER} --job ${env.JOB_NAME} --type build --buildstatus ${currentBuild.currentResult} --gitcommit ${GIT_COMMIT} --ecr NA --commiter ${committerEmail}", returnStdout: true)
-    echo "${report}"
-
+    def report = sh (script: "set +x;${PIPECLI} report job -b ${BRANCH_NAME} -s ${STAGE} --buildnum ${env.BUILD_NUMBER} --job ${env.JOB_NAME} --type build --buildstatus ${currentBuild.currentResult} --gitcommit ${GIT_COMMIT} --ecr NA --commiter ${committerEmail}", returnStdout: true)
 }
