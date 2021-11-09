@@ -19,6 +19,7 @@ using ElasticSearch.Utilities;
 using ApiLogic.IndexManager.QueryBuilders;
 using TvinciCache.Adapters;
 using ApiLogic.IndexManager.Mappings;
+using ApiLogic.IndexManager.Sorting;
 using TVinciShared;
 
 namespace Core.Catalog
@@ -126,7 +127,10 @@ namespace Core.Catalog
                         CatalogCache.Instance(),
                         WatchRuleManager.Instance,
                         ChannelQueryBuilder.Instance,
-                        MappingTypeResolver.Instance);
+                        MappingTypeResolver.Instance,
+                        SortingByStatsService.Instance,
+                        StartDateAssociationTagsSortStrategy.Instance, 
+                        StatisticsSortStrategy.Instance);
 
                     if (isMigrationEventsEnabled)
                     {

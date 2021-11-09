@@ -46,6 +46,7 @@ using EpgBL;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.Mappings;
+using ApiLogic.IndexManager.Sorting;
 
 namespace Core.Catalog
 {
@@ -101,6 +102,9 @@ namespace Core.Catalog
         private readonly ICatalogCache _catalogCache;
         private readonly IWatchRuleManager _watchRuleManager;
         private readonly IMappingTypeResolver _mappingTypeResolver;
+        private readonly ISortingByStatsService _sortingByStatsService;
+        private readonly IStartDateAssociationTagsSortStrategy _startDateAssociationTagsSortStrategy;
+        private readonly IStatisticsSortStrategy _statisticsSortStrategy;
         private readonly int _partnerId;
         private readonly IChannelQueryBuilder _channelQueryBuilder;
         
@@ -121,6 +125,10 @@ namespace Core.Catalog
         /// <param name="catalogCache"></param>
         /// <param name="watchRuleManager"></param>
         /// <param name="channelQueryBuilder"></param>
+        /// <param name="mappingTypeResolver"></param>
+        /// <param name="sortingByStatsService"></param>
+        /// <param name="startDateAssociationTagsSortStrategy"></param>
+        /// <param name="statisticsSortStrategy"></param>
         public IndexManagerV2(int partnerId,
             IElasticSearchApi elasticSearchClient,
             IGroupManager groupManager,
@@ -132,7 +140,10 @@ namespace Core.Catalog
             ICatalogCache catalogCache,
             IWatchRuleManager watchRuleManager,
             IChannelQueryBuilder channelQueryBuilder,
-            IMappingTypeResolver mappingTypeResolver)
+            IMappingTypeResolver mappingTypeResolver,
+            ISortingByStatsService sortingByStatsService,
+            IStartDateAssociationTagsSortStrategy startDateAssociationTagsSortStrategy,
+            IStatisticsSortStrategy statisticsSortStrategy)
         {
             _elasticSearchApi = elasticSearchClient;
             _groupManager = groupManager;
@@ -146,6 +157,9 @@ namespace Core.Catalog
             _watchRuleManager = watchRuleManager;
             _channelQueryBuilder = channelQueryBuilder;
             _mappingTypeResolver = mappingTypeResolver;
+            _sortingByStatsService = sortingByStatsService;
+            _startDateAssociationTagsSortStrategy = startDateAssociationTagsSortStrategy;
+            _statisticsSortStrategy = statisticsSortStrategy;
         }
 
         #region OPC helpers
@@ -214,7 +228,6 @@ namespace Core.Catalog
                 var languages = GetGroupManager().GetLangauges();
                 languagesMap = languages.ToDictionary(x => x.ID, x => x);
             }
-
 
             try
             {
@@ -1167,8 +1180,14 @@ namespace Core.Catalog
                             if (search.m_oOrder.m_eOrderBy.Equals(ApiObjects.SearchObjects.OrderBy.START_DATE))
                             {
                                 lMediaIds =
-                                    SortAssetsByStartDate(lMediaDocs, search.m_oOrder.m_eOrderDir,
-                                        search.associationTags, search.parentMediaTypes).Select(x => Convert.ToInt32(x)).ToList();
+                                    _startDateAssociationTagsSortStrategy.SortAssetsByStartDate(
+                                            lMediaDocs,
+                                            search.m_oOrder.m_eOrderDir,
+                                            search.associationTags,
+                                            search.parentMediaTypes,
+                                            _partnerId)
+                                        .Select(x => Convert.ToInt32(x))
+                                        .ToList();
                             }
                             else
                             {
@@ -2016,53 +2035,48 @@ namespace Core.Catalog
                             // If this is orderd by a social-stat - first we will get all asset Ids and only then we will sort and page
                             if (isOrderedByStat)
                             {
+                                var sortingByStatsService = new SortingByStatsService(
+                                    new StartDateAssociationTagsSortStrategy(_elasticSearchApi),
+                                    new RecommendationSortStrategy(),
+                                    new StatisticsSortStrategy(_layeredCache, new KLogger(typeof(StatisticsSortStrategy).FullName), _elasticSearchApi));
                                 #region Ordered by stat
 
                                 List<long> assetIds = searchResultsList.Select(item => long.Parse(item.AssetId)).ToList();
 
                                 List<long> orderedIds = null;
 
-                                // Do special sort only when searching by media
-                                if (shouldSortByStartDateOfAssociationTagsAndParentMedia)
+                                if (unifiedSearchDefinitions.PriorityGroupsMappings == null)
                                 {
-                                    orderedIds = SortAssetsByStartDate(assetsDocumentsDecoded, order.m_eOrderDir,
-                                        unifiedSearchDefinitions.associationTags,
-                                        unifiedSearchDefinitions.parentMediaTypes);
-                                }
-                                // Recommendation - the order is predefined already. We will use the order that is given to us
-                                else if (orderBy == ApiObjects.SearchObjects.OrderBy.RECOMMENDATION)
-                                {
-                                    orderedIds = new List<long>();
-                                    HashSet<long> idsHashset = new HashSet<long>(assetIds);
-
-                                    // Add all ordered ids from definitions first
-                                    foreach (var asset in unifiedSearchDefinitions.specificOrder)
-                                    {
-                                        // If the id exists in search results
-                                        if (idsHashset.Remove(asset.Value))
-                                        {
-                                            // add to ordered list
-                                            orderedIds.Add(asset.Value);
-                                        }
-                                    }
-
-                                    // Add all ids that are left
-                                    foreach (long id in idsHashset)
-                                    {
-                                        orderedIds.Add(id);
-                                    }
+                                    orderedIds = sortingByStatsService.ListOrderedIds(assetsDocumentsDecoded,
+                                        assetIds,
+                                        shouldSortByStartDateOfAssociationTagsAndParentMedia,
+                                        unifiedSearchDefinitions,
+                                        order.m_eOrderDir,
+                                        orderBy,
+                                        _partnerId).ToList();
                                 }
                                 else
                                 {
-                                    if (unifiedSearchDefinitions.trendingAssetWindow.HasValue)
+                                    var priorityGroupsResults = searchResultsList.GroupBy(r => r.Score);
+                                    orderedIds = new List<long>();
+                                    foreach (var priorityGroupsResult in priorityGroupsResults)
                                     {
-                                        //BEO-9415
-                                        orderedIds = SortAssetsByStats(assetIds, orderBy, order.m_eOrderDir,
-                                            unifiedSearchDefinitions.trendingAssetWindow, DateTime.UtcNow);
-                                    }
-                                    else
-                                    {
-                                        orderedIds = SortAssetsByStats(assetIds, orderBy, order.m_eOrderDir);
+                                        var esAssetDocuments = new List<ElasticSearchApi.ESAssetDocument>();
+                                        var assetIdsChunk = new List<long>();
+                                        foreach (var unifiedSearchResult in priorityGroupsResult)
+                                        {
+                                            esAssetDocuments.Add(idToDocument[unifiedSearchResult.AssetId]);
+                                            assetIdsChunk.Add(long.Parse(unifiedSearchResult.AssetId));
+                                        }
+
+                                        var orderedIdsChunk = sortingByStatsService.ListOrderedIds(esAssetDocuments,
+                                            assetIdsChunk,
+                                            shouldSortByStartDateOfAssociationTagsAndParentMedia,
+                                            unifiedSearchDefinitions,
+                                            order.m_eOrderDir,
+                                            orderBy,
+                                            _partnerId);
+                                        orderedIds.AddRange(orderedIdsChunk);
                                     }
                                 }
 
@@ -4247,7 +4261,7 @@ namespace Core.Catalog
                     }
             }
 
-            var orderedList = SortAssetsByStats(assetIds, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, dtEndDate);
+            var orderedList = _statisticsSortStrategy.SortAssetsByStats(assetIds, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, _partnerId, dtStartDate, dtEndDate);
 
             result = orderedList.Select(id => (int)id).ToList();
 
@@ -4419,7 +4433,7 @@ namespace Core.Catalog
                     }
             }
 
-            var orderedList = this.SortAssetsByStats(assetIds, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, dtStartDate, dtEndDate);
+            var orderedList = _statisticsSortStrategy.SortAssetsByStats(assetIds, orderBy, ApiObjects.SearchObjects.OrderDir.DESC, _partnerId, dtStartDate, dtEndDate);
 
             result = orderedList.Select(id => (int)id).ToList();
 

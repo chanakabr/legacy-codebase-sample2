@@ -31,6 +31,7 @@ using ElasticSearch.NEST;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.QueryBuilders;
 using ApiLogic.IndexManager.Mappings;
+using ApiLogic.IndexManager.Sorting;
 
 namespace ApiLogic.Tests.IndexManager
 {
@@ -49,6 +50,9 @@ namespace ApiLogic.Tests.IndexManager
         private Mock<IWatchRuleManager> _mockWatchRuleManager;
         private Mock<IChannelQueryBuilder> _mockChannelQueryBuilder;
         private Mock<IMappingTypeResolver> _mockMappingTypeResolver;
+        private Mock<ISortingByStatsService> _mockSortingByStatsService;
+        private Mock<IStartDateAssociationTagsSortStrategy> _mockStartDateAssociationTagsSortStrategy;
+        private Mock<IStatisticsSortStrategy> _mockStatisticsSortStrategy;
 
         private IndexManagerV2 GetIndexV2Manager(int partnerId)
         {
@@ -63,8 +67,11 @@ namespace ApiLogic.Tests.IndexManager
                 _mockCatalogCache.Object,
                 _mockWatchRuleManager.Object,
                 _mockChannelQueryBuilder.Object,
-                _mockMappingTypeResolver.Object
-                );
+                _mockMappingTypeResolver.Object,
+                _mockSortingByStatsService.Object,
+                _mockStartDateAssociationTagsSortStrategy.Object,
+                _mockStatisticsSortStrategy.Object
+            );
         }
 
         //[SetUp]
@@ -86,6 +93,9 @@ namespace ApiLogic.Tests.IndexManager
             _mockChannelQueryBuilder = _mockRepository.Create<IChannelQueryBuilder>();
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitions(ElasticSearch.Common.Utils.Instance, ApplicationConfiguration.Current);
             _mockMappingTypeResolver = _mockRepository.Create<IMappingTypeResolver>();
+            _mockSortingByStatsService = _mockRepository.Create<ISortingByStatsService>();
+            _mockStartDateAssociationTagsSortStrategy = _mockRepository.Create<IStartDateAssociationTagsSortStrategy>();
+            _mockStatisticsSortStrategy = _mockRepository.Create<IStatisticsSortStrategy>();
         }
 
         //[Test]
