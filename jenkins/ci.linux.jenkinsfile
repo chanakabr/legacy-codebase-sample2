@@ -1,4 +1,4 @@
-library identifier: 'ott-lib-jenkins@fixOTTBackend', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
+library identifier: 'ott-lib-jenkins@master', retriever: modernSCM([$class: 'GitSCMSource', credentialsId: 'github-ott-ci-cd', remote: 'https://github.com/kaltura/ott-lib-jenkins'])
 pipeline {
     agent {
         label 'Linux'
