@@ -853,6 +853,11 @@ namespace CachingProvider.LayeredCache
         {
             return $"GroupUsingAliasNames_{groupId}";
         }
+        
+        public static string GetListSearchPriorityGroupMappingsKey(long groupId)
+        {
+            return $"group_{groupId}_searchPriorityGroupsMappings";
+        }
 
         public static string GetUserSessionProfiles(int groupId)
         {
@@ -1606,6 +1611,11 @@ namespace CachingProvider.LayeredCache
         public static string GetUserSessionProfilesInvalidationKey(int groupId)
         {
             return $"invalidationKey_{GetUserSessionProfiles(groupId)}";
+        }
+
+        public static string GetListSearchPriorityGroupMappingsInvalidationKey(long groupId)
+        {
+            return $"invalidationKey_group_{groupId}_searchPriorityGroupsMappings";
         }
 
         #endregion

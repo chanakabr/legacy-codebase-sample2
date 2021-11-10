@@ -7,19 +7,20 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web;
 using ApiLogic.Catalog;
+using ApiLogic.Catalog.CatalogManagement.Managers;
 using APILogic.CRUD;
 using ApiObjects;
 using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
+using ApiObjects.SearchPriorityGroups;
 using AutoMapper;
 using Catalog.Response;
 using Core.Catalog;
 using Core.Catalog.CatalogManagement;
 using Core.Catalog.Request;
 using Core.Catalog.Response;
-using ElasticSearch.Searcher;
 using GroupsCacheManager;
 using KalturaRequestContext;
 using KLogMonitor;
@@ -33,8 +34,8 @@ using WebAPI.Managers.Scheme;
 using WebAPI.Models.Api;
 using WebAPI.Models.API;
 using WebAPI.Models.Catalog;
+using WebAPI.Models.Catalog.SearchPriorityGroup;
 using WebAPI.Models.General;
-using WebAPI.Models.Partner;
 using WebAPI.Models.Upload;
 using WebAPI.Models.Users;
 using WebAPI.ObjectsConvertor;
@@ -56,6 +57,8 @@ namespace WebAPI.Clients
         private const string EPG_DATETIME_FORMAT = "dd/MM/yyyy HH:mm:ss";
         private const string OPC_MERGE_VERSION = "5.0.0.0";
         private readonly Version opcMergeVersion = new Version(OPC_MERGE_VERSION);
+
+        private readonly ISearchPriorityGroupManager _searchPriorityGroupManager = SearchPriorityGroupManager.Instance;
 
         public string Signature { get; set; }
         public string SignString { get; set; }
@@ -4244,6 +4247,60 @@ namespace WebAPI.Clients
             Status SendUpdatedNotificationCallback() => LineupService.Instance.SendUpdatedNotification(groupId, userId, regionIds);
 
             return ClientUtils.GetResponseStatusFromWS(SendUpdatedNotificationCallback);
+        }
+
+        internal KalturaSearchPriorityGroup AddSearchPriorityGroup(long groupId, KalturaSearchPriorityGroup searchPriorityGroup, long userId)
+        {
+            Func<SearchPriorityGroup, GenericResponse<SearchPriorityGroup>> addFunc = request => _searchPriorityGroupManager.AddSearchPriorityGroup(groupId, request, userId);
+            var result = ClientUtils.GetResponseFromWS(searchPriorityGroup, addFunc);
+
+            return result;
+        }
+
+        internal KalturaSearchPriorityGroup UpdateSearchPriorityGroup(long groupId, KalturaSearchPriorityGroup searchPriorityGroup)
+        {
+            Func<SearchPriorityGroup, GenericResponse<SearchPriorityGroup>> updateFunc = request => _searchPriorityGroupManager.UpdateSearchPriorityGroup(groupId, request);
+            var result = ClientUtils.GetResponseFromWS(searchPriorityGroup, updateFunc);
+
+            return result;
+        }
+
+        internal bool DeleteSearchPriorityGroup(long groupId, long searchPriorityGroupId, long updaterId)
+        {
+            Func<Status> deleteFunc = () => _searchPriorityGroupManager.DeleteSearchPriorityGroup(groupId, searchPriorityGroupId, updaterId);
+            var result = ClientUtils.GetResponseStatusFromWS(deleteFunc);
+
+            return result;
+        }
+
+        internal KalturaSearchPriorityGroupListResponse ListSearchPriorityGroups(long groupId, SearchPriorityGroupQuery query)
+        {
+            Func<GenericListResponse<SearchPriorityGroup>> listFunc = () => _searchPriorityGroupManager.ListSearchPriorityGroups(groupId, query);
+            var response = ClientUtils.GetResponseListFromWS<KalturaSearchPriorityGroup, SearchPriorityGroup>(listFunc);
+
+            var result = new KalturaSearchPriorityGroupListResponse
+            {
+                Objects = response.Objects,
+                TotalCount = response.TotalCount
+            };
+
+            return result;
+        }
+
+        internal KalturaSearchPriorityGroupOrderedIdsSet SetKalturaSearchPriorityGroupOrderedList(long groupId, KalturaSearchPriorityGroupOrderedIdsSet orderedList)
+        {
+            Func<SearchPriorityGroupOrderedIdsSet, GenericResponse<SearchPriorityGroupOrderedIdsSet>> setFunc = request => _searchPriorityGroupManager.SetKalturaSearchPriorityGroupOrderedList(groupId, request);
+            var result = ClientUtils.GetResponseFromWS(orderedList, setFunc);
+
+            return result;
+        }
+
+        internal KalturaSearchPriorityGroupOrderedIdsSet GetKalturaSearchPriorityGroupOrderedList(long groupId)
+        {
+            Func<GenericResponse<SearchPriorityGroupOrderedIdsSet>> getFunc = () => _searchPriorityGroupManager.GetKalturaSearchPriorityGroupOrderedList(groupId);
+            var result = ClientUtils.GetResponseFromWS<KalturaSearchPriorityGroupOrderedIdsSet, SearchPriorityGroupOrderedIdsSet>(getFunc);
+
+            return result;
         }
     }
 }

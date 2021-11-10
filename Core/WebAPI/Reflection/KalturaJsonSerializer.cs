@@ -36,6 +36,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
+using WebAPI.Models.Catalog.SearchPriorityGroup;
 
 namespace WebAPI.Models.ConditionalAccess
 {
@@ -46018,6 +46019,240 @@ namespace WebAPI.Models.Api
             {
                 propertyValue = PersonalListList.Count > 0 ? "<item>" + String.Join("</item><item>", PersonalListList.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
                 ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+}
+
+namespace WebAPI.Models.Catalog.SearchPriorityGroup
+{
+    public partial class KalturaSearchPriorityCriteria
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("type")))
+            {
+                ret.Add("type", "\"type\": " + "\"" + Enum.GetName(typeof(KalturaSearchPriorityCriteriaType), Type) + "\"");
+            }
+            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            {
+                ret.Add("value", "\"value\": " + "\"" + EscapeJson(Value) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("type")))
+            {
+                ret.Add("type", "<type>" + "" + Enum.GetName(typeof(KalturaSearchPriorityCriteriaType), Type) + "" + "</type>");
+            }
+            if(Value != null && (retrievedProperties == null || retrievedProperties.Contains("value")))
+            {
+                ret.Add("value", "<value>" + EscapeXml(Value) + "</value>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaSearchPriorityGroup
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Criteria != null && (retrievedProperties == null || retrievedProperties.Contains("criteria")))
+            {
+                propertyValue = Criteria.ToJson(currentVersion, omitObsolete);
+                ret.Add("criteria", "\"criteria\": " + propertyValue);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + Id);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                propertyValue = Name.ToCustomJson(currentVersion, omitObsolete, "name");
+                if(propertyValue != null)
+                {
+                    ret.Add("name", propertyValue);
+                }
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Criteria != null && (retrievedProperties == null || retrievedProperties.Contains("criteria")))
+            {
+                propertyValue = Criteria.ToXml(currentVersion, omitObsolete);
+                ret.Add("criteria", "<criteria>" + propertyValue + "</criteria>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + Id + "</id>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("name")))
+            {
+                ret.Add("name", Name.ToCustomXml(currentVersion, omitObsolete, "name"));
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaSearchPriorityGroupFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("activeOnlyEqual")))
+            {
+                ret.Add("activeOnlyEqual", "\"activeOnlyEqual\": " + ActiveOnly.ToString().ToLower());
+            }
+            if(IdEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("idEqual")))
+            {
+                ret.Add("idEqual", "\"idEqual\": " + IdEqual);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("activeOnlyEqual")))
+            {
+                ret.Add("activeOnlyEqual", "<activeOnlyEqual>" + ActiveOnly.ToString().ToLower() + "</activeOnlyEqual>");
+            }
+            if(IdEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("idEqual")))
+            {
+                ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaSearchPriorityGroupListResponse
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Objects != null)
+            {
+                propertyValue = "[" + String.Join(", ", Objects.Select(item => item.ToJson(currentVersion, omitObsolete, true))) + "]";
+                ret.Add("objects", "\"objects\": " + propertyValue);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(Objects != null)
+            {
+                propertyValue = Objects.Count > 0 ? "<item>" + String.Join("</item><item>", Objects.Select(item => item.ToXml(currentVersion, omitObsolete, true))) + "</item>": "";
+                ret.Add("objects", "<objects>" + propertyValue + "</objects>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaSearchPriorityGroupOrderedIdsSet
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(PriorityGroupIds != null && (retrievedProperties == null || retrievedProperties.Contains("priorityGroupIds")))
+            {
+                ret.Add("priorityGroupIds", "\"priorityGroupIds\": " + "\"" + EscapeJson(PriorityGroupIds) + "\"");
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(PriorityGroupIds != null && (retrievedProperties == null || retrievedProperties.Contains("priorityGroupIds")))
+            {
+                ret.Add("priorityGroupIds", "<priorityGroupIds>" + EscapeXml(PriorityGroupIds) + "</priorityGroupIds>");
             }
             return ret;
         }

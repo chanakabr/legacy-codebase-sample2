@@ -35,6 +35,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
+using WebAPI.Models.Catalog.SearchPriorityGroup;
 
 namespace WebAPI.Reflection
 {
@@ -1993,6 +1994,21 @@ namespace WebAPI.Reflection
                     
                 case "KalturaSearchHistoryListResponse":
                     return new KalturaSearchHistoryListResponse(parameters, true);
+                    
+                case "KalturaSearchPriorityCriteria":
+                    return new KalturaSearchPriorityCriteria(parameters, true);
+                    
+                case "KalturaSearchPriorityGroup":
+                    return new KalturaSearchPriorityGroup(parameters, true);
+                    
+                case "KalturaSearchPriorityGroupFilter":
+                    return new KalturaSearchPriorityGroupFilter(parameters, true);
+                    
+                case "KalturaSearchPriorityGroupListResponse":
+                    return new KalturaSearchPriorityGroupListResponse(parameters, true);
+                    
+                case "KalturaSearchPriorityGroupOrderedIdsSet":
+                    return new KalturaSearchPriorityGroupOrderedIdsSet(parameters, true);
                     
                 case "KalturaSeasonsReminderFilter":
                     return new KalturaSeasonsReminderFilter(parameters, true);
@@ -41073,6 +41089,140 @@ namespace WebAPI.Models.Api
                     {
                         PersonalListList = buildList(typeof(KalturaPersonalList), parameters["objects"] as object[]);
                     }
+                }
+            }
+        }
+    }
+}
+
+namespace WebAPI.Models.Catalog.SearchPriorityGroup
+{
+    public partial class KalturaSearchPriorityCriteria
+    {
+        public KalturaSearchPriorityCriteria(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("type") && parameters["type"] != null)
+                {
+                    if(string.IsNullOrEmpty(parameters["type"].ToString()))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "type");
+                    }
+
+                    Type = (KalturaSearchPriorityCriteriaType) Enum.Parse(typeof(KalturaSearchPriorityCriteriaType), parameters["type"].ToString(), true);
+
+                    if (!Enum.IsDefined(typeof(KalturaSearchPriorityCriteriaType), Type))
+                    {
+                        throw new ArgumentException(string.Format("Invalid enum parameter value {0} was sent for enum type {1}", Type, typeof(KalturaSearchPriorityCriteriaType)));
+                    }
+                }
+                if (parameters.ContainsKey("value") && parameters["value"] != null)
+                {
+                    Value = (String) Convert.ChangeType(parameters["value"], typeof(String));
+                }
+            }
+        }
+    }
+    public partial class KalturaSearchPriorityGroup
+    {
+        private static RuntimeSchemePropertyAttribute IdSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaSearchPriorityGroup")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = false,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        public KalturaSearchPriorityGroup(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                Version currentVersion = OldStandardAttribute.getCurrentRequestVersion();
+                bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+                if (parameters.ContainsKey("id") && parameters["id"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IdSchemaProperty.Validate("id", parameters["id"]);
+                    }
+                    Id = (Int64) Convert.ChangeType(parameters["id"], typeof(Int64));
+                }
+                if (parameters.ContainsKey("multilingualName") && parameters["multilingualName"] != null)
+                {
+                    if (parameters["multilingualName"] is JArray)
+                    {
+                        Name = new KalturaMultilingualString(((JArray) parameters["multilingualName"]));
+                    }
+                    else if (parameters["multilingualName"] is IList)
+                    {
+                        Name = new KalturaMultilingualString((List<object>) parameters["multilingualName"]);
+                    }
+                }
+                if (parameters.ContainsKey("criteria") && parameters["criteria"] != null)
+                {
+                    if (parameters["criteria"] is JObject)
+                    {
+                        Criteria = (KalturaSearchPriorityCriteria) Deserializer.deserialize(typeof(KalturaSearchPriorityCriteria), ((JObject) parameters["criteria"]).ToObject<Dictionary<string, object>>());
+                    }
+                    else if (parameters["criteria"] is IDictionary)
+                    {
+                        Criteria = (KalturaSearchPriorityCriteria) Deserializer.deserialize(typeof(KalturaSearchPriorityCriteria), (Dictionary<string, object>) parameters["criteria"]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaSearchPriorityGroupFilter
+    {
+        public KalturaSearchPriorityGroupFilter(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("activeOnlyEqual") && parameters["activeOnlyEqual"] != null)
+                {
+                    ActiveOnly = (Boolean) Convert.ChangeType(parameters["activeOnlyEqual"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("idEqual") && parameters["idEqual"] != null)
+                {
+                    IdEqual = (Int64) Convert.ChangeType(parameters["idEqual"], typeof(Int64));
+                }
+            }
+        }
+    }
+    public partial class KalturaSearchPriorityGroupListResponse
+    {
+        public KalturaSearchPriorityGroupListResponse(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("objects") && parameters["objects"] != null)
+                {
+                    if (parameters["objects"] is JArray)
+                    {
+                        Objects = buildList<KalturaSearchPriorityGroup>(typeof(KalturaSearchPriorityGroup), (JArray) parameters["objects"]);
+                    }
+                    else if (parameters["objects"] is IList)
+                    {
+                        Objects = buildList(typeof(KalturaSearchPriorityGroup), parameters["objects"] as object[]);
+                    }
+                }
+            }
+        }
+    }
+    public partial class KalturaSearchPriorityGroupOrderedIdsSet
+    {
+        public KalturaSearchPriorityGroupOrderedIdsSet(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
+        {
+            if (parameters != null)
+            {
+                if (parameters.ContainsKey("priorityGroupIds") && parameters["priorityGroupIds"] != null)
+                {
+                    PriorityGroupIds = (String) Convert.ChangeType(parameters["priorityGroupIds"], typeof(String));
                 }
             }
         }

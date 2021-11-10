@@ -317,9 +317,10 @@ namespace ApiObjects.Response
         StartDateShouldBeLessThanEndDate = 4111,
         LabelAlreadyInUse = 4112,
         LabelDoesNotExist = 4113,
-        PremiumServiceDoesNotExist = 4114,
+        PremiumServiceDoesNotExist = 4114,        
         VideoCodecsDoesNotExist = 4115,
         AudioCodecsDoesNotExist = 4116,
+        SearchPriorityGroupDoesNotExist = 4117,
 
         #endregion
 

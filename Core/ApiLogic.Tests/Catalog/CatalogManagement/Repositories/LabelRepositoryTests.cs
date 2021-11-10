@@ -8,6 +8,7 @@ using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
 using CachingProvider.LayeredCache;
+using Core.Tests;
 using DAL;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;

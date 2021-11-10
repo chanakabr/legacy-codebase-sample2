@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ApiObjects\ApiObjects.csproj" />
+    <ProjectReference Include="..\Core.Tests\Core.Tests.csproj" />
     <ProjectReference Include="..\DAL\DAL.csproj" />
   </ItemGroup>
 

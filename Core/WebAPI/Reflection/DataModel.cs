@@ -40,6 +40,7 @@ using WebAPI.Models.ConditionalAccess.FilterActions.Files;
 using WebAPI.Models.Billing;
 using WebAPI.EventNotifications;
 using WebAPI.Models.Api;
+using WebAPI.Models.Catalog.SearchPriorityGroup;
 
 namespace WebAPI.Reflection
 {
@@ -6769,6 +6770,54 @@ namespace WebAPI.Reflection
                     }
                     break;
                     
+                case "KalturaSearchPriorityCriteria":
+                    switch(property.Name)
+                    {
+                        case "Type":
+                            return "type";
+                        case "Value":
+                            return "value";
+                    }
+                    break;
+                    
+                case "KalturaSearchPriorityGroup":
+                    switch(property.Name)
+                    {
+                        case "Criteria":
+                            return "criteria";
+                        case "Id":
+                            return "id";
+                        case "Name":
+                            return "name";
+                    }
+                    break;
+                    
+                case "KalturaSearchPriorityGroupFilter":
+                    switch(property.Name)
+                    {
+                        case "ActiveOnly":
+                            return "activeOnlyEqual";
+                        case "IdEqual":
+                            return "idEqual";
+                    }
+                    break;
+                    
+                case "KalturaSearchPriorityGroupListResponse":
+                    switch(property.Name)
+                    {
+                        case "Objects":
+                            return "objects";
+                    }
+                    break;
+                    
+                case "KalturaSearchPriorityGroupOrderedIdsSet":
+                    switch(property.Name)
+                    {
+                        case "PriorityGroupIds":
+                            return "priorityGroupIds";
+                    }
+                    break;
+                    
                 case "KalturaSeasonsReminderFilter":
                     switch(property.Name)
                     {
@@ -11709,6 +11758,42 @@ namespace WebAPI.Reflection
                         case "list":
                             RolesManager.ValidateActionPermitted("searchHistory", "list", false);
                             return SearchHistoryController.List((KalturaSearchHistoryFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "searchprioritygroup":
+                    switch(action)
+                    {
+                        case "add":
+                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "add", false);
+                            return SearchPriorityGroupController.Add((KalturaSearchPriorityGroup) methodParams[0]);
+                            
+                        case "delete":
+                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "delete", false);
+                            return SearchPriorityGroupController.Delete((int) methodParams[0]);
+                            
+                        case "list":
+                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "list", false);
+                            return SearchPriorityGroupController.List((KalturaSearchPriorityGroupFilter) methodParams[0], (KalturaFilterPager) methodParams[1]);
+                            
+                        case "update":
+                            RolesManager.ValidateActionPermitted("searchPriorityGroup", "update", false);
+                            return SearchPriorityGroupController.Update((long) methodParams[0], (KalturaSearchPriorityGroup) methodParams[1]);
+                            
+                    }
+                    break;
+                    
+                case "searchprioritygrouporderedidsset":
+                    switch(action)
+                    {
+                        case "get":
+                            RolesManager.ValidateActionPermitted("searchPriorityGroupOrderedIdsSet", "get", false);
+                            return SearchPriorityGroupOrderedListController.Get();
+                            
+                        case "set":
+                            RolesManager.ValidateActionPermitted("searchPriorityGroupOrderedIdsSet", "set", false);
+                            return SearchPriorityGroupOrderedListController.Set((KalturaSearchPriorityGroupOrderedIdsSet) methodParams[0]);
                             
                     }
                     break;
@@ -20479,6 +20564,71 @@ namespace WebAPI.Reflection
                                 DefaultValue = null,
                                 IsKalturaObject = true,
                                 Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "searchprioritygroup":
+                    switch(action)
+                    {
+                        case "add":
+                            ret.Add("searchPriorityGroup", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSearchPriorityGroup),
+                            });
+                            return ret;
+                            
+                        case "delete":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(int),
+                            });
+                            return ret;
+                            
+                        case "list":
+                            ret.Add("filter", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSearchPriorityGroupFilter),
+                            });
+                            ret.Add("pager", new MethodParam(){
+                                NewName = newParamName,
+                                IsOptional = true,
+                                DefaultValue = null,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaFilterPager),
+                            });
+                            return ret;
+                            
+                        case "update":
+                            ret.Add("id", new MethodParam(){
+                                NewName = newParamName,
+                                Type = typeof(long),
+                            });
+                            ret.Add("searchPriorityGroup", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSearchPriorityGroup),
+                            });
+                            return ret;
+                            
+                    }
+                    break;
+                    
+                case "searchprioritygrouporderedidsset":
+                    switch(action)
+                    {
+                        case "get":
+                            return ret;
+                            
+                        case "set":
+                            ret.Add("orderedList", new MethodParam(){
+                                NewName = newParamName,
+                                IsKalturaObject = true,
+                                Type = typeof(KalturaSearchPriorityGroupOrderedIdsSet),
                             });
                             return ret;
                             
