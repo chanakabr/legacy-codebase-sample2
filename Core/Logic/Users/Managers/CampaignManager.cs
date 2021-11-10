@@ -174,10 +174,11 @@ namespace ApiLogic.Users.Managers
             {
                 var eventObject = new TriggerCampaignEvent
                 {
-                    CampaignId = campaign.Id,
+                    GroupId = contextData.GroupId,
                     DomainId = contextData.DomainId ?? 0,
+                    UserId = contextData.UserId ?? 0,
                     Udid = contextData.Udid,
-                    UserId = contextData.UserId ?? 0
+                    CampaignId = campaign.Id
                 };
 
                 if (eventObject.Notify())
