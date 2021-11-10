@@ -41,6 +41,7 @@ namespace LineupNotificationHandler
                         .AddSingleton<ICatalogManager, CatalogManager>()
                         .AddSingleton<IRegionManager, RegionManager>()
                         .AddSingleton<IRegionValidator, RegionValidator>()
+                        .AddSingleton<ILabelDal, LabelDal>()
                         .AddSingleton<ILabelRepository, LabelRepository>()
                         .AddSingleton<IAssetStructMetaRepository, AssetStructMetaRepository>()
                         .AddSingleton<IGroupSettingsManager, GroupSettingsManagerAdapter>()

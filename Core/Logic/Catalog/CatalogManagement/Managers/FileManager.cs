@@ -22,7 +22,7 @@ namespace Core.Catalog.CatalogManagement
     public class FileManager : IMediaFileTypeManager
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
-        private static readonly ILabelRepository _labelRepository = new LabelRepository();
+        private static readonly ILabelRepository _labelRepository = LabelRepository.Instance;
 
         private static readonly Lazy<FileManager> lazy = new Lazy<FileManager>(() => new FileManager(), LazyThreadSafetyMode.PublicationOnly);
 

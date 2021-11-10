@@ -60,7 +60,7 @@ namespace CachingProvider.LayeredCache
         private readonly IEventBusPublisher _InvalidationEventsPublisher;
         private List<Regex> _InvalidationEventsRegexRules;
 
-        private LayeredCache()
+        public LayeredCache()
         {
             layeredCacheTcmConfig = GetLayeredCacheTcmConfig();
             jsonSerializerSettings = new JsonSerializerSettings() { TypeNameHandling = TypeNameHandling.Auto };

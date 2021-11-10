@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using ApiObjects;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
@@ -9,6 +10,7 @@ using CachingProvider.LayeredCache;
 using DAL;
 using KLogMonitor;
 using Microsoft.Extensions.Logging;
+using ODBCWrapper;
 
 namespace ApiLogic.Catalog.CatalogManagement.Repositories
 {
@@ -18,8 +20,14 @@ namespace ApiLogic.Catalog.CatalogManagement.Repositories
         private readonly ILayeredCache _cache;
         private readonly ILogger _logger;
 
-        public LabelRepository()
-            : this(new LabelDal(), LayeredCache.Instance, new KLogger(nameof(LabelRepository)))
+        private static readonly Lazy<LabelRepository> LazyInstance = new Lazy<LabelRepository>(() =>
+                new LabelRepository(new LabelDal(), LayeredCache.Instance),
+            LazyThreadSafetyMode.PublicationOnly);
+
+        public static LabelRepository Instance => LazyInstance.Value;
+
+        public LabelRepository(ILabelDal labelDal, ILayeredCache cache)
+            : this(labelDal,cache, new KLogger(nameof(LabelRepository)))
         {
         }
 
@@ -167,7 +175,7 @@ namespace ApiLogic.Catalog.CatalogManagement.Repositories
             GenericResponse<LabelValue> response;
 
             var row = dataSet.Tables[0].Rows[0];
-            var dbStatusCode = ODBCWrapper.Utils.GetIntSafeVal(row, "StatusCode", 0);
+            var dbStatusCode = Utils.GetIntSafeVal(row, "StatusCode", 0);
             if (dbStatusCode != 0)
             {
                 var status = ConvertDbStatusCodeToStatus(dbStatusCode, row);
@@ -184,9 +192,9 @@ namespace ApiLogic.Catalog.CatalogManagement.Repositories
 
         private LabelValue CreateLabelValue(DataRow row)
         {
-            var id = ODBCWrapper.Utils.GetLongSafeVal(row, "ID");
-            var attributeId = ODBCWrapper.Utils.GetIntSafeVal(row, "ENTITY_ATTRIBUTE");
-            var value = ODBCWrapper.Utils.GetSafeStr(row, "VALUE");
+            var id = Utils.GetLongSafeVal(row, "ID");
+            var attributeId = Utils.GetIntSafeVal(row, "ENTITY_ATTRIBUTE");
+            var value = Utils.GetSafeStr(row, "VALUE");
             var labelValue = new LabelValue(id, (EntityAttribute)attributeId, value);
 
             return labelValue;
@@ -197,8 +205,8 @@ namespace ApiLogic.Catalog.CatalogManagement.Repositories
             switch (dbStatusCode)
             {
                 case -222:
-                    var collisionEntityAttribute = ODBCWrapper.Utils.GetLongSafeVal(row, "CollisionEntityAttribute");
-                    var collisionValue = ODBCWrapper.Utils.GetSafeStr(row, "CollisionValue");
+                    var collisionEntityAttribute = Utils.GetLongSafeVal(row, "CollisionEntityAttribute");
+                    var collisionValue = Utils.GetSafeStr(row, "CollisionValue");
 
                     return new Status(eResponseStatus.LabelAlreadyInUse, $"{collisionValue} is already used in the context of {(EntityAttribute)collisionEntityAttribute}.");
                 case -333:
