@@ -7677,7 +7677,8 @@ namespace Core.Catalog
                 definitions.permittedWatchRules = string.Join(" ", group.m_sPermittedWatchRules);
             }
 
-            definitions.langauge = doesGroupUsesTemplates ? catalogGroupCache.GetDefaultLanguage() : group.GetGroupDefaultLanguage();
+            var languageId = request.m_oFilter?.m_nLanguage ?? -1;
+            definitions.langauge = GetLanguage(request.m_nGroupID, languageId);
 
             #endregion
 
