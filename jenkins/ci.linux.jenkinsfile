@@ -111,14 +111,18 @@ def runTestInDocker(testProjects){
     def ANSI_END="\u001B[0m"
     def BLUE="\u001B[34m"
     def CYAN="\u001B[36m"
+    def testFailed=false
     for(project in testProjects) { 
+        if (testFailed) {
+            sh "exit 1"
+        } 
         echo "${GREEN}------------------------------------------- Starting Tests: ${project} -------------------------------------------${ANSI_END}"
         withTestbed(['DOTNET_CLI_HOME=/tmp/DOTNET_CLI_HOME'], "mcr.microsoft.com/dotnet/core/sdk:3.1-alpine", project) {
             def testStatus = sh ( script: "dotnet test ${project} --logger \"junit;LogFilePath=./test-results.xml\"", returnStatus: true)
             if(testStatus != 0) {
                 echo "${RED}------------------------------------------- Test: ${project} FAILED!!! -------------------------------------------${ANSI_END}"
                 currentBuild.result = 'FAILURE'
-                break;
+                testFailed=true
             }
             junit "**/test-results.xml"
         }
