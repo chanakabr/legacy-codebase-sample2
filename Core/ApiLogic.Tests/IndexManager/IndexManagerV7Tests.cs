@@ -38,7 +38,7 @@ using Catalog.Response;
 
 namespace ApiLogic.Tests.IndexManager
 {
-    [TestFixture]
+    //[TestFixture]
     public class IndexManagerV7Tests
     {
         private MockRepository _mockRepository;
@@ -98,7 +98,7 @@ namespace ApiLogic.Tests.IndexManager
         #endregion
 
 
-        [SetUp]
+        //[SetUp]
         public void SetUp()
         {
             _random = new Random();
@@ -122,7 +122,7 @@ namespace ApiLogic.Tests.IndexManager
             _elasticSearchIndexDefinitions = new ElasticSearchIndexDefinitionsNest(_mockElasticSearchCommonUtils.Object, ApplicationConfiguration.Current);
         }
 
-        [Test]
+        //[Test]
         public void TestEpgv2Index()
         {
             var elasticClient = NESTFactory.GetInstance(ApplicationConfiguration.Current);
@@ -208,7 +208,7 @@ namespace ApiLogic.Tests.IndexManager
             return epgItem;
         }
 
-        [Test]
+        //[Test]
         public void TestMedia()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -327,7 +327,7 @@ namespace ApiLogic.Tests.IndexManager
             return media;
         }
 
-        [Test]
+        //[Test]
         public void TestRecording()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -343,7 +343,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsTrue(publishResult);
         }
 
-        [Test]
+        //[Test]
         public void TestEpg()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -437,7 +437,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsTrue(deleteResult);
         }
 
-        [Test]
+        //[Test]
         public void TestSocialStatisticsData()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -553,7 +553,7 @@ namespace ApiLogic.Tests.IndexManager
             indexManager.GetAssetStats(new List<int>() { 123456 }, DateTime.MinValue, DateTime.MaxValue, StatsType.EPG, ref epgStatsMapping);
         }
 
-        [Test]
+        //[Test]
         public void TestTags()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -613,7 +613,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.AreEqual(randomTag.value, searchResult[0].value);
         }
 
-        [Test]
+        //[Test]
         public void TestIp2Country()
         {
             //var randomPartnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -677,7 +677,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsNull(country);
         }
 
-        [Test]
+        //[Test]
         public void TestChannelPercolator()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -751,7 +751,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsTrue(deleteResult);
         }
 
-        [Test]
+        //[Test]
         public void TestChannelMeteDataCrud()
         {
             var randomPartnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -845,7 +845,7 @@ namespace ApiLogic.Tests.IndexManager
 
         }
 
-        [Test]
+        //[Test]
         public void TestEpgV2Crud()
         {
             var randomPartnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -941,7 +941,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.AreEqual(epgCb3.EpgIdentifier, currentProgramsInfos[0].EpgExternalId);
         }
 
-        [Test]
+        //[Test]
         public void TestEpgV1Crud()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -990,7 +990,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.AreEqual(epgId, epgProgramBulkUploadObjects[0].EpgId);
         }
 
-        [Test]
+        //[Test]
         public void TestUnifiedSearch()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -1147,7 +1147,7 @@ namespace ApiLogic.Tests.IndexManager
         }
 
 
-        [Test]
+        //[Test]
         public void TestUnifiedSearchGroupByAndStuff()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -1302,7 +1302,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.AreEqual(5, secondSub.results[0].count);
         }
 
-        [Test]
+        //[Test]
         public void TestNestSearchMediaBuilder()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -1387,7 +1387,7 @@ namespace ApiLogic.Tests.IndexManager
             indexManager.PublishMediaIndex(indexName, true, true);
         }
 
-        [Test]
+        //[Test]
         public void TestSortByStartDate()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -1463,7 +1463,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.IsNotNull(searchResults);
         }
 
-        [Test]
+        //[Test]
         public void TestSortByStats()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -1613,7 +1613,7 @@ namespace ApiLogic.Tests.IndexManager
         }
 
 
-        [Test]
+        //[Test]
         public void TestGroupByReorderbuckets()
         {
             var partnerId = IndexManagerMockDataCreator.GetRandomPartnerId();
@@ -1780,7 +1780,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.AreEqual(lastMediaId.ToString(), lastResult.topHits[0].AssetId);
         }
 
-        [Test]
+        //[Test]
         public void TestEntitledAssets()
         {
             // arrange
@@ -1845,7 +1845,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.AreEqual(randomMedia.epgIdentifier, entitledEpgLinearChannels[0].ToString());
         }
 
-        [Test]
+        //[Test]
         public void TestGetCurrentProgramInfosByDate()
         {
 
