@@ -15,7 +15,7 @@ using KLogMonitor;
 using ElasticSearch.Searcher;
 using Catalog.Response;
 using ApiObjects.Response;
-using ApiObjects.SearchPriority;
+using ApiObjects.SearchPriorityGroups;
 using Core.Catalog.Request.SearchPriority;
 using ElasticSearch.Common;
 

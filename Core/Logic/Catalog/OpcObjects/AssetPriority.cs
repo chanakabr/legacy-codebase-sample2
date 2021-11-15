@@ -2,13 +2,13 @@
 {
     public class AssetPriority
     {
-        public AssetPriority(Asset asset, int? priorityGroupId)
+        public AssetPriority(Asset asset, long? priorityGroupId)
         {
             Asset = asset;
             PriorityGroupId = priorityGroupId;
         }
         
-        public int? PriorityGroupId { get; }
+        public long? PriorityGroupId { get; }
 
         public Asset Asset { get; }
     }

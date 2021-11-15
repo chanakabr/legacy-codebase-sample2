@@ -9335,11 +9335,11 @@ namespace WebAPI.Models.General
                 {
                     if (parameters["objects"] is JArray)
                     {
-                        Values = buildList<KalturaIntegerValue>(typeof(KalturaIntegerValue), (JArray) parameters["objects"]);
+                        Values = buildList<KalturaLongValue>(typeof(KalturaIntegerValue), (JArray) parameters["objects"]);
                     }
                     else if (parameters["objects"] is IList)
                     {
-                        Values = buildList(typeof(KalturaIntegerValue), parameters["objects"] as object[]);
+                        Values = buildList(typeof(KalturaLongValue), parameters["objects"] as object[]);
                     }
                 }
             }

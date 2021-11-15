@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ApiObjects.SearchObjects;
-using ApiObjects.SearchPriority;
+using ApiObjects.SearchPriorityGroups;
 using ElasticSearch.Searcher;
 using Newtonsoft.Json.Linq;
 
@@ -13,14 +13,14 @@ namespace ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority
     {
         private readonly IReadOnlyDictionary<double, SearchPriorityGroup> _priorityGroupsMapping;
         private readonly ESUnifiedQueryBuilder _queryBuilder;
-        private readonly IDictionary<CriteriaType, Func<Criteria, IESTerm>> _functionProcessors;
+        private readonly IDictionary<SearchPriorityCriteriaType, Func<SearchPriorityCriteria, IESTerm>> _functionProcessors;
 
         private PriorityQueryBuilder()
         {
-            _functionProcessors = new Dictionary<CriteriaType, Func<Criteria, IESTerm>>
+            _functionProcessors = new Dictionary<SearchPriorityCriteriaType, Func<SearchPriorityCriteria, IESTerm>>
             {
                 {
-                    CriteriaType.kSQL, criteria =>
+                    SearchPriorityCriteriaType.KSql, criteria =>
                     {
                         BooleanPhraseNode tree = null;
                         BooleanPhraseNode.ParseSearchExpression(criteria.Value, ref tree);

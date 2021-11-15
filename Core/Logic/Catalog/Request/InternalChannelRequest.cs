@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
-using ApiObjects.SearchPriority;
+using ApiObjects.SearchPriorityGroups;
 using Core.Catalog.Request.SearchPriority;
 
 namespace Core.Catalog.Request

@@ -11,7 +11,7 @@ using System.Web;
 using Core.Catalog.Response;
 using KLogMonitor;
 using System.Reflection;
-using ApiObjects.SearchPriority;
+using ApiObjects.SearchPriorityGroups;
 using Core.Catalog.Attributes;
 using Core.Catalog.Cache;
 using Catalog.Response;

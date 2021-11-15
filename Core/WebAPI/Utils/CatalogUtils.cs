@@ -11,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using ApiObjects.SearchPriority;
+using ApiObjects.SearchPriorityGroups;
 using Core.Catalog.Request.SearchPriority;
 using WebAPI.ClientManagers;
 using WebAPI.Exceptions;

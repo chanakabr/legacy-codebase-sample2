@@ -22,8 +22,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Xml;
-using ApiObjects.SearchPriority;
 using ApiLogic.Catalog;
+using ApiObjects.SearchPriorityGroups;
 using Tvinci.Core.DAL;
 using TVinciShared;
 
@@ -2838,10 +2838,10 @@ namespace Core.Catalog.CatalogManagement
 
                     var keyFormat = "{0}_{1}"; // mapped asset key format = assetType_assetId
                     var mappedAssets = unOrderedAssets.ToDictionary(x => string.Format(keyFormat, x.AssetType.ToString(), x.Id), x => x);
-                    var priorityGroupGetter = priorityGroupsMapping == null ? (Func<BaseObject, int?>)(_ => null) : GetPriorityGroupId;
-                    foreach (BaseObject baseAsset in assets)
+                    var priorityGroupGetter = priorityGroupsMapping == null ? (Func<BaseObject, long?>)(_ => null) : GetPriorityGroupId;
+                    foreach (var baseAsset in assets)
                     {
-                        bool isNpvr = baseAsset.AssetType == eAssetTypes.NPVR;
+                        var isNpvr = baseAsset.AssetType == eAssetTypes.NPVR;
                         
                         AssetPriority assetPriority = null;
                         if (!isNpvr)
@@ -2910,7 +2910,7 @@ namespace Core.Catalog.CatalogManagement
 
             return resultScore;
             
-            int? GetPriorityGroupId(BaseObject baseObject)
+            long? GetPriorityGroupId(BaseObject baseObject)
             {
                 if (!(baseObject is UnifiedSearchResult searchResult))
                 {

@@ -13,7 +13,6 @@ using ElasticSearch.Searcher;
 using Nest;
 using ApiLogic.IndexManager.Helpers;
 using ApiLogic.IndexManager.QueryBuilders.ESV2QueryBuilders.SearchPriority;
-using ApiObjects.SearchPriority;
 
 namespace ApiLogic.IndexManager.QueryBuilders
 {

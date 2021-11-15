@@ -14,7 +14,6 @@ using ApiObjects.BulkUpload;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
-using ApiObjects.SearchPriority;
 using ApiObjects.SearchPriorityGroups;
 using AutoMapper;
 using Catalog.Response;
@@ -895,22 +894,14 @@ namespace WebAPI.Clients
                         3, new SearchPriorityGroup
                         {
                             Id = 456,
-                            Criteria = new Criteria
-                            {
-                                Type = CriteriaType.kSQL,
-                                Value = "asset_type = 'epg'"
-                            }
+                            Criteria = new SearchPriorityCriteria(SearchPriorityCriteriaType.KSql, "asset_type = 'epg'")
                         }
                     },
                     {
                         2, new SearchPriorityGroup
                         {
                             Id = 123,
-                            Criteria = new Criteria
-                            {
-                                Type = CriteriaType.kSQL,
-                                Value = "name ~ 'Asset'"
-                            }
+                            Criteria = new SearchPriorityCriteria(SearchPriorityCriteriaType.KSql, "name ~ 'Asset'")
                         }
                     }
                 };
@@ -921,22 +912,14 @@ namespace WebAPI.Clients
                         3, new SearchPriorityGroup
                         {
                             Id = 456,
-                            Criteria = new Criteria
-                            {
-                                Type = CriteriaType.kSQL,
-                                Value = "name = 'testepisode2'"
-                            }
+                            Criteria = new SearchPriorityCriteria(SearchPriorityCriteriaType.KSql, "name = 'testepisode2'")
                         }
                     },
                     {
                         2, new SearchPriorityGroup
                         {
                             Id = 123,
-                            Criteria = new Criteria
-                            {
-                                Type = CriteriaType.kSQL,
-                                Value = "name = 'testepisode3'"
-                            }
+                            Criteria = new SearchPriorityCriteria(SearchPriorityCriteriaType.KSql, "name = 'testepisode3'")
                         }
                     }
                 };

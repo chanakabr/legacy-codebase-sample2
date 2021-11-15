@@ -2,7 +2,7 @@
 {
     public class KalturaAssetPriority
     {
-        public KalturaAssetPriority(KalturaAsset asset, int? priorityGroupId)
+        public KalturaAssetPriority(KalturaAsset asset, long? priorityGroupId)
         {
             Asset = asset;
             PriorityGroupId = priorityGroupId;
@@ -10,6 +10,6 @@
         
         public KalturaAsset Asset { get; }
 
-        public int? PriorityGroupId { get; }
+        public long? PriorityGroupId { get; }
     }
 }

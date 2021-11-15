@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using ApiObjects.SearchPriority;
+using ApiObjects.SearchPriorityGroups;
 
 namespace Core.Catalog.Request.SearchPriority
 {

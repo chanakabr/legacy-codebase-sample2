@@ -48,9 +48,9 @@ namespace WebAPI.Utils
         {
             return new KalturaPriorityGroupListResponse
             {
-                Values = new List<KalturaIntegerValue>
+                Values = new List<KalturaLongValue>
                 {
-                    new KalturaIntegerValue
+                    new KalturaLongValue
                     {
                         value = priorityAsset.PriorityGroupId ?? 0
                     }
