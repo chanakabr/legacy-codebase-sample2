@@ -1954,7 +1954,7 @@ namespace DAL
 
             var parameters = new Dictionary<string, object>() { { "@groupId", groupId } };
             var ds = UtilsDal.ExecuteDataSet("GetGroupPriceCodes", parameters, "pricing_connection");
-            if (ds?.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+            if (ds?.Tables.Count > 0)
             {
                 priceDetailsDTOList = BuildPriceDetailsDTOList(ds.Tables[0]);
             }
@@ -2546,7 +2546,8 @@ namespace DAL
                     priceDetailsMap[id].Prices.Add(price);
                 }
             }
-            return priceDetailsMap != null ? priceDetailsMap.Values.ToList() : null;
+            
+            return priceDetailsMap.Values.ToList();
         }
 
         private DataTable ConvertToDataTable(List<PriceCodeLocaleDTO> priceCodeLocales)
