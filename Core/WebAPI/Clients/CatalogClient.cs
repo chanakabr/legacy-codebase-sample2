@@ -887,42 +887,7 @@ namespace WebAPI.Clients
             // for testing purposes
             if (searchAssetsFilter.ShouldApplyPriorityGroups)
             {
-                // TODO : APPLY PRIORITY GROUPS
-                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
-                {
-                    {
-                        3, new SearchPriorityGroup
-                        {
-                            Id = 456,
-                            Criteria = new SearchPriorityCriteria(SearchPriorityCriteriaType.KSql, "asset_type = 'epg'")
-                        }
-                    },
-                    {
-                        2, new SearchPriorityGroup
-                        {
-                            Id = 123,
-                            Criteria = new SearchPriorityCriteria(SearchPriorityCriteriaType.KSql, "name ~ 'Asset'")
-                        }
-                    }
-                };
-                
-                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
-                {
-                    {
-                        3, new SearchPriorityGroup
-                        {
-                            Id = 456,
-                            Criteria = new SearchPriorityCriteria(SearchPriorityCriteriaType.KSql, "name = 'testepisode2'")
-                        }
-                    },
-                    {
-                        2, new SearchPriorityGroup
-                        {
-                            Id = 123,
-                            Criteria = new SearchPriorityCriteria(SearchPriorityCriteriaType.KSql, "name = 'testepisode3'")
-                        }
-                    }
-                };
+                request.PriorityGroupsMappings = _searchPriorityGroupManager.ListSearchPriorityGroupMappings(searchAssetsFilter.GroupId);
             }
 
             if (searchAssetsFilter.GroupBy != null && searchAssetsFilter.GroupBy.Count > 0)
@@ -1430,11 +1395,9 @@ namespace WebAPI.Clients
             };
             if (shouldApplyPriorityGroups)
             {
-                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
-                {
-                    // TODO: APPLY PRIORITY GROUPS
-                };
+                request.PriorityGroupsMappings = _searchPriorityGroupManager.ListSearchPriorityGroupMappings(groupId);
             }
+            
             if (groupBy != null && groupBy.Count > 0)
             {
                 request.searchGroupBy = new SearchAggregationGroupBy()
@@ -2882,10 +2845,7 @@ namespace WebAPI.Clients
             };
             if (shouldApplyPriorityGroups)
             {
-                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
-                {
-                    // TODO: APPLY PRIORITY GROUPS!
-                };
+                request.PriorityGroupsMappings = _searchPriorityGroupManager.ListSearchPriorityGroupMappings(groupId);
             }
 
             if (groupByValues != null && groupByValues.Count > 0)

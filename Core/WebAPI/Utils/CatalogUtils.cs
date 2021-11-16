@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ApiLogic.Catalog.CatalogManagement.Managers;
 using ApiObjects.SearchPriorityGroups;
 using Core.Catalog.Request.SearchPriority;
 using WebAPI.ClientManagers;
@@ -645,10 +646,7 @@ namespace WebAPI.Utils
             };
             if (shouldApplyPriorityGroups)
             {
-                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
-                {
-                    // TODO : APPLY PRIORITY GROUPS
-                };
+                request.PriorityGroupsMappings = SearchPriorityGroupManager.Instance.ListSearchPriorityGroupMappings(groupId);
             }
 
             // fire unified search request
@@ -724,10 +722,7 @@ namespace WebAPI.Utils
             };
             if (shouldApplyPriorityGroups)
             {
-                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
-                {
-                    // TODO: APPLY PRIORITY GROUPS!
-                };
+                request.PriorityGroupsMappings = SearchPriorityGroupManager.Instance.ListSearchPriorityGroupMappings(groupId);
             }
 
             // fire request
@@ -777,10 +772,7 @@ namespace WebAPI.Utils
             };
             if (shouldApplyPriorityGroups)
             {
-                request.PriorityGroupsMappings = new Dictionary<double, SearchPriorityGroup>
-                {
-                    // TODO : APPLY PRIORITY GROUPS
-                };
+                request.PriorityGroupsMappings = SearchPriorityGroupManager.Instance.ListSearchPriorityGroupMappings(groupId);
             }
 
             // fire request            
