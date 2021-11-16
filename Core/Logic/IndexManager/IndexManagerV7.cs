@@ -3743,7 +3743,7 @@ namespace Core.Catalog
 
                         var bulkRequest = new NestEsBulkRequest<NestIPv4>()
                         {
-                            DocID = nestObject.id,
+                            DocID = $"ipv4.{nestObject.id}",
                             Document = nestObject,
                             Index = newIndexName,
                             Operation = eOperation.index
@@ -3772,7 +3772,7 @@ namespace Core.Catalog
 
                         var bulkRequest = new NestEsBulkRequest<NestIPv6>()
                         {
-                            DocID = nestObject.id,
+                            DocID = $"ipv6.{nestObject.id}",
                             Document = nestObject,
                             Index = newIndexName,
                             Operation = eOperation.index
