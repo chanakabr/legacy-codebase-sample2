@@ -3675,6 +3675,10 @@ namespace WebAPI.Reflection
                             return "deviceLimit";
                         case "Frequency":
                             return "frequency";
+                        case "IsDefaultConcurrentLimit":
+                            return "isDefaultConcurrentLimit ";
+                        case "IsDefaultDeviceLimit":
+                            return "isDefaultDeviceLimit";
                     }
                     break;
                     

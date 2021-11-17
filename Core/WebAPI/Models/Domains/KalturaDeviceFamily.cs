@@ -101,5 +101,23 @@ namespace WebAPI.Models.Domains
         [SchemeProperty(IsNullable = true)]
         [OldStandardProperty("concurrent_limit")]
         public int? ConcurrentLimit { get; set; }
+
+        /// <summary>
+        /// Is the Max number of devices allowed for this family is default value or not
+        /// </summary>
+        [DataMember(Name = "isDefaultDeviceLimit")]
+        [JsonProperty("isDefaultDeviceLimit")]
+        [XmlElement(ElementName = "isDefaultDeviceLimit")]
+        [SchemeProperty(ReadOnly = true, IsNullable = true)]
+        public bool? IsDefaultDeviceLimit { get; set; }
+
+        /// <summary>
+        /// Is the Max number of streams allowed for this family is default value or not
+        /// </summary>
+        [DataMember(Name = "isDefaultConcurrentLimit ")]
+        [JsonProperty("isDefaultConcurrentLimit ")]
+        [XmlElement(ElementName = "isDefaultConcurrentLimit ")]
+        [SchemeProperty(ReadOnly = true, IsNullable = true)]
+        public bool? IsDefaultConcurrentLimit { get; set; }
     }
 }

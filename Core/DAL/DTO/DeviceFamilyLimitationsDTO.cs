@@ -11,6 +11,8 @@ namespace DAL.DTO
         public int concurrency { get; set; }
         public int quantity { get; set; }
         public int Frequency { get; set; }
+        public bool? isDefaultConcurrency { get; set; }
+        public bool? isDefaultQuantity { get; set; }
 
         public DeviceFamilyLimitationsDTO()
         {

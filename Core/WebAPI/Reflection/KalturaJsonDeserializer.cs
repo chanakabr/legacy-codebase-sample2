@@ -38634,6 +38634,30 @@ namespace WebAPI.Models.Domains
             MinItems = -1,
             MaxItems = -1,
         };
+        private static RuntimeSchemePropertyAttribute IsDefaultDeviceLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDeviceFamilyLimitations")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
+        private static RuntimeSchemePropertyAttribute IsDefaultConcurrentLimitSchemaProperty = new RuntimeSchemePropertyAttribute("KalturaHouseholdDeviceFamilyLimitations")
+        {
+            ReadOnly = true,
+            InsertOnly = false,
+            WriteOnly = false,
+            RequiresPermission = 0,
+            IsNullable = true,
+            MaxLength = -1,
+            MinLength = -1,
+            MinItems = -1,
+            MaxItems = -1,
+        };
         public KalturaHouseholdDeviceFamilyLimitations(Dictionary<string, object> parameters = null, bool fromRequest = false) : base(parameters)
         {
             if (parameters != null)
@@ -38679,6 +38703,22 @@ namespace WebAPI.Models.Domains
                         ConcurrentLimitSchemaProperty.Validate("concurrent_limit", parameters["concurrent_limit"]);
                     }
                     ConcurrentLimit = (Int32) Convert.ChangeType(parameters["concurrent_limit"], typeof(Int32));
+                }
+                if (parameters.ContainsKey("isDefaultDeviceLimit") && parameters["isDefaultDeviceLimit"] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IsDefaultDeviceLimitSchemaProperty.Validate("isDefaultDeviceLimit", parameters["isDefaultDeviceLimit"]);
+                    }
+                    IsDefaultDeviceLimit = (Boolean) Convert.ChangeType(parameters["isDefaultDeviceLimit"], typeof(Boolean));
+                }
+                if (parameters.ContainsKey("isDefaultConcurrentLimit ") && parameters["isDefaultConcurrentLimit "] != null)
+                {
+                    if(!isOldVersion)
+                    {
+                        IsDefaultConcurrentLimitSchemaProperty.Validate("isDefaultConcurrentLimit ", parameters["isDefaultConcurrentLimit "]);
+                    }
+                    IsDefaultConcurrentLimit = (Boolean) Convert.ChangeType(parameters["isDefaultConcurrentLimit "], typeof(Boolean));
                 }
             }
         }
