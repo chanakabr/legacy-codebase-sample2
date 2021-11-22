@@ -1519,50 +1519,15 @@ namespace Core.Catalog.CatalogManagement
                             DataTable basicDataTable = ds.Tables[0].Clone();
                             basicDataTable.ImportRow(basicDataRow);
                             tables.Add(TABLE_NAME_BASIC, basicDataTable);
-                            if (metas.Any())
-                            {
-                                EnumerableRowCollection<DataRow> assetMetas = (from row in metas
-                                                                               where (Int64)row["ASSET_ID"] == id
-                                                                               select row);
-                                if (assetMetas != null && assetMetas.Any())
-                                {
-                                    tables.Add(TABLE_NAME_METAS, assetMetas.CopyToDataTable());
-                                }
-                                else
-                                {
-                                    tables.Add(TABLE_NAME_METAS, ds.Tables[1].Clone());
-                                }
-                            }
 
-                            if (tags.Any())
-                            {
-                                EnumerableRowCollection<DataRow> assetTags = (from row in tags
-                                                                              where (Int64)row["ASSET_ID"] == id
-                                                                              select row);
-                                if (assetTags != null && assetTags.Any())
-                                {
-                                    tables.Add(TABLE_NAME_TAGS, assetTags.CopyToDataTable());
-                                }
-                                else
-                                {
-                                    tables.Add(TABLE_NAME_TAGS, ds.Tables[2].Clone());
-                                }
-                            }
+                            var assetMetas = metas.Where(row => (long)row["ASSET_ID"] == id);
+                            tables.Add(TABLE_NAME_METAS, assetMetas.Any() ? assetMetas.CopyToDataTable() : ds.Tables[1].Clone());
 
-                            if (assetUpdateDate.Any())
-                            {
-                                EnumerableRowCollection<DataRow> assetUpdateDateRow = (from row in assetUpdateDate
-                                                                                       where (Int64)row["ID"] == id
-                                                                                       select row);
-                                if (assetUpdateDateRow != null && assetUpdateDateRow.Any())
-                                {
-                                    tables.Add(TABLE_NAME_UPDATE_DATE, assetUpdateDateRow.CopyToDataTable());
-                                }
-                                else
-                                {
-                                    tables.Add(TABLE_NAME_UPDATE_DATE, ds.Tables[5].Clone());
-                                }
-                            }
+                            var assetTags = tags.Where(row => (long)row["ASSET_ID"] == id);
+                            tables.Add(TABLE_NAME_TAGS, assetTags.Any() ? assetTags.CopyToDataTable() : ds.Tables[2].Clone());
+
+                            var assetUpdateDateRow = assetUpdateDate.Where(row => (long)row["ID"] == id);
+                            tables.Add(TABLE_NAME_UPDATE_DATE, assetUpdateDateRow.Any() ? assetUpdateDateRow.CopyToDataTable() : ds.Tables[5].Clone());
 
                             var mediaAsset = MediaAssetServiceLazy.Value.CreateMediaAsset(
                                 groupId,
