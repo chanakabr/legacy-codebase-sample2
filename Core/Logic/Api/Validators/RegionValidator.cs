@@ -328,7 +328,7 @@ namespace ApiLogic.Api.Validators
             return true;
         }
 
-        private List<string> ValidateRegionsConsistency(int groupId, long linearChannelNumber, RegionChannelNumber regionChannelNumber, IReadOnlyCollection<Region> existingRegions)
+        private List<string> ValidateRegionsConsistency(int groupId, long linearChannelId, RegionChannelNumber regionChannelNumber, IReadOnlyCollection<Region> existingRegions)
         {
             var listOfErrors = new List<string>();
 
@@ -345,10 +345,15 @@ namespace ApiLogic.Api.Validators
                     listOfErrors.Add($"Linear channel can not be added simultaneously into a region {region.id} and its subregions {string.Join(",", subRegions.Select(x => x.id))}.");
                 }
 
+                if (region.linearChannels.Any(x => x.Key == linearChannelId))
+                {
+                    listOfErrors.Add($"Linear channel already exists in the region with id {region.id}.");
+                }
+
                 var parentRegion = region.parentId > 0
                     ? RegionManager.GetRegion(groupId, region.parentId)
                     : null;
-                var channelNumberValidationResults = ValidateChannelNumbersAcrossRegions(groupId, linearChannelNumber, regionChannelNumber, Clone(region), parentRegion);
+                var channelNumberValidationResults = ValidateChannelNumbersAcrossRegions(groupId, linearChannelId, regionChannelNumber, Clone(region), parentRegion);
                 if (channelNumberValidationResults.Any())
                 {
                     listOfErrors.AddRange(channelNumberValidationResults);
@@ -358,12 +363,12 @@ namespace ApiLogic.Api.Validators
             return listOfErrors;
         }
 
-        private List<string> ValidateChannelNumbersAcrossRegions(int groupId, long linearChannelNumber, RegionChannelNumber regionChannelNumber, Region regionToUpdate, Region parentRegion)
+        private List<string> ValidateChannelNumbersAcrossRegions(int groupId, long linearChannelId, RegionChannelNumber regionChannelNumber, Region regionToUpdate, Region parentRegion)
         {
             var validationResults = new List<string>();
 
-            regionToUpdate.linearChannels.Add(new KeyValuePair<long, int>(linearChannelNumber, regionChannelNumber.ChannelNumber));
-            if (regionToUpdate.linearChannels.Any(x => x.Key != linearChannelNumber && x.Value == regionChannelNumber.ChannelNumber))
+            regionToUpdate.linearChannels.Add(new KeyValuePair<long, int>(linearChannelId, regionChannelNumber.ChannelNumber));
+            if (regionToUpdate.linearChannels.Any(x => x.Key != linearChannelId && x.Value == regionChannelNumber.ChannelNumber))
             {
                 validationResults.Add($"For the following channel, its LCN {regionChannelNumber.ChannelNumber} already appears in the region with id {regionToUpdate.id}.");
             }
