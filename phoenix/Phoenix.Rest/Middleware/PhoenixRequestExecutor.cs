@@ -120,9 +120,10 @@ namespace Phoenix.Rest.Middleware
 
             var stringResponse = await new JilFormatter().GetStringResponse(phoenixContext.Response);
             var responseHash = EncryptionUtils.HashMD5(stringResponse, Encoding.UTF8);
-            context.Response.Headers[HeaderNames.ETag] = responseHash;
+            var eTag = $"W/{responseHash}";
+            context.Response.Headers[HeaderNames.ETag] = eTag;
 
-            if (context.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var etagValues) && responseHash.Equals(etagValues.First()))
+            if (context.Request.Headers.TryGetValue(HeaderNames.IfNoneMatch, out var etagValues) && eTag.Equals(etagValues.First()))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.NotModified;
 
