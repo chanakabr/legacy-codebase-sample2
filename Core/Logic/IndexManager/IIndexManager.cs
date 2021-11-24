@@ -22,7 +22,7 @@ namespace Core.Catalog
         bool FinalizeEpgV2Indices(List<DateTime> date);
         // ............................................................................
 
-        bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds);
+        bool DeleteProgram(List<long> assetIds, bool isRecording = false);
         bool UpsertProgram(List<EpgCB> epgObjects, Dictionary<string, LinearChannelSettings> linearChannelSettings);
         bool DeleteChannelPercolator(List<int> channelIds);
         bool UpdateChannelPercolator(List<int> channelIds, Channel channel = null);

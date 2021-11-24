@@ -744,26 +744,28 @@ namespace Core.Catalog
             return result;
         }
 
-        public bool DeleteProgram(List<long> epgIds, IEnumerable<string> epgChannelIds)
+        public bool DeleteProgram(List<long> assetIds, bool isRecording = false)
         {
             bool result = false;
-
             var groupUsesTemplates = VerifyGroupUsesTemplates();
-            if (epgIds != null & epgIds.Count > 0)
+            if (assetIds != null & assetIds.Count > 0)
             {
                 // dictionary contains all language ids and its  code (string)
                 var languages = groupUsesTemplates
                     ? GetCatalogGroupCache().LanguageMapById.Values.ToList()
                     : GetGroupManager().GetLangauges();
 
-                string alias = string.Format("{0}_epg", _partnerId);
+                string type = isRecording ? RECORDING_INDEX_TYPE : ES_EPG_TYPE;
+                string alias = isRecording
+                    ? NamingHelper.GetRecordingIndexAlias(_partnerId)
+                    : NamingHelper.GetEpgIndexAlias(_partnerId);
 
                 ESTerms terms = new ESTerms(true)
                 {
                     Key = "epg_id"
                 };
 
-                terms.Value.AddRange(epgIds.Select(id => id.ToString()));
+                terms.Value.AddRange(assetIds.Select(id => id.ToString()));
 
                 ESQuery query = new ESQuery(terms);
                 string queryString = query.ToString();
@@ -771,15 +773,13 @@ namespace Core.Catalog
 
                 foreach (var lang in languages)
                 {
-                    string type = GetTranslationType(EPG_INDEX_TYPE, lang);
-                    _elasticSearchApi.DeleteDocsByQuery(alias, type, ref queryString);
+                    string typeWithLanguage = GetTranslationType(type, lang);
+                    _elasticSearchApi.DeleteDocsByQuery(alias, typeWithLanguage, ref queryString);
                 }
 
                 result = true;
             }
-
-
-
+            
             return result;
         }
 

@@ -433,7 +433,7 @@ namespace ApiLogic.Tests.IndexManager
             Assert.AreEqual(1, searchResults.Count);
             Assert.AreEqual(epgId.ToString(), searchResults[0].AssetId);
 
-            bool deleteResult = indexManager.DeleteProgram(new List<long>() { Convert.ToInt64(epgId) }, null);
+            bool deleteResult = indexManager.DeleteProgram(new List<long>() { Convert.ToInt64(epgId) });
             Assert.IsTrue(deleteResult);
         }
 

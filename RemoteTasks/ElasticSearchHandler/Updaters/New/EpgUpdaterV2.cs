@@ -229,9 +229,9 @@ namespace ElasticSearchHandler.Updaters
             return result;
         }
 
-        protected bool DeleteEpg(List<long> epgIDs)
+        protected bool DeleteEpg(List<long> epgIDs, bool isRecording = false)
         {
-            return _indexManager.DeleteProgram(epgIDs.Select(id => id).ToList(), null);
+            return _indexManager.DeleteProgram(epgIDs.Select(id => id).ToList(), isRecording);
             //return result;
         }
 
