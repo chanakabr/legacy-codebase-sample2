@@ -1744,20 +1744,10 @@ namespace Core.ConditionalAccess
                 {
                     if (domain.m_DomainStatus != DomainStatus.OK && domain.m_DomainStatus != DomainStatus.DomainCreatedWithoutNPVRAccount)
                     {
-                        if (domain.m_DomainStatus == DomainStatus.DomainSuspended && !RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(userId)))
+                        var suspendStatus = CheckSuspendStatus(m_nGroupID, domain, userId);
+                        if (!suspendStatus.IsOkStatusCode())
                         {
-                            if (!RolesPermissionsManager.Instance.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
-                            {
-                                response.Code = (int)eResponseStatus.DomainSuspended;
-                                response.Message = "Domain suspended";
-                                return response;
-                            }
-                        }
-                        else
-                        {
-                            response.Code = (int)eResponseStatus.DomainNotExists;
-                            response.Message = "Domain doesn't exist";
-                            return response;
+                            return suspendStatus;
                         }
                     }
 
@@ -1837,7 +1827,7 @@ namespace Core.ConditionalAccess
                             {
                                 // BEO-9166
                                 long unifiedPaymentId = domainSubscriptionPurchase.UnifiedProcessId;
-                                
+
                                 if (unifiedPaymentId > 0)
                                 {
                                     DataTable subscriptionPurchaseDt = DAL.ConditionalAccessDAL.Get_SubscriptionPurchaseUnifiedForRenewal(m_nGroupID, domainId, unifiedPaymentId);
@@ -1921,6 +1911,33 @@ namespace Core.ConditionalAccess
                 response.Message = "Unexpected error occurred";
             }
 
+            return response;
+        }
+
+        private ApiObjects.Response.Status CheckSuspendStatus(int groupId, Domain domain, string userId)
+        {
+            var response = new ApiObjects.Response.Status();
+
+            if (domain.m_DomainStatus == DomainStatus.DomainSuspended)
+            {
+                if (!RolesPermissionsManager.Instance.AllowActionInSuspendedDomain(m_nGroupID, long.Parse(userId)) 
+                    && !RolesPermissionsManager.Instance.IsPermittedPermissionItem(this.m_nGroupID, domain.m_masterGUIDs[0].ToString(), "Entitlement_Cancel"))
+                {
+                    response.Code = (int)eResponseStatus.DomainSuspended;
+                    response.Message = "Domain suspended";
+                    return response;
+                }
+
+                log.Debug($"Domain: {domain.Id} is allowed to perform [Entitlement_Cancel] while suspended");
+            }
+            else
+            {
+                response.Code = (int)eResponseStatus.DomainNotExists;
+                response.Message = "Domain doesn't exist";
+                return response;
+            }
+
+            response.Set(eResponseStatus.OK);
             return response;
         }
 
@@ -2018,7 +2035,7 @@ namespace Core.ConditionalAccess
             {
                 log.Error($"Failed getting domain subscription purchase from layered cache for domain {domainId}");
             }
-            
+
             return result;
         }
 
@@ -2269,7 +2286,7 @@ namespace Core.ConditionalAccess
                             Int32 nMaxVLC = theSub.m_oSubscriptionUsageModule.m_tsMaxUsageModuleLifeCycle;
                             WriteToUserLog(sSiteGUID, "Subscription auto renewal: " + sSubscriptionCode.ToString() + " renewed" + dPrice.ToString() + sCurrency);
                             DateTime d = (DateTime)(ODBCWrapper.Utils.GetTableSingleVal("subscriptions_purchases", "end_date", nPurchaseID, "CA_CONNECTION_STRING"));
-                            DateTime dNext = Utils.GetEndDateTime(d, nMaxVLC);                          
+                            DateTime dNext = Utils.GetEndDateTime(d, nMaxVLC);
                             directQuery1 = new ODBCWrapper.DirectQuery();
                             directQuery1.SetConnectionKey("CA_CONNECTION_STRING");
                             directQuery1 += "update subscriptions_purchases set ";
@@ -2650,7 +2667,7 @@ namespace Core.ConditionalAccess
                                 directQuery3 += "update subscriptions_purchases set ";
                                 directQuery3 += "FAIL_COUNT = FAIL_COUNT + 1 ";
                                 directQuery3 += ",";
-                                directQuery3 += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow); 
+                                directQuery3 += ODBCWrapper.Parameter.NEW_PARAM("UPDATE_DATE", "=", DateTime.UtcNow);
                                 directQuery3 += " where ";
                                 directQuery3 += ODBCWrapper.Parameter.NEW_PARAM("id", "=", nPurchaseID);
                                 directQuery3.Execute();
@@ -6779,7 +6796,7 @@ namespace Core.ConditionalAccess
         /// Get Items Prices
         /// </summary>
         public virtual MediaFileItemPricesContainer[] GetItemsPrices(Int32[] mediaFiles, string userId, string couponCode, bool onlyLowest, string languageCode, string udid,
-                                                                     string ip, string currencyCode = null, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE, 
+                                                                     string ip, string currencyCode = null, BlockEntitlementType blockEntitlement = BlockEntitlementType.NONE,
                                                                      bool isDownloadPlayContext = false, bool withMediaFilesInvalidation = false)
         {
             MediaFileItemPricesContainer[] ret = null;
@@ -10631,7 +10648,7 @@ namespace Core.ConditionalAccess
 
                     //BEO-10259
                     var commercePartnerConfig = PartnerConfigurationManager.GetCommercePartnerConfig(this.m_nGroupID);
-                    if (commercePartnerConfig.IsOkStatusCode() && 
+                    if (commercePartnerConfig.IsOkStatusCode() &&
                         commercePartnerConfig.Object.KeepSubscriptionAddOns.HasValue && commercePartnerConfig.Object.KeepSubscriptionAddOns.Value)
                     {
                         log.Debug($"CancelAddOnByCancelBaseSubscription: Should keep add ons by configuration for group: {this.m_nGroupID}");
@@ -14903,7 +14920,7 @@ namespace Core.ConditionalAccess
             {
                 // Get EPG objects from Catalog, by their IDs
                 List<EPGChannelProgrammeObject> epgs = null;
-                
+
                 if (program != null)
                 {
                     log.Debug($"IngestRecording program not null {epgIds[0]}");
@@ -15257,7 +15274,7 @@ namespace Core.ConditionalAccess
                     {
                         var externalRecordingToUpdate = recordingToUpdate as ExternalRecording;
                         metaDataStr = externalRecordingToUpdate.MetaDataAsJson;
-                    } 
+                    }
 
                     if (recordingToUpdate.IsProtected)
                     {
@@ -16271,7 +16288,7 @@ namespace Core.ConditionalAccess
                         {
                             log.Debug($"found relevant program to record but a program with the same CRID already recorded for the channel. " +
                                 $"household  = {domainId}, crid = {crid}, recordingId = {potentialRecording.AssetId}");
-                            
+
                             //BEO-10365
                             continue;
                         }
@@ -16466,10 +16483,10 @@ namespace Core.ConditionalAccess
                     var _seasonNumber = Utils.GetStringParamFromExtendedSearchResult(epg, "metas.seasonnumber");
                     var _episodeNumber = Utils.GetStringParamFromExtendedSearchResult(epg, "metas.episodenumber");
                     var _endDate = Utils.GetStringParamFromExtendedSearchResult(epg, "end_date");
-                    
+
                     log.Debug($"HandleFirstFollowerRecording: epg: {epgId}, episodeNumber: {_episodeNumber}, " +
                         $"seasosNumber: {_seasonNumber}, endDate: {_endDate}");
-                    
+
                     int.TryParse(_episodeNumber, out int epgEpisodeNumber);
                     int.TryParse(_seasonNumber, out int epgSeasonNumber);
                     long.TryParse(_endDate, out long epgEndDate);
@@ -16518,7 +16535,7 @@ namespace Core.ConditionalAccess
 
                         //BEO-9899
                         var shouldRecord = ShouldRecord(epgSeasonNumber, epgEpisodeNumber, DateUtils.ToUtcUnixTimestampSeconds(epg.EndDate), seriesRecording.SeriesRecordingOption, epgId);
-                        
+
                         log.Debug($"epg: {epgId}, seasonNumber: {epgSeasonNumber}, episodeNumber: {epgEpisodeNumber}, " +
                             $"SeriesRecordingOption: {seriesRecording.SeriesRecordingOption?.ToString()}, " +
                             $"shouldRecord: {shouldRecord}, epg.EndDate: {epg.EndDate}");
@@ -16578,8 +16595,8 @@ namespace Core.ConditionalAccess
             if (seriesRecordingOption == null || !seriesRecordingOption.IsValid())
                 return true;
 
-            if ((seriesRecordingOption.MinSeasonNumber.HasValue && seriesRecordingOption.MinSeasonNumber.Value == 0 
-                || seriesRecordingOption.MinEpisodeNumber.HasValue && seriesRecordingOption.MinEpisodeNumber.Value == 0) 
+            if ((seriesRecordingOption.MinSeasonNumber.HasValue && seriesRecordingOption.MinSeasonNumber.Value == 0
+                || seriesRecordingOption.MinEpisodeNumber.HasValue && seriesRecordingOption.MinEpisodeNumber.Value == 0)
                 && !seriesRecordingOption.StartDateRecording.HasValue)
                 return true;
 
@@ -16617,7 +16634,7 @@ namespace Core.ConditionalAccess
                     log.Debug($"epgId: {epgId} not recorded due to the minimal epg end date");
                 }
             }
-             
+
             return response;
         }
 
@@ -18669,7 +18686,7 @@ namespace Core.ConditionalAccess
             }
         }
 
-    #endregion
-    
+        #endregion
+
     }
 }
