@@ -1,8 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
-using FeatureFlag;
 using KalturaRequestContext;
 
-namespace ApiLogic.FeatureToggle
+namespace FeatureFlag
 {
     public class PhoenixFeatureFlag: IPhoenixFeatureFlag
     {
