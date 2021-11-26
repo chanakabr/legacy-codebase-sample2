@@ -17,13 +17,13 @@
   <ItemGroup>
     <ProjectReference Include="..\KalturaRequestContext\KalturaRequestContext.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="Ott.Lib.FeatureToggle" Version="0.0.0.14-alpha" />
-  </ItemGroup>
   <ItemGroup>
     <Reference Include="FeatureFlag, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\..\RemoteTasks\RemoteTasksService\Bin\FeatureFlag.dll</HintPath>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Ott.Lib.FeatureToggle" Version="0.0.0.16-alpha" />
   </ItemGroup>
 
 </Project>
