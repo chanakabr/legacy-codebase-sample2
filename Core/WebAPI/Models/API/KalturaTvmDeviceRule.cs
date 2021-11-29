@@ -25,10 +25,5 @@ namespace WebAPI.Models.API
             base.Init();
             this.RuleType = KalturaTvmRuleType.Device;
         }
-
-        public HashSet<int> GetDeviceBrandIds()
-        {
-            return this.GetItemsIn<HashSet<int>, int>(DeviceBrandIds, "KalturaTvmDeviceRule.deviceBrandIds");
-        }
     }
 }

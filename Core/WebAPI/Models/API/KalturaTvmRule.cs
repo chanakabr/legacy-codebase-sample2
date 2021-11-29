@@ -30,10 +30,4 @@ namespace WebAPI.Models.API
         [SchemeProperty(ReadOnly = true)]
         public KalturaTvmRuleType RuleType { get; set; }
     }
-
-    public enum KalturaTvmRuleType
-    {
-        Geo = 0,
-        Device = 1
-    }
 }

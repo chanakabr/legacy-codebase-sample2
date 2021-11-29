@@ -27,13 +27,5 @@ namespace WebAPI.Models.ConditionalAccess.FilterActions.Assets
             base.Init();
             this.Type = KalturaRuleActionType.FilterAssetByKsql;
         }
-
-        public override void Validate()
-        {
-            if (string.IsNullOrWhiteSpace(Ksql))
-            {
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "ksql");
-            }
-        }
     }
 }
