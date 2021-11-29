@@ -35,6 +35,9 @@ namespace Core.Catalog.Request
         [DataMember]
         public DateTime? endDate;
 
+        [DataMember]
+        public List<string> seriesIds;
+
         public ScheduledRecordingsRequest()
             : base()
         {
@@ -79,6 +82,11 @@ namespace Core.Catalog.Request
                         if (channelIds != null && channelIds.Count > 0)
                         {
                             seriesResponse.SeriesRecordings = seriesResponse.SeriesRecordings.Where(x => channelIds.Contains(x.EpgChannelId)).ToList();
+                        }
+                        if (seriesIds != null && seriesIds.Count > 0)
+                        {
+                            var _seriesIds = seriesIds.ToHashSet();
+                            seriesResponse.SeriesRecordings = seriesResponse.SeriesRecordings.Where(x => _seriesIds.Contains(x.SeriesId)).ToList();
                         }
 
                         series = seriesResponse.SeriesRecordings.ToArray();
@@ -318,7 +326,7 @@ namespace Core.Catalog.Request
                         log.Debug($"futureRecording: {futureRecording}");
                     }
 
-                    ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4} {5} {6})", seriesIdMetaOrTag, serie.SeriesId, 
+                    ksql.AppendFormat("(and {0} = '{1}' epg_channel_id = '{2}' {3} {4} {5} {6})", seriesIdMetaOrTag, serie.SeriesId,
                         serie.EpgChannelId, season, seasonsToExclude.ToString(), isOriginalBroadcast, futureRecording);
                 }
             }

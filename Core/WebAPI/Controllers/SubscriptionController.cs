@@ -227,7 +227,7 @@ namespace WebAPI.Controllers
 
 
         /// <summary>
-        /// Internal API !!! Insert new subscription for partner
+        /// Insert new subscription for partner
         /// </summary>
         /// <remarks>
         /// </remarks>
@@ -272,7 +272,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Internal API !!! Delete subscription 
+        /// Delete subscription 
         /// </summary>
         /// <remarks>
         /// </remarks>

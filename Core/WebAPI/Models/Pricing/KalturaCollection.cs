@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using ApiObjects.Pricing;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -13,7 +14,7 @@ namespace WebAPI.Models.Pricing
     /// <summary>
     /// Collection
     /// </summary>
-    public partial class KalturaCollection : KalturaOTTObject
+    public partial class KalturaCollection : KalturaOTTObjectSupportNullable
     {
         /// <summary>
         /// Collection identifier
@@ -25,12 +26,23 @@ namespace WebAPI.Models.Pricing
 
         /// <summary>
         /// A list of channels associated with this collection 
+        /// This property will deprecated soon. Please use ChannelsIds instead of it.
         /// </summary>
         [DataMember(Name = "channels")]
         [JsonProperty("channels")]
         [XmlArray(ElementName = "channels", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(IsNullable = true, ReadOnly = true)]
         public List<KalturaBaseChannel> Channels { get; set; }
+
+        /// <summary>
+        /// Comma separated channels Ids associated with this collection
+        /// </summary>
+        [DataMember(Name = "channelsIds")]
+        [JsonProperty("channelsIds")]
+        [XmlArray(ElementName = "channelsIds", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
+        public string ChannelsIds { get; set; }
 
         /// <summary>
         /// The first date the collection is available for purchasing 
@@ -38,6 +50,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "startDate")]
         [JsonProperty("startDate")]
         [XmlElement(ElementName = "startDate")]
+        [SchemeProperty(IsNullable = true)]
         public long? StartDate { get; set; }
 
         /// <summary>
@@ -46,50 +59,87 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "endDate")]
         [JsonProperty("endDate")]
         [XmlElement(ElementName = "endDate")]
+        [SchemeProperty(IsNullable = true)]
         public long? EndDate { get; set; }
 
-        /// <summary>
-        /// The internal discount module for the subscription
+        /// <summary>        
+        /// The internal discount module for the collection
+        /// This property will deprecated soon. Please use DiscountModuleId instead of it.
         /// </summary>
         [DataMember(Name = "discountModule")]
         [JsonProperty("discountModule")]
         [XmlElement(ElementName = "discountModule", IsNullable = true)]
         [OldStandardProperty("discount_module")]
+        [SchemeProperty(IsNullable = true, ReadOnly = true)]
         public KalturaDiscountModule DiscountModule { get; set; }
 
         /// <summary>
-        /// Name of the subscription
+        /// The internal discount module identifier for the collection
+        /// </summary>
+        [DataMember(Name = "discountModuleId")]
+        [JsonProperty("discountModuleId")]
+        [XmlElement(ElementName = "discountModuleId", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MinLong = 1)]
+        public long? DiscountModuleId { get; set; }
+
+        /// <summary>
+        /// Name of the collection
         /// </summary>
         [DataMember(Name = "name")]
         [JsonProperty("name")]
         [XmlElement(ElementName = "name", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaMultilingualString Name { get; set; }
 
         /// <summary>
-        /// description of the subscription
+        /// description of the collection
         /// </summary>
         [DataMember(Name = "description")]
         [JsonProperty("description")]
         [XmlElement(ElementName = "description", IsNullable = true)]
+        [SchemeProperty(IsNullable = true)]
         public KalturaMultilingualString Description { get; set; }
 
 
         /// <summary>
         /// Collection usage module
+        /// This property will deprecated soon. Please use usageModuleId instead of it.
         /// </summary>
         [DataMember(Name = "usageModule")]
         [JsonProperty("usageModule")]
         [XmlElement(ElementName = "usageModule", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, ReadOnly = true)]
         public KalturaUsageModule UsageModule { get; set; }
 
         /// <summary>
+        /// The internal usage module identifier for the collection
+        /// </summary>
+        [DataMember(Name = "usageModuleId")]
+        [JsonProperty("usageModuleId")]
+        [XmlElement(ElementName = "usageModuleId", IsNullable = true)]
+        [SchemeProperty(IsNullable = true, MinLong = 1)]
+        public long? UsageModuleId { get; set; }
+
+        /// <summary>
         /// List of Coupons group
+        /// This property will deprecated soon. Please use CollectionCouponGroup instead of it.
         /// </summary>
         [DataMember(Name = "couponsGroups")]
         [JsonProperty("couponsGroups")]
         [XmlArray(ElementName = "couponsGroups", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(IsNullable = true, ReadOnly = true)]
         public List<KalturaCouponsGroup> CouponGroups { get; set; }
+
+        /// <summary>
+        /// List of collection Coupons group
+        /// </summary>
+        [DataMember(Name = "collectionCouponGroup")]
+        [JsonProperty("collectionCouponGroup")]
+        [XmlArray(ElementName = "collectionCouponGroup", IsNullable = true)]
+        [XmlArrayItem("item")]
+        [SchemeProperty(IsNullable = true)]
+        public List<KalturaCollectionCouponGroup> CollectionCouponGroup { get; set; }
 
         /// <summary>
         /// External ID
@@ -97,6 +147,7 @@ namespace WebAPI.Models.Pricing
         [DataMember(Name = "externalId")]
         [JsonProperty("externalId")]
         [XmlElement(ElementName = "externalId")]
+        [SchemeProperty(IsNullable = true)]
         public string ExternalId { get; set; }
 
         /// <summary>
@@ -106,6 +157,7 @@ namespace WebAPI.Models.Pricing
         [JsonProperty("productCodes")]
         [XmlArray(ElementName = "productCodes", IsNullable = true)]
         [XmlArrayItem("item")]
+        [SchemeProperty(IsNullable = true)]
         public List<KalturaProductCode> ProductCodes { get; set; }
 
         /// <summary>
@@ -117,14 +169,134 @@ namespace WebAPI.Models.Pricing
         [SchemeProperty(MinInteger = 1)]
         public long? PriceDetailsId { get; set; }
 
+        /// <summary>
+        /// Is active collection
+        /// </summary>
+        [DataMember(Name = "isActive")]
+        [JsonProperty("isActive")]
+        [XmlElement(ElementName = "isActive")]
+        [SchemeProperty(RequiresPermission = (int)RequestType.ALL)]
+        public bool? IsActive { get; set; }
+
+        /// <summary>
+        /// Specifies when was the collection created. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "createDate")]
+        [JsonProperty(PropertyName = "createDate")]
+        [XmlElement(ElementName = "createDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long CreateDate { get; set; }
+
+        /// <summary>
+        /// Specifies when was the collection last updated. Date and time represented as epoch.
+        /// </summary>
+        [DataMember(Name = "updateDate")]
+        [JsonProperty(PropertyName = "updateDate")]
+        [XmlElement(ElementName = "updateDate")]
+        [SchemeProperty(ReadOnly = true)]
+        public long UpdateDate { get; set; }
+
+        /// <summary>
+        /// Virtual asset id
+        /// </summary>
+        [DataMember(Name = "virtualAssetId")]
+        [JsonProperty("virtualAssetId")]
+        [XmlElement(ElementName = "virtualAssetId", IsNullable = true)]
+        [SchemeProperty(ReadOnly = true)]
+        public long? VirtualAssetId { get; set; }
+
         public void ValidateForAdd()
         {
-            if (Name == null || Name.Values.Count == 0)
+            if (!string.IsNullOrEmpty(ChannelsIds))
+            {
+                _ = GetItemsIn<List<long>, long>(ChannelsIds, "channelsIds", true);
+            }
+
+            if (CouponGroups?.Count > 0)
+            {
+                CouponGroups.ForEach(x => x.Validate());
+            }
+
+            if (this.Name == null || this.Name.Values == null || this.Name.Values.Count == 0)
+            {
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "name");
-            if (UsageModule == null)
-                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "UsageModule");
+            }
+            this.Name.Validate("multilingualName");
+
+            if (this.Description != null)
+            {
+                this.Description.Validate("multilingualDescription");
+            }
+
+            if (StartDate.HasValue && EndDate.HasValue && StartDate > EndDate)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");
+            }
+
+
+            if (UsageModuleId == null)
+                throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "usageModuleId");
+
             if (PriceDetailsId == null)
                 throw new BadRequestException(BadRequestException.ARGUMENT_CANNOT_BE_EMPTY, "PriceDetailsId");
+
+            if (ProductCodes?.Count > 1)
+            {
+                List<string> res = new List<string>();
+
+                foreach (var item in ProductCodes)
+                {
+                    if (res.Contains(item.InappProvider))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "KalturaProductCode.InappProvider");
+                    }
+
+                    if (!Enum.TryParse(item.InappProvider, out VerificationPaymentGateway tmp))
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "KalturaProductCode.InappProvider", item.InappProvider);
+                    }
+
+                    res.Add(item.InappProvider);
+                }
+            }
+        }
+
+        internal void ValidateForUpdate()
+        {
+            if (!string.IsNullOrEmpty(ChannelsIds))
+            {
+                _ = GetItemsIn<List<long>, long>(ChannelsIds, "channelsIds", true);
+            }
+
+            if (CouponGroups?.Count > 0)
+            {
+                CouponGroups.ForEach(x => x.Validate());
+            }
+
+            if (StartDate.HasValue && EndDate.HasValue && StartDate > EndDate)
+            {
+                throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_CONFLICT_EACH_OTHER, "startDate", "endDate");
+            }
+
+            if (ProductCodes?.Count > 1)
+            {
+                List<string> res = new List<string>();
+
+                foreach (var item in ProductCodes)
+                {
+                    if (res.Contains(item.InappProvider))
+                    {
+                        throw new BadRequestException(BadRequestException.ARGUMENTS_VALUES_DUPLICATED, "KalturaProductCode.InappProvider");
+                    }
+
+                    if (!Enum.TryParse(item.InappProvider, out VerificationPaymentGateway tmp))
+                    {
+                        throw new BadRequestException(BadRequestException.INVALID_AGRUMENT_VALUE, "KalturaProductCode.InappProvider", item.InappProvider);
+                    }
+
+                    res.Add(item.InappProvider);
+                }
+            }
         }
     }
 
@@ -161,7 +333,7 @@ namespace WebAPI.Models.Pricing
         public string CollectionIdIn { get; set; }
 
         /// <summary>
-        /// Media-file ID to get the subscriptions by
+        /// Media-file ID to get the collections by
         /// </summary>
         [DataMember(Name = "mediaFileIdEqual")]
         [JsonProperty("mediaFileIdEqual")]
@@ -176,6 +348,16 @@ namespace WebAPI.Models.Pricing
         [XmlElement(ElementName = "couponGroupIdEqual", IsNullable = true)]
         [SchemeProperty(MinInteger = 1)]
         public int? CouponGroupIdEqual { get; set; }
+
+        /// <summary>
+        ///  return also inactive 
+        /// </summary>
+        [DataMember(Name = "alsoInactive")]
+        [JsonProperty("alsoInactive")]
+        [XmlElement(ElementName = "alsoInactive")]
+        [ValidationException(SchemeValidationType.FILTER_SUFFIX)]
+        [SchemeProperty(RequiresPermission = (int)RequestType.READ)]
+        public bool? AlsoInactive { get; set; }
 
         public override KalturaCollectionOrderBy GetDefaultOrderByValue()
         {
@@ -201,6 +383,10 @@ namespace WebAPI.Models.Pricing
 
     public enum KalturaCollectionOrderBy
     {
-        NONE = 0
+        NONE,
+        NAME_ASC,
+        NAME_DESC,
+        UPDATE_DATE_ASC,
+        UPDATE_DATE_DESC
     }
 }

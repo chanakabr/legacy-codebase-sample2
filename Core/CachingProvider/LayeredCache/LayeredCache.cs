@@ -1350,6 +1350,10 @@ namespace CachingProvider.LayeredCache
                     {
                         log.ErrorFormat("Failed inserting Default LayeredCacheGroupConfig into cache, key: {0}, groupId: {1}, LayeredCacheTypes: {2}", key, groupId, GetLayeredCacheConfigTypesForLog(insertToCacheConfig));
                     }
+                    else if (insertToCacheConfig?.Any(x => x.Type != LayeredCacheType.InMemoryCache) == true)
+                    {
+                        log.Warn($"BEO-10978 inserting Default LayeredCacheGroupConfig into cache, key: {key}, groupId: {groupId}");
+                    }
                 }
             }
             catch (Exception ex)
@@ -1739,6 +1743,11 @@ namespace CachingProvider.LayeredCache
                     if (cache != null)
                     {
                         insertResult = insertResult && cache.Set<LayeredCacheGroupConfig>(key, groupConfig, cacheConfig.TTL);
+
+                        if (insertResult && (cacheConfig.Type != LayeredCacheType.InMemoryCache))
+                        {
+                            log.Warn($"BEO-10978 TrySetLayeredGroupCacheConfig, key:{key}, type:{cacheConfig.Type}, Version:{groupConfig.Version}, TTL: {cacheConfig.TTL}");
+                        }
                     }
                     else
                     {

@@ -367,6 +367,8 @@ namespace Core.Catalog.CatalogManagement
                     log.Error($"Failed while UpdateVirtualAsset. Error at AddVirtualAsset. groupId: {groupId}, assetName: {virtualAssetInfo.Name}");
                     return response;
                 }
+
+                return response;
             }
 
             if (virtualAsset == null)

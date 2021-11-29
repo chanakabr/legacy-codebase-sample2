@@ -30,6 +30,12 @@ namespace Core.Pricing
         CouponsGroupResponse GetCouponsGroup(int groupId, long id);
 
         void InvalidateSubscription(int groupId, int subId = 0);
+
+        Collection GetCollectionData(int groupId, string collectionCode, string country, string language, string udid, bool bGetAlsoUnActive);
+
+        void InvalidateCollection(int groupId, long collId = 0);
+
+        List<Collection> GetCollections(int groupId, List<long> collectionIds, string country, string udid, string lang, int? couponGroupIdEqual, bool getAlsoUnactive = false);
     }
 
     public interface IPPVModuleManager
@@ -72,7 +78,7 @@ namespace Core.Pricing
 
         public void InvalidateSubscription(int groupId, int subId = 0)
         {
-            PricingCache.Instance.InvalidateSubscription(groupId, subId);         
+            PricingCache.Instance.InvalidateSubscription(groupId, subId);
         }
 
         public static Subscription[] GetSubscriptionsContainingUserTypes(int nGroupID, string sCountryCd2, string sLanguageCode3, string sDeviceName, int nIsActive, int[] userTypesIDs)
@@ -251,7 +257,7 @@ namespace Core.Pricing
         public Subscription GetSubscriptionData(int nGroupID, string sSubscriptionCode, string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive, string userId = null)
         {
             long nUserId = 0;
-            
+
             if (long.TryParse(userId, out nUserId))
             {
                 var res = GetSubscriptions(nGroupID, new HashSet<long>() { long.Parse(sSubscriptionCode) },
@@ -275,20 +281,112 @@ namespace Core.Pricing
             return null;
         }
 
-        public static Collection GetCollectionData(int nGroupID, string sCollectionCode
-            , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
+        public Collection GetCollectionData(int groupId, string collectionCode, string country, string language, string udid, bool bGetAlsoUnActive)
         {
-            BaseCollection t = null;
-            Utils.GetBaseImpl(ref t, nGroupID);
-            if (t != null)
+            List<Collection> res = PricingCache.Instance.GetCollections(groupId, new List<long>() { long.Parse(collectionCode) });
+
+            if (res?.Count > 0)
             {
-                return (new CollectionCacheWrapper(t)).GetCollectionData(sCollectionCode, sCountryCd2, sLanguageCode3, sDeviceName, bGetAlsoUnActive, null);
+                return res[0];
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
+
+        public List<Collection> GetCollections(int groupId, List<long> collectionIds, string country, string udid, string lang, int? couponGroupIdEqual, bool getAlsoUnactive = false)
+        {
+            List<Collection> collections = new List<Collection>();
+
+            if (collectionIds == null || collectionIds.Count == 0)
+            {
+                return collections;
+            }
+
+            Dictionary<string, string> keysToOriginalValueMap = new Dictionary<string, string>();
+            Dictionary<string, List<string>> invalidationKeysMap = new Dictionary<string, List<string>>();
+
+            foreach (long id in collectionIds)
+            {
+                string key = LayeredCacheKeys.GetCollectionKey(groupId, id);
+                keysToOriginalValueMap.Add(key, id.ToString());
+                invalidationKeysMap.Add(key, new List<string>() { LayeredCacheKeys.GetCollectionInvalidationKey(groupId, id) });
+            }
+
+            Dictionary<string, Collection> collectionsMap = null;
+
+            if (!LayeredCache.Instance.GetValues(keysToOriginalValueMap,
+                                                ref collectionsMap,
+                                                GetCollections,
+                                                new Dictionary<string, object>() {
+                                                        { "groupId", groupId },
+                                                        { "country", country },
+                                                        { "udid", udid },
+                                                        { "lang", lang },
+                                                        { "getAlsoUnactive", getAlsoUnactive },
+                                                        { "couponGroupIdEqual", couponGroupIdEqual },
+                                                        { "collectionIds", keysToOriginalValueMap.Values.ToList() }
+                                                   },
+                                                groupId,
+                                                LayeredCacheConfigNames.GET_SUBSCRIPTIONS,
+                                                invalidationKeysMap))
+            {
+                log.Warn($"Failed getting Collections from LayeredCache, groupId: {groupId}, subIds: {string.Join(",", collectionIds)}");
+                return collections;
+            }
+
+            collections = collectionsMap == null ? new List<Collection>() : collectionsMap.Values.ToList();
+
+            if (!getAlsoUnactive && collections?.Count > 0)
+            {
+                collections = collections.Where((item) => item.IsActive.HasValue && item.IsActive.Value).ToList();
+            }
+
+            if (couponGroupIdEqual.HasValue)
+            {
+                collections = collections?.Where(x => x.m_oCouponsGroup.m_sGroupCode == couponGroupIdEqual.Value.ToString()).ToList();
+            }
+
+            return collections;
+        }
+
+        public static Tuple<Dictionary<string, Collection>, bool> GetCollections(Dictionary<string, object> funcParams)
+        {
+            Dictionary<string, Collection> collections = new Dictionary<string, Collection>();
+            List<string> collectionIds = null;
+
+            int? groupId = funcParams["groupId"] as int?;
+            string country = funcParams["country"] as string;
+            string udid = funcParams["udid"] as string;
+            string lang = funcParams["lang"] as string;
+            bool? getAlsoUnactive = funcParams["getAlsoUnactive"] as bool?;
+            int? couponGroupIdEqual = funcParams["couponGroupIdEqual"] as int?;
+
+            if (funcParams.ContainsKey(LayeredCache.MISSING_KEYS) && funcParams[LayeredCache.MISSING_KEYS] != null)
+            {
+                collectionIds = ((List<string>)funcParams[LayeredCache.MISSING_KEYS]);
+            }
+            else if (funcParams["collectionIds"] != null)
+            {
+                collectionIds = (List<string>)funcParams["collectionIds"];
+            }
+
+            if (collectionIds?.Count > 0)
+            {
+                BaseCollection t = null;
+                Utils.GetBaseImpl(ref t, groupId.Value);
+                if (t != null)
+                {
+                    var response = t.GetCollectionsData(collectionIds.ToArray(), country, lang, udid, couponGroupIdEqual, getAlsoUnactive.Value);
+                    if (response != null && response.Collections != null && response.Collections.Length > 0)
+                    {
+                        collections = response.Collections.ToDictionary(x => LayeredCacheKeys.GetCollectionKey(groupId.Value, long.Parse(x.m_sObjectCode)), y => y);
+                    }
+                }
+            }
+
+            return Tuple.Create(collections, true);
+        }
+
 
         public static Subscription GetSubscriptionDataByProductCode(int nGroupID, string sProductCode
             , string sCountryCd2, string sLanguageCode3, string sDeviceName, bool bGetAlsoUnActive)
@@ -749,7 +847,7 @@ namespace Core.Pricing
 
                 if (filter.ObjectIds?.Count > 0)
                 {
-                    bool calcPaging = !shouldIgnorePaging && !couponGroupIdEqual.HasValue && !previewModuleIdEqual.HasValue && !pricePlanIdEqual.HasValue && !channelIdEqual.HasValue;                   
+                    bool calcPaging = !shouldIgnorePaging && !couponGroupIdEqual.HasValue && !previewModuleIdEqual.HasValue && !pricePlanIdEqual.HasValue && !channelIdEqual.HasValue;
 
                     if (orderBy == SubscriptionOrderBy.CreateDateAsc || orderBy == SubscriptionOrderBy.CreateDateDesc)
                     {
@@ -806,7 +904,7 @@ namespace Core.Pricing
                             return response;
                         }
                     }
-                    
+
                     response.TotalItems = filter.ObjectIds.Count;
 
                     int startIndexOnList = 0;
@@ -943,19 +1041,6 @@ namespace Core.Pricing
             {
                 return null;
             }
-        }
-
-        public static CollectionsResponse GetCollectionsData(int groupId, string country, string language, string udid, int pageIndex, int pageSize, bool shouldIgnorePaging, int? couponGroupIdEqual = null)
-        {
-            // get group's CollectionIds
-            HashSet<long> collCodes = PricingCache.GetCollectionsIds(groupId);
-
-            if (collCodes == null)
-            {
-                return null;
-            }
-
-            return GetCollectionsData(groupId, collCodes.Select(x => x.ToString()).ToArray(), country, language, udid, pageIndex, pageSize, shouldIgnorePaging, couponGroupIdEqual);
         }
 
         public static PPVModule ValidatePPVModuleForMediaFile(int groupID, Int32 mediaFileID, long ppvModuleCode)
@@ -1608,7 +1693,7 @@ namespace Core.Pricing
                     {
                         subsToClear.AddRange(subscriptionIds.Select(x => (int)x));
                     }
-                    
+
                     PricingCache.Instance.InvalidateSubscriptions(groupId, subsToClear);
 
                     response.Status = new Status((int)eResponseStatus.OK, eResponseStatus.OK.ToString());
@@ -1775,7 +1860,7 @@ namespace Core.Pricing
             }
 
             return response;
-        }   
+        }
 
         public static IdsResponse GetCollectionIdsContainingMediaFile(int groupId, int mediaId, int mediaFileID)
         {
@@ -1921,7 +2006,7 @@ namespace Core.Pricing
 
             return response;
         }
-        public  GenericListResponse<DiscountDetails> GetValidDiscounts(int groupId)
+        public GenericListResponse<DiscountDetails> GetValidDiscounts(int groupId)
         {
             var response = new GenericListResponse<DiscountDetails>();
 
@@ -1933,6 +2018,11 @@ namespace Core.Pricing
             }
 
             return response;
+        }
+
+        public void InvalidateCollection(int groupId, long coll = 0)
+        {
+            PricingCache.Instance.InvalidateCollection(groupId, coll);
         }
     }
 }

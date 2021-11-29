@@ -23,11 +23,13 @@ namespace Core.Pricing
         public string m_Product_Code;
         public bool m_bFirstDeviceLimitation;
         public string alias;
+        public string ExternalId { get; set; }
         public ApiObjects.AdsPolicy? AdsPolicy { get; set; }
         public string AdsParam { get; set; }
         public bool? IsActive;
         public DateTime? CreateDate;
         public DateTime? UpdateDate;
+        public long? VirtualAssetId { get; set; }
         #endregion
 
         public override string ToString()
@@ -57,7 +59,8 @@ namespace Core.Pricing
 
         public void Initialize(PriceCode oPriceCode, UsageModule oUsageModule,
             DiscountModule oDiscountModule, CouponsGroup oCouponsGroup, LanguageContainer[] sDescriptions,
-            string sPPVCode, bool bSubscriptionOnly, string sObjectVirtualName, List<int> fileTypes, bool bFirstDeviceLimitation, int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
+            string sPPVCode, bool bSubscriptionOnly, string sObjectVirtualName, List<int> fileTypes, bool bFirstDeviceLimitation, 
+            int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
         {
             m_oCouponsGroup = oCouponsGroup;
             m_oDiscountModule = oDiscountModule;
@@ -76,12 +79,29 @@ namespace Core.Pricing
 
         public void Initialize(string sPriceCode, string sUsageModuleCode,
             string sDiscountModuleCode, string sCouponGroupCode, LanguageContainer[] sDescriptions, Int32 nGroupID,
-            string sPPVCode, bool bSubscriptionOnly, string sObjectVirtualName,
-            string sCountryCd, string sLANGUAGE_CODE, string sDEVICE_NAME, List<int> fileTypes, bool bFirstDeviceLimitation, string productCode, int dlmID = 0, AdsPolicy? adsPolicy = null, string adsParam = null)
+            string sPPVCode, bool bSubscriptionOnly, string sObjectVirtualName, string sCountryCd, string sLANGUAGE_CODE, 
+            string sDEVICE_NAME, List<int> fileTypes, bool bFirstDeviceLimitation, string productCode, int dlmID = 0, AdsPolicy? adsPolicy = null, 
+            string adsParam = null, DateTime? createDate = null, DateTime? updateDate = null, bool? isActive = null, long? virtualAssetId = null)
         {
             m_bSubscriptionOnly = bSubscriptionOnly;
             m_sObjectVirtualName = sObjectVirtualName;
             m_relatedFileTypes = fileTypes;
+            VirtualAssetId = virtualAssetId;
+            if (createDate.HasValue)
+            {
+                CreateDate = createDate.Value;
+            }
+            
+            if (updateDate.HasValue)
+            {
+                UpdateDate = updateDate.Value;
+            }
+            
+            if (isActive.HasValue)
+            {
+                IsActive = isActive.Value;
+            }
+           
             if (sPriceCode.Length > 0)
             {
                 BasePricing p = null;

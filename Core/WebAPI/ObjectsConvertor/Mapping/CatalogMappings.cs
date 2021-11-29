@@ -605,7 +605,9 @@ namespace WebAPI.ObjectsConvertor.Mapping
             cfg.CreateMap<RecordingAsset, KalturaRecordingAsset>()
                 .IncludeBase<EpgAsset, KalturaProgramAsset>()
                 .ForMember(dest => dest.RecordingType, opt => opt.MapFrom(src => src.RecordingType))
-                .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingId));
+                .ForMember(dest => dest.RecordingId, opt => opt.MapFrom(src => src.RecordingId))
+                .ForMember(dest => dest.ViewableUntilDate, opt => opt.MapFrom(src => src.ViewableUntilDate))
+                ;
 
             // Asset to KalturaAsset
             cfg.CreateMap<Asset, KalturaAsset>()

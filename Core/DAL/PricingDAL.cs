@@ -55,13 +55,11 @@ namespace DAL
     }
     public interface IModuleManagerRepository
     {
-        int InsertUsageModule(long userId, int groupID, string name, int maxViews, int fullLifeCycleID,
-                                int viewLifeCycleID, int waiverPeriod, bool isWaiverEnabled, bool isOfflinePlayback);
+        int InsertUsageModule(long userId, int groupID, UsageModuleDTO usageModuleDTO);
         bool DeletePricePlan(int groupId, long id, long userId);
-
         bool IsUsageModuleExistsById(int groupId, long id);
-
-        DataTable GetPricePlansDT(int groupId, List<long> pricePlanIds = null);
+        List<UsageModuleDTO> GetUsageModule(int groupId, List<long> usageModuleIds = null);
+        int UpdateUsageModule(int groupId, long userId, long id, UsageModuleDTO usageModuleDTO);
     }
 
     public interface IPreviewModuleRepository
@@ -75,11 +73,14 @@ namespace DAL
 
     public interface ICollectionRepository
     {
-        long Insert_Collection(int groupId, int priceId, int discountId, int usageModuleId,
-            DateTime? startDate, DateTime? endDate, string couponGroupCode, long userId, LanguageContainer[] description,
-            LanguageContainer[] names, List<long> channelIds, List<SubscriptionCouponGroupDTO> couponsGroups, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes);
         bool IsCollectionExists(int groupId, long id);
-        bool DeleteCollection(int groupId, long id, long userId);
+        int DeleteCollection(int groupId, long id, long userId);
+        long GetCollectionByExternalId(int groupId, string externalId);
+        long AddCollection(int groupId, long value, CollectionInternal collectionToInsert);
+        bool UpdateCollection(int groupId, long value, CollectionInternal collectionToUpdate, NullableObj<DateTime?> nullableStartDate, NullableObj<DateTime?> nullableEndDate, long? virtualAssetId);
+        List<long> GetCollectionsByChannelId(int groupId, long channelId);
+        void DeleteCollectionsChannelsByChannel(int groupId, long userId, long channelId);
+        bool UpdateCollectionVirtualAssetId(int groupId, long id, long assetId, long value);
     }
     public interface IPricingPartnerRepository
     {
@@ -98,10 +99,22 @@ namespace DAL
             NullableObj<DateTime?> startDate, NullableObj<DateTime?> endDate, long? extDiscountId);
 
         bool UpdateSubscriptionVirtualAssetId(int groupId, long id, long? virtualAssetId, long userId);
+        List<int> GetSubscriptionsByChannelId(int groupId, int channelId);
+        void DeleteSubscriptionsChannelsByChannel(int groupId, int channelId);
+    }
+
+    public interface IPpvManagerRepository
+    {
+        List<PpvDTO> Get_AllPpvModuleData(int groupID);
+        int InsertPPV(int groupID, long updaterId, PpvDTO ppv);
+        bool DeletePPV(int groupID, long userId, long id);
+
+        int UpdatePPV(int groupID, long updaterId, int id, PpvDTO ppv);
+        bool UpdatePpvVirtualAssetId(int groupId, long id, long? virtualAssetId, long userId);
     }
 
     public class PricingDAL : ICampaignRepository, IPriceDetailsRepository, IPricePlanRepository, IModuleManagerRepository, IDiscountDetailsRepository, IPreviewModuleRepository,
-        ICollectionRepository, IPricingPartnerRepository, ISubscriptionManagerRepository
+        ICollectionRepository, IPricingPartnerRepository, ISubscriptionManagerRepository, IPpvManagerRepository
     {
         private static readonly KLogger log = new KLogger(MethodBase.GetCurrentMethod().DeclaringType.ToString());
 
@@ -405,6 +418,67 @@ namespace DAL
             return null;
         }
 
+        public List<PpvDTO> Get_AllPpvModuleData(int groupID)
+        {
+            StoredProcedure spPPVModuleData = new ODBCWrapper.StoredProcedure("Get_All_PPV_ModuleData");
+            spPPVModuleData.SetConnectionKey("pricing_connection");
+            spPPVModuleData.AddParameter("@GroupID", groupID);
+            DataSet ds = spPPVModuleData.ExecuteDataSet();
+
+            if (ds != null)
+                return BuildPPVDTOFromDataTable(ds.Tables[0]);
+
+            return null;
+        }
+        private List<PpvDTO> BuildPPVDTOFromDataTable(DataTable ppvsTable)
+        {
+            List<PpvDTO> response = new List<PpvDTO>();
+            if (ppvsTable != null && ppvsTable.Rows != null && ppvsTable.Rows.Count > 0)
+            {
+                foreach (DataRow row in ppvsTable.Rows)
+                {
+                    response.Add(BuildPPVDTOFromDataRow(row));
+                }
+            }
+            return response;
+        }
+        private PpvDTO BuildPPVDTOFromDataRow(DataRow ppvModule)
+        {
+            if (ppvModule != null)
+            {
+                PpvDTO ppv = new PpvDTO()
+                {
+                    Id =  Utils.GetIntSafeVal(ppvModule["ID"]),
+                    PriceCode = Utils.GetIntSafeVal(ppvModule["PRICE_CODE"]),
+                    UsageModuleCode = Utils.GetIntSafeVal(ppvModule["USAGE_MODULE_CODE"]),
+                    DiscountCode = Utils.GetIntSafeVal(ppvModule["DISCOUNT_MODULE_CODE"]),
+                    CouponsGroupCode = Utils.GetIntSafeVal(ppvModule["COUPON_GROUP_CODE"]),
+                    Name = Utils.GetSafeStr(ppvModule["NAME"]),
+                    SubscriptionOnly = Convert.ToBoolean(Utils.GetIntSafeVal(ppvModule["SUBSCRIPTION_ONLY"])),
+                    FirstDeviceLimitation = Convert.ToBoolean(Utils.GetIntSafeVal(ppvModule["FIRSTDEVICELIMITATION"])),
+                    ProductCode = Utils.GetSafeStr(ppvModule["Product_Code"]),
+                    IsActive = Convert.ToBoolean(Utils.GetIntSafeVal(ppvModule["IS_ACTIVE"])),
+                    AdsParam = Utils.GetSafeStr(ppvModule["ADS_PARAM"]),
+                    CreateDate = Utils.GetDateSafeVal((ppvModule["CREATE_DATE"])),
+                    UpdateDate = Utils.GetDateSafeVal((ppvModule["UPDATE_DATE"])),
+                };
+                var virtualAssetId = Utils.GetIntSafeVal((ppvModule["VIRTUAL_ASSET_ID"]));
+                if (virtualAssetId > 0)
+                {
+                    ppv.VirtualAssetId = virtualAssetId;
+                }
+                int adsPolicyInt = Utils.GetIntSafeVal(ppvModule["ADS_POLICY"]);
+                AdsPolicy? adsPolicy = null;
+                if (adsPolicyInt > 0)
+                {
+                    ppv.AdsPolicy = (AdsPolicy)adsPolicyInt;
+                }
+
+                return ppv;
+            }
+            return null;
+        }
+        
         public static DataTable Get_PPVDescription(int nPPVModuleID)
         {
             ODBCWrapper.StoredProcedure spPPVDescription = new ODBCWrapper.StoredProcedure("Get_PPV_Description");
@@ -713,38 +787,39 @@ namespace DAL
             return sp.ExecuteDataSet();
         }
 
-        public long Insert_Collection(int groupId, int priceId, int discountId, int usageModuleId,
-            DateTime? startDate, DateTime? endDate, string couponGroupCode, long userId, LanguageContainer[] description,
-            LanguageContainer[] names, List<long> channelIds, List<SubscriptionCouponGroupDTO> couponsGroups, List<KeyValuePair<VerificationPaymentGateway, string>> externalProductCodes)
+        public long AddCollection(int groupId, long updaterId, CollectionInternal collection)
         {
-            try
+            DataTable couponGroups = null;
+            if (collection.CouponGroups?.Count > 0)
             {
-                var sp = new StoredProcedure("Insert_Collection");
-                sp.SetConnectionKey("pricing_connection");
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@Name", names[0].m_sValue);
-                sp.AddParameter("@PriceId", priceId);
-                sp.AddParameter("@DiscountId", discountId);
-                sp.AddParameter("@UsageModuleId", usageModuleId);
-                sp.AddParameter("@StartDate", startDate);
-                sp.AddParameter("@EndDate", endDate);
-                sp.AddParameter("@CouponGroupCode", couponGroupCode);
-                sp.AddParameter("@UserId", userId);
-                sp.AddParameter("@DescriptionsLocales", SetMultilingualStringLocales(description));
-                sp.AddParameter("@NamesLocales", SetMultilingualStringLocales(names.Skip(1).ToArray()));
-                sp.AddIDListParameter("@ChannelIds", channelIds, "ID");
-                sp.AddParameter("@CouponGroupLocales", SetCouponsGroupsCodesLocales(couponsGroups));
-                sp.AddParameter("@ProductsCodesLocales", SetProductsCodesLocales(externalProductCodes));
-
-                var id = sp.ExecuteReturnValue<long>();
-
-                return id;
+                couponGroups = SetCouponGroupsTable(collection.CouponGroups);
             }
-            catch (Exception ex)
-            {
-                log.Error($"Error while InsertCollection, groupId: {groupId}, ex:{ex} ");
-                return 0;
-            }
+
+            var externalProductCodes = SetExternalProductCodes(collection.ExternalProductCodes);
+
+            var sp = new StoredProcedure("Add_Collection");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@needToUpdateChannels", collection.ChannelsIds?.Count > 0 ? 1 : 0);
+            sp.AddIDListParameter<long>("@channels", collection.ChannelsIds, "Id");
+            sp.AddParameter("@needToUpdateCouponGroups", couponGroups == null ? 0 : 1);
+            sp.AddDataTableParameter("@couponGroups", couponGroups);
+            sp.AddParameter("@needToUpdateDescriptions", collection.Descriptions == null ? 0 : 1);
+            sp.AddKeyValueListParameter<string, string>("@descriptions", collection.Descriptions?.Select(t => new KeyValuePair<string, string>(t.m_sLanguageCode3, t.m_sValue)).ToList(), "key", "value");
+            sp.AddParameter("@endDate", collection.EndDate);
+            sp.AddParameter("@externalId", collection.ExternalId);
+            sp.AddParameter("@needToUpdateProductCodes", externalProductCodes == null ? 0 : 1);
+            sp.AddKeyValueListParameter<int, string>("@productCodes", externalProductCodes, "key", "value");
+            sp.AddParameter("@discountModuleId", collection.DiscountModuleId);
+            sp.AddParameter("@usageModuleId", collection.UsageModuleId);
+            sp.AddParameter("@isActive", collection.IsActive.HasValue ? collection.IsActive.Value : false);
+            sp.AddParameter("@name", collection.Names[0].m_sValue);
+            sp.AddKeyValueListParameter<string, string>("@names", collection.Names.Select(t => new KeyValuePair<string, string>(t.m_sLanguageCode3, t.m_sValue)).ToList(), "key", "value");
+            sp.AddParameter("@priceDetailsId", collection.PriceDetailsId);
+            sp.AddParameter("@startDate", collection.StartDate);
+            sp.AddParameter("@updaterId", updaterId);
+
+            return sp.ExecuteReturnValue<long>();
         }
 
         public bool IsCollectionExists(int groupId, long id)
@@ -756,99 +831,14 @@ namespace DAL
             return sp.ExecuteReturnValue<int>() > 0;
         }
 
-        public bool DeleteCollection(int groupId, long id, long userId)
+        public int DeleteCollection(int groupId, long id, long userId)
         {
-            try
-            {
-                var sp = new StoredProcedure("Delete_Collection");
-                sp.SetConnectionKey("pricing_connection");
-
-                sp.AddParameter("@id", id);
-                sp.AddParameter("@groupId", groupId);
-                sp.AddParameter("@updaterId", userId);
-                var result = sp.ExecuteReturnValue<int>() > 0;
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Error while Delete DrmAdapter, groupId: {groupId}, Id: {id}", ex);
-                return false;
-            }
-        }
-        private static DataTable SetMultilingualStringLocales(LanguageContainer[] descriptions)
-        {
-            DataTable ccTable = new DataTable("MultilingualStringLocalesValues");
-
-            ccTable.Columns.Add("language_code3", typeof(string));
-            ccTable.Columns.Add("description", typeof(string));
-
-            if (descriptions != null)
-            {
-                DataRow dr = null;
-                foreach (var description in descriptions)
-                {
-                    dr = ccTable.NewRow();
-                    dr["language_code3"] = description.m_sLanguageCode3;
-                    dr["description"] = description.m_sValue;
-                    ccTable.Rows.Add(dr);
-                }
-            }
-            return ccTable;
-        }
-
-        private static DataTable SetCouponsGroupsCodesLocales(List<SubscriptionCouponGroupDTO> CouponsGroups)
-        {
-            DataTable ccTable = new DataTable("CouponGroupLocalesValues");
-
-            ccTable.Columns.Add("COUPON_GROUP_ID", typeof(int));
-            ccTable.Columns.Add("START_DATE", typeof(DateTime));
-            ccTable.Columns.Add("END_DATE", typeof(DateTime));
-
-            if (CouponsGroups != null)
-            {
-                DataRow dr = null;
-                foreach (var couponsGroups in CouponsGroups)
-                {
-                    dr = ccTable.NewRow();
-                    dr["COUPON_GROUP_ID"] = couponsGroups.GroupCode;
-
-                    if (couponsGroups.StartDate.HasValue)
-                        dr["START_DATE"] = couponsGroups.StartDate;
-                    else
-                        dr["START_DATE"] = DBNull.Value;
-
-                    if (couponsGroups.EndDate.HasValue)
-                        dr["END_DATE"] = couponsGroups.EndDate;
-                    else
-                        dr["END_DATE"] = DBNull.Value;
-
-                    ccTable.Rows.Add(dr);
-                }
-            }
-            return ccTable;
-        }
-
-        private static DataTable SetProductsCodesLocales(List<KeyValuePair<VerificationPaymentGateway, string>> ExternalProductCodes)
-        {
-            DataTable ccTable = new DataTable("ProductsCodesLocalesValues");
-
-            ccTable.Columns.Add("PRODUCT_CODE", typeof(string));
-            ccTable.Columns.Add("verification_payment_gateway_id", typeof(int));
-
-            if (ExternalProductCodes != null)
-            {
-                DataRow dr = null;
-                foreach (var productCode in ExternalProductCodes)
-                {
-                    dr = ccTable.NewRow();
-                    dr["PRODUCT_CODE"] = productCode.Value;
-                    dr["verification_payment_gateway_id"] = (int)productCode.Key;
-
-                    ccTable.Rows.Add(dr);
-                }
-            }
-            return ccTable;
+            var sp = new StoredProcedure("Delete_CollectionById");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@updaterId", userId);
+            return sp.ExecuteReturnValue<int>();
         }
 
         public static bool Get_GroupUsageModuleCode(int groupID, string connKey, ref string groupUsageModuleCode)
@@ -948,8 +938,7 @@ namespace DAL
             return ret;
         }
 
-        public int InsertUsageModule(long userId, int groupID, string name, int maxViews, int fullLifeCycleID,
-                        int viewLifeCycleID, int waiverPeriod, bool isWaiverEnabled, bool isOfflinePlayback)
+        public int InsertUsageModule(long userId, int groupID, UsageModuleDTO usageModuleDTO)
         {
             try
             {
@@ -957,13 +946,13 @@ namespace DAL
                 sp.SetConnectionKey("pricing_connection");
                 sp.AddParameter("@GroupID", groupID);
                 sp.AddParameter("@UserId", userId);
-                sp.AddParameter("@Name", name);
-                sp.AddParameter("@MaxViews", maxViews);
-                sp.AddParameter("@WaiverPeriod", waiverPeriod);
-                sp.AddParameter("@IsWaiverEnabled", isWaiverEnabled);
-                sp.AddParameter("@IsOfflinePlayback", isOfflinePlayback);
-                sp.AddParameter("@FullLifeCycleID", fullLifeCycleID);
-                sp.AddParameter("@ViewLifeCycleID", viewLifeCycleID);
+                sp.AddParameter("@Name", usageModuleDTO.VirtualName);
+                sp.AddParameter("@MaxViews", usageModuleDTO.MaxNumberOfViews);
+                sp.AddParameter("@WaiverPeriod", usageModuleDTO.WaiverPeriod);
+                sp.AddParameter("@IsWaiverEnabled", usageModuleDTO.Waiver);
+                sp.AddParameter("@IsOfflinePlayback", usageModuleDTO.IsOfflinePlayBack);
+                sp.AddParameter("@FullLifeCycleID", usageModuleDTO.TsMaxUsageModuleLifeCycle);
+                sp.AddParameter("@ViewLifeCycleID", usageModuleDTO.TsViewLifeCycle);
                 sp.AddParameter("@Date", DateTime.UtcNow);
 
                 return sp.ExecuteReturnValue<int>();
@@ -973,6 +962,23 @@ namespace DAL
                 HandleException(string.Empty, ex);
             }
             return 0;
+        }
+        
+        public int UpdateUsageModule(int groupId, long userId, long id, UsageModuleDTO usageModuleDTO)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_UsageModule");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupId);
+            sp.AddParameter("@UpdaterID", userId);
+            sp.AddParameter("@Name", usageModuleDTO.VirtualName);
+            sp.AddParameter("@MaxViews", usageModuleDTO.MaxNumberOfViews);
+            sp.AddParameter("@WaiverPeriod", usageModuleDTO.WaiverPeriod);
+            sp.AddParameter("@IsWaiverEnabled", usageModuleDTO.Waiver);
+            sp.AddParameter("@IsOfflinePlayback", usageModuleDTO.IsOfflinePlayBack);
+            sp.AddParameter("@FullLifeCycleID", usageModuleDTO.TsMaxUsageModuleLifeCycle);
+            sp.AddParameter("@ViewLifeCycleID", usageModuleDTO.TsViewLifeCycle);
+            sp.AddParameter("@ID", id);
+            return sp.ExecuteReturnValue<int>();
         }
 
         public static Dictionary<string, string> Get_PPVsFromProductCodes(List<string> productCodes, int groupID)
@@ -1593,6 +1599,48 @@ namespace DAL
 
             return sp.ExecuteReturnValue<int>();
         }
+        
+        public bool UpdatePpvVirtualAssetId(int groupId, long id, long? virtualAssetId, long userId)
+        {
+            var sp = new StoredProcedure("UpdatePpvVirtualAssetId");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@virtualAssetId", virtualAssetId);
+            sp.AddParameter("@updateDate", DateTime.UtcNow);
+            sp.AddParameter("@userId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
+        
+        public int InsertPPV(int groupID, long updaterId, PpvDTO ppv)
+        {
+            StoredProcedure sp = new StoredProcedure("Insert_PPVModule");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@Name", ppv.Name);
+            sp.AddParameter("@priceCode", ppv.PriceCode);
+            sp.AddParameter("@usageModule", ppv.UsageModuleCode);
+            sp.AddParameter("@discount", ppv.DiscountCode);
+            sp.AddParameter("@UpdaterId", updaterId);
+            sp.AddParameter("@couponGroup", ppv.CouponsGroupCode);
+            sp.AddParameter("@subscriptionOnly", ppv.SubscriptionOnly);
+            sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
+            sp.AddParameter("@productCode", ppv.ProductCode);
+            sp.AddIDListParameter<int>("@FileTypes", ppv.FileTypesIds, "Id");
+            sp.AddParameter("@Date", ppv.CreateDate);
+            if (ppv.AdsPolicy.HasValue)
+            {
+                sp.AddParameter("@AdsPolicy", (int)ppv.AdsPolicy);
+            }
+
+            if (ppv.Descriptions != null)
+            {
+                sp.AddKeyValueListParameter<string, string>("@Description", ppv.Descriptions.Select(d => new KeyValuePair<string, string>(d.m_sLanguageCode3, d.m_sValue)).ToList(), "key", "value");
+            }
+
+            return sp.ExecuteReturnValue<int>();
+        }
 
         public static int UpdatePPV(int groupID, ApiObjects.IngestPPV ppv, int priceCodeID, int usageModuleID, int discountID, int couponGroupID, List<long> fileTypes)
         {
@@ -1615,7 +1663,7 @@ namespace DAL
             sp.AddParameter("@subscriptionOnly", ppv.SubscriptionOnly);
             sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
             sp.AddParameter("@productCode", ppv.ProductCode);
-            sp.AddParameter("@IsActive", ppv.IsActive);
+            sp.AddParameter("@IsAct1ive", ppv.IsActive);
             sp.AddIDListParameter<long>("@FileTypes", fileTypes, "Id");
             sp.AddParameter("@Date", DateTime.UtcNow);
             if (ppv.Descriptions != null)
@@ -1625,6 +1673,40 @@ namespace DAL
             return sp.ExecuteReturnValue<int>();
         }
 
+        public int UpdatePPV(int groupID, long updaterId, int id, PpvDTO ppv)
+        {
+            StoredProcedure sp = new StoredProcedure("Update_PPVModuleById");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@Name", ppv.Name);
+            sp.AddParameter("@ID", id);
+            sp.AddParameter("@UpdaterId", updaterId);
+            sp.AddParameter("@priceCode", ppv.PriceCode);
+            sp.AddParameter("@usageModule", ppv.UsageModuleCode);
+            sp.AddParameter("@discount", ppv.DiscountCode);
+            sp.AddParameter("@couponGroup", ppv.CouponsGroupCode);
+            sp.AddParameter("@subscriptionOnly", ppv.SubscriptionOnly);
+            sp.AddParameter("@firstDeviceLimitation", ppv.FirstDeviceLimitation);
+            sp.AddParameter("@productCode", ppv.ProductCode);
+            sp.AddParameter("@IsActive", ppv.IsActive);
+            sp.AddIDListParameter<int>("@FileTypeIds", ppv.FileTypesIds, "Id");
+            sp.AddParameter("@Date", DateTime.UtcNow);
+            if (ppv.AdsPolicy.HasValue)
+            {
+                sp.AddParameter("@AdsPolicy", (int)ppv.AdsPolicy);
+            }
+
+            if (ppv.VirtualAssetId.HasValue)
+            {
+                sp.AddParameter("@virtualAssetId", ppv.VirtualAssetId.Value);
+            }
+            if (ppv.Descriptions != null)
+            {
+                sp.AddKeyValueListParameter<string, string>("@Description", ppv.Descriptions.Select(d => new KeyValuePair<string, string>(d.m_sLanguageCode3, d.m_sValue)).ToList(), "key", "value");
+            }
+            return sp.ExecuteReturnValue<int>();
+        }
+        
         public static int DeletePPV(int groupID, string ppv)
         {
             try
@@ -1643,6 +1725,17 @@ namespace DAL
             return 0;
         }
 
+        public bool DeletePPV(int groupID, long userId, long id)
+        {
+
+            StoredProcedure sp = new StoredProcedure("Delete_PPVById");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@GroupID", groupID);
+            sp.AddParameter("@UpdaterId", userId);
+            sp.AddParameter("@Date", DateTime.UtcNow);
+            sp.AddParameter("@id", id);
+            return sp.ExecuteReturnValue<int>() > 0;
+        }
         public static int InsertPriceCode(int groupID, int currencyID, double? price, string code)
         {
             StoredProcedure sp = new StoredProcedure("Insert_PriceCode");
@@ -1828,7 +1921,6 @@ namespace DAL
             sp.AddParameter("@SubscriptionsIdsToPriorityExist", subscriptionIdsToPriority != null && subscriptionIdsToPriority.Count > 0);
             return sp.ExecuteDataSet();
         }
-
 
         public static DataSet UpdateSubscriptionSet(int groupId, long setId, string name, List<KeyValuePair<long, int>> subscriptionIdsToPriority, bool shouldUpdateSubscriptionIds)
         {
@@ -2258,21 +2350,21 @@ namespace DAL
             return 0;
         }
 
-        public static HashSet<long> GetCollectionIds(int groupId)
+        public static Dictionary<long, bool> GetAllCollectionIds(int groupId)
         {
-            HashSet<long> res = null;
+            Dictionary<long, bool> res = null;
 
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CollectionsIds");
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_AllCollectionsIds");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", groupId);
             DataTable dt = sp.Execute();
 
             if (dt != null && dt.Rows != null && dt.Rows.Count > 0)
             {
-                res = new HashSet<long>();
-                foreach (DataRow item in dt.Rows)
+                res = new Dictionary<long, bool>();
+                foreach (DataRow dr in dt.Rows)
                 {
-                    res.Add(ODBCWrapper.Utils.GetLongSafeVal(item, "ID"));
+                    res.Add(Utils.GetLongSafeVal(dr, "ID"), Utils.GetIntSafeVal(dr, "IS_ACTIVE") == 0 ? false : true);
                 }
             }
 
@@ -2571,13 +2663,13 @@ namespace DAL
             return ccTable;
         }
 
-        public List<UsageModuleDTO> GetPricePlansDTO(int groupId, List<long> pricePlanIds = null)
+        public List<UsageModuleDTO> GetUsageModule(int groupId, List<long> usageModuleIds = null)
         {
-            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("GetPricePlans");
+            StoredProcedure sp = new StoredProcedure("GetPricePlans");
             sp.SetConnectionKey("pricing_connection");
             sp.AddParameter("@groupId", groupId);
-            sp.AddIDListParameter("@usageModulesIds", pricePlanIds, "ID");
-            sp.AddParameter("@shouldGetAll", pricePlanIds == null || pricePlanIds.Count == 0 ? 1 : 0);
+            sp.AddIDListParameter("@usageModulesIds", usageModuleIds, "ID");
+            sp.AddParameter("@shouldGetAll", usageModuleIds == null || usageModuleIds.Count == 0 ? 1 : 0);
             DataTable usageModulesTable = sp.Execute();
 
             return BuildUsageModulesFromDataTable(usageModulesTable);
@@ -2602,19 +2694,15 @@ namespace DAL
             {
                 return new UsageModuleDTO()
                 {
-                    IsOfflinePlayBack = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "OFFLINE_PLAYBACK") == 1 ? true : false,
-                    Waiver = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "WAIVER") == 1 ? true : false,
-                    CouponId = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "coupon_id"),
-                    ExtDiscountId = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "ext_discount_id"),
-                    IsRenew = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "is_renew"),
-                    MaxNumberOfViews = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "MAX_VIEWS_NUMBER"),
-                    Id = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "ID"),
-                    NumOfRecPeriods = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "num_of_rec_periods"),
-                    WaiverPeriod = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "WAIVER_PERIOD"),
-                    PricingId = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "pricing_id"),
-                    VirtualName = ODBCWrapper.Utils.GetSafeStr(usageModuleRow, "NAME"),
-                    TsMaxUsageModuleLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "FULL_LIFE_CYCLE_MIN"),
-                    TsViewLifeCycle = ODBCWrapper.Utils.GetIntSafeVal(usageModuleRow, "VIEW_LIFE_CYCLE_MIN")
+                    IsOfflinePlayBack = Utils.GetIntSafeVal(usageModuleRow, "OFFLINE_PLAYBACK") == 1 ? true : false,
+                    Waiver = Utils.GetIntSafeVal(usageModuleRow, "WAIVER") == 1 ? true : false,
+                    MaxNumberOfViews = Utils.GetIntSafeVal(usageModuleRow, "MAX_VIEWS_NUMBER"),
+                    Id = Utils.GetIntSafeVal(usageModuleRow, "ID"),
+                    WaiverPeriod = Utils.GetIntSafeVal(usageModuleRow, "WAIVER_PERIOD"),
+                    VirtualName = Utils.GetSafeStr(usageModuleRow, "NAME"),
+                    TsMaxUsageModuleLifeCycle = Utils.GetIntSafeVal(usageModuleRow, "FULL_LIFE_CYCLE_MIN"),
+                    TsViewLifeCycle = Utils.GetIntSafeVal(usageModuleRow, "VIEW_LIFE_CYCLE_MIN"),
+                    Type = Utils.GetIntSafeVal(usageModuleRow, "type")
                 };
             }
             return null;
@@ -2961,6 +3049,136 @@ namespace DAL
             }
 
             return res;
+        }
+
+        public long GetCollectionByExternalId(int groupId, string externalId)
+        {
+            ODBCWrapper.StoredProcedure sp = new ODBCWrapper.StoredProcedure("Get_CollectionByExternalId");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@externalId", externalId);
+            return sp.ExecuteReturnValue<long>();
+        }
+
+        public bool UpdateCollection(int groupId, long updaterId, CollectionInternal collection, NullableObj<DateTime?> startDate, NullableObj<DateTime?> endDate, long? virtualAssetId)
+        {
+            DataTable couponGroups = null;
+            if (collection.CouponGroups?.Count > 0)
+            {
+                couponGroups = SetCouponGroupsTable(collection.CouponGroups);
+            }
+
+            var externalProductCodes = SetExternalProductCodes(collection.ExternalProductCodes);
+
+
+            var sp = new StoredProcedure("Update_Collection");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@collectionId", collection.Id);
+            sp.AddParameter("@needToUpdateChannels", collection.ChannelsIds == null ? 0 : 1);
+            sp.AddIDListParameter<long>("@channels", collection.ChannelsIds, "Id");
+            sp.AddParameter("@needToUpdateCouponGroups", couponGroups == null ? 0 : 1);
+            sp.AddDataTableParameter("@couponGroups", couponGroups);
+            sp.AddParameter("@needToUpdateDescriptions", collection.Descriptions == null ? 0 : 1);
+            sp.AddKeyValueListParameter<string, string>("@descriptions", collection.Descriptions?.Select(t => new KeyValuePair<string, string>(t.m_sLanguageCode3, t.m_sValue)).ToList(), "key", "value");
+            sp.AddParameter("@externalId", collection.ExternalId);
+            sp.AddParameter("@needToUpdateProductCodes", externalProductCodes == null ? 0 : 1);
+            sp.AddKeyValueListParameter<int, string>("@productCodes", externalProductCodes, "key", "value");
+            sp.AddParameter("@discountModuleId", collection.DiscountModuleId);
+            sp.AddParameter("@usageModuleId", collection.UsageModuleId);
+            sp.AddParameter("@isActive", collection.IsActive);
+            sp.AddParameter("@name", collection.Names != null && collection.Names.Length > 0 ? collection.Names[0].m_sValue : null);
+            sp.AddKeyValueListParameter<string, string>("@names", collection.Names?.Select(t => new KeyValuePair<string, string>(t.m_sLanguageCode3, t.m_sValue)).ToList(), "key", "value");
+            sp.AddParameter("@priceDetailsId", collection.PriceDetailsId);
+            sp.AddParameter("@startDate", startDate.Obj);
+            sp.AddParameter("@endDate", endDate.Obj);
+            sp.AddParameter("@nullableStartDate", startDate.IsNull);
+            sp.AddParameter("@nullableEndDate", endDate.IsNull);
+            sp.AddParameter("@updaterId", updaterId);
+            if (virtualAssetId.HasValue)
+            {
+                sp.AddParameter("@virtualAssetId", virtualAssetId.Value);
+            }
+
+            var result = sp.ExecuteReturnValue<int>() > 0;
+            return result;
+        }
+
+        public List<long> GetCollectionsByChannelId(int groupId, long channelId)
+        {
+            var sp = new StoredProcedure("Get_CollectionsByChannelId");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@channelId", channelId);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds?.Tables?.Count > 0)
+            {
+                List<long> res = new List<long>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    res.Add(Utils.GetLongSafeVal(dr, "COLLECTION_ID"));
+                }
+
+                return res;
+            }
+
+            return new List<long>();
+        }
+
+        public void DeleteCollectionsChannelsByChannel(int groupId, long userId, long channelId)
+        {
+            StoredProcedure sp = new StoredProcedure("Delete_CollectionsChannelsByChannel");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@channelId", channelId);
+            sp.AddParameter("@updaterId", userId);
+            sp.Execute();
+        }
+
+        public List<int> GetSubscriptionsByChannelId(int groupId, int channelId)
+        {
+            var sp = new StoredProcedure("Get_SubscriptionsByChannelId");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@channelId", channelId);
+
+            DataSet ds = sp.ExecuteDataSet();
+
+            if (ds?.Tables?.Count > 0)
+            {
+                List<int> res = new List<int>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    res.Add(Utils.GetIntSafeVal(dr, "SUBSCRIPTION_ID"));
+                }
+
+                return res;
+            }
+
+            return new List<int>();
+        }
+
+        public void DeleteSubscriptionsChannelsByChannel(int groupId, int channelId)
+        {
+            StoredProcedure sp = new StoredProcedure("Delete_SubscriptionsChannelsByChannel");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@channelId", channelId);
+            sp.Execute();
+        }
+
+        public bool UpdateCollectionVirtualAssetId(int groupId, long id, long virtualAssetId, long userId)
+        {
+            var sp = new StoredProcedure("UpdateCollectionVirtualAssetId");
+            sp.SetConnectionKey("pricing_connection");
+            sp.AddParameter("@groupId", groupId);
+            sp.AddParameter("@id", id);
+            sp.AddParameter("@virtualAssetId", virtualAssetId);
+            sp.AddParameter("@userId", userId);
+
+            return sp.ExecuteReturnValue<int>() > 0;
         }
     }
 }

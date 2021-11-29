@@ -28751,6 +28751,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("recordingType", "\"recordingType\": " + "\"" + Enum.GetName(typeof(KalturaRecordingType), RecordingType) + "\"");
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("viewableUntilDate")))
+            {
+                ret.Add("viewableUntilDate", "\"viewableUntilDate\": " + ViewableUntilDate);
+            }
             return ret;
         }
         
@@ -28773,6 +28777,10 @@ namespace WebAPI.Models.Catalog
             if(RecordingType.HasValue && (retrievedProperties == null || retrievedProperties.Contains("recordingType")))
             {
                 ret.Add("recordingType", "<recordingType>" + "" + Enum.GetName(typeof(KalturaRecordingType), RecordingType) + "" + "</recordingType>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("viewableUntilDate")))
+            {
+                ret.Add("viewableUntilDate", "<viewableUntilDate>" + ViewableUntilDate + "</viewableUntilDate>");
             }
             return ret;
         }
@@ -29004,6 +29012,10 @@ namespace WebAPI.Models.Catalog
             {
                 ret.Add("recordingTypeEqual", "\"recordingTypeEqual\": " + "\"" + Enum.GetName(typeof(KalturaScheduledRecordingAssetType), RecordingTypeEqual) + "\"");
             }
+            if(SeriesIdsIn != null && (retrievedProperties == null || retrievedProperties.Contains("seriesIdsIn")))
+            {
+                ret.Add("seriesIdsIn", "\"seriesIdsIn\": " + "\"" + EscapeJson(SeriesIdsIn) + "\"");
+            }
             if(StartDateGreaterThanOrNull.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateGreaterThanOrNull")))
             {
                 ret.Add("startDateGreaterThanOrNull", "\"startDateGreaterThanOrNull\": " + StartDateGreaterThanOrNull);
@@ -29033,6 +29045,10 @@ namespace WebAPI.Models.Catalog
             if((retrievedProperties == null || retrievedProperties.Contains("recordingTypeEqual")))
             {
                 ret.Add("recordingTypeEqual", "<recordingTypeEqual>" + "" + Enum.GetName(typeof(KalturaScheduledRecordingAssetType), RecordingTypeEqual) + "" + "</recordingTypeEqual>");
+            }
+            if(SeriesIdsIn != null && (retrievedProperties == null || retrievedProperties.Contains("seriesIdsIn")))
+            {
+                ret.Add("seriesIdsIn", "<seriesIdsIn>" + EscapeXml(SeriesIdsIn) + "</seriesIdsIn>");
             }
             if(StartDateGreaterThanOrNull.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDateGreaterThanOrNull")))
             {
@@ -30100,10 +30116,23 @@ namespace WebAPI.Models.Pricing
                 propertyValue = "[" + String.Join(", ", Channels.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("channels", "\"channels\": " + propertyValue);
             }
+            if(ChannelsIds != null && (retrievedProperties == null || retrievedProperties.Contains("channelsIds")))
+            {
+                ret.Add("channelsIds", "\"channelsIds\": " + "\"" + EscapeJson(ChannelsIds) + "\"");
+            }
+            if(CollectionCouponGroup != null && (retrievedProperties == null || retrievedProperties.Contains("collectionCouponGroup")))
+            {
+                propertyValue = "[" + String.Join(", ", CollectionCouponGroup.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
+                ret.Add("collectionCouponGroup", "\"collectionCouponGroup\": " + propertyValue);
+            }
             if(CouponGroups != null && (retrievedProperties == null || retrievedProperties.Contains("couponsGroups")))
             {
                 propertyValue = "[" + String.Join(", ", CouponGroups.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("couponsGroups", "\"couponsGroups\": " + propertyValue);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "\"createDate\": " + CreateDate);
             }
             if((retrievedProperties == null || retrievedProperties.Contains("description")))
             {
@@ -30122,6 +30151,10 @@ namespace WebAPI.Models.Pricing
                     ret.Add("discount_module", "\"discount_module\": " + propertyValue);
                 }
             }
+            if(DiscountModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("discountModuleId")))
+            {
+                ret.Add("discountModuleId", "\"discountModuleId\": " + DiscountModuleId);
+            }
             if(EndDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDate")))
             {
                 ret.Add("endDate", "\"endDate\": " + EndDate);
@@ -30133,6 +30166,10 @@ namespace WebAPI.Models.Pricing
             if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
             {
                 ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
+            }
+            if(IsActive.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isActive")))
+            {
+                ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
             }
             if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
@@ -30155,10 +30192,22 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("startDate", "\"startDate\": " + StartDate);
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
+            }
             if(UsageModule != null && (retrievedProperties == null || retrievedProperties.Contains("usageModule")))
             {
                 propertyValue = UsageModule.ToJson(currentVersion, omitObsolete);
                 ret.Add("usageModule", "\"usageModule\": " + propertyValue);
+            }
+            if(UsageModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("usageModuleId")))
+            {
+                ret.Add("usageModuleId", "\"usageModuleId\": " + UsageModuleId);
+            }
+            if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
+            {
+                ret.Add("virtualAssetId", "\"virtualAssetId\": " + VirtualAssetId);
             }
             return ret;
         }
@@ -30179,10 +30228,23 @@ namespace WebAPI.Models.Pricing
                 propertyValue = Channels.Count > 0 ? "<item>" + String.Join("</item><item>", Channels.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("channels", "<channels>" + propertyValue + "</channels>");
             }
+            if(ChannelsIds != null && (retrievedProperties == null || retrievedProperties.Contains("channelsIds")))
+            {
+                ret.Add("channelsIds", "<channelsIds>" + EscapeXml(ChannelsIds) + "</channelsIds>");
+            }
+            if(CollectionCouponGroup != null && (retrievedProperties == null || retrievedProperties.Contains("collectionCouponGroup")))
+            {
+                propertyValue = CollectionCouponGroup.Count > 0 ? "<item>" + String.Join("</item><item>", CollectionCouponGroup.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
+                ret.Add("collectionCouponGroup", "<collectionCouponGroup>" + propertyValue + "</collectionCouponGroup>");
+            }
             if(CouponGroups != null && (retrievedProperties == null || retrievedProperties.Contains("couponsGroups")))
             {
                 propertyValue = CouponGroups.Count > 0 ? "<item>" + String.Join("</item><item>", CouponGroups.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("couponsGroups", "<couponsGroups>" + propertyValue + "</couponsGroups>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("description")))
             {
@@ -30197,6 +30259,10 @@ namespace WebAPI.Models.Pricing
                 ret.Add("discount_module", "<discount_module>" + propertyValue + "</discount_module>");
                 }
             }
+            if(DiscountModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("discountModuleId")))
+            {
+                ret.Add("discountModuleId", "<discountModuleId>" + DiscountModuleId + "</discountModuleId>");
+            }
             if(EndDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDate")))
             {
                 ret.Add("endDate", "<endDate>" + EndDate + "</endDate>");
@@ -30208,6 +30274,10 @@ namespace WebAPI.Models.Pricing
             if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
+            }
+            if(IsActive.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isActive")))
+            {
+                ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
             }
             if((retrievedProperties == null || retrievedProperties.Contains("name")))
             {
@@ -30226,10 +30296,76 @@ namespace WebAPI.Models.Pricing
             {
                 ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
             }
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
+            }
             if(UsageModule != null && (retrievedProperties == null || retrievedProperties.Contains("usageModule")))
             {
                 propertyValue = UsageModule.ToXml(currentVersion, omitObsolete);
                 ret.Add("usageModule", "<usageModule>" + propertyValue + "</usageModule>");
+            }
+            if(UsageModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("usageModuleId")))
+            {
+                ret.Add("usageModuleId", "<usageModuleId>" + UsageModuleId + "</usageModuleId>");
+            }
+            if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
+            {
+                ret.Add("virtualAssetId", "<virtualAssetId>" + VirtualAssetId + "</virtualAssetId>");
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaCollectionCouponGroup
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "\"id\": " + CouponGroupId);
+            }
+            if(EndDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDate")))
+            {
+                ret.Add("endDate", "\"endDate\": " + EndDate);
+            }
+            if(StartDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDate")))
+            {
+                ret.Add("startDate", "\"startDate\": " + StartDate);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if((retrievedProperties == null || retrievedProperties.Contains("id")))
+            {
+                ret.Add("id", "<id>" + CouponGroupId + "</id>");
+            }
+            if(EndDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("endDate")))
+            {
+                ret.Add("endDate", "<endDate>" + EndDate + "</endDate>");
+            }
+            if(StartDate.HasValue && (retrievedProperties == null || retrievedProperties.Contains("startDate")))
+            {
+                ret.Add("startDate", "<startDate>" + StartDate + "</startDate>");
             }
             return ret;
         }
@@ -30246,7 +30382,12 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
+            if(AlsoInactive.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaCollectionFilter", "AlsoInactive", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("alsoInactive")))
+            {
+                ret.Add("alsoInactive", "\"alsoInactive\": " + AlsoInactive.ToString().ToLower());
+            }
             if(CollectionIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("collectionIdIn")))
             {
                 ret.Add("collectionIdIn", "\"collectionIdIn\": " + "\"" + EscapeJson(CollectionIdIn) + "\"");
@@ -30272,7 +30413,12 @@ namespace WebAPI.Models.Pricing
             {
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
+            var requestType = HttpContext.Current.Items.ContainsKey(RequestContextConstants.REQUEST_TYPE) ? (RequestType?)HttpContext.Current.Items[RequestContextConstants.REQUEST_TYPE] : null;
 
+            if(AlsoInactive.HasValue && (requestType != RequestType.READ || RolesManager.IsPropertyPermitted("KalturaCollectionFilter", "AlsoInactive", requestType.Value)) && (retrievedProperties == null || retrievedProperties.Contains("alsoInactive")))
+            {
+                ret.Add("alsoInactive", "<alsoInactive>" + AlsoInactive.ToString().ToLower() + "</alsoInactive>");
+            }
             if(CollectionIdIn != null && (retrievedProperties == null || retrievedProperties.Contains("collectionIdIn")))
             {
                 ret.Add("collectionIdIn", "<collectionIdIn>" + EscapeXml(CollectionIdIn) + "</collectionIdIn>");
@@ -31131,15 +31277,31 @@ namespace WebAPI.Models.Pricing
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AdsPolicy.HasValue && (retrievedProperties == null || retrievedProperties.Contains("adsPolicy")))
+            {
+                ret.Add("adsPolicy", "\"adsPolicy\": " + "\"" + Enum.GetName(typeof(KalturaAdsPolicy), AdsPolicy) + "\"");
+            }
             if(CouponsGroup != null && (retrievedProperties == null || retrievedProperties.Contains("couponsGroup")))
             {
                 propertyValue = CouponsGroup.ToJson(currentVersion, omitObsolete);
                 ret.Add("couponsGroup", "\"couponsGroup\": " + propertyValue);
             }
+            if(CouponsGroupId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("couponsGroupId")))
+            {
+                ret.Add("couponsGroupId", "\"couponsGroupId\": " + CouponsGroupId);
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "\"createDate\": " + CreateDate);
+            }
             if(Descriptions != null && (retrievedProperties == null || retrievedProperties.Contains("descriptions")))
             {
                 propertyValue = "[" + String.Join(", ", Descriptions.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("descriptions", "\"descriptions\": " + propertyValue);
+            }
+            if(DiscountId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("discountId")))
+            {
+                ret.Add("discountId", "\"discountId\": " + DiscountId);
             }
             if(DiscountModule != null && (retrievedProperties == null || retrievedProperties.Contains("discountModule")))
             {
@@ -31151,6 +31313,10 @@ namespace WebAPI.Models.Pricing
                 propertyValue = "[" + String.Join(", ", FileTypes.Select(item => item.ToJson(currentVersion, omitObsolete))) + "]";
                 ret.Add("fileTypes", "\"fileTypes\": " + propertyValue);
             }
+            if(FileTypesIds != null && (retrievedProperties == null || retrievedProperties.Contains("fileTypesIds")))
+            {
+                ret.Add("fileTypesIds", "\"fileTypesIds\": " + "\"" + EscapeJson(FileTypesIds) + "\"");
+            }
             if(FirstDeviceLimitation.HasValue && (retrievedProperties == null || retrievedProperties.Contains("firstDeviceLimitation")))
             {
                 ret.Add("firstDeviceLimitation", "\"firstDeviceLimitation\": " + FirstDeviceLimitation.ToString().ToLower());
@@ -31158,6 +31324,10 @@ namespace WebAPI.Models.Pricing
             if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
             {
                 ret.Add("id", "\"id\": " + "\"" + EscapeJson(Id) + "\"");
+            }
+            if(IsActive.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isActive")))
+            {
+                ret.Add("isActive", "\"isActive\": " + IsActive.ToString().ToLower());
             }
             if(IsSubscriptionOnly.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isSubscriptionOnly")))
             {
@@ -31172,14 +31342,30 @@ namespace WebAPI.Models.Pricing
                 propertyValue = Price.ToJson(currentVersion, omitObsolete);
                 ret.Add("price", "\"price\": " + propertyValue);
             }
+            if(PriceDetailsId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("priceDetailsId")))
+            {
+                ret.Add("priceDetailsId", "\"priceDetailsId\": " + PriceDetailsId);
+            }
             if(ProductCode != null && (retrievedProperties == null || retrievedProperties.Contains("productCode")))
             {
                 ret.Add("productCode", "\"productCode\": " + "\"" + EscapeJson(ProductCode) + "\"");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "\"updateDate\": " + UpdateDate);
             }
             if(UsageModule != null && (retrievedProperties == null || retrievedProperties.Contains("usageModule")))
             {
                 propertyValue = UsageModule.ToJson(currentVersion, omitObsolete);
                 ret.Add("usageModule", "\"usageModule\": " + propertyValue);
+            }
+            if(UsageModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("usageModuleId")))
+            {
+                ret.Add("usageModuleId", "\"usageModuleId\": " + UsageModuleId);
+            }
+            if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
+            {
+                ret.Add("virtualAssetId", "\"virtualAssetId\": " + VirtualAssetId);
             }
             return ret;
         }
@@ -31195,15 +31381,31 @@ namespace WebAPI.Models.Pricing
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AdsPolicy.HasValue && (retrievedProperties == null || retrievedProperties.Contains("adsPolicy")))
+            {
+                ret.Add("adsPolicy", "<adsPolicy>" + "" + Enum.GetName(typeof(KalturaAdsPolicy), AdsPolicy) + "" + "</adsPolicy>");
+            }
             if(CouponsGroup != null && (retrievedProperties == null || retrievedProperties.Contains("couponsGroup")))
             {
                 propertyValue = CouponsGroup.ToXml(currentVersion, omitObsolete);
                 ret.Add("couponsGroup", "<couponsGroup>" + propertyValue + "</couponsGroup>");
             }
+            if(CouponsGroupId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("couponsGroupId")))
+            {
+                ret.Add("couponsGroupId", "<couponsGroupId>" + CouponsGroupId + "</couponsGroupId>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("createDate")))
+            {
+                ret.Add("createDate", "<createDate>" + CreateDate + "</createDate>");
+            }
             if(Descriptions != null && (retrievedProperties == null || retrievedProperties.Contains("descriptions")))
             {
                 propertyValue = Descriptions.Count > 0 ? "<item>" + String.Join("</item><item>", Descriptions.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("descriptions", "<descriptions>" + propertyValue + "</descriptions>");
+            }
+            if(DiscountId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("discountId")))
+            {
+                ret.Add("discountId", "<discountId>" + DiscountId + "</discountId>");
             }
             if(DiscountModule != null && (retrievedProperties == null || retrievedProperties.Contains("discountModule")))
             {
@@ -31215,6 +31417,10 @@ namespace WebAPI.Models.Pricing
                 propertyValue = FileTypes.Count > 0 ? "<item>" + String.Join("</item><item>", FileTypes.Select(item => item.ToXml(currentVersion, omitObsolete))) + "</item>": "";
                 ret.Add("fileTypes", "<fileTypes>" + propertyValue + "</fileTypes>");
             }
+            if(FileTypesIds != null && (retrievedProperties == null || retrievedProperties.Contains("fileTypesIds")))
+            {
+                ret.Add("fileTypesIds", "<fileTypesIds>" + EscapeXml(FileTypesIds) + "</fileTypesIds>");
+            }
             if(FirstDeviceLimitation.HasValue && (retrievedProperties == null || retrievedProperties.Contains("firstDeviceLimitation")))
             {
                 ret.Add("firstDeviceLimitation", "<firstDeviceLimitation>" + FirstDeviceLimitation.ToString().ToLower() + "</firstDeviceLimitation>");
@@ -31222,6 +31428,10 @@ namespace WebAPI.Models.Pricing
             if(Id != null && (retrievedProperties == null || retrievedProperties.Contains("id")))
             {
                 ret.Add("id", "<id>" + EscapeXml(Id) + "</id>");
+            }
+            if(IsActive.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isActive")))
+            {
+                ret.Add("isActive", "<isActive>" + IsActive.ToString().ToLower() + "</isActive>");
             }
             if(IsSubscriptionOnly.HasValue && (retrievedProperties == null || retrievedProperties.Contains("isSubscriptionOnly")))
             {
@@ -31236,14 +31446,30 @@ namespace WebAPI.Models.Pricing
                 propertyValue = Price.ToXml(currentVersion, omitObsolete);
                 ret.Add("price", "<price>" + propertyValue + "</price>");
             }
+            if(PriceDetailsId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("priceDetailsId")))
+            {
+                ret.Add("priceDetailsId", "<priceDetailsId>" + PriceDetailsId + "</priceDetailsId>");
+            }
             if(ProductCode != null && (retrievedProperties == null || retrievedProperties.Contains("productCode")))
             {
                 ret.Add("productCode", "<productCode>" + EscapeXml(ProductCode) + "</productCode>");
+            }
+            if((retrievedProperties == null || retrievedProperties.Contains("updateDate")))
+            {
+                ret.Add("updateDate", "<updateDate>" + UpdateDate + "</updateDate>");
             }
             if(UsageModule != null && (retrievedProperties == null || retrievedProperties.Contains("usageModule")))
             {
                 propertyValue = UsageModule.ToXml(currentVersion, omitObsolete);
                 ret.Add("usageModule", "<usageModule>" + propertyValue + "</usageModule>");
+            }
+            if(UsageModuleId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("usageModuleId")))
+            {
+                ret.Add("usageModuleId", "<usageModuleId>" + UsageModuleId + "</usageModuleId>");
+            }
+            if(VirtualAssetId.HasValue && (retrievedProperties == null || retrievedProperties.Contains("virtualAssetId")))
+            {
+                ret.Add("virtualAssetId", "<virtualAssetId>" + VirtualAssetId + "</virtualAssetId>");
             }
             return ret;
         }
@@ -31261,6 +31487,10 @@ namespace WebAPI.Models.Pricing
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AlsoInactive.HasValue && (retrievedProperties == null || retrievedProperties.Contains("alsoInactive")))
+            {
+                ret.Add("alsoInactive", "\"alsoInactive\": " + AlsoInactive.ToString().ToLower());
+            }
             if(CouponGroupIdEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("couponGroupIdEqual")))
             {
                 ret.Add("couponGroupIdEqual", "\"couponGroupIdEqual\": " + CouponGroupIdEqual);
@@ -31283,6 +31513,10 @@ namespace WebAPI.Models.Pricing
                 retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
             }
 
+            if(AlsoInactive.HasValue && (retrievedProperties == null || retrievedProperties.Contains("alsoInactive")))
+            {
+                ret.Add("alsoInactive", "<alsoInactive>" + AlsoInactive.ToString().ToLower() + "</alsoInactive>");
+            }
             if(CouponGroupIdEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("couponGroupIdEqual")))
             {
                 ret.Add("couponGroupIdEqual", "<couponGroupIdEqual>" + CouponGroupIdEqual + "</couponGroupIdEqual>");
@@ -34060,6 +34294,44 @@ namespace WebAPI.Models.Pricing
                 {
                 ret.Add("waiver_period", "<waiver_period>" + WaiverPeriod + "</waiver_period>");
                 }
+            }
+            return ret;
+        }
+    }
+    public partial class KalturaUsageModuleFilter
+    {
+        protected override Dictionary<string, string> PropertiesToJson(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToJson(currentVersion, omitObsolete, responseProfile);
+            string propertyValue = null;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IdEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("idEqual")))
+            {
+                ret.Add("idEqual", "\"idEqual\": " + IdEqual);
+            }
+            return ret;
+        }
+        
+        protected override Dictionary<string, string> PropertiesToXml(Version currentVersion, bool omitObsolete, bool responseProfile = false)
+        {
+            bool isOldVersion = OldStandardAttribute.isCurrentRequestOldVersion(currentVersion);
+            Dictionary<string, string> ret = base.PropertiesToXml(currentVersion, omitObsolete, responseProfile);
+            string propertyValue;
+            IEnumerable<string> retrievedProperties = null;
+            if (responseProfile)
+            {
+                retrievedProperties = Utils.Utils.GetOnDemandResponseProfileProperties();
+            }
+
+            if(IdEqual.HasValue && (retrievedProperties == null || retrievedProperties.Contains("idEqual")))
+            {
+                ret.Add("idEqual", "<idEqual>" + IdEqual + "</idEqual>");
             }
             return ret;
         }

@@ -177,6 +177,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return ObjectVirtualAssetInfoType.Subscription;
                         case KalturaObjectVirtualAssetInfoType.Category:
                             return ObjectVirtualAssetInfoType.Category;
+                        case KalturaObjectVirtualAssetInfoType.Tvod:
+                            return ObjectVirtualAssetInfoType.Tvod;
+                        case KalturaObjectVirtualAssetInfoType.Boxset:
+                            return ObjectVirtualAssetInfoType.Boxset;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown KalturaObjectVirtualAssetInfoType value : {0}", type.ToString()));
                     }
@@ -193,6 +197,10 @@ namespace WebAPI.ObjectsConvertor.Mapping
                             return KalturaObjectVirtualAssetInfoType.Subscription;
                         case ObjectVirtualAssetInfoType.Category:
                             return KalturaObjectVirtualAssetInfoType.Category;
+                        case ObjectVirtualAssetInfoType.Tvod:
+                            return KalturaObjectVirtualAssetInfoType.Tvod;
+                        case ObjectVirtualAssetInfoType.Boxset:
+                            return KalturaObjectVirtualAssetInfoType.Boxset;
                         default:
                             throw new ClientException((int)StatusCode.UnknownEnumValue, string.Format("Unknown ObjectVirtualAssetInfoType value : {0}", type.ToString()));
                     }

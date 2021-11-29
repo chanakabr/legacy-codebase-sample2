@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ApiObjects.Response;
 using TVinciShared;
 
 namespace Core.Catalog
@@ -194,7 +193,7 @@ namespace Core.Catalog
                 {
                     this.Url = this.Url.Replace(adapter.BaseUrl, "");
                 }
-
+                
                 var cdnLocation = ExcelColumn.GetFullColumnName(this.type, null, CDN_LOCATION);
                 excelValues.TryAdd(cdnLocation, this.Url);
             }
@@ -318,7 +317,7 @@ namespace Core.Catalog
                         }
 
                         else if (columns[columnValue.Key].InnerSystemName == ALTERNATIVE_CDN)
-                        {
+                        {                            
                             var altCdn = ExcelColumn.GetFullColumnName(this.type, ALTERNATIVE_CDN);
                             if (columnNamesToValues.ContainsKey(altCdn))
                             {
@@ -328,7 +327,7 @@ namespace Core.Catalog
                                     AlternativeCdnAdapaterProfileId = cdnAdapter.ID;
                                 }
 
-                                columnNamesToValues.Remove(altCdn);
+                                //columnNamesToValues.Remove(altCdn);
                             }
                             continue;
                         }

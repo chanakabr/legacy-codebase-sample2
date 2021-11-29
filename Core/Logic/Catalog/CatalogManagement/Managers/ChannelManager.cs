@@ -1,4 +1,5 @@
-﻿using ApiObjects;
+﻿using ApiLogic.Pricing.Handlers;
+using ApiObjects;
 using ApiObjects.Catalog;
 using ApiObjects.Response;
 using ApiObjects.SearchObjects;
@@ -1351,6 +1352,11 @@ namespace Core.Catalog.CatalogManagement
                         log.ErrorFormat($"Failed invalidating group channels key for group {groupId}");
                     }
 
+                    // in case channel delete or in not active this need to be informed to collection and subscription that contines it
+                    // this call should be delete after the moudles separation
+                    CollectionManager.Instance.HandleChannelUpdate(groupId, userId, channelId);
+                    SubscriptionManager.Instance.HandleChannelUpdate(groupId, channelId);
+
                     bool deleteResult = false;
                     bool doesGroupUsesTemplates = CatalogManager.Instance.DoesGroupUsesTemplates(groupId);
 
@@ -1505,7 +1511,7 @@ namespace Core.Catalog.CatalogManagement
             return new Status(eResponseStatus.OK);
         }
 
-        public GenericListResponse<GroupsCacheManager.Channel> GetChannels(int groupId, AssetSearchDefinition assetSearchDefinition, ChannelType? channelType, 
+        public GenericListResponse<GroupsCacheManager.Channel> GetChannels(int groupId, AssetSearchDefinition assetSearchDefinition, ChannelType? channelType,
             int pageIndex, int pageSize, ChannelOrderBy orderBy, OrderDir orderDirection)
         {
             GenericListResponse<GroupsCacheManager.Channel> response = new GenericListResponse<GroupsCacheManager.Channel>();

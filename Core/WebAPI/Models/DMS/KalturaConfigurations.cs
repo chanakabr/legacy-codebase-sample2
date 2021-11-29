@@ -67,7 +67,7 @@ namespace WebAPI.Models.DMS
         public string ExternalPushId { get; set; }
 
         /// <summary>
-        /// Is force update
+        /// The default value for "isForceUpdate" is "FALSE". When "isForceUpdate" is not populated it will revert to its default value.
         /// </summary>
         [DataMember(Name = "isForceUpdate")]
         [XmlElement(ElementName = "isForceUpdate")]

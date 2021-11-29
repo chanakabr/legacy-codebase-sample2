@@ -259,7 +259,7 @@ namespace Core.Pricing.Handlers
         private static void FilterByCollection(ContextData contextData, CouponWalletFilter filter, HashSet<string> couponGroupIds)
         {
             // Get Collection couponGroupIds
-            Collection collection = Module.GetCollectionData(contextData.GroupId, filter.BusinessModuleId.ToString(), string.Empty, string.Empty, string.Empty, true);
+            Collection collection = Module.Instance.GetCollectionData(contextData.GroupId, filter.BusinessModuleId.ToString(), string.Empty, string.Empty, string.Empty, true);
             if (collection?.m_oCouponsGroup != null)
             {
                 couponGroupIds.Add(collection.m_oCouponsGroup.m_sGroupCode);

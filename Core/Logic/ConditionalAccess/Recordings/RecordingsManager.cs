@@ -752,6 +752,26 @@ namespace Core.Recordings
             return recording;
         }
 
+        public long GetRecordingViewableUntilDate(int groupId, long domainId, long domainRecordingId)
+        {
+            var domainRecordingIdToRecordingMap = ConditionalAccess.Utils.
+                GetDomainRecordingIdsToRecordingsMap(groupId, domainId, new List<long> { domainRecordingId });
+
+            Recording domainRecording = ConditionalAccess.Utils.ValidateRecordID(groupId, domainId, domainRecordingId, false, domainRecordingIdToRecordingMap);
+            if (!domainRecording.Status.IsOkStatusCode())
+            {
+                log.Debug($"domainRecordingId: {domainRecordingId} for domain: {domainId} wasn't found");
+                return 0;
+            }
+
+            var recording = GetRecording(groupId, domainRecording.Id);
+
+            if (recording == null || recording.Id < 1)
+                return 0;
+
+            return recording.ViewableUntilDate ?? 0;
+        }
+
         public List<Recording> GetRecordingsByIdsAndStatuses(int groupId, List<long> recordingIds, List<TstvRecordingStatus> statuses)
         {
             List<Recording> recordings = GetRecordings(groupId, recordingIds);

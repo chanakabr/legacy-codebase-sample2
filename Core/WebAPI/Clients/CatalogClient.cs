@@ -401,7 +401,7 @@ namespace WebAPI.Clients
             return ClientUtils.GetResponseStatusFromWS(removeTopicsFromAssetFunc);
         }
 
-        public KalturaAssetListResponse GetAssetsForOPCAccount(int groupId, List<BaseObject> assetsBaseDataList, bool isAllowedToViewInactiveAssets)
+        public KalturaAssetListResponse GetAssetsForOPCAccount(int groupId, long domainId, List<BaseObject> assetsBaseDataList, bool isAllowedToViewInactiveAssets)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
             if (assetsBaseDataList != null && assetsBaseDataList.Count > 0)
@@ -423,6 +423,13 @@ namespace WebAPI.Clients
                         }
                         else
                         {
+                            if (assetToConvert.AssetType == eAssetTypes.NPVR)
+                            {
+                                long.TryParse((assetToConvert as RecordingAsset).RecordingId, out var domainRecordingId);
+                                (assetToConvert as RecordingAsset).ViewableUntilDate = Core.Recordings.RecordingsManager
+                                    .Instance.GetRecordingViewableUntilDate(groupId, domainId, domainRecordingId);
+                            }
+
                             asset = Mapper.Map<KalturaAsset>(assetToConvert);
                             asset.Images = CatalogMappings.ConvertImageListToKalturaMediaImageList(assetToConvert.Images, groupId);
                         }
@@ -478,7 +485,7 @@ namespace WebAPI.Clients
                             .Skip(request.m_nPageIndex * request.m_nPageSize)?.Take(request.m_nPageSize).ToList();
                     }
 
-                    result = GetAssetsForOPCAccount(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+                    result = GetAssetsForOPCAccount(groupId, request.domainId, assetsBaseDataList, isAllowedToViewInactiveAssets);
 
                     var aggregationResults = searchResponse.aggregationResults[0].results;
                     List<KalturaAsset> tempAssets = result.Objects;
@@ -499,7 +506,7 @@ namespace WebAPI.Clients
                     List<BaseObject> assetsBaseDataList = searchResponse.searchResults.Select(x => x as BaseObject).ToList();
                     if (doesGroupUsesTemplates)
                     {
-                        result = GetAssetsForOPCAccount(groupId, assetsBaseDataList, isAllowedToViewInactiveAssets);
+                        result = GetAssetsForOPCAccount(groupId, request.domainId, assetsBaseDataList, isAllowedToViewInactiveAssets);
                     }
                     else
                     {
@@ -2030,7 +2037,7 @@ namespace WebAPI.Clients
 
                 if (Utils.Utils.DoesGroupUsesTemplates(groupId))
                 {
-                    KalturaAssetListResponse getAssetRes = GetAssetsForOPCAccount(groupId, assetsBaseDataList, Utils.Utils.IsAllowedToViewInactiveAssets(groupId, siteGuid, true));
+                    KalturaAssetListResponse getAssetRes = GetAssetsForOPCAccount(groupId, domainId, assetsBaseDataList, Utils.Utils.IsAllowedToViewInactiveAssets(groupId, siteGuid, true));
                     if (getAssetRes != null)
                     {
                         result.Objects = getAssetRes.Objects;
@@ -3145,7 +3152,7 @@ namespace WebAPI.Clients
 
         internal KalturaAssetListResponse GetScheduledRecordingAssets(int groupId, string userID, int domainId, string udid, string language, List<long> channelIdsToFilter, int pageIndex, int? pageSize,
                                         long? startDateToFilter, long? endDateToFilter, KalturaAssetOrderBy? orderBy, KalturaScheduledRecordingAssetType scheduledRecordingType,
-                                        KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null)
+                                        KalturaDynamicOrderBy assetOrder = null, int? trendingDays = null, List<string> seriesIdsToFilter = null)
         {
             KalturaAssetListResponse result = new KalturaAssetListResponse();
 
@@ -3187,6 +3194,7 @@ namespace WebAPI.Clients
                 orderBy = order,
                 m_dServerTime = getServerTime(),
                 channelIds = channelIdsToFilter,
+                seriesIds = seriesIdsToFilter,
                 scheduledRecordingAssetType = CatalogMappings.ConvertKalturaScheduledRecordingAssetType(scheduledRecordingType),
                 startDate = startDateToFilter.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(startDateToFilter.Value) : new DateTime?(),
                 endDate = endDateToFilter.HasValue ? DateUtils.UtcUnixTimestampSecondsToDateTime(endDateToFilter.Value) : new DateTime?()

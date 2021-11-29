@@ -7813,7 +7813,7 @@ namespace Core.ConditionalAccess
 
                     // get collection data
                     Collection collection = null;
-                    collection = Pricing.Module.GetCollectionData(m_nGroupID, collectionCode, string.Empty, string.Empty, string.Empty, true);
+                    collection = Pricing.Module.Instance.GetCollectionData(m_nGroupID, collectionCode, string.Empty, string.Empty, string.Empty, true);
 
                     // get collection name
                     if (collection != null)

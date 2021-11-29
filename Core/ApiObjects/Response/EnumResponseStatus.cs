@@ -321,7 +321,7 @@ namespace ApiObjects.Response
         VideoCodecsDoesNotExist = 4115,
         AudioCodecsDoesNotExist = 4116,
         SearchPriorityGroupDoesNotExist = 4117,
-
+        
         #endregion
 
         #region Api 5000 - 5999
@@ -580,6 +580,8 @@ namespace ApiObjects.Response
         PreviewModuleNotExist = 9038,
         CollectionNotExist = 9039,
         PartnerDoesNotExist = 9040,
+        PpvModuleNotExist = 9041,
+        UsageModuleExistInPpv = 9042,
 
         #endregion
 
